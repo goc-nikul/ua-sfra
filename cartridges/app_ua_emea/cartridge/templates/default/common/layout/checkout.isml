@@ -1,0 +1,42 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+
+<isinclude template="/components/modules" sf-toolkit="off" />
+
+<!DOCTYPE html>
+<html lang="${require('dw/util/Locale').getLocale(request.getLocale()).getLanguage()}" >
+    <head>
+        <!--[if gt IE 9]><!-->
+            <isinclude sf-toolkit="off" template="/common/scripts" />
+        <!--<![endif]-->
+        <isinclude template="/common/htmlHead" />
+        <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_enabled') && !pdict.orderContainsPreorder}">
+            <isinclude template="/shoprunner/headerincludes" />
+        </isif>
+        <isactivedatahead/>
+        <isif condition="${pdict.paazlStatus && pdict.paazlStatus.applicable && pdict.paazlWidgetEndpoint}" >
+            <script type="text/javascript" src="${pdict.paazlWidgetEndpoint}"></script> 
+        </isif>
+    </head>
+    <body class="l-body ${pdict.shopRunnerSignedIn ? 'shopRunner-signedin' : ''}">
+        <div id="bodyPage" class="l-body-page js-page data-action="${pdict.action}" data-querystring="${pdict.queryString}">
+            <div class="branch-journeys-top"></div>
+	        <isinclude template="/components/header/pageHeaderNomenu" />
+	        <isinclude template="/common/browsertoolscheck" />
+	        <main class="l-body-page_main" role="main" id="maincontent">
+	        <isreplace/>
+	        <isif condition="${pdict.paazlStatus && pdict.paazlStatus.applicable && pdict.paazlWidgetInit}" >
+                <isinclude template="/checkout/initPaazlWidget" />
+		    </isif>
+            </div>
+            <isinclude template="/components/footer/pageFooterNolinks" />
+        </div>
+        <!--[if lt IE 10]>
+            <isinclude sf-toolkit="off" template="/common/scripts" />
+        <![endif]-->
+        <isinclude url="${URLUtils.url('ConsentTracking-Check')}"/>
+        <isinclude template="tealium/footer_include.isml"/>
+        <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_enabled') && !pdict.orderContainsPreorder}">
+            <isinclude template="/shoprunner/footerincludes" />
+        </isif>
+    </body>
+</html>

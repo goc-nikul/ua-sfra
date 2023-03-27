@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shipping xmlns="http://www.demandware.com/xml/impex/shipping/2007-03-31">
+    <shipping-method method-id="COD-001-PHP" default="false">
+        <display-name xml:lang="x-default">PHP COD</display-name>
+        <description xml:lang="x-default">Philippines COD</description>
+        <online-flag>true</online-flag>
+        <price-table>
+            <amount order-value="0">180</amount>
+            <amount order-value="2700">0</amount>
+        </price-table>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isExpressShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isScheduledDelivery">false</custom-attribute>
+        </custom-attributes>
+        <currency>PHP</currency>
+    </shipping-method>
+
+    <shipping-method method-id="ID-standard-shipping" default="true">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <description xml:lang="x-default">Indonesia Standard Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>standard</tax-class-id>
+        <price-table>
+            <amount order-value="0">48000</amount>
+            <amount order-value="720000">0</amount>
+        </price-table>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isExpressShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isScheduledDelivery">false</custom-attribute>
+        </custom-attributes>
+        <currency>IDR</currency>
+    </shipping-method>
+
+    <shipping-method method-id="SG-standard-shipping" default="true">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <description xml:lang="x-default">Singapore Standard Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>standard</tax-class-id>
+        <price-table>
+            <amount order-value="0">5</amount>
+            <amount order-value="75">0</amount>
+        </price-table>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isExpressShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isScheduledDelivery">false</custom-attribute>
+        </custom-attributes>
+        <currency>SGD</currency>
+    </shipping-method>
+
+    <shipping-method method-id="MY-standard-shipping" default="true">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <description xml:lang="x-default">Malaysia Standard Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>standard</tax-class-id>
+        <price-table>
+            <amount order-value="0">15</amount>
+            <amount order-value="250">0</amount>
+        </price-table>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isExpressShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isScheduledDelivery">false</custom-attribute>
+        </custom-attributes>
+        <currency>MYR</currency>
+    </shipping-method>
+
+    <shipping-method method-id="HK-standard-shipping" default="true">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <display-name xml:lang="zh-HK">香港標準運費</display-name>
+        <description xml:lang="x-default">Hong Kong standard shipping</description>
+        <description xml:lang="zh-HK">香港標準運費</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>standard</tax-class-id>
+        <price-table>
+            <amount order-value="0">30</amount>
+            <amount order-value="450">0</amount>
+        </price-table>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isExpressShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isScheduledDelivery">false</custom-attribute>
+        </custom-attributes>
+        <currency>HKD</currency>
+    </shipping-method>
+
+    <shipping-method method-id="SG-standard-shipping-1" default="false">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <description xml:lang="x-default">Singapore Standard Shipping-Member</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>standard</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.countryCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>SG</string>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isExpressShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isScheduledDelivery">false</custom-attribute>
+        </custom-attributes>
+        <currency>SGD</currency>
+        <customer-groups>
+            <customer-group>Registered</customer-group>
+        </customer-groups>
+    </shipping-method>
+
+    <shipping-method method-id="PH-standard-shipping" default="true">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <description xml:lang="x-default">Philippines Standard Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>standard</tax-class-id>
+        <price-table>
+            <amount order-value="0">180</amount>
+            <amount order-value="2700">0</amount>
+        </price-table>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isExpressShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isScheduledDelivery">false</custom-attribute>
+        </custom-attributes>
+        <currency>PHP</currency>
+    </shipping-method>
+
+</shipping>

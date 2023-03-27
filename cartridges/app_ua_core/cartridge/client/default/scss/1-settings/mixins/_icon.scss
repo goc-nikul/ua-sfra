@@ -1,0 +1,91 @@
+@mixin icon($icon: '', $el: 'before', $size: 16, $height: 1) {
+    &::#{$el} {
+        content: '#{map-get($icons, $icon)}';
+        font-family: 'icomoon' !important;
+        font-size: rem-calc($size);
+        font-style: normal;
+        font-weight: normal;
+        line-height: $height;
+        font-variant: normal;
+        color: inherit;
+        speak: none;
+        text-transform: none;
+
+        /* Better Font Rendering =========== */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+
+        @content;
+    }
+}
+
+$icons: (
+    account: '\e900',
+    account-profile: '\e901',
+    add: '\e902',
+    alert: '\e903',
+    arrow-backwards: '\e904',
+    arrow-down: '\e905',
+    arrow-forward: '\e906',
+    arrow-left: '\e907',
+    arrow-right: '\e908',
+    arrow-up: '\e909',
+    attachment: '\e90a',
+    caret-down: '\e90b',
+    caret-left: '\e90c',
+    caret-right: '\e90d',
+    caret-up: '\e90e',
+    cart: '\e90f',
+    chat: '\e910',
+    check: '\e911',
+    checkout: '\e942',
+    checkbox-default: '\e912',
+    checkbox-selected: '\e913',
+    checkbox-selected-alt: '\e914',
+    checkmark-success: '\e915',
+    comfort: '\e916',
+    current-location: '\e917',
+    exchange-black: '\e941',
+    exit: '\e918',
+    external: '\e919',
+    fav-default: '\e91a',
+    fav-selected: '\e91b',
+    fit: '\e91c',
+    gift: '\e91d',
+    instagram: '\e91e',
+    like: '\e91f',
+    location-pin: '\e920',
+    lock: '\e921',
+    logo: '\e922',
+    mail: '\e923',
+    menu: '\e924',
+    minus: '\e925',
+    mobile: '\e926',
+    more: '\e927',
+    order-history: '\e928',
+    performance: '\e929',
+    phone: '\e92a',
+    photos: '\e92b',
+    play: '\e92c',
+    plus: '\e92d',
+    promo-tag: '\e92e',
+    question: '\e92f',
+    radio: '\e930',
+    radio-active: '\e931',
+    refresh: '\e932',
+    remove: '\e933',
+    seamless: '\e934',
+    search: '\e935',
+    share: '\e936',
+    shipping: '\e940',
+    shop: '\e937',
+    star-filled: '\e938',
+    star-empty: '\e939',
+    store: '\e93a',
+    subtract: '\e93b',
+    unlock: '\e93c',
+    valid: '\e93d',
+    wallet: '\e93e',
+    wicks: '\e93f',
+    ua-reward: '\e943'
+);

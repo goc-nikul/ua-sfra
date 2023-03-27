@@ -1,0 +1,17 @@
+<div class="b-add_to_bag_container">
+	<div class="b-add_to_bag">
+	    <input type="hidden" class="add-to-cart-url" value="${pdict.addToCartUrl}">
+	
+	    <button
+	        class="js-add-saveforlater g-button_base g-button_tertiary b-add_to_bag-cta"
+	        data-pid="${product.id}"
+	        data-added-msg="${Resource.msg('button.addedtocart', 'common', null)}"
+	        data-add-another="${Resource.msg('button.addanother', 'common', null)}"
+	        data-addto-bag="${Resource.msg('button.addtocart', 'common', null)}"
+	        ${!product.readyToOrder || !product.available ? "disabled" : ""}>
+	        ${Resource.msg('button.addtocart', 'common', null)}
+	    </button>
+	
+	    <div data-cmp="detailBonusProductModal"></div>
+	</div>
+</div>

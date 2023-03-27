@@ -1,0 +1,97 @@
+<div class="b-ordersinfo">
+     <div class="b-order-view_section">
+          <div class="b-return-order">
+              <isif condition="${order && order.isCommercialPickup && (orderItem.shipment.status === 'Ready For Pickup' || orderItem.shipment.status === 'Partially Picked Up' || orderItem.shipment.status === 'Picked Up' || orderItem.shipment.status === 'Shipped' || orderItem.shipment.status === 'Returning')}">
+                    <isif condition="${orderItem.shipment.status === 'Ready For Pickup'}">
+                        <span class="t_dashboard-order-creation-date">
+                            <isprint value="${Resource.msgf('label.readyfor.pickup','account',null, order.pickUpStore)}" />
+                             <isif condition="${orderItem.shipment.updatedDate}">
+                                <isprint value="${',' + orderItem.shipment.updatedDate}" />
+                             </isif>
+                        </span>
+                    <iselseif condition="${orderItem.shipment.status === 'Partially Picked Up'}">
+                        <span class="t_dashboard-order-creation-date">
+                            <isprint value="${Resource.msgf('label.Partial.pickup','account',null, order.pickUpStore)}" />
+                            <isif condition="${orderItem.shipment.updatedDate}">
+                                <isprint value="${',' + orderItem.shipment.updatedDate}" />
+                             </isif>
+                        </span>
+                    <iselseif condition="${orderItem.shipment.status === 'Picked Up'}">
+                        <span class="t_dashboard-order-creation-date">
+                            <isprint value="${Resource.msgf('label.picked.up','account',null, order.pickUpStore)}" />
+                            <isif condition="${orderItem.shipment.updatedDate}">
+                                <isprint value="${',' + orderItem.shipment.updatedDate}" />
+                             </isif>
+                        </span>
+                   <iselseif condition="${orderItem.shipment.status === 'Shipped'}">
+                        <span class="t_dashboard-order-creation-date">
+                            <isprint value="${Resource.msgf('label.shippedto.store','account',null, order.pickUpStore)}" />
+                            <isif condition="${orderItem.shipment.updatedDate}">
+                                <isprint value="${',' + orderItem.shipment.updatedDate}" />
+                             </isif>
+                        </span>
+                   <iselseif condition="${orderItem.shipment.status === 'Returning'}">
+                        <span class="t_dashboard-order-creation-date">
+                            <isprint value="${Resource.msgf('label.notPicked.up.at','account',null, order.pickUpStore)}" />
+                        </span>
+                   </isif>
+              <iselse>
+                 <isif condition="${orderItem.isBopis && BopisItemCount == 0}">
+                    <span class="t_dashboard-order-creation-date ${orderItem.shipment.status === 'Delivered' ? 'order-delivered' : ''} ${orderItem.shipment.status === 'Canceled' ? 'order-canceled' : ''}">
+                        <isif condition="${orderItem.fulfillmentStatus === 'INITIAL'}">
+                            <isprint value="${Resource.msg('label.orderdetail.placed', 'account', null)}" encoding="off" />
+                        <iselseif condition="${orderItem.fulfillmentStatus === 'UNFULFILLED'}"/>
+                            <isprint value="${Resource.msg('order.status.bopis.prepare.order', 'account', null)}" encoding="off" />
+                        <iselseif condition="${orderItem.fulfillmentStatus === 'PICKUP_READY'}"/>
+                            <isprint value="${Resource.msg('order.status.ready.for.pickup', 'account', null)}" encoding="off" />
+                        <iselseif condition="${orderItem.fulfillmentStatus === 'PICKED_UP'}"/>
+                            <isprint value="${Resource.msg('order.status.picked.up', 'account', null)}" encoding="off" />
+                        <iselseif condition="${orderItem.fulfillmentStatus === 'CANCELED'}"/>
+                            <isprint value="${Resource.msg('label.cancelled', 'account', null)}" encoding="off" />
+                        <iselse>
+                            ${orderItem.fulfillmentDisplayStatus ? orderItem.fulfillmentDisplayStatus : ''}
+                        </isif>
+                    </span>
+                    <isset name="BopisItemCount" value="${1}" scope="page"/>
+                  <iselseif condition="${(order.bopisItemscount > 0)}"/>
+                      <span class="t_dashboard-order-creation-date ${orderItem.shipment.status === 'Delivered' ? 'order-delivered' : ''} ${orderItem.shipment.status === 'Canceled' ? 'order-canceled' : ''}">
+	                    <isif condition="${order.status === 'RETURNING'}">
+                            <isprint value="${Resource.msgf('label.not.picked.up','account',null)}" />
+                        <iselse>
+                            <isprint value="${order.displayStatus}"/>
+			        	</isif>
+	                  </span>
+	              <iselseif condition="${order.bopisItemscount == 0}">
+	                    <span class="t_dashboard-order-creation-date ${orderItem.shipment.status === 'Delivered' ? 'order-delivered' : ''} ${orderItem.shipment.status === 'Canceled' ? 'order-canceled' : ''}">
+	                        <isif condition="${orderItem.shipment.updatedDate}">
+                                ${Resource.msgf('label.orderhistory.status','account',null, Resource.msg('label.'+orderItem.shipment.status.toLowerCase().replace(/\s/g, ''),'account',null), orderItem.shipment.updatedDate)}
+                            <iselse>
+                               ${Resource.msg('label.'+orderItem.shipment.status.toLowerCase().replace(/\s/g, ''), 'account', orderItem.shipment.status)}
+                            </isif>
+	                    </span>
+                  </isif>
+              </isif>
+              <isif condition="${order.bopisItemscount == 0 || (order.bopisItemscount > 0 && loopStatus.first)}">
+                <span class="t_dashboard-order-placed order-subText">${Resource.msgf('label.orderdetails.placed','account',null, order.creationDate)}</span>
+                <span class="t_dashboard-order-number order-subText">
+                    <p class="t-dv-orderno">${Resource.msgf('label.orderhistory.ordertxt','account',null)} ${Resource.msgf('label.orderhistory.orderno','account',null, order.orderNo)}</p>
+                    <p class="t-mv-orderno">${Resource.msgf('label.orderhistory.ordernodot','account',null, order.orderNo)}</p>
+                </span>
+              </isif>
+              
+          </div>
+     </div>
+     <div class="b-card-track">
+        <isif condition="${orderItem && orderItem.shipment && orderItem.shipment.trackingLink && orderItem.shipment.status !== 'Pending Shipment'}">
+            <span class="pull-left order-details-track">
+                <a class="track_order g-button_primary--black g-button_base" target="_blank" href="${orderItem.shipment.trackingLink}">
+                    <isif condition="${orderItem.shipment.shipmentCounter && order.shipmentCounter > 1}">
+                        ${Resource.msgf('label.trackshipment','account',null, orderItem.shipment.shipmentCounter)}
+                    <iselse>
+                         ${Resource.msg('label.trackshipment.single','account',null)}
+                    </isif>
+                </a> 
+            </span>
+        </isif>
+     </div>
+</div>

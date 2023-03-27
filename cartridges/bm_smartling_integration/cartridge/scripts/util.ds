@@ -1,0 +1,101 @@
+/**
+    Utility script to export querying the system locales.
+*/
+importPackage( dw.system );
+importPackage( dw.catalog );
+importPackage( dw.object );
+importPackage( dw.util );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "util"));
+
+var util : Object = {
+    getLocales: function (itemId : String) : String {
+        var submissionList : dw.util.SeekableIterator = null;
+        try {
+            submissionList = CustomObjectMgr.queryCustomObjects('SMARTLING_SUBMISSION', "custom.itemId = {0}", null, itemId);
+            var locales : Array = [];
+            for each (var submission : CustomObject in submissionList) {
+                var locale: String = submission.custom['locale'].toString();
+                var language : CustomObject = CustomObjectMgr.queryCustomObject("SMARTLING_LOCALES", "custom.ID = {0}", locale);
+                locales.push(language.getCustom()['name']);
+            }
+            return locales.join(", ");
+        } catch (e) {
+            LOGGER.errorException("Can not get locales for itemId={0}", itemId, e);
+            return "";
+        } finally {
+            submissionList.close();
+        }
+    },
+
+    getLocaleName: function (locale : String) : String {
+        try {
+            if (locale == null) {
+                return '';
+            }
+            var locales : dw.util.ArrayList = locale.split(',');
+            var displayLocales : String = "";
+            for each (var locale : String in locales) {
+                var language : CustomObject = CustomObjectMgr.queryCustomObject("SMARTLING_LOCALES", "custom.ID = {0}", locale);
+                if(language){
+                    displayLocales += language.getCustom()['name'] + " ";
+                }else{
+                    displayLocales += 'default';
+                }
+            }
+            return displayLocales;
+        } catch (e) {
+            LOGGER.errorException("Can not get locale name for localeId={0}", locale, e);
+            return false;
+        }
+    },
+
+    checkLocale: function (productId : String, locale : String) : Boolean {
+        try {
+            var co : CustomObject = CustomObjectMgr.queryCustomObject('SMARTLING_SUBMISSION', "custom.itemId = {0} AND custom.locale = {1}", productId, locale);
+            if (co != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (e) {
+            LOGGER.errorException("Can not check locale productId={0}, localeId={1}", productId, locale, e);
+            return false;
+        }
+    },
+
+    getProgress: function (productId : String, locale : String) : Number {
+        try {
+            var co : CustomObject = CustomObjectMgr.queryCustomObject('SMARTLING_SUBMISSION', "custom.itemId = {0} AND custom.locale = {1}", productId, locale);
+            var progress = co.getCustom()['progress'];
+            return progress != null ? progress : 0;
+        } catch (e) {
+            LOGGER.errorException("Can not get progress for productId={0}, localeId={1}", productId, locale, e);
+            return false;
+        }
+    },
+
+    checkSelectLocale: function (productId : String, locale : String) : Number {
+        try {
+            var co : CustomObject = CustomObjectMgr.queryCustomObject('SMARTLING_LANGUAGE_ITEM', "custom.item_id = {0}", productId);
+            if (co == null) {
+                return true;
+            }
+            var languages : String  = co.getCustom()['languages'];
+            var languagesArray : Array = languages.split(',');
+            for each (var language : String in languagesArray) {
+                if (language ==  locale) {
+                    return true
+                }
+            }
+
+            return false;
+        } catch (e) {
+            LOGGER.errorException("Can not check selected locale for productId={0}, localeId={1}", productId, locale, e);
+            return false;
+        }
+    }
+}
+
+module.exports = util;

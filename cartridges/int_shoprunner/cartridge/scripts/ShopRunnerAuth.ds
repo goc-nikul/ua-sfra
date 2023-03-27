@@ -1,0 +1,147 @@
+var Collection = require('dw/util/Collection');
+var HTTPClient = require('dw/net/HTTPClient');
+var Logger = require('dw/system/Logger');
+var Site = require('dw/system/Site');
+
+/**
+ * ShopRunnerAuth.ds
+ * Used to validate a ShopRunner token with ShopRunners' API
+ *
+ * For example:
+ *
+ *  @input Token : String The input token to verify through the ShopRunner API
+ *	@input Basket : dw.order.Basket
+ *  @output ValidToken : String Valid token string if successful or empty if unsuccessful
+ */
+importScript("checkout/Utils.ds");
+importScript("util/srProductUtils.ds");
+
+//DW 16.x standards 
+var getValidateTokenEndPoint = require("~/cartridge/scripts/util/srGlobals").getValidateTokenEndPoint;
+var ShoprunnerHttpsAuthenticationGet = require("~/cartridge/scripts/init/httpServiceInit").ShoprunnerHttpsAuthenticationGet(Site.getCurrent());
+
+var srLogger = Logger.getLogger('ShopRunner', 'ShopRunner');
+
+function execute(args) {
+    var result = validate(args.Token, args.Basket);
+    args.ValidToken = result.validToken;
+    if(!result.signin) {
+    	return PIPELET_ERROR;
+    }
+    return PIPELET_NEXT;
+
+}
+
+function validate(srtoken, basket) {
+    // Setup variables
+    var srLogger = Logger.getLogger('ShopRunner', 'ShopRunner');
+
+    var message
+    var requestUrl = '';
+    var validToken = '';
+
+    // Setup basket variables to get the productLineItems
+    var basketLineItems;
+    var status = 'NO_SR';
+    if (basket != null) {
+        basketLineItems = basket.allProductLineItems;
+        //get the status from checkCartEligibility(MIXED/ALL_SR/NO_SR)
+        status = SRProductUtils.checkCartEligibility(basketLineItems);
+    }
+
+    // Setup variables that will be use to call the Utils.ds and srProductUtils.ds functions
+    var signin = authenticateTokenByServiceRegistry(srtoken);
+    if (signin) {
+        validToken = srtoken;
+    } else {
+        signin = false; // reset signin value
+        setSRSignOut(); // delete sr_token from cookies
+    }
+
+    // call the function from Utils to set the srgroundfree value in custom.session
+    setShippingGroundFreeSession(status, signin);
+
+    return {
+        signin: signin,
+        validToken: validToken
+    };
+    
+}
+
+
+function authenticateTokenByServiceRegistry(srtoken) {
+	ShoprunnerHttpsAuthenticationGet.addParam("srtoken", srtoken);
+	ShoprunnerHttpsAuthenticationGet.addParam("format", "json");
+	var result = ShoprunnerHttpsAuthenticationGet.call();
+    if( result.status != "OK" ){
+    	srLogger.error('ShopRunner API error occured with httpsClient.statusCode ' + result);
+    	return false;
+    };
+    var response = JSON.parse(result.getObject());
+    if( response.validationResult == false ) {
+    	srLogger.debug('ShopRunner API Error: ' + response);
+    	return false;
+    }
+    session.custom.srtoken = srtoken;
+    var movValue = response.movThreshold;
+	movValue = parseFloat(Number(movValue).toFixed(2));
+    if (movValue > 0.0) {
+       	session.custom.sr_mov_value = movValue;
+    }
+    return true;    	
+}
+
+
+function authenticateToken(srtoken) {
+    if (empty(srtoken)) {
+        srLogger.debug("Missing ShopRunner Authentication Token");
+        setSRSignOut();
+        return false;
+    }
+    var requestUrl = getValidateTokenEndPoint(srtoken);
+    var userid = Site.getCurrent().getCustomPreferenceValue('sr_userID');
+    var passwd = Site.getCurrent().getCustomPreferenceValue('sr_apipass');
+    if (empty(userid) || empty(passwd)) {
+        srLogger.error('Missing ShopRunner API credentials');
+        return false;
+    }
+    var httpClient = new HTTPClient();
+    var timeout = dw.system.Site.getCurrent().getCustomPreferenceValue("webserviceTimeout");
+    httpClient.setTimeout(timeout);
+    // Send request
+    httpClient.open('GET', requestUrl, userid, passwd);
+    httpClient.send();
+    if (httpClient.statusCode != 200) {
+        srLogger.error('ShopRunner API error occured with httpsClient.statusCode ' + httpClient.statusCode);
+        return false;
+    }
+    var message = new XML(httpClient.text);
+    if (empty(message)) {
+        srLogger.debug('ShopRunner API fail. Unknown error, empty response.');
+        return false;
+    }
+    // VALID RESPONSE. Do processing
+    // grab namespace
+    var sr: Namespace = new Namespace(message.namespace());
+    // check if the validation was a success
+    if (message.sr::validationResult != 'true') {
+        var error = message.sr::errors.sr::error[0].sr::description;
+        srLogger.debug('ShopRunner API Error: ' + message.sr::errors.sr::error[0].sr::description);
+        return false;
+    }
+    // validation success
+    validToken = srtoken;
+    // set a new srtoken session (value) based on ShopRunner response
+    session.custom.srtoken = srtoken;
+
+    var movValue = parseFloat(Number(message.sr::movThreshold).toFixed(2));
+    if (movValue > 0.0) {
+        session.custom.sr_mov_value = message.sr::movThreshold;
+    }
+    return true;
+}
+
+module.exports = {
+    execute: execute,
+	validate: validate,
+};

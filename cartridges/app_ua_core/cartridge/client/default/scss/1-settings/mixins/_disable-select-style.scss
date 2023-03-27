@@ -1,0 +1,19 @@
+@mixin disable-select-style {
+    position: relative;
+    padding: 0;
+    border: none;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+
+    &:focus {
+        outline: none;
+    }
+
+    &::-ms-expand {/* stylelint-ignore */
+        display: none;
+    }
+}

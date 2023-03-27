@@ -1,0 +1,25 @@
+.b-logo {
+    @include respond-to(phones) {
+        &:not(.l-header-logo) {
+            @include grid-col(2, 4);
+
+            .b-logo-link {
+                margin-top: rem-calc(8);
+            }
+        }
+    }
+
+    &-link {
+        display: inline-flex;
+
+        @include respond-to(phones) {
+            width: rem-calc(48);
+            height: rem-calc(48);
+
+            img {
+                max-width: rem-calc(32);
+                margin: 0 auto;
+            }
+        }
+    }
+}

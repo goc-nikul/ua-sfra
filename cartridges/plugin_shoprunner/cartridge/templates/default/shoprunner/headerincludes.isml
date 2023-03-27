@@ -1,0 +1,12 @@
+<iscomment>BEGIN Script for ShopRunner:</iscomment>
+<script type="text/javascript">
+	// ShopRunner related settings
+	
+	var _shoprunner_com = new Object();
+  	_shoprunner_com.enabled = ${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_enabled')};
+	_shoprunner_com.retailerID = "${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_retailerID')}";
+    _shoprunner_com.loginValidationURL = "${URLUtils.https('ShopRunner-ValidateToken')}";
+ 	_shoprunner_com.environmentID = ${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_environment').value};
+
+</script>
+<iscomment>END Script for ShopRunner</iscomment>

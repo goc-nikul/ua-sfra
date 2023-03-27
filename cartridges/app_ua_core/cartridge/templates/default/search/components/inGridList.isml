@@ -1,0 +1,47 @@
+<islcincludeVar pageId="${pageId}" categoryId="${categoryId}" productId="${productId}" placement="ingrid-content" view="asInGrid" prefetch="true" />
+<isif condition="${typeof fragmentPayload !== 'undefined' && fragmentPayload.length > 500}">
+    <islcincludeVar pageId="${pageId}" categoryId="${categoryId}" productId="${productId}" view="categoryConfig" prefetch="true" />
+    <isscript>
+        var inGridConfig, orderString = '', orderStringMobile = '';
+        var incrementSteps = 10, orderValue = 0, desktopPositions = [], mobilePositions = [];
+        
+        if( typeof fragmentPayload !== 'undefined' ) {
+            var categoryConfigPayload = fragmentPayload !== null && fragmentPayload.toString().replace(/\s+|\s+/g,'').match(/\[.+\]/m);
+            var categoryConfig = JSON.parse( categoryConfigPayload );
+            
+            if( typeof categoryConfig === 'object' && categoryConfig !== null) {
+                for( var i = 0; i < categoryConfig.length; i++ ){
+                    inGridConfig = categoryConfig[i];
+                    var desktopPosition = parseInt( inGridConfig.desktopPosition );
+                    var mobilePosition = parseInt( inGridConfig.mobilePosition );
+                    var rangeStartDesktop, rangeEndDesktop, rangeStartMobile, rangeEndMobile;
+                    orderValue += incrementSteps * 2;
+                    rangeStartDesktop = rangeEndDesktop;
+                    rangeStartMobile = rangeEndMobile;
+                    rangeEndDesktop = desktopPosition-1;
+                    rangeEndMobile = mobilePosition-1;
+                    if( i == 0 ){
+                        rangeStartDesktop = rangeStartMobile = i;
+                        orderValue = incrementSteps;
+                    }
+                    orderString += '.b-products_grid .b-products_grid-tile:nth-of-type(n+'+rangeStartDesktop+'):nth-of-type(-n+'+rangeEndDesktop+'){ order:'+orderValue+'; }';
+                    orderString += '.b-products_grid div.b-products_grid-tile:nth-of-type('+(i+1)+') { order:'+(orderValue + incrementSteps)+' !important; }';
+                    orderStringMobile += '.b-products_grid .b-products_grid-tile:nth-of-type(n+'+rangeStartMobile+'):nth-of-type(-n+'+rangeEndMobile+'){ order:'+orderValue+'; }';
+                    orderStringMobile += '.b-products_grid div.b-products_grid-tile:nth-of-type('+(i+1)+') { order:'+(orderValue + incrementSteps)+' !important; }';
+
+                    if( i === categoryConfig.length - 1 ){
+                        orderString += '.b-products_grid .b-products_grid-tile:nth-of-type(n+'+(desktopPosition)+') { order:'+(orderValue + (incrementSteps*2))+'; }';
+                        orderStringMobile += '.b-products_grid .b-products_grid-tile:nth-of-type(n+'+(mobilePosition)+') { order:'+(orderValue + (incrementSteps*2))+'; }';
+                        // Additional Styles
+                        orderString += '.b-products_grid-tile, .cm-placement--category-grid-bottom, .b-products_grid-footer { order:'+(orderValue + (incrementSteps*3))+';}';
+                    }
+                }
+                
+                orderString += '@media screen and (max-width: 767px) {' + orderStringMobile + '}';
+            }
+        }
+    </isscript>
+    <style type="text/css">
+        ${orderString}
+    </style>
+</isif>

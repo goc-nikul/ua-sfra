@@ -1,0 +1,68 @@
+.g-email-confirmation-modal {
+    &-body {
+        @include respond-to(phones) {
+            margin-top: rem-calc(65);
+        }
+
+        .subscription-content {
+            max-width: rem-calc(400);
+            @include respond-to(phones) {
+                max-width: 100%;
+            }
+
+            .mail {
+                &::before {
+                    font-size: rem-calc(38) !important;
+                }
+                @include icon(mail);
+
+                display: block;
+                margin-bottom: rem-calc(15);
+            }
+
+            .confirmation {
+                &-header {
+                    font-weight: bold;
+                    font-size: rem-calc(23);
+                    margin-bottom: rem-calc(17);
+                }
+
+                &-content {
+                    font-size: rem-calc(15);
+                }
+            }
+        }
+    }
+
+    &-dialog {
+        max-width: rem-calc(465);
+        text-align: center;
+        margin: rem-calc(60) auto;
+        min-height: calc(100% - (3.75rem * 2));
+
+        @include respond-to(phones) {
+            max-width: 90%;
+        }
+
+        .g-modal-content {
+            @include respond-to(phones) {
+                padding-top: 0;
+                margin-top: rem-calc(20);
+            }
+        }
+    }
+
+    &-header {
+        margin-bottom: rem-calc(8);
+
+        .g-modal-close {
+            top: 1rem;
+            right: 0.5rem;
+
+            &::before,
+            &::after {
+                width: 1rem;
+            }
+        }
+    }
+}

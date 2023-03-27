@@ -1,0 +1,20 @@
+@mixin base-wrapper {
+    @include push-to-center(1440px);
+
+    padding-right: rem-calc(24);
+    padding-left: rem-calc(24);
+
+    @include respond-to(tablets-landscape) {
+        @include push-to-center(1024px);
+    }
+
+    @include respond-to(tablets) {
+        padding-right: rem-calc(24);
+        padding-left: rem-calc(24);
+    }
+
+    @include respond-to(phones) {
+        padding-right: rem-calc(16);
+        padding-left: rem-calc(16);
+    }
+}

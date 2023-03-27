@@ -1,0 +1,35 @@
+.b-add_to_bag {
+    position: relative;
+
+    &_container {
+        max-width: 50%;
+        flex-grow: 5;
+        flex-basis: 50%;
+        @include respond-to(mobile) {
+            max-width: 100%;
+        }
+    }
+
+    .b-loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        right: auto;
+    }
+
+    &-cta {
+        max-width: none;
+        align-items: flex-end;
+        white-space: nowrap;
+
+        &.f-added-check {
+            align-items: center;
+            @include icon(check);
+        }
+    }
+}
+
+.b-product_actions-inner .bfx-remove-element {
+    width: 50%;
+}

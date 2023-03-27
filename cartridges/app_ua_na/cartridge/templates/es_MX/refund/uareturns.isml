@@ -1,0 +1,45 @@
+<isinclude template="/components/modules"/>
+<isdecorate template="common/layout/page">
+<div id="main" class="pt_customer-service">
+   <div id="primary" class="primary-content">
+		<isinclude template="components/breadcrumbs/pageBreadcrumbs"/>
+
+		<div class="row heading-row">
+            <div class="column-3">
+                &nbsp;
+            </div>
+            <div class="column-6">
+                <h1 class="cs-heading">
+					   <isif condition="${pdict.contentBody.guestReturnsTextName}">
+						   ${pdict.contentBody.guestReturnsTextName.name}
+					   <iselse>
+						   ${Resource.msg('label.returns', 'account', null)}
+					   </isif>
+				   </h1>
+            </div>
+            <div class="column-3">
+                &nbsp;
+            </div>
+      </div>
+		<div class="row">
+			<div class="column-3">
+				<isinclude template="content/customerserviceleftnav" />
+			</div>
+   <div class="column-6">
+      <isif condition="${pdict.orderReturnsFormError}">
+         <isscript>
+            var assets = require('*/cartridge/scripts/assets.js');
+            assets.addJs('/lib/pdf.worker.js');
+            assets.addJs('/lib/pdf.js');
+            assets.addJs('/js/orderReturnLabel.js');
+         </isscript>
+      </isif>
+      <isinclude template="refund/uareturnsform"/>
+   </div>
+   <div class="column-3">
+      <div class="contact-information">
+         <iscontentasset aid="customer-service-contact-information" />
+      </div>
+   </div>
+   </div>
+</isdecorate>

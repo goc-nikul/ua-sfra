@@ -1,0 +1,12 @@
+<div class="b-store">
+    <label for="radius" class="form-control-label b-store-label g-selectric-label js-input-label">${Resource.msg('field.radius','storeLocator',null)}</label>
+    <select data-cmp="customSelect" data-cmp-id="selectric" class="form-control custom-select radius b-store-select js-input_field input-select" id="radius" name="radius" data-action-url="${pdict.stores.actionUrl}">
+        <isloop items="${pdict.stores.radiusOptions}" var="option">
+            <isif condition="${pdict.currentCountryCode === 'US'}">
+                <option class="select-option" data-radius="${StringUtils.formatInteger(option)}">${StringUtils.formatInteger(option)} ${Resource.msg('store.distance.unit.mi','storeLocator',null)}</option>
+            <iselse>
+                <option class="select-option" data-radius="${StringUtils.formatInteger(option)}">${StringUtils.formatInteger(option)} ${Resource.msg('store.distance.unit.km','storeLocator',null)}</option>
+            </isif>
+        </isloop>
+    </select>
+</div>

@@ -1,0 +1,10 @@
+<div class="b-price">
+    <isif condition="${!empty(price) && price.type === 'tiered'}">
+        <isinclude template="/product/components/pricing/tiered" />
+    <iselseif condition="${!empty(price) && price.type === 'range'}">
+        <isinclude template="/product/components/pricing/range" />
+    <iselse>
+        <isset name="isLowPrice" value="${}" scope="page" />
+        <isinclude template="/product/components/pricing/default" />
+    </isif>
+</div>

@@ -1,0 +1,19 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isdecorate template="common/layout/page">
+    <isinclude template="/components/modules" sf-toolkit="off" />
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/js/account.js');
+    </isscript>
+    <div class="b-order_track">
+        <div class="b-order_track-container b-mao-maintenance">
+            <div class="b-order_track-left">
+                <isinclude template="maoMaintenance/maoMaintenanceCard"/>
+            </div>
+
+            <div class="b-order_track-right">
+                <iscontentasset aid="guest-track-order-image" />
+            </div>
+        </div>
+    </div>
+</isdecorate>

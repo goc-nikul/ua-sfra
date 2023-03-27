@@ -1,0 +1,23 @@
+<isset name="lowInventoryLevel" value="${dw.system.Site.current.getCustomPreferenceValue('LowInventoryLevel')}" scope="page" />
+<isset name="exceptionValue" value="${dw.system.Site.current.getCustomPreferenceValue('LowInventoryLineQtyLimitException')}" scope="page" />
+<isset name="prodCustom" value="${pdict.masterProduct.custom}" scope="page" />
+<isset name="isComingSoon" value="${product.custom.exclusive === 'coming-soon' || product.exclusive.value === 'coming-soon'}" scope="page" />
+<isset name="isOOS" value="${product.custom.exclusive === 'out-of-stock' || product.exclusive.value === 'out-of-stock'}" scope="page" />
+
+<isscript>
+    var hasLowInventory = false;
+
+    if (isComingSoon || isOOS || product.custom.isPreOrder) {
+        hasLowInventory = false;
+    } else if (prodCustom.customerLineItemQtyLimit || prodCustom.employeeLineItemQtyLimit) {
+        if ((prodCustom.customerLineItemQtyLimit === exceptionValue || prodCustom.employeeLineItemQtyLimit === exceptionValue) && product.quantities.length <= lowInventoryLevel) {
+            hasLowInventory = true;
+        }
+    } else {
+        hasLowInventory = product.quantities.length <= lowInventoryLevel;
+    }
+</isscript>
+
+<div class="b-product_availability-lowInventory warn ${!hasLowInventory || isComingSoon || isOOS ? "hide" : ""}">
+    ${Resource.msg('product.availability.message.lowInventory', 'product', null)}
+</div>

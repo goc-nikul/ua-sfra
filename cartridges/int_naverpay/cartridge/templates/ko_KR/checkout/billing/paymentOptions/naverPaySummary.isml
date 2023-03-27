@@ -1,0 +1,9 @@
+<!--- TEMPLATENAME: naverPaySummary.isml --->
+<div class="naverpay-method-name">
+    <span>
+        <isprint value="${payment.name}"/>
+    </span>
+</div>
+<div class="naverpay-amount">
+    ${dw.util.StringUtils.formatMoney(new dw.value.Money(payment.amount, pdict.CurrentSession.currency.currencyCode))}
+</div>

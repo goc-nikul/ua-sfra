@@ -1,0 +1,73 @@
+.vip-points-wrapper {
+    margin-bottom: rem-calc(20);
+
+    .vip-itemsattr {
+        @include font(main_med, rem-calc(12), 2);
+    }
+
+    .vip-itemsvalue {
+        font-size: rem-calc(12);
+        font-weight: $font-medium;
+        float: right;
+    }
+
+    .vip-title {
+        @include font(main_bold, rem-calc(24), 1);
+
+        text-transform: capitalize;
+        margin-bottom: rem-calc(28);
+
+        @include respond-to(mobile) {
+            font-size: rem-calc(16);
+            margin-bottom: rem-calc(24);
+        }
+    }
+}
+
+.vip-terms-checkbox {
+    position: relative;
+    margin-top: rem-calc(16);
+    margin-bottom: rem-calc(32);
+
+    .vip-terms-conditions-text {
+        &:hover {
+            opacity: 1;
+        }
+
+        @include respond-to(mobile) {
+            display: inline-block;
+        }
+    }
+
+    .vip-terms {
+        text-decoration: none;
+        color: $black;
+        font-weight: $font-bold;
+    }
+}
+
+.vip-terms-wrapper {
+    margin-top: rem-calc(16);
+    margin-bottom: rem-calc(12);
+
+    .vip-header {
+        font-weight: $font-bold;
+        margin-bottom: rem-calc(16);
+    }
+
+    .vip-terms-conditions-content {
+        p {
+            margin-bottom: rem-calc(16);
+        }
+
+        .vip-pointers {
+            list-style-type: disc;
+            margin-left: rem-calc(32);
+            margin-right: rem-calc(16);
+
+            li {
+                margin-bottom: rem-calc(16);
+            }
+        }
+    }
+}

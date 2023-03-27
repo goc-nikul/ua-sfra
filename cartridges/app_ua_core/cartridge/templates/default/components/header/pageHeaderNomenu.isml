@@ -1,0 +1,32 @@
+<isset name="customerCountry" value="${pdict.CurrentSession.custom.customerCountry || (request.getLocale().slice(-2).toUpperCase())}" scope="page" />
+<header class="l-body-page_header l-header b-header b-checkout-header js-header">
+    <isinclude template="/components/header/skipNav" />
+    <div class="l-header-section_bottom">
+        <div class="l-header-inner l-header-inner_bottom">
+            <div class="l-header-checkout-logo">
+                <a class="b-logo-link" href="${URLUtils.url('Home-Show')}"
+                    title="${Resource.msgf('global.home', 'common', null, customerCountry)}">
+                    <img class="b-logo-image" src="${URLUtils.staticURL('/images/logo.svg')}"
+                         title="${Resource.msg('global.storename', 'common', null)}"
+                         alt="${Resource.msg('global.logo', 'common', null)}" />
+                </a>
+            </div>
+            <div class="l-header-checkout-utility">
+                <div class="b-checkout-header-minicart"
+                     data-action-url="${URLUtils.url('Cart-MiniCartShow')}"
+                >
+                    <a class="b-header_minicart" href="${URLUtils.https('Cart-Show')}" title="${Resource.msg('minicart.viewcart','common',null)}" aria-label="${Resource.msg('minicart.viewcart','common',null)}" aria-haspopup="true">
+                        <span class="b-header_minicart-icon">
+					        <isif condition="${pdict.quantityTotal > 0}">
+					            <span class="b-header_minicart-quantity minicart-quantity">
+					                <isprint value="${pdict.quantityTotal}" formatter="##" />
+					            </span>
+					        </isif>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="account-created-modal-url" id="account-created-modal-url" value="${URLUtils.url('Login-AccountCreatedModal')}" />
+</header>

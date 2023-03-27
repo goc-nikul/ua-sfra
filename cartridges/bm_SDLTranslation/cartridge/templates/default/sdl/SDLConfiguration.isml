@@ -1,0 +1,39 @@
+<iscontent type="text/html" charset="UTF-8"/>
+<isinclude template="inc/Modules"/>
+
+
+<isset name="decoratorTemplate" value="application/MenuFrame" scope="page" />
+
+<isdecorate template="${decoratorTemplate}">
+
+    <isinclude template="sdl/common/SDLCommonInclude" sf-toolkit="on" />
+
+
+    <div class="sdlBody">
+        <div class="container-fluid sdlContainer">
+            <div class="panel panel-success">
+                <div class="panel-heading text-center">${Resource.msg('msg.sdl.configure.cartridge', 'SDLTranslation', null)}</div>
+                <div class="panel-body">
+                     <isbreadcrumb name1="${Resource.msg('breadcrumb.title.merchantTools', 'SDLTranslation', null)}" url1="${merchantToolsURL}" name2="${Resource.msg('breadcrumb.title.SDL', 'SDLTranslation', null)}" url2="${SDLURL}" name3="${Resource.msg('breadcrumb.title.SDL.configuration', 'SDLTranslation', null)}"/>
+                    <form id="configureForm" method="post" action="">
+                        <div class="row max_content_none">
+                            <isinclude template="sdl/SDLConfigurationForm" sf-toolkit="on" />
+
+                            <isinclude template="sdl/SDLAttributeSettings" sf-toolkit="on" />
+
+                            <isinclude template="sdl/SDLLocalesSettings" sf-toolkit="on" />
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class="col-xs-12 text-center">
+                            <input id="confBtn" type="button" class="btn btn-success" value="Save Configuration" onclick="sdlSubmitConfig()" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input id="sdlAjaxUrl" type="hidden" value="${pdict.submitConfigUrl}"/>
+
+</isdecorate>

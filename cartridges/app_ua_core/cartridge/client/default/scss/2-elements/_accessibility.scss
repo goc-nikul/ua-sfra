@@ -1,0 +1,25 @@
+// enable outline
+button,
+input,
+select,
+a,
+textarea {
+    &:focus {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    .m-accessible-on & {
+        transition: box-shadow 0.15s ease-in-out;
+
+        &:focus {
+            box-shadow: 0 0 4px 2px $focus-color !important;
+        }
+
+        &.m-invalid {
+            &:focus {
+                box-shadow: 0 0 4px 2px $error-color !important;
+            }
+        }
+    }
+}

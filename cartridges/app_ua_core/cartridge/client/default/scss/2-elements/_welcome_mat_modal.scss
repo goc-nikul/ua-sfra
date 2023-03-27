@@ -1,0 +1,151 @@
+.g-welcome-mat-modal {
+    &.show {
+        z-index: 1053;
+
+        + .modal-backdrop {
+            z-index: 1052;
+        }
+    }
+
+    &-body {
+        @include respond-to(phones) {
+            margin-top: rem-calc(40);
+        }
+    }
+
+    &-dialog {
+        max-width: rem-calc(600);
+        margin: rem-calc(60) auto;
+        min-height: calc(100% - (3.75rem * 2));
+
+        @include respond-to(phones) {
+            max-width: 100%;
+        }
+
+        @include respond-to(no-phones) {
+            text-align: center;
+        }
+    }
+
+    &-content {
+        background-image: linear-gradient(to top, $grey2, $white);
+        @include respond-to(phones) {
+            padding: rem-calc(0) rem-calc(24) rem-calc(45) rem-calc(40);
+        }
+    }
+
+    &-header {
+        margin-bottom: rem-calc(8);
+    }
+
+    &-container {
+        h2 {
+            font-size: rem-calc(32);
+            text-transform: uppercase;
+            font-weight: 700;
+            line-height: rem-calc(36);
+            @include respond-to(phones) {
+                font-size: rem-calc(24);
+            }
+        }
+
+        .learn-more {
+            text-transform: uppercase;
+            margin-top: rem-calc(20);
+
+            a {
+                font-weight: bold;
+            }
+        }
+
+        &.three-flag {
+            h2 {
+                margin-bottom: rem-calc(30);
+            }
+        }
+
+        .select-text {
+            font-size: rem-calc(18);
+            padding-top: rem-calc(10);
+            padding-bottom: rem-calc(70);
+        }
+
+        .flag {
+            width: 50%;
+            float: left;
+            padding-left: rem-calc(20);
+            padding-right: rem-calc(20);
+
+            .region-switch {
+                float: right;
+            }
+
+            .dismiss-modal {
+                float: left;
+            }
+        }
+
+        .select-region {
+            clear: both;
+            padding-top: rem-calc(60);
+            font-size: rem-calc(15);
+            text-align: center;
+        }
+
+        a {
+            text-decoration: none;
+            color: $black;
+            text-align: center;
+        }
+
+        .clear {
+            clear: both;
+        }
+
+        .flags-container {
+            .flag-block {
+                @include respond-to(phones) {
+                    width: 99%;
+                    float: none;
+                }
+
+                float: left;
+                margin-right: rem-calc(16);
+
+                &:nth-child(3) {
+                    margin-right: 0;
+                }
+
+                .flag-img {
+                    text-align: center;
+                }
+
+                .flag-text {
+                    h5 {
+                        font-weight: bold;
+                        margin-bottom: rem-calc(8);
+                        margin-top: rem-calc(12);
+                        text-align: center;
+                    }
+
+                    ul {
+                        list-style-type: disc;
+                        text-align: left;
+
+                        li {
+                            line-height: 1.2;
+                            margin-bottom: rem-calc(12);
+                            text-align: center;
+
+                            span {
+                                position: relative;
+                                left: rem-calc(-7);
+                                font-size: rem-calc(13);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

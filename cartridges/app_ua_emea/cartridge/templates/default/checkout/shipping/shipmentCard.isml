@@ -1,0 +1,203 @@
+<div class="card-body shipping-content">
+    <form class="shipping-form js-checkout-forms js-paazlwidget-form" autocomplete="on" novalidate data-addr-ID="${shippingModel.matchingAddressId || ''}" data-cmp="formGeneric"
+          action="${shipmentLoopState
+          ? URLUtils.url('CheckoutAddressServices-AddNewAddress')
+          : URLUtils.url('CheckoutShippingServices-SubmitShipping')}"
+          data-address-mode="${((!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && shippingModel.matchingAddressId) || (!empty(shippingModel.shippingAddress) && !empty(shippingModel.shippingAddress.isOfficeAddress))) ? 'edit' : 'new'}"
+          <isprint value=${pdict.forms.shippingForm.attributes} encoding="off"/>
+    >
+    
+        <isif condition="${pdict.paazlStatus && pdict.paazlStatus.active && !shippingModel.restrictPickUpOption}">
+                <div class="btn-shipping-option">
+                    <button type="button" class="btn btn-primary g-button_base delivery-option active">${Resource.msg('paazl.delivery', 'checkout', null)}</button>
+                    <button type="button" class="btn btn-primary g-button_base pick-up-point-option">${Resource.msg('paazl.pickuppoint', 'checkout', null)}</button>
+                    <span class="b-promo-tooltip-content">
+                        <span class="g-tooltip-icon g-tooltip"></span>
+                        <span class="g-tooltip-text">
+                            <iscontentasset aid="shipping-address-tooltip" />
+                        </span>
+                    </span>
+                </div>
+        </isif>
+        <isif condition="${lineItem}">
+            <input name="productLineItemUUID" type="hidden" value="${lineItem.UUID}" />
+            <isset name="lineItemUUID" value="${lineItem.UUID}" scope="page" />
+        <iselse>
+            <isset name="lineItemUUID" value="${''}" scope="page" />
+        </isif>
+
+        <input name="originalShipmentUUID" type="hidden" value="${shippingModel.UUID}" />
+        <input name="shipmentUUID" type="hidden" value="${shippingModel.UUID}" />
+		<input type="hidden" id="billingCountry" value="${pdict.CurrentSession.custom.currentCountry}"/>
+        <div class="shipping-address ${pdict.order.usingMultiShipping ? 'hide' : ''} ship-to-address-wrap-content">
+            <fieldset class="pickup-in-store" data-url="${shippingModel.pickupInstoreUrl}">
+                <isif condition="${shippingModel.productLineItems.items[0].fromStoreId}">
+                    <isinclude url="${URLUtils.url('Stores-GetStoreById', 'storeId', shippingModel.productLineItems.items[0].fromStoreId, 'checkoutView', true)}"/>
+                </isif>
+            </fieldset>
+            <button type="button" class="g-button_base g-button_primary--black change-store ${(!empty(shippingModel.selectedShippingMethod) && !empty(shippingModel.selectedShippingMethod.storePickupEnabled) && !empty(shippingModel.productLineItems.items[0].fromStoreId)) ? '' : 'hide'}" name="changeStore" value="changeStore">
+                ${Resource.msg('button.change.store','instorePickup',null)}
+            </button>
+            <div class="b-pickup-store ${(!empty(shippingModel.selectedShippingMethod) && !empty(shippingModel.selectedShippingMethod.storePickupEnabled) && !empty(shippingModel.productLineItems.items[0].fromStoreId)) ? '' : 'hide'}">
+                <isinclude template="checkout/shipping/pickupNotifications" />
+            </div>
+            <isset name="ShipToCollection" value="${pdict.isCommercialPickup}" scope="page" />
+            <fieldset class="shipment-selector-block ${((pdict.order.usingMultiShipping || shipmentLoopState) || (pdict.customer.addresses && pdict.customer.addresses.length > 0 && pdict.containsLocaleAddress)) && !(!empty(shippingModel.selectedShippingMethod) && shippingModel.selectedShippingMethod.storePickupEnabled) && !ShipToCollection ? '' : 'hide'} ">
+                <isinclude template="checkout/shipping/shipmentSelector" />
+            </fieldset>
+            <isif condition="${!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && shippingModel.shippingAddress}">
+                <isset name="shippingAddresses" value="${shippingModel.shippingAddress}" scope="page" />
+            <iselse/>
+                <isset name="shippingAddresses" value="{{}}" scope="page" />
+            </isif>
+
+            <div class="delivery-content">
+	            <fieldset class="b-shipping shipping-address-block ${!empty(shippingModel.selectedShippingMethod) && (shippingModel.selectedShippingMethod.storePickupEnabled || pdict.isHALbasket || pdict.isCommercialPickup) ? 'hide' : ''}">
+	                <isif condition="${!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && (!shippingAddresses || !customer.authenticated || (customer.authenticated && !pdict.CurrentCustomer.addressBook.preferredAddress) || !pdict.containsLocaleAddress)}">
+		                <div class="card-sub-header b-shipping-sub-header">
+		                    <span class="shipping-address b-shipping-address">${Resource.msg('heading.checkout.shippingaddress', 'checkout', null)}
+		                        <isif condition="${shippingModel.restrictPickUpOption}">
+		                            <span class="b-promo-tooltip-content">
+                                        <span class="g-tooltip-icon g-tooltip"></span>
+                                        <span class="g-tooltip-text">
+                                            <iscontentasset aid="shipping-address-tooltip" />
+                                        </span>
+                                    </span>
+                                </isif>
+		                    </span>
+		                </div>
+	                </isif>
+	                <isinclude template="checkout/shipping/shippingAddress" />
+	            </fieldset>
+	        </div>
+	        <div class="pick-up-point-content hide">
+	             <div class="card-sub-header b-shipping-sub-header">
+                      <span class="shipping-address b-shipping-required">${Resource.msg('required.fields', 'checkout', null)}</span>
+                 </div>
+	             <div class="b-shipping_form-column">
+				    <div class="form-group b-input_row
+				        ${addressFields.postalCode.mandatory === true ? 'required' : ''}
+				        ${addressFields.postalCode.htmlName}">
+				        <label class="form-control-label b-input_row-label ${addressFields.postalCode.mandatory === true ? '' : 'postalCodeNotMandatory'}" for="shippingZipCode${lineItem ? lineItem.UUID : 'default'}">
+				            ${Resource.msg('field.shipping.address.zip.code.emea','address',null)}
+				        </label>
+				        <input type="text" class="form-control shippingZipCode b-input_row-input postal-code js-zipCodeFormat" id="pickUpPointPostalcode" aria-describedby="${lineItem ? lineItem.UUID : 'default'}ZipCode"
+				            value="" onkeydown="return (event.keyCode!=13);" <isprint value="${addressFields.postalCode.attributes}" encoding="off"/> 
+			                data-pattern-mismatch="${Resource.msg('error.message.parse.zip','forms',null)}"
+				            data-missing-error="${missingError}" data-analytics-track="shipping : shipping_zip" autocomplete="shipping postal-code"/>
+				        <div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}ZipCode"><isprint value="${addressFields.postalCode.error}" ></div>
+				    </div>
+				    <input type="button" class="btn btn-primary g-button_base find-pickup-point active" id="find-pickup-point" value="${Resource.msg('paazl.findapickuppoint', 'checkout', null)}"/>
+				</div>
+				<div class="pazzl-no-response hide">${Resource.msg('error.paazl.no.response.from.widget', 'forms', null)}</div>
+	        </div>
+
+            <fieldset class="b-shipping-privacy_links checkout-privacy-links-hide">
+                <div class="checkout-privacy-links">
+                    <span class="checkout-content-links"><iscontentasset aid="checkout-privacy-links" /></span>
+                    <span class="b-promo-tooltip-content">
+                        <span class="g-tooltip-icon g-tooltip">
+                            <span class="g-tooltip-arrow"></span>
+                        </span>
+                        <span class="g-tooltip-text">
+                            <isprint value="${Resource.msg('label.policy.tooltip.text', 'checkout', null)}"/>
+                        </span>
+                    </span>
+                </div>
+            </fieldset>
+
+            <div class="card-header b-shipping-hal-summary js-hal-summary ${pdict.isCommercialPickup || pdict.isHALbasket ? '' : 'hide'}">
+            <div class="card-header clearfix b-shipping-summary_header-line" data-pickupheading="Pickup">
+                <h2 class="pull-left card-header-custom b-shipping-summary_header">${Resource.msg('heading.collection.pont.shipping', 'checkout', null)}</h2>
+                <span class="js-collection-point-locator-search edit-search" data-hal="${pdict.isCommercialPickup || pdict.isHALbasket}" data-href="${URLUtils.url('CheckoutShippingServices-GetCollectionPoints')}">${Resource.msg('action.edit.step', 'checkout', null)}</span>
+            </div>
+                 <div class="card-body">
+                    <isinclude template="checkout/shipping/halShippingSummary" />
+                 </div>
+                 <input type="hidden" class="selceted-collection-point-radius" value="25">
+                 <input type="hidden" class="selceted-collection-point-postal" value="<isif condition="${typeof address !== 'undefined' && address && address.postalCode}"><isprint value="${address.postalCode}" /></isif>">
+             </div>
+
+            <fieldset class="b-shipping-method shipping-method-block">
+                <div class="js-shipping-method-heading">
+	                <h3 class="b-shipping-method_heading">
+	                    ${Resource.msg('heading.shipping.method', 'checkout', null)}
+	                    <span class="b-promo-tooltip-content">
+	                        <span class="g-tooltip-icon g-tooltip">
+	                           <span class="g-tooltip-arrow"></span>
+	                        </span>
+	                        <span class="g-tooltip-text">
+	                           <iscontentasset aid="shipping-method-tooltip" />
+	                        </span>
+	                    </span>
+	                </h3>
+	                <h4 class="b-shipping-method_callout"><iscontentasset aid="shipping-callout-primary" /></h4>
+	                <isif condition="${pdict.preOrderProductTileMessage}">
+	                    <h4 class="b-shipping-method_preorder"><iscontentasset aid=${pdict.preOrderProductTileMessage} /></h4>
+	                </isif>
+	                <isif condition="${pdict.gcBadge != null && pdict.gcBadge}">
+	                    <isinclude template="checkout/shipping/gcBadge"/>
+	                </isif>
+	            </div>
+                <isif condition="${pdict.paazlStatus && pdict.paazlStatus.active}">
+                    <span style="display:none;" data-paazl-id="${pdict.currentPaazlShippingMethodID}"></span>
+                    <input type="hidden" name="dwfrm_shipping_shippingAddress_shippingMethodID" value="${pdict.currentPaazlShippingMethodID}"/>
+                    <div id="paazl-checkout" data-select-shipping-method-url="${URLUtils.https('CheckoutShippingServices-UpdateSummary')}" data-action-url="${URLUtils.https('CheckoutShippingServices-UpdateShippingMethodsList')}"></div>
+                <iselse/>
+                    <isinclude template="checkout/shipping/shippingMethod" />
+                </isif>
+            </fieldset>
+        <isif condition="${pdict.giftOptionsEnabled}">
+            <isif condition="${!shippingModel.productLineItems.items[0].fromStoreId && !(typeof hideGiftOptions != 'undefined' && hideGiftOptions)}">
+	            <fieldset class="b-gift-message-block gift-message-block">
+	                <isinclude template="checkout/shipping/isGift" />
+	            </fieldset>
+            </isif>
+        </isif>
+        </div>
+
+        <fieldset class="ship-to-point-wrap-content hide">
+              <h3 class="b-shipping-method_heading">${Resource.msg('heading.halcheckout.shipping', 'checkout', null)}</h3>
+              <div class="required b-store-zipcode b-input_row js-form-group rightSpacing">
+                  <label class="b-input_row-label form-control-label" for="store-postal-code">${Resource.msg('label.input.zipcode','forms',null)}</label>
+                  <input autofocus type="text" class="form-control b-input_row-input" id="hal-postal-code" name="postalCode" value="" 
+                  autocomplete="nofill" 
+                  pattern="^\d{5}$"
+                  data-missing-error="${Resource.msg('collectionpoint.zipcode.missingerror', 'checkout', null)}"
+                  data-pattern-mismatch="${Resource.msg('collectionpoint.zipcode.error', 'checkout', null)}"
+                  >
+                  <div class="invalid-feedback"></div>
+              </div>
+              <div class="b-store-radius rightSpacing">
+                  <div class="b-input_row b-store">
+			    <label for="radius" class="form-control-label b-store-label">${Resource.msg('label.input.distance','forms',null)}</label>
+			    <select class="form-control custom-select radius b-store-select" id="radius" name="radius">
+				    <isloop items="${pdict.radiusOptions}" var="option">
+	                    <option value="${StringUtils.formatInteger(option)}" <isif condition="${StringUtils.formatInteger(option) == 25}">selected</isif>>${Resource.msgf('collection.point.radius', 'checkout', null, StringUtils.formatInteger(option))}</option>
+	                </isloop>
+			    </select>
+			</div>
+              </div>
+              <div class="b-store-search-button">
+                  <button class="g-button_base g-button_primary--black btn-storelocator-search js-collection-point-locator-search page-search" type="button" data-action="${URLUtils.url('CheckoutShippingServices-GetCollectionPoints')}">
+                      ${Resource.msg('button.find.stores','storeLocator',null)}
+                  </button>
+              </div>
+        </fieldset>
+
+        <div class="view-address-block ${shippingModel.shippingAddress ? '' : 'hide' }">
+            <isinclude template="checkout/shipping/shippingCard" />
+        </div>
+
+        <isinclude template="checkout/shipping/multiShippingButtons" />
+
+        <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+    </form>
+    <isif condition="${pdict.paazlWidgetCustomizedStyle}" >
+        <div>
+            <style>
+                ${pdict.paazlWidgetCustomizedStyle}
+            </style>
+        </div>
+    </isif>
+</div>

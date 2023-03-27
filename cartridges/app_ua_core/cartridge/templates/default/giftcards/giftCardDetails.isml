@@ -1,0 +1,120 @@
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets');
+        assets.addJs('/js/productDetail.js');
+        assets.addCss('/css/product/detail.css');
+    </isscript>
+
+    <isset name="product" value="${pdict.product}" scope="page" />
+    <isset name="isQuickView" value="${true}" scope="page" />
+    <isset name="isPhysicalGC" value="${product.custom.giftCard === 'GIFT_CARD'}" scope="page" />
+    <isset name="isProductSet" value="${pdict.product.productType === 'set'}" scope="page" />
+
+    <isobject object="${product.raw}" view="detail">
+        <div
+            class="l-pdp product-detail b-physicalgiftcard_outer"
+            data-cmp="productDetail"
+            data-pid="${product.id}">
+            <div class="l-pdp-main">
+                <div class="l-pdp-images">
+                    <isif condition="${product.productTileUpperLeftBadge && product.productTileUpperLeftBadge.value}">
+                        <div class="l-tile-badge_top_left">${product.productTileUpperLeftBadge.displayValue}</div>
+                    </isif>
+                    <!-- Product Images Carousel -->
+                    <isinclude template="product/components/imageCarousel" />
+                    <isinclude template="product/components/productDetailZoomModal" />
+                </div>
+
+                <div class="l-pdp-info">
+                    <div class="b-product_info">
+
+                        <!-- Product Name -->
+                        <div class="b-product_name">
+                            <h1 class="b-product_name-wording">${product.productName}</h1>
+                            <isif condition="${product.custom.giftCard !== 'EGIFT_CARD'}">
+                                <button class="b-product_name-fav_defultButton add-to-wish-list product" href="${URLUtils.url('Wishlist-AddProduct')}" aria-label="${Resource.msg('button.addto.wishlist','common',null)}" data-pid="${product.id}">
+                                    <div class="b-product_name-fav_button js-whislist-icon"></div>
+                                </button>
+                            </isif>
+                        </div>
+
+                        <isif condition="${product.custom.giftCard == 'EGIFT_CARD'}">
+                            <!-- Prices -->
+                            <div class="egiftcard-range">
+                                <isprint value="${pdict.eGiftCardRange}"/>
+                            </div>
+                        </isif>
+                        
+                        <div class="b-modal_block">
+                            <isif condition="${product.custom.style}">
+                                <div class="l-style_name">
+                                    <isprint value="${Resource.msg('label.item.style', 'product', null)}"/>
+                                    <span class="value"><isprint value="${product.custom.style}" /></span>
+                                </div>
+                            </isif>
+                        </div>
+
+                        <div class="b-callout-msg">
+                            <isprint value="${Resource.msg('product.giftcard.nodiscount', 'product', null)}"/>
+                        </div>
+                        <isif condition="${product.custom.giftCard == 'EGIFT_CARD'}">    
+                            <isinclude url="${URLUtils.url('GiftCard-ShowEgiftCardsForm', 'eGiftCardEdit', pdict.eGiftCardEdit)}"/>
+                        <iselse/>
+                            <div class="b-product_attrs">
+                                <!-- Attributes -->
+                                <isinclude template="product/components/mainAttributes" />
+    
+                                <isset name="isBundle" value="${false}" scope="page" />
+                                <isset name="loopState" value="{count: 1}" scope="page" />
+                                <div class="b-product_attrs">
+                                    <isloop items="${product.variationAttributes}" var="attr" status="attributeStatus">
+                                        <div class="b-product_attrs-item" data-attr="${attr.id}">
+                                            <isinclude template="product/components/variationAttribute" />
+                                        </div>
+                                    </isloop>
+        
+                                    <isif condition="${product.options && product.options.length > 0}">
+                                        <isinclude template="product/components/options" />
+                                    </isif>
+    
+                                    <div class="b-product_actions prices-add-to-cart-actions ${pdict.enablePayPalCTAOnPDP ? "" : "b-paypalcta-disabled_outer" }">
+                                        <!-- Quantity Drop Down Menu -->
+                                        <isif condition="${!isBundle && product.options.length === 0}">
+                                            <isinclude template="product/components/quantity" />
+                                        </isif>
+    
+                                        <!-- Cart and [Optionally] Apple Pay -->
+                                        <div class="b-product_actions-inner ${pdict.enablePayPalCTAOnPDP ? "" : "b-paypalcta-disabled" }">
+                                            <isinclude template="product/components/addToCartProduct" />
+                                            <isif condition="${pdict.enablePayPalCTAOnPDP && !pdict.isVIP && !pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR')}">
+                                                <isinclude template="paypal/cart/paypalButton"/>
+                                            </isif>
+                                            <div class="paypal-addtocart-error" style="display:none;" ></div>
+                                        </div>
+                                    </div>
+    
+                                </div>
+                            </div>
+                        </isif>
+                        
+                        <!-- Product Description -->
+                        <div class="b-product_attrs-item m-description">
+                            <isset name="loopState" value="{count: 1}" scope="page" />
+                            <isinclude template="product/components/productCustomDescription" />
+                        </div>
+
+                        <!-- Product Qualtrics Survey Link -->
+                        <isinclude template="product/components/productQualtricsSurvey" />
+                    </div>
+                </div>
+                <div class="b-product-slot" data-ispgc="${isPhysicalGC}">
+                    <isslot id="'physical-gift-card-product-recommendations" description="Product Recommendations specific to Physical Gift Card" context="global"/>
+                </div>
+                <iscomment> get Recommendation tiles on load of PDP to display on cartAddedconfirmation Modal</iscomment>
+                <div class="js-confirmation-modal-recommendation-tiles hide">
+                    <isinclude url="${URLUtils.url('Product-RecommendationTiles', 'pid', product.id)}"/>
+                </div>
+            </div>
+        </div>
+    </isobject>
+</isdecorate>

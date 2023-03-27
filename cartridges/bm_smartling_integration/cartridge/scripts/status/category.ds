@@ -1,0 +1,52 @@
+/**
+*
+*   @input categoryId : String
+*   @output localesList : dw.util.ArrayList
+*   @output name : String
+*   @output id : String
+*/
+importPackage( dw.system );
+importPackage( dw.catalog );
+importPackage( dw.object );
+importPackage( dw.util );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "status.category"));
+
+/**
+    Cycle through the list of locales for a stored category custom object to obtain translation status for each.
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        var category : Category = CatalogMgr.getCategory(pdict.categoryId);
+        var sitePrefs : SitePreferences = Site.getCurrent().getPreferences();
+        var smartlingConfiguration : String = sitePrefs.custom['smartling_configuration_data'];
+        var smartlingConfigurationJson : JSON = JSON.parse(smartlingConfiguration);
+        var targetLocale : JSON = JSON .parse(smartlingConfigurationJson['target_locale']);
+
+        var list : ArrayList = new ArrayList;
+        for each (var locale : Object in targetLocale['target_locale']) {
+            var localeData : ArrayList =  new ArrayList;
+            localeData.addAt(0, locale['demandware']);
+            if (locale['demandware'] == "default") {
+                localeData.addAt(1, "default");
+            } else {
+                var language : CustomObject = CustomObjectMgr.queryCustomObject("SMARTLING_LOCALES", "custom.ID = '" + locale['demandware'] + "'");
+                localeData.addAt(1, language.getCustom()['name']);
+                localeData.addAt(2, locale['demandware']);
+            }
+            list.push(localeData);
+        }
+
+        pdict.localesList = list;
+        pdict.name = category.getDisplayName();
+        pdict.id = category.getID();
+
+    } catch (e) {
+        LOGGER.errorException("status.category execution failed for categoryId={0}", pdict.categoryId, e);
+        return PIPELET_ERROR;
+    }
+
+   return PIPELET_NEXT;
+}

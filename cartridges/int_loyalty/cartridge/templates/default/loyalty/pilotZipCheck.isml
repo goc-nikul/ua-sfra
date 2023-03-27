@@ -1,0 +1,37 @@
+<div class="b-gated-enrollment">
+    <form id="gated-enrollment-form"
+        novalidate
+        action="${pdict.formActions.pilot}"
+        method="POST"
+        class="b-gated-enrollment_form"
+        <isprint value="${pdict.forms.pilot.attributes}" encoding="off" />
+        >
+        <div class="b-gated-enrollment_intro b-gated-enrollment_fixed-width">
+            <isprint value="${Resource.msg('loyalty.gated.headline','loyalty', null)}" encoding="off" />
+        </div>
+        <div class="b-gated-enrollment_callout">
+            <isprint value="${Resource.msg('loyalty.gated.subheadline1','loyalty', null)}" encoding="off" />
+        </div>
+        <div class="b-gated-enrollment_header b-gated-enrollment_fixed-width">
+            <isprint value="${Resource.msg('loyalty.gated.subheadline2','loyalty', null)}" encoding="off" />
+        </div>
+        <div class="form-group b-gated-enrollment_fixed-width">
+            <div class="form-group b-input_row b-gated-enrollment_input-zip required">
+                <label class="form-control-label b-input_row-label" for="zipCode">
+                    <isprint value="${pdict.forms.pilot.postalCode.label}" encoding="htmlcontent" />
+                </label>
+                <input
+                    id="zipCode"
+                    type="text"
+                    class="form-control b-input_row-input"
+                    autocomplete="postal-code"
+                    data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
+                    <isprint value="${pdict.forms.pilot.postalCode.attributes}" encoding="off" />
+                    />
+                <div class="invalid-feedback"></div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-block g-button_primary--black g-button_base b-gated-enrollment_submit">${Resource.msg('loyalty.gated.submit','loyalty', null)}</button>
+        <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+    </form>
+</div>

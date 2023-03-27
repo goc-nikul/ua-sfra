@@ -1,0 +1,671 @@
+.b-payment-new_design {
+    .b-payment-heading {
+        margin-bottom: rem-calc(24);
+        display: block;
+        @include font(main_semi_bold, rem-calc(16), 1.5);
+
+        @include respond-to(mobile) {
+            @include font(main_med, rem-calc(14), 1.43);
+        }
+    }
+
+    .s-giftcard {
+        margin-bottom: rem-calc(32);
+        padding-bottom: rem-calc(24);
+        border-bottom: 1px solid $grey3;
+
+        @include respond-to(mobile) {
+            margin-bottom: rem-calc(24);
+        }
+    }
+
+    .b-payment-tab {
+        padding: 0 0 rem-calc(32);
+
+        @include respond-to(desktop) {
+            margin-bottom: rem-calc(32);
+            border-bottom: 1px solid $grey3;
+        }
+
+        .credit-card-form {
+            margin-top: 0;
+
+            &.registered {
+                width: 100%;
+
+                .payment-sandbox-container {
+                    max-width: rem-calc(300);
+                }
+
+                .b-credit-card {
+                    &-form {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-top: rem-calc(12);
+
+                        @include respond-to(mobile) {
+                            flex-wrap: wrap;
+                        }
+                    }
+
+                    &-heading {
+                        @include font(main_med, rem-calc(14), 1.43);
+
+                        @include respond-to(mobile) {
+                            flex: 1 1 100%;
+                            margin-bottom: rem-calc(16);
+                        }
+                    }
+                }
+
+                .b-account_save-default {
+                    line-height: rem-calc(22);
+                    margin-bottom: rem-calc(24);
+
+                    @include respond-to(mobile) {
+                        flex: 1 1 100%;
+                        margin-bottom: rem-calc(10);
+                    }
+                }
+
+                .required-fields {
+                    align-items: end;
+                    display: flex;
+
+                    @include respond-to(mobile) {
+                        width: 100%;
+                        display: block;
+                        text-align: right;
+                        margin-bottom: rem-calc(8);
+                    }
+                }
+            }
+        }
+
+        .credit-card-images {
+            display: block;
+
+            img {
+                margin-right: rem-calc(8);
+
+                &:last-child {
+                    margin-right: 0;
+                }
+            }
+        }
+
+        &_header {
+            .g-tabs-chips {
+                .g-tabs-chip {
+                    &:last-child {
+                        border: 0;
+                    }
+
+                    &:not(:last-child) {
+                        &::after {
+                            display: none;
+                        }
+                    }
+
+                    .g-tabs-link.nav-link {
+                        margin-bottom: rem-calc(20);
+                        padding: 0;
+                        text-indent: rem-calc(32);
+                        @include font(main, rem-calc(14), 1.43);
+
+                        background: transparent;
+                        display: inline-block;
+                        border: 0;
+
+                        .credit-card-images {
+                            width: 100%;
+                            margin-top: rem-calc(8);
+                        }
+
+                        &::before,
+                        &::after {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            right: auto;
+                            border-radius: 50%;
+                            left: 0;
+                            border: rem-calc(1) solid $black;
+                        }
+
+                        &::before {
+                            width: rem-calc(16);
+                            height: rem-calc(16);
+                        }
+
+                        &::after {
+                            width: rem-calc(10);
+                            height: rem-calc(10);
+                            background-color: $black;
+                            display: none;
+                            transform: translate(3px, 3px);
+                        }
+
+                        &.active {
+                            background: transparent;
+
+                            &::after {
+                                display: block;
+                            }
+                        }
+
+                        &.disabled {
+                            &::before {
+                                border-color: $grey4;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        &_content {
+            background: transparent;
+
+            .tab-pane {
+                @include respond-to(mobile) {
+                    border: 0;
+
+                    &:last-child {
+                        padding-bottom: rem-calc(8);
+                        border-bottom: 1px solid $grey3;
+                    }
+                }
+
+                &.active {
+                    background: transparent;
+                    padding: 0;
+                }
+
+                &#applepay-content {
+                    &.mac-only {
+                        @include respond-to(mobile) {
+                            border: 0;
+                        }
+                    }
+                }
+
+                .b-payment-accordion-head {
+                    &.g-accordion-header {
+                        &.collapsed {
+                            @include respond-to(mobile) {
+                                &::after {
+                                    display: none;
+                                }
+                            }
+                        }
+
+                        &.disabled {
+                            &::before {
+                                border-color: $grey4;
+                            }
+                        }
+
+                        @include respond-to(mobile) {
+                            padding: 0;
+                            margin-bottom: rem-calc(16);
+                            text-indent: rem-calc(32);
+                            padding-top: rem-calc(3);
+                            @include font(main, rem-calc(14), 1.43);
+
+                            &::before,
+                            &::after {
+                                content: '';
+                                position: absolute;
+                                top: 45%;
+                                left: 0;
+                                right: auto;
+                                border-radius: 50%;
+                                transform: translate(0, -45%);
+                            }
+
+                            &::before {
+                                width: rem-calc(16);
+                                height: rem-calc(16);
+                                border: rem-calc(1) solid $black;
+                            }
+
+                            &::after {
+                                width: rem-calc(10);
+                                height: rem-calc(10);
+                                background-color: $black;
+                                display: block;
+                                transform: translate(3px, -42%);
+                            }
+
+                            .credit-card-images {
+                                float: right;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .klarna-payment-tooltip {
+        .g-tooltip-text {
+            top: calc(100% - 10px);
+
+            &::after {
+                @include respond-to(mobile) {
+                    right: 5%;
+                }
+            }
+        }
+
+        .g-tooltip-icon {
+            top: 0;
+
+            @include respond-to(mobile) {
+                right: 5%;
+                top: rem-calc(5);
+            }
+        }
+    }
+}
+
+.b-payment-heading,
+.credit-card-images {
+    display: none;
+}
+
+.b-payment-tab {
+    display: flex;
+    padding: 0 0 rem-calc(25);
+
+    &_header {
+        @include grid-col(4, $media: desktop);
+
+        padding: 0 !important;
+
+        @include respond-to(mobile) {
+            display: none;
+        }
+
+        .g-tabs-chips {
+            display: block;
+            margin: 0;
+            padding: 0;
+
+            .g-tabs-chip {
+                width: 100%;
+                padding: 0;
+                margin: 0;
+
+                &:last-child {
+                    border-bottom: 1px solid $grey5;
+                }
+
+                &.applepay-tab-wrapper {
+                    display: none;
+
+                    &.mac-only {
+                        display: block;
+                    }
+                }
+
+                .g-tabs-link {
+                    padding: rem-calc(15) rem-calc(25) rem-calc(20);
+                    background: $white;
+                    color: $black;
+                    margin: 0;
+                    border: 1px solid $grey5;
+                    line-height: 1;
+
+                    &.active {
+                        background: $grey1;
+                        border-left: none;
+                        border-right: none;
+
+                        &::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            right: auto;
+                            left: 0;
+                            border-bottom: 0;
+                            border-left: 5px solid $black;
+                            height: 100%;
+                        }
+                    }
+
+                    &.disabled {
+                        border-color: $grey4;
+                        color: $grey4;
+                        pointer-events: none;
+                    }
+                }
+
+                &:not(:last-child)::after {
+                    border: none;
+                    content: none;
+                }
+
+                &:not(:first-child) {
+                    .g-tabs-link {
+                        border-top: none;
+                    }
+                }
+
+                &:first-child {
+                    .g-tabs-link.active {
+                        border-top: none;
+                    }
+                }
+            }
+        }
+    }
+
+    &_content {
+        @include grid-col(8, $media: desktop);
+
+        padding: 0 !important;
+        background: $grey1;
+
+        @include respond-to(mobile) {
+            @include grid-col(12, $media: mobile);
+
+            background: $white;
+        }
+
+        .tab-pane {
+            &#applepay-content {
+                @include respond-to(mobile) {
+                    border: 0;
+                }
+
+                .b-payment-accordion-head {
+                    &.g-accordion-header {
+                        @include respond-to(mobile) {
+                            display: none;
+                        }
+                    }
+                }
+
+                &.mac-only {
+                    @include respond-to(mobile) {
+                        border-bottom: 1px solid $grey3;
+                    }
+
+                    .b-payment-accordion-head {
+                        &.g-accordion-header {
+                            @include respond-to(mobile) {
+                                display: block;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .b-payment-accordion-head {
+                &.g-accordion-header {
+                    display: none;
+
+                    @include respond-to(mobile) {
+                        display: block;
+                    }
+                }
+
+                &.disabled {
+                    border-color: $grey4;
+                    color: $grey4;
+                    pointer-events: none;
+                }
+            }
+
+            &.applepay-tab-wrapper {
+                &.mac-only {
+                    .g-accordion-content {
+                        &.show {
+                            display: block;
+                        }
+                    }
+                }
+            }
+
+            .g-accordion-content {
+                @include respond-to(mobile) {
+                    padding-right: 0;
+                }
+
+                .b-payment-choosen-message {
+                    @include font(main_bold, rem-calc(16), 1.43);
+
+                    color: $black;
+                    margin-top: rem-calc(20);
+                }
+
+                .b-payment-choosen-images {
+                    display: flex;
+                    margin-top: rem-calc(45);
+
+                    span {
+                        padding: rem-calc(70) rem-calc(30) 0 0;
+                        border-right: 1px solid $grey9;
+                    }
+
+                    img {
+                        max-width: rem-calc(75);
+                    }
+
+                    .b-payment-authorized-section {
+                        background: $white;
+                        border: 1px solid $grey9;
+                        margin-left: rem-calc(45);
+                        padding: rem-calc(20);
+                        min-height: rem-calc(150);
+                        min-width: rem-calc(200);
+                        @include respond-to(phones) {
+                            min-width: rem-calc(150);
+                        }
+
+                        p {
+                            @include font(main_med, rem-calc(14), 1.43);
+
+                            color: $grey5;
+                        }
+                    }
+                }
+            }
+
+            &.active {
+                background: $grey1;
+                padding: rem-calc(35);
+
+                @include respond-to(mobile) {
+                    background: $white;
+                    padding: rem-calc(0);
+                }
+            }
+        }
+
+        .paypal-checkout-button {
+            padding: rem-calc(24) 0 0;
+        }
+    }
+
+    .user-payment-instruments {
+        @include respond-to(no-phones) {
+            float: left;
+            width: 100%;
+        }
+
+        .stored-payments {
+            @include respond-to(mobile) {
+                width: calc(100vw - 48px);
+                overflow: hidden;
+                overflow-x: scroll;
+            }
+
+            .store-payments-container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                margin-top: rem-calc(16);
+                @include respond-to(mobile) {
+                    width: 100%;
+                    margin-top: rem-calc(1);
+                    flex-wrap: inherit;
+                }
+
+                .saved-payment-instrument {
+                    flex-basis: 48%;
+                    background-color: $white;
+                    padding: rem-calc(24);
+                    border: solid rem-calc(1) $grey3;
+                    margin-bottom: rem-calc(15);
+                    border-radius: 4px;
+                    position: relative;
+                    order: 2;
+                    @include respond-to(mobile) {
+                        margin-right: rem-calc(16);
+                        max-width: rem-calc(213);
+
+                        .saved-payment-information {
+                            width: rem-calc(165);
+                        }
+                    }
+
+                    .saved-security-code {
+                        display: none;
+                    }
+
+                    &.display-order {
+                        order: 1;
+                    }
+
+                    &.selected-payment {
+                        border-radius: 4px;
+                        border: solid rem-calc(2) $black;
+
+                        .icon {
+                            @include icon(check);
+
+                            position: absolute;
+                            right: rem-calc(18);
+                            top: rem-calc(24);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .error-payment-selection {
+        .t-payment-sc {
+            color: $red;
+        }
+
+        .saved-payment-instrument {
+            border-color: $red !important;
+        }
+
+        .payment-selection-error {
+            @include font(main, rem-calc(12), rem-calc(16));
+
+            font-weight: 500;
+            color: $red;
+            margin: rem-calc(5) 0 rem-calc(10);
+
+            @include respond-to(mobile) {
+                margin-top: rem-calc(20);
+            }
+        }
+    }
+
+    .t-payment-sc {
+        @include font(main, rem-calc(14), 1.43);
+
+        font-weight: 500;
+        float: left;
+        width: 100%;
+        @include respond-to(mobile) {
+            margin-bottom: rem-calc(24);
+        }
+    }
+
+    .saved-payment-information {
+        .remove-payment {
+            border: none;
+            background-color: transparent;
+            color: $black;
+            @include font(main, rem-calc(12), 1.67);
+
+            font-weight: 500;
+            letter-spacing: normal;
+            margin-top: rem-calc(12);
+        }
+    }
+
+    .credit-card-form {
+        margin-top: rem-calc(24);
+        float: left;
+
+        .cancel-new-payment {
+            display: none;
+        }
+    }
+}
+
+.b-paypal_subheading {
+    padding: rem-calc(24) 0 rem-calc(16);
+
+    p {
+        font-size: rem-calc(16);
+        line-height: 1;
+        font-weight: $font-bold;
+    }
+}
+
+.paypal-content {
+    img {
+        margin-right: rem-calc(10);
+        max-width: rem-calc(94);
+    }
+}
+
+.klarna-payment-tooltip {
+    .g-tooltip-text {
+        width: 100%;
+        padding: rem-calc(16) rem-calc(16) rem-calc(20);
+        top: calc(100% + 10px);
+
+        @include respond-to(mobile) {
+            top: calc(100% + 5px);
+        }
+
+        &::after {
+            left: 40%;
+
+            @include respond-to(mobile) {
+                left: auto;
+                right: 16%;
+            }
+        }
+    }
+
+    .g-tooltip-icon {
+        @include icon(alert);
+
+        position: absolute;
+        top: 25%;
+        left: 38%;
+        cursor: pointer;
+
+        @include respond-to(mobile) {
+            left: auto;
+            right: 16%;
+            top: 35%;
+        }
+    }
+}
+
+#token-error {
+    display: none;
+}

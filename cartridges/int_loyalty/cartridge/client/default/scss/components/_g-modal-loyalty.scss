@@ -1,0 +1,40 @@
+.g-modal-loyalty {
+    .g-modal-dialog {
+        max-width: rem-calc(425);
+        margin: rem-calc(32) auto;
+        min-height: calc(100% - (#{rem-calc(32)} * 2));
+        text-align: center;
+    }
+
+    .g-modal-header {
+        text-align: center;
+    }
+
+    .g-modal-content {
+        padding: rem-calc(58) rem-calc(45) rem-calc(45);
+    }
+
+    .g-modal-close {
+        top: rem-calc(14);
+        right: rem-calc(14);
+
+        .g-modal-close-button {
+            width: rem-calc(22);
+            height: rem-calc(22);
+
+            &::before,
+            &::after {
+                width: rem-calc(22);
+                height: rem-calc(2);
+            }
+        }
+    }
+
+    .b-alert-icon {
+        @include icon(alert);
+
+        &::before {
+            font-size: rem-calc(32);
+        }
+    }
+}

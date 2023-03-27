@@ -1,0 +1,9 @@
+<!--- TEMPLATENAME: collectionPointLocatorRadius.isml --->
+<div class="b-store">
+    <label for="radius" class="form-control-label b-store-label">${Resource.msg('field.collectionpoint.radius','checkout',null)}</label>
+    <select class="form-control custom-select radius b-store-select" id="radius" name="radius">
+        <isloop items="${pdict.radiusOptions}" var="option">
+            <option value="${StringUtils.formatInteger(option)}">${Resource.msgf('collection.point.radius', 'checkout', null, StringUtils.formatInteger(option))}</option>
+        </isloop>
+    </select>
+</div>

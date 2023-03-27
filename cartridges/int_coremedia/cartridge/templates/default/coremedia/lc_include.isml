@@ -1,0 +1,10 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+<isscript>
+    var CM = require('~/cartridge/controllers/CM');
+    let fragment = CM.Fragment(pdict, request, response, true);
+</isscript>
+<iscomment>
+    Render the output of the fragment call into the page.
+    The fragment response is already encoded and shouldn't be encoded twice!
+</iscomment>
+<isprint value="${fragment.payload}" encoding="off"/>

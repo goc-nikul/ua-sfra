@@ -1,0 +1,29 @@
+<isdecorate template="common/layout/page">
+    <isset name="analyticsPageType" value="error" scope="page" />
+    <isinclude template="/components/modules" sf-toolkit="off" />
+    <div class="b-error_page-container b-error_page ${session.custom.currentCountry === 'KR' ? 'b-error_page-kr' : ''}">
+        <div class="b-error_page-content">
+            <div class="error-page-assetcontent">
+                <div class="error-page-wrapper">
+                    <h2>${Resource.msg('404.page.error.subheading', 'common', null)}</h2>
+                    <h1>${Resource.msg('404.page.error.heading', 'common', null)}</h1>
+                    <p>${Resource.msg('404.page.error.message', 'common', null)}</p>
+                    <div class="buttons-container">
+                         <a href="${URLUtils.url('Home-Show')}" class="g-button_base g-button_primary--black error-button" role="button">${Resource.msg('button.gotohomepage', 'common', null)}</a>
+                         <a href="${URLUtils.url('Search-Show','cgid','new-arrivals')}" class="g-button_base  error-button new-arrivals" role="button">${Resource.msg('button.newarrivals', 'common', null)}</a>
+                    </div>
+                    <a href="https://help.underarmour.com/" role="link" class="error-link">${Resource.msg('404.page.havequestionslink', 'common', null)}</a>
+                </div>
+            </div>
+            <div class="b-error_page-slotimage">
+                 <iscontentasset aid="404-error-page-banner" />
+            </div>
+         </div>
+         <div class="b-error_page-bestsellers-products">
+            <iscomment>Best Sellers Products Carousel Starts </iscomment>
+            <div class="b-error_page-bestsellers-carousel">
+                <isslot id="pdp-product-recommendations" description="Best Seller" context="global" />
+            </div>
+        </div>
+    </div>
+</isdecorate>

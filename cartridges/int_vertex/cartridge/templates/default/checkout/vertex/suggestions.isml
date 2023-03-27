@@ -1,0 +1,47 @@
+<!--- TEMPLATENAME: suggestions.isml --->
+
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+<link rel="stylesheet" type="text/css" href="${URLUtils.staticURL('/css/vertex.css')}" />  
+
+<isscript>
+	var VertexAddressSuggestions = JSON.parse(session.custom.VertexAddressSuggestions);
+	var VertexAddressSuggestionsError = session.custom.VertexAddressSuggestionsError;
+</isscript>
+                    
+<iscomment>VertexInc Address Cleansing select field</iscomment>
+<isif condition="${VertexAddressSuggestions || VertexAddressSuggestionsError}">
+	<div class="vertexError">
+		<isif condition="${VertexAddressSuggestionsError == 'error'}">
+			<div class="vertexHint">
+				${Resource.msg('form.taxlookuperror','vertex',null)}
+			</div>
+		<iselse>
+		<isif condition="${VertexAddressSuggestions.length > 1}">
+				<div class="select-address form-row">
+					<label for="VertexAddressSuggestions">
+						${Resource.msg('form.suggestionselect','vertex',null)}
+					</label>
+					<div class="field-wrapper" id="vertex-suggestions">
+						<isscript>previous_addresses = [];</isscript>
+							<select id="${pdict.CurrentForms.singleshipping.addressList.htmlName}" name="${pdict.CurrentForms.singleshipping.addressList.htmlName}" class="input-select">
+								<isloop items="${VertexAddressSuggestions}" var="address" status="loopstate">
+									<isset name="aid" value="${empty(address.key) ? address.ID : address.key}" scope="page"/>
+									<isif condition="${previous_addresses.indexOf(aid) < 0}">
+										<option value="${aid}" ${aid == pdict.SelectedAddressID ? "selected='selected'" : ""} data-address='<isprint value="${JSON.stringify(address).replace("'","^")}" encoding="on"/>'>
+											${loopstate.first ? '('+ address.key +')':'('+  address.displayValue + ')'} ${Resource.msgf('address.saved.dropdown.format', 'forms', null, address.address1, address.city, address.stateCode, address.postalCode)}
+										</option>
+									</isif>
+									<isscript>previous_addresses.push(aid)</isscript>
+								</isloop>
+							</select> 
+					</div>
+				</div>
+			</isif> 
+			<div class="vertexHint">
+				${Resource.msg('form.suggestionhint','vertex',null)}
+			</div>
+		</isif>
+	</div>
+</isif>
+
+

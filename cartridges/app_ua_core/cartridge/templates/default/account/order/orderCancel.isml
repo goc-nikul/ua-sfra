@@ -1,0 +1,11 @@
+<isif condition="${order.isOrderCancellable}">
+    <a class="g-button_secondary--black g-button_base js-order-cancel" href="${URLUtils.url('Order-Cancel')}" data-order-id="${order.orderNo}">
+        ${Resource.msg('order.cancel', 'order', null)}
+    </a>
+    <isinclude template="account/order/orderCancelModal" />
+<iselseif condition="${order.originalStatus != 'Canceled'}" />
+    <div class="align-right order-cancel-text">
+        <div class="order-summary_title">${Resource.msg('need.cancel.order', 'order', null)}</div>
+        <isprint value="${Resource.msg('contact.custom.service', 'order', null)}" encoding="off" />
+    </div>
+</isif>

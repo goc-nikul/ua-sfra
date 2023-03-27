@@ -1,0 +1,83 @@
+/* md
+
+# Links
+
+```html
+<a href="#" class="t-link">Regular link: Lorem ipsum dolor sit amet</a>
+<a href="#" class="t-link--medium">Medium link: Lorem ipsum dolor sit amet</a>
+<a href="#" class="t-link--uppercased">Uppercased link: Lorem ipsum dolor sit amet</a>
+```
+
+## Default link
+
+```html_example
+    <div style="padding: 15px 0;  display: flex; justify-content: space-around">
+        <a href="#" class="t-link">Regular link: Lorem ipsum dolor sit amet</a>
+    </div>
+
+    <div style="padding: 15px 0;  display: flex; justify-content: space-around">
+        <a href="#" class="t-link disabled">Regular link: Lorem ipsum dolor sit amet</a>
+    </div>
+```
+
+## Medium link
+
+```html_example
+    <div style="padding: 15px 0;  display: flex; justify-content: space-around">
+        <a href="#" class="t-link--medium">Medium link: Lorem ipsum dolor sit amet</a>
+    </div>
+
+    <div style="padding: 15px 0;  display: flex; justify-content: space-around">
+        <a href="#" class="t-link--medium disabled">Medium link: Lorem ipsum dolor sit amet</a>
+    </div>
+```
+
+## Uppercased link
+
+```html_example
+    <div style="padding: 15px 0;  display: flex; justify-content: space-around">
+        <a href="#" class="t-link--uppercased">Uppercased link: Lorem ipsum dolor sit amet</a>
+    </div>
+    <div style="padding: 15px 0;  display: flex; justify-content: space-around">
+        <a href="#" class="t-link--uppercased disabled">Uppercased link: Lorem ipsum dolor sit amet</a>
+    </div>
+
+```
+
+*/
+
+.t-link {
+    @include link;
+}
+
+.t-link--medium {
+    @include link('medium');
+}
+
+.t-link--uppercased {
+    @include link('uppercased');
+}
+
+.t-link--medium_underline {
+    @include link('medium');
+
+    text-decoration: underline;
+
+    &:hover {
+        text-decoration: none;
+    }
+}
+
+.t-content_link {
+    text-decoration: underline;
+    color: $grey5;
+
+    &:hover {
+        color: $black;
+    }
+}
+
+.t-no_link {
+    @include link;
+    @include disable-link;
+}

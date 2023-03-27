@@ -1,0 +1,29 @@
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/js/orderHistory.js');
+        assets.addJs('/js/account.js');
+        assets.addCss('/css/account/profile.css');
+    </isscript>
+    <!-- Tealium -->
+    <isscript>var pageContext={title:'OrderHistory',type:'orderhistory',ns:'orderhistory'};</isscript>
+    <div class="b-account b-account-history js-account-main-section b-account-maintenance">
+        <div class="b-account-container b-account-container-top">
+            <div class="b-account-left"></div>
+            <div class="b-account-right b-account-address_book">
+                <div class="b-account-address_book-pageHeading js-account-page-heading">
+                    <div class="heading-addresses">${Resource.msg('label.orderhistory','account',null)}<span class="account-icon"></span></div>
+                </div>
+            </div>
+        </div>
+        <div class="b-account-container b-account-container-bottom">
+            <div class="b-account-left js-account-left">
+                <isinclude template="account/leftNavLinks"/>
+            </div>
+
+            <div class="b-account-right">
+                <isinclude template="maoMaintenance/maoMaintenanceCard"/>
+            </div>
+        </div>
+    </div>
+</isdecorate>

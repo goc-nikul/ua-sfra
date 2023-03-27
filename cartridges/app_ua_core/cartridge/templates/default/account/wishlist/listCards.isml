@@ -1,0 +1,35 @@
+<isscript>
+    var ProductFactory = require('*/cartridge/scripts/factories/product');
+</isscript>
+<div class="card">
+    <div class="card-header clearfix">
+        <isif condition="${pdict.account.wishlist && pdict.account.wishlist.length > 0}">
+            <span class="pull-left content-heading">${Resource.msg('label.whishlist','account',null)}</span>
+            <a href="${URLUtils.url('Wishlist-Show')}" class="pull-right view-link">${Resource.msg('link.viewall','account',null)}</a>
+        </isif>
+    </div>
+    <div class="card-body">
+        <isif condition="${pdict.account.wishlist && pdict.account.wishlist.length > 0}">
+            <!---product cards--->
+            <div class="g-carousel js-recommendation-wrapper recommendations-section">
+                <div class="product-listing recommended-products js-carousel swiper-container" data-cmp="carousel"
+                data-json-config='${JSON.stringify(require('*/cartridge/config/carousel').wishlistImage)}'>
+                    <div class="g-carousel-wrapper swiper-wrapper js-swiper-wrapper">
+                        <isloop items="${pdict.account.wishlist}" var="item"> 
+                            <isif condition="${item && item.pid}">
+                                <isscript>
+                                    var product = ProductFactory.get({pid: item.pid, pview: 'tile'});
+                                </isscript>
+                                <isif condition="${product}">
+                                    <isinclude template="account/wishlist/listCard"/>
+                                </isif>
+                            </isif>
+                        </isloop>
+                    </div>
+                    <div class="g-carousel-control m-next js-swiper-button-next"></div>
+                    <div class="g-carousel-control m-prev js-swiper-button-prev"></div>
+                </div>
+            </div>
+        </isif>
+    </div>
+</div>

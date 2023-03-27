@@ -1,0 +1,75 @@
+.b-refinements_header {
+    @include respond-to(mobile) {
+        margin-right: -1 * spacing(xs);
+        margin-left: -1 * spacing(xs);
+    }
+
+    &-content {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding-bottom: spacing(sm) / 2;
+        border-bottom: 1px solid $grey3;
+
+        @include respond-to(mobile) {
+            align-items: center;
+            padding: spacing(sm) spacing(xs);
+            border-color: $grey3;
+        }
+    }
+
+    &-title {
+        @include t-title-6;
+
+        @include respond-to(mobile) {
+            position: absolute;
+            top: spacing(sm);
+            left: 0;
+            z-index: 0;
+            width: 100%;
+            text-align: center;
+            font-size: rem-calc(14);
+        }
+    }
+
+    &-btn {
+        @include button-to-link;
+
+        font-size: rem-calc(12);
+        text-decoration: underline;
+        color: $grey5;
+        cursor: pointer;
+
+        &:hover {
+            color: $black;
+        }
+
+        @include respond-to(mobile) {
+            position: relative;
+            z-index: 1;
+        }
+    }
+
+    &-close {
+        display: none;
+
+        @include respond-to(mobile) {
+            @include icon('exit', 'before', 16);
+
+            position: relative;
+            z-index: 1;
+            display: block;
+            margin-left: auto;
+            font-size: 0;
+            border: none;
+            background: none;
+            color: $black;
+
+            &::before {
+                font-size: rem-calc(16);
+            }
+        }
+    }
+}

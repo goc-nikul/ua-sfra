@@ -1,0 +1,23 @@
+<isset name="paymentMethod" value="${!empty(pdict.order.billing.payment.selectedPaymentInstruments) ? pdict.order.billing.payment.selectedPaymentInstruments[0].paymentMethod : null}" scope="page" />
+<isif condition="${paymentMethod === 'AdyenComponent'}">
+	<isinclude template="checkout/billing/adyenGivingComponent" />
+</isif>
+<div class="card confirm-details">
+    <div class="card-body">
+        <isif condition="${!pdict.isOnlyGCPorduct && (pdict.isHALOrder == null || pdict.isHALOrder == false)}">
+            <div class="b-order-confirmation_inner-details">
+                <div class="b-order-confirmation_details-heading">
+                    ${Resource.msg('title.shipping.information', 'confirmation', null)}
+                </div>
+                <isinclude template="checkout/shipping/shippingSummary" />
+            </div>
+        </isif>
+        <div class="b-order-confirmation_inner-details">
+            <div class="b-order-confirmation_details-heading">
+                ${Resource.msg('title.billing.information', 'confirmation', null)}
+            </div>
+            <isinclude template="checkout/billing/billingSummary" />
+        </div>
+    </div>
+</div>
+

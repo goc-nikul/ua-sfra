@@ -1,0 +1,64 @@
+/**
+ * FilterMultiShipMethods.ds
+ *
+ * Filters a collection of shipping methods available for a shipment in checkout
+ * according to ShopRunner shipping rules
+ * 
+ * 
+ * @input ShippingMethods : dw.util.Collection collection of shipping methdods
+ * @output ShippingMethods : dw.util.Collection collection of shipping methdods
+ */
+
+function execute(args) {
+	var shippingMethods = args.ShippingMethods;
+	args.ShippingMethods = filterMethods(shippingMethods);
+	return PIPELET_NEXT;
+}
+
+function filterMethods(shippingMethods) {
+	/* If "shoprunner" method is in the list, then we know that there are only shoprunner items 
+	due to it's exclusion rules. 
+	
+	If this is the case, and the user is logged in, and not PO/APO address,
+	then only show ShopRunner
+	
+	If this is the case and the user is not logged in, show messaging
+	*/
+	
+	var shoprunnerMethod = null;
+	for (var index in shippingMethods)
+	{ 
+		if (shippingMethods[index].ID == 'shoprunner')
+		{
+			shoprunnerMethod = shippingMethods[index]; 
+		}
+	}
+	var srtoken = session.custom.srtoken;
+	if (empty(srtoken)) 
+    {
+    	var cookies = request.getHttpCookies();
+	    for (var i = 0; i < cookies.cookieCount; i++)
+	    {
+	    	var cookie = cookies[i];
+	    	if (cookie.name == 'sr_token')
+	    	{
+	    	   srtoken = cookie.value;	
+	    	   session.custom.srtoken = srtoken; 
+	    	   break;
+	    	}
+	    }
+    }
+	
+	// if not signed in, remove shoprunner method
+	if (shoprunnerMethod != null && (empty(srtoken) || srtoken.length < 1)) 
+	{
+		shippingMethods.remove(shoprunnerMethod);
+	}
+		
+    return shippingMethods;
+}
+
+module.exports = {
+    execute: execute,
+	filterMethods: filterMethods
+};

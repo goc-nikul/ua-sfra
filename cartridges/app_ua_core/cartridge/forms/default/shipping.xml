@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19" secure="false">
+    <!-- optional providing shipment uuid for multiship -->
+    <field formid="shipmentUUID" binding="UUID" type="string"/>
+    <!-- optional providing pli uuid for multiship -->
+    <field formid="productLineItemUUID" type="string"/>
+
+    <!-- form for creating and editing shipping address -->
+    <group formid="shippingAddress" form-error="address.invalid" >
+
+        <!-- use fields from shipping address definition -->
+        <include formid="addressFields" name="address"/>
+
+        <!-- shipping method selection -->
+        <field formid="shippingMethodID" type="string" mandatory="true" />
+
+        <!-- optional flags -->
+        <field formid="shippingAddressUseAsBillingAddress" label="checkout.shippingAddressUseAsBillingAddress" type="boolean" mandatory="false" />
+
+        <field formid="isGift" label="check.gift" type="boolean" checked="false" default-value="false" binding="isGift" mandatory="false" />
+        <field formid="giftMessage" label="label.input.giftmessage" type="string" binding="giftMessage" max-length="140" mandatory="false" />
+
+        <!-- action for actually saving the address -->
+        <action formid="save" valid-form="true"/>
+    </group>
+
+    <!-- form for adding primary & secondary contact for instore pickup -->
+    <group formid="primaryContact" form-error="address.invalid" >
+        <field formid="personFirstName" label="label.input.firstname.profile" type="string" mandatory="false" binding="firstName"
+           max-length="100" missing-error="address.firstname.missing" range-error="error.message.lessthan50"/>
+        <field formid="personLastName" label="label.input.lastname.profile" type="string" mandatory="false" binding="lastName" max-length="100"
+           missing-error="address.lastname.missing" range-error="error.message.lessthan50"/>
+        <field formid="personPhone" label="label.input.phonenumber" description="address.phone.example" type="string" mandatory="false"
+           regexp="^[0-9- \)\(+]{10,20}$"
+           binding="phone" min-length="10" max-length="20"
+           missing-error="address.phone.missing"
+           range-error="error.message.between10and20"
+           parse-error="error.message.parse.phone"/>
+        <field formid="personEmail" label="profile.email" type="string" mandatory="false" binding="email"
+           max-length="50" regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$" missing-error="error.card.info.missing.email"
+           parse-error="error.message.parse.email.profile.form" range-error="error.message.lessthan50"
+           value-error="ValueErrorText"/>
+
+        <action formid="save" valid-form="true"/>
+        
+    </group>
+    <group formid="secondaryContact" form-error="address.invalid" >
+        <field formid="someOneMayPickup" label="check.secondaryContact" type="boolean" checked="false" default-value="false" binding="someOneMayPickup" mandatory="false" />
+	    <field formid="personFirstName" label="label.input.firstname.profile" type="string" mandatory="false" binding="firstName"
+	       max-length="100" missing-error="address.firstname.missing" range-error="error.message.lessthan50"/>
+	    <field formid="personLastName" label="label.input.lastname.profile" type="string" mandatory="false" binding="lastName" max-length="100"
+	       missing-error="address.lastname.missing" range-error="error.message.lessthan50"/>
+	    <field formid="personPhone" label="label.input.phonenumber" description="address.phone.example" type="string" mandatory="false"
+	       regexp="^[0-9- \)\(+]{10,20}$"
+	       binding="phone" min-length="10" max-length="20"
+	       missing-error="address.phone.missing"
+	       range-error="error.message.between10and20"
+	       parse-error="error.message.parse.phone"/>
+	    <field formid="personEmail" label="profile.email" type="string" mandatory="false" binding="email"
+	       max-length="50" regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$" missing-error="error.card.info.missing.email"
+	       parse-error="error.message.parse.email.profile.form" range-error="error.message.lessthan50"
+	       value-error="ValueErrorText"/>
+	
+	    <action formid="save" valid-form="true"/>
+        
+    </group>
+</form>

@@ -1,0 +1,60 @@
+<!--- applicable credit cards--->
+<isset name="active" value="" scope="page" />
+<isif condition="${pdict.selectedPaymentMethod == paymentOption.ID || (pdict.selectedPaymentMethod == 'GIFT_CARD' && pdict.eligiblePaymentMethods.nonGCPayment)}">  
+	<isset name="active" value="active" scope="page" />
+</isif>
+
+<div class="g-accordion-item g-tabs-pane tab-pane paymetric-content ${active}" id="paymetric-content" role="tabpanel">
+<div class="b-payment-accordion-head g-accordion-header ${pdict.selectedPaymentMethod == paymentOption.ID ? '' : 'collapsed'}" data-method-id="${paymentOption.ID}" role="button" data-toggle="collapse" data-target="#acc-2" aria-expanded="true" aria-controls="acc-2">
+    <isprint value="${Resource.msg('heading.payment.creditCard', 'checkout', null)}" />
+    <span class="credit-card-images">
+        <img class="b-logo-image" src="${URLUtils.staticURL('/images/visa.svg')}" title="${Resource.msg('payment.creditcard.visa', 'checkout', null)}" alt="${Resource.msg('payment.creditcard.visa', 'checkout', null)}" />
+        <img class="b-logo-image" src="${URLUtils.staticURL('/images/mastercard.svg')}" title="${Resource.msg('payment.creditcard.mastercard', 'checkout', null)}" alt="${Resource.msg('payment.creditcard.mastercard', 'checkout', null)}" />
+        <img class="b-logo-image" src="${URLUtils.staticURL('/images/discover.svg')}" title="${Resource.msg('payment.creditcard.discover', 'checkout', null)}" alt="${Resource.msg('payment.creditcard.discover', 'checkout', null)}" />
+        <img class="b-logo-image" src="${URLUtils.staticURL('/images/american-express.svg')}" title="${Resource.msg('payment.creditcard.amex', 'checkout', null)}" alt="${Resource.msg('payment.creditcard.amex', 'checkout', null)}" />
+    </span>
+</div>
+
+<div class="g-accordion-content collapse ${pdict.selectedPaymentMethod == paymentOption.ID ? 'show' : ''}" id="acc-2" data-parent="#g-accordion-parent">
+    <fieldset class="payment-form-fields">
+            
+        <!--- payment method is credit card --->
+        <input type="hidden" class="form-control"
+               name="${pdict.forms.billingForm.paymentMethod.htmlName}"
+               value="Paymetric"
+        >
+
+        <iscomment> Payload input </iscomment>
+        <input type="hidden" name="${pdict.CurrentForms.paymetric.payload.htmlName}" />
+        <iscomment> Card Type Input Field </iscomment>
+        <input type="hidden" name="${pdict.CurrentForms.paymetric.cardType.htmlName}" />
+        <input type="hidden" name="${pdict.CurrentForms.paymetric.lastFour.htmlName}" />
+        <input type="hidden" name="${pdict.CurrentForms.paymetric.ccBinRange.htmlName}" />
+        <input type="hidden" name="${pdict.CurrentForms.paymetric.expiresMonth.htmlName}" />
+        <input type="hidden" name="${pdict.CurrentForms.paymetric.expiresYear.htmlName}" />
+        <!--- register/authenticated user --->
+        <isif condition="${pdict.customer.registeredUser}">
+            <h2 class="t-payment-sc ${pdict.customer.registeredUser && pdict.customer.customerPaymentInstruments.length && !pdict.customer.customerAllCreditCardsDisable ? '' : 'checkout-hidden'}">${Resource.msg('heading.payment.savecard', 'checkout', null)}</h2>
+            <div class="user-payment-instruments container ${pdict.customer.registeredUser && pdict.customer.customerPaymentInstruments.length && !pdict.customer.customerAllCreditCardsDisable ? '' : 'checkout-hidden'}">
+                <!--- Stored user payments --->
+                <div class="stored-payments">                    
+                    <isinclude template="checkout/billing/storedPaymentInstruments" />
+                </div>
+                <div class="payment-selection-error js-payment-selection-error hide">${Resource.msg('error.payment.list.notselected', 'checkout', null)}</div>
+                <!--- Add new credit card button --->
+                <div class="row">
+                    <button class="btn_credit_card btn btn-block add-payment js-add-payment btn-outline-primary g-button_secondary--black g-button_base" type="button">${Resource.msg('button.add.paymentnew', 'checkout', null)}</button>
+                </div>
+            </div>
+        </isif>
+
+        <fieldset class="credit-card-form ${pdict.customer.registeredUser && pdict.customer.customerPaymentInstruments.length && !pdict.customer.customerAllCreditCardsDisable ? 'checkout-hidden' : ''} ${pdict.CurrentCustomer.registered ? 'registered' : ''}">
+            <isinclude template="checkout/billing/paymetricForm" />
+            <isif condition="${pdict.customer.registeredUser}">
+                <button class="btn btn-block cancel-new-payment btn-outline-primary ${pdict.customer.registeredUser && pdict.customer.customerPaymentInstruments.length && !pdict.customer.customerAllCreditCardsDisable ? '' : 'checkout-hidden'}" type="button">${Resource.msg('button.back.to.stored.payments', 'checkout', null)}</button>
+            </isif>
+        </fieldset>
+
+    </fieldset>
+    </div>
+</div>

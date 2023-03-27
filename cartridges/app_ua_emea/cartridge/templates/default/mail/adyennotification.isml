@@ -1,0 +1,44 @@
+<!--- TEMPLATENAME: adyennotification.isml --->
+<iscontent compact="true">
+<isif condition="${!empty(pdict.ReplacedOrder) && pdict.ReplacedOrder.status == dw.order.Order.ORDER_STATUS_REPLACED}">
+	${Resource.msgf('adyen.notification.replacedorder.message','adyen',null, pdict.ReplacedOrder.orderNo, pdict.Order.orderNo)}
+<iselseif condition="${!empty(pdict.NotificationType) && pdict.NotificationType == 'REFUND_FAILED'}">
+	${Resource.msgf('adyen.notification.refundfailed.message','adyen',null,pdict.Order.orderNo)}
+<iselseif condition="${!empty(pdict.NotificationType) && (pdict.NotificationType == 'REFUND_SKIPPED' || pdict.NotificationType == 'REFUND_EMPTY_SKU' || pdict.NotificationType == 'REFUND_EMPTY_QTY'|| pdict.NotificationType == 'REFUND_EMPTY_TRANSACTION_REFERENCE' || 
+    pdict.NotificationType == 'REFUND_EMPTY_ORDER' || pdict.NotificationType == 'REFUND_INVALID_TRANSACTION_REFERENCE' || pdict.NotificationType == 'REFUND_EMPTY_ORDER_AMOUNT' || pdict.NotificationType == 'REFUND_EMPTY_REFUNDAMOUNT')}">
+	${Resource.msgf('adyen.refundskipped.message','adyen',null,pdict.Order ? pdict.Order.orderNo : '')}
+	<br />	${Resource.msgf('adyen.filename.message','adyen',null,pdict.FileName)} 
+<iselseif condition="${!empty(pdict.NotificationType) && pdict.NotificationType == 'RETURNCASE_ERROR'}">
+	${Resource.msgf('adyen.returncaseerror.message','adyen',null,pdict.Order.orderNo)}
+	<br />	${Resource.msgf('adyen.filename.message','adyen',null,pdict.FileName)}  
+<iselseif condition="${!empty(pdict.NotificationType) && pdict.NotificationType == 'REVIVE_FAILED'}">
+	${Resource.msgf('adyen.replacementfailed.message','adyen',null,pdict.Order.orderNo)}
+<iselseif condition="${!empty(pdict.NotificationType) && pdict.NotificationType == 'UNHANDLED_STATUS'}">
+	${Resource.msgf('adyen.unhandledstatus.message','adyen',null,pdict.Order.orderNo)}
+<iselseif condition="${!empty(pdict.NotificationType) && pdict.NotificationType == 'FAILED_ORDER'}">
+	${Resource.msgf('adyen.notification.subject','adyen',null,pdict.Order.orderNo)}
+<iselse>
+	${Resource.msgf('adyen.notification.message','adyen',null,pdict.Order.orderNo)}
+</isif>
+
+<br />${Resource.msgf('adyen.error.type','adyen',null,pdict.NotificationType)}
+
+<isif condition="${!empty(pdict.CurrentHttpParameterMap)}">
+	<br /></br />${Resource.msg('adyen.notification.requestmessage','adyen',null)}
+	<br />reason : ${pdict.CurrentHttpParameterMap.reason}
+	<br />eventDate: ${pdict.CurrentHttpParameterMap.eventDate}
+	<br />merchantReference: ${pdict.CurrentHttpParameterMap.merchantReference} 
+	<br />currency: ${pdict.CurrentHttpParameterMap.currency}
+	<br />pspReference: ${pdict.CurrentHttpParameterMap.pspReference}
+	<br />merchantAccountCode: ${pdict.CurrentHttpParameterMap.merchantAccountCode}
+	<br />eventCode: ${pdict.CurrentHttpParameterMap.eventCode}
+	<br />value: ${pdict.CurrentHttpParameterMap.value}
+	<br />operations: ${pdict.CurrentHttpParameterMap.operations}
+	<br />success: ${pdict.CurrentHttpParameterMap.success}
+	<br />paymentMethod: ${pdict.CurrentHttpParameterMap.paymentMethod}
+	<br />live: ${pdict.CurrentHttpParameterMap.live}
+<iselse>
+	<br /></br />${Resource.msgf('adyen.refundskipped.info','adyen',null,pdict.Items)}
+	<br />Amount : ${pdict.Amount}
+	<br />Currency: ${pdict.Currency}
+</isif>

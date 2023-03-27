@@ -1,0 +1,43 @@
+.b-alert {
+    &-container {
+        transform: translate(-50%, -50%);
+        position: fixed;
+        top: 15%;
+        left: 50%;
+        z-index: 102;
+        border-radius: 4px;
+        background-color: $grey2;
+        @include respond-to(phones-portrait) {
+            transform: translate(rem-calc(-16), rem-calc(16));
+            top: rem-calc(16);
+            left: rem-calc(32);
+        }
+    }
+
+    &-success,
+    &-danger {
+        @include icon(question);
+
+        padding: rem-calc(24);
+        @include respond-to(phones-portrait) {
+            padding: rem-calc(16);
+        }
+        @include font(main, rem-calc(12), 1.67);
+
+        @keyframes fade {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        &::before {
+            margin-right: rem-calc(16);
+            vertical-align: middle;
+        }
+
+        &.show {
+            display: block;
+        }
+    }
+}

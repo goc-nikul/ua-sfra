@@ -1,0 +1,23 @@
+// @require $media {list || list || string} - get breakpoints in list, map or string format,
+//    by default using map with all media queries
+// @return media queries in list format to avoid of error is cases of different formats
+
+@function media-to-list($media) {
+    $mediaList: ();
+
+    @if type-of($media) == map {
+        @each $breakpoint in map-keys($media) {
+            $mediaList: append($mediaList, $breakpoint);
+        }
+    } @else if type-of($media) == list {
+        @each $breakpoint in $media {
+            $mediaList: append($mediaList, $breakpoint, $separator: space);
+        }
+    } @else if type-of($media) == string {
+        $mediaList: append($mediaList, $media);
+    } @else {
+        @warn 'Invalid media type --- ' type-of($media);
+    }
+
+    @return $mediaList;
+}

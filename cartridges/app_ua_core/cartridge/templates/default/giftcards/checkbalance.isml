@@ -1,0 +1,78 @@
+<!--- TEMPLATENAME: checkbalance.isml --->
+<div class="js-check-balance-wrapper b-giftcard__landing-wrapper gift-card__balance-form-wrapper">
+    <h2 class="b-giftcard__balance-title">${Resource.msg('giftcards.checkbalance','giftcards',null)}</h2>
+    <isif condition="${pdict.countryCode =='CA'}">    
+    	<p class="b-giftcard__balance-subtitle caMessage">${Resource.msg('giftcards.checkbalance.subtitle','giftcards',null)}</p>
+    <iselse>
+    	<p class="b-giftcard__balance-subtitle">${Resource.msg('giftcards.checkbalance.enter','giftcards',null)}</p>
+    </isif>
+    <div class="b-giftcard__checkbalance-form">
+    <form action="${URLUtils.https('GiftCard-CheckGiftCardBalance')}" method="post" id="${pdict.CurrentForms.giftcards.dynamicHtmlName}" name="${pdict.CurrentForms.giftcards.htmlName}" class="js-check-balance-form gift-card__balance-form" data-cmp="giftCard">
+        <div class="gift-card__balance-form-row">
+		    <div class="form-group b-input_row
+                <isif condition="${!!pdict.giftCardForm.balance.cardNumber.mandatory === true}">required</isif>">
+                    <label class="form-control-label b-input_row-label" for="registration-form-password">
+                        <isprint value="${pdict.giftCardForm.balance.cardNumber.label}" encoding="htmlcontent" />
+                    </label>
+                    <input
+		            type="text"
+                        class="form-control b-input_row-input f-giftcardinput__balance"
+                        id=""
+                        aria-describedby="form-password-error"
+                        autocomplete="off"
+                        data-missing-error="${Resource.msg('gc.error.message.required', 'forms', null)}"
+                        data-valid-error="${Resource.msg('gc.error.message.validinput', 'forms', null)}"
+                        data-pattern-mismatch="${Resource.msg('gc.error.message.validinput', 'forms', null)}"
+                        <isprint value=${pdict.giftCardForm.balance.cardNumber.attributes} encoding="off" />>
+                    <div class="invalid-feedback" id="form-password-error"></div>
+                    <div class="b-cardnumber_demo"><span class="b-demo-image"></span>
+                        <span><isprint value="${Resource.msg('giftcards.cardnumber.demo','giftcards',null)}" encoding="htmlcontent" /></span>
+                    </div>
+                </div>
+		    <div class="form-group b-input_row
+                <isif condition="${!!pdict.giftCardForm.balance.pin.mandatory === true}">required</isif>">
+                <label class="form-control-label b-input_row-label" for="registration-form-password">
+                    <isprint value="${pdict.giftCardForm.balance.pin.label}" encoding="htmlcontent" />
+                </label>
+                <input
+		            type="text"
+                    class="form-control b-input_row-input f-giftcardinput__pin"
+                    id=""
+                    aria-describedby="form-password-error"
+                    autocomplete="off"
+                    data-missing-error="${Resource.msg('gcpin.error.message.required', 'forms', null)}"
+                    data-valid-error="${Resource.msg('gcpin.error.message.validpin', 'forms', null)}"
+                    data-pattern-mismatch="${Resource.msg('gcpin.error.message.validpin', 'forms', null)}"
+                    <isprint value=${pdict.giftCardForm.balance.pin.attributes} encoding="off" />>
+                <div class="invalid-feedback" id="form-password-error"></div>
+                </div>
+            </div>
+        <iscomment><img class="gift-card__balance-form-card-icon" src="${URLUtils.staticURL('/images/card_icon.gif')}"></iscomment>
+        <div class="gift-card__balance-form-row b-submit-result">
+            <div class="form-row form-row-button">
+                <button type="submit" value="${Resource.msg('bv.write.submit','forms',null)}" name="${pdict.CurrentForms.giftcards.checkBalance.htmlName}" class="js-check-balance-form-submit btn btn-primary btn-block f-giftcardinput__button g-button_base g-button_primary--black">
+                    ${Resource.msg('giftcards.view.balance','giftcards',null)}
+                </button>
+                <span class="giftCard-available-balance"></span>
+                <span class="giftCard-available-balance-errormsg"></span>
+            </div>
+            <div class="form-row b-balance-result-wrapper js-check-balance-result-wrapper clearfix hidden">
+                <div class="gift-card__balance-result js-balance-result">
+                    <div class="gift-card__balance-title">${Resource.msg('giftcards.currentbalance','giftcards',null)}</div>
+                    <span class="gift-card__balance-symbol">$</span>
+                    <span class='js-check-balance-result gift-card__balance-value js-result-value'></span>
+                    <isif condition="${dw.system.Site.getCurrent().getID() == 'CA'}">
+                        <span class="gift-card__balance-ca-symbol">CDN</span>
+                    </isif>
+                </div>
+                <iscomment>
+                <div class="gift-card__balance-result-logo">
+                    <img src="${URLUtils.staticURL('/images/payment_giftcard.jpg')}" width="60" alt="${Resource.msg('giftcard.payment.title', 'giftcards', null)} images number 0" title="${Resource.msg('giftcard.payment.title', 'giftcards', null)}">
+                </div>
+                </iscomment>
+            </div>
+        </div>
+        <input type="hidden" name="${dw.web.CSRFProtection.getTokenName()}" value="${dw.web.CSRFProtection.generateToken()}"/>
+    </form>
+    </div>
+</div>

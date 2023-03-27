@@ -1,0 +1,60 @@
+<isif condition="${pdict.addressBook.length != 0}">
+    <div class="b-account-address_book-heading">
+        <h1 class="heading-addresses">${Resource.msg('label.your.addresses','address',null)}</h1>
+    </div>
+    <div class="b-account-address_book-updated">
+        <div class="last-updated"><isprint value="${Resource.msgf('label.lastupdated','address',null, pdict.lastUpdated)}" /> </div>
+        <iscomment><span class="required-fields"><isprint value="${Resource.msgf('label.requiredfields','address',null, pdict.lastUpdated)}" /> </span></iscomment>
+    </div>
+</isif>
+<div class="address-right-container">
+    <isif condition="${pdict.addressBook.length === 0}">
+        <div class="no-address">
+            <div class="b-account-address_book-heading b-account-address_book-noaddress">
+                <h3><isprint value="${Resource.msg('msg.no.saved.addresses','address',null)}" encoding="off"></isprint></h3>
+            </div>
+        </div>
+    </isif>
+    <div class="b-account-address_book-container">
+        <isloop items="${pdict.addressBook}" var="address">
+            <div class="b-account-address_book-section js-address_book-section ${(address.address.ID == pdict.addressBook[0].address.ID || address.address.ID == pdict.defaultBillingAddressID) ? 'default-address' : ''}">
+                <div class="b-account-address_book-option js-address_book-option" id="uuid-${address.address.UUID}" data-addressID=${address.address.ID}
+                data-first-name="${address.address.firstName}" data-last-name="${address.address.lastName}" 
+                data-address1="${address.address.address1}" data-address2="${address.address.address2}" 
+                data-city="${address.address.city}" data-state-code="${address.address.stateCode}" 
+                data-country-code="${address.address.countryCode.value}" data-postal-code="${address.address.postalCode}" 
+                data-phone="${address.address.phone}" <isprint value="${ address.address.ID == pdict.addressBook[0].address.ID ? 'data-default="true"' : '' }" encoding="off" />  <isprint value="${ address.address.ID == pdict.defaultBillingAddressID ? 'data-default-billing="true"' : '' }" encoding="off" />>
+                    <isif condition="${address.address.ID == pdict.addressBook[0].address.ID  && pdict.addressBook[0].address.ID != pdict.defaultBillingAddressID}">              	
+						<div class="default-bold-child"><isprint value="${Resource.msg('account.address.defaultshipping','account',null)}"/></div>
+					<iselseif condition="${address.address.ID == pdict.addressBook[0].address.ID && pdict.addressBook[0].address.ID == pdict.defaultBillingAddressID}">
+						<div class="default-bold-child"><isprint value="${Resource.msg('account.address.defaultshippingbilling','account',null)}"/></div>
+					<iselseif condition="${address.address.ID == pdict.defaultBillingAddressID && address.address.ID !== pdict.addressBook[0].address.ID}">
+						<div class="default-bold-child"><isprint value="${Resource.msg('account.address.defaultbilling','account',null)}"/></div>
+					</isif>
+                    <div class="bold-child"><isprint value="${address.address.firstName + ' ' + address.address.lastName}" /></div>
+                    <div><isprint value="${address.address.address1}" /></div>
+                    <div><isprint value="${address.address.address2}" /> </div>
+                    <div><isprint value="${address.address.city + ', '}" /> <isif condition="${address.address.stateCode}"><isprint value="${address.address.stateCode + ' ' }" /> </isif> <isprint value="${address.address.postalCode}" /> </div>
+                    <isif condition="${!empty(address.address.countryCode.value) && address.address.countryCode.value !== 'US' && address.address.countryCode.value !== 'CA'}"> 
+                        <div><isprint value="${address.address.countryCode.displayValue}"/></div>
+                    </isif>
+                    <div><isprint value="${address.address.phone}" /> </div>
+                </div>
+                <a class="edit-address" <isprint value="${ address.address.ID == pdict.addressBook[0].address.ID ? 'data-default="true"' : '' }" encoding="off" /> <isprint value="${ address.address.ID == pdict.defaultBillingAddressID ? 'data-default-billing="true"' : '' }" encoding="off" /> >${Resource.msg('link.edit.address','account',null)}</a>
+                <button type="button" class="remove-address" data-url="${pdict.actionUrls.deleteActionUrl}" data-id="${address.address.ID}" aria-label="${Resource.msg('label.addressbook.deleteaddress','account',null)}"
+                    <isprint value="${ address.address.ID == pdict.addressBook[0].address.ID ? 'data-default="true"' : '' }" encoding="off" />  <isprint value="${ address.address.ID == pdict.defaultBillingAddressID ? 'data-default-billing="true"' : '' }" encoding="off" />> <isprint value="${Resource.msg('label.addressbook.removeaddress','address',null)}" />
+                </button>
+                <span class="icon"></span>
+            </div>
+        </isloop>
+        <isinclude template="account/deleteAddressModal"/>
+        <div class="viewMore">${Resource.msg('label.view.more','address',null)}</div>
+        <div class="viewLess hide">${Resource.msg('label.view.less','address',null)}</div>
+    </div>
+    <div class="b-account-address_book-containerNew">
+        <div class="col add-new-button js-address-form-content ${pdict.addressBook.length === 0 ? 'empty-address' : ''}">
+            <a class="b-account-address_book-new btn-add-new g-button_secondary--black g-button_base">${Resource.msg('button.addnew.address','account',null)}</a>
+        </div>
+        <isinclude template="account/editAddAddress"/>
+    </div>
+</div>

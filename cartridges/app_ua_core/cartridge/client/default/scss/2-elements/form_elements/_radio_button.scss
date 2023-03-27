@@ -1,0 +1,51 @@
+/* md
+
+# Radio button
+
+You must save the presented sequence of elements
+
+```html
+    <form>
+        <div class="g-radio">
+            <input class="g-radio-input" type="radio" id="radio-1">
+            <label class="g-radio-label" for="radio-1">Bottom Right</label>
+        </div>
+    </form>
+```
+
+## Default
+
+```html_example
+    <div style="padding: 15px 0;">
+        <form style="width: 100%">
+            <div style="padding: 15px 0;">
+                <div class="g-radio">
+                    <input class="g-radio-input" name="radio" type="radio" id="radio-1">
+                    <label class="g-radio-label" for="radio-1">Bottom Right</label>
+                </div>
+                <div class="g-radio">
+                    <input class="g-radio-input" name="radio" type="radio" id="radio-2">
+                    <label class="g-radio-label" for="radio-2">Bottom Right</label>
+                </div>
+                <div class="g-radio">
+                    <input class="g-radio-input" name="radio" type="radio" id="radio-3">
+                    <label class="g-radio-label" for="radio-3">Bottom Right</label>
+                </div>
+                <div class="g-radio">
+                    <input class="g-radio-input" name="radio" type="radio" id="radio-4">
+                    <label class="g-radio-label" for="radio-4">Bottom Right</label>
+                </div>
+            </div>
+        </form>
+    </div>
+```
+
+*/
+
+.g-radio {
+    @include input-radio;
+
+    + .g-radio {
+        margin-top: rem-calc(28);
+    }
+}

@@ -1,0 +1,27 @@
+.b-show_more {
+    &.m-collapsed > &-list > &-item.m-break,
+    &.m-collapsed > &-list > &-item.m-break ~ &-item {
+        display: none;
+    }
+
+    &-btn {
+        @include button-to-link;
+        @include link;
+
+        margin-top: spacing(sm);
+        font-weight: 500;
+    }
+
+    &.m-collapsed > &-btn {
+        margin-top: 0;
+    }
+
+    &-copy--show,
+    &.m-collapsed > &-btn &-copy--hide {
+        display: none;
+    }
+
+    &.m-collapsed > &-btn &-copy--show {
+        display: block;
+    }
+}

@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?demandware-pipeline version="2.0"?>
+
+<pipeline group="Extensions" type="view">
+  <branch basename="_ANONYMOUS_BRANCH_1">
+    <segment>
+      <node>
+        <text-node>
+          <description>This pipeline will return the collection of recipe categories stored in the RecipeCategories custom object ordered by sequence.</description>
+        </text-node>
+        <node-display width="2" x="1" y="2"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="getRecipeCategories">
+    <segment>
+      <node>
+        <start-node name="getRecipeCategories" secure="true">
+          <description>This pipeline is a service that will return all of the recipe categories that are seeded in the RecipeCategories custom object.</description>
+        </start-node>
+        <node-display x="1" y="3"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node custom-name="Services Script to Retrieve All Recipe Categories" pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <description>This script is used to retrieve each of the recipe categories defined in the &quot;RecipeCategories&quot; custom object, and return the collection of categories in a JSON document that can be consumed by the client.  This script is used to seed the Scene 7 Recipe Manager with the collection of recipe categories supported by the current installation.</description>
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="Exception"/>
+          <config-property key="ScriptFile" value="services/getRecipeCategories.ds"/>
+          <key-binding alias="log" key="ScriptLog"/>
+          <key-binding alias="CurrentHttpParameterMap.pid.value" key="pid"/>
+          <key-binding alias="json" key="json"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <interaction-node transaction-required="false">
+          <description>Generic services output template used to render JSON to a given request.</description>
+          <template buffered="true" dynamic="false" name="services/jsonOutput"/>
+        </interaction-node>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_3">
+    <segment>
+      <node>
+        <text-node>
+          <description>This pipeline will return the collection of view types stored in the RecipeViewTypes custom object ordered by sequence.  Please note that only active recipe view-types are returned by this service.</description>
+        </text-node>
+        <node-display width="2" x="4" y="2"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_4">
+    <segment>
+      <node>
+        <text-node>
+          <description>This pipeline will return a specific recipe definition
+for a recipe category / view-type combination.  In order to render a recipe definition, the service requires a recipe category and view-type.</description>
+        </text-node>
+        <node-display width="2" x="7" y="2"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="getViewTypes">
+    <segment>
+      <node>
+        <start-node name="getViewTypes" secure="true">
+          <description>This pipeline is a service that will return all of the recipe categories that are seeded in the RecipeCategories custom object.</description>
+        </start-node>
+        <node-display x="4" y="3"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node custom-name="Services Script to Retrieve All Recipe View Types" pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <description>This script is used to retrieve each of the recipe view-types defined in the &quot;RecipeViewTypes&quot; custom object, and return the collection of categories in a JSON document that can be consumed by the client.  This script is used to seed the Scene 7 Recipe Manager with the collection of recipe view types supported by the current installation.  Please note that this service only returns active data (in-active view types are not returned).</description>
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="Exception"/>
+          <config-property key="ScriptFile" value="services/getViewTypes.ds"/>
+          <key-binding alias="log" key="ScriptLog"/>
+          <key-binding alias="CurrentHttpParameterMap.pid.value" key="pid"/>
+          <key-binding alias="json" key="json"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <interaction-node transaction-required="false">
+          <description>Generic services output template used to render JSON to a given request.</description>
+          <template buffered="true" dynamic="false" name="services/jsonOutput"/>
+        </interaction-node>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="getRecipeDefinition">
+    <segment>
+      <node>
+        <start-node name="getRecipeDefinition" secure="true">
+          <description>This pipeline is a service that will return a recipe definition for a specific recipe category / view type combiation.</description>
+        </start-node>
+        <node-display x="7" y="3"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Services Script to Retrieve a Single Recipe Defintion" pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <description>This script is used to retrieve a specific recipe definition for a given recipe-category / view-type combination.  The script will build out the recipe-key using both of these fields, retrieve the custom data for this recipe definition, and then build out a new JSON object representing the recipe definition.</description>
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="services/getRecipeDefinition.ds"/>
+          <key-binding alias="log" key="ScriptLog"/>
+          <key-binding alias="CurrentHttpParameterMap.recipeCategory.value" key="recipeCategory"/>
+          <key-binding alias="CurrentHttpParameterMap.viewType.value" key="viewType"/>
+          <key-binding alias="json" key="json"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <interaction-node transaction-required="false">
+          <description>Generic services output template used to render JSON to a given request.</description>
+          <template buffered="true" dynamic="false" name="services/jsonOutput"/>
+        </interaction-node>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_7">
+    <segment>
+      <node>
+        <text-node>
+          <description>This pipeline will save changes to an existing recipe definition.  It accepts a string that represents the recipe in JSON format, parses it, and then saves the individual recipe components to the &quot;RecipeDefinitions&quot; collection.</description>
+        </text-node>
+        <node-display width="2" x="10" y="2"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="saveRecipeDefinition">
+    <segment>
+      <node>
+        <start-node name="saveRecipeDefinition" secure="true">
+          <description>This pipeline is a service that will accept a string representing the json-format definition for a given recipe, parse it, and then save the individual recipe definition components in the &quot;RecipeDefinitions&quot; collection.</description>
+        </start-node>
+        <node-display x="10" y="3"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Services Script to Save Change and Archive a Recipe Definition" pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <description>This script will take an incoming recipe definition in JSON format, parse it, retrieve the original version of the specified recipe definition, archive it, and then save the updated recipe definition.</description>
+          <config-property key="Transactional" value="true"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="services/saveRecipeDefinition.ds"/>
+          <config-property key="Timeout" value="90"/>
+          <key-binding alias="log" key="ScriptLog"/>
+          <key-binding alias="CurrentHttpParameterMap.recipeDefinition.value" key="recipeDefinition"/>
+          <key-binding alias="json" key="json"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <interaction-node transaction-required="false">
+          <description>Generic services output template used to render JSON to a given request.</description>
+          <template buffered="true" dynamic="false" name="services/jsonOutput"/>
+        </interaction-node>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_9">
+    <segment>
+      <node>
+        <text-node>
+          <description>This pipeline will return the collection product materials for a given style, and for each material include the image definitions that exist within Demandware.</description>
+        </text-node>
+        <node-display width="2" x="1" y="7"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_10">
+    <segment>
+      <node>
+        <text-node>
+          <description>This pipeline will return the recipe urls for the collection of active recipe definitions -- based on active view types.  This will be returned as a JSON object indexed by view type and recipe category.</description>
+        </text-node>
+        <node-display width="2" x="5" y="7"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="getProductImageDefinitions">
+    <segment>
+      <node>
+        <start-node name="getProductImageDefinitions" secure="true">
+          <description>This pipeline is a service that will return all of the recipe categories that are seeded in the RecipeCategories custom object.</description>
+        </start-node>
+        <node-display x="1" y="8"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node custom-name="Services Script to Retrieve All Product Material Image Definitions" pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <description>This script is used to retrieve the product material image definitions for master variants stored within Demandware.  The image definition includes the material code, view-type, and asset url.</description>
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="Exception"/>
+          <config-property key="ScriptFile" value="services/getProductImageDefinitions.ds"/>
+          <config-property key="Timeout" value="90"/>
+          <key-binding alias="log" key="ScriptLog"/>
+          <key-binding alias="CurrentHttpParameterMap.pid.value" key="pid"/>
+          <key-binding alias="json" key="json"/>
+          <key-binding alias="CurrentHttpParameterMap.productCodes.value" key="productCodes"/>
+          <key-binding alias="CurrentHttpParameterMap.defaultViewType.value" key="defaultViewType"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <interaction-node transaction-required="false">
+          <description>Generic services output template used to render JSON to a given request.</description>
+          <template buffered="true" dynamic="false" name="services/jsonOutput"/>
+        </interaction-node>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="getRecipeUrlDefinitions">
+    <segment>
+      <node>
+        <start-node name="getRecipeUrlDefinitions" secure="true">
+          <description>This pipeline is a service that will return the active collection of recipe url definitions for all active view-types.</description>
+        </start-node>
+        <node-display x="4" y="8"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Service to Retrieve All Active Recipe Url Definitions." pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <description>This script is used to retrieve the collection of active recipe url definitions indexed by view-type.</description>
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="services/getRecipeUrlDefinitions.ds"/>
+          <key-binding alias="log" key="ScriptLog"/>
+          <key-binding alias="json" key="json"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <interaction-node transaction-required="false">
+          <description>Generic services output template used to render JSON to a given request.</description>
+          <template buffered="true" dynamic="false" name="services/jsonOutput"/>
+        </interaction-node>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_13">
+    <segment>
+      <node>
+        <text-node>
+          <description>This pipeline will accept a JSON document describing the product-specific image assignments, archive the image assignments, and then convert them into the Demandware Catalog.xml format so that they can be imported.</description>
+        </text-node>
+        <node-display width="2" x="1" y="12"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="saveProductImageAssignments">
+    <segment>
+      <node>
+        <start-node name="saveProductImageAssignments" secure="true">
+          <description>This pipeline is a service that will return all of the recipe categories that are seeded in the RecipeCategories custom object.</description>
+        </start-node>
+        <node-display x="1" y="13"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node custom-name="Services Script to audit the product image assignments associated to the specified product code." pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <description>Services Script to audit the product image assignments associated to the specified product code.</description>
+          <config-property key="Transactional" value="true"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="services/saveProductImageAssignments.ds"/>
+          <config-property key="Timeout" value="60"/>
+          <key-binding alias="scriptLog" key="ScriptLog"/>
+          <key-binding alias="CurrentHttpParameterMap.imageAssignments.value" key="imageAssignment"/>
+          <key-binding alias="CurrentHttpParameterMap.imageAssignments.value" key="imageAssignments"/>
+          <key-binding alias="CurrentHttpParameterMap.productCode.value" key="productCode"/>
+          <key-binding alias="json" key="json"/>
+          <key-binding alias="CurrentHttpParameterMap.generateExport.value" key="generateExport"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <interaction-node transaction-required="false">
+          <description>Generic services output template used to render JSON to a given request.</description>
+          <template buffered="true" dynamic="false" name="services/jsonOutput"/>
+        </interaction-node>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+</pipeline>

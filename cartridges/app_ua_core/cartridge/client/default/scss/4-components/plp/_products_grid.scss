@@ -1,0 +1,30 @@
+.b-products_grid {
+    @include grid-row;
+
+    flex-wrap: wrap;
+
+    @include respond-to(no-phones) {
+        margin: 0 (- spacing(xs2)) spacing(xl);
+    }
+
+    @include respond-to(phones) {
+        margin-bottom: spacing(md);
+    }
+
+    &-tile {
+        @include respond-to(no-phones) {
+            width: calc(100% / 3);
+            margin-bottom: spacing(md);
+            padding: 0 spacing(xs2);
+        }
+
+        @include grid-col(6, $media: phones);
+        @include respond-to(phones) {
+            margin-bottom: spacing(xs);
+        }
+    }
+
+    &-footer {
+        @include grid-col(12);
+    }
+}

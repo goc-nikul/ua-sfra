@@ -1,0 +1,61 @@
+<isif condition="${pdict.countryCode === 'US' || pdict.countryCode === 'CA'}">
+    <isset name="breadcrumbForSchema" value="${pdict.breadcrumbForSchema}" scope="page" />
+<iselse>
+    <isset name="breadcrumbForSchema" value="${pdict.breadcrumbs}" scope="page"/>
+</isif>
+<isif condition="${breadcrumbForSchema}">
+    <isset name ="breadCrumbsSchema" value="${require('*/cartridge/scripts/helpers/structuredDataHelper').getBreadCrumbsSchema(breadcrumbForSchema)}" scope="page">
+    <isif condition="${breadCrumbsSchema}">
+        <script type="application/ld+json">
+            <isprint value="${JSON.stringify(breadCrumbsSchema)}" encoding="off" />
+        </script>
+    </isif>
+ </isif>
+
+<div class="b-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    <ol class="b-breadcrumbs-list">
+        <isloop items="${pdict.breadcrumbs}" var="breadcrumbValue" status="loopState">
+            <isif condition="${!breadcrumbValue.hide}">
+                <li class='b-breadcrumbs-item <isif condition="${loopState.last}">m-last</isif>'>
+                    <isif condition="${loopState.last}">
+                        <isset name="breadCrumbLast" value="${breadcrumbValue.htmlValue}" scope="pdict" />
+                        <input type="hidden" value="${breadcrumbValue.htmlValue}" class="breadCrumbLast" />
+                        <isif condition="${pdict.breadCrumbLast && pdict.breadCrumbLastPDP === breadcrumbValue.htmlValue}">
+                            <a class="b-breadcrumbs-link m-last" href="${breadcrumbValue.url + '?start=' + pdict.start + '&fromPDP=true'}" aria-current="page">
+                                ${breadcrumbValue.htmlValue}
+                            </a>
+                            <input type="hidden" value="${breadcrumbValue.url + '?start=' + pdict.start + '&fromPDP=true'}" class="previousUrl"/>
+                        <iselse>
+                            <a class="b-breadcrumbs-link m-last" href="${breadcrumbValue.url}" aria-current="page">
+                                ${breadcrumbValue.htmlValue}
+                            </a>
+                        </isif>
+                    <iselse>
+                        <a class="b-breadcrumbs-link" href="${breadcrumbValue.url}">
+                            ${breadcrumbValue.htmlValue}
+                        </a>
+                    </isif>
+                </li>
+            </isif>
+        </isloop>
+        <iscomment> refinement breadcrumb for PLP and search result pages </iscomment>
+        <isif condition="${pdict.productSearch !='undefined' && pdict.isUserRefinedSearch}">
+           <isset name="refinementCount" value="${0}" scope="page" />
+           <isset name="refinementValue" value="${''}" scope="page" />
+            <isloop items="${pdict.productSearch.breadcrumbSelectedFilters}" var="refinement" status="loopStatus">
+                <isif condition="${refinement.type !== 'category' && refinementCount < 15 && (refinement.id == 'gender' || refinement.id == 'colorgroup' || refinement.id == 'fittype' || refinement.id == 'size' || refinement.id == 'enduse' || refinement.id == 'silhouette' || refinement.id == 'subsilhouette' || refinement.id == 'subsubsilhouette' || refinement.id == 'division')}"> 
+                    <isset name="refinementCount" value="${++refinementCount}" scope="page" />
+                    <isif condition="${!empty(refinementValue) &&  refinementValue === refinement.sameRefinementGroupValue}">  
+                        <iscontinue/>
+                    </isif>
+                    <li class='breadcrumb-refinement <isif condition="${(!loopStatus.last) && (refinementCount < 15)}"> b-breadcrumbs-item </isif>'>
+                        <a class="b-breadcrumbs-link js-refinement_swatch" href="${refinement.breadcrumbRefinementUrl}" data-href="${refinement.breadcrumbRefinementUrl}">
+                            ${refinement.sameRefinementGroupValue} 
+                        </a>
+                    </li>
+                    <isset name="refinementValue" value="${refinement.sameRefinementGroupValue}" scope="page" />
+                </isif>
+            </isloop>
+        </isif> 
+    </ol>
+</div>

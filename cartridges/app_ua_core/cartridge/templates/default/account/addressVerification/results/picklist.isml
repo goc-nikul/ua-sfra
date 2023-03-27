@@ -1,0 +1,53 @@
+<div class="b-address_multiple b-address-waring">
+    <div class="b-address_multiple-info b-address-title">
+        ${Resource.msg('verification.multiple.title','address', null)}
+    </div>
+    <div class="b-address-info">
+        ${Resource.msg('verification.multiple.message','address', null)}
+    </div>
+    <div class="b-address-list-container">
+        <div class="b-address-list b-address_list">
+            <div class="b-address_list-title">
+                ${Resource.msg('verification.multiple.entered','address', null)}
+            </div>
+            <div class="b-address_list-container">
+                <div><isprint value="${pdict.original.address1}" /></div>
+                <div><isprint value="${pdict.original.address2}" /></div>
+                <div>
+                    <isprint value="${pdict.original.city}" />,
+                    <isprint value="${pdict.original.state}" />
+                </div>
+                <div><isprint value="${pdict.original.zipCode}" /></div>
+            </div>
+        </div>
+        <div class="b-address-list b-address_list">
+            <div class="b-address_list-title">
+                ${Resource.msg('verification.multiple.suggestions','address', null)}
+            </div>
+            <div class="b-address_list-container">
+                <ul>
+                    <isloop items="${pdict.refinedList}" var="refinedAddress" status="loopstate">
+                        <li class="b-address_multiple-item">
+                            <div class="g-radio">
+                                <input type="radio" name="address" class="g-radio-input" value="${refinedAddress.moniker}" id="${refinedAddress.moniker}" ${loopstate.index === 0 ? 'checked' : ''} />
+                                <label class="b-address_list-container-label g-radio-label" for="${refinedAddress.moniker}">
+                                    <div><isprint value="${refinedAddress.partialAddress}" /></div>
+                                </label>
+                            </div>
+                        </li>
+                    </isloop>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="b-address-info-waring">
+        <button type="button" data-action="accept" class="b-address-button g-button_base g-button_primary--black">
+            ${Resource.msg('verification.multiple.actions.accept', 'address', null)}
+        </button>
+        <div>
+            <button type="button" data-action="cancel" class="b-address-button g-button_styling">
+                ${Resource.msg('verification.multiple.actions.edit', 'address', null)}
+            </button>
+        </div>
+    </div>
+</div>

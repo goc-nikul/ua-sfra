@@ -1,0 +1,15 @@
+///	Animation
+///	@example
+///		@include animation(10s, 5s, linear, changecolour)
+///	@param {Time} $delay - Animation delay
+///	@param {Time} $duration - Animation duration
+///	@param {Easing function} $easing - Easing function name
+///	@param {String} $animation - Animation name
+
+@mixin animation ($delay, $duration, $easing, $animation) {
+    animation-delay: $delay;
+    animation-duration: $duration;
+    animation-name: $animation;
+    animation-timing-function: $easing;
+    animation-fill-mode: forwards; /* this prevents the animation from restarting! */
+}

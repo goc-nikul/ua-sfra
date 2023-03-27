@@ -1,0 +1,60 @@
+<isinclude template="components/header/mobileShopAllLink" />
+<isloop items="${menuItem.mobileSubCategories}" var="category">
+    <isset name="uaAnalyticsPathLevel2" value="${category.name.toLowerCase()}" scope="page" />
+    <isif condition="${category.subCategories}">
+        <li class="b-navigation-level_2_item b-hideitem__desktop js-accessibility-navLevel2-item hide-only-in-desktop ${category.expandMobileCategory ? 'b-navigation-default-expanded-state' : 'js-list-item'} ${category.hideInMobileNavigation ? 'h-hide-only-mobile' : ''} ${category.mobileHideParentCategory ? 'mobile-hide-parent-category' : ''}"
+            role="none">
+            <isif condition="${category.isClickable}">
+                <a href="${category.url}" id="${category.id}-mobile-level2" data-level="1"
+                    class="b-navigation-level_2_link m-has-sublist js-list-show js-accessibility-navLevel2-link"
+                    role="menuitem" data-cat="${category.id}-mobile-level2"
+                  data-analytics-nav-track="${uaAnalyticsPathTop}|${uaAnalyticsPathLevel2}|${category.url}"
+              >
+                    <span class="b-navigation-level_2_link">${category.name}</span>
+                    <isif condition="${category.isShowFlameIcon}"> 
+                    <span class="b-flameIcon" role="img" aria-label="${Resource.msg('label.flameIcon', 'common', null)}"></span>
+                    </isif>
+                </a>
+            <iselse>
+                <div class="b-navigation-level_2_link m-has-sublist js-list-show js-accessibility-navLevel2-link" role="menuitem" tabindex="0" data-level="1" data-cat="${category.id}">
+                    <span class="b-navigation-level_2_link js-menu-title f-no-anchor" data-menu-title="${category.name}">${category.name}</span>
+                    <isif condition="${category.isShowFlameIcon}"> 
+                    <span class="b-flameIcon" role="img" aria-label="${Resource.msg('label.flameIcon', 'common', null)}"></span>
+                    </isif>
+                </div>
+            </isif>
+            <isset name="menuItem" value="${category}" scope="page" />
+            <isset name="topCategory" value="${category}" scope="page" />
+            <ul class="b-navigation-level_3_list js-list-wrapper js-accessibility-navLevel3 ${category.expandMobileCategory ? 'b-navigation-default-expanded-state-list' : ''}"
+                role="menu" aria-label="${category.id}" data-cat="${category.id}">
+                <li class="b-navigation-title ${category.expandMobileCategory ? 'b-navigation-default-expanded-state-title' : ''}" role="none">
+                    <isif condition="${category.isClickable}">
+                        <a class="b-navigation-title_link js-menu-title" href="<isprint value="${topCategory.url}" encoding="htmldoublequote"/>"
+                          data-menu-title="${topCategory.name}" role="menuitem"
+                          data-analytics-nav-track="${uaAnalyticsPathTop}|${uaAnalyticsPathLevel2}|${category.url}"
+                      >
+                            ${topCategory.name}
+                        </a>
+                    <iselse>
+                        <span class="b-navigation-title_link js-menu-title" data-menu-title="${topCategory.name}">${topCategory.name}</span>
+                    </isif>
+                </li>
+                <iscomment> Hide for desktop always only show for mobile if fullfill this condition </iscomment>
+                <isif condition="${category.expandMobileCategory}">
+                    <isinclude template="components/header/MobileExpandCategory" />
+                <iselse/>
+                    <isinclude template="components/header/mobileMenuItemLevel3" />
+                </isif>
+            </ul>
+        </li>
+    <iselse/>
+        <li class="b-navigation-level_2_item b-hideitem__desktop js-accessibility-navLevel2-item hide-only-in-desktop ${category.hideInMobileNavigation ? 'h-hide-only-mobile' : ''}" role="none">
+            <a href="${category.url}" id="${category.id}-mobile-nav-level2" role="menuitem"
+                class="b-navigation-level_2_link no-sublist js-accessibility-navLevel2-link " tabindex="0" data-level="1" data-cat="${category.id}-mobile-nav-level2"
+                data-analytics-nav-track="${uaAnalyticsPathTop}|${uaAnalyticsPathLevel2}|${category.url}"
+            >
+                ${category.name}
+            </a>
+        </li>
+    </isif>
+</isloop>

@@ -1,0 +1,41 @@
+.b-product_availability {
+    // margin-top: spacing(xs2);
+    // margin-bottom: spacing(xs);
+
+    div {
+        @include font(main_med);
+    }
+
+    &-message {
+        @include font(main_med);
+
+        &.m-out-of-stock {
+            color: $red;
+        }
+    }
+
+    &-pdp-outofstock {
+        color: $green;
+        @include font(main_med, rem-calc(12), rem-calc(20));
+    }
+
+    &-lowInventory {
+        &.warn {
+            color: $red;
+            padding-bottom: rem-calc(24);
+            font-weight: 400;
+            @include font(main, rem-calc(14), rem-calc(20));
+            @include respond-to(phones) {
+                padding-bottom: rem-calc(16);
+            }
+        }
+    }
+}
+
+.b-product_preorder {
+    &-maskpdp {
+        margin: 0 0 rem-calc(24) 0;
+        color: $green;
+        @include font(main_med, rem-calc(12), rem-calc(20));
+    }
+}

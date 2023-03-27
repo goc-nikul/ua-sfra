@@ -1,0 +1,28 @@
+{
+    "step-types": {
+        "script-module-step": [
+            {
+                "@type-id": "custom.SleepingAccount.Management",
+                "@supports-site-context": "true",
+                "module": "plugin_sleepingaccount/cartridge/scripts/jobs/HandleSleepingAccount.js",
+                "description": "Handle Sleeping Accounts",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [{
+                            "@name": "sleepingAccountCutoffDays",
+                            "description": "account disable date in days",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "sleepingAccountNotificationDays",
+                            "description": "notification before inactivity days",
+                            "@type": "string",
+                            "@required": "true"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,194 @@
+.b-header_utility {
+    font-size: rem-calc(12);
+    position: absolute;
+    top: -32px;
+    right: 0;
+
+    @include respond-to(desktop) {
+        max-width: fit-content;
+    }
+
+    @include respond-to(desktop-large) {
+        max-width: fit-content;
+    }
+
+    &-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        height: 40px;
+
+        &.b-extole_refer_link {
+            div {
+                position: relative;
+                display: flex;
+                align-items: center;
+                height: 100%;
+
+                a {
+                    font-weight: $font-medium;
+                    display: inline-block;
+                    text-decoration: none;
+                    color: $white;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    margin: 0 0.7rem;
+
+                    &::after {
+                        content: "|";
+                        position: absolute;
+                        right: 0;
+                        top: 0;
+                        font-size: 0.5rem;
+                    }
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+            }
+        }
+    }
+
+    &-container {
+        @include flyout-absolute-common(auto, -1 * spacing(xs));
+
+        z-index: 9;
+        display: none;
+        padding: spacing(md);
+        background: $modal-bg;
+        font-size: rem-calc(12);
+        border: 1px solid #0d0d0d;
+        border-top: 2px solid #fff;
+        border-radius: 0 0 4px 4px;
+
+        &.show {
+            @include respond-to(touch-only) {
+                display: block;
+            }
+        }
+    }
+
+    &-item:last-child &-container {
+        right: 0;
+        left: auto;
+    }
+
+    &-title {
+        @include t-title-6;
+
+        min-width: rem-calc(120);
+        margin-bottom: rem-calc(14);
+    }
+
+    &-subitem {
+        margin-top: rem-calc(10);
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+
+    &-link {
+        @include link;
+
+        white-space: nowrap;
+
+        &:not(.m-link-medium) {
+            color: $black;
+        }
+
+        &.m-link-medium {
+            font-weight: $font-medium;
+        }
+
+        &.m-active {
+            color: $black;
+            pointer-events: none;
+        }
+
+        &.b-accountdropdown_heading {
+            font-size: 1rem;
+            color: $black;
+            cursor: default;
+            margin-bottom: rem-calc(5);
+
+            &:hover {
+                text-decoration: none;
+            }
+
+            &:focus {
+                outline: none;
+            }
+        }
+    }
+
+    &-toggle_icon,
+    &-icon {
+        width: 18px;
+        height: 11px;
+    }
+
+    &-toggle_icon {
+        margin-right: spacing(xs2);
+    }
+
+    &-icon {
+        margin-right: spacing(xs);
+    }
+
+    &-more_container {
+        margin-top: spacing(sm);
+        padding-top: spacing(xs);
+        border-top: 2px solid $grey3;
+        text-align: center;
+    }
+
+    &-more_link {
+        @include link('medium');
+    }
+
+    &-toggle,
+    &-heading {
+        display: flex;
+        align-items: center;
+        padding: spacing(xs2) spacing(xs);
+        line-height: rem-calc(12);
+        text-align: center;
+        color: $white;
+        word-break: keep-all;
+    }
+
+    &-toggle {
+        @include arrow(after, up, $white) {
+            margin-left: spacing(xs2);
+        }
+
+        border: none;
+        background-color: transparent;
+        outline: none;
+        cursor: pointer;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+
+        &:not(.collapsed) {
+            @include respond-to(touch-only) {
+                @include arrow(after, down, $white) {
+                    margin-left: spacing(xs2);
+                }
+            }
+        }
+    }
+
+    &-item &-container.show {
+        display: block;
+    }
+
+    &-item &-toggle.collapsed {
+        @include arrow(after, down, $white) {
+            margin-left: spacing(xs2);
+        }
+    }
+}

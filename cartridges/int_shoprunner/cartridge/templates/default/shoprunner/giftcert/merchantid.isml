@@ -1,0 +1,11 @@
+<!--- TEMPLATENAME: merchantid.isml --->
+<iscomment> 
+   Customers need to get the Gift Certificate Merchant ID by email 
+   in order to properly use the gift certificates with SR Express Checkout
+   The Merchant ID is required as CIN field within SR Express Checkout when trying to submit a gift certificate
+</iscomment>
+
+<p>
+	${Resource.msg('giftcert.merchantID','email',null)}
+	<isprint value="${pdict.GiftCertificate.getMerchantID()}">
+</p>

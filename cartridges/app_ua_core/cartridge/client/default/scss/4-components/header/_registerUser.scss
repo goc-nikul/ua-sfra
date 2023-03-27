@@ -1,0 +1,312 @@
+.g-modal-registerUser {
+    .g-modal-dialog {
+        max-width: rem-calc(450);
+        margin: rem-calc(32) auto;
+        min-height: calc(100% - (2rem * 2));
+
+        @include respond-to(mobile) {
+            max-width: 100%;
+            width: 100%;
+        }
+    }
+}
+
+.g-modal-userRegistered {
+    .g-modal-dialog {
+        max-width: rem-calc(450);
+        margin-top: 15rem;
+        @include respond-to(mobile) {
+            max-width: 100%;
+            width: 100%;
+            margin: 0;
+            height: 100%;
+        }
+    }
+}
+
+.modal-content {
+    &.g-modal-content {
+        &.g-modal-content-user-registered {
+            @include respond-to(mobile) {
+                height: 100%;
+                justify-content: center;
+            }
+        }
+    }
+}
+
+.blackCheckmark-success-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+
+    @include respond-to(mobile) {
+        height: 48px;
+        width: 100%;
+    }
+}
+
+.icxl-blackCheckmark-Success {
+    object-fit: contain;
+}
+
+.account-created-text-container {
+    text-align: center;
+    margin-bottom: 26px;
+}
+
+.account-created-text {
+    width: 100%;
+    height: 64px;
+    margin: 16px 0 34px;
+    font-family: $font-base;
+    font-size: 24px;
+    font-weight: bold;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.33;
+    letter-spacing: 1px;
+    text-align: center;
+    color: $black;
+}
+
+.continue-shopping-container {
+    width: 100%;
+    height: 44px;
+    padding: 12px 28px;
+    border-radius: 4px;
+    background-color: $black;
+    text-align: center;
+}
+
+.continue-shopping-label {
+    width: 312px;
+    height: 20px;
+    font-family: $font-base;
+    font-size: 12px;
+    font-weight: 600;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.67;
+    letter-spacing: normal;
+    color: $white;
+}
+
+.btn_primary--facebook {
+    margin-top: rem-calc(10);
+    border-color: #3a5997;
+    background-color: #3a5997;
+    color: $white;
+}
+
+.g-registered-modal-close_button {
+    @include closeIcon(right, rem-calc(16));
+
+    position: absolute;
+    padding: rem-calc(24) !important;
+    right: 16px;
+    top: 0;
+    height: 16px;
+    width: 16px;
+}
+
+.b-info-container {
+    text-align: center;
+    margin-top: rem-calc(16);
+
+    .register-policy {
+        margin-top: rem-calc(16);
+        color: $grey5;
+
+        a {
+            text-decoration: underline;
+            cursor: pointer;
+            color: inherit;
+            @include respond-to(desktop) {
+                text-underline-position: under;
+            }
+        }
+    }
+
+    .register-login {
+        margin-top: rem-calc(16);
+
+        a {
+            text-decoration: underline;
+            text-underline-position: under;
+            cursor: pointer;
+        }
+    }
+
+    .register-address {
+        margin-top: rem-calc(16);
+    }
+}
+
+.b-createaccount {
+    .register-modal-head {
+        font-size: rem-calc(24);
+        font-weight: bold;
+    }
+
+    .register-modal-text {
+        display: block;
+        margin-top: 0.5rem;
+
+        p {
+            padding-top: 1rem;
+            line-height: 1.75;
+            padding-right: 2rem;
+            position: relative;
+
+            ::before {
+                position: absolute;
+                left: 50%;
+                transform: translate(-50%, 0);
+            }
+
+            span {
+                padding-left: 1rem;
+            }
+        }
+    }
+
+    .registration {
+        padding: 0;
+        margin: rem-calc(32) 0 rem-calc(16);
+
+        label[for='add-to-email-list'] {
+            text-align: left;
+        }
+    }
+
+    .b-return-wrap {
+        .g-checkbox {
+            position: relative;
+            margin-bottom: rem-calc(24);
+
+            .g-checkbox-label {
+                display: flex;
+                padding-top: 0;
+            }
+        }
+
+        .password-display {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 0.75rem 0.625rem;
+            z-index: 99;
+            text-align: center;
+            cursor: pointer;
+        }
+    }
+}
+
+.register-cart-icon {
+    @include icon(checkout);
+}
+
+.register-return-icon {
+    @include icon(exchange-black);
+}
+
+.register-box-icon {
+    @include icon(shipping);
+}
+
+.register-box-star {
+    @include icon(star-filled);
+}
+
+.ua-reward-icon {
+    @include icon(ua-reward);
+}
+
+.b-navigation_utility-item {
+    &.b-register-link {
+        .b-header_account-link {
+            color: $black;
+            text-decoration-line: none;
+
+            .b-navigation_utility-text {
+                display: block;
+                text-align: center;
+                @include icon(mail);
+
+                margin-bottom: 0.375rem;
+            }
+        }
+    }
+}
+
+.b-checkout-registration {
+    @include respond-to(desktop) {
+        .input-feedback,
+        .invalid-feedback {
+            max-width: rem-calc(213);
+            width: 100%;
+            padding-left: 0 !important;
+        }
+    }
+}
+
+.b-account_form-column,
+.b-createaccount,
+.b-checkout-registration,
+.b-account-profile__password-details {
+    .input-feedback {
+        font-size: rem-calc(12);
+        padding-top: rem-calc(16);
+        padding-left: rem-calc(19);
+        text-align: left;
+        border-bottom: 1px solid $grey3;
+
+        p {
+            font-size: rem-calc(12);
+            padding-bottom: rem-calc(12);
+        }
+
+        .register_invalid-email {
+            display: none;
+        }
+    }
+
+    .invalid-feedback {
+        p {
+            font-size: rem-calc(12);
+            padding-bottom: rem-calc(12);
+            padding-left: rem-calc(19);
+        }
+
+        ul {
+            padding-left: rem-calc(19);
+
+            li {
+                font-size: rem-calc(12);
+                padding-bottom: rem-calc(4);
+            }
+        }
+    }
+}
+
+#form-password-rules {
+    ul {
+        padding-bottom: rem-calc(11);
+
+        li {
+            list-style: none;
+            padding-left: rem-calc(22);
+            padding-bottom: rem-calc(6);
+            background-image: url('../../images/checkmark-invalid-grey.svg');
+            background-repeat: no-repeat;
+            background-position: 0 1px;
+            color: $grey4;
+
+            &.validated {
+                background-image: url('../../images/checkmark-valid-green.svg');
+                color: $green;
+            }
+        }
+    }
+}

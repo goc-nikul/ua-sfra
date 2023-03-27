@@ -1,0 +1,27 @@
+<isscript>
+    var assets = require('*/cartridge/scripts/assets');
+    assets.addJs('/js/custom.js');
+</isscript>
+<isscript>
+    var atomeHelper = require('~/cartridge/scripts/atome/helpers/atomeHelpers');
+    var currencySymbol = session.currency.symbol;
+    var installmentPrice;
+    if (product.price && product.price.sales) {
+        installmentPrice = product.price.sales.value;
+    } else if (product.price && product.price.min.sales.value) {
+        installmentPrice = product.price.min.sales.value;
+    } else if (product.price) {
+        installmentPrice = product.price.value;
+    }
+    installmentPrice = installmentPrice && (currencySymbol + atomeHelper.toFixed(installmentPrice / 3, 2));
+</isscript>
+
+<div class="atome_widget">
+    <p class="atome-paragraph">
+        <span class="atome-message">${Resource.msg('atome.site.marketing.msg', 'atome', null)}</span>
+         <span class="atome-amount atome-amount-installment installment-${product.id}">
+            <isprint value="${installmentPrice}"/>
+        </span>
+        <img class="atome-logo atome-logo-popup" src="${URLUtils.staticURL('/images/atome-logo.svg')}" alt="Atome"/>
+    </p>
+</div>

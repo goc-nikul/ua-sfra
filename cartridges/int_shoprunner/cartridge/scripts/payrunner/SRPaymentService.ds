@@ -1,0 +1,179 @@
+'use strict';
+
+var Bytes = require('dw/util/Bytes');
+var Site = require('dw/system/Site');
+var HTTPClient = require('dw/net/HTTPClient');
+var Session = require('dw/system/Session');
+var Cipher = require('dw/crypto/Cipher');
+var Encoding = require('dw/crypto/Encoding');
+var ServiceRegistry = require('dw/svc/ServiceRegistry');
+
+//DW 16.x standards 
+var srGlobals = require("~/cartridge/scripts/util/srGlobals");
+var SRStatusCode = srGlobals.SRStatusCode;
+var ShoprunnerHttpsPaymentGet = require("~/cartridge/scripts/init/httpServiceInit").ShoprunnerHttpsPaymentGet(Site.getCurrent());
+
+/******************************************************
+* function: getSRPaymentByServiceRegistry
+*
+* implements retrieves payment / billing information from PayRunner
+*
+* input
+
+* SRCheckoutId -- Unique ID that identifies the ShopRunner session
+*
+* Output
+*
+* paymentInfo  -- Object that contains the payment / billing information
+*
+*
+******************************************************/
+function getSRPaymentByServiceRegistry(srCheckoutId) {
+	try {
+		var srtoken = srGlobals.getSRAuthenticationToken();
+		if (empty(srtoken)) {
+			return {
+				'status': SRStatusCode.SESSION_TIMEDOUT,
+				'message': 'Shoprunner login status timeout'
+			}
+		}
+		var keyNickName : String = Site.getCurrent().getCustomPreferenceValue('pr_EncryptKeyValue').toString();
+		ShoprunnerHttpsPaymentGet.addParam("SRCheckoutId", srCheckoutId);
+		ShoprunnerHttpsPaymentGet.addParam("keyNickName", keyNickName);
+		var result = ShoprunnerHttpsPaymentGet.call();
+		if( result.status != "OK" ){
+			return {
+				'status': SRStatusCode.SR_GETPAYMENT_FAILURE,
+				'message': 'empty getPaymentInfo message from Shoprunner'
+			}
+		};
+
+		var message: XML = new XML(result.getObject());
+		if (!empty(message)) {
+			// VALID RESPONSE. Do processing
+			var paymentInfo = getPaymentInfo(message);
+			return paymentInfo;
+		} else {
+			return {
+				'status': SRStatusCode.SR_GETPAYMENT_FAILURE,
+				'message': 'empty getPaymentInfo message from Shoprunner'
+			}
+		}
+	} catch (e) {
+		var ex = e;
+		return {
+			'status': SRStatusCode.SR_GETPAYMENT_FAILURE,
+			'message': e.toString()
+		}
+	}
+}
+
+
+/******************************************************
+* function: getSRPayment
+*
+* implements retrieves payment / billing information from PayRunner
+*
+* input
+
+* SRCheckoutId -- Unique ID that identifies the ShopRunner session
+*
+* Output
+*
+* paymentInfo  -- Object that contains the payment / billing information
+*
+*
+******************************************************/
+function getSRPayment(srCheckoutId) {
+	try {
+		var httpClient: HTTPClient = new HTTPClient();
+		// set timeout
+		var timeout: Number = Site.getCurrent().getCustomPreferenceValue("webserviceTimeout");
+		httpClient.setTimeout(timeout);
+		var srtoken = srGlobals.getSRAuthenticationToken();
+		if (!empty(srtoken)) {
+			var requestUrl = srGlobals.getPaymentInformationEndPoint(srtoken, srCheckoutId);
+			var userid = Site.getCurrent().getCustomPreferenceValue('sr_userID');
+			var passwd = Site.getCurrent().getCustomPreferenceValue('sr_apipass');
+
+			if (!empty(userid) && !empty(passwd)) {
+				httpClient.open('GET', requestUrl, userid, passwd);
+				httpClient.send();
+
+				if (httpClient.statusCode == 200) {
+					var message: XML = new XML(httpClient.text);
+					if (!empty(message)) {
+						// VALID RESPONSE. Do processing
+						var paymentInfo = getPaymentInfo(message);
+						return paymentInfo;
+					} else {
+						return {
+							'status': SRStatusCode.SR_GETPAYMENT_FAILURE,
+							'message': 'empty getPaymentInfo message from Shoprunner'
+						}
+					}
+				}
+			} else {
+				return {
+					'status': SRStatusCode.SESSION_TIMEDOUT,
+					'message': 'Shoprunner login status timeout'
+				}
+			}
+		}
+	} catch (e) {
+		return {
+			'status': SRStatusCode.SR_GETPAYMENT_FAILURE,
+			'message': e.toString()
+		}
+	}
+}
+
+/******************************************************
+ * function: getPaymentInfo
+ *
+ * implements shoprunner api method abandonPRCart
+ *
+ ******************************************************/
+function getPaymentInfo(message) {
+	var PaymentInfo: Object = {};
+	try {
+		// grab namespace
+		var sr: Namespace = new Namespace(message.namespace());
+
+		// grab the decoding details
+		var secretKey: String = Site.getCurrent().getCustomPreferenceValue('pr_DecryptionKey');
+		var salt: String = Site.getCurrent().getCustomPreferenceValue('pr_DecryptionKeySeed');
+		if (secretKey != null && (salt == null || empty(salt.replace(/^\s+|\s+$/gm, '') == true))) {
+			salt = secretKey.substr(0, 16);
+		}
+		var encryptAlgorithm: String = 'AES/CBC/PKCS5Padding';
+		var cipher: Cipher = new Cipher();
+		var ccn = message.sr::CCNumber;
+		var ccNuber = null;
+		ccNuber = cipher.decrypt(ccn, secretKey, encryptAlgorithm, salt, 1);
+
+		//check if the validation was a success
+		PaymentInfo.creditCard = message.sr::CCType;
+		PaymentInfo.CCNumber = ccNuber;
+		PaymentInfo.CCMonth = message.sr::CCMonth;
+		PaymentInfo.CCYear = message.sr::CCYear;
+		PaymentInfo.CCHolderName = message.sr::CCHolderName;
+		PaymentInfo.firstName = message.sr::firstName;
+		PaymentInfo.lastName = message.sr::lastName;
+		PaymentInfo.email = message.sr::email;
+		PaymentInfo.phone = message.sr::phone;
+		PaymentInfo.BillingAddress1 = message.sr::BillingAddress1;
+		PaymentInfo.BillingCity = message.sr::BillingCity;
+		PaymentInfo.BillingState = message.sr::BillingState;
+		PaymentInfo.BillingZip = message.sr::BillingZip;
+		PaymentInfo.BillingCountry = message.sr::BillingCountry;
+		PaymentInfo.status = SRStatusCode.OK;
+	} catch (e) {
+		var ex = e;
+		PaymentInfo.status = SRStatusCode.SR_GETPAYMENT_FAILURE;
+		PaymentInfo.message = 'error decryping SR PaymentInfomration ';
+	}
+	return PaymentInfo;
+}
+
+exports.getSRPayment = getSRPaymentByServiceRegistry;

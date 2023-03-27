@@ -1,0 +1,48 @@
+<iscomment>
+
+Template Notes:
+
+- This template is intended to be referenced from an <isinclude> tag within an <isloop> in another
+  source template.  The <isloop> is expected to have a "status" attribute, named "attributeStatus".
+- ${attributeStatus.last} is checked to see whether a particular attribute row should include the
+  Quantity drop-down menu
+
+</iscomment>
+
+<div class="b-product_attribute m-${attr.id}">
+    <isif condition="${attr.swatchable}">
+        <!-- Swatch Attributes Values -->
+        <isif condition="${attr.id === 'color'}">
+            <isset name="productSwatches" value="${product.variationAttributes[0].values}" scope="page"/>
+            <isinclude template="product/exchange/productCircleSwatch" />
+        <iselse>
+            <isinclude template="product/exchange/productTextSwatch" />
+        </isif>
+
+    <iselse/>
+        <!-- Select <Attribute> Label -->
+		<div class="b-size_pdp b-${attr.id}_outer">
+            <!-- Attribute Values Drop Down Menu -->
+            <div class="b-select-size-outer">
+                <ul class="js-input_field input-select form-control" id="${attr.id}-${attributeStatus && attributeStatus.count ? attributeStatus.count : '1' }" ${ product.productType === "variant" && typeof isBundle !=='undefined' && isBundle ? "disabled" : "" }>
+                    <isloop items="${attr.values}" var="attrValue" status="loopState">
+                        <isif condition="${product && product.custom.size === attrValue.value}">
+	                        <li class="js-sizeAttributes ${loopState.first ? 'first' : ''} ${loopState.count > 19 ? 'hideNow' : ''} ${loopState.count > 29 ? 'hideNowMobile' : ''}" data-url="${attrValue.url}">
+	                        <a href="${attrValue.url}" 
+	                            class="js-size-select ${attrValue.selected ? 'selected' : ''} ${!attrValue.selectable ? 'disabled' : ''}" 
+	                            data-attr-value="${attrValue.value}" data-size-attr="${attrValue.displayValue}"
+	                            aria-label="${attr.id}"
+	                            ${!attrValue.selectable ? 'disabled' : ''}
+	                            ${attrValue.selected ? 'selected' : ''}
+	                            disabled
+	                        >
+	                        <isif condition="${attr.id == 'size'}">${attrValue.displayValue ? attrValue.displayValue : attrValue.value}<iselse>${attrValue.displayValue}</isif></a>
+	                        </li>
+	                        <isbreak/>
+                        </isif>
+                    </isloop>
+                </ul>
+            </div>
+		</div>
+    </isif>
+</div>

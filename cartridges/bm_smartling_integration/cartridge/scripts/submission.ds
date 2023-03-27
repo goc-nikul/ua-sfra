@@ -1,0 +1,62 @@
+/**
+*   @input submitter : String  name of submitter
+*   @input languages : String list of languages to store
+*   @input itemID : String   product id.
+*
+*/
+importPackage(dw.system);
+importPackage(dw.object);
+importPackage(dw.util);
+importPackage(dw.catalog);
+importScript("submitItem.ds");
+importScript("helpFunctions.ds");
+importScript( "/utils/ExceptionLog.ds" );
+
+var submissionDao = require ('/bm_smartling_integration/cartridge/scripts/dao/submission.ds');
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "submissions"));
+
+/**
+    Store the productId into a custom object for submitting to Smartling FILE api.
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        var items : Array = pdict.itemID.split(',');
+        var languages : Array = pdict.languages.split(',');
+
+        for each (var id : String in items) {
+            var product : Product = ProductMgr.getProduct(id);
+            var existingSubmissions: List = submissionDao.getSubmissionsByItemId(product.ID, 'product').asList();
+
+            var fileUri : String;
+            if (existingSubmissions.size() > 0) {
+                fileUri = existingSubmissions.get(0).custom['fileUri'];
+            } else {
+                fileUri = product.ID + '_' + product.getUUID().substr(0, 3) + '.xml';
+            }
+
+            var existingSubmissionsByLocale = existingSubmissions.toArray().reduce(function(map, submission) {
+                var locale = submission.custom['locale'];
+                map[locale] = submission;
+                return map;
+            }, {});
+
+            for each (var locale : String in languages) {
+                if (locale != "") {
+                    var submission : CustomObject = existingSubmissionsByLocale[locale];
+                    if(!submission) {
+                        submission = CustomObjectMgr.createCustomObject("SMARTLING_SUBMISSION", UUIDUtils.createUUID());
+                        LOGGER.info("Created product submission for productId={0} and locale={1}", product.ID, locale);
+                    }
+                    LOGGER.info('Submitting product productId={0} for locale="{1}"', product.ID, locale);
+                    submitProduct(submission, product, pdict.submitter, locale, fileUri);
+                }
+            }
+        }
+    } catch (e) {
+        LOGGER.errorException("Store submissions failed for submitter={0}, languages={1}, itemID={2}", pdict.submitter, pdict.languages, pdict.itemID, e);
+        return PIPELET_ERROR;
+    }
+
+   return PIPELET_NEXT;
+}

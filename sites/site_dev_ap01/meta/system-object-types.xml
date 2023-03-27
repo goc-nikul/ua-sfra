@@ -1,0 +1,914 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
+    <type-extension type-id="CustomerPaymentInstrument">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="adyenCreditCardType">
+                <display-name xml:lang="x-default">adyenCreditCardType</display-name>
+                <description xml:lang="x-default">Adyen Credit card type</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="adyenPaymentData">
+                <display-name xml:lang="x-default">adyenPaymentData</display-name>
+                <description xml:lang="x-default">adyenPaymentData</description>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="ott">
+                <display-name xml:lang="x-default">One Time Token</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </custom-attribute-definitions>
+    </type-extension>
+
+    <type-extension type-id="OrderPaymentInstrument">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="adyenIssuerName">
+                <display-name xml:lang="x-default">adyenIssuerName</display-name>
+                <description xml:lang="x-default">Selected issuer name</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="adyenPaymentMethod">
+                <display-name xml:lang="x-default">adyenPaymentMethod</display-name>
+                <description xml:lang="x-default">paymentMethod used by shopper</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="adyenPartialPaymentsOrder">
+                <display-name xml:lang="x-default">adyenPartialPaymentsOrder</display-name>
+                <description xml:lang="x-default">partial payments order data</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="adyenAdditionalPaymentData">
+                <display-name xml:lang="x-default">adyenAdditionalPaymentData</display-name>
+                <description xml:lang="x-default">Additional data for payment method</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+             <attribute-definition attribute-id="adyenAction">
+                <display-name xml:lang="x-default">adyenAction</display-name>
+                <description xml:lang="x-default">Action data from payment response</description>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="adyenPaymentData">
+                <display-name xml:lang="x-default">adyenPaymentData</display-name>
+                <description xml:lang="x-default">Adyen PaymentData 3D Secure</description>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="adyenMD">
+                <display-name xml:lang="x-default">adyenMD</display-name>
+                <description xml:lang="x-default">Adyen MD for 3D Secure</description>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="adyenRedirectURL">
+                <display-name xml:lang="x-default">adyenRedirectURL</display-name>
+                <description xml:lang="x-default">Redirect URL</description>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="adyenStateData">
+                <display-name xml:lang="x-default">adyenStateData</display-name>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="adyenBasketHash">
+                <display-name xml:lang="x-default">Adyen Basket Hash</display-name>
+                <description xml:lang="x-default">Used to store adyen basket hash and check while placing an order for Adyen Paypal.</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="processorReferenceNumber">
+                <display-name xml:lang="x-default">Processor Reference Number</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="ott">
+                <display-name xml:lang="x-default">One Time Token</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="cvvResult">
+                <display-name xml:lang="x-default">CVV Result</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="receiptToken">
+                <display-name xml:lang="x-default">Receipt Token</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="authAVSResult">
+                <display-name xml:lang="x-default">Auth AVS Result</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="AdyenPayment">
+                <display-name xml:lang="x-default">AdyenPayment</display-name>
+                <attribute attribute-id="adyenIssuerName"/>
+                <attribute attribute-id="adyenPaymentMethod"/>
+                <attribute attribute-id="adyenPaymentData"/>
+				<attribute attribute-id="adyenAdditionalPaymentData"/>
+            </attribute-group>
+            <attribute-group group-id="Aurus">
+                <display-name xml:lang="x-default">Aurus</display-name>
+                <attribute attribute-id="ott"/>
+                <attribute attribute-id="cvvResult"/>
+                <attribute attribute-id="receiptToken"/>
+                <attribute attribute-id="authAVSResult"/>
+                <attribute attribute-id="processorReferenceNumber"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+    <type-extension type-id="Order">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="expirationDate">
+                <display-name xml:lang="x-default">Expiration Date</display-name>
+                <type>datetime</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_eventCode">
+                <display-name xml:lang="x-default">eventCode</display-name>
+                <description xml:lang="x-default">AUTHORISATION, CANCELLATION, REFUND</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_paymentMethod">
+                <display-name xml:lang="x-default">paymentMethod</display-name>
+                <description xml:lang="x-default">paymentMethod used by shopper</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_pspReference">
+                <display-name xml:lang="x-default">pspReference</display-name>
+                <description xml:lang="x-default">Internal Adyen ID</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_value">
+                <display-name xml:lang="x-default">Amount paid (in minor units)</display-name>
+                <description xml:lang="x-default">Amount paid (in minor units)</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_CustomerEmail">
+                <display-name xml:lang="x-default">Adyen Customer email</display-name>
+                <description xml:lang="x-default">Confirmation email to shopper</description>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_donationAmount">
+                <display-name xml:lang="x-default">Adyen donation amount</display-name>
+                <description xml:lang="x-default">Amount donated via Adyen Giving</description>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_refundAmount">
+                <display-name xml:lang="x-default">Adyen Refund Amount</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_refundCurrency">
+                <display-name xml:lang="x-default">Adyen Refund Currency</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_refundReason">
+                <display-name xml:lang="x-default">Adyen Refund Reason</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_refundStatus">
+                <display-name xml:lang="x-default">Adyen Refund Status</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="aurusResponseCode">
+                <display-name xml:lang="x-default">Aurus Response Code</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="aurusProcessorResponseCode">
+                <display-name xml:lang="x-default">Aurus Processor Response Code</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="AdyenPayments">
+                <display-name xml:lang="x-default">AdyenPayments</display-name>
+                <attribute attribute-id="Adyen_pspReference"/>
+                <attribute attribute-id="Adyen_eventCode"/>
+                <attribute attribute-id="Adyen_paymentMethod"/>
+                <attribute attribute-id="Adyen_value"/>
+                <attribute attribute-id="Adyen_CustomerEmail"/>
+                <attribute attribute-id="Adyen_donationAmount"/>
+                <attribute attribute-id="Adyen_refundAmount"/>
+                <attribute attribute-id="Adyen_refundCurrency"/>
+                <attribute attribute-id="Adyen_refundReason"/>
+                <attribute attribute-id="Adyen_refundStatus"/>
+                <attribute attribute-id="expirationDate"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+    <type-extension type-id="PaymentTransaction">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="Adyen_additionalData">
+                <display-name xml:lang="x-default">Adyen Additional Data</display-name>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_log">
+                <display-name xml:lang="x-default">Adyen Log</display-name>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_authResult">
+                <display-name xml:lang="x-default">Adyen_authResult</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+             <attribute-definition attribute-id="Adyen_merchantReference">
+                <display-name xml:lang="x-default">Adyen_merchantReference</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+             <attribute-definition attribute-id="Adyen_merchantReturnData">
+                <display-name xml:lang="x-default">Adyen_merchantReturnData</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+             <attribute-definition attribute-id="Adyen_merchantSig">
+                <display-name xml:lang="x-default">Adyen_merchantSig</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+             <attribute-definition attribute-id="Adyen_paymentMethod">
+                <display-name xml:lang="x-default">Adyen_paymentMethod</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+             <attribute-definition attribute-id="Adyen_pspReference">
+                <display-name xml:lang="x-default">Adyen_pspReference</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+             <attribute-definition attribute-id="Adyen_shopperLocale">
+                <display-name xml:lang="x-default">Adyen_shopperLocale</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+             <attribute-definition attribute-id="Adyen_skinCode">
+                <display-name xml:lang="x-default">Adyen_skinCode</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="aurusPayAPTID">
+                <display-name xml:lang="x-default">Aurus Pay Transaction Identifier (APTID)</display-name>
+                <description xml:lang="x-default">Aurus Pay Transaction Identifier - used by OMS for Aurus Pay Post Auth</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="aurusPayAPTN">
+                <display-name xml:lang="x-default">Aurus Pay Ticket Number (APTN)</display-name>
+                <description xml:lang="x-default">Aurus Pay Ticket Number - used by OMS for Aurus Pay Post Auth</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="aurusPayOOT">
+                <display-name xml:lang="x-default">Aurus Pay One Order Token (OOT)</display-name>
+                <description xml:lang="x-default">Aurus Pay One Order Token - used by OMS for Aurus Pay Post Auth</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="Custom">
+                <display-name xml:lang="x-default">Custom</display-name>
+                <attribute attribute-id="aurusPayOOT"/>
+                <attribute attribute-id="aurusPayAPTN"/>
+                <attribute attribute-id="aurusPayAPTID"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+
+    <type-extension type-id="SitePreferences">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="adyenAdditionalData">
+                <display-name xml:lang="x-default">Adyen Additional Data</display-name>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="isConfirmationStatusNotUpdate">
+				<display-name xml:lang="x-default">Set Confirmation status to update or not</display-name>
+				<type>boolean</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+			</attribute-definition>
+            <attribute-definition attribute-id="OrderNumberPrefix">
+                <display-name xml:lang="x-default">Order Number Prefix</display-name>
+                <description xml:lang="x-default">Order number prefix used to differentiate the EU and UKIE orders for Adyen notification</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen3DS2Enabled">
+				<display-name xml:lang="x-default">3DS2 Enabled</display-name>
+				<type>boolean</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<default-value>true</default-value>
+			</attribute-definition>
+			<attribute-definition attribute-id="AdyenRatePayID">
+				<display-name xml:lang="x-default">RatePay ID</display-name>
+				<type>string</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+				<default-value>oj9GsQ</default-value>
+			</attribute-definition>
+			<attribute-definition attribute-id="AdyenOneClickEnabled">
+				<display-name xml:lang="x-default">Store shopper details: one-click</display-name>
+				<description xml:lang="x-default">Tokenize shopper details for one-click payments</description>
+				<type>boolean</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<default-value>false</default-value>
+			</attribute-definition>
+			<attribute-definition attribute-id="AdyenCreditCardInstallments">
+				<display-name xml:lang="x-default">Credit Card Installments</display-name>
+				<description xml:lang="x-default">If installments are required please create the configuration value using this link: https://adyen.github.io/adyen-salesforce-commerce-cloud</description>
+				<type>string</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+			</attribute-definition>
+			<attribute-definition attribute-id="AdyenBasketFieldsEnabled">
+				<display-name xml:lang="x-default">Basket Fields Enabled</display-name>
+				<type>boolean</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<default-value>true</default-value>
+			</attribute-definition>
+            <attribute-definition attribute-id="AdyenCardHolderName_enabled">
+                <display-name xml:lang="x-default">Show input field for card holder name</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+			<attribute-definition attribute-id="AdyenLevel23DataEnabled">
+				<display-name xml:lang="x-default">Level 2/3 Data Authorisation Enabled</display-name>
+				<type>boolean</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<default-value>true</default-value>
+			</attribute-definition>
+			<attribute-definition attribute-id="AdyenLevel23_CommodityCode">
+				<display-name xml:lang="x-default">Commodity Code that best describes your products (only applicable for Level 2/3 Data Authorisation) https://www.unspsc.org/search-code</display-name>
+				<type>string</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+			</attribute-definition>
+			<attribute-definition attribute-id="Adyen_Mode">
+				<display-name xml:lang="x-default">Test/Production Mode</display-name>
+				<description xml:lang="x-default">Set to live for Production or test for test mode</description>
+				<type>enum-of-string</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<value-definitions>
+					<value-definition default="true">
+						<value>TEST</value>
+					</value-definition>
+					<value-definition>
+						<value>LIVE</value>
+					</value-definition>
+				</value-definitions>
+			</attribute-definition>
+			<attribute-definition attribute-id="Adyen_merchantCode">
+				<display-name xml:lang="x-default">Merchant account</display-name>
+				<type>text</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+			</attribute-definition>
+            <attribute-definition attribute-id="Adyen_Frontend_Region">
+                <display-name xml:lang="x-default">Region</display-name>
+                <description xml:lang="x-default">This should be set to the region closest to where your shoppers are located. It influences the speed at which front-end resources (Adyen Checkout Component) used throughout the checkout process will be retrieved.</description>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <value>EU</value>
+                    </value-definition>
+                    <value-definition>
+                        <value>US</value>
+                    </value-definition>
+                    <value-definition>
+                        <value>AU</value>
+                    </value-definition>
+                    <value-definition>
+                        <value>IN</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+			<attribute-definition attribute-id="Adyen_notification_password">
+				<display-name xml:lang="x-default">Adyen Notifications Password</display-name>
+				<description xml:lang="x-default">Adyen Notifications Password for basic Authentication</description>
+				<type>password</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+				<field-length>0</field-length>
+			</attribute-definition>
+			<attribute-definition attribute-id="Adyen_notification_user">
+				<display-name xml:lang="x-default">Adyen Notifications User</display-name>
+				<description xml:lang="x-default">Adyen Notifications User for Basic Authentication</description>
+				<type>string</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+				<field-length>0</field-length>
+			</attribute-definition>
+            <attribute-definition attribute-id="AdyenSalePaymentMethods">
+                <display-name xml:lang="x-default">Payment methods with SALE flow</display-name>
+                <description xml:lang="x-default">Only applicable for Salesforce OMS. List the txvariants with Authorisation type SALE comma separated (e.g. ideal,sepadirectdebit,paypal).</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+			<attribute-definition attribute-id="Adyen_StoreId">
+				<display-name xml:lang="x-default">StoreId for Terminal API</display-name>
+				<description xml:lang="x-default">StoreId for Terminal API</description>
+				<type>string</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+				<field-length>0</field-length>
+			</attribute-definition>
+			 <attribute-definition attribute-id="Adyen_API_Key">
+				<display-name xml:lang="x-default">X-API-KEY of Web service</display-name>
+				<description xml:lang="x-default">X-API-KEY of Web service</description>
+				<type>password</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+				<field-length>0</field-length>
+			</attribute-definition>
+			<attribute-definition attribute-id="AdyenGiving_enabled">
+				<display-name xml:lang="x-default">Enable Adyen Giving</display-name>
+				<type>boolean</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<default-value>false</default-value>
+			</attribute-definition>
+			<attribute-definition attribute-id="AdyenGiving_charityAccount">
+				<display-name xml:lang="x-default">Charity merchant account</display-name>
+				<description xml:lang="x-default">Adyen's merchant account from Charity</description>
+				<type>string</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+			</attribute-definition>
+			<attribute-definition attribute-id="AdyenGiving_charityName">
+				<display-name xml:lang="x-default">Charity name</display-name>
+				<type>string</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+			</attribute-definition>
+			<attribute-definition attribute-id="AdyenGiving_donationAmounts">
+				<display-name xml:lang="x-default">Amounts for donation</display-name>
+				<description xml:lang="x-default">Comma separated values in minor units (e.g. $10.00 = 1000)</description>
+				<type>string</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+			</attribute-definition>
+			<attribute-definition attribute-id="AdyenGiving_charityDescription">
+				<display-name xml:lang="x-default">Description of charity</display-name>
+				<type>string</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+			</attribute-definition>
+			<attribute-definition attribute-id="AdyenGiving_charityUrl">
+				<display-name xml:lang="x-default">Website from charity</display-name>
+				<description xml:lang="x-default">e.g. https://www.mycharity.com</description>
+				<type>string</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+			</attribute-definition>
+			<attribute-definition attribute-id="AdyenGiving_backgroundUrl">
+				<display-name xml:lang="x-default">Background image of Adyen Giving component</display-name>
+				<description xml:lang="x-default"></description>
+				<type>image</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+			</attribute-definition>
+			<attribute-definition attribute-id="AdyenGiving_logoUrl">
+				<display-name xml:lang="x-default">Logo in Adyen Giving component</display-name>
+				<description xml:lang="x-default"></description>
+				<type>image</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+			</attribute-definition>
+            <attribute-definition attribute-id="Adyen_ClientKey">
+                <display-name xml:lang="x-default">Your Adyen Client Key. Required to accept both live and test payments</display-name>
+                <description xml:lang="x-default">Retrieve this value from Customer Area</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+			<attribute-definition attribute-id="AdyenNotifyEmail">
+				<display-name xml:lang="x-default">Adyen Notification Email</display-name>
+				<description xml:lang="x-default">Comma separated list of emails for notification</description>
+				<type>string</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+			</attribute-definition>
+			<attribute-definition attribute-id="Adyen_GooglePayMerchantID">
+				<display-name xml:lang="x-default">Your Google MerchantID (required in production only)</display-name>
+				<description xml:lang="x-default">As described in https://developers.google.com/pay/api/web/guides/test-and-deploy/deploy-production-environment#obtain-your-merchantID</description>
+				<type>string</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+			</attribute-definition>
+			<attribute-definition attribute-id="Adyen_IntegratorName">
+				<display-name xml:lang="x-default">System Integrator </display-name>
+				<description xml:lang="x-default">Name of system integrator (if any)</description>
+				<type>string</type>
+				<mandatory-flag>false</mandatory-flag>
+				<externally-managed-flag>false</externally-managed-flag>
+				<min-length>0</min-length>
+			</attribute-definition>
+            <attribute-definition attribute-id="Adyen_SFRA6_Compatibility">
+                <display-name xml:lang="x-default">SFRA v6 compatibility enabled </display-name>
+                <description xml:lang="x-default">This setting should be enabled when using SFRA v6. Otherwise it should be disabled</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="MAOEnabled">
+                <display-name xml:lang="x-default">Enable MAO</display-name>
+                <description xml:lang="x-default">Enable/disable MAO</description>
+                <type>boolean</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="sitemapsLocalesMapping">
+                <display-name xml:lang="x-default">Sitemaps Locales Mapping</display-name>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="Alternate_Payment_Matrix">
+                <display-name xml:lang="x-default">Alternate Payment Matrix</display-name>
+                <description xml:lang="x-default">Alternate Payment Matrix</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="isMAOMaintenanceModeEnabled">
+                <display-name xml:lang="x-default">isMAOMaintenanceModeEnabled</display-name>
+                <description xml:lang="x-default">Is MAO maintenance mode enabled?</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+			<attribute-definition attribute-id="enableAurusPay">
+                <display-name xml:lang="x-default">Enable AurusPay</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+			<attribute-definition attribute-id="Aurus_showExpressCheckoutButtonOnCart">
+                <display-name xml:lang="x-default">Aurus show Express Checkout Button On Cart</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="Aurus_corporateIdentifier">
+                <display-name xml:lang="x-default">CorpID - corporate Identifier from AurusPay</display-name>
+                <description xml:lang="x-default">This is a 4 Numeric field which is unique corporate Identifier from AurusPay®.</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Aurus_domainId">
+                <display-name xml:lang="x-default">DomainId - Aurus domain ID for identify respective iFrame, CSS for different Domain</display-name>
+                <description xml:lang="x-default">This field identifies the Aurus provided 3-digit Domain identification number. Aurus will provide Domain ID for identify respective iFrame, CSS for different Domain.</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Aurus_experienceProfileId">
+                <display-name xml:lang="x-default">Experience Profile ID</display-name>
+                <description xml:lang="x-default">Use in WalletObject for Aurus PayPal</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Aurus_merchantIdentifier">
+                <display-name xml:lang="x-default">MerchantIdentifier - identifies the Aurus provided merchant identification number</display-name>
+                <description xml:lang="x-default">This field identifies the Aurus provided merchant identification number. Every merchant registered with Aurus must have this value in order to process any financial/non-financial transactions. Public merchant identifier is used only for token transaction and private merchant identifier is used for charging the card. Both the merchant identifier would be unique.</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Aurus_storeId">
+                <display-name xml:lang="x-default">StoreId - identifies the Aurus provided 5-12 digit variable length merchant identification number</display-name>
+                <description xml:lang="x-default">This field identifies the Aurus provided 5-12 digit variable length merchant identification number. Every merchant registered with Aurus must have this value in order to process any financial/non-financial transactions.</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Aurus_terminalId">
+                <display-name xml:lang="x-default">TerminalId - Aurus terminal identification number</display-name>
+                <description xml:lang="x-default">This field identifies the Aurus provided 8-digit terminal identification number. Every merchant registered with Aurus must have this value in order to process any financial/non-financial transactions. One store can have multiple terminals assigned to it.</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Aurus_terminalId_Android">
+                <display-name xml:lang="x-default">TerminalId - Aurus terminal identification number for Andriod</display-name>
+                <description xml:lang="x-default">This field identifies the Aurus provided 8-digit terminal identification number. Every merchant registered with Aurus must have this value in order to process any financial/non-financial transactions. One store can have multiple terminals assigned to it.</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Aurus_terminalId_IOS">
+                <display-name xml:lang="x-default">TerminalId - Aurus terminal identification number for IOS</display-name>
+                <description xml:lang="x-default">This field identifies the Aurus provided 8-digit terminal identification number. Every merchant registered with Aurus must have this value in order to process any financial/non-financial transactions. One store can have multiple terminals assigned to it.</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Aurus_urlType">
+                <display-name xml:lang="x-default">URLType - URL Type for identify respective Aurus iFrame</display-name>
+                <description xml:lang="x-default">This field identifies the Aurus provided 3-digit URL Type. Aurus will provide URL Type for identify respective iFrame, CSS for different Domain. 1-Iframe, 2-JS, 3- paypage, 4-Alternate Payment</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="aurus_gp_gateway">
+                <display-name xml:lang="x-default">Aurus GooglePay Gateway Merchant name</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="aurus_gp_gatewayMerchantId">
+                <display-name xml:lang="x-default">Aurus GooglePay Gateway Merchant ID</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="aurus_keep_alive">
+                <display-name xml:lang="x-default">Enable keep alive connection</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+			<attribute-definition attribute-id="paypalClientId">
+                <display-name xml:lang="x-default">PayPal Client Id</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="enablePDPIcons">
+                <display-name xml:lang="x-default">Enable PDP Icons</display-name>
+                <description xml:lang="x-default">Enable/Disable Feature Benefit Icons.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="uaidmEnableRegisterFEValidation">
+                <display-name xml:lang="x-default">Enable Register Front-end Validation for IDM</display-name>
+                <description xml:lang="x-default">Enable "Create Account" email Front-end Validation for IDM</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="enablePDPIcons">
+                <display-name xml:lang="x-default">Enable PDP Icons</display-name>
+                <description xml:lang="x-default">Enable/Disable Feature Benefit Icons.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="cashPaymentMethods">
+                <display-name xml:lang="x-default">Cash Payment Methods</display-name>
+                <description xml:lang="x-default">comma separated list</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="SitemapsLocalesMapping">
+                <display-name xml:lang="x-default">Sitemaps Locales Mapping</display-name>
+                <attribute attribute-id="sitemapsLocalesMapping"/>
+            </attribute-group>
+            <attribute-group group-id="Adyen">
+                <display-name xml:lang="x-default">Adyen Account Settings</display-name>
+                <attribute attribute-id="Adyen_merchantCode"/>
+                <attribute attribute-id="Adyen_Mode"/>
+                <attribute attribute-id="Adyen_API_Key"/>
+                <attribute attribute-id="Adyen_ClientKey"/>
+                <attribute attribute-id="Adyen_Frontend_Region"/>
+                <attribute attribute-id="Adyen_SFRA6_Compatibility"/>
+                <attribute attribute-id="Adyen3DS2Enabled"/>
+                <attribute attribute-id="AdyenOneClickEnabled"/>
+                <attribute attribute-id="AdyenCreditCardInstallments"/>
+                <attribute attribute-id="AdyenBasketFieldsEnabled"/>
+                <attribute attribute-id="AdyenLevel23DataEnabled"/>
+                <attribute attribute-id="AdyenCardHolderName_enabled"/>
+                <attribute attribute-id="AdyenLevel23_CommodityCode"/>
+                <attribute attribute-id="AdyenSalePaymentMethods"/>
+                <attribute attribute-id="Adyen_notification_user"/>
+                <attribute attribute-id="Adyen_notification_password"/>
+                <attribute attribute-id="Adyen_IntegratorName"/>
+                <attribute attribute-id="Adyen_GooglePayMerchantID"/>
+                <attribute attribute-id="AdyenRatePayID"/>
+                <attribute attribute-id="Adyen_StoreId"/>
+                <attribute attribute-id="AdyenGiving_enabled"/>
+                <attribute attribute-id="AdyenGiving_charityName"/>
+                <attribute attribute-id="AdyenGiving_charityAccount"/>
+                <attribute attribute-id="AdyenGiving_donationAmounts"/>
+                <attribute attribute-id="AdyenGiving_charityDescription"/>
+                <attribute attribute-id="AdyenGiving_charityUrl"/>
+                <attribute attribute-id="AdyenGiving_backgroundUrl"/>
+                <attribute attribute-id="AdyenGiving_logoUrl"/>
+                <attribute attribute-id="AdyenNotifyEmail"/>
+				<attribute attribute-id="OrderNumberPrefix"/>
+                <attribute attribute-id="adyenAdditionalData"/>
+                <attribute attribute-id="cashPaymentMethods"/>
+            </attribute-group>
+            <attribute-group group-id="AurusPay">
+                <display-name xml:lang="x-default">Aurus Pay Site Configuration Settings</display-name>
+				<attribute attribute-id="enableAurusPay"/>
+				<attribute attribute-id="Aurus_showExpressCheckoutButtonOnCart"/>
+                <attribute attribute-id="Aurus_corporateIdentifier"/>
+                <attribute attribute-id="Aurus_domainId"/>
+                <attribute attribute-id="Aurus_merchantIdentifier"/>
+                <attribute attribute-id="Aurus_storeId"/>
+                <attribute attribute-id="Aurus_terminalId"/>
+                <attribute attribute-id="Aurus_terminalId_Android"/>
+                <attribute attribute-id="Aurus_terminalId_IOS"/>
+                <attribute attribute-id="Aurus_urlType"/>
+                <attribute attribute-id="paypalClientId"/>
+                <attribute attribute-id="Aurus_experienceProfileId"/>
+                <attribute attribute-id="aurus_gp_gateway"/>
+                <attribute attribute-id="aurus_gp_gatewayMerchantId"/>
+                <attribute attribute-id="Alternate_Payment_Matrix"/>
+                <attribute attribute-id="aurus_keep_alive"/>
+            </attribute-group>
+            <attribute-group group-id="FeatureAndBenefits">
+                <display-name xml:lang="x-default">Feature and Benefits</display-name>
+                <attribute attribute-id="enablePDPIcons"/>
+            </attribute-group>
+            <attribute-group group-id="UA IDM">
+                <display-name xml:lang="x-default">UA IDM authentication settings</display-name>
+                <attribute attribute-id="uaidmIsEnabled"/>
+                <attribute attribute-id="uaidmAccountLinksDomain"/>
+                <attribute attribute-id="uaidmUpdateProfileOnLogin"/>
+                <attribute attribute-id="uaidmOauthProviderId"/>
+                <attribute attribute-id="uaidmClientId"/>
+                <attribute attribute-id="uaidmClientSecret"/>
+                <attribute attribute-id="uaidmJwtSigningKeyId"/>
+                <attribute attribute-id="uaidmJwtSigningKey"/>
+                <attribute attribute-id="uaidmSfccStorefrontPassword"/>
+                <attribute attribute-id="uaidmRedirectURI"/>
+                <attribute attribute-id="uaidmPersistantSession"/>
+                <attribute attribute-id="uaidmActiveSession"/>
+                <attribute attribute-id="uaidmEnableRegisterFEValidation"/>
+                <attribute attribute-id="registrationPageRedirectURL"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+</metadata>

@@ -1,0 +1,104 @@
+/**
+* saveRecipeDefinition
+* --------------------
+* This script is used to save a recipe definition for a given recipe category / view-type combination
+* to the "RecipeDefinitions" collection.  The script accepts a JSON string representation of the recip
+* definition, parses it, and then saves the individual recipe components.
+* 
+* @input 	recipeDefinition : String containing the JSON representation of the recipe being saved.
+* @output 	json : Object Output object describing whether the save was successful or not
+*
+*/
+
+// Initialize packages to import
+importPackage( dw.system );
+importPackage( dw.util );
+
+// This function saves a given recipe definition back to the Demandware "RecipeDefinitions" collection.
+function execute( args : PipelineDictionary ) : void
+{
+
+	// Initialize the output object that will be returned to the user
+	var outputObj = { RESULT: false };
+
+	// Initialize the Recipe Manager logging debugger	
+	var logger = Logger.getLogger( "UAS7.RM" );	
+
+	try{
+
+		// Parse out the recipe definition
+		var recipeObj : Object = JSON.parse(args.recipeDefinition);
+
+		// Initialize the temporary recipe representations
+		var recipeToSave = {};
+		var recipeToArchive = {};
+
+		// Create an instance of the current site
+		var siteId = dw.system.Site.getCurrent().ID;
+		
+		// Reference the userName associated to this user
+		var userName = session.getUserName();
+
+		// Create the primary key representation of this recipe
+		var pk = recipeObj["CATEGORYNAME"] + "|" + recipeObj["VIEWTYPE"];
+		
+		// Create a new unique id for the archive object
+		var archivePK = dw.util.UUIDUtils.createUUID();
+	
+		// Retrieve each of the recipe categories that are currently stored in the RecipeCategories custom object
+		var originalRecipe : dw.object.CustomObject = dw.object.CustomObjectMgr.queryCustomObject("RecipeDefinitions", "UUID = {0}", recipeObj["UUID"]);
+	
+		// Create an instance of the audited / archived 
+		var recipeToArchive : dw.object.CustomObject = dw.object.CustomObjectMgr.createCustomObject("RecipeDefinitionAuditHistory", archivePK); 	
+	
+		// Seed the properties of the recipe definition to archive
+		recipeToArchive.custom["RECIPEDEFINITIONID"] = originalRecipe.custom["RECIPEDEFINITIONID"];
+		recipeToArchive.custom["CATEGORYNAME"] = originalRecipe.custom["CATEGORYNAME"];
+		recipeToArchive.custom["VIEWTYPE"] = originalRecipe.custom["VIEWTYPE"];
+		recipeToArchive.custom["DEF"] = originalRecipe.custom["DEF"];
+		recipeToArchive.custom["ORIENTATION"] = originalRecipe.custom["ORIENTATION"];
+		recipeToArchive.custom["RECIPE"] = originalRecipe.custom["RECIPE"];
+		recipeToArchive.custom["SAMPLEURL"] = originalRecipe.custom["SAMPLEURL"];
+		recipeToArchive.custom["SITEID"] = siteId;
+		recipeToArchive.custom["USERNAME"] = userName;
+		
+		// Now that the original recipe has been archived, let's over-write it with the new definition data
+		originalRecipe.custom["RECIPEDEFINITIONID"] = pk;
+		originalRecipe.custom["CATEGORYNAME"] = recipeObj["CATEGORYNAME"];
+		originalRecipe.custom["VIEWTYPE"] = recipeObj["VIEWTYPE"];
+		originalRecipe.custom["DEF"] = JSON.stringify(recipeObj["DEF"]);
+		originalRecipe.custom["ORIENTATION"] = JSON.stringify(recipeObj["ORIENTATION"]);
+		originalRecipe.custom["RECIPE"] = recipeObj["RECIPE"];
+		originalRecipe.custom["SAMPLEURL"] = recipeObj["SAMPLEURL"];
+		originalRecipe.custom["USERNAME"] = userName;
+		
+		// Flag that the save was succcessful
+		outputObj["RESULT"] = true;		
+
+	} catch(e) {
+		
+		// If an error is caught, output it
+		trace(e);
+		
+		// Debugging: Capture the error
+		var localError = e;
+			
+		// This will get outputed via the /ajax/jsonOutput template.
+		outputObj["RESULT"] = false;
+		outputObj["ERRORMESSAGE"] = e.message;			
+
+		// Debugging: Capture the error message for the exception that was caught
+		logger.debug("RecipeDefinitionAuditHistory - Error:" + e.message);
+				
+	}
+	
+	// Take the recipe categories array, and convert it to JSON
+	var jsonString : String = JSON.stringify(outputObj);
+
+	// Output the return result
+	args.json = jsonString;
+
+	// Continue processing the pipeline
+    return PIPELET_NEXT;
+   
+}

@@ -1,0 +1,34 @@
+<script>
+var dates = jQuery("[class='date']");
+for (var i = 0; i < dates.length; i++){
+    var element = dates.eq(i);
+    var rawDateString = element.text();
+    if ('null' != rawDateString){
+       var date = new Date(Date.parse(rawDateString));
+       var formattedDateString = date.toLocaleDateString('en-US', {
+           day : 'numeric',
+           month : 'short',
+           year : 'numeric'
+       }).split(' ').join(' ');
+
+       var elementDiv = jQuery("<div/>").addClass("tooltip").text(formattedDateString);
+       var tooltipDiv = jQuery("<div/>").addClass("tooltiptext").css("left", elementDiv.position().left).html(rawDateString);
+       elementDiv.append(tooltipDiv);
+       element.empty().append(elementDiv);
+    } else {
+        element.text("");
+    }
+}
+
+var longDescriptions = jQuery("[name='longDescription']");
+for (var i = 0; i < longDescriptions.size(); i++){
+    var element = longDescriptions.eq(i);
+    var elementText = element.text();
+    var elementTextShort = elementText.length <= 197? elementText: elementText.substring(0, 197) + "...";
+    
+    var elementDiv = jQuery("<div/>").addClass("tooltip").text(elementTextShort);
+    var tooltipDiv = jQuery("<div/>").addClass("tooltiptext").css("left", elementDiv.position().left).html(elementText);
+    elementDiv.append(tooltipDiv);
+    element.empty().append(elementDiv);
+}
+</script>

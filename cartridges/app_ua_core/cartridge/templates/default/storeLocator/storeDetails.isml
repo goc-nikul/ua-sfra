@@ -1,0 +1,32 @@
+<div class="store-details" data-store-id="${store.ID}">
+    <div class="store-details-actions">
+        <div data-target="${'#acc-' + store.ID}" data-toggle="collapse" class="store-short-desc g-accordion-header collapsed">
+            <div class="b-store-selectedresult ${!empty(pdict.selectedStoreID) && pdict.selectedStoreID == store.ID ? '' : 'hide'}">
+                <img src="${URLUtils.staticURL('/images/store.svg')}" alt="${store.name}" title="${Resource.msg('store.results.yourpickupstore', 'storeLocator', null)}">
+                <span><isprint value="${Resource.msg('store.results.yourpickupstore', 'storeLocator', null)}"/></span>
+            </div>
+            <div class="b-store-name store-name">
+                <isprint value="${store.name}"/>
+            </div>
+            <div class="b-store-description">${store.city}, ${store.stateCode}</div>
+            <div class="b-store-description-bottom">
+                <div class="b-store-miles"><isprint value="${store.distance}" /></div>
+                <isif condition="${store.enableStore !== false}">
+                    <div class="b-store-pickup ${!store.productInStoreInventory ? 'unavailable' : ''}"><isprint value="${store.availabilityMessage}" /></div>
+                </isif>
+            </div>
+            <isif condition="${!(store.enableStore !== false)}">
+               <div class="b-store-description-notpickup">
+                   <div class="b-store-notpickup"><isprint value="${Resource.msg('store.results.yourpickupunavailable', 'storeLocator', null)}"/></div>
+               </div>
+            </isif>
+        </div>
+        <isif condition="${store.enableStore !== false}">
+            <div class="b-store_select-button ${!empty(pdict.selectedStoreID) && pdict.selectedStoreID == store.ID ? 'b-store_selected-button' : ''}">
+                <button class="btn btn-primary g-button_base g-button_primary--black b-storeselected-button ${!empty(pdict.selectedStoreID) && pdict.selectedStoreID == store.ID ? '' : 'hide'}">${Resource.msg('button.selected.store', 'storeLocator', null)}</button>
+                <button class="btn btn-primary g-button_base g-button_primary--black select-store ${!empty(pdict.selectedStoreID) && pdict.selectedStoreID == store.ID ? 'hide' : ''}" data-store-id="${store.ID}" data-cart="${URLUtils.url('Cart-Show')}" data-cart-href="${URLUtils.url('Stores-UpdateBopisShipments')}" data-href="${URLUtils.url('StoreLocator-SelectStore')}" data-text="${Resource.msg('button.select.store','storeLocator',null)}">${Resource.msg('button.select.store','storeLocator',null)}</button>
+            </div>
+        </isif>
+    </div>
+    <isinclude template="storeLocator/storeLongDescription"/>
+</div>

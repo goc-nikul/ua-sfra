@@ -1,0 +1,87 @@
+'use strict';
+/**
+* Demandware Script File
+* Bags all ShopRunner Common Utility methods.
+*
+* Effort to refactor common code flow/methods in to single file.
+*
+*/
+
+var Site = require('dw/system/Site');
+var Session = require('dw/system/Session');
+
+var siteID = Site.getCurrent().getID();
+
+function getValidateTokenEndPoint(srToken : String) : String {
+	// If production, set production url
+	if (Site.getCurrent().getCustomPreferenceValue('sr_environment').value == 2) {
+		return 'https://api.shoprunner.com/validateToken?srtoken=' + srToken;
+	}
+	
+	return 'https://apiv2-staging.shoprunner.com/token?format=xml&srtoken=' + srToken; 
+}
+
+function getPaymentInformationEndPoint(srToken : String, srCheckoutID)  : String {
+	
+	var apiVersion : String = '3.0';
+    var keyName : String = Site.getCurrent().getCustomPreferenceValue('pr_EncryptKeyValue').toString();
+    
+	var requestUrl = 'https://apiv2-staging.shoprunner.com/SRCheckoutAPI?srtoken=' + srToken;
+    // If production, set production url
+    if (Site.getCurrent().getCustomPreferenceValue('sr_environment').value == 2)  {
+        var requestUrl = 'https://api.shoprunner.com/SRCheckoutAPI?srtoken=' + srToken;
+    }
+	return requestUrl + 
+		  '&SRCheckoutID=' + srCheckoutID + 
+		  '&apiVersion=' + apiVersion + 
+		  '&keyNickName=' + keyName;	
+}
+
+function getSRAuthenticationToken()  {
+    // get sr_token
+    var srtoken: String = session.custom.srtoken;
+    if (empty(srtoken)) {
+        var cookies: Cookies = request.getHttpCookies();
+        for (var i = 0; i < cookies.cookieCount; i++) {
+            var cookie: Cookie = cookies[i];
+            if (cookie.name == 'sr_token') {
+                srtoken = cookie.value;
+                session.custom.srtoken = srtoken;
+                break;
+            }
+        }
+    }
+    return srtoken;	
+}
+
+function SRStatusCode() {}
+
+SRStatusCode.OK = 0;  // Success Status
+SRStatusCode.CUSTOM_MESSAGE = 111; //Managed Fatal Error Custom Messaging;
+SRStatusCode.SESSION_TIMEDOUT = 42;
+SRStatusCode.INVALID_SHIPPING_ADDRESS = 14;
+SRStatusCode.INVALID_BILLING_ADDRESS = 13;
+SRStatusCode.CREDIT_CARD_AUTH_FAILURE = 24;
+SRStatusCode.SR_GETPAYMENT_FAILURE = 21;
+// Mixed Cart. EC Modal has to be closed and purchase needs to be completed on partner site after logging out of ShopRunner.
+SRStatusCode.SR_INELIGIBLE_CART_BLOCK = 44;
+
+function SRServiceConstant(site) {
+    if (!empty(site)) {
+        siteID = site.ID;
+    }
+    this.AUTHENTICATION_SERVICE_ID = "shoprunner.https.authentication.get.v2." + siteID;
+    this.PAYMENT_SERVICE_ID = "shoprunner.https.payment.get." + siteID;
+    this.ORDER_FEED_SOAP_SERVICE_ID	= "shoprunner.soap.order.feed.submit." + siteID;
+    this.SHIPMENT_FEED_SOAP_SERVICE_ID	= "shoprunner.soap.shipment.feed.submit." + siteID;
+    this.FEED_SFTP_SERVICE_ID	= "shoprunner.sftp.feed.submit." + siteID;
+
+    return this;
+}
+
+exports.getValidateTokenEndPoint = getValidateTokenEndPoint;
+exports.getPaymentInformationEndPoint = getPaymentInformationEndPoint;
+exports.getSRAuthenticationToken = getSRAuthenticationToken;
+exports.SRStatusCode = SRStatusCode;
+exports.SRServiceConstant = SRServiceConstant;
+exports.SITEGENESIS_CONTROLLER_CARTRIDGE = "app_storefront_controllers";

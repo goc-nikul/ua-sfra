@@ -1,0 +1,1399 @@
+{
+    "step-types": {
+        "script-module-step": [
+            {
+                "@type-id": "custom.checkPrepCategory",
+                "module": "bc_jobs/cartridge/scripts/catalog/CheckPrepCategory.js",
+                "description": "Validate that the prep category has products for manipulation. If the prep category is empty then exit the job",
+                "function": "checkPrepCategoryForProducts",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "masterCatalogID",
+                            "description": "MasterCatalog ID",
+                            "@type": "string",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "storefrontCatalogID",
+                            "description": "StorefrontCatalogID ID",
+                            "@type": "string",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "prepImageCategoryID",
+                            "description": "Prep Image Category ID",
+                            "@type": "string",
+                            "@required": "false"
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when an error occurred."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when execution was successful."
+                        },
+                        {
+                            "@code": "NOPRODUCTS",
+                            "description": "Used when no product could be found in prep-category."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.autoCategorization",
+                "module": "bc_jobs/cartridge/scripts/catalog/AutoCategorizeProducts.js",
+                "description": "Automatical category assignation",
+                "function": "autoCategorizeProducts",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "masterCatalogID",
+                            "description": "MasterCatalog ID",
+                            "@type": "string",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "storefrontCatalogID",
+                            "description": "StorefrontCatalogID ID",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "useNewCategoryRules",
+                            "description": "Use new category assignment rules to assign primary and classification categories",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "default-value": "false"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.assignOutletStatus",
+                "module": "bc_jobs/cartridge/scripts/catalog/AssignOutletStatus.js",
+                "description": "Find price-descrepancies and create outlet configurations ",
+                "function": "assignOutletStatus",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "storefrontCatalogID",
+                            "description": "StorefrontCatalogID ID",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "updateUnorderableVariants",
+                            "description": "Also update isOutlet status of unorderable variants and add the color to the master product's outlet color array.",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "default-value": "false"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.cleanUpOutletCategories",
+                "module": "bc_jobs/cartridge/scripts/catalog/AssignOutletStatus.js",
+                "description": "Clean up Outlet Categorization",
+                "function": "cleanUpOutletCategories",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "storefrontCatalogID",
+                            "description": "StorefrontCatalogID ID",
+                            "@type": "string",
+                            "@required": "true"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.generateProductClassificationXML",
+                "module": "bc_jobs/cartridge/scripts/catalog/UpdateProductClassification.js",
+                "description": "Generate ProductClassification XML",
+                "function": "generateProductClassificationXML",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "masterCatalogID",
+                            "description": "MasterCatalog ID",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "storefrontCatalogID",
+                            "description": "StorefrontCatalogID ID",
+                            "@type": "string",
+                            "@required": "true"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.activatePrepCategorySKUs",
+                "module": "bc_jobs/cartridge/scripts/catalog/ActivateAllSkus.js",
+                "description": "Activate skus of prep category",
+                "function": "activatePrepCategorySKUs",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "emailList",
+                            "description": "List of emails to send activation log to",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "inventoryHealth",
+                            "description": "Default inventory health check percentage. If configured % of variants are in stock, then product will be enabled. Set value to zero to enable all. Category level attribute 'inventoryHealthPercent' will override this setting, if configured",
+                            "@type": "string",
+                            "@required": "true"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.cleanupPrepCategory",
+                "module": "bc_jobs/cartridge/scripts/catalog/CleanupPrepCategory.js",
+                "description": "Generate PrepCategoryCleanup XML",
+                "function": "generatePrepCategoryCleanupXML",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "masterCatalogID",
+                            "description": "MasterCatalog ID",
+                            "@type": "string",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "storefrontCatalogID",
+                            "description": "StorefrontCatalogID ID",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "prepImageCategoryID",
+                            "description": "Prep Image Category ID",
+                            "@type": "string",
+                            "@required": "false"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.assignImages",
+                "module": "bc_jobs/cartridge/scripts/catalog/AssignImages.js",
+                "description": "Assign Scene7 Images to products",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "masterCatalogID",
+                            "description": "MasterCatalog ID",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "emailList",
+                            "description": "List of emails to send missing colors to",
+                            "@type": "string",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "storefrontCatalogID",
+                            "description": "StorefrontCatalogID ID",
+                            "@type": "string",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "prepImageCategoryID",
+                            "description": "Prep Image Category ID",
+                            "@type": "string",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "directory",
+                            "description": "Directory which the files will be created. When field is empty, system defaults to /src/feeds/imageAssociation/",
+                            "@type": "string",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "enableApparelSwatchImage",
+                            "description": "Enable the ability to assign swatch image to apparel items",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "default-value": "false"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.removeSizeModelImages",
+                "module": "bc_jobs/cartridge/scripts/catalog/RemoveSizeModelImages.js",
+                "description": "run",
+                "function": "execute",
+                "timeout-in-seconds": "1800",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "masterCatalogID",
+                            "description": "MasterCatalog ID",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "categoryID",
+                            "description": "Category ID",
+                            "@type": "string",
+                            "@required": "true"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.assignVideos",
+                "module": "bc_jobs/cartridge/scripts/catalog/AssignVideos.js",
+                "description": "Assign Scene7 Videos to products",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "masterCatalogID",
+                            "description": "MasterCatalog ID",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "storefrontCatalogID",
+                            "description": "StorefrontCatalogID ID",
+                            "@type": "string",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "prepImageCategoryID",
+                            "description": "Prep Image Category ID",
+                            "@type": "string",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "directory",
+                            "description": "Directory which the files will be created. When field is empty, system defaults to /src/feeds/imageAssociation/",
+                            "@type": "string",
+                            "@required": "false"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.updateStores",
+                "module": "bc_jobs/cartridge/scripts/storelocator/UpdateBrandifyStores.js",
+                "description": "fetch stores from brandify service",
+                "function": "execute",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "country",
+                            "description": "current country",
+                            "@type": "string",
+                            "@required": "false"
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when an error occurred."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when everything went well."
+                        },
+                        {
+                            "@code": "WARN",
+                            "description": "Used when small, but acceptable problems occurred."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.assignShopTheLook",
+                "@supports-site-context": true,
+                "@supports-organization-context": false,
+                "module": "bc_jobs/cartridge/scripts/catalog/AssignShopTheLook",
+                "function": "assignShopTheLook",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "IsQueryAllForSiteProducts",
+                            "description": "Enable for all site products if disable then use prep category assigned products",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "default-value": "false"
+                        },
+                        {
+                            "@name": "limitDOMServiceCall",
+                            "description": "Limit the no. of DAM service call",
+                            "@type": "double",
+                            "@required": "false",
+                            "default-value": 15,
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "shopTheLookthresholdDays",
+                            "description": "Shop The Look Update threshold in days",
+                            "@type": "double",
+                            "@required": "false",
+                            "default-value": 30,
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "masterCatalogID",
+                            "description": "MasterCatalog ID",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "prepImageCategoryID",
+                            "description": "Prep Image Category ID",
+                            "@type": "string",
+                            "@required": "false"
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when an error occurred."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when everything went well."
+                        },
+                        {
+                            "@code": "WARN",
+                            "description": "Used when small, but acceptable problems occurred."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.RemoveBadgesFromAllVariants",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "module": "bc_jobs/cartridge/scripts/catalog/RemoveBadgesFromAllVariants.js",
+                "description": "Remove badges from all variants",
+                "function": "RemoveBadgesFromAllVariants",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "locales",
+                            "description": "List of locales for which badges should be reset. Example - default, en_US, en_CA. Default configuration is default.",
+                            "@type": "string",
+                            "@required": "false"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.UpdateExchangeRate",
+                "module": "bc_jobs/cartridge/scripts/openexchange/GetLatestRates.js",
+                "description": "Exchange Rate Update.",
+                "function": "execute",
+                "parameters": {}
+            },
+            {
+                "@type-id": "custom.combinepdp",
+                "module": "bc_jobs/cartridge/scripts/export/CombinePDP.js",
+                "description": "Create CombinePDP catalog XML file for import",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "exportDirectory",
+                            "description": "Working folder in IMPEX (ex: src/catalog)",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "masterCatalogID",
+                            "description": "MasterCatalog ID",
+                            "@type": "string",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "localeString",
+                            "description": "locale for export (ex: tr-TR)",
+                            "@type": "string",
+                            "@required": "false",
+                            "@trim": "true"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.UnzipFiles",
+                "module": "bc_jobs/cartridge/scripts/import/UnzipFiles.js",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "filePattern",
+                            "description": "File pattern (Regexp. e.g. ^cat.*xml$)",
+                            "@type": "string",
+                            "@required": "false",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "sourceFolder",
+                            "description": "Source Folder (in IMPEX)",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "targetFolder",
+                            "description": "Target Folder (empty if same as source folder)",
+                            "@type": "string",
+                            "@required": "false",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "deleteFile",
+                            "description": "Delete File",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true",
+                            "enum-values": {
+                                "value": [
+                                    "DELETE",
+                                    "KEEP_ON_SERVER"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.ZipFiles",
+                "module": "bc_jobs/cartridge/scripts/import/ZipFiles.js",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "filePattern",
+                            "description": "File pattern (Regexp. e.g. ^cat.*xml$)",
+                            "@type": "string",
+                            "@required": "false",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "sourceFolder",
+                            "description": "Source Folder (in IMPEX)",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "targetFolder",
+                            "description": "Target Folder (empty if same as source folder)",
+                            "@type": "string",
+                            "@required": "false",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "deleteFile",
+                            "description": "Delete File",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true",
+                            "enum-values": {
+                                "value": [
+                                    "DELETE",
+                                    "KEEP_ON_SERVER"
+                                ]
+                            }
+                        },
+                        {
+                            "@name": "singleFile",
+                            "description": "Single Archive File",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true",
+                            "enum-values": {
+                                "value": [
+                                    "SINGLE_ARCHIVE_FILE",
+                                    "MULTIPLE_ARCHIVE_FILES"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.assignDefaultMFOStatus",
+                "module": "bc_jobs/cartridge/scripts/catalog/AssignMFOStatus.js",
+                "description": "Set MFO status to false for new items",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "CatalogsList",
+                            "description": "List of SF Catalogs to process",
+                            "@type": "string",
+                            "@required": "true"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.InventoryHealth",
+                "module": "bc_jobs/cartridge/scripts/report/InventoryHealth.js",
+                "description": "Create Inventory Health Report",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "exportDirectory",
+                            "description": "Working folder in IMPEX (e.g src/catalog)",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "fileName",
+                            "description": "Name of the export file",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "pricebookValue",
+                            "description": "price book Locale",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "productMode",
+                            "description": "Product Mode",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true",
+                            "enum-values": {
+                                "value": [
+                                    "ONLINE_ONLY",
+                                    "OFFLINE_VARIANTS",
+                                    "ALL"
+                                ]
+                            }
+                        },
+                        {
+                            "@name": "outputRow",
+                            "description": "Output Row",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true",
+                            "enum-values": {
+                                "value": [
+                                    "SKU_LEVEL",
+                                    "MATERIAL_LEVEL"
+                                ]
+                            }
+                        },
+                        {
+                            "@name": "includeZeroCounts",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "description": "Write to file when row's active count or inventory unit is 0'",
+                            "default-value": "false"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.sizePreferenceTokenization",
+                "module": "bc_jobs/cartridge/scripts/tokenization/CreateSizePreferenceToken.js",
+                "description": "Temporary Create size preference token based on product custom attribute through job for all products catalog.need to delete once done for all product",
+                "function": "generateProductTokenizationXML",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "masterCatalogID",
+                            "description": "MasterCatalog ID",
+                            "@type": "string",
+                            "@required": "true"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.AssignSizePrefTokens",
+                "module": "bc_jobs/cartridge/scripts/tokenization/AssignSizePreferenceToken.js",
+                "description": "Create size preference token based on product custom attribute through job",
+                "function": "generateProductTokenizationXML",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "masterCatalogID",
+                            "description": "MasterCatalog ID",
+                            "@type": "string",
+                            "@required": "true"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.updateExistingBopisOrderType",
+                "@support-site-context": "true",
+                "@support-organization-context": "false",
+                "module": "bc_jobs/cartridge/scripts/order/UpdateBopisOrders.js",
+                "description": "Updates Existing Orders With Searchable Attributes To Identify BOPIS Orders",
+                "function": "updateOrdersWithBopisItems",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "startDate",
+                            "description": "Start Date",
+                            "@type": "date-string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "endDate",
+                            "description": "End Date",
+                            "@type": "date-string",
+                            "@required": "true"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.failAuruspayCreditCardOrders",
+                "@support-site-context": "true",
+                "@support-organization-context": "false",
+                "module": "bc_jobs/cartridge/scripts/order/FailAuruspayCreditCardOrders.js",
+                "description": "Fix ",
+                "function": "failAurusPayCreditCardOrders",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "startDate",
+                            "description": "Start Date",
+                            "@type": "date-string",
+                            "@required": "true"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.ManualOrderExportMAO",
+                "module": "bc_jobs/cartridge/scripts/report/ManualOrderExportMAO.js",
+                "description": "Write JSON data for a given list of orders",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "orderList",
+                            "description": "Order List",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "exportDirectory",
+                            "description": "Working folder in IMPEX (e.g src/catalog)",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "fileName",
+                            "description": "Name of the export file",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "orderUpdate",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "description": "Write JSON for Order Update (cancelOrder/updatePayment/confirmOrder)",
+                            "default-value": "false"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.orderConfimationEmail",
+                "module": "bc_jobs/cartridge/scripts/confirmationemail/OrderConfirmationEmail.js",
+                "description": "Trigger order confimation email through job",
+                "function": "execute",
+                "parameters": {}
+            },
+            {
+                "@type-id": "custom.DeleteLogFile",
+                "module": "bc_jobs/cartridge/scripts/logscleanup/DeleteLogFiles.js",
+                "description": "Copy log files at impex location and Delete the log files",
+                "function": "execute",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "FilePattern",
+                            "description": "File pattern (Regular Expression)",
+                            "@type": "string",
+                            "@required": "false",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "TargetFolder",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "NoFileFoundStatus",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true",
+                            "enum-values": {
+                                "value": [
+                                    "OK",
+                                    "ERROR"
+                                ]
+                            },
+                            "description": "No files found exit code"
+                        },
+                        {
+                            "@name": "IsDisabled",
+                            "description": "Mark the step as disabled. This will skip the step and returns a OK status",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "@trim": true
+                        },
+                        {
+                            "@name": "urlPath",
+                            "description": "url path for access log WebDAV",
+                            "@type": "string",
+                            "@required": "false",
+                            "@trim": true
+                        },
+                        {
+                            "@name": "userName",
+                            "description": "user name for access WebDAV ",
+                            "@type": "string",
+                            "@required": "false",
+                            "@trim": true
+                        },
+                        {
+                            "@name": "password",
+                            "description": "user name for access WebDAV",
+                            "@type": "string",
+                            "@required": "false",
+                            "@trim": true
+                        },
+                        {
+                            "@name": "DaysToKeep",
+                            "description": "Number of days to keep old files",
+                            "@type": "double",
+                            "@required": true,
+                            "@trim": true
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.CheckMissingProductImagery",
+                "module": "bc_jobs/cartridge/scripts/catalog/CheckMissingProductImagery.js",
+                "description": "Checks for missing viewtypes for all products in the site",
+                "function": "checkProductsForMissingImages",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "emailList",
+                            "description": "List of emails to send missing images viewtypes log",
+                            "@type": "string",
+                            "@required": "true"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.MoveOrderFiles",
+                "module": "bc_jobs/cartridge/scripts/import/order/MoveOrderFiles.js",
+                "function": "execute",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "sourceFolder",
+                            "description": "Source Folder (in IMPEX)",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "filePattern",
+                            "description": "File pattern (Regexp. e.g. ^cat.*xml$)",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "orderPattern",
+                            "description": "Order pattern (Regexp. e.g. ^DEVUKIE)",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "targetFolder",
+                            "description": "Target Folder (in IMPEX)",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.OrderShipping",
+                "module": "bc_jobs/cartridge/scripts/import/order/OrderShipment.js",
+                "description": "Process Order Shipment Notifications",
+                "function": "execute",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "workingFolder",
+                            "description": "Working folder in IMPEX (e.g src/catalog)",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "filePattern",
+                            "description": "File name pattern (RegExp e.g. ^cat_.*)",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "sortDirection",
+                            "description": "Sort Direction",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true,
+                            "enum-values": {
+                                "value": [
+                                    "ASCENDING",
+                                    "DESCENDING"
+                                ]
+                            }
+                        },
+                        {
+                            "@name": "zipFiles",
+                            "description": "Zip Files",
+                            "@type": "boolean",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "targetFolder",
+                            "description": "Target Folder (empty if same as source folder)",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "deleteFile",
+                            "description": "Delete File",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true,
+                            "enum-values": {
+                                "value": [
+                                    "DELETE",
+                                    "KEEP_ON_SERVER"
+                                ]
+                            }
+                        },
+                        {
+                            "@name": "singleFile",
+                            "description": "Single Archive File",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true,
+                            "enum-values": {
+                                "value": [
+                                    "SINGLE_ARCHIVE_FILE",
+                                    "MULTIPLE_ARCHIVE_FILES"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.ShippingEmailTriggerFailed",
+                "module": "bc_jobs/cartridge/scripts/import/order/ShipmentEmailTriggerFailed.js",
+                "description": "ReProcess Order Shipping Email Trigger Failed",
+                "function": "execute",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "maxConsecutiveServiceErrorCount",
+                            "description": "Maximum Consecutive Service ErrorCount",
+                            "@type": "double",
+                            "@required": true,
+                            "@trim": true,
+                            "description": "A required double parameter were the raw value is trimmed, value must be betwenn 0 and 5.",
+                            "min-value": "0",
+                            "max-value": "10"
+                        },
+                        {
+                            "@name": "maxResendAttempts",
+                            "description": "Maximum Resend Attempts",
+                            "@type": "double",
+                            "@required": true,
+                            "@trim": true,
+                            "description": "A required double parameter were the raw value is trimmed, value must be betwenn 0 and 3.",
+                            "min-value": "0",
+                            "max-value": "10"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.OrderRefund",
+                "module": "bc_jobs/cartridge/scripts/import/order/OrderRefund.js",
+                "description": "Process Order Refund Notifications",
+                "function": "execute",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "workingFolder",
+                            "description": "Working folder in IMPEX (e.g src/catalog)",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "filePattern",
+                            "description": "File name pattern (RegExp e.g. ^cat_.*)",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "sortDirection",
+                            "description": "Sort Direction",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true,
+                            "enum-values": {
+                                "value": [
+                                    "ASCENDING",
+                                    "DESCENDING"
+                                ]
+                            }
+                        },
+                        {
+                            "@name": "offlineRefund",
+                            "description": "Offline Refund",
+                            "@type": "boolean",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "zipFiles",
+                            "description": "Zip Files",
+                            "@type": "boolean",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "targetFolder",
+                            "description": "Target Folder (empty if same as source folder)",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "deleteFile",
+                            "description": "Delete File",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true,
+                            "enum-values": {
+                                "value": [
+                                    "DELETE",
+                                    "KEEP_ON_SERVER"
+                                ]
+                            }
+                        },
+                        {
+                            "@name": "singleFile",
+                            "description": "Single Archive File",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true,
+                            "enum-values": {
+                                "value": [
+                                    "SINGLE_ARCHIVE_FILE",
+                                    "MULTIPLE_ARCHIVE_FILES"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.AutomatedReturnXML",
+                "module": "bc_jobs/cartridge/scripts/order/AutomatedReturnXML.js",
+                "function": "execute",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "Action",
+                            "description": "Legacy action of the community suite IF, to be called through the new Step Execution",
+                            "@type": "string",
+                            "@required": "true",
+                            "enum-values": {
+                                "value": [
+                                    "AutomatedReturnXML-GenerateXML"
+                                ]
+                            }
+                        },
+                        {
+                            "@name": "Verbose",
+                            "description": "Enables verbose logging",
+                            "@type": "boolean",
+                            "@required": false,
+                            "@trim": true
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when an error occurred."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when everything went well."
+                        },
+                        {
+                            "@code": "WARN",
+                            "description": "Used when small, but acceptable problems occurred."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.assignDisplayValue",
+                "module": "bc_jobs/cartridge/scripts/catalog/AssignDisplayValue.js",
+                "description": "Assign Display Value for Variation Attribute - Length",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "masterCatalogID",
+                            "description": "MasterCatalog ID",
+                            "@type": "string",
+                            "@required": "false"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.assignSize",
+                "module": "bc_jobs/cartridge/scripts/catalog/AssignSize.js",
+                "description": "Assign Size to products",
+                "function": "execute",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "FootwearSizeVariation",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "CatalogID",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.availabilityforlocale",
+                "module": "bc_jobs/cartridge/scripts/catalog/AvailableForLocale.js",
+                "description": "Create AvailableForLocale products catalog XML file for import",
+                "function": "execute",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "exportDirectory",
+                            "description": "Working folder in IMPEX (ex: src/catalog)",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "masterCatalogID",
+                            "description": "MasterCatalog ID",
+                            "@type": "string",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "CatalogsList",
+                            "description": "List of SF Catalogs to process",
+                            "@type": "string",
+                            "@required": "true"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.OrderAcknowledgement",
+                "module": "bc_jobs/cartridge/scripts/import/order/OrderAcknowledgement.js",
+                "description": "Process Order Acknowledgement Notifications",
+                "function": "execute",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "workingFolder",
+                            "description": "Working folder in IMPEX (e.g src/catalog)",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "filePattern",
+                            "description": "File name pattern (RegExp e.g. ^cat_.*)",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "sortDirection",
+                            "description": "Sort Direction",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true,
+                            "enum-values": {
+                                "value": [
+                                    "ASCENDING",
+                                    "DESCENDING"
+                                ]
+                            }
+                        },
+                        {
+                            "@name": "zipFiles",
+                            "description": "Zip Files",
+                            "@type": "boolean",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "targetFolder",
+                            "description": "Target Folder (empty if same as source folder)",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "deleteFile",
+                            "description": "Delete File",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true,
+                            "enum-values": {
+                                "value": [
+                                    "DELETE",
+                                    "KEEP_ON_SERVER"
+                                ]
+                            }
+                        },
+                        {
+                            "@name": "singleFile",
+                            "description": "Single Archive File",
+                            "@type": "string",
+                            "@required": true,
+                            "@trim": true,
+                            "enum-values": {
+                                "value": [
+                                    "SINGLE_ARCHIVE_FILE",
+                                    "MULTIPLE_ARCHIVE_FILES"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.CopyToS3",
+                "description": "Copy file from WebDav to S3 Bucket",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "true",
+                "@supports-parallel-execution": "false",
+                "module": "bc_jobs/cartridge/scripts/export/copyToS3.js",
+                "function": "copy",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "fileNamePattern",
+                            "@type": "string",
+                            "@required": "true",
+                            "description": "The file name patter to copied files, relative to the 'IMPEX/src/' folder."
+                        },
+                        {
+                            "@name": "AWSAccessKeyID",
+                            "@type": "string",
+                            "@required": "true",
+                            "description": "AWS Access Key Id"
+                        },
+                        {
+                            "@name": "AWSAccessKeySecret",
+                            "@type": "string",
+                            "@required": "true",
+                            "description": "AWS Access Key Secret"
+                        },
+                        {
+                            "@name": "bucketName",
+                            "@type": "string",
+                            "@required": "true",
+                            "description": "S3 Bucket name"
+                        },
+                        {
+                            "@name": "AWSRegion",
+                            "@type": "string",
+                            "@required": "true",
+                            "description": "S3 Bucket Region",
+                            "default-value": "us-east-1",
+                            "enum-values": {
+                                "value": [
+                                    "us-east-1",
+                                    "us-east-2",
+                                    "us-west-1",
+                                    "us-west-2"
+                                ]
+                            }
+                        },
+                        {
+                            "@name": "remoteFolder",
+                            "@type": "string",
+                            "@required": "false",
+                            "description": "S3 remote folder on bucket"
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when an error occurred."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when everything went well."
+                        }
+                    ]
+                }
+            }
+        ],
+        "chunk-script-module-step": [
+            {
+                "@type-id": "custom.UpdateProductTaxClass",
+                "@supports-parallel-execution": "false",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "module": "bc_jobs/cartridge/scripts/catalog/UpdateProductTaxClass.js",
+                "description": "Update Youth Product TaxClass",
+                "before-step-function": "beforeStep",
+                "total-count-function": "getTotalCount",
+                "read-function": "read",
+                "process-function": "process",
+                "write-function": "write",
+                "after-step-function": "afterStep",
+                "chunk-size": 500,
+                "transactional": "true",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "runDeltaFeed",
+                            "@type": "boolean",
+                            "description": "If this flag is enabled job will run the delta feed. Only products with TaxClassID undefined will be processed",
+                            "default-value": false
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when the step failed with an error."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when the step finished successfully."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.createExternalProfiles",
+                "@supports-parallel-execution": "false",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "module": "app_ua_core/cartridge/scripts/jobs/createExternalProfiles.js",
+                "description": "Create external profiles",
+                "before-step-function": "beforeStep",
+                "total-count-function": "getTotalCount",
+                "read-function": "read",
+                "process-function": "process",
+                "write-function": "write",
+                "after-step-function": "afterStep",
+                "chunk-size": 500,
+                "transactional": "true",
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when the step failed with an error."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when the step finished successfully."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.RemoveBadgesFromAllVariants",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "module": "bc_jobs/cartridge/scripts/catalog/RemoveBadgesFromAllVariants.js",
+                "description": "Remove badges from all variants",
+                "function": "RemoveBadgesFromAllVariants",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "locales",
+                            "description": "List of locales for which badges should be reset. Example - default, en_US, en_CA. Default configuration is default.",
+                            "@type": "string",
+                            "@required": "false"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

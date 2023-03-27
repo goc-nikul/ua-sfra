@@ -1,0 +1,104 @@
+<isset name="billingRFCFields" value="${pdict.forms.billingForm.addressFields}" scope="page"/>
+<isif condition="${billingRFCFields.rfc.rfc && billingRFCFields.rfc.razonsocial}">
+   <div class="b-contact_heading">${Resource.msg('rfc.info.addressheader', 'forms', null)}</div>
+   <div class="fiscalInvoice-checkbox">
+      <input type="checkbox" class="rfc-checkbox-input" type="checkbox" id="taxBillingInfo" name="rfcCheckbox" unchecked/>
+      <label class="custom-control-label rfc-checkbox-label" for="taxBillingInfo">
+      ${Resource.msg('forms.fiscalInvoice', 'forms', null)}
+      </label>
+      <div class="tax-billing">
+         <div class="row b-contact_row-top">
+            <div class="b-contact_column">
+               <div class="form-group b-form_group b-input_row
+                  ${billingRFCFields.rfc.rfc.mandatory === true ? 'required' : ''}
+                  ${billingRFCFields.rfc.rfc.htmlName}">
+                  <label class="form-control-label b-quantity-label b-input_row-label" for="rfc">
+                     <isprint value="${billingRFCFields.rfc.rfc.label}" encoding="on" />
+                  </label>
+                  <input type="text" class="form-control rfcValue b-input_row-input" id="rfc" aria-describedby="rfcValue" required
+                  value="${!empty(pdict.order.billing.billingAddress.address) && pdict.order.billing.billingAddress.address.rfc ? pdict.order.billing.billingAddress.address.rfc : ''}"
+                  data-missing-error="${Resource.msg('forms.pleaseentervalid.rfc','forms',null)}" data-pattern-mismatch="${Resource.msg('forms.customeraddress.rfc.missing','forms',null)}"​
+                  <isprint value="${billingRFCFields.rfc.rfc.attributes}" encoding="off"/>
+                  >
+                  <div class="invalid-feedback" id="rfc">
+                        <isprint value="${billingRFCFields.rfc.rfc.error}" >
+                  </div>
+               </div>
+            </div>
+            <div class="b-contact_column">
+               <div class="form-group b-form_group b-input_row
+                  ${billingRFCFields.rfc.razonsocial.mandatory === true ? 'required' : ''}
+                  ${billingRFCFields.rfc.razonsocial.htmlName}">
+                  <label class="form-control-label b-input_row-label" for="social-razon">
+                     <isprint value="${billingRFCFields.rfc.razonsocial.label}" encoding="on" />
+                  </label>
+                  <input type="text" class="form-control social-razonValue b-input_row-input" id="social-razon" aria-describedby="social-razonValue" required
+                  value="${!empty(pdict.order.billing.billingAddress.address) && pdict.order.billing.billingAddress.address.razonsocial ? pdict.order.billing.billingAddress.address.razonsocial : ''}"
+                  data-missing-error="${Resource.msg('forms.pleaseenter.razonsocial','forms',null)}" data-pattern-mismatch="${Resource.msg('forms.pleaseenter.razonsocial-error','forms',null)}"​
+                  <isprint value="${billingRFCFields.rfc.razonsocial.attributes}" encoding="off"/>
+                  >
+                  <div class="invalid-feedback" id="social-razonValue">
+                     <isprint value="${typeof billingRFCFields.rfc.razonsocial !== 'undefined' ?  billingRFCFields.rfc.razonsocial.error : ''}" >
+                  </div>
+               </div>
+            </div>
+            <div class="b-contact_column">
+               <div class="form-group b-state
+                  ${billingRFCFields.rfc.usoCFDI.mandatory === true ? 'required' : ''}
+                  ${billingRFCFields.rfc.usoCFDI.htmlName}">
+                  <label class="form-control-label b-state-label" for="usoCFDI">
+                  ${Resource.msg('forms.usoCFDI','forms',null)}
+                  </label>
+                  <select class="form-control usoCFDI custom-select b-state-select" id="usoCFDI" data-cfdi-map="${pdict.cfdiMapJSON}" required
+                  <isprint value=${billingRFCFields.rfc.usoCFDI.attributes} encoding="off"/>
+                  data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" data-pattern-mismatch="${Resource.msg('general.pattern.mismatch','common',null)}"
+                  aria-describedby="CFDI-Use"/>
+                  <isloop items=${billingRFCFields.rfc.usoCFDI.options} var="usoCFDI">
+                     <option id="${usoCFDI.id}" value="${usoCFDI.htmlValue}" ${pdict.order.billing.billingAddress.address && (usoCFDI.htmlValue === pdict.order.billing.billingAddress.address.usoCFDI) ? 'selected' : ''} >${usoCFDI.label || ' '}</option>
+                  </isloop>
+                  </select>
+                  <div class="invalid-feedback" id="usoCFDI" data-empty-error="${Resource.msg('field.empty.error','common',null)}">
+                     <isprint value="${billingRFCFields.rfc.usoCFDI.error}" >
+                  </div>
+               </div>
+            </div>
+            <div class="b-contact_column">
+               <div class="form-group b-state
+                  ${billingRFCFields.rfc.regimenFiscal.mandatory === true ? 'required' : ''}
+                  ${billingRFCFields.rfc.regimenFiscal.htmlName}">
+                  <label class="form-control-label b-state-label" for="regimenFiscal">
+                  ${Resource.msg('forms.regimenFiscal','forms',null)}
+                  </label>
+                  <select class="form-control regimenFiscal custom-select b-state-select" id="regimenFiscal" data-regimen-fiscal-map="${pdict.regimenFiscalMapJSON}" required
+                  <isprint value=${billingRFCFields.rfc.regimenFiscal.attributes} encoding="off"/>
+                  data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}"
+                  aria-describedby="fiscal-Regimen"/>
+                  <isloop items=${billingRFCFields.rfc.regimenFiscal.options} var="regimenFiscal">
+                     <option id="${regimenFiscal.id}" value="${regimenFiscal.htmlValue}" ${pdict.order.billing.billingAddress.address && (regimenFiscal.htmlValue === pdict.order.billing.billingAddress.address.regimenFiscal) ? 'selected' : ''} >${regimenFiscal.label || ' '}</option>
+                  </isloop>
+                  </select>
+                  <div class="invalid-feedback" id="fiscal-Regimen" data-empty-error="${Resource.msg('field.empty.error','common',null)}">
+                     <isprint value="${billingRFCFields.rfc.regimenFiscal.error}" >
+                  </div>
+               </div>
+            </div>
+            <div class="b-contact_column">
+               <div class="form-group b-input_row
+                  ${billingRFCFields.rfc.codigoPostal.mandatory === true ? 'required' : ''}
+                  ${billingRFCFields.rfc.codigoPostal.htmlName}">
+                  <label class="form-control-label b-input_row-label" for="zip-code">
+                  ${Resource.msg('field.shipping.address.zip.code','address',null)}
+                  </label>
+                  <input type="text" class="form-control shippingZipCode b-input_row-input postal-code codigoPostal" id="zip-code" aria-describedby="zipCode" required
+                  value="${!empty(pdict.order.billing.billingAddress.address) && pdict.order.billing.billingAddress.address.codigoPostal ? pdict.order.billing.billingAddress.address.codigoPostal : ''}" 
+                  <isprint value="${billingRFCFields.rfc.codigoPostal.attributes}" encoding="off"/>
+                  data-missing-error="${Resource.msg('forms.codigoPostal','forms',null)}" data-pattern-mismatch="${Resource.msg('forms.cfdi.ziperror','forms',null)}"​/>
+                  <div class="invalid-feedback" id="zipCode">
+                     <isprint value="${billingRFCFields.rfc.codigoPostal.error}" >
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</isif>

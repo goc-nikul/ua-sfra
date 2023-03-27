@@ -1,0 +1,85 @@
+importPackage( dw.system );
+importPackage( dw.util );
+importScript( "helpFunctions.ds" );
+importScript( "/utils/ExceptionLog.ds" );
+
+var smartlingConfigurationJson : JSON = getConfiguration();
+
+/**
+    Get Project id from smartling configuration
+*/
+function getProjectId() : String {
+    return smartlingConfigurationJson['project_id'];
+}
+
+/**
+ Get retrival type from smartling configuration
+ */
+function getRetrivalType() : String {
+    return smartlingConfigurationJson['retrival_type'];
+}
+
+/**
+ * Gets oauth user identifier
+ */
+function getUserIdentifier() {
+    return smartlingConfigurationJson['user_identifier'];
+}
+
+/**
+ * Gets oauth user secret
+ */
+function getUserSecret() {
+    return smartlingConfigurationJson['user_secret'];
+}
+
+/**
+    Get default network timeout from smartling configuration
+*/
+function getTimeOut() {
+    return smartlingConfigurationJson['time_out'];
+}
+
+/**
+    Get all locale mappings from smartling configuration
+*/
+function getLocaleMapping(): List {
+    return JSON.parse(smartlingConfigurationJson['target_locale'])['target_locale'];
+}
+
+/**
+    Get source locale from smartling configuration
+*/
+function getSourceLocale() {
+    return smartlingConfigurationJson['source_locale'];
+}
+
+function getAutoAuthorizeContent() {
+    return smartlingConfigurationJson['auto_authorize_content'];
+}
+
+function getProductAttributes(): JSON {
+    return JSON.parse(smartlingConfigurationJson['product_attribute_json'])['product_attribute'];
+}
+
+function getCategoryAttributes(): JSON {
+    return JSON.parse(smartlingConfigurationJson['category_attribute_json'])['category_attribute'];
+}
+
+function getContentAttributes(): JSON {
+    return JSON.parse(smartlingConfigurationJson['content_attribute_json'])['content_attribute'];
+}
+
+if (typeof (exports) !== 'undefined') {
+    exports.getProjectId = getProjectId;
+    exports.getRetrivalType = getRetrivalType;
+    exports.getUserIdentifier = getUserIdentifier;
+    exports.getUserSecret = getUserSecret;
+    exports.getTimeOut = getTimeOut;
+    exports.getSourceLocale = getSourceLocale;
+    exports.getAutoAuthorizeContent = getAutoAuthorizeContent;
+    exports.getProductAttributes = getProductAttributes;
+    exports.getCategoryAttributes = getCategoryAttributes;
+    exports.getContentAttributes = getContentAttributes;
+    exports.getLocaleMapping = getLocaleMapping;
+}

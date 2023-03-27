@@ -1,0 +1,110 @@
+<div class="order-summary">
+    <div class="order-summary_title">${Resource.msg('text.order.summary','cart',null)}</div>
+
+    <!--  cartSubtotal -->
+    <div class="order-summary_items">
+        <span class="order-summary_itemsattr">
+            <span>${Resource.msg('label.cart.subtotal','cart',null)} <span class="number-of-items-summary order-summary_noitems">(<isprint value="${pdict.numItems.toFixed()}" encoding="off" />)</span>:</span>
+        </span>
+        <span class="order-summary_itemsvalue">
+        <isif condition="${customer.authenticated && customer.profile.custom.isEmployee && pdict.totals.orderLevelDiscountTotal.value === 0}">
+            <span class="text-right sub-total bfx-price bfx-total-subtotal">${pdict.totals.subTotalWithoutAdjustments}</span>
+        <iselse/>
+            <span class="text-right sub-total bfx-price bfx-total-subtotal">${pdict.totals ? pdict.totals.subTotal : ''}</span>
+        </isif>
+        </span>
+    </div>
+
+    <!--- Order Discount --->
+    <div class="order-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.orderLevelDiscountTotal.value === 0}">hide-order-discount</isif>">
+        <span class="order-summary_itemsattr">
+           <isif condition="${customer.authenticated && customer.profile.custom.isEmployee}">
+               <span>${Resource.msg('employee.order.discount', 'common', null)}:</span>
+           <iselse> 
+               <span>${Resource.msg('label.order.discount', 'common', null)}:</span>
+           </isif>
+        </span>
+        <span class="order-summary_itemsvalue">
+            <span class="text-right bfx-price order-discount-total"> - ${customer.authenticated && customer.profile.custom.isEmployee && pdict.totals.totalEmployeeDiscount.formatted ?  pdict.totals.totalEmployeeDiscount.formatted : pdict.totals.orderLevelDiscountTotal.formatted}</span>
+        </span>
+    </div>
+    
+<iscomment> 
+    <!-- Employee Discount -->
+    <isif condition="${customer.authenticated && customer.profile.custom.isEmployee && pdict.totals.orderLevelDiscountTotal.value === 0}">
+        <div class="order-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.totalEmployeeDiscount.value === 0}">hide-order-discount</isif>">
+            <span class="order-summary_itemsattr">            
+                <span>${Resource.msg('employee.order.discount', 'common', null)}:</span>
+            </span>
+            <span class="order-summary_itemsvalue">
+                <span class="text-right bfx-price order-discount-total"> - ${pdict.totals.totalEmployeeDiscount.formatted}</span>
+            </span>
+        </div>
+    </isif> </iscomment>
+
+    <isset name="zeroCost" value="${dw.util.StringUtils.formatMoney(new dw.value.Money(0, pdict.CurrentSession.currency.currencyCode))}" scope="page" />
+    <div class="order-summary_items order-summary_shipping bfx-remove-element <isif condition="${pdict.totals.hideShippingTotal}">hide</isif>">
+        <span class="order-summary_itemsattr">
+             <isif condition="${pdict.vertexTaxCalculated}"> 
+                 <span>${Resource.msg('label.shipping.cost','cart',null)}:</span>
+             <iselse>
+                 <span>${Resource.msg('label.estimatedShipping.cost','cart',null)}:</span>
+             </isif>
+        </span>
+        <span class="order-summary_itemsvalue">
+             <isif condition="${pdict.totals.totalShippingCost === zeroCost}">
+                <span class="text-right shipping-cost bfx-price bfx-total-shipping">${Resource.msg('label.free.shipping', 'cart', null)}</span>
+            <iselse>
+                <span class="text-right bfx-price bfx-total-shipping shipping-cost">${pdict.totals.totalShippingCost}</span>
+            </isif>
+        </span>
+    </div>
+
+	<!--- Shipping Discount --->
+	<div class="shipping-discount order-summary_items bfx-remove-element order-summary_discount <isif condition="${pdict.totals.shippingLevelDiscountTotal.value === 0 }">hide-shipping-discount</isif>">
+	    <span class="order-summary_itemsattr">
+	        <span>${Resource.msg('label.shipping.discount', 'common', null)}:</span>
+	    </span>
+	    <span class="order-summary_itemsvalue">
+	        <span class="text-right shipping-discount-total bfx-price">- ${pdict.totals.shippingLevelDiscountTotal.formatted}</span>
+	    </span>
+	    <input id="currencySymbol" value="${pdict.CurrentSession.currency.symbol}" type="hidden">
+	    <input id="freeText" value="${Resource.msg('label.free.shipping', 'cart', null)}" type="hidden">
+	</div>
+
+	<div class="order-summary_items order-summary_estimated">
+	    <span class="order-summary_itemsattr">
+	    <isif condition="${pdict.vertexTaxCalculated}">
+	        <span>${Resource.msg('label.total','cart',null)}:</span>
+	    <iselse>
+	        <span>${Resource.msg('label.estimatedtotal','cart',null)}:</span>
+	    </isif>
+	    </span>
+	    <span class="order-summary_itemsvalue">
+	        <span class="text-right grand-total bfx-price bfx-total-grandtotal">${pdict.totals.grandTotal}</span>
+	    </span>
+	</div>
+        <!-- Atome Marketing Message AtomeEnabled-->
+        <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('atomeEnabled')}">
+				 <isinclude template="atome/marketing/atomeInstallmentCart" />
+		</isif>
+    <!-- Sales Tax -->
+	<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableGrossTaxmessage')}">
+	    <div class="row order-summary_items bfx-remove-element vat-included">
+	        <span class="order-summary_itemsattr">            
+	            <span>${Resource.msg('label.vat.included','cart',null)}:</span>            
+	            <span class="vat-tooltip-content">
+	                <span class="g-tooltip-icon g-tooltip">
+	                   <span class="g-tooltip-arrow"></span>
+	                </span>
+	                <span class="g-tooltip-text">
+	                   <iscontentasset aid="order-vat-included" />
+	                </span>
+	            </span>
+	        </span>
+	        <span class="order-summary_itemsvalue">
+	            <span class="text-right tax-total bfx-price bfx-total-tax">${pdict.totals.totalTax}</span>
+	        </span>
+	    </div>
+	 </isif>
+</div>

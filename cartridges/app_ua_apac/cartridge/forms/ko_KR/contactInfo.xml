@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+
+    <!-- fields for email and phone number -->
+
+    <field formid="firstName" label="label.input.firstname.profile" type="string" mandatory="true" binding="firstName"
+           max-length="100" missing-error="address.firstname.missing" range-error="error.message.lessthan50"/>
+    <field formid="lastName" label="label.input.lastname.profile" type="string" mandatory="true" binding="lastName" max-length="100"
+           missing-error="address.lastname.missing" range-error="error.message.lessthan50"/>
+
+    <field formid="email" label="label.input.email.profile" type="string" mandatory="false" binding="email"
+           max-length="50" regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$" missing-error="error.card.info.missing.email"
+           parse-error="error.message.parse.email.profile.form" range-error="error.message.lessthan50"
+           value-error="ValueErrorText" required="" />
+
+    <field formid="phone" label="label.input.phonenumber" description="address.phone.example" type="string" mandatory="false"
+            binding="phone" min-length="0" max-length="20" regexp="^[0-9- ]{0,20}$" missing-error="error.card.info.missing.phone" range-error="error.message.between10and20" />
+    <field formid="countryDialingCode" label="label.input.countryDialingCode" type="string" mandatory="true" binding="countryDialingCode" missing-error="error.message.required">
+       <options>
+            <option optionid="+82"      label="KR: +82"          value="+82"/>
+        </options>
+   </field>
+
+   <field formid="email2" label="profile.email" type="string" mandatory="true" binding="email2"
+        max-length="50" regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$" missing-error="error.card.info.missing.email"
+        parse-error="error.message.parse.email.profile.form" range-error="error.message.lessthan50"
+        value-error="ValueErrorText" required="" />
+
+       <field 
+        formid="emailaddressName2" 
+        label="label.input.email.profile" 
+        type="string" 
+        binding="custom.emailaddressName2" 
+        missing-error="forms.address.email.invalid" 
+        value-error="profile.usernametaken"/>
+
+    <field 
+        formid="emailaddressDomainSelect2" 
+        label="label.input.emailaddressDomainSelect.profile" 
+        type="string" 
+        mandatory="false" 
+        binding="custom.emailaddressDomainSelect2">
+
+        <options>
+            <option optionid="directinput" 	label="forms.directinput" 	value="" />
+            <option optionid="naver.com" 	label="naver.com" 			value="naver.com" />
+            <option optionid="hanmail.net" 	label="hanmail.net" 		value="hanmail.net" />
+            <option optionid="nate.com" 	label="nate.com" 			value="nate.com" />
+            <option optionid="gmail.com" 	label="gmail.com" 			value="gmail.com" />
+            <option optionid="hotmail.com" 	label="hotmail.com" 		value="hotmail.com" />
+            <option optionid="daum.net" 	label="daum.net" 			value="daum.net" />
+            <option optionid="yahoo.co.kr" 	label="yahoo.co.kr" 		value="yahoo.co.kr" />
+            <option optionid="hanmir.com" 	label="hanmir.com" 			value="hanmir.com" />
+            <option optionid="dreamwiz.com" label="dreamwiz.com" 		value="dreamwiz.com" />
+            <option optionid="lycos.co.kr" 	label="lycos.co.kr" 		value="lycos.co.kr" />
+            <option optionid="empas.com" 	label="empas.com" 			value="empas.com" />
+            <option optionid="paran.com" 	label="paran.com" 			value="paran.com" />
+        </options>
+    </field>
+
+    <field 
+        formid="emailaddressDomain2" 
+        label="label.input.emaildomain.profile" 
+        type="string" 
+        binding="custom.emailaddressDomain2" 
+        regexp="^[\w.\-]+\.[a-zA-Z]{2,}$" 
+        missing-error="forms.address.email.invalid" />
+
+       <field formid="phoneMobile1" label="profile.phone" type="string" binding="custom.phoneMobile1" max-length="3" missing-error="forms.address.phone.missing" range-error="forms.address.field.invalid" value-error="forms.address.field.invalid">    
+        <options>
+            <option optionid="" label="forms.select" value=""/>
+            <option optionid="010" label="010" value="010" />
+            <option optionid="011" label="011" value="011" />
+            <option optionid="016" label="016" value="016" />
+            <option optionid="017" label="017" value="017" />
+            <option optionid="018" label="018" value="018" />
+            <option optionid="019" label="019" value="019" />
+        </options>
+    </field>
+    <field formid="phoneMobile2" label="profile.phone" type="string" binding="custom.phoneMobile2" max-length="4" regexp="^([0-9]{3,4})$" missing-error="forms.address.phone.missing" range-error="forms.address.field.invalid" value-error="forms.address.field.invalid" parse-error="forms.address.field.invalid"/>
+    <field formid="phoneMobile3" label="profile.phone" type="string" binding="custom.phoneMobile3" max-length="4" regexp="^([0-9]{3,4})$" missing-error="forms.address.phone.missing" range-error="forms.address.field.invalid" value-error="forms.address.field.invalid" parse-error="forms.address.field.invalid"/>
+
+    <field formid="addtoemaillist" label="description.checkbox.emailsignup.profile" type="boolean" mandatory="false" default-value="false" checked="false"/>
+    <field formid="smsOptIn" label="profile.addsmstolist" type="boolean" mandatory="false" binding="add-to-addsmsto-list" default-value="false" checked="false"/>
+    <field formid="agreetopolicy" label="profile.agreetopolicy" mandatory="false" missing-error="error.message.agetermserror" type="boolean" default-value="false" checked="false"/>
+    <field formid="agreetodatatransfer" label="profile.agreetodatatransfer" mandatory="false" missing-error="error.message.datapolicyerror" type="boolean" default-value="false" checked="false"/>
+    <field formid="agreeOrderData" label="profile.agreetoOrderData" mandatory="false" missing-error="error.message.datapolicyerror" type="boolean" default-value="false" checked="false"/>
+</form>

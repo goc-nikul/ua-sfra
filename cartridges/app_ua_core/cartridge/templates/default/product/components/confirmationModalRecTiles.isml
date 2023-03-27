@@ -1,0 +1,29 @@
+<div class="modal g-modal b-cart-added-confirmation-modal" id="cartConfirmationModal" role="dialog">
+	<div class="modal-dialog g-modal-dialog ">
+		<!-- Modal content-->
+		<div class="modal-content g-modal-content">
+		    <div class="js-product-detailsConfirmation"></div>
+			<div class="b-cart-content b-cart-content-recommendation">
+       			<div class="b-cart-content_row">
+           			<div class="b-cart-content_left">
+               			<div class="b-cart-inner-content_left">
+                   			<div class="cart-recommendations-slot-1 m-slot_4" data-styleid="${(pdict.productCollection[0].custom && 'style' in pdict.productCollection[0].custom && pdict.productCollection[0].custom.style) ? pdict.productCollection[0].custom.style: ''}">
+                       			<isslot id="pdp-confirmationModal-rec" description="PDP Confirmation Modal recommended products" context="global" context-object="${pdict.productCollection}" />
+                   			</div>
+              		 	</div>
+           			</div>
+       			</div>
+   			</div>
+   			<div class="b-confirmation-modal-footer">
+      			<div class="b-checkout-continue-sec">
+         			<button class="btn btn-primary btn-block g-button_base g-button_primary--white countinue-shopping-btn " data-dismiss="modal" aria-label="Close" title="${Resource.msg('link.continue.shopping','cart',null)}">
+         			${Resource.msg('link.continue.shopping','cart',null)}</button>
+         			<a href="${URLUtils.https('Cart-Show')}" class="btn btn-primary btn-block g-button_base g-button_primary--black checkout-btn" role="button" aria-pressed="true">
+         			${Resource.msg('button.minicart.cart.checkout','cart',null)}
+         			</a>
+     		     </div>
+   		    </div>
+		</div>
+	</div>
+</div>
+<div class="modal-backdrop"></div>

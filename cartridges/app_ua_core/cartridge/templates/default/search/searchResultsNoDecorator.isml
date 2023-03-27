@@ -1,0 +1,148 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<iscache hour="2" varyby="price_promotion" if="${!pdict.productSearch.productSearch.isPersonalizedSort()}"/>
+<!-- Coremedia -->
+<isinclude template="coremedia/modules.isml"/>
+<isset name="pageId" value="${CMUtil.pageId(pdict)}" scope="page"/>
+<isset name="categoryId" value="${CMUtil.categoryId(pdict)}" scope="page"/>
+<isset name="productId" value="${CMUtil.productId(pdict)}" scope="page"/>
+
+<isset name="var1" value="{" scope="page" />
+<isset name="var2" value="}" scope="page" />
+<isset name="CMRefinements" value="${require('*/cartridge/scripts/helpers/refinementHelpers').buildRefinementsCM(pdict.productSearch.refinements)}" scope="page" />
+<isset name="CMRefinementsJSON" value="${var1 + '"tags":"' + CMRefinements + '"' + var2}" scope="page" />
+
+<isif condition="${pdict.productSearch.isCategorySearch}">
+    <islcinclude pageId="${pageId}" categoryId="${categoryId}" productId="${productId}" placement="category-banner" prefetch="true" />
+<iselse/>
+    <section class="l-plp-category_banner">
+        <div class="js-plp-banner">
+            <isslot id="search-result-banner-m" description="Banner for search results" context="global" />
+        </div>
+    </section>
+</isif>
+
+<div class="l-plp-container ${categoryId ? categoryId.toLowerCase() : ''}" data-wishlist-url="${URLUtils.url('Wishlist-Items')}">
+    <isif condition="${pdict.reportingURLs && pdict.reportingURLs.length}">
+        <isinclude template="reporting/reportingUrls" />
+    </isif>
+
+    <isif condition="${pdict.productSearch.productIds.length > 0}">
+        <div class="l-plp-header b-plp_header ${(pdict.productSearch.start).toFixed(0) > 0 && pdict.isDirectSearch ? 'l-plp-header-load_button' : ''}">
+            <div class="b-plp_header-breadcrumbs">
+                <isinclude template="components/breadcrumbs/pageBreadcrumbs"/>
+            </div>
+        
+               <div class="b-plp_header-row">
+                <isif condition="${pdict.productSearch.isCategorySearch && (!pdict.isUserRefinedSearch || pdict.hasTwoOrMoreRefinementValuesOfSameType)}">
+                    <div class="b-plp_cat-name b-plp_header-cat-name">
+                        <h1 class="b-plp_header-category_heading">
+                            <isprint value="${!empty(pdict.category.custom.categorySearchDisplayName)
+                                                ? pdict.category.custom.categorySearchDisplayName
+                                                : pdict.category.displayName}" />
+                        </h1>
+                    </div>
+                <iselseif condition="${pdict.productSearch.isCategorySearch && (pdict.isUserRefinedSearch && !pdict.hasTwoOrMoreRefinementValuesOfSameType)}">
+                    <div class="b-plp_cat-name b-plp_header-cat-name">
+					    <h1 class="b-plp_header-category_heading">
+                            <isif condition="${!empty(pdict.refinementsDisplayTitle)}">
+                                <isprint value="${!empty(pdict.category.custom.categorySearchDisplayName)
+                                                ? pdict.category.custom.categorySearchDisplayName + pdict.refinementsDisplayTitle
+                                                : pdict.category.displayName + pdict.refinementsDisplayTitle}" />
+                            <iselseif condition="${empty(pdict.refinementsDisplayTitle)}">
+                                <isprint value="${!empty(pdict.category.custom.categorySearchDisplayName)
+                                                ? pdict.category.custom.categorySearchDisplayName
+                                                : pdict.category.displayName}" />
+                            </isif>
+                        </h1>
+                    </div>
+                </isif>
+
+                <isif condition="${!pdict.productSearch.isCategorySearch}">
+                    <div class="b-plp_header-search_title">
+                        ${Resource.msg('label.search.title', 'search', null)}
+                    </div>
+                    <div class="b-plp_header-search">
+                        &ldquo;${pdict.productSearch.searchKeywords ? pdict.searchDisplayName ? pdict.productSearch.searchKeywords +' - '+pdict.searchDisplayName : pdict.productSearch.searchKeywords : pdict.searchDisplayName ? pdict.searchDisplayName : ''}&rdquo;
+                    </div>
+                </isif>
+
+                <div class="b-plp_header-results_count js-products_count" data-analytics-plp-count="${pdict.productSearch.count}">
+                    ${Resource.msgf('label.results', 'search', null, pdict.productSearch.count)}
+                </div>
+
+                <div class="b-plp_header-sort js-header-sort">
+                    <isinclude template="search/sortOrderMenu" />
+                </div>
+            </div>
+            <isif condition="${pdict.enableFitModel && pdict.productSearch.isCategorySearch && pdict.fitModelEnabled && pdict.sizeModelValues}">
+                <div class="b-plp-sidebar-modelSize m-show">
+                    <div class="g-selectric-container form-group ">
+                        <select data-cmp="customSelect" data-cmp-id="selectric" class="js-input_field input-select js-select-model-size" data-analytics-size-model id="size-model" name="size-model" tabindex="-1">
+                            <isloop items="${pdict.sizeModelValues}" var="sizeModel">
+                                <option class="select-option"  value="${sizeModel.id !== 'default' ? sizeModel.id :''}">${sizeModel.label}</option>
+                            </isloop>
+                        </select>
+                        <label class="g-selectric-label form-control-label js-input-label" for="size-model"><isprint value="${Resource.msg('sizemodel.label', 'product', null)}" /></label>
+                    </div>
+                </div>
+            </isif>
+       </div>
+       <isif condition="${(pdict.productSearch.start).toFixed(0) > 0 && pdict.isDirectSearch && !pdict.hideLoadMoreButton}">
+            <div class="l-plp-load_button">
+                <isset name="loadMoreURL" value="${pdict.productSearch.isCategorySearch ? URLUtils.url('Search-Show', 'cgid', pdict.categoryID) : (pdict.productSearch.searchKeywords ? decodeURIComponent(URLUtils.url('Search-Show', 'q', pdict.productSearch.searchKeywords.replace(/ /g,'+'))) : '#')}" scope="page"/>
+                <a href="${loadMoreURL}" class="g-button_base g-button_secondary--black">${Resource.msg('label.load.more.products', 'search', null)}</a>
+            </div>
+       </isif>
+
+       <div class="l-plp-content">
+            <div class="l-plp-sidebar js-plp-sidebar" data-cmp="searchRefinement" data-json-config='{"initOnDevice": ["extra-small", "small", "medium", null, null]}'>
+                <div class="js-slim-scrollbar">
+                    <div class="l-plp-sidebar-categories">
+                        <isinclude template="search/refinements/categories" />
+                    </div>
+                    <isif condition="${pdict.enableFitModel && pdict.productSearch.isCategorySearch && pdict.fitModelEnabled && pdict.sizeModelValues}">
+                        <div class="b-plp-sidebar-modelSize m-hide">
+                            <div class="g-selectric-container form-group ">
+                                <select data-cmp="customSelect" data-cmp-id="selectric" class="js-input_field input-select js-select-model-size" data-analytics-size-model id="size-model" name="size-model" tabindex="-1">
+                                    <isloop items="${pdict.sizeModelValues}" var="sizeModel">
+                                        <option class="select-option"  value="${sizeModel.id !== 'default' ? sizeModel.id :''}">${sizeModel.label}</option>
+                                    </isloop>
+                                </select>
+                                <label class="g-selectric-label form-control-label js-input-label" for="size-model"><isprint value="${Resource.msg('sizemodel.label', 'product', null)}" /></label>
+                            </div>
+                        </div>
+                    </isif>
+                    <div class="l-plp-sidebar-filter">
+                        <isinclude url="${pdict.refineurl}"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="l-plp-products_container" itemtype="http://schema.org/SomeProducts" itemid="#product">
+                <isif condition="${pdict.productSearch.isCategorySearch}">
+                    <isinclude template="search/components/inGridList" />
+                </isif>
+                <div class="b-products_grid js-products_grid">
+                    <isif condition="${pdict.productSearch.isCategorySearch}">
+                        <islcinclude parameter="${CMRefinementsJSON}" pageId="${pageId}" categoryId="${categoryId}" productId="${productId}" placement="ingrid-content" view="asInGrid" prefetch="false" ajax="false" />
+                    </isif>
+                    <isinclude template="search/productGrid" />
+                    <isif condition="${pdict.productSearch.isCategorySearch}">
+                        <islcinclude parameter="${CMRefinementsJSON}" pageId="${pageId}" categoryId="${categoryId}" productId="${productId}" placement="category-grid-bottom" prefetch="false" />
+                    </isif>
+                </div>
+                <div class="hide lazyLoadwrapper"></div>
+            </div>
+        </div>
+        <isif condition="${pdict.productSearch.isCategorySearch}">
+            <islcinclude pageId="${pageId}" categoryId="${categoryId}" productId="${productId}" placement="category-bottom" prefetch="true" ajax="true" />
+        </isif>
+    <iselse/>
+        <isinclude template="search/noResultsProduct" />
+    </isif>
+    <div class="canonical-div">
+        <input type="hidden" data-canonical-url="${pdict.canonicalUrl}"/>
+    </div>
+    <isinclude template="search/noJsPagination"/>
+</div>
+

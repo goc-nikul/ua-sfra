@@ -1,0 +1,39 @@
+/**
+* Checks connection to Smartling API
+*
+* @input userIdentifier : String  Smartling project Id
+* @input userSecret : String  Smartling user secret
+* @output statusCode : String
+* @output errorText : String
+*/
+
+importPackage( dw.system );
+importPackage( dw.net );
+
+var smartlingFileApi = require("/bm_smartling_integration/cartridge/scripts/file_api/smartlingFileApi");
+var httpUtils = require("/bm_smartling_integration/cartridge/scripts/file_api/httpUtils");
+var ExceptionLog = require ('/bm_smartling_integration/cartridge/scripts/utils/ExceptionLog.ds').ExceptionLog;
+var LOGGER = new ExceptionLog(dw.system.Logger.getLogger("smartling", "submissionBoard.checkProgress"));
+
+function execute( args : PipelineDictionary ) : Number
+{
+    try {
+        var checkResult = smartlingFileApi.checkConnection(args.userIdentifier, args.userSecret);
+
+        args.statusCode = "200";
+        args.errorText = "OK";
+
+        return PIPELET_NEXT;
+    } catch (e) {
+        if (e instanceof httpUtils.SmartlingApiError) {
+            args.statusCode = e.statusCode;
+            args.errorText = e.errorText;
+        } else {
+            args.statusCode = "500";
+            args.errorText = "Unexpected Exception";
+        }
+
+        LOGGER.errorException("Error while checking connection to Smartlng file API", e);
+        return PIPELET_ERROR;
+    }
+}

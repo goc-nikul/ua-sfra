@@ -1,0 +1,109 @@
+<!-- Modal content-->
+<div class="g-modal-body g-availability-modal-body">
+    <div class="g-availability-modal-title">${Resource.msg('msg.checkout.availability', 'checkout', null)}</div>
+    <isset name="productHelpers" value="${require('*/cartridge/scripts/helpers/productHelpers')}" scope="page"/>
+    <isif condition="${pdict.bopisOOS}">
+        <!-- List of Bopis items fully moved to Shipping -->
+        <isif condition="${!empty(pdict.fullyMovedToShipping)}">
+            <p class="g-availability-modal-text">${Resource.msg('msg.checkout.bopisItem.OOS.movetoShipping', 'checkout', null)}</p>
+	        <isloop items="${pdict.fullyMovedToShipping}" var="pli" status="loopState" >
+	            <isset name="lineItem" value="${pli.cartModelItem}" scope="page"/>
+	            <isinclude template="checkout/availabilityProductCard.isml" />
+	        </isloop>
+        </isif>
+        <!-- List of Bopis items partially moved to Shipping -->
+        <isif condition="${!empty(pdict.partiallyMovedToShipping)}">
+            <isloop items="${pdict.partiallyMovedToShipping}" var="pli" status="loopState" >
+                <p class="g-availability-modal-text">${Resource.msgf('msg.checkout.bopisItem.partiallyOOS.movetoShipping', 'checkout', null, pli.storeInventory)}</p>
+                <isset name="lineItem" value="${pli.cartModelItem}" scope="page"/>
+                <isinclude template="checkout/availabilityProductCard.isml" />
+            </isloop>
+        </isif>
+        <!-- List of Bopis items fully removed from cart -->
+        <isif condition="${!empty(pdict.fullyRemovedItems)}">
+            <p class="g-availability-modal-text">${Resource.msg('msg.checkout.outofstock', 'checkout', null)}</p>
+            <isloop items="${pdict.fullyRemovedItems}" var="pli" status="loopState" >
+                <isset name="lineItem" value="${pli.cartModelItem}" scope="page"/>
+                <isinclude template="checkout/availabilityProductCard.isml" />
+            </isloop>
+        </isif>
+        <!-- List of Bopis items partially removed from cart -->
+        <isif condition="${!empty(pdict.partiallyRemovedItems)}">
+            <isloop items="${pdict.partiallyRemovedItems}" var="pli" status="loopState" >
+                <isset name="lineItem" value="${pli.cartModelItem}" scope="page"/>
+                <isset name="removedQty" value="${lineItem && lineItem.quantity && pli.storeInventory ? (lineItem.quantity - pli.storeInventory) : ''}" scope="page" />
+                <p class="g-availability-modal-text"><isprint value="${Resource.msgf('msg.checkout.bopisItem.partiallyOOS', 'checkout', null, pli.storeInventory, removedQty)}" /></p>
+                <isinclude template="checkout/availabilityProductCard.isml" />
+            </isloop>
+        </isif>
+    <iselse>
+		<isif condition="${!empty(pdict.fullyRemovedItems)}">
+			<isloop items="${pdict.fullyRemovedItems}" var="lineItem" status="loopState" >
+			    <p class="g-availability-modal-text">${Resource.msg('msg.checkout.outofstock', 'checkout', null)}</p>
+				<div class="b-cartlineitem_row">
+			        <div class="b-cartlineitem_image line-item-image">
+			             <img src="${lineItem.images.cartFullDesktop[0].url}" class="line-item-product-image" title="${lineItem.images.cartFullDesktop[0].title}" alt="${lineItem.images.cartFullDesktop[0].alt} image number ${lineItem.images.cartFullDesktop[0].index}" itemprop="image" />
+			        </div>
+			    	<div class="b-cartlineitem_details">
+			            <isinclude template="cart/productCard/cartProductCardHeader" />
+			             <div class="b-cartlineitem_attributes">
+			                <isif condition="${lineItem.custom.style}">
+			                    <p class="t-lineitem_attributes">${Resource.msg('label.product.item.name', 'cart', null)} ${lineItem.custom.style}</p>
+			                 </isif>
+			                 <isloop items="${lineItem.variationAttributes}" var="attribute">
+			                    <isif condition="${attribute.attributeId == 'color'}"> 
+			                        <p class="t-lineitem_attributes ${attribute.displayName}-${lineItem.UUID}">
+									<isset name="fixProductColorNames" value="${productHelpers.fixProductColorNames(lineItem.custom.colorway)}" scope="page"/>
+			                            ${attribute.displayName}: <isif condition="${lineItem.custom.colorway}"> <span>${fixProductColorNames}</span></isif><span> - <isprint value="${lineItem.custom.color}"/></span>
+			                        </p>
+			                    <iselse>
+			                        <p class="t-lineitem_attributes ${attribute.displayName}-${lineItem.UUID}">${attribute.displayName}: ${attribute.displayValue}</p>
+			                    </isif>
+				             </isloop>
+				        </div>	        
+			        </div>
+			    </div>
+			</isloop>
+		</isif>	
+		<isif condition="${!empty(pdict.partiallyRemovedItems)}">
+			<isloop items="${pdict.partiallyRemovedItems}" var="lineItem" status="loopState" >
+			    <p class="g-availability-modal-text">${Resource.msgf('cart.partiallyremoveditems', 'checkout', null)}</p>
+				<div class="b-cartlineitem_row">
+			        <div class="b-cartlineitem_image line-item-image">
+			             <img src="${lineItem.images.cartFullDesktop[0].url}" class="line-item-product-image" title="${lineItem.images.cartFullDesktop[0].title}" alt="${lineItem.images.cartFullDesktop[0].alt} image number ${lineItem.images.cartFullDesktop[0].index}" itemprop="image" />
+			        </div>
+			    	<div class="b-cartlineitem_details">
+			            <isinclude template="cart/productCard/cartProductCardHeader" />
+			             <div class="b-cartlineitem_attributes">
+			                <isif condition="${lineItem.custom.style}">
+			                    <p class="t-lineitem_attributes">${Resource.msg('label.product.item.name', 'cart', null)} ${lineItem.custom.style}</p>
+			                 </isif>
+			                 <isloop items="${lineItem.variationAttributes}" var="attribute">
+			                    <isif condition="${attribute.attributeId == 'color'}"> 
+			                        <p class="t-lineitem_attributes ${attribute.displayName}-${lineItem.UUID}">
+										<isset name="fixProductColorNames" value="${productHelpers.fixProductColorNames(lineItem.custom.colorway)}" scope="page"/>
+			                            ${attribute.displayName}: <isif condition="${lineItem.custom.colorway}"> <span>${fixProductColorNames}/</span> </isif><span> - <isprint value="${lineItem.custom.color}"/></span>
+			                        </p>
+			                    <iselse>
+			                        <p class="t-lineitem_attributes ${attribute.displayName}-${lineItem.UUID}">${attribute.displayName}: ${attribute.displayValue}</p>
+			                    </isif>
+				             </isloop>
+				        </div>	        
+			        </div>
+			    </div>
+			</isloop>
+		</isif>
+	</isif>
+</div>
+<div class="g-modal-footer g-availability-modal-footer">
+	<isif condition="${pdict.productQuantityTotal === 0}">
+		 <a class="g-button_base g-button_secondary--black btn btn-outline-primary b-button-cart" href="${URLUtils.https('Cart-Show')}">${Resource.msg('msg.checkout.returtocart', 'checkout', null)}</a>
+		 <a class="g-button_base g-button_primary--black btn btn-primary b-button-continue" href="${URLUtils.https('Home-Show')}">${Resource.msg('msg.checkout.continueshopping', 'checkout', null)}</a>
+    <iselseif condition="${pdict.bopisOOS}">
+         <a class="g-button_base g-button_primary--black btn btn-primary b-button-continue" href="${URLUtils.https('Checkout-Begin')}">${Resource.msg('msg.checkout.continue', 'checkout', null)}</a>
+         <a class="g-button_base g-button_secondary--black btn btn-outline-primary b-button-cart" href="${URLUtils.https('Cart-Show')}">${Resource.msg('msg.checkout.returtobag', 'checkout', null)}</a>
+	<iselse>
+		<button type="button" class="g-button_base g-button_primary--black btn btn-primary b-button-continue" data-dismiss="modal" data-action="home">${Resource.msg('msg.checkout.continue', 'checkout', null)}</button>		
+		<a class="g-button_base g-button_secondary--black btn btn-outline-primary b-button-cart" href="${URLUtils.https('Cart-Show')}">${Resource.msg('msg.checkout.returtocart', 'checkout', null)}</a>
+	</isif>	
+</div>

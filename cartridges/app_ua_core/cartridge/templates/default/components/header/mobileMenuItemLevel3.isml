@@ -1,0 +1,21 @@
+<isinclude template="components/header/mobileShopAllLink" />
+<isloop items="${menuItem.mobileSubCategories}" var="category">
+    <isset name="uaAnalyticsPathLevel3" value="${category.name.toLowerCase()}" scope="page" />
+    <li class="b-navigation-level_3_item b-hideitem__desktop ${category.hideInMobileNavigation ? 'h-hide-only-mobile' : ''}" role="none">
+        <isif condition="${category.isClickable}">
+            <a href="${category.url}" id="${category.id}-mobile-level3" role="menuitem"
+                class="b-navigation-level_3_link js-accessibility-navLevel3-link" tabindex="0" data-level="2" data-cat="${category.id}-mobile-level3"
+              data-analytics-nav-track="${uaAnalyticsPathTop}|${uaAnalyticsPathLevel2}|${uaAnalyticsPathLevel3}|${category.url}"
+          >
+                ${category.name}
+                <isif condition="${category.isShowFlameIcon}"> 
+                <span class="b-flameIcon" role="img" aria-label="${Resource.msg('label.flameIcon', 'common', null)}"></span>
+                </isif>
+            </a>
+        <iselse>
+            <div class="b-navigation-level_3_link js-accessibility-navLevel3-link" role="menuitem" tabindex="0" data-level="2" data-cat="${category.id}">
+                <span class="b-navigation-level_3_link js-menu-title" data-menu-title="${category.name}">${category.name}</span>
+            </div>
+        </isif>
+    </li>
+</isloop>

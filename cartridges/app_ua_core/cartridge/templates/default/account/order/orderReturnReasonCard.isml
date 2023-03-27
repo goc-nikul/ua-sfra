@@ -1,0 +1,36 @@
+<div class="b-select-returnreason">
+	<form class="order-return-reason-form" data-return-items="${pdict.selectedPids}">
+	    <isset name="order" value="${pdict.order}" scope="page" />
+		<isloop items="${pdict.order.orderItems}" var="orderItem" status="loopStatus">
+	       <div class="js-order-return-items">
+	         <isinclude template="account/order/orderDetailProductCard"/>
+	        </div>
+		</isloop> 
+		<input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+		<input type="hidden" name="reason_value" class="reason_value" />
+		<input type="hidden" name="analytics_reason_value" class="analytics_reason_value" />
+	</form>
+	<isif condition="${pdict.orderReturnItems == 'reason' && pdict.exchangeOrder}">
+	    <isset name="shippingAddress" value="${pdict.order.shippingAddress}" scope="page" />
+	    <isif condition="${shippingAddress}">
+	        <div class="exchange-item-shipped-container">
+		        <div class="exchange-item-shipped-header">${Resource.msg('label.exchange.address.header','account',null)}</div>
+		        <div class="exchange-item-shipped-body">
+			        <span class="order-shipped-body"><isprint value="${shippingAddress.fullName}" encoding="off" /></span>
+			        <span class="order-shipped-address-Line">
+			            <isif condition="${shippingAddress.address2}">
+			                <isprint value="${Resource.msgf('label.address.line','account',null,shippingAddress.address1,shippingAddress.address2)}" />
+			            <iselse>
+			                <isprint value="${shippingAddress.address1}" encoding="off" />
+			            </isif>
+			        </span>
+			        <span class="order-shipped-address-info">
+			            <isprint value="${Resource.msgf('label.address.info','account',null,shippingAddress.city, shippingAddress.stateCode, shippingAddress.postalCode)}" />
+			        </span>
+		        </div>
+		        <div class="exchange-item-shipped-footer">${Resource.msg('label.exchange.address.footer','account',null)}</div>
+	        </div>
+	    </isif>
+	</isif>
+</div>
+<isinclude template="account/order/orderDetailSelectItemToReturn"/>

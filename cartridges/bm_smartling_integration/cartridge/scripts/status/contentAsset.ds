@@ -1,0 +1,52 @@
+/**
+*
+*   @input contentId : String  Status of content asset to retrieve
+*   @output localesList : dw.util.ArrayList list of locales to retrieve for this asset
+*   @output name : String name of the retrieved asset
+*
+*/
+importPackage( dw.system );
+importPackage( dw.object );
+importPackage( dw.content );
+importPackage( dw.util );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "status.contentAsset"));
+
+/**
+    Retrieve the translation custom object for the passed in Content slot id
+*/
+function execute( pdict : PipelineDictionary )
+{
+    try {
+    	var contentId = pdict.contentId;
+        var content : Content = ContentMgr.getContent(contentId);
+        var sitePrefs : SitePreferences = Site.getCurrent().getPreferences();
+        var smartlingConfiguration : String = sitePrefs.custom['smartling_configuration_data'];
+        var smartlingConfigurationJson : JSON = JSON.parse(smartlingConfiguration);
+        var targetLocale : JSON = JSON .parse(smartlingConfigurationJson['target_locale']);
+
+        var list : ArrayList = new ArrayList;
+        for each (var locale : Object in targetLocale['target_locale']) {
+            var localeData : ArrayList =  new ArrayList;
+            localeData.addAt(0, locale['demandware']);
+            if (locale['demandware'] == "default") {
+                localeData.addAt(1, "default");
+            } else {
+                var language : CustomObject = CustomObjectMgr.queryCustomObject("SMARTLING_LOCALES", "custom.ID = '" + locale['demandware'] + "'");
+                localeData.addAt(1, language.getCustom()['name']);
+                localeData.addAt(2, locale['demandware']);
+            }
+            list.push(localeData);
+        }
+
+        pdict.localesList = list;
+        pdict.name = content.name;
+
+    } catch (e) {
+        LOGGER.errorException("status.contentAsset execution failed for contentId={0}", pdict.contentId, e);
+        return PIPELET_ERROR;
+    }
+
+   return PIPELET_NEXT;
+}

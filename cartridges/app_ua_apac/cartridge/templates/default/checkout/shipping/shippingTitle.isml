@@ -1,0 +1,7 @@
+<isif condition="${!empty(shippingModel.selectedShippingMethod) && shippingModel.selectedShippingMethod.storePickupEnabled === true}">
+    <p class="summary-section-label shipping-addr-label">${Resource.msg('label.instore.pickup.from', 'instorePickup', null)}</p>
+<iselseif condition="${pdict.isCommercialPickup}" >
+	<p class="summary-section-label shipping-addr-label">${Resource.msg('label.hal.pickup.addres', 'checkout', null)}</p>
+<iselse>
+    <p class="summary-section-label shipping-addr-label">${Resource.msg('label.order.shipping.address', 'confirmation', null)}</p>
+</isif>

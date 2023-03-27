@@ -1,0 +1,26 @@
+/**
+* SetupPlaceOrderRedirect.ds
+* Created by: jfriend on Mar 6, 2013
+* Used to setup the redirect script string to securely call Place Order pipeline
+*
+* Called from:
+*   ShopRunner-PayrunnerAPI
+*	@input PaymentInstrument : dw.order.OrderPaymentInstrument
+*	@input Basket : dw.order.Basket
+*   @output RedirectScript : String
+*
+*/
+importPackage( dw.system );
+importPackage( dw.web );
+importPackage( dw.order );
+importScript( "util/srErrorUtils.ds" );
+
+function execute( args : PipelineDictionary ) : Number
+{
+	var status : Number = errorCodePaymentPDP(args.PaymentInstrument, args.Basket); // added in order to put the error code if Complete Purchase button is pressed
+	var PlaceOrderUrl : String = URLUtils.https('ShopRunner-PlaceOrder').toString();
+	var redirectUrl : String = "sr_$.script.ok( 'response', { 'redirectURL' : '" + PlaceOrderUrl + "', 'status' : " + status + " } );";
+	args.RedirectScript = redirectUrl;
+	
+    return PIPELET_NEXT;
+}

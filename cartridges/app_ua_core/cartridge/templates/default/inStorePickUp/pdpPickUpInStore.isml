@@ -1,0 +1,36 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isset name="store" value="${pdict.pickUpInStore.selectedStore}" scope="page"/>
+<div class="b-store-choose-link bfx-remove-element js-instorepickup" data-modal-close-text="${Resource.msg('label.modal.close.text','instorePickup',null)}">
+    <isif condition="${pdict.pickUpInStore.enabled}">
+        <span class="b-store-choose-content">
+            <div class="b-store-choose-content-top">
+               <img src="${URLUtils.staticURL('/images/store.svg')}" alt="${Resource.msg('button.choose.store', 'storeLocator', null)}" title="${Resource.msg('title.hero.choosestore', 'storeLocator', null)}">
+               <div class="b-store-choose-content-left">
+                   <span class="b-store-heading">${Resource.msg('label.item.pdp.heading','product',null)}</span>
+                   <div class="b-store-selected-content">
+                       <isif condition="${pdict.pickUpInStore.productAvailability}">
+                           <isif condition="${pdict.pickUpInStore.productAvailability === Resource.msg('store.variant.unavailable', 'storeLocator', null)}">
+                               <span class="b-store-status unavailable">${Resource.msg('store.product.currently.unavailable','storeLocator',null)}</span>
+                           <iselse>
+                               <span class="b-store-status"><isprint value="${pdict.pickUpInStore.productAvailability.split(' ')[2]}" /></span>
+                           </isif> ${Resource.msg('store.product.at','storeLocator',null)}
+                       </isif>
+                    <isif condition="${pdict.pickUpInStore.quickViewEnable == 'true'}">
+                        <div class="b-choose-store"> ${store && store.name}</div>
+                    <iselse>
+                        <a href="${pdict.pickUpInStore.actionUrl}" class="btn btn-block change-store btn-outline-primary" data-postal="${pdict.pickUpInStore.searchPostalCode}" data-radius="${pdict.pickUpInStore.searchRadius}" data-store-id="${store && store.ID}" data-action-url="${pdict.pickUpInStore.actionUrl}" data-ats-action-url="${pdict.pickUpInStore ? pdict.pickUpInStore.atsActionUrl : ''}" type="submit">
+                           <div class="b-choose-store"> ${store && store.name}</div>
+                       </a>
+                    </isif>
+                       
+                   </div>
+               </div>
+           </div>
+       </span>
+    </isif>
+</div>
+
+<div class="b-replace-choose-store hide">
+    <isinclude template="inStorePickUp/pdpChoosePickUpInStore"/>
+</div>
+

@@ -1,0 +1,96 @@
+<div class="personalize-container personalize__modal ${product.personalizationContent.jerseyStyle}">
+    <div class="personalize__carousel images b-product_carousel b-product_carousel-cart js-main-image-carousel js-carousel"
+    data-cmp="carousel"
+    data-carousel-type="pdpMainImage">
+    <isif condition="${pdict.isPersonalizationEnabled && product.isPersonalizationEligible}">
+        <div class="l-tile-badge_top_left">
+            <isprint value="${product.personalizationBadge}"/>
+        </div>
+    </isif>
+    
+    <div class="b-personalize_carousel-wrapper js-swiper-wrapper swiper-wrapper">
+        <isif condition="${(!pdict.personalizationSponsors && product.personalizationContent.backImage) || (pdict.personalizationSponsors && product.personalizationContent.backImageSponsors)}">
+            <div class='back-img b-product_carousel-slide js-product_carousel-slide swiper-slide'>
+                <img class="personalize__image personalize-back-img" src="${pdict.personalizationSponsors ? product.personalizationContent.backImageSponsors : product.personalizationContent.backImage}" data-default-img="${product.personalizationContent.backImage}" data-sponsors-img="${product.personalizationContent.backImageSponsors}" alt="Back Image"/>
+                <div class="personalize__jersey personalization__flipped">
+                    <isif condition="${product.personalizationContent.nameLocation && product.personalizationContent.nameLocation === 'below'}">
+                        <div class="personalize__jersey-name"><span></span></div>
+                        <div class="personalize__jersey-number"></div>
+                    <iselse/>
+                        <div class="personalize__jersey-number"></div>
+                        <div class="personalize__jersey-name"><span></span></div>
+                    </isif>
+                </div>
+            </div>
+        </isif>
+        <isif condition="${(!pdict.personalizationSponsors && product.personalizationContent.frontImage) || (pdict.personalizationSponsors && product.personalizationContent.frontImageSponsors)}">
+            <div class="front-img b-product_carousel-slide js-product_carousel-slide swiper-slide">
+                <img class="personalize__image personalize-front-img" src="${pdict.personalizationSponsors ? product.personalizationContent.frontImageSponsors : product.personalizationContent.frontImage}" data-default-img="${product.personalizationContent.frontImage}" data-sponsors-img="${product.personalizationContent.frontImageSponsors}" alt="Front Image"/>
+            </div>
+        </isif>
+    </div>
+    <div class="b-product_carousel-control m-next js-swiper-button-next"></div>
+    <div class="b-product_carousel-control m-prev js-swiper-button-prev"></div>
+    </div>
+
+    <div class="personalize__modal-details">
+        <h2><isprint value="${Resource.msg('personalize.flag', 'personalize', null)}" /></h2>
+        <ul class="personalize__form">
+            <li class="personalize__form-row form-row form-group b-order-return-input b-input_row">
+                <label for="personalizationNameInput" class="b-input_row-label form-control-label">
+                    <isprint value="${Resource.msg('personalize.modal.name', 'personalize', null)}" encoding="off" />
+                    <isif condition="${!product.personalizationContent.sameCost}">
+                        <span> (<isprint value="${product.personalizationContent.nameOption}"/>)</span>
+                    </isif>
+                </label>
+                <input id="personalizationNameInput" class="input-text form-control order-return-form-input b-quantity-select" type="text" value="${pdict.personalizationName || ''}" maxlength="${product.personalizationMaxName}" minlength="0"/>
+                <div class="personalize-name-msg">
+                    <isprint value="${Resource.msgf('personalize.modal.name.maxcharacters', 'personalize', null, product.personalizationMaxName)}" />
+                </div>
+                <div class="invalid-feedback hide">
+                    <isprint value="${Resource.msg('personalize.modal.name.invalid', 'personalize', null)}" />
+                </div>
+            </li>
+            <li class="personalize__form-row form-row form-group b-order-return-input b-input_row">
+                <label for="personalizationNumberInput" class="b-input_row-label form-control-label">
+                    <isprint value="${Resource.msg('personalize.modal.number', 'personalize', null)}" encoding="off" />
+                    <isif condition="${!product.personalizationContent.sameCost}">
+                        <span> (<isprint value="${product.personalizationContent.numberOption}"/>)</span>
+                    </isif>
+                </label>
+                <input id="personalizationNumberInput" class="input-text form-control order-return-form-input b-quantity-select" type="text" value="${pdict.personalizationNumber || ''}"
+                    maxlength="${product.personalizationMaxNumber}" minlength="0" />
+                <div class="personalize-number-msg">
+                    <isprint value="${Resource.msgf('personalize.modal.number.maxcharacters', 'personalize', null, product.personalizationMaxNumber)}" />
+                </div>
+            </li>
+            <isif condition="${product.personalizationContent.enableSponsors}">
+                <li class="personalize__form-row form-row label-inline b-order-return-input ">
+                    <input id="personalizationSponsorsInput" class="input-checkbox" type="checkbox" ${pdict.personalizationSponsors ? 'checked' : ''} value=""/>
+                    <label for="personalizationSponsorsInput" class="sponsors-label">
+                        <isprint value="${Resource.msg('personalize.modal.sponsors', 'personalize', null)}" encoding="off" />
+                    </label>
+                </li>
+            </isif>
+        </ul>
+        <isif condition="${product.personalizationContent.sameCost}">
+            <div class="js-personalize__form-commonprice">
+                <span><isprint value="${product.personalizationContent.sameCost}"/></span>
+            </div>
+        </isif>
+        <isif condition="${product.personalizationContent && product.personalizationContent.personalizationInfo}">
+            <div class="personalize__form-description">
+                <isprint value="${product.personalizationContent.personalizationInfo}" encoding="off" />
+            </div>
+        </isif>
+        <div class="personalize__form-action">
+                <button  class="g-button_base g-button_tertiary cart-personalize-continue-btn btn">
+                <isprint value="${Resource.msg('personalize.modal.close', 'personalize', null)}" />
+            </button>
+            <a href="#" data-dismiss="modal" data-target="#personalize-modal" data-clear="#personalize-modal" class="personalize-cancel-btn">
+                <isprint value="${Resource.msg('personalize.modal.cancel', 'personalize', null)}" />
+            </a>
+        </div>
+    </div>
+    <isinclude template="product/renderjerseysvg" />
+</div>

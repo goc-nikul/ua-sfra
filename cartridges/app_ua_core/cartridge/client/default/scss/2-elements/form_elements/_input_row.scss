@@ -1,0 +1,235 @@
+/* md
+
+# Input row
+
+You must save the presented sequence of elements
+
+```html
+    <form>
+        <div class="b-input_row m-required">
+            <label class="b-input_row-label">Phone
+                <span class="b-input_row-label_simple">(only numbers)</span>
+            </label>
+            <input type="text" class="b-input_row-input">
+            <p class="b-input_row-hint_message">Example: +44 7911 123456</p>
+            <p class="b-input_row-error_message">The field phone is required</p>
+        </div>
+    </form>
+```
+
+# Default fields
+
+```html_example
+    <div style="padding: 15px 0 0 0; max-width: 400px;">
+        <div class="b-input_row">
+            <label class="b-input_row-label">First Name</label>
+            <input type="text" class="b-input_row-input">
+        </div>
+        <div class="b-input_row">
+            <label class="b-input_row-label">Last Name</label>
+            <input type="text" class="b-input_row-input">
+        </div>
+        <div class="b-input_row">
+            <label class="b-input_row-label">Email</label>
+            <input type="text" class="b-input_row-input">
+        </div>
+    </div>
+```
+
+# Default field with hint label
+
+```html_example
+    <div style="padding: 15px 0 0 0; max-width: 400px;">
+        <div class="b-input_row">
+            <label class="b-input_row-label">Name
+                <span class="b-input_row-label_simple">(first name)</span>
+            </label>
+            <input type="text" class="b-input_row-input">
+        </div>
+    </div>
+```
+
+# Required field
+
+```html_example
+    <div style="padding: 15px 0 0 0; max-width: 400px;">
+        <div class="b-input_row m-required">
+            <label class="b-input_row-label">Last Name</label>
+            <input type="text" class="b-input_row-input">
+            <p class="b-input_row-error_message"></p>
+        </div>
+    </div>
+```
+
+# Footnote field
+
+```html_example
+    <div style="padding: 15px 0 0 0; max-width: 400px;">
+        <div class="b-input_row">
+            <label class="b-input_row-label">Phone</label>
+            <input type="text" class="b-input_row-input">
+            <p class="b-input_row-hint_message">Example: +44 7911 123456</p>
+        </div>
+    </div>
+```
+
+# Error field
+
+```html_example
+    <div style="padding: 15px 0 0 0; max-width: 400px;">
+        <div class="b-input_row m-required m-error">
+            <label class="b-input_row-label">Address</label>
+            <input type="text" class="b-input_row-input m-error">
+            <p class="b-input_row-error_message">The field address is required</p>
+        </div>
+    </div>
+```
+
+# Half width field
+
+```html_example
+    <div style="padding: 15px 0 0 0; max-width: 400px;">
+        <div class="b-input_row">
+            <label class="b-input_row-label">Email</label>
+            <input type="text" class="b-input_row-input m-half_width">
+        </div>
+    </div>
+```
+
+# Textarea
+
+```html_example
+    <div style="padding: 15px 0 0 0; max-width: 400px;">
+        <div class="b-input_row m-textarea">
+            <label class="b-input_row-label">Email</label>
+            <textarea placeholder="Enter text here..." maxlength="50" class="b-input_row-input"></textarea>
+            <p class="b-input_row-hint_message">Minimum Characters Remaining 23</p>
+        </div>
+    </div>
+```
+
+# Textarea Error
+
+```html_example
+    <div style="padding: 15px 0 0 0; max-width: 400px;">
+        <div class="b-input_row m-textarea m-error">
+            <label class="b-input_row-label">Email</label>
+            <textarea placeholder="Enter text here..." maxlength="50" class="b-input_row-input m-error"></textarea>
+            <p class="b-input_row-hint_message">Minimum Characters Remaining 23</p>
+            <p class="b-input_row-error_message">Please enter a minimum of 50 characters.</p>
+        </div>
+    </div>
+```
+
+*/
+
+// TODO: update this is scope of form validation
+// Input row
+.b-input_row {
+    position: relative;
+    margin-bottom: rem-calc(40);
+
+    &.m-error &-label {
+        color: $error-color;
+    }
+
+    &-label {
+        @include label-for-input;
+
+        font-size: rem-calc(11);
+
+        &--no-wrap {
+            white-space: nowrap;
+        }
+    }
+
+    &.m-required &-label {
+        @include label-for-input(required);
+    }
+
+    &-input {
+        @include input;
+
+        box-shadow: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+
+        &.m-half_width {
+            @include respond-to(no-phones) {
+                width: 50%;
+            }
+        }
+    }
+
+    &.m-textarea &-input {
+        height: rem-calc(176);
+        margin-bottom: rem-calc(24);
+        padding-top: rem-calc(16);
+        padding-bottom: rem-calc(16);
+    }
+
+    &-error_message:not(:empty) {
+        @include error_message;
+
+        font-size: rem-calc(11);
+        padding-left: rem-calc(16);
+    }
+
+    &.m-textarea &-error_message:not(:empty) {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+    }
+
+    &-hint_message {
+        @include t-text-4;
+
+        margin-top: rem-calc(8);
+        padding-left: rem-calc(16);
+        color: $grey5;
+        font-size: rem-calc(11);
+    }
+
+    &.m-textarea &-hint_message {
+        position: absolute;
+        right: rem-calc(16);
+        bottom: rem-calc(40);
+    }
+
+    &-error_message:not(:empty) + &-hint_message {
+        margin-top: rem-calc(8);
+    }
+}
+
+.b-input_checkbox {
+    @include checkbox($input_class: '-input', $label_class: '-label');
+
+    & + & {
+        margin-top: rem-calc(28);
+    }
+}
+
+.b-button_row {
+    margin-top: rem-calc(40);
+
+    &-btn_full {
+        width: 100%;
+    }
+
+    &-btn_mobile_full {
+        @include respond-to(phones) {
+            width: 100%;
+        }
+    }
+
+    &-btn_half {
+        flex: 1 1;
+        padding-right: rem-calc(5);
+        padding-left: rem-calc(5);
+
+        & + & {
+            margin-left: rem-calc(10);
+        }
+    }
+}

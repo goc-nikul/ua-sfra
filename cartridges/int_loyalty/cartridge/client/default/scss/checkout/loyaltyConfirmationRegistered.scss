@@ -1,0 +1,106 @@
+@import '~org/1-settings/all';
+@import '../components/g-loyalty-earn';
+@import '../components/g-loyalty-points';
+
+.b-loyalty-confirmation-registred {
+    padding-bottom: 2rem;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: rem-calc(20) 0;
+    text-align: center;
+
+    &.loyalty-in {
+        gap: 0;
+    }
+
+    @include respond-to(mobile) {
+        padding: 0 0 2rem;
+    }
+
+    @include respond-to(desktop) {
+        flex-flow: row nowrap;
+        gap: rem-calc(20) 0;
+
+        &.loyalty-in {
+            flex-flow: column nowrap;
+            gap: rem-calc(20) 0;
+        }
+    }
+
+    .b-qualitrics-link {
+        padding: 0;
+    }
+
+    .qualtrics-checkout-cta {
+        @include link('medium');
+
+        text-decoration: underline;
+        margin: 8px 0 0;
+        font-weight: 600;
+        color: $black;
+    }
+
+    &_logo {
+        img {
+            min-width: rem-calc(200);
+        }
+    }
+
+    &.border-hide {
+        border: 0;
+
+        @include respond-to(mobile) {
+            padding: 0;
+        }
+    }
+
+    &_header {
+        color: $black;
+        @include font(main, rem-calc(11));
+    }
+
+    &_legal {
+        color: $black;
+        @include font(main, rem-calc(11));
+
+        @include respond-to(mobile) {
+            max-width: rem-calc(250);
+        }
+    }
+
+    &_cta {
+        button {
+            min-width: rem-calc(250);
+        }
+    }
+
+    &_left,
+    &_right {
+        width: 100%;
+
+        @include respond-to(desktop) {
+            width: 50%;
+        }
+    }
+
+    &_left {
+        img {
+            width: 100%;
+
+            @include respond-to(desktop) {
+                float: left;
+                width: auto;
+            }
+        }
+    }
+
+    &_right {
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: center;
+        justify-content: center;
+        gap: rem-calc(10);
+    }
+}

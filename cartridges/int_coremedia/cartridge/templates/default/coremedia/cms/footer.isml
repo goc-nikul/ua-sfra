@@ -1,0 +1,13 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+<isinclude template="coremedia/modules.isml"/>
+<iscomment>
+    This template can be included in 'footer_UI.isml' in your SiteGenesis storefront
+    to include additional resources required for the CoreMedia integration.
+</iscomment>
+<!-- COREMEDIA FOOTER -->
+<isset name="pageId" value="${CMUtil.pageId(pdict)}" scope="page"/>
+<isset name="categoryId" value="${CMUtil.categoryId(pdict)}" scope="page"/>
+<isset name="productId" value="${CMUtil.productId(pdict)}" scope="page"/>
+<isset name="externalRef" value="${CMUtil.externalRef(pdict)}" scope="page"/>
+<islcinclude pageId="${pageId}" categoryId="${categoryId}" productId="${productId}" externalRef="${externalRef}" view="externalFooter" prefetch="true"/>
+<!-- END COREMEDIA FOOTER -->

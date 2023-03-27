@@ -1,0 +1,91 @@
+<iscomment>
+    TEMPLATENAME: contactUs.isml
+</iscomment>
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isdecorate template="faqs/contactUsLayout">
+<meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
+<script src="https://www.google.com/recaptcha/api.js"></script>
+<script>
+function timestamp() { 
+    var response = document.getElementById("g-recaptcha-response");
+    if (response == null || response.value.trim() == "") {
+        var elems = JSON.parse(document.getElementsByName("captcha_settings")[0].value);elems["ts"] = JSON.stringify(new Date().getTime());
+        document.getElementsByName("captcha_settings")[0].value = JSON.stringify(elems); 
+    } 
+} 
+setInterval(timestamp, 500);
+</script>
+    <isset name="currentSite" value="${require('dw/system/Site').getCurrent()}" scope="page" />
+    
+    <isset name="grecaptchaSiteKey" value="${currentSite.getCustomPreferenceValue('grecaptchaSitekey') || ''}" scope="page" />
+    <isset name="successRedirectContentID" value="${currentSite.getCustomPreferenceValue('customerServiceSuccessRedirectURL')}" scope="page" />
+    <isset name="customerServiceContactUsURL" value="${currentSite.getCustomPreferenceValue('customerServiceContactUsURL')}" scope="page" />
+    <isset name="customerServiceContactUsOrgID" value="${currentSite.getCustomPreferenceValue('customerServiceContactUsOrgID')}" scope="page" />
+    <isset name="customerServiceContactUsOwnerID" value="${currentSite.getCustomPreferenceValue('customerServiceContactUsOwnerID')}" scope="page" />
+    <isset name="customerServiceContactRecaptchaKeyname" value="${currentSite.getCustomPreferenceValue('customerServiceContactRecaptchaKeyname')}" scope="page" />
+    <isset name="countryDisplayName" value="Korea" scope="page" />
+    <isset name="faqResources" value="${require('*/cartridge/scripts/helpers/localeHelpers').getFAQResources()}" scope="page" />
+    <isset name="reqLocale" value="ko" scope="page" />
+
+
+    <div class="form-container contact-us-kr">
+        <iscomment>
+            Inline resources because these comes from the Service Cloud
+        </iscomment>
+        <isif condition="${pdict.content}">
+            <isprint value="${pdict.content.body}" encoding="off"/>
+        </isif>
+        <p>${faqResources.faqGeneral}</p>
+
+        <form id="sendNoteForm" action="${customerServiceContactUsURL}" method="POST">
+
+            <iscomment> CAPTCHA INFO </iscomment>
+            <input type="hidden" name='captcha_settings' value='{"keyname":"${customerServiceContactRecaptchaKeyname}","fallback":"true","orgId":"${customerServiceContactUsOrgID}","ts":""}'/>
+            <input type="hidden" name="orgid" value="${customerServiceContactUsOrgID}"/>
+            <input type="hidden" name="retURL" value="${URLUtils.https('Page-Show', 'cid', successRedirectContentID)}"/>
+            <input id="subject" maxlength="80" name="subject" size="20" type="hidden" value="웹 케이스" />
+            <input name="Region__c" type="hidden" value="APAC" />
+            <input name="Country__c" type="hidden" value="${countryDisplayName}" />
+            <input name="Language__c" type="hidden" value="${reqLocale}" />
+            <input name="OwnerId" type="hidden" value="${customerServiceContactUsOwnerID}" />
+
+            <label class="required" for="type">${faqResources.faqInquiryType}</label><br/>
+            <select required class="inquiry-type"  name="type">
+                <option value="">${faqResources.faqSelectOne}</option>
+                <option value="Orders &amp; Tracking">${faqResources.faqInquiryTypeOrderStatus}</option>
+                <option value="Payment Inquiry">${faqResources.faqInquiryTypePaymentInquiry}</option>
+                <option value="Refunds">${faqResources.faqInquiryTypeRefund}</option>
+                <option value="Product Inquiry">${faqResources.faqInquiryTypeProductInqury}</option>
+                <option value="Account Issue">${faqResources.faqInquiryTypeAccountIssue}</option>
+                <option value="Other">${faqResources.faqInquiryTypeOther}</option>
+            </select><br/><br/>
+
+            <label class="required name-label" for="name">${faqResources.faqName}</label><br/>
+            <input required class="name-field" id="name" maxlength="80" name="name" type="text" /><br/><br/>
+
+            <label class="required email-label" for="email">${faqResources.faqEmail}</label><br/>
+            <input required id="email" class="email-field" maxlength="80" name="email" size="20" type="text" /><br/><br/>
+
+            <label class="required phone-label" for="phone">${faqResources.faqPhone}</label><br/>
+            <input required id="phone" class="phone-field" maxlength="40" name="phone" size="20" type="text" /><br/><br/>
+            <label class="orderNumber-label" for="00N4V00000ECopn">${faqResources.faqOrderNumber}</label><br/>
+            <span class="orderNumber-title">${faqResources.faqOrderNumberTitle}</span>
+            <input class="orderNumber-field" id="00N4V00000ECopn" maxlength="50" name="00N4V00000ECopn" size="20" type="text" /><br/><br/>
+
+            <label class="required description-label" for="description">${faqResources.faqDescription}</label><br/>
+            <textarea required class="description-field" name="description"  maxlength="3000"></textarea><br/>
+            <iscontentasset aid="consent-terms-and-conditions-contact-us" />
+            
+            <div class="kr-consent">
+                <input type="checkbox" required id="consent"  />
+                <label>${faqResources.faqConsent}</label>
+                <span class="required"></span>
+            </div><br/>
+            <div class="g-recaptcha" data-sitekey="${grecaptchaSiteKey}"></div>
+            <input ${grecaptchaSiteKey ? 'required' : ''} type="hidden" id="g-recaptcha"/>
+            <input type="submit" class="form" id="sendNote" value="${faqResources.faqSendNote}" />
+        </form>
+    </div>
+        
+    
+</isdecorate>

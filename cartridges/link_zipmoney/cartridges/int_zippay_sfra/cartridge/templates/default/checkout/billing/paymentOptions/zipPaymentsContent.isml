@@ -1,0 +1,34 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+
+<isset name="TemplateHelpers" value="${require('*/cartridge/scripts/util/template')}" scope="page"/>
+<isset name="logoUrl" value="${TemplateHelpers.getPaymentMethodLogoUrl(paymentOption.ID)}" scope="page"/>
+<isset name="paymentOptionID" value="${paymentOption.ID.toLowerCase()}" scope="page"/>
+
+<script src="https://static.zipmoney.com.au/lib/js/zm-widget-js/dist/zip-widget.min.js"></script>
+<div data-zm-merchant="${TemplateHelpers.getZipMarketingKey()}" data-env="${TemplateHelpers.getZipMarketingEnvironment()}"></div>  
+
+<p class="zip-learn-more">
+    <span>${Resource.msg('label.ownitnow', 'zip', null)} 
+            <img class="${paymentOptionID}-payments-option-logo"
+                src="${logoUrl}"
+                alt="${paymentOption.name}"
+                title="${paymentOption.name}"
+        /> 
+    </span>
+</p>
+
+<input type="hidden" class="form-control"
+        name="${pdict.forms.billingForm.paymentMethod.htmlName}"
+        value="${paymentOption.ID}" />
+
+<isif condition="${pdict.customer.registeredUser && TemplateHelpers.isZipTokenizationEnabled(paymentOption.ID) && !pdict.customer.hasZipToken}">
+    <div class="row">
+        <div class="col">
+            <div class="save-zip custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="saveZip_${paymentOption.ID}" name="${zipForm.saveZip.htmlName}" value="true" checked />
+                <label class="custom-control-label" for="saveZip_${paymentOption.ID}">${Resource.msg('label.savetoacc','zip',null)}</label>
+                <span class="save-zip-hint" style="display: block; font-size:0.7em;">${Resource.msg('label.savetoacc.hint','zip',null)}</span>
+            </div>
+        </div>
+    </div>
+</isif>

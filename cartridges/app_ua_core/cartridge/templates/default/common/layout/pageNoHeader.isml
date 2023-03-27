@@ -1,0 +1,22 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+
+<isinclude template="/components/modules" sf-toolkit="off" />
+
+<!DOCTYPE html>
+<html lang="${require('dw/util/Locale').getLocale(request.getLocale()).getLanguage()}" >
+    <head>
+        <!--[if gt IE 9]><!-->
+            <isinclude sf-toolkit="off" template="/common/scripts" />
+        <!--<![endif]-->
+        <isinclude template="/common/htmlHead" />
+        <isactivedatahead/>
+    </head>
+    <body class="l-body">
+        <div id="bodyPage" class="l-body-page js-page" data-action="${pdict.action}" data-querystring="${pdict.queryString}">
+            <main class="l-body-page_main" role="main" id="maincontent">
+                <isreplace/>
+            </main>
+        </div>
+        <isinclude template="tealium/footer_include.isml"/>
+    </body>
+</html>

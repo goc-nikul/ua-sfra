@@ -1,0 +1,40 @@
+<script>
+  window.UADatalayer.prototype.onDependenciesReady(function bindPLPEvents(){
+    var safetyFirst = window.UADatalayer.prototype.safetyFirst;
+    function gridPathOverrides() {
+      var serverLocale = window.UADatalayer.prototype.serverPageData.locale;
+      var overrides = window.UADatalayer.prototype.getPageDataOverridesFromPath(serverLocale, document.location.pathname);
+      window.uaDatalayer.applyPageData(overrides);
+    }
+    $('body').on('grid:refinementComplete', function (jqEv, data) {
+      if (!data) { return; }
+      gridPathOverrides();
+      var updatedGridData = window.UADatalayer.prototype.gridContentData();
+      updatedGridData['refinement_type'] = data.refinementTitle;
+      updatedGridData['refinement_attribute'] = data.refinementValue;
+      updatedGridData['grid_refinement_attributes'] = data.selectedFilters.map(function(attr) {
+        return { grid_refinement_attributes: attr };
+      });
+      uaDatalayer.applyPageData(updatedGridData);
+      uaDatalayer.action('pageView', {});
+    });
+    $('body').on('search:sortComplete', function (jqEv, data) {
+      if (!data) { return; }
+      gridPathOverrides();
+      var updatedGridData = window.UADatalayer.prototype.gridContentData();
+      updatedGridData['refinement_type'] = 'sort';
+      updatedGridData['refinement_attribute'] = data.selectedOptionText;
+      updatedGridData['grid_sort_order'] = data.selectedOptionText;
+      uaDatalayer.applyPageData(updatedGridData);
+      uaDatalayer.action('pageView', {});
+    });
+    $('body').on('click', '[data-analytics-plp-index]', function tealiumPLPClick(jqEv) {
+      var index = $(this).attr('data-analytics-plp-index');
+      safetyFirst(function tealiumPLPClickAction(){
+        uaDatalayer.applyNextPageData({
+          pdp_merch_product_stack: '0:' + index
+        });
+      });
+    });
+  });
+</script>

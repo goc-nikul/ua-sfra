@@ -1,0 +1,35 @@
+<iscomment>BEGIN Script for ShopRunner:</iscomment>
+<script type="text/javascript">
+	// ShopRunner related settings
+	var endpoint = '';
+	var protocol = document.location.protocol;
+
+	if( protocol == 'http:' ) {
+		endpoint = "${URLUtils.abs('ShopRunner-PayrunnerAPI')}";
+	} else {
+		endpoint = "${URLUtils.https('ShopRunner-PayrunnerAPI')}";
+	}
+	
+	var _shoprunner_com = new Object();
+  	_shoprunner_com.enabled = ${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_enabled')};
+	_shoprunner_com.retailerID = "${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_retailerID')}";
+    _shoprunner_com.loginValidationURL = "${URLUtils.https('ShopRunner-ValidateToken')}";
+ 	_shoprunner_com.environmentID = ${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_environment').value};
+
+ 	/*
+	 * ---------------------------------------- 
+	 * PayRunner Configuration
+	 *  ----------------------------------------
+	 */
+ 	_shoprunner_com.checkout = new Object();
+	_shoprunner_com.checkout.enabled = ${dw.system.Site.getCurrent().getCustomPreferenceValue('pr_enabled')};
+	_shoprunner_com.checkout.singleProductBuyNowEnabled = false;
+	_shoprunner_com.checkout.cartBuyNowEnabled = true;  
+	_shoprunner_com.checkout.partnerAPIEndPoint = endpoint;
+	
+	_shoprunner_com.checkout.mixedCart = "${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_mixedorder').value.value}";
+</script>
+
+<script type="text/javascript" src="${URLUtils.staticURL('/js/shoprunner_init.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/js/pr_functions.js')}"></script>
+<iscomment>END Script for ShopRunner:</iscomment>

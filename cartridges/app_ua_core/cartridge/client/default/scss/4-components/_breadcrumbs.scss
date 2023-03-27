@@ -1,0 +1,20 @@
+.b-breadcrumbs {
+    &-list {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: rem-calc(10);
+        font-size: rem-calc(14);
+    }
+
+    &-item {
+        &:not(:last-child)::after {
+            content: '/';
+            margin-right: rem-calc(3);
+        }
+    }
+
+    &-link {
+        text-decoration: none;
+        color: $grey5;
+    }
+}

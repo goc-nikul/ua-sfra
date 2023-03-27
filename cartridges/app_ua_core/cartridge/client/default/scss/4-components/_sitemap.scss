@@ -1,0 +1,82 @@
+.sitemap {
+    padding: 0 5px;
+
+    .sitemap-title-main {
+        font-size: rem-calc(42);
+        line-height: rem-calc(30);
+        margin: rem-calc(40) 0;
+        font-weight: $font-medium;
+        color: $black;
+        text-transform: uppercase;
+        text-align: left;
+        letter-spacing: rem-calc(-1.05);
+
+        @include respond-to(mobile) {
+            margin: rem-calc(20) 0;
+            font-size: rem-calc(24);
+        }
+    }
+
+    .sitemap-section {
+        margin-bottom: 0;
+        padding: 0 rem-calc(15);
+        border-bottom: 1px solid $grey4;
+
+        @include respond-to(mobile) {
+            padding: 0 rem-calc(5);
+        }
+
+        .sitemap-title {
+            text-align: left;
+            padding-top: rem-calc(20);
+
+            .sitemap-title-text {
+                font-size: rem-calc(25);
+                font-weight: $font-medium;
+                color: $black;
+                text-decoration: none;
+                line-height: rem-calc(20);
+            }
+        }
+
+        .sitemap-subCat-sec {
+            margin: 0 rem-calc(-5);
+            padding: rem-calc(20) 0;
+
+            .sitemap-subCat-text {
+                padding: 0 rem-calc(5);
+                display: inline-block;
+                width: 24%;
+
+                @include respond-to(mobile) {
+                    display: block;
+                    width: 100%;
+                }
+
+                a {
+                    font-size: rem-calc(16);
+                    line-height: rem-calc(17);
+                    display: block;
+                    text-align: left;
+                    font-weight: $font-medium;
+                    color: $black;
+                    margin: rem-calc(10) 0;
+                    text-decoration: none;
+
+                    &:hover {
+                        color: #2a6496;
+                        text-decoration: underline;
+                    }
+
+                    @include respond-to(mobile) {
+                        font-size: rem-calc(14);
+                    }
+                }
+            }
+        }
+    }
+
+    .sitemap-section:last-child {
+        border-bottom: none;
+    }
+}

@@ -1,0 +1,312 @@
+.b-contact {
+    &.contact-info-block {
+        border-bottom: 1px solid $grey3;
+    }
+
+    &_heading {
+        @include font(main_bold, rem-calc(24), 1.33);
+
+        padding-bottom: spacing(xs);
+        margin-bottom: rem-calc(24);
+        border-bottom: 1px solid $black;
+
+        @include respond-to(mobile) {
+            @include font(main_bold, rem-calc(16), 1.5);
+
+            padding-bottom: rem-calc(8);
+        }
+    }
+
+    &_tooltip {
+        @include icon(question);
+
+        margin-left: spacing(xs);
+        vertical-align: middle;
+
+        @include respond-to(mobile) {
+            margin-left: rem-calc(10);
+
+            &.hide-mobile {
+                display: none;
+            }
+        }
+
+        .g-tooltip-text {
+            min-width: rem-calc(200);
+        }
+    }
+
+    &_tooltip-mobile {
+        display: none;
+
+        @include respond-to(mobile) {
+            display: inline-block;
+            width: 100%;
+
+            .g-tooltip-text {
+                width: calc(100vw - 35px);
+                padding: rem-calc(20);
+                top: rem-calc(33);
+                min-width: 100%;
+
+                &::after {
+                    display: none;
+                }
+            }
+
+            .g-tooltip-arrow {
+                visibility: hidden;
+
+                &::after {
+                    content: '';
+                    border-color: transparent transparent $black;
+                    border-style: solid;
+                    border-width: 0.5rem;
+                    margin-top: 0;
+                }
+            }
+
+            .b-contact_tooltip {
+                &::before {
+                    position: absolute;
+                    top: 4px;
+                }
+            }
+
+            .g-tooltip-icon:hover {
+                .g-tooltip-arrow {
+                    visibility: visible;
+                }
+            }
+        }
+    }
+
+    &_subheading {
+        @include font(main, rem-calc(14), 1.43);
+
+        margin-bottom: spacing(sm);
+
+        span {
+            vertical-align: middle;
+        }
+    }
+
+    .b-form_group {
+        &.customer-phonenumber {
+            margin-bottom: rem-calc(20);
+        }
+
+        position: relative;
+        margin: 0;
+    }
+
+    .form-group {
+        label.b-input_row-label {
+            &::before {
+                content: '';
+            }
+        }
+    }
+
+    .form-group {
+        label.b-input_row-label.required {
+            &::after {
+                color: $black;
+                content: '*';
+            }
+        }
+    }
+
+    &_row {
+        display: flex;
+
+        @include respond-to(mobile) {
+            flex-wrap: wrap;
+        }
+
+        &-top {
+            .b-contact_column {
+                @include respond-to(desktop) {
+                    margin-bottom: rem-calc(32);
+                }
+            }
+        }
+    }
+
+    &_column {
+        width: 100%;
+        margin-right: rem-calc(24);
+
+        &.tooltip {
+            position: relative;
+
+            input {
+                &:hover {
+                    &::placeholder {
+                        color: $placeholders-color;
+                    }
+                }
+
+                &:focus {
+                    &::placeholder {
+                        color: transparent;
+                    }
+                }
+            }
+        }
+
+        @include respond-to(mobile) {
+            margin-right: 0;
+            margin-bottom: rem-calc(28);
+        }
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+
+    &_sign {
+        position: relative;
+        margin-top: rem-calc(16);
+        margin-bottom: rem-calc(32);
+
+        @include respond-to(mobile) {
+            margin-top: 0;
+        }
+    }
+
+    &_shipping {
+        @include icon(checkbox-default);
+
+        visibility: hidden;
+
+        &::before {
+            position: absolute;
+            top: 4px;
+            left: 0;
+            visibility: visible;
+        }
+
+        &:checked {
+            @include icon(checkbox-selected-alt);
+        }
+    }
+
+    &_canada {
+        @include font(main, rem-calc(12), 1.67);
+
+        a {
+            color: $black;
+        }
+    }
+
+    &_phone {
+        label.b-input_row-label.required {
+            &::after {
+                display: inline;
+                color: $black;
+                content: '*';
+            }
+        }
+
+        label::after {
+            display: none;
+        }
+    }
+
+    &_row-phone-address {
+        .b-contact_column {
+            .b-input_row {
+                margin-bottom: rem-calc(20);
+            }
+        }
+    }
+}
+
+.b-contact-info {
+    margin-bottom: rem-calc(32);
+}
+
+.b-contactinfo {
+    &-tooltip-content {
+        width: 100%;
+        position: relative;
+
+        &.mac-only {
+            .g-tooltip-arrow {
+                @include respond-to(desktop) {
+                    bottom: -3px;
+                }
+            }
+        }
+
+        .g-tooltip-text {
+            width: 100%;
+            padding: rem-calc(12) rem-calc(16) rem-calc(16);
+            border-radius: 1px;
+            top: calc(100%);
+            line-height: 1.5;
+            right: 50%;
+            left: 0;
+            transform: translateX(0);
+
+            &::after {
+                display: none;
+            }
+        }
+
+        .g-tooltip-icon {
+            @include icon(question);
+
+            vertical-align: middle;
+            cursor: pointer;
+            position: absolute;
+            right: 3%;
+            top: calc(100% - 29px);
+
+            @include respond-to(mobile) {
+                right: 0;
+                top: calc(100% - 40px);
+                padding: rem-calc(10);
+                z-index: 99;
+            }
+
+            &::before {
+                font-size: rem-calc(14);
+            }
+        }
+
+        .g-tooltip-arrow {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: 4px;
+            left: 0;
+            @include respond-to(ipadProtzoe-portrait) {
+                bottom: 8.5px;
+            }
+            @include respond-to(mobile) {
+                bottom: 7px;
+                left: 7px;
+            }
+            @include respond-to(ipadPro-portrait) {
+                bottom: 8.5px;
+            }
+
+            &::after {
+                content: '';
+                border-color: transparent transparent $black transparent;
+                border-style: solid;
+                border-width: rem-calc(8);
+            }
+        }
+
+        &-text {
+            @include font(main_med, rem-calc(12), 1.67);
+
+            color: $green;
+            margin-right: rem-calc(7);
+            vertical-align: top;
+        }
+    }
+}

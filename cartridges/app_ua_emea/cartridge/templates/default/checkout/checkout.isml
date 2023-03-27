@@ -1,0 +1,280 @@
+<isset name="customerCountry" value="${pdict.currentCountry}" scope="page" />
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isdecorate template="common/layout/checkout">
+
+    <!----------------------------------------------------------------------------------->
+    <!-- Load Static Assets -->
+    <!----------------------------------------------------------------------------------->
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/js/checkout.js');
+        assets.addCss('/css/checkout/checkout.css');
+        var Site = require('dw/system/Site');
+        var isPaazlEnabled = Site.current.getCustomPreferenceValue('paazlEnabled');
+        if (isPaazlEnabled) {
+            assets.addJs('/js/paazl.js');
+            assets.addCss('/css/paazl.css');
+        }
+    </isscript>
+
+    <script>
+        window.GLOBAL_VALUES = {
+            'pageRef': 'checkoutPage'
+        };
+    </script>
+
+	<div class="cart-display-listener" data-cmp="cartTile"></div>
+
+    <isif condition="${pdict.reportingURLs && pdict.reportingURLs.length}">
+        <isinclude template="reporting/reportingUrls" />
+    </isif>
+    <!-- Tealium -->
+    <isscript>var pageContext={title:'Checkout',type:'checkout',ns:'checkout'};</isscript>
+
+    <div id="checkout-main" data-enter-manually="${Resource.msg('enter.manually.address', 'forms', null)}" data-productLineItemExist="${pdict.productLineItemExist}" class="b-checkout_main container data-checkout-stage js-addressservice-url ${pdict.shipToCollectionPoint ? 'hal-active' : ''} <isif condition="${pdict.order.usingMultiShipping && pdict.order.shipping.length > 1}">multi-ship</isif>" data-customer-type="${!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer.registeredUser ? 'registered' : 'guest'}" data-checkout-stage="${pdict.currentStage}" data-replace-shipping-url="${URLUtils.https('Checkout-ReplaceShippingContent')}" data-checkout-get-url="${URLUtils.https('CheckoutServices-Get')}" data-addressservice-url="${URLUtils.https('Paazl-AddressNL')}">
+        <!----------------------------------------------------------------------------------->
+        <!-- Help and Phone -->
+        <!----------------------------------------------------------------------------------->
+        <iscomment><div class="row hidden-xs-down">
+            <div class="col-12 col-sm-5 offset-sm-7 col-md-5 offset-md-7">
+                <div class="text-center">
+                    <span>${Resource.msg('info.need.help','cart',null)}</span>
+                    <span><a href="tel:${Resource.msg('info.phone.number','common',null)}">${Resource.msg('info.phone.number','common',null)}</a></span>
+                </div>
+            </div>
+        </div></iscomment>
+
+        <iscomment><div class="row d-sm-none">
+            <div class="col-12">
+                <span class="grand-total-label">${Resource.msgf('label.number.items.in.cart','cart', null, pdict.order.items.totalQuantity)}</span>
+                <span class="grand-total-price">${pdict.order.totals.subTotal}</span>
+            </div>
+        </div></iscomment>
+        <div class="b-checkout_page" data-onlyEgiftCard="${pdict.IsbasketHasOnlyEGiftCard}" data-adyenGetPayment="${URLUtils.https('Adyen-GetPaymentMethods')}" data-paymentFromComponent="${URLUtils.https('Adyen-PaymentFromComponent')}"
+            data-adyen-sessions-url="${URLUtils.https('Adyen-Sessions')}"
+            data-cancel-partial-payment-order-url="${URLUtils.https('Adyen-CancelPartialPaymentOrder')}"
+            data-adyen-check-balance-url="${URLUtils.https('Adyen-CheckBalance')}"
+            data-adyen-partial-payments-order-url="${URLUtils.https('Adyen-PartialPaymentsOrder')}"
+            data-adyen-payment-details-url="${URLUtils.https('Adyen-PaymentsDetails')}"
+            data-adyen-partial-payment-url="${URLUtils.https('Adyen-partialPayment')}"
+        >
+            <div class="b-checkout_progress-indicator">
+                <div class="b-checkout_progress-indicator-steps step-1">
+                    <div class="progress-bar"></div>
+                    <div class="progress-text">${Resource.msg('checkoutprogressindicator.shipping','checkout',null)}</div>
+                </div>
+                
+                <div class="b-checkout_progress-indicator-steps step-2">
+                    <div class="progress-bar"></div>
+                    <div class="progress-text">${Resource.msg('checkoutheaderprogressindicator.paymentDetails','checkout',null)}</div>
+                </div>
+    
+                <div class="b-checkout_progress-indicator-steps step-3">
+                    <div class="progress-bar"></div>
+                    <div class="progress-text">${Resource.msg('checkoutheaderprogressindicator.reviewAndPlaceOrder','checkout',null)}</div>
+                </div>
+            </div>
+
+            <div class="b-checkout_left">
+                <div class="b-checkout_innerleft">
+	                <div class="b-checkout_subheader">
+	                   <div class="b-checkout_subheader-left">
+		                    <span class="b-checkout-logolink"
+			                    title="${Resource.msgf('global.home', 'common', null, customerCountry)}"> 
+			                    <img class="b-logo-image" src="${URLUtils.staticURL('/images/uablacklogo.svg')}"
+                                    title="${Resource.msg('global.storename', 'common', null)}"
+			                        alt="${Resource.msg('global.logo', 'common', null)}" />
+			                </span>
+			                <h1 class="page-title b-checkout_title">
+						        ${Resource.msg('title.checkout','checkout',null)}
+						    </h1>
+					    </div>
+					    <isif condition="${customer.authenticated && customer.profile && customer.profile.getEmail()}"> 
+					        <div class="b-checkout_subheader-email-address">${Resource.msg('msg.heading.account.login', 'checkout', null)} ${customer.profile.getEmail()}</div>
+					    <iselse>
+						    <div class="b-checkout_subheader-right">
+	                           <div class="b-checkout_subheader-account">
+	                               ${Resource.msg('msg.heading.account.create', 'checkout', null)}
+	                           </div>
+	                           
+	                           <button data-href="${URLUtils.https('Login-Show','rurl','2')}" class="g-button_secondary--black js-login g-button_base b-checkout_subheader-button">
+	                                ${Resource.msg('button.faster.login', 'checkout', null)}
+	                           </button>
+	                        </div>
+					    </isif>
+				    </div>
+	                <!----------------------------------------------------------------------------------->
+	                <!-- Checkout Forms: Shipping, Payment, Coupons, Billing, etc -->
+	                <!----------------------------------------------------------------------------------->
+	
+	                <div class="alert alert-danger error-message" role="alert">
+	                    <span class="error-icon"></span>
+	                    <p class="error-message-text"></p>
+	                </div>
+                    <div class="b-checkout_subheader-login">
+                          <isif condition="${customer.authenticated && customer.profile && customer.profile.getEmail()}"> 
+                              <div class="b-checkout_subheader-email-address">${Resource.msg('msg.heading.account.login', 'checkout', null)} ${customer.profile.getEmail()}</div>
+                          <iselse>
+                              <button data-href="${URLUtils.https('Login-Show','rurl','2')}" class="g-button_secondary--black js-login g-button_base b-checkout_subheader-button">
+                                  ${Resource.msg('button.faster.login', 'checkout', null)}
+                              </button>
+                          </isif>
+                    </div>
+                    <isif condition="${pdict.shipToCollectionPoint}"> 
+                        <div class="ship-options" id="ship-collection-options">
+                            <div class="g-radio ship-to-address" data-action-url="${URLUtils.url('CheckoutShippingServices-ToggleShipTo')}" id="ship-to-address-wrap" data-analytics-track="shipping : ship to address">
+                                <input type="radio" id="ship-to-address" name="ship-to-address" class="input-radio g-radio-input" ${!pdict.isCommercialPickup ? 'checked' : ''}>
+                                <label for="ship-to-address" class="g-radio-label labelstyle">
+                                    ${Resource.msg('heading.shipto.address','checkout', null)}
+                                </label>
+                            </div>
+                            <div class="g-radio ship-to-point" data-action-url="${URLUtils.url('CheckoutShippingServices-ToggleShipTo')}" id="ship-to-point-wrap" data-analytics-track="shipping : ship to collection point">
+                                <input type="radio" id="ship-to-collectionPoint" name="ship-to-address" class="input-radio g-radio-input" ${pdict.isCommercialPickup ? 'checked' : ''}>
+                                
+                                <label for="ship-to-collectionPoint" class="g-radio-label shipcollectionpoint">
+                                    <span class="new-alert">${Resource.msg('heading.shipto.new','checkout', null)}</span>
+                                    <span class="radiolabel">${Resource.msg('heading.shipto.collection.point','checkout', null)}</span>
+                                    <span class="promolabel">${Resource.msg('shipto.collection.text','checkout',null)}</span>
+                                </label>
+                                <div class="g-tooltip b-contact_tooltip">
+                                      <span class="g-tooltip-icon g-tooltip">
+                                          <span class="g-tooltip-arrow"></span>
+                                      </span>
+                                      <span class="g-tooltip-text">
+                                           ${Resource.msg('shipto.collection.tooltip','checkout',null)}
+                                      </span>
+                                  </div>
+                            </div>
+                        </div>
+                    </isif>
+                    <!-- Step 1: Shipping -->
+                    <isif condition="${pdict.productLineItemExist}">
+                        <isinclude template="checkout/shipping/shipping" />
+                        <div class="card shipping-summary b-shipping-summary">
+                            <div class="card-header clearfix b-shipping-summary_header-line" data-shippingheading="${Resource.msg('heading.checkout.shipping', 'checkout', null)}" data-pickupHeading="${Resource.msg('heading.collection.pont.shipping', 'checkout', null)}">
+                               <isif condition="${pdict.isCommercialPickup}">
+                                   <h2 class="pull-left card-header-custom b-shipping-summary_header">${Resource.msg('heading.collection.pont.shipping', 'checkout', null)}</h2>
+                               <iselse>
+                                   <h2 class="pull-left card-header-custom b-shipping-summary_header">${Resource.msg('heading.checkout.shipping', 'checkout', null)}</h2>
+                               </isif>
+                                <span class="edit-button pull-right b-shipping-summary_edit" data-hal="${pdict.isHALbasket || pdict.isCommercialPickup}">${Resource.msg('action.edit.step', 'checkout', null)}</span>
+                            </div>
+                            <div class="card-body">
+                                <isinclude template="checkout/shipping/shippingSummary" />
+                            </div>
+                        </div>
+                    </isif>
+
+	                <!-- Step 2: Payment and Billing-->
+	                <isinclude template="checkout/billing/billing" />
+	                <div class="card payment-summary b-payment-summary">
+	                    <div class="card-header clearfix b-payment-summary_header-line">
+	                        <h2 class="pull-left card-header-custom b-payment-summary_header">${Resource.msg('heading.payment', 'checkout', null)}</h2>
+	                        <span class="edit-button pull-right b-payment-summary_edit">${Resource.msg('action.edit.step', 'checkout', null)}</span>
+	                    </div>
+	
+	                    <div class="card-body">
+	                        <isinclude template="checkout/billing/billingSummary" />
+	                    </div>
+	                    <div class="contact-info">
+	                       <isinclude template= "checkout/contactInformation"/>
+	                    </div>
+	                </div>
+	                <div class="b-checkout_privacy">
+	                   <iscontentasset aid="checkout-privacy" />
+	                </div>
+	                <!----------------------------------------------------------------------------------->
+	                <!-- Checkout Workflow Buttons -->
+	                <!----------------------------------------------------------------------------------->
+	               <isset name="paymentMethod" value="${!empty(pdict.order.billing.payment.selectedPaymentInstruments) ? pdict.order.billing.payment.selectedPaymentInstruments[0].paymentMethod : null}" scope="page" />
+                    <div class="b-checkout_nextStep next-step-button">
+                        <div class="b-checkout_inner-nextStep">
+                            <button class="btn btn-primary btn-block submit-shipping g-button_base g-button_primary--black" type="submit" name="submit" value="submit-shipping">
+                                ${Resource.msg('button.next.payment', 'checkout', null)}
+                            </button>
+
+                            <button class="btn btn-primary btn-block submit-payment g-button_base g-button_primary--black" type="submit" name="submit" value="submit-payment">
+                                ${Resource.msg('button.next.place.order', 'checkout', null)}
+                            </button>
+                            <button id="${paymentMethod}" class="btn btn-primary btn-block place-order g-button_base g-button_tertiary" ${pdict.isVIP ? 'disabled' : ''} data-action="${URLUtils.url('CheckoutServices-PlaceOrder')}"
+                                    type="submit" name="submit" value="place-order" <isif condition="${customer.authenticated && !empty(customer.profile) && customer.profile.custom.isEmployee === true}">disabled="disabled"</isif>>${Resource.msg('button.place.order', 'checkout', null)}
+                                <ul class="b-cart-loader hide">
+                                    <li class="b-loader-icon"></li>
+                                    <li class="b-loader-icon"></li>
+                                    <li class="b-loader-icon"></li>
+                                    <li class="b-loader-hidden_text">Loading</li>
+                                </ul>
+                            </button>
+                        </div>
+                    </div>
+	                <div class="card ghost payment">
+					    <div class="card-header">
+					        <span class="checkout-card-header">${Resource.msg('heading.payment', 'checkout', null)}</span>
+					    </div>
+					</div>
+					<div class="card ghost contact">
+					    <div class="card-header">
+					        <span class="checkout-card-header">${Resource.msg('msg.heading.contact', 'checkout', null)}</span>
+					    </div>
+					</div>
+	                <isinclude template="checkout/shipping/shippingAddressTemplate" />
+	                <isif condition="${!empty(pdict.fullyRemovedItems) || !empty(pdict.partiallyRemovedItems)}">
+	                	<isinclude template="checkout/availabilityModal" />
+	                </isif>	
+	            </div>
+            </div>
+
+            <!----------------------------------------------------------------------------------->
+            <!-- Order Totals, Details and Summary. Hide on mobile as it's moving to next screen -->
+            <!----------------------------------------------------------------------------------->
+            <div class="b-checkout_right">
+            <div class="g-accordion--mobile b-checkout_sticky-accordion">
+	            <div class="g-accordion-item">
+	            	
+		            <button class="b-checkout_sticky-applypromo g-accordion-header collapsed"
+		                    type="button"
+		                    data-toggle="collapse"
+		                    data-target="#acc1"
+		                    aria-expanded="false"
+		                    aria-controls="acc1"
+		                    data-analytics-track="summary-mobile-expand">
+                            <iscomment>condition="${!pdict.isVIP && !pdict.isEmployee}"</iscomment>
+		                    <isif condition="${!pdict.isVIP}">
+		                        <span class="apply-promo-icon sticky-applypromo-text" aria-label="apply promo icon"></span>
+		                    </isif>
+		              <span class="b-sticky_ordersummery-total grand-total-sum">${pdict.totals.grandTotal}</span>
+		            </button>
+		            <div class="g-accordion-content collapse" id="acc1"> 
+			                <div class="b-checkout_product-summary b-order_est_coupon">
+			                    <h2 class="order-summary_title">${Resource.msg('heading.order.summary', 'checkout', null)}</h2>
+			                    <div class="b-order-total_summary">
+			                        <isinclude template="checkout/orderTotalSummary" />
+                                    <iscomment>condition="${!pdict.isVIP && !pdict.isEmployee}"</iscomment>
+			                        <isif condition="${!pdict.isVIP}">
+			                            <div class="b-promo_checkout <isif condition="${pdict.currentStage && pdict.currentStage !== 'shipping'}">hide</isif>">
+			                                <isinclude template="cart/cartPromoCode" />
+			                                <div class="clearfix"></div>
+			                            </div>                        
+				                        <div class="b-cart-content">
+					                        <div class="coupons-and-promos b-coupons">
+					                             <isinclude template="cart/cartCouponDisplay" />
+					                         </div>
+				                        </div>
+				                    </isif>     
+			                    </div>
+			                </div>
+			
+			                <div class="b-checkout_right_summary_container" data-url="${URLUtils.url('Checkout-OrderSummary')}">
+			                    <isinclude template="checkout/orderProductSummary" />
+			                </div>
+			            </div>
+		            </div>
+	            </div>
+            </div>
+            <input type="hidden" id="selectedCountry" value="${customerCountry}"/>
+            <input type="hidden" id="getStateCode" value="${pdict.order.billing.billingAddress.address != null && pdict.order.billing.billingAddress.address.stateCode ? pdict.order.billing.billingAddress.address.stateCode : ''}">
+            <input type="hidden" id="devTID" name="devTID" value=""/>
+        </div>
+    </div>
+
+</isdecorate>

@@ -1,0 +1,79 @@
+<!-- start:tealium script -->
+<isif condition="${'tealium_datalayer_enabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.tealium_datalayer_enabled}">
+    <isscript>
+        if (!empty(pdict.productSearch)) {
+            if(!empty(pdict.productSearch.productIds)) {
+              pdict.searchresulttopstyles = pdict.productSearch.productIds.map(function (item) { return item.productID; }).slice(0, 12).join(',');
+            }
+            if(!empty(pdict.productSearch.selectedFilters)) {
+              pdict.gridRefinementAttributes = pdict.productSearch.selectedFilters
+                .filter(function (attr) {
+                  return (attr.type !== 'category' && attr.id !== 'experienceType' && attr.id !== 'premiumFilter' && attr.id !== 'isMFOItem' && attr.displayValue !== undefined);
+                })
+                .map(function (attr) {
+                  return attr.displayValue;
+                }
+              ).toString();
+            }
+        }
+        if (!empty(pdict.CurrentPageMetaData) && !empty(pdict.CurrentPageMetaData.pageMetaTags)) {
+            var pageBreadCrumbs = '';
+            pdict.CurrentPageMetaData.pageMetaTags.some(function (item, idx) {
+              if (item.ID === 'ua:analytics:pagePath') {
+                pageBreadCrumbs = item.content;
+                return true;
+              }
+            });
+            pdict.pageBreadCrumbs = ''+pageBreadCrumbs;
+        }
+        var orderPaymentMethod = pdict.selectedPaymentMethod;
+        if (orderPaymentMethod) {
+            const selectedPaymentInstrument = pdict.order.billing.payment.selectedPaymentInstruments[0];
+            orderPaymentMethod = (selectedPaymentInstrument && selectedPaymentInstrument.selectedAdyenPM) ? 
+                              (selectedPaymentInstrument.selectedAdyenPM).replace(/<[^>]+>/g, '') : orderPaymentMethod;
+        }
+
+        var cookieHelper = require('*/cartridge/scripts/helpers/cookieHelpers');
+        var preSelectedStoreCookie = cookieHelper.read('preSelectedStore');
+        var isStoreAvailable = false;
+        if (preSelectedStoreCookie) {
+            var storeData = JSON.parse(preSelectedStoreCookie);
+            var storeID = storeData && storeData.ID;
+            if (storeID) {
+               isStoreAvailable = true;
+            }
+        }
+    </isscript>
+    <input type="hidden" class="isBopisEnabled" value="${('isBOPISEnabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.getCustomPreferenceValue('isBOPISEnabled'))}"/>
+    <input type="hidden" class="isStoreAvailable" value="${isStoreAvailable}"/>
+    <!-- populates datalayer and outputs object to page via tealium_datalayer.isml -->
+    <isinclude url="${URLUtils.url('Tealium-Init',
+        'title', request.pageMetaData.title,
+        'srcParam', request.httpParameterMap.get('src'),
+        'currentUrl', request.httpURL.toString(),
+        'checkoutStage', request.httpParameterMap.get('stage'),
+        'selectedPaymentMethod', (orderPaymentMethod && (orderPaymentMethod).toLowerCase() === 'paypal') ? 'paypal' : orderPaymentMethod,
+        'analyticsPageType', ('analyticsPageType' in this && !empty(analyticsPageType)) ? ''+analyticsPageType : null,
+        'pagecontexttype', ('pageContext' in this && !empty(pageContext)) ? ''+pageContext.type : null,
+        'pagecontexttitle', ('pageContext' in this && !empty(pageContext)) ? ''+pageContext.title : null,
+        'searchterm', request.httpParameterMap.q.stringValue,
+        'searchresultscount', (!empty(pdict.productSearch)) ? ''+pdict.productSearch.count : null,
+        'searchresulttopstyles', (!empty(pdict.searchresulttopstyles)) ? ''+pdict.searchresulttopstyles : null,
+        'searchshowmore', (!empty(pdict.productSearch) && pdict.productSearch.showMoreUrl !== '') ? 1 : 0,
+        'productid', (!empty(pdict.product) && !empty(pdict.product.id)) ? ''+pdict.product.id : null,
+        'pagecgid', request.httpParameterMap.cgid.stringValue,
+        'orderno', (!empty(pdict.order) && !empty(pdict.order.orderNumber)) ? pdict.order.orderNumber : null,
+        'action', (!empty(pdict.action)) ? pdict.action : '',
+        'recommendedLook', (!empty(pdict.recommendedLook)) ? pdict.recommendedLook : false,
+        'sessionID', request.session.sessionID,
+        'gridRefinementAttributes', (!empty(pdict.gridRefinementAttributes)) ? pdict.gridRefinementAttributes : '',
+        'wishlistCount', (!empty(pdict.wishlist) && !empty(pdict.wishlist.items)) ?  pdict.wishlist.items.length : null,
+        'order_checkout_optin', request.httpParameterMap.get('order_checkout_optin'),
+        'pageBreadCrumbs', pdict.pageBreadCrumbs,
+        'complete_look', pdict.isShopThisOutfitEnabled
+    )}"/>
+</isif>
+<isif condition="${'tealium_clientjs_enabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.tealium_clientjs_enabled}">
+    <isinclude template="tealium/tealium_init" />
+</isif>
+<!-- end:tealium script -->

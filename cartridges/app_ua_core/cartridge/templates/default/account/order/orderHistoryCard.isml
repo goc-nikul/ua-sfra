@@ -1,0 +1,107 @@
+<a class="b-order-history-select" href="<isif condition="${pdict.orderHistory}">${URLUtils.url('Order-Details', 'orderID', order.orderNo)}<iselseif condition="${pdict.returnsHistory && order.hasExchangeOrder}">${URLUtils.url('Order-ExchangeDetails', 'rmaNumber', order.rmaNumber)}<iselseif condition="${pdict.returnsHistory}">${URLUtils.url('Order-RMADetails', 'rmaNumber', order.rmaNumber, 'orderNumber', order.orderNo)}</isif>">
+<div class="b-order-history_wrap<isif condition="${pdict.orderTracking}"> order-expand-details</isif>">
+    <isif condition="${pdict.accountlanding}">
+        <div class="col-12">
+            ${Resource.msg('label.orderhistory.mostrecentorder','account',null)}
+        </div>
+    </isif>
+       <div class="b-account-orderhistory-imagecontainer">
+	       <div class="b-account-img-wrap">
+		        <isloop items="${order.orderItems}" var="orderItem" status="loopstate">
+		            <isif condition="${loopstate.count <= 4}">
+		                <img class="img-fluid" src="${orderItem.imageUrl}" alt="${orderItem.imgAlt || orderItem.name}" title="${orderItem.name}" onerror="this.src='https://underarmour.scene7.com/is/image/Underarmour/image_unavailable'">
+		            </isif>
+		        </isloop>
+		        <div class="hide-mobile">
+		            <isif condition="${order.moreItemsCount && order.moreItemsCount === 1}">
+		                <span class="account-orderhistory-moreitems"><p>${Resource.msgf('label.orderhistory.item','account',null, order.moreItemsCount)}</p></span>
+		            <iselseif condition="${order.moreItemsCount && order.moreItemsCount >= 2}">
+		                <span class="account-orderhistory-moreitems"><p>${Resource.msgf('label.orderhistory.items','account',null, order.moreItemsCount)}</p></span>
+		            </isif>
+		        </div>
+		        <div class="hide-desktop">
+                    <isif condition="${order.moreItemsCountOnMobile && order.moreItemsCountOnMobile === 1}">
+                        <span class="account-orderhistory-moreitems"><p>${Resource.msgf('label.orderhistory.item','account',null, order.moreItemsCountOnMobile)}</p></span>
+                    <iselseif condition="${order.moreItemsCountOnMobile && order.moreItemsCountOnMobile >= 2}">
+                        <span class="account-orderhistory-moreitems"><p>${Resource.msgf('label.orderhistory.items','account',null, order.moreItemsCountOnMobile)}</p></span>
+                    </isif>
+                </div>
+	        </div>
+       </div>
+       <div class="b-order-view-card-sec">
+	       <div class="b-order-view_section">
+	            <isif condition="${pdict.returnsHistory && order.hasExchangeOrder}">
+	                <span class="t_dashboard-order-creation-date">${order.exchangeCreationDate}</span>
+	            <iselse>
+                    <span class="t_dashboard-order-creation-date">${order.creationDate}</span>
+                </isif>
+				<isif condition="${pdict.orderHistory}">
+		            <span class="t_dashboard-order-number">
+			            <p class="t-dv-orderno">${Resource.msgf('label.orderhistory.ordertxt','account',null)} ${Resource.msgf('label.orderhistory.orderno','account',null, order.orderNo)}</p>
+			            <p class="t-mv-orderno">${Resource.msgf('label.orderhistory.ordernodot','account',null, order.orderNo)}</p>
+		            </span>
+                    <span class="t_dashboard-order-price">${order.orderTotal}</span>
+		        <iselseif condition="${pdict.returnsHistory}">
+		            <isif condition="${order.hasExchangeOrder}"> 
+			            <span class="t_dashboard-order-number">
+	                        <p class="t-dv-orderno">${Resource.msgf('label.orderhistory.ordertxt','account',null)} ${Resource.msgf('label.orderhistory.orderno','account',null, order.exchangeOrderNo)}</p>
+	                        <p class="t-mv-orderno">${Resource.msgf('label.orderhistory.ordernodot','account',null, order.exchangeOrderNo)}</p>
+	                    </span>
+		            <iselse>
+			            <span class="t_dashboard-order-number">
+	                        <p class="t-dv-orderno">${Resource.msgf('label.orderhistory.rmatxt','account',null)} ${Resource.msgf('label.orderhistory.orderno','account',null, order.rmaNumber)}</p>
+	                        <p class="t-mv-orderno">${Resource.msgf('label.orderhistory.ordernodot','account',null, order.rmaNumber)}</p>
+	                    </span>
+		            </isif>
+		        </isif>
+	        </div>
+	        <isif condition="${pdict.returnsHistory && order.hasExchangeOrder}">
+	            <div class="b-card-exchange-order">
+	                <span class="b-card-exchange-symbol"></span>
+                    <span class="b-card-exchange-text">${Resource.msgf('label.rmaHistory.exchange','account',null)}</span>
+                </div>
+	        </isif>
+			<div class="b-card-status">
+	                <span class="pull-left">
+	                <isif condition="${pdict.orderHistory && order.isOrderHasBopisItems && !empty(order.bopisDisplayStatus)}">
+	                    <div class="b-card-status-pickup b-card-status-content">
+	                        <img src="${URLUtils.staticURL('/images/store.svg')}" alt="${Resource.msg('button.choose.store', 'storeLocator', null)}" title="${Resource.msg('title.hero.choosestore', 'storeLocator', null)}">
+	                        <span class="label-text">
+	                            <span class="heading">${Resource.msg('cart.pick.up', 'storeLocator', null)}: </span>
+	                            <span class="dashboard-order-card-status ${(order.bopisOrderStatus === 'CANCELED') ? 'canceled' : ''} ${order.status === 'RETURNING' ? 'b-not_pickedup' : ''}">
+	                                <isif condition="${!empty(order.bopisDisplayStatus)}">
+                                        <isprint value="${order.bopisDisplayStatus.toLowerCase()}" />
+                                    </isif>
+                                </span>
+	                        </span>
+	                    </div>
+	                </isif>
+	                <isif condition="${!(order.bopisItemsOnly)}">
+	                    <div class="b-card-status-shipping b-card-status-content">
+	                        <isif condition="${pdict.orderHistory}"> 
+                                <img src="${URLUtils.staticURL('/images/UAtruck.svg')}" alt="${Resource.msg('cart.ship.to.address', 'storeLocator', null)}" title="${Resource.msg('cart.ship.to.address', 'storeLocator', null)}">
+                            </isif>
+                            <span class="label-text">
+                                <isif condition="${pdict.orderHistory}"> 
+                                    <span class="heading">${Resource.msg('cart.shipping', 'storeLocator', null)}: </span>
+                                </isif>
+                                <span class="dashboard-order-card-status ${(order.status === 'CANCELED' && order.status === 'CANCELLED') ? 'canceled' : ''} ${order.status === 'DELIVERED' ? 'order-delivered' : ''} ${order.status === 'RETURNING' ? 'b-not_pickedup' : ''}">
+                                    <isif condition="${order.status === 'RETURNING'}">
+			            				<isprint value="${Resource.msgf('label.not.picked.up','account',null)}" />
+			        				<iselse>
+			            				${order.displayStatus}
+			        				</isif>
+                                </span>
+                            </span>
+                        </div>
+                    </isif>
+                    </span>
+                </div>
+		</div>
+			<div class="b-card-expand">
+			    <span class="pull-left">
+			        <span class="pull-right dashboard-order-details-link"></span>
+			    </span>
+		   </div>
+</div>
+</a>

@@ -1,0 +1,94 @@
+<isset name="productCopy" value="${pdict.product}" scope="page"/>
+<isset name="product" value="${pdict.product}" scope="page"/>
+<isset name="isBundle" value="${false}" scope="page"/>
+<isset name="isQuickView" value="${true}" scope="page"/>
+<isset name="isProductSet" value="${false}" scope="page" />
+<isset name="loopState" value="{count: 1}" scope="page" />
+<div class="product-quickview product-${product.productType} col product-wrapper product-detail b-product-quickview"
+    data-pid="${product.id}"
+    data-cmp="productQuickView">
+    <isset name="itemCount" value="${pdict.itemCount ? pdict.itemCount : 1}" scope="page" />
+    <!-- select an item for exchange header -->
+    <div class="b-product-quickview-exchange-header">${Resource.msgf('label.exchange.items.header','refunds',null, itemCount)}</div>
+    <div class="b_exopt-sec-wrap">
+    <!-- Product Images Carousel -->
+    <div class="b-icp-layout">
+    <div class="b-product-quickview-images mainImg">
+        <img class="b-selectexchange-mainImg" src="#" title="" />
+    </div>
+    <div class="b-product-quickview-images">
+        <isif condition="${product.productTileUpperLeftBadge && product.productTileUpperLeftBadge.value}">
+            <div class="l-tile-badge_top_left">${product.productTileUpperLeftBadge.displayValue}</div>
+        </isif>
+        <isif condition="${pdict.itemContent}">
+            <div class="l-tile-badge_bottom_left">
+                <isprint value="${pdict.badgesMarkup}" encoding="off" />
+            </div>
+        </isif>
+        <isinclude template="product/components/thumbImageCarousel" />
+	
+	    </div>
+	    
+	    <div class="b-product-quickview-heading">
+	        <h1 class="product-name">${product.productName}</h1>
+	    </div>
+    </div>
+
+    <!-- Product Name and Number -->
+    <div class="b-product-quickview-info">
+        <div class="b-product-quickview-heading">
+            <h1 class="product-name">${product.productName}</h1>
+        </div>
+
+        <div class="b-product-quickview-detail-panel">
+            <!-- Attributes -->
+            <section class="attributes">
+                <isinclude template="product/components/mainAttributes" />
+                <isloop items="${product.variationAttributes}" var="attr" status="attributeStatus">
+                    <div data-attr="${attr.id}" class="swatch row">
+                        <isinclude template="product/components/variationAttribute" />
+                    </div>
+                </isloop>
+
+            </section>
+
+
+            <isif condition="${product.productType !== 'bundle'}">
+                <!-- Options -->
+                <isif condition="${product.options && product.options.length > 0}">
+                        <isinclude template="product/components/options" />
+                </isif>
+            </isif>
+        </div>
+
+        <div class="b-product-quickview-qty-button">
+
+	        <div class="b-product-exchange-button">
+	            <button data-url="${URLUtils.url('Order-ExchangeItemInfo')}" 
+	            ${(!product.readyToOrder || !product.available) ? "disabled" : ""}
+	            class="js-save-exchange-item save-exchange-item g-button_base g-button_primary--black" data-master-id="${product.custom.style}" data-product-id="${product.custom.sku}">${Resource.msg('button.save','account',null)}</a>
+	        </div>
+	    </div>
+    </div>
+
+    <isif condition="${product.productType === 'bundle'}">
+        <isinclude template="product/components/bundleItems" />
+
+        <!-- Quantity Drop Down Menu -->
+        <div class="row d-sm-none">
+            <div class="quantity col-10 mx-auto">
+                <isinclude template="product/components/quantity" />
+            </div>
+        </div>
+
+        <!-- Availability -->
+        <div class="row d-sm-none">
+            <div class="col-11 mx-auto availability" data-ready-to-order="${product.readyToOrder}" data-available="${product.available}">
+                <isinclude template="product/components/availability" />
+            </div>
+        </div>
+    </isif>
+
+    <isset name="product" value="${productCopy}" scope="page"/>
+</div>
+

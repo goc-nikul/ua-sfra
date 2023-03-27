@@ -1,0 +1,17 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+
+<isset name="showSwatches" value="${empty(pdict.swatches) ? true : pdict.swatches}" scope="page"/>
+<isset name="showRatings" value="${empty(pdict.ratings) ? true: pdict.ratings}" scope="page"/>
+<isset name="source" value="${empty(pdict.source) ? null : pdict.source}" scope="page"/>
+<isset name="quickView" value="${empty(pdict.quickview) ? false: pdict.quickview}" scope="page"/>
+
+<isif condition="${!empty(pdict.products)}">
+    <isloop items="${pdict.products}" var="product">
+       <isif condition="${!empty(product)}">
+            <div class="g-carousel-slide swiper-slide">
+                <isinclude url="${URLUtils.url('Tile-Show', 'pid', product.id, 'swatches', showSwatches, 'ratings', showRatings, 'quickview', quickView, 'source', source)}" />
+            </div>
+        </isif>
+    </isloop>
+</isif>
+

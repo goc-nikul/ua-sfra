@@ -1,0 +1,407 @@
+<isset name="isKRCheckoutEnabled" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('isKRCustomCheckoutEnabled')}" scope="page" />
+<isif condition="${isKRCheckoutEnabled}">
+    <div class="card payment-form b-contact-info js-contact-info">
+        <div class="card-body">
+            <form autocomplete="on" class="js-checkout-forms" method="POST" action="" data-address-mode="" data-cmp="formGeneric" novalidate>
+                <!-------------------------------------------------------------------------->
+                <!-- Contact Info (Email and Phone)                                       -->
+                <!-------------------------------------------------------------------------->
+                <fieldset class="contact-info-block b-contact">
+
+                    <div class="b-contact_heading">
+                        <isif condition="${session.customer.registered}">
+                            ${Resource.msg('msg.heading.contact','checkout',null)}
+                        <iselse/>
+                            ${Resource.msg('msg.heading.contact.guest','checkout',null)}
+                        </isif>
+                    </div>
+
+                    <isset name="primaryContact" value="${pdict.forms.billingForm.contactInfoFields}" scope="page" />
+                    <isset name="addressFields" value="${pdict.forms.billingForm.addressFields}" scope="page" />
+                    <isif condition="${pdict.customer && pdict.customer.customerData && !empty(pdict.customer.customerData.email2)}">
+                        <isset name="emailaddressDomainSelect2Value" value="${(pdict.customer && pdict.customer.customerData && pdict.customer.customerData.emailaddressDomainSelect2) || ''}" scope="page" />
+                    <iselse/>
+                        <isset name="emailaddressDomainSelect2Value" value="${(pdict.customer && pdict.customer.customerData && pdict.customer.customerData.emailaddressDomainSelect) || ''}" scope="page" />
+                    </isif>
+                    <isset name="phoneMobile1" value="${(pdict.customer && pdict.customer.customerData && pdict.customer.customerData.phoneMobile1) || ''}" scope="page" />
+                    <isset name="naverSSOLogin" value="${(pdict.customer && pdict.customer.customerData && pdict.customer.customerData.isNaverUser) || false}" scope="page" />
+                    <isif condition="${!empty(pdict.customer.profile)}" >
+                        <iscomment> Email Address Field </iscomment>
+                        <div class="b-contact_row b-contact-row-email-address">
+                            <isif condition="${pdict.showSplitEmailField}" >
+                                <div class="b-contact-row b-billing-address_form-row b-contact-row-email clear">
+                                    <div class="form-group b-input_row b-contact-column b-contact-column-mobile <isif condition="${!empty(pdict.customer.profile) && !naverSSOLogin}" >readonly</isif>">
+                                        <label class="b-input_row-label form-control-label" for="email2">
+                                            <isprint value=${primaryContact.emailaddressName2.label} encoding="off" />
+                                        </label>
+                                        <input type="text"
+                                            id="email2"
+                                            class="emailaddressName2 form-control order-return-form-input b-input_row-input js-custom-input js-email-field"
+                                            pattern="^([A-Za-z]|[0-9]|[!$%&'*+-/=?_`{|}~])+$"
+                                            value="${(pdict.customer && pdict.customer.customerData && pdict.customer.customerData.emailaddressName2) || (pdict.customer && pdict.customer.customerData && pdict.customer.customerData.emailaddressName) || ''}" data-missing-error="${Resource.msg('error.card.info.missing.email', 'forms', null)}" data-pattern-mismatch="${Resource.msg('error.message.parse.email.profile.form','forms',null)}" <isif condition="${!empty(pdict.customer.profile) && !naverSSOLogin}" >readonly</isif> required
+                                            <isprint value="${primaryContact.emailaddressName2.attributes}" encoding="off" /> />
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="form-group b-contact-column b-contact-column-domain-select b-contact-column-mobile">
+                                        <span class="email-address-icon">@</span>
+                                        <div class="alt1-col-6 b-input_row space-btw-select-domain drop-down-arrow b-email <isif condition="${!empty(pdict.customer.profile) && !naverSSOLogin}" >readonly</isif>">
+                                            <label class="b-input_row-label form-control-label" for="registration-form-email">
+                                                <isprint value=${primaryContact.emailaddressDomainSelect2.label} encoding="off" />
+                                            </label>
+                                            <select class="emailaddressDomainSelect2 b-input_row-input pad b-email-select <isif condition="${!empty(pdict.customer.profile) && !naverSSOLogin}" > disable-domain-select-kr  </isif>" <isif condition="${!empty(pdict.customer.profile) && !naverSSOLogin}" >readonly</isif>
+                                                <isprint value="${primaryContact.emailaddressDomainSelect2.attributes}" encoding="off" />>
+                                                <isloop items=${primaryContact.emailaddressDomainSelect2.options} var="emailaddressDomainSelect2">
+                                                    <option id="${emailaddressDomainSelect2.id}" value="${emailaddressDomainSelect2.htmlValue}" <isif condition="${emailaddressDomainSelect2Value == emailaddressDomainSelect2.htmlValue}">selected</isif>>${emailaddressDomainSelect2.label || ' '}</option>
+                                                </isloop>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group b-input_row b-contact-column required b-contact-column-mobile b-contact-column-email-domain <isif condition="${!empty(pdict.customer.profile) && !naverSSOLogin}" >readonly</isif>">
+                                        <label class="b-input_row-label form-control-label" for="registration-form-email">
+                                            <isprint value=${primaryContact.emailaddressDomain2.label} encoding="off" />
+                                        </label>
+                                        <input type="text"
+                                            class="contactEmailaddressDomain form-control order-return-form-input b-input_row-input js-custom-input js-email-field"
+                                            value="${(pdict.customer && pdict.customer.customerData && pdict.customer.customerData.emailaddressDomain2) || (pdict.customer && pdict.customer.customerData && pdict.customer.customerData.emailaddressDomain) || ''}" data-missing-error="${Resource.msg('error.card.info.missing.email', 'forms', null)}" data-pattern-mismatch="${Resource.msg('error.message.parse.email.profile.form','forms',null)}" <isif condition="${!empty(pdict.customer.profile) && !naverSSOLogin}" >readonly</isif> required
+                                            <isprint value="${primaryContact.emailaddressDomain2.attributes}" encoding="off" /> />
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            <iselse/>
+                                <div class="b-contact_column tooltip split_email_contact">
+                                    <div class="form-group b-form_group b-input_row
+                                        <isif condition=${primaryContact.email.mandatory === true}>required</isif>
+                                        ${primaryContact.email.htmlName}">
+                                        <label class="form-control-label b-input_row-label" for="email2"><isprint value=${primaryContact.email.label} encoding="off" /></label>
+                                            <input <isif condition="${(!isKRCheckoutEnabled && !pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer && pdict.customer.profile && !empty(pdict.customer.profile.email)) || (!empty(pdict.customer.profile) && !naverSSOLogin)}"> readonly <iselse> autofocus </isif>
+                                                type="text" class="form-control email b-input_row-input js-custom-input" id="email"
+                                                value="${(!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && ((pdict.customer && pdict.customer.customerData && pdict.customer.customerData.email2) || (pdict.customer && pdict.customer.profile && pdict.customer.profile.email))) || pdict.order.orderEmail || ''}" <isprint value=${primaryContact.email2.attributes} encoding="off"/> required
+                                                data-analytics-track="contact info : email"
+                                                data-pattern-mismatch="${Resource.msg('general.pattern.mismatch','common',null)}"
+                                                data-missing-error="${​​​​​Resource.msg('error.message.required', 'forms', null)}​​​​​"
+                                                aria-describedby="emailInvalidMessage" >
+                                            <div class="b-contactinfo-tooltip-content">
+                                            <span class="contant-tooltip">
+                                                    <span class="g-tooltip-icon g-tooltip bfx-remove-element">
+                                                        <span class="g-tooltip-arrow"></span>
+                                                    </span>
+                                                    <span class="g-tooltip-text">
+                                                        ${Resource.msg('field.contact.email.tooltip','checkout',null)}
+                                                    </span>
+                                            </span>
+                                        </div>
+                                        <div class="invalid-feedback" id="emailInvalidMessage"></div>
+                                    </div>
+                                </div>
+                            </isif>
+                        </div>
+
+                        <iscomment> Phone Field </iscomment>
+                        <div class="b-contact_row b-contact_row-phone-address <isif condition="${empty(pdict.customer.profile)}" >d-none</isif>">
+                            <isif condition="${pdict.showSplitPhoneMobileField}" >
+                                <isif condition="${primaryContact.phoneMobile1 && primaryContact.phoneMobile1.attributes}">
+                                    <div class="b-contact_column">
+                                        <div class="form-group b-input_row b-phone
+                                        ${primaryContact.phoneMobile1.mandatory === true ? 'required' : ''}">
+                                            <label class="form-control-label b-input_row-label" for="contactPhone1">
+                                                ${Resource.msg('field.shipping.address.phone1', 'address', null)}
+                                            </label>
+                                            <select class="b-input_row-input form-control b-mobile1-select b-phone-select" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" id="contactPhone1" <isprint value="${primaryContact.phoneMobile1.attributes}" encoding="off" />>
+                                                <isloop items=${primaryContact.phoneMobile1.options} var="sortcode">
+                                                    <option id="${sortcode.id}" value="${sortcode.htmlValue}" <isif condition="${sortcode.selected || sortcode.htmlValue == phoneMobile1}">selected</isif>>${sortcode.label || ' '}</option>
+                                                </isloop>
+                                            </select>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                    </div>
+                                </isif>
+                                <div class="b-account_form-row-phone__separator"></div>
+                                <isif condition="${primaryContact.phoneMobile2 && primaryContact.phoneMobile2.attributes}">
+                                    <div class="b-contact_column b-contact_column-phone-2">
+                                        <div class="form-group b-input_row b-contact_column-phone-2-content
+                                        ${primaryContact.phoneMobile2.mandatory === true ? 'required' : ''}">
+                                            <div class="form-group b-contact_column-phoneMobile-2-content">
+                                                <input type="text" value="${(pdict.customer && pdict.customer.customerData && pdict.customer.customerData.phoneMobile2) || ''}"  id="contactPhone2" data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid.apac','forms',null)}" data-missing-error="${Resource.msg('error.message.required', 'forms', null)}" class="b-input_row-input form-control" 
+                                                    <isprint value="${primaryContact.phoneMobile2.attributes}" encoding="off" />>
+                                                <div class="invalid-feedback"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </isif>
+                                <div class="b-account_form-row-phone__separator"></div>
+                                <isif condition="${primaryContact.phoneMobile3 && primaryContact.phoneMobile3.attributes}">
+                                    <div class="b-contact_column">
+                                        <div class="form-group b-input_row
+                                        ${primaryContact.phoneMobile3.mandatory === true ? 'required' : ''}">
+
+                                            <input type="text" id="contactPhone3"  value="${(pdict.customer && pdict.customer.customerData && pdict.customer.customerData.phoneMobile3) || ''}" data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid.apac','forms',null)}" data-missing-error="${Resource.msg('error.message.required', 'forms', null)}" class="b-input_row-input form-control" 
+                                                <isprint value="${primaryContact.phoneMobile3.attributes}" encoding="off" />>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                    </div>
+                                </isif>
+                            <iselse/>
+                                <isset name="customerPhone" value="${pdict.customer && pdict.customer.profile && pdict.customer.profile.phone ? pdict.customer.profile.phone : ''}" scope="page"/>
+                                <div class="b-contact_column tooltip">
+                                    <div class="form-group b-form_group b-contact_phone b-input_row ${customerPhone ? 'customer-phonenumber' : ''}
+                                        <isif condition=${primaryContact.phone.mandatory === true || pdict.isPhoneNumberMandatory}>required</isif>
+                                        ${primaryContact.phone.htmlName}">
+                                        <label class="form-control-label b-input_row-label" for="contact-phoneNumber">${Resource.msg('label.input.shippingphonenumber','forms',null)}<isif condition=${primaryContact.phone.mandatory === true || pdict.isPhoneNumberMandatory}> *</isif></label>
+                                        <input type="tel" class="form-control phone b-input_row-input validatePhoneField js-custom-input <isif condition=${primaryContact.phone.mandatory === true || pdict.isPhoneNumberMandatory}>defaultMandatory</isif>" <isif condition=${primaryContact.phone.mandatory === true || pdict.isPhoneNumberMandatory}>required</isif> id="contact-phoneNumber"
+                                            data-range-error="${Resource.msg('error.message.phonenumber.invalid.emea','forms',null)}" data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid.emea','forms',null)}" data-missing-error="${​​​​​Resource.msg('error.message.required', 'forms', null)}​​​​​"
+                                            value="${customerPhone ? customerPhone : (pdict.order.billing.billingAddress.address && pdict.order.billing.billingAddress.address.phone || '')}"
+                                            <isprint value=${primaryContact.phone.attributes} encoding="off"/>
+                                            data-analytics-track="contact info : phone"
+                                            aria-describedby="phoneInvalidMessage" >
+                                            <div class="b-contactinfo-tooltip-content">
+                                            <span class="contant-tooltip">
+                                                    <span class="g-tooltip-icon g-tooltip bfx-remove-element">
+                                                        <span class="g-tooltip-arrow"></span>
+                                                    </span>
+                                                    <span class="g-tooltip-text">
+                                                        ${Resource.msg('field.contact.phone.tooltip','checkout',null)}
+                                                    </span>
+                                            </span>
+                                        </div>
+                                        <div class="invalid-feedback" id="phoneInvalidMessage"></div>
+                                        <div class="contact-phone-error-message">
+                                            <p class="phone-error-message-text"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </isif>
+                        </div>
+                    </isif>
+                    
+                    <div class="row b-contact_row">
+                        
+                    </div>
+
+                    <isif condition="${primaryContact.identification && primaryContact.identification.identificationType && primaryContact.identification.identificationValue}">
+                        <div class="identification-section">
+                            <div class="b-contact_heading">${Resource.msg('forms.address.id.header', 'forms', null)}</div>
+                            <iscontentasset aid="identificationInfo" />
+                            <div class="row b-contact_row b-contact_row-top">
+                                <div class="b-contact_column">
+                                    <div class="form-group b-form_group b-input_row
+                                        ${primaryContact.identification.identificationType.mandatory === true ? 'required' : ''}
+                                        ${primaryContact.identification.identificationType.htmlName}">
+                                            <div class="b-state">
+                                            <label class="form-control-label b-quantity-label b-input_row-label" for="contactInfoIdentificationType_${lineItemUUID}"><isprint value="${primaryContact.identification.identificationType.label}" encoding="on" /></label>
+                                            <select class="b-state-select form-control identification-type" id="identificationValue" value="${(!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer && pdict.customer.profile && pdict.customer.profile.identificationType) || ''}"
+                                                <isprint value="${primaryContact.identification.identificationType.attributes}" encoding="off" />
+                                                data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" autocomplete="address-level1">
+                                                <isloop items=${primaryContact.identification.identificationType.options} var="options">
+                                                    <option id="${options.id}" value="${options.htmlValue}" <isif condition="${options.htmlValue === (!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer && pdict.customer.profile && pdict.customer.profile.identificationType)}">selected</isif>>${options.label || ' '}</option>
+                                                </isloop>
+                                            </select>
+                                            <div class="invalid-feedback" id="contactInfoIdentificationType"><isprint value="${primaryContact.identification.identificationType.error}" ></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="b-contact_column">
+                                    <div class="form-group b-form_group b-input_row
+                                        ${primaryContact.identification.identificationValue.mandatory === true ? 'required' : ''}
+                                        ${primaryContact.identification.identificationValue.htmlName}">
+                                        <label class="form-control-label b-input_row-label" for="contactInfoIdentificationValue_${lineItemUUID}"><isprint value="${primaryContact.identification.identificationValue.label}" encoding="on" /></label>
+                                        <input type="text" class="form-control contactInfoIdentificationValue b-input_row-input" id="contactInfoIdentificationValue_${lineItemUUID}" aria-describedby="contactInfoidentificationValue"
+                                            data-missing-error="${Resource.msg('forms.identificationError','forms',null)}​​​​​" data-valid="${Resource.msg('forms.identificationValidValue','forms',null)}" data-value="${Resource.msg('forms.identificationError','forms',null)}"
+                                            value="${(!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer && pdict.customer.profile && pdict.customer.profile.identificationValue) || ''}" <isprint value="${primaryContact.identification.identificationValue.attributes}" encoding="off"/>>
+                                            <div class="invalid-feedback" id="contactInfoIdentificationValue"><isprint value="${typeof primaryContact.identification.identificationValue !== 'undefined' ?  primaryContact.identification.identificationValue.error : ''}" ></div>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                    </isif>
+                    <iscomment> <div class="b-contact_column b-checkout_contact-sign">
+                        <div class="g-checkbox">
+                            <input data-analytics-track="contact info : sign_me_up" id="emailUpdates" type="checkbox" name="email-sign-up-checkout" value="${dw.system.Site.current.getCustomPreferenceValue('defaultEmailOptIn') ? true: false}" class="g-checkbox-input" <isif condition="${dw.system.Site.current.getCustomPreferenceValue('defaultEmailOptIn')}">checked</isif>>
+                            <isif condition="${pdict.smsOptInEnabled}">
+                                <label class="g-checkbox-label sms-optIn-flag" for="emailUpdates">${Resource.msg('field.checkbox.signup.SEAShipping','checkout',null)}</label>
+                            <iselse/>
+                                    <label class="g-checkbox-label" for="emailUpdates">${Resource.msg('field.checkbox.sign.shipping','checkout',null)}</label>
+                                </isif>
+                        </div>
+                    </div> </iscomment>
+                    <isinclude template="checkout/checkoutConsents.isml" />
+                        <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+                </fieldset>
+            </form>
+            <isif condition="${customer.authenticated && !empty(customer.profile) && customer.profile.custom.isEmployee === true}">
+                <div class="employee-discount employee-discount-label">
+                        ${Resource.msg('employee.discount.label.terms','checkout',null)}
+                </div>
+                <div class="employee-policy employee-discount-label_one">
+                    ${Resource.msg('employee.discount1.label.terms','checkout',null)}
+                </div>
+                <div class ="b-checkout-modal-text g-checkbox">
+                    <input type="checkbox" id="checkout-checkbox-link" class="g-checkbox-input checkout-checkbox-link js-employee-terms-conditions" name="employee-terms-and-conditions" data-analytics-track="contact info : employee_terms">
+                    <label class="g-checkbox-label checkout-modal-textLink" for="checkout-checkbox-link">
+                        <isprint value="${Resource.msg('field.checkbox.employee.agree','checkout',null) + ' '}"/>
+                        <button type="button" data-cmp="termsAndConditionsModal" class="btn-modal-dialog">
+                            <isprint value="${Resource.msg('field.checkbox.employee.termsandconditions','checkout',null)}"/>
+                        </button>
+                    </label>
+                </div>
+                <iscontentasset aid="employee-program-terms-conditions" />
+            </isif>
+        </div>
+    </div>
+<iselse/>
+    <div class="card payment-form b-contact-info js-contact-info">
+        <div class="card-body">
+            <form autocomplete="on" class="js-checkout-forms" method="POST" action="" data-address-mode="" data-cmp="formGeneric" novalidate>
+                <!-------------------------------------------------------------------------->
+                <!-- Contact Info (Email and Phone)                                       -->
+                <!-------------------------------------------------------------------------->
+                <fieldset class="contact-info-block b-contact">
+                    <div class="b-contact_heading">${Resource.msg('msg.heading.contact','checkout',null)}</div>
+                    <div class="b-contact_subheading"><span class="b-contact_subspan">${Resource.msg('msg.heading.orderinfo','checkout',null)}</span>
+                    </div>
+                    <isset name="primaryContact" value="${pdict.forms.billingForm.contactInfoFields}" scope="page" />
+                    <isset name="addressFields" value="${pdict.forms.billingForm.addressFields}" scope="page" />
+                    <div class="row b-contact_row">
+                        <div class="b-contact_column tooltip">
+                            <div class="form-group b-form_group b-input_row
+                                <isif condition=${pdict.forms.billingForm.contactInfoFields.email.mandatory === true}>required</isif>
+                                ${pdict.forms.billingForm.contactInfoFields.email.htmlName}">
+                                <label class="form-control-label b-input_row-label" for="email">${Resource.msg('label.input.login.email','login',null)}</label>
+                                    <input <isif condition="${!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer && pdict.customer.profile && !empty(pdict.customer.profile.email)}"> readonly <iselse> autofocus </isif>
+                                        type="text" class="form-control email b-input_row-input js-custom-input" id="email"
+                                        value="${(!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer && pdict.customer.profile && pdict.customer.profile.email) || pdict.order.orderEmail || ''}" <isprint value=${pdict.forms.billingForm.contactInfoFields.email.attributes} encoding="off"/>
+                                        data-analytics-track="contact info : email"
+                                        data-pattern-mismatch="${Resource.msg('general.pattern.mismatch','common',null)}"
+                                        data-missing-error="${​​​​​Resource.msg('error.message.required', 'forms', null)}​​​​​"
+                                        aria-describedby="emailInvalidMessage" >
+                                    <div class="b-contactinfo-tooltip-content">
+                                        <span class="contant-tooltip">
+                                                <span class="g-tooltip-icon g-tooltip bfx-remove-element">
+                                                <span class="g-tooltip-arrow"></span>
+                                                </span>
+                                                <span class="g-tooltip-text">
+                                                    ${Resource.msg('field.contact.email.tooltip','checkout',null)}
+                                                </span>
+                                    </span>
+                                    </div>
+                                <div class="invalid-feedback" id="emailInvalidMessage"></div>
+                            </div>
+                        </div>
+                        <isif condition="${dw.system.Site.getCurrent().getID() !== 'OC'}">
+                            <isset name="customerPhonePrefix" value="${pdict.customer && pdict.customer.profile && pdict.customer.profile.countryDialingCode ? pdict.customer.profile.countryDialingCode : ''}" scope="page"/>
+                            <isset name="countryCode" value="${pdict.customer && pdict.customer.profile && pdict.customer.profile.countryDialingCode ? pdict.customer.profile.countryDialingCode : pdict.currentCountryDialingCode}" scope="page"/>
+                            <div class="form-group b-form_group b-input_row country-DialingCode
+                                    ${primaryContact.countryDialingCode.mandatory === true ? 'required' : ''}
+                                    ${primaryContact.countryDialingCode.htmlName}">
+                                        <div class="b-state">
+                                            <label class="form-control-label b-quantity-label b-input_row-label" for="countryDialingCode_${lineItemUUID}"><isprint value="${primaryContact.countryDialingCode.label}" encoding="on" /></label>
+                                            <select class="b-country-dialing-code b-state-select form-control" id="countryDialingCode" value="${(pdict.customer && pdict.customer.profile && pdict.customer.profile.countryDialingCode) || ''}"
+                                                <isprint value="${primaryContact.countryDialingCode.attributes}" encoding="off" />
+                                                data-missing-error="${​​​​​Resource.msg('error.message.countryCode.required', 'forms', null)}​​​​​">
+                                                <isloop items=${primaryContact.countryDialingCode.options} var="options">
+                                                    <option id="${options.id}" value="${options.htmlValue}" <isif condition="${options.htmlValue === (countryCode)}">selected</isif>>${options.label || ' '}</option>
+                                                </isloop>
+                                            </select>
+                                        <div class="invalid-feedback" id="countryDialingCode"><isprint value="${primaryContact.countryDialingCode.error}" ></div>
+                                    </div>
+                            </div>
+                        </isif>
+                        <isset name="customerPhone" value="${pdict.customer && pdict.customer.profile && pdict.customer.profile.phone ? pdict.customer.profile.phone : ''}" scope="page"/>
+                        <div class="b-contact_column tooltip">
+                            <div class="form-group b-form_group b-contact_phone b-input_row ${customerPhone ? 'customer-phonenumber' : ''}
+                                <isif condition=${pdict.forms.billingForm.contactInfoFields.phone.mandatory === true || pdict.isPhoneNumberMandatory}>required</isif>
+                                ${pdict.forms.billingForm.contactInfoFields.phone.htmlName}">
+                                <label class="form-control-label b-input_row-label" for="phoneNumber">${Resource.msg('field.customer.phone.number','checkout',null)}<isif condition=${pdict.forms.billingForm.contactInfoFields.phone.mandatory === true || pdict.isPhoneNumberMandatory}> *</isif></label>
+                                <input type="tel" class="form-control phone b-input_row-input validatePhoneField js-custom-input <isif condition=${pdict.forms.billingForm.contactInfoFields.phone.mandatory === true || pdict.isPhoneNumberMandatory}>defaultMandatory</isif>" <isif condition=${pdict.forms.billingForm.contactInfoFields.phone.mandatory === true || pdict.isPhoneNumberMandatory}>required</isif> id="phoneNumber"
+                                    data-range-error="${Resource.msg('error.message.phonenumber.invalid.emea','forms',null)}" data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid.emea','forms',null)}" data-missing-error="${​​​​​Resource.msg('error.message.required', 'forms', null)}​​​​​"
+                                    value="${customerPhone ? customerPhone : (pdict.order.billing.billingAddress.address && pdict.order.billing.billingAddress.address.phone || '')}"
+                                    <isprint value=${pdict.forms.billingForm.contactInfoFields.phone.attributes} encoding="off"/>
+                                    data-analytics-track="contact info : phone"
+                                    aria-describedby="phoneInvalidMessage" >
+                                    <div class="b-contactinfo-tooltip-content">
+                                        <span class="contant-tooltip">
+                                                <span class="g-tooltip-icon g-tooltip bfx-remove-element">
+                                                <span class="g-tooltip-arrow"></span>
+                                                </span>
+                                                <span class="g-tooltip-text">
+                                                    ${Resource.msg('field.contact.phone.tooltip','checkout',null)}
+                                                </span>
+                                    </span>
+                                    </div>
+                                <div class="invalid-feedback" id="phoneInvalidMessage"></div>
+                                <div class="contact-phone-error-message">
+                                        <p class="phone-error-message-text"></p>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                    <isif condition="${primaryContact.identification && primaryContact.identification.identificationType && primaryContact.identification.identificationValue}">
+                    <div class="identification-section">
+                        <div class="b-contact_heading">${Resource.msg('forms.address.id.header', 'forms', null)}</div>
+                        <iscontentasset aid="identificationInfo" />
+                        <div class="row b-contact_row b-contact_row-top">
+                            <div class="b-contact_column">
+                                <div class="form-group b-form_group b-input_row
+                                    ${primaryContact.identification.identificationType.mandatory === true ? 'required' : ''}
+                                    ${primaryContact.identification.identificationType.htmlName}">
+                                    <div class="b-state">
+                                    <label class="form-control-label b-quantity-label b-input_row-label" for="contactInfoIdentificationType_${lineItemUUID}"><isprint value="${primaryContact.identification.identificationType.label}" encoding="on" /></label>
+                                    <select class="b-state-select form-control identification-type" id="identificationValue" value="${(!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer && pdict.customer.profile && pdict.customer.profile.identificationType) || ''}"
+                                        <isprint value="${primaryContact.identification.identificationType.attributes}" encoding="off" />
+                                        data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" autocomplete="address-level1">
+                                        <isloop items=${primaryContact.identification.identificationType.options} var="options">
+                                            <option id="${options.id}" value="${options.htmlValue}" <isif condition="${options.htmlValue === (!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer && pdict.customer.profile && pdict.customer.profile.identificationType)}">selected</isif>>${options.label || ' '}</option>
+                                        </isloop>
+                                    </select>
+                                    <div class="invalid-feedback" id="contactInfoIdentificationType"><isprint value="${primaryContact.identification.identificationType.error}" ></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="b-contact_column">
+                                <div class="form-group b-form_group b-input_row
+                                    ${primaryContact.identification.identificationValue.mandatory === true ? 'required' : ''}
+                                    ${primaryContact.identification.identificationValue.htmlName}">
+                                    <label class="form-control-label b-input_row-label" for="contactInfoIdentificationValue_${lineItemUUID}"><isprint value="${primaryContact.identification.identificationValue.label}" encoding="on" /></label>
+                                    <input type="text" class="form-control contactInfoIdentificationValue b-input_row-input" id="contactInfoIdentificationValue_${lineItemUUID}" aria-describedby="contactInfoidentificationValue"
+                                        data-missing-error="${Resource.msg('forms.identificationError','forms',null)}​​​​​" data-valid="${Resource.msg('forms.identificationValidValue','forms',null)}" data-value="${Resource.msg('forms.identificationError','forms',null)}"
+                                        value="${(!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer && pdict.customer.profile && pdict.customer.profile.identificationValue) || ''}" <isprint value="${primaryContact.identification.identificationValue.attributes}" encoding="off"/>>
+                                    <div class="invalid-feedback" id="contactInfoIdentificationValue"><isprint value="${typeof primaryContact.identification.identificationValue !== 'undefined' ?  primaryContact.identification.identificationValue.error : ''}" ></div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </isif>
+                    <div class="b-contact_column b-checkout_contact-sign">
+                        <div class="g-checkbox">
+                            <input data-analytics-track="contact info : sign_me_up" id="emailUpdates" type="checkbox" name="email-sign-up-checkout" value="${dw.system.Site.current.getCustomPreferenceValue('defaultEmailOptIn') ? true: false}" class="g-checkbox-input" <isif condition="${dw.system.Site.current.getCustomPreferenceValue('defaultEmailOptIn')}">checked</isif>>
+                            <isif condition="${pdict.smsOptInEnabled}">
+                                <label class="g-checkbox-label sms-optIn-flag" for="emailUpdates">${Resource.msg('field.checkbox.signup.SEAShipping','checkout',null)}</label>
+                            <iselse/>
+                                    <label class="g-checkbox-label" for="emailUpdates">${Resource.msg('field.checkbox.sign.shipping','checkout',null)}</label>
+                                </isif>
+                        </div>
+                    </div>
+                        <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+                </fieldset>
+            </form>
+            <isif condition="${customer.authenticated && !empty(customer.profile) && customer.profile.custom.isEmployee === true}">
+                <div class="employee-discount">
+                        ${Resource.msg('employee.discount.label.terms','checkout',null)}
+                </div>
+                <div class="employee-policy">
+                    ${Resource.msg('employee.discount1.label.terms','checkout',null)}
+                </div>
+                <div class ="b-checkout-modal-text g-checkbox">
+                    <input type="checkbox" id="checkout-checkbox-link" class="g-checkbox-input checkout-checkbox-link js-employee-terms-conditions" name="employee-terms-and-conditions" data-analytics-track="contact info : employee_terms">
+                    <label class="g-checkbox-label checkout-modal-textLink" for="checkout-checkbox-link">
+                        <isprint value="${Resource.msg('field.checkbox.employee.agree','checkout',null) + ' '}"/>
+                        <button type="button" data-cmp="termsAndConditionsModal" class="btn-modal-dialog">
+                            <isprint value="${Resource.msg('field.checkbox.employee.termsandconditions','checkout',null)}"/>
+                        </button>
+                    </label>
+                </div>
+                <iscontentasset aid="employee-program-terms-conditions" />
+            </isif>
+        </div>
+    </div>
+</isif>
+

@@ -1,0 +1,17 @@
+<isif condition="${!empty(pdict.product.custom.icons)}">
+    <div class="b-product_feature-benefits">
+        <h1 class="feature-benefits_label">${Resource.msg('product.feature.label', 'product', null)}</h1>
+        <ul class="feature-benefits_data" role="list">
+            <isloop items="${pdict.product.custom.icons}" var="icon" status="loopcount">
+                <isif condition="${loopcount.count <= 3}">
+                    <isif condition="${pdict.product.custom.icons.length >= 3}">
+                        <li class="feature-benefits_list ${pdict.product.custom.icons.length >= 3 ? 'flex-grow' : 'flex-fixed-width' } " role="listitem">
+                            <span class="feature-icon_${icon.value}"></span>
+                            <span class="feature-icon-label"><isprint value="${icon.displayValue}" /></span>
+                        </li>
+                    </isif>
+                </isif>
+            </isloop>
+        </ul>
+    </div>
+</isif>

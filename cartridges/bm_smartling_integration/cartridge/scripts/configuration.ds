@@ -1,0 +1,158 @@
+/**
+*   @input FileName : String
+*   @output localesList : Array
+*   @output smartlingConfiguration : String
+*   @output Attributes : dw.util.HashMap
+*
+*/
+
+importPackage( dw.system );
+importPackage( dw.object );
+importPackage( dw.util );
+importPackage( dw.io );
+importPackage( dw.crypto );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "configuration"));
+
+/**
+    Interrogate the system meta data to determine which custom attributes are available on system object
+    to be candidates for translation strings.
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        var site : Site = Site.getCurrent();
+
+        var sitePrefs : SitePreferences = Site.getCurrent().getPreferences();
+        var configStr = sitePrefs.custom['smartling_configuration_data'];
+        var configData = null;
+        try {
+        	configData = JSON.parse(configStr);
+        } catch (e) {
+        	LOGGER.errorException('wrong JSON in smartling_configuration_data, FileName="{0}"', pdict.FileName, e);
+        	return PIPELET_ERROR;
+        }
+        if (configData == null){
+            configData = {};
+            configData['time_out'] = "10000";
+            configData['retrival_type'] = "published";
+            configData['source_locale'] = "default";
+            configData['auto_authorize_content'] = "true";
+            configData['library_type'] = "private";
+
+        } else {
+            configData['user_secret'] = '********************************';
+        }
+        if (configData['token_salt'] == null || configData['token_salt'] == '') {
+            var random : SecureRandom = new SecureRandom();
+            configData['token_salt'] = Encoding.toBase64(random.nextBytes(32));
+        }
+        pdict.smartlingConfiguration = JSON.stringify(configData);
+
+        var siteAllowedlocales : List = site.getAllowedLocales();
+        var localesList : Array =  new Array;
+        for each (var localeId : String in siteAllowedlocales) {
+            var localeName : String = "default";
+            if (localeId != "default") {
+                var language : CustomObject = CustomObjectMgr.queryCustomObject("SMARTLING_LOCALES", "custom.ID = '" + localeId + "'");
+                localeName =  language.getCustom()['name'];
+            }
+
+            localesList.push({localeId: localeId, localeName: localeName, selected: configData['source_locale'] === localeId});
+        }
+
+        if (!siteAllowedlocales.contains(configData['source_locale'])) {
+            var language : CustomObject = CustomObjectMgr.queryCustomObject("SMARTLING_LOCALES", "custom.ID = '" + configData['source_locale'] + "'");
+            var localeName =  language.getCustom()['name'];
+            localesList.push({localeId: configData['source_locale'], localeName: localeName, selected: true, disabled: true});
+        }
+
+        pdict.localesList = localesList;
+
+        pdict.Attributes = getAttributes("IMPEX/src/" + pdict.FileName);
+    } catch (e) {
+        var x = e;
+        LOGGER.errorException('configuration execution failed, FileName="{0}"', pdict.FileName, e);
+        return PIPELET_ERROR;
+    }
+
+   return PIPELET_NEXT;
+}
+
+/**
+    Read attributes from file
+*/
+function getAttributes( fileName : String ) : HashMap
+{
+    var aFile : File = new File(fileName);
+    var fileReader : FileReader = new FileReader(aFile);
+    var xsr : XMLStreamReader = new XMLStreamReader(fileReader);
+
+    var typeAttributes : HashMap = new HashMap();
+
+    try {
+        while (xsr.hasNext()) {
+
+            if (xsr.next() == XMLStreamConstants.START_ELEMENT) {
+                var localElementName : String = xsr.getLocalName();
+                var typeIdAttr : String = xsr.getAttributeValue(null, "type-id");
+                if ("type-extension" == localElementName && ("Product" == typeIdAttr || "Category" == typeIdAttr || "Content" == typeIdAttr)) {
+                    typeAttributes.put(typeIdAttr, getCustomAttributesForType(typeIdAttr, xsr));
+                  }
+            }
+        }
+    } finally {
+        xsr.close();
+    }
+    return typeAttributes;
+}
+
+/**
+    Read custom attribute
+*/
+function getCustomAttributesForType ( typeIdAttr : String, xsr : XMLStreamReader ) : ArrayList
+{
+    var attributes : ArrayList = new ArrayList();
+    xsr.next();
+    while (!(xsr.isEndElement() && xsr.getLocalName() == "type-extension")) {
+        if (xsr.isStartElement() && xsr.getLocalName() == "custom-attribute-definitions") {
+            while ((!(xsr.isEndElement() && xsr.getLocalName() == "custom-attribute-definitions"))) {
+                if (xsr.isStartElement() && xsr.getLocalName() == "attribute-definition") {
+                    var attribute : HashMap = parseAttributeDefinition(xsr.getXMLObject());
+                    if (attribute.get("localizable-flag"))
+                        attributes.push(attribute);
+                }
+                xsr.next();
+            }
+        }
+        xsr.next();
+    }
+    return attributes;
+}
+
+/**
+    Parse XML attribute
+*/
+function parseAttributeDefinition (attributeXML : XML) : HashMap
+{
+    var attribute : HashMap = new HashMap();
+    attribute.put("attribute-id", attributeXML.attribute("attribute-id").toString());
+    var flag : Boolean = false;
+    for each(var parameterXML : XML in attributeXML.children()) {
+        if(parameterXML.nodeKind() == 'element') {
+            var attributeName : String = parameterXML.localName().toString();
+            if (attributeName == "display-name") {
+                attribute.put("display-name", parameterXML.toString());
+            }
+            if (attributeName == "type") {
+                attribute.put("type", parameterXML.toString());
+            }
+            if (attributeName == "localizable-flag" && parameterXML.toString().equals(true)) {
+                attribute.put("localizable-flag", true);
+            }
+        }
+    }
+
+    return attribute;
+}

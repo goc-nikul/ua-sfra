@@ -1,0 +1,32 @@
+/**
+* transferBasket.ds
+* Loop through custom product list for customer and adds them to the basket
+*
+*   @input Customer : dw.customer.Customer; 
+*
+*/
+importPackage( dw.system );
+importPackage( dw.customer );
+
+function execute( args : PipelineDictionary ) : Number {
+	// Set vars
+	var ProductListIterator : Iterator;
+    var CurrentProductLists : dw.customer.ProductLists;
+    var Customer = args.Customer;
+    var counter = 0;
+    
+    // Get custom product lists for customer
+    CurrentProductLists = dw.customer.ProductListMgr.getProductLists( Customer, dw.customer.ProductList.TYPE_CUSTOM_3 );
+    
+    // Init iterator
+    ProductListIterator =  CurrentProductLists.iterator();
+    
+    // Loops through product list and adds products to basket
+    while ( ProductListIterator.hasNext() && counter < 3 ) {
+	    counter++;
+    	var myList = ProductListIterator.next();
+	  	dw.customer.ProductListMgr.removeProductList( myList );
+    }
+
+    return PIPELET_NEXT;
+}

@@ -1,0 +1,14 @@
+<div class="form-group g-checkbox
+    <isif condition="${'isLoyaltyEnable' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.isLoyaltyEnable && !!pdict.showLoyaltyEnroll}">g-checkbox_loyalty-hide</isif>">
+    <isset name="defaultEmailOptIn" value="${dw.system.Site.current.getCustomPreferenceValue('defaultEmailOptIn') ? 'checked ': ''}" scope="page"/>
+    <input
+        type="checkbox"
+        class="g-checkbox-input"
+        id="add-to-email-list"
+        ${defaultEmailOptIn}
+        <isprint value=${pdict.profileForm.customer.addtoemaillist.attributes} encoding="off" />
+    />
+    <label class="g-checkbox-label" for="add-to-email-list">
+        <isprint value="${pdict.profileForm.customer.addtoemaillist.label}" encoding="htmlcontent" />
+    </label>
+</div>

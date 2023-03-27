@@ -1,0 +1,140 @@
+.l-plp {
+    .b-tile {
+        .b-tile_badge-recently-viewed {
+            display: none;
+        }
+    }
+
+    &-load_button {
+        flex: 1 1 75%;
+        max-width: 75%;
+        margin: 0 0 rem-calc(24) auto;
+        padding-left: rem-calc(4);
+
+        @include respond-to(mobile) {
+            flex: 1 1 100%;
+            max-width: 100%;
+            padding-left: 0;
+            text-align: center;
+        }
+    }
+
+    @include respond-to(desktop-large) {
+        margin-bottom: rem-calc(100);
+    }
+
+    @include respond-to (tablets-landscape) {
+        margin-bottom: spacing(xl2);
+    }
+
+    @include respond-to(tablets) {
+        margin-bottom: spacing(xl);
+    }
+
+    @include respond-to(phones) {
+        margin-bottom: spacing(md);
+    }
+
+    &-mob_header {
+        display: none;
+        @include respond-to(mobile) {
+            display: flex;
+            flex-direction: column;
+        }
+    }
+
+    &-category_banner {
+        width: 100%;
+    }
+
+    &-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        @include respond-to(desktop) {
+            padding: 0 3.5rem;
+            margin: 0 auto;
+            max-width: 1440px;
+        }
+    }
+
+    &-header {
+        @include grid-col(12, $gutter: false, $media: desktop);
+
+        &-load_button {
+            padding-bottom: rem-calc(16);
+        }
+    }
+
+    &-content {
+        @include grid-row($media: desktop);
+    }
+
+    &-sidebar {
+        @include grid-col(3, $media: desktop-large);
+        @include grid-col(3, $media: desktop);
+
+        width: 24%;
+        max-width: 24%;
+
+        &.b-scrollable-content {
+            max-height: calc(100vh - 106px);
+        }
+
+        @include respond-to(desktop) {
+            position: sticky;
+        }
+
+        @include respond-to(mobile) {
+            @include g-flyout-common;
+            @include g-flyout;
+
+            z-index: 101;
+            height: 100%;
+            overflow-y: auto;
+            opacity: 0;
+            -webkit-overflow-scrolling: auto;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        &.m-show {
+            @include respond-to(mobile) {
+                opacity: 1;
+            }
+        }
+
+        &-sort {
+            display: none;
+
+            @include respond-to(mobile) {
+                display: block;
+            }
+        }
+    }
+
+    &-products_container {
+        @include grid-col(9, $media: desktop);
+        @include grid-col(9, $media: desktop-large);
+    }
+
+    &-description_slot {
+        @include respond-to(desktop-large) {
+            margin-bottom: spacing(xs);
+        }
+    }
+
+    div[class$="sport-gloves"] {
+        #refinement-size,
+        #refinement-taille {
+            ul.b-refinements_attributes-list {
+                .b-refinements_attributes-item {
+                    &.m-size {
+                        flex: 0 0 7.5rem;
+                        line-height: 1;
+                        text-align: center;
+                    }
+                }
+            }
+        }
+    }
+}

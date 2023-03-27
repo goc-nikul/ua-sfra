@@ -1,0 +1,44 @@
+<div class="b-account-preference">
+    <div class="b-account-preference-heading">
+        ${Resource.msg('sub.heading.account.preferences','account',null)}
+    </div>
+    <div class="b-account-preference-container">
+        <div class="b-account-dashboard_profile-icon"></div>
+        <div class="b-account-preference_inner-container">
+            <div class="b-account-preference-section">
+                <div class="b-account-preference-section-heading">
+                    ${Resource.msg('label.profile.account.genders','account',null)}
+                </div>
+                <div class="b-account-preference-section-selection">
+                    <isloop items="${pdict.genders}" var="gender" status="loopstate">
+                        <div class="form-group g-checkbox">
+                            <input type="checkbox" class="g-checkbox-input form-control" id="${gender.label}"
+                            <isprint value="${gender.attributes}" encoding="off" />
+                            <isif condition="${gender.checked}">checked</isif>>
+                            <label class="g-checkbox-label" for="${gender.label}">
+                                <isprint value="${gender.label}" encoding="htmlcontent" />
+                            </label>
+                        </div>
+                    </isloop>
+                </div>
+            </div>
+            <div class="b-account-preference-section b-account-preference-section-bottom">
+                <div class="b-account-preference-section-heading">
+                    ${Resource.msg('label.profile.account.activities','account',null)}
+                </div>
+                <div class="b-account-preference-section-selection">
+                    <isloop items="${pdict.activities}" var="activity" status="loopstate">
+                        <div class="form-group g-checkbox">
+                            <input type="checkbox" class="g-checkbox-input form-control" id="${activity.label}"
+                            <isprint value="${activity.attributes}" encoding="off" />
+                            <isif condition="${activity.checked}">checked</isif>>
+                            <label class="g-checkbox-label" for="${activity.label}">
+                                <isprint value="${activity.label}" encoding="htmlcontent" />
+                            </label>
+                        </div>
+                    </isloop>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

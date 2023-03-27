@@ -1,0 +1,38 @@
+/**
+*   @input uuid : String
+*   @output progress : Number
+*
+*/
+var ExceptionLog = require ('/bm_smartling_integration/cartridge/scripts/utils/ExceptionLog.ds').ExceptionLog;
+var LOGGER = new ExceptionLog(dw.system.Logger.getLogger("smartling", "submissionBoard.checkProgress"));
+// var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "submissionBoard.checkProgress"));
+var smartlingFileApi = require("/bm_smartling_integration/cartridge/scripts/file_api/smartlingFileApi");
+var submissionDao = require("/bm_smartling_integration/cartridge/scripts/dao/submission.ds");
+var localeService = require("/bm_smartling_integration/cartridge/scripts/service/localeService.ds");
+var progressService = require("/bm_smartling_integration/cartridge/scripts/service/progressService");
+
+/**
+    Query the smartling API for all in process translations to retrieve the translation complete percentage
+    write this status into the custom object for inclusion on the display.
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        var submission = submissionDao.getSubmissionByUUID(pdict.uuid);
+        var progress = submission.custom['progress'];
+
+        if (submission.custom['status'] == "in progress") {
+            var fileStatus = smartlingFileApi.fileStatus(submission.custom['fileUri'], localeService.getSmartlingLocale(submission.custom['locale']));
+
+            var completedStringCount = fileStatus['response']['data']['completedStringCount'];
+            var authorizedStringCount = fileStatus['response']['data']['approvedStringCount'];
+
+            progress = progressService.calculateProgress(completedStringCount, authorizedStringCount);
+        }
+        pdict.progress = submission.custom['progress'] | 0;
+    } catch (e) {
+        LOGGER.errorException("submissionBoard.download execution failed for uuid={0}", pdict.uuid, e);
+    }
+
+    return PIPELET_NEXT;
+}

@@ -1,0 +1,16 @@
+<div class="b-refinements_attributes b-show_more js-refinements-parent m-collapsed" >
+    <ul class="b-refinements_attributes-list b-swatches b-show_more-list">
+        <isloop items="${refinement.values}" var="refinementValue" status="loopstate">
+            <isif condition="${refinementValue.type === 'color'}">
+                <isinclude template="search/refinements/attributes/color"/>
+            <iselseif condition="${refinementValue.type === 'size'}">
+                <isinclude template="search/refinements/attributes/size"/>
+            <iselse>
+                <isinclude template="search/refinements/attributes/boolean"/>
+            </isif>
+        </isloop>
+    </ul>
+    <isif condition="${cutoffThreshold && cutoffThreshold < refinement.values.length}">
+        <isinclude template="components/showMoreButton" />
+    </isif>
+</div>

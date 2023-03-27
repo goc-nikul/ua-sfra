@@ -1,0 +1,27 @@
+<script>
+    window.pageContext = <isprint value="${JSON.stringify(pdict.pageContext || new Object())}" encoding="off"/>;
+    window.sitePreferences = {};
+    window.sitePreferences.AddressVerificationEnabled = <isprint value="${pdict.AddressVerificationEnabled}" encoding="off"/>;
+    window.sitePreferences.isBOPISEnabled = <isprint value="${'isBOPISEnabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.getCustomPreferenceValue('isBOPISEnabled')}" encoding="off"/>;
+    window.sitePreferences.qasAddressSuggestion = ${pdict.qasAddressSuggestion};
+    window.sitePreferences.qasCurrentLocation = ${pdict.qasUseCustomerCurrentLocation};
+    if (window.sitePreferences.isBOPISEnabled) {
+        window.shipmentMergedBOPIS = false;
+    }
+    <isif condition="${pdict.qasProvinceMapping}">
+        window.sitePreferences.qasProvinceMapping = <isprint value="${pdict.qasProvinceMapping}" encoding="off"/>;
+    </isif>
+</script>
+
+<!-- mpulse script -->
+<input type="hidden" id="qasToken" value="${pdict.qasToken}"/>
+<isinclude url="${URLUtils.url('AkamaimPulse-RenderScript')}"/>
+<isinclude url="${URLUtils.url('TrustArc-RenderScript')}"/>
+<isinclude template="components/heartbeat" />
+
+<isif condition="${dw.system.Site.current.getCustomPreferenceValue('isEnabledExpressKlarna')}">
+    <isinclude template="klarnapayments/modules.isml"/>
+    <!-- Klarna KEB form -->
+    <iskebform />
+    <!-- Klarna KEB form -->
+</isif>

@@ -1,0 +1,177 @@
+.b-error_page {
+    &-content {
+        @include grid-row;
+
+        justify-content: space-between;
+        align-items: center;
+        @include respond-to(mobile) {
+            flex-direction: column;
+        }
+
+        .error-page-assetcontent {
+            @include grid-col(6);
+
+            padding: rem-calc(90) 0;
+            @include respond-to(tablets-landscape) {
+                padding: 3.4rem 0;
+            }
+            @include respond-to(mobile) {
+                margin-top: rem-calc(50);
+                text-align: center;
+                @include grid-col(12);
+
+                padding: 0;
+            }
+
+            .error-page-wrapper,
+            .sessionOut-page-wrapper {
+                max-width: rem-calc(450);
+                width: 100%;
+                margin: 0 auto;
+            }
+
+            .sessionOut-page-wrapper {
+                max-width: rem-calc(252);
+
+                p {
+                    margin-top: 0;
+                }
+            }
+
+            h1 {
+                @include font(main_bold, rem-calc(32), rem-calc(40));
+
+                letter-spacing: normal;
+                color: $black;
+                margin-top: rem-calc(10);
+                text-transform: lowercase;
+
+                &::first-letter {
+                    text-transform: uppercase;
+                }
+            }
+
+            h2 {
+                @include font(main, rem-calc(18), rem-calc(40));
+
+                letter-spacing: normal;
+                color: $black;
+            }
+
+            p {
+                @include font(main, rem-calc(14), rem-calc(20));
+
+                letter-spacing: normal;
+                color: $black;
+                margin-top: rem-calc(10);
+                margin-bottom: rem-calc(10);
+                max-width: rem-calc(296);
+            }
+
+            .buttons-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                @include respond-to(mobile) {
+                    display: block;
+                }
+
+                .error-button {
+                    margin-top: rem-calc(29);
+
+                    &::first-letter {
+                        text-transform: uppercase;
+                    }
+                    @include respond-to(mobile) {
+                        margin-top: rem-calc(31);
+                    }
+
+                    &.new-arrivals {
+                        margin-left: rem-calc(27);
+                        border: 1px solid $black;
+                        color: $black;
+                        @include respond-to(mobile) {
+                            margin-left: 0;
+                            margin-top: rem-calc(21);
+                        }
+                    }
+                }
+            }
+
+            .error-link {
+                @include font(main, rem-calc(14), rem-calc(20));
+
+                color: $black;
+                margin-top: rem-calc(43);
+                display: block;
+                @include respond-to(mobile) {
+                    margin-bottom: rem-calc(43);
+                }
+            }
+        }
+    }
+
+    &-slotimage,
+    &-csrf-img {
+        @include grid-col(6);
+
+        padding: 0 !important;
+        @include respond-to(mobile) {
+            display: none;
+        }
+
+        img {
+            display: block;
+        }
+    }
+
+    &-csrf-img {
+        @include grid-col(8);
+    }
+
+    &-hr {
+        @include respond-to(phones) {
+            width: rem-calc(272);
+            @include grid-col(12);
+
+            border-bottom: 1px solid $grey3;
+            height: rem-calc(1);
+        }
+    }
+
+    &-bestsellers-products {
+        margin: rem-calc(148) 0  rem-calc(50) 0;
+        width: 100%;
+        max-width: rem-calc(1440);
+        @include grid-col(12);
+        @include respond-to(mobile) {
+            padding: 0 1.5rem;
+            margin-top: rem-calc(40);
+        }
+
+        .b-error_page-bestsellers-carousel {
+            padding: 0 rem-calc(44);
+            width: 100%;
+            @include respond-to(mobile) {
+                padding: 0;
+            }
+
+            .g-carousel-heading {
+                padding-bottom: 2rem;
+            }
+
+            .b-tile {
+                width: 100%;
+            }
+        }
+
+        h2 {
+            @include font(main_bold, rem-calc(32), rem-calc(40));
+
+            letter-spacing: normal;
+            color: $black;
+            margin-bottom: rem-calc(32);
+            margin-left: rem-calc(25);
+        }
+    }
+}

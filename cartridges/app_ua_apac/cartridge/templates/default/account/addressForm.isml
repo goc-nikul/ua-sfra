@@ -1,0 +1,324 @@
+<isset name="missingError" value="${Resource.msg('error.message.required', 'forms', null)}" scope="page"/>
+<isset name="currentCountry" value="${session.custom.currentCountry}" scope="page">
+<form
+    action="${URLUtils.url('Address-SaveAddress')}" data-addressID='' data-action='new'
+    class="address-form"
+	data-address-definition-url = "${URLUtils.url('Checkout-GetAddressDefinition')}"
+    method="POST" data-cmp="addressFormGeneric"
+    <isprint value="${pdict.addressForm.attributes}" encoding="off" />>
+
+    <div class="b-account_address-container">
+	    <div class="b-account_form-row">
+	        <!-- Country -->
+	        <div class="b-account_form-column">
+			    <div class="form-group b-country
+			        ${pdict.addressForm.country.mandatory === true ? 'required' : ''}">
+			        <label class="form-control-label b-country-label" for="country">
+			            <isprint value="${Resource.msg('field.shipping.address.country','address',null)}" encoding="htmlcontent" />
+			        </label>
+			        <select class="form-control b-country-select" id="country"
+			            <isprint value="${pdict.addressForm.country.attributes}" encoding="off" />
+			            autocomplete="country">
+			            <isloop items=${pdict.addressForm.country.options} var="country">
+						<isif condition="${country.id === currentCountry}" >
+                            	<isset name="state" value="${Resource.msg('field.profile.address.state.others', 'address', null)}" scope="page">
+								<isset name="postal" value="${Resource.msg('field.profile.address.zip.code.others', 'address', null)}" scope="page">
+			                <option id="${currentCountry}" data-postal="${postal}" data-state="${state}" data-ziperror="${Resource.msg('address.invalid.zip.others', 'address', null)}"
+							 	value="${country.htmlValue}" <isif condition="${country.selected}">selected</isif>>${Resource.msg('global.country.' + currentCountry, 'locale', null)}
+							</option>
+							<isbreak>
+						</isif>
+			            </isloop>
+			        </select>
+			        <div class="invalid-feedback"></div>
+			    </div>
+		    </div>
+
+		    <!-- Phone Number -->
+		    <div class="b-account_form-column"></div>
+	    </div>
+
+	    <div class="b-account_form-row">
+	        <!-- Name -->
+	        <div class="b-account_form-column">
+		        <!-- First Name -->
+	            <div class="form-group b-input_row
+	                ${pdict.addressForm.firstName.mandatory === true ? 'required' : ''}">
+	                <label class="form-control-label b-input_row-label" for="firstName">
+	                    <isprint value="${pdict.addressForm.firstName.label}" encoding="htmlcontent" />
+	                </label>
+	                <input type="text" class="b-input_row-input form-control" id="firstName"
+	                    <isprint value="${pdict.addressForm.firstName.attributes}" encoding="off" />
+	                    data-pattern-mismatch="${Resource.msg('general.pattern.mismatch','common',null)}"
+	                    data-missing-error="${missingError}" autocomplete="given-name">
+	                <div class="invalid-feedback"></div>
+	            </div>
+	         </div>
+		     <div class="b-account_form-column">
+		        <!-- Last Name -->
+	            <div class="form-group b-input_row
+	                ${pdict.addressForm.lastName.mandatory === true ? 'required' : ''}">
+	                <label class="form-control-label b-input_row-label" for="lastName">
+	                    <isprint value="${pdict.addressForm.lastName.label}" encoding="htmlcontent" />
+	                </label>
+	                <input type="text" class="b-input_row-input form-control" id="lastName"
+	                    <isprint value="${pdict.addressForm.lastName.attributes}" encoding="off" />
+	                    data-pattern-mismatch="${Resource.msg('general.pattern.mismatch','common',null)}"
+	                    data-missing-error="${missingError}" autocomplete="family-name">
+	                <div class="invalid-feedback"></div>
+	            </div>
+	         </div>
+	         <isif condition="${pdict.addressForm.businessName && pdict.addressForm.businessName.attributes}">
+	         <div class="b-account_form-column">
+			    <div class="form-group b-input_row
+	                ${pdict.addressForm.businessName.mandatory === true ? 'required' : ''}">
+	                <label class="form-control-label b-input_row-label" for="businessName">
+	                     ${Resource.msg('label.input.businessname.profile','address',null)}
+	                </label>
+	                <input type="text" class="b-input_row-input form-control" id="businessName"
+	                    <isprint value="${pdict.addressForm.businessName.attributes}" encoding="off" />
+	                    data-pattern-mismatch="${Resource.msg('general.pattern.mismatch','common',null)}"
+	                    data-missing-error="${missingError}" autocomplete="family-name">
+	                <div class="invalid-feedback"></div>
+	            </div>
+	          </div>
+    		</isif>	
+	    </div>
+		
+		<isset name="poBoxValidation" value="${false}" scope="page" />
+		<isif condition="${(session.custom.currentCountry == 'AU') || (session.custom.currentCountry == 'NZ')}"> 
+		  <isset name="poBoxValidation" value="${true}" scope="page" />
+		</isif>
+	    <div class="b-account_form-row">
+		    <!-- Address 1 -->
+		    <div class="b-account_form-column">
+			    <div class="form-group b-input_row ${poBoxValidation ? 'poBox-available' : ''}
+			        ${pdict.addressForm.address1.mandatory === true ? 'required' : ''}">
+			        <label class="form-control-label b-input_row-label" for="address1">
+			            ${Resource.msg('field.shipping.address.one.emea','address',null)} *
+			        </label>
+			        <input type="text" class="b-input_row-input form-control ${poBoxValidation ? 'js-address-field' : ''}" id="address1"
+			            <isprint value="${pdict.addressForm.address1.attributes}" encoding="off" />
+			            data-pattern-mismatch="${Resource.msg('error.message.address.fields','forms',null)}"
+			            data-missing-error="${missingError}" autocomplete="address-line1">
+			        <div class="invalid-feedback"></div>
+			        <isif condition="${poBoxValidation}">
+                		<p class="addressHelpText"><isprint encoding="off" value="${Resource.msg('address.address1.msg','address',null)}" /></p>
+            		</isif>
+			    </div>
+		    </div>
+
+		    <!-- Address 2 -->
+		    <div class="b-account_form-column">
+			    <div class="form-group b-input_row
+			        ${pdict.addressForm.address2.mandatory === true ? 'required' : ''}">
+			        <label class="form-control-label b-input_row-label" for="address2">
+			            ${Resource.msg('field.shipping.address.two.emea','address',null)}
+			        </label>
+			        <input type="text" class="b-input_row-input form-control ${poBoxValidation ? 'js-address-field' : ''}" id="address2"
+			            <isprint value="${pdict.addressForm.address2.attributes}" encoding="off" />
+			            data-pattern-mismatch="${Resource.msg('error.message.address.fields','forms',null)}"
+			            autocomplete="billing address-line2">
+			        <div class="invalid-feedback"></div>
+			    </div>
+		    </div>
+	    </div>
+
+		<div class="b-account_form-row ${currentCountry === 'SG' ? 'SG-align-formrows' : ''}">
+		    <!-- suburb -->
+			<isif condition="${pdict.addressForm.suburb && pdict.addressForm.suburb.attributes}">
+		    <div class="b-account_form-column">
+			    <div class="form-group b-input_row
+			        ${pdict.addressForm.suburb.mandatory === true ? 'required' : ''}">
+			        <label class="form-control-label b-input_row-label" for="suburb">
+			            ${Resource.msg('field.shipping.address.suburb','address',null)}
+						${pdict.addressForm.suburb.mandatory === true ? '*' : ''}
+			        </label>
+			        <input type="text" class="b-input_row-input form-control cityField" id="suburb"
+			            <isprint value="${pdict.addressForm.suburb.attributes}" encoding="off" />
+			            pattern=".{2,30}"
+			            data-apopattern-mismatch="${Resource.msg('error.message.city.fields','forms',null)}"
+	                    data-pattern-mismatch="${Resource.msg('error.message.suburb.fields','forms',null)}"
+	                    data-range-error="${Resource.msg('error.message.suburb.fields','forms',null)}"
+			            autocomplete="billing address-line2">
+			        <div class="invalid-feedback"></div>
+			    </div>
+		    </div>
+			</isif>
+			<isif condition="${pdict.addressForm.states.stateCode && pdict.addressForm.states.stateCode.attributes}">
+			    <div class="b-account_form-column">
+			      <!-- State  -->
+				  <div class="form-group b-state b-general
+				      ${pdict.addressForm.states.stateCode.mandatory === true ? 'required' : ''}" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}">
+				      <label class="form-control-label b-state-label" for="state">
+				          <isprint value="${pdict.addressForm.states.stateCode.label}" encoding="htmlcontent" />
+				      </label>
+				      <select class="b-state-select form-control" id="state"
+				          <isprint value="${pdict.addressForm.states.stateCode.attributes}" encoding="off" />
+				          data-dependencyonstate="${pdict.dependencyOnState}"
+						  data-labelselect="${Resource.msg('select.option.select','forms',null)}"
+						  data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" autocomplete="address-level1">
+				          <isloop items=${pdict.addressForm.states.stateCode.options} var="state">
+				              <option id="${state.id}" value="${state.htmlValue}" <isif condition="${state.selected}">selected</isif>>${state.label || ' '}</option>
+				          </isloop>
+				      </select>
+				      <div class="invalid-feedback"></div>
+				     </div>
+			  	</div>
+			</isif>
+			<isif condition="${pdict.addressForm.state && pdict.addressForm.state.attributes}">
+		    <div class="b-account_form-column">
+			    <div class="form-group b-input_row
+			        ${pdict.addressForm.state.mandatory === true ? 'required' : ''}">
+			        <label class="form-control-label b-input_row-label" for="state">
+			            <isprint value="${pdict.addressForm.state.label}" encoding="htmlcontent" />
+			        </label>
+			        <input type="text" class="b-input_row-input form-control" id="state"
+			        <isprint value="${pdict.addressForm.state.attributes}" encoding="off" />
+					data-missing-error="${missingError}"	        
+					autocomplete="address-level1">
+			        <div class="invalid-feedback"></div>
+			    </div>
+		    </div>
+			</isif>
+			<isif condition="${pdict.addressForm.city && pdict.addressForm.city.attributes && pdict.isDropDownCity}">
+		    <div class="b-account_form-column">
+		      <!-- city  -->
+			  <div class="form-group b-general
+			      ${pdict.addressForm.city.mandatory === true ? 'required' : ''}" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}">
+			      <label class="form-control-label b-state-label" for="city">
+			          <isprint value="${pdict.addressForm.city.label}" encoding="htmlcontent" />
+			      </label>
+			      <select class="b-general-select selectCityDropDown form-control" id="city"
+			          <isprint value="${pdict.addressForm.city.attributes}" encoding="off" />
+					  data-dependencyoncity="${pdict.dependencyOnCity}"
+					  data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" autocomplete="address-level1">
+			          <isloop items=${pdict.addressForm.city.options} var="city">
+			              <option id="${city.id}" value="${city.htmlValue}" <isif condition="${city.selected}">selected</isif>>${city.label || ' '}</option>
+			          </isloop>
+			      </select>
+			      <div class="invalid-feedback"></div>
+			     </div>
+		  	</div>
+			</isif>
+			<!-- City  -->
+			<isif condition="${pdict.addressForm.city && pdict.addressForm.city.attributes && !(pdict.isDropDownCity)}">
+		    <div class="b-account_form-column">
+			    <div class="form-group b-input_row
+			        ${pdict.addressForm.city.mandatory === true ? 'required' : ''}">
+			        <label class="form-control-label b-input_row-label" for="city">
+			            <isprint value="${pdict.addressForm.city.label}" encoding="htmlcontent" />
+			        </label>
+			        <input type="text" class="b-input_row-input form-control" id="city"
+			            pattern=".{2,50}"
+	                    data-apopattern-mismatch="${Resource.msg('error.message.city.fields','forms',null)}"
+	                    data-pattern-mismatch="${Resource.msg('error.message.validcity','forms',null)}"
+	                    data-range-error="${Resource.msg('error.message.validcity','forms',null)}"
+			            <isprint value="${pdict.addressForm.city.attributes}" encoding="off" />
+			            data-missing-error="${missingError}" autocomplete="address-level2">
+			        <div class="invalid-feedback"></div>
+			    </div>
+		    </div>
+			</isif>
+			<isif condition="${pdict.addressForm.district && pdict.addressForm.district.attributes && !pdict.isDistrictDropDown}">
+			    <!-- district  -->
+			    <div class="b-account_form-column">
+				    <div class="form-group b-input_row
+				        ${pdict.addressForm.district.mandatory === true ? 'required' : ''}">
+				        <label class="form-control-label b-input_row-label" for="district">
+				            <isprint value="${pdict.addressForm.district.label}" encoding="htmlcontent" />
+				        </label>
+				        <input type="text" class="b-input_row-input form-control" id="district"
+				            <isprint value="${pdict.addressForm.district.attributes}" encoding="off" />
+				            data-missing-error="${missingError}" autocomplete="address-level2">
+				        <div class="invalid-feedback"></div>
+				    </div>
+			    </div>
+			</isif>
+			<isif condition="${pdict.addressForm.district && pdict.addressForm.district.attributes && pdict.isDistrictDropDown}">
+			    <div class="b-account_form-column">
+			      <!-- district  -->
+				  <div class="form-group b-general
+				      ${pdict.addressForm.district.mandatory === true ? 'required' : ''}" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}">
+				      <label class="form-control-label b-state-label" for="district">
+				          <isprint value="${pdict.addressForm.district.label}" encoding="htmlcontent" />
+				      </label>
+				      <select class="b-general-select form-control" id="district"
+				          <isprint value="${pdict.addressForm.district.attributes}" encoding="off" />
+						  data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" autocomplete="address-level1">
+				          <isloop items=${pdict.addressForm.district.options} var="district">
+				              <option id="${district.id}" value="${district.htmlValue}" <isif condition="${district.selected}">selected</isif>>${district.label || ' '}</option>
+				          </isloop>
+				      </select>
+				      <div class="invalid-feedback"></div>
+				     </div>
+			  	</div>
+			</isif>
+			<isif condition="${currentCountry === 'SG' || currentCountry === 'HK'}">
+				<div class="b-account_form-column"></div>
+			</isif>
+	    </div>
+		<div class="b-account_form-row ${currentCountry === 'SG' ? 'SG-align-formrows post' : ''}">
+			<isif condition="${pdict.addressForm.postalCode && pdict.addressForm.postalCode.attributes && (pdict.isPostalCodeDropDown)}">
+			    <div class="b-account_form-column">
+			      <!-- postal Code  -->
+				  <div class="form-group b-general
+				      ${pdict.addressForm.postalCode.mandatory === true ? 'required' : ''}" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}">
+				      <label class="form-control-label b-state-label" for="zipCode">
+				          <isprint value="${pdict.addressForm.postalCode.label}" encoding="htmlcontent" />
+				      </label>
+				      <select class="b-general-select form-control zipCodeValidation" id="zipCode" data-postalcode-err="${Resource.msg('or.select.error.required', 'forms', null)}"
+				          <isprint value="${pdict.addressForm.postalCode.attributes}" encoding="off" />
+				          data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" autocomplete="address-level1">
+				          <isloop items=${pdict.addressForm.postalCode.options} var="postalCode">
+				              <option id="${postalCode.id}" value="${postalCode.htmlValue}" <isif condition="${postalCode.selected}">selected</isif>>${postalCode.label || ' '}</option>
+				          </isloop>
+				      </select>
+				      <div class="invalid-feedback"></div>
+				     </div>
+			  	</div>
+			</isif>
+		    <!-- ZIP Code -->
+			<isif condition="${pdict.addressForm.postalCode && pdict.addressForm.postalCode && !(pdict.isPostalCodeDropDown)}">
+				<div class="b-account_form-column ${currentCountry === 'SG' ? 'SG-zipCode' : ''}">
+					<div class="form-group b-input_row
+						${pdict.addressForm.postalCode.mandatory === true ? 'required' : ''}">
+						<label class="form-control-label b-input_row-label" for="zipCode">
+							<isprint value="${pdict.addressForm.postalCode.label}" encoding="htmlcontent" />
+						</label>
+						<input type="text" class="b-input_row-input form-control" id="zipCode"
+							<isprint value="${pdict.addressForm.postalCode.attributes}" encoding="off" />
+							data-pattern-mismatch="${Resource.msg('error.message.parse.zip', 'forms', null)}"
+							data-missing-error="${missingError}" autocomplete="postal-code">
+						<div class="invalid-feedback"></div>
+					</div>
+				</div>
+			</isif>
+			<div class="b-account_form-column"></div>
+		</div>
+	    <!-- Save as default checkbox -->
+        <div class="b-account-address_book-default">
+            <div class="form-group g-checkbox b-account_save-default first">
+                <input type="checkbox" class="g-checkbox-input form-control" id="setAsDefault"
+                <isprint value="${pdict.addressForm.setAsDefault.attributes}" encoding="off" />>
+                <label class="g-checkbox-label" for="setAsDefault">
+                    ${Resource.msg('link.addressbook.makedefault','account',null)}
+                </label>
+            </div>
+            <div class="form-group g-checkbox b-account_save-default">
+                <input type="checkbox" class="g-checkbox-input form-control" id="setAsDefaultBilling"
+                <isprint value="${pdict.addressForm.setAsDefaultBilling.attributes}" encoding="off" />>
+                <label class="g-checkbox-label" for="setAsDefaultBilling">
+                    ${Resource.msg('link.addressbook.makedefaultbilling','account',null)}
+                </label>
+            </div>
+        </div>
+	    <!-- Cancel and Save Buttons -->
+	    <div class="b-account_continue-buttons">
+	        <a class="btn btn-block btn-outline-primary account-cancel-button">${Resource.msg('button.cancel','account',null)}</a>
+	        <button type="submit" name="save" class="btn btn-save btn-block btn-primary g-button_base g-button_primary--black account-save-button">${Resource.msg('button.save','account',null)}</button>
+	    </div>
+	</div>
+    <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+    <isinclude template="account/addressVerification/component" />
+</form>

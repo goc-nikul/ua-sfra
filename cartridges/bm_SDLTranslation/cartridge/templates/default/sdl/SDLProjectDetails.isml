@@ -1,0 +1,263 @@
+<iscontent type="text/html" charset="UTF-8"/>
+<isinclude template="inc/Modules"/>
+
+
+<isset name="decoratorTemplate" value="application/MenuFrame" scope="page" />
+
+<isdecorate template="${decoratorTemplate}">
+
+    <isinclude template="sdl/common/SDLCommonInclude" sf-toolkit="on" />
+    
+
+    <div class="sdlBody">
+        <div class="container sdlContainer">
+            <div class="panel panel-success">
+                <div class="panel-heading text-center">${Resource.msg('label.sdl.manage.project.project.details', 'SDLTranslation', null)}</div>
+                <div class="panel-body">
+                    <isbreadcrumb name1="${Resource.msg('breadcrumb.title.merchantTools', 'SDLTranslation', null)}" url1="${merchantToolsURL}" name2="${Resource.msg('breadcrumb.title.SDL', 'SDLTranslation', null)}" url2="${SDLURL}" name3="${Resource.msg('breadcrumb.title.SDL.translation.jobs', 'SDLTranslation', null)}" url3="${URLUtils.url('SDLTranslation-AllProjects', 'sdlAllProjFilter', pdict.ProjFilter)}" name4="${Resource.msg('breadcrumb.title.SDL.project.details', 'SDLTranslation', null)}"/>
+                    <div class="row">
+                        <div class="col-xs-5">
+                            <div class="row">
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">${Resource.msg('label.sdl.manage.project.project.name', 'SDLTranslation', null)}</div>
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">
+                                    <span>
+                                        <isif condition="${!empty(pdict.ProjectDetails.Name)}">
+                                            <isprint value="${pdict.ProjectDetails.Name}" encoding="on" />
+                                        </isif>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">${Resource.msg('label.sdl.manage.project.project.id', 'SDLTranslation', null)}</div>
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">
+                                    <span>
+                                        <isif condition="${!empty(pdict.ProjectDetails.ProviderJobId)}">
+                                            <isprint value="${pdict.ProjectDetails.ProviderJobId}" encoding="on" />
+                                        </isif>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">${Resource.msg('label.sdl.manage.project.project.lang', 'SDLTranslation', null)}</div>
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">
+                                    <span>
+                                        <isif condition="${!empty(pdict.ProjectDetails.Languages)}">
+                                            <isprint value="${pdict.ProjectDetails.Languages}" encoding="on" />
+                                        </isif>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">${Resource.msg('label.sdl.manage.project.project.files', 'SDLTranslation', null)}</div>
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">
+                                    <span>
+                                        <isif condition="${!empty(pdict.ProjectDetails.SourceFiles)}">
+                                            <isprint value="${pdict.ProjectDetails.SourceFiles}" encoding="on" />
+                                        </isif>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">${Resource.msg('label.sdl.manage.project.project.words', 'SDLTranslation', null)}</div>
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">
+                                    <span>
+                                        <isif condition="${!empty(pdict.ProjectDetails.SourceWords)}">
+                                            <isprint value="${pdict.ProjectDetails.SourceWords}" encoding="on" />
+                                        </isif>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">${Resource.msg('label.sdl.manage.project.project.status', 'SDLTranslation', null)}</div>
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">
+                                    <span 
+                                        <isif condition="${pdict.ProjectDetails.Status == 1}">
+                                            class="projStatus redBG" 
+                                        <iselse>
+                                            class="projStatus greenBG" 
+                                        </isif>
+                                    >
+                                        <isif condition="${pdict.ProjectDetails.Status === 0}">
+                                            ${Resource.msg('label.sdl.manage.project.project.preparing', 'SDLTranslation', null)}
+                                        <iselseif condition="${pdict.ProjectDetails.Status === 1}" />
+                                            ${Resource.msg('label.sdl.manage.project.project.for.approval', 'SDLTranslation', null)}
+                                        <iselseif condition="${pdict.ProjectDetails.Status === 2}" />
+                                            ${Resource.msg('label.sdl.manage.project.project.inprogress', 'SDLTranslation', null)}
+                                        <iselseif condition="${pdict.ProjectDetails.Status === 3}" />
+                                            ${Resource.msg('label.sdl.manage.project.project.fordownload', 'SDLTranslation', null)}
+                                        <iselse>
+                                            ${Resource.msg('label.sdl.manage.project.project.completed', 'SDLTranslation', null)}
+                                        </isif>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">${Resource.msg('label.sdl.manage.project.project.created', 'SDLTranslation', null)}</div>
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">
+                                    <span>
+                                        <isif condition="${!empty(pdict.ProjectDetails.CreatedDate)}">
+                                            <isprint value="${pdict.ProjectDetails.CreatedDate}" encoding="on" />
+                                        </isif>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <isif condition="${pdict.ProjectDetails.Status === 0 || pdict.ProjectDetails.Status === 1 || pdict.ProjectDetails.Status === 2}">
+                                    <div class="col-xs-6 sdlProjDetailsPaddingRight">${Resource.msg('msg.sdl.project.due.date', 'SDLTranslation', null)}</div>
+                                    <div
+                                        <isif condition="${pdict.ProjectDetails.deuStatusClass == 1}">
+                                            class="col-xs-6 sdlProjDetailsPaddingRight redColor"
+                                        <iselse>
+                                            class="col-xs-6 sdlProjDetailsPaddingRight greenColor"
+                                        </isif>
+                                    >
+                                        <span>
+                                            <isif condition="${!empty(pdict.ProjectDetails.DueDate)}">
+                                                <isprint value="${pdict.ProjectDetails.DueDate}" encoding="on" />
+                                            </isif>
+                                        </span>
+                                    </div>
+                                <iselse>
+                                    <div class="col-xs-6 sdlProjDetailsPaddingRight">${Resource.msg('label.sdl.manage.project.project.delivery.date', 'SDLTranslation', null)}</div>
+                                    <div
+                                        <isif condition="${pdict.ProjectDetails.delivarStatusClass == 1}">
+                                            class="col-xs-6 sdlProjDetailsPaddingRight redColor"
+                                        <iselse>
+                                            class="col-xs-6 sdlProjDetailsPaddingRight greenColor"
+                                        </isif>
+                                    >
+                                        <span>
+                                            <isif condition="${!empty(pdict.ProjectDetails.DeliveredDate)}">
+                                                <isprint value="${pdict.ProjectDetails.DeliveredDate}" encoding="on" />
+                                            </isif>
+                                        </span>
+                                    </div>
+                                </isif>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">${Resource.msg('msg.sdl.project.options', 'SDLTranslation', null)}</div>
+                                <div class="col-xs-6 sdlProjDetailsPaddingRight">
+                                    <span>
+                                        <isif condition="${!empty(pdict.ProjectDetails.ProjectOptionsName)}">
+                                            <isprint value="${pdict.ProjectDetails.ProjectOptionsName}" encoding="on" />
+                                        </isif>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-7 chartContainer">
+                            <canvas id="sdlCanvas"></canvas>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 sdlProjDetailsPaddingTop">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>100%</th>
+                                        <th>FUZZY</th>
+                                        <th>NEW</th>
+                                        <th>REPETITIONS</th>
+                                        <th>TOTAL WORDS</th>
+                                        <th>TM LEVERAGE</th>
+                                        <th>COST</th>
+                                        <th>TM SAVING</th>
+                                        <th>PROGRESS</th>
+                                    </tr>
+                                </thead>
+                                <isloop items="${pdict.ProjectDetails.LanguagePairDetails}" var="languagePairDetailRow">
+                                    <tbody class="sdlProjDetailsHeader closes">
+                                        <tr onclick="hideShowDetails(this)">
+                                            <td><span class="glyphicon glyphicon-chevron-down glyphicon-chevron-rights"></span></td>
+                                            <td>
+                                                <isif condition="${languagePairDetailRow.Language.Name != null}">${languagePairDetailRow.Language.Name}</isif>
+                                            </td>
+                                            <td>
+                                                <isif condition="${languagePairDetailRow.HundredWords == null}">0<iselse>${languagePairDetailRow.HundredWords}</isif>
+                                            </td>
+                                            <td>
+                                                <isif condition="${languagePairDetailRow.FuzzyWords == null}">0<iselse>${languagePairDetailRow.FuzzyWords}</isif>
+                                            </td>
+                                            <td>
+                                                <isif condition="${languagePairDetailRow.NewWords == null}">0<iselse>${languagePairDetailRow.NewWords}</isif>
+                                            </td>
+                                            <td>
+                                                <isif condition="${languagePairDetailRow.RepeatedWords == null}">0<iselse>${languagePairDetailRow.RepeatedWords}</isif>
+                                            </td>
+                                            <td>
+                                                <isif condition="${languagePairDetailRow.TotalWords == null}">0<iselse>${languagePairDetailRow.TotalWords}</isif>
+                                            </td>
+                                            <td>
+                                                <isif condition="${languagePairDetailRow.TMLeverage == null}">0.00%<iselse>${parseFloat(languagePairDetailRow.TMLeverage).toFixed(2)}%</isif>
+                                            </td>
+                                            <td>
+                                                <isif condition="${languagePairDetailRow.TotalCost == null}">${pdict.ProjectDetails.CurrencyInfo.Symbol}0.00<iselse>${pdict.ProjectDetails.CurrencyInfo.Symbol}${parseFloat(languagePairDetailRow.TotalCost).toFixed(2)}</isif>
+                                            </td>
+                                            <td>
+                                                <isif condition="${languagePairDetailRow.TMSavings == null}">${pdict.ProjectDetails.CurrencyInfo.Symbol}0.00<iselse>${pdict.ProjectDetails.CurrencyInfo.Symbol}${parseFloat(languagePairDetailRow.TMSavings).toFixed(2)}</isif>
+                                                </td>
+                                            <td>
+                                                <div class="progress sdlProgressBar margin0">
+                                                <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width:${languagePairDetailRow.PercentComplete}%">
+                                                    ${languagePairDetailRow.PercentComplete}%
+                                                </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <isloop items="${languagePairDetailRow.Files}" var="fileRow">
+                                            <tr class="hiddens">
+                                                <td></td>
+                                                <td>
+                                                    <isif condition="${fileRow.Name != null}">${fileRow.Name}</isif>
+                                                </td>
+                                                <td>
+                                                    <isif condition="${fileRow.HundredWords == null}">0<iselse>${fileRow.HundredWords}</isif>
+                                                </td>
+                                                <td>
+                                                    <isif condition="${fileRow.FuzzyWords == null}">0<iselse>${fileRow.FuzzyWords}</isif>
+                                                </td>
+                                                <td>
+                                                    <isif condition="${fileRow.NewWords == null}">0<iselse>${fileRow.NewWords}</isif>
+                                                </td>
+                                                <td>
+                                                    <isif condition="${fileRow.RepeatedWords == null}">0<iselse>${fileRow.RepeatedWords}</isif>
+                                                </td>
+                                                <td>
+                                                    <isif condition="${fileRow.TotalWords == null}">0<iselse>${fileRow.TotalWords}</isif>
+                                                </td>
+                                                <td>
+                                                    <isif condition="${fileRow.TMLeverage == null}">0.00%<iselse>${parseFloat(fileRow.TMLeverage).toFixed(2)}%</isif>
+                                                </td>
+                                                <td>
+                                                    <isif condition="${fileRow.Cost == null}">${pdict.ProjectDetails.CurrencyInfo.Symbol}0.00<iselse>${pdict.ProjectDetails.CurrencyInfo.Symbol}${parseFloat(fileRow.Cost).toFixed(2)}</isif>
+                                                </td>
+                                                <td>
+                                                    <isif condition="${fileRow.TMSavings == null}">${pdict.ProjectDetails.CurrencyInfo.Symbol}0.00<iselse>${pdict.ProjectDetails.CurrencyInfo.Symbol}${parseFloat(fileRow.TMSavings).toFixed(2)}</isif>
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                        </isloop>
+                                    </tbody>
+                                </isloop>
+                                <tfoot>
+                                    <td colspan="10" class="text-right "><strong>${Resource.msg('label.sdl.manage.project.project.total.cost', 'SDLTranslation', null)}</strong></td>
+                                    <td><strong>${pdict.ProjectDetails.CurrencyInfo.Symbol}${pdict.ProjectDetails.Cost}</strong></td>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <a class="btn btn-success" href="${URLUtils.url('SDLTranslation-AllProjects', 'sdlAllProjFilter', pdict.ProjFilter)}">${Resource.msg('label.sdl.manage.project.back', 'SDLTranslation', null)}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input id="sdlLang" type="hidden" value="${JSON.stringify(pdict.ProjectDetails.LanguagePairDetails)}" />
+    </div>
+</isdecorate>

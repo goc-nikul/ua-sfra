@@ -1,0 +1,95 @@
+<isif condition="${pdict.isShipCountryGlobalAccess}">
+    <sdiv class="g-welcome-mat-modal-container">
+        <h2>${Resource.msg('welcomemat.globalaccess.heading', 'content', null)}</h2>
+        <p class="select-text">${Resource.msg('welcomemat.nonglobalaccess.heading2', 'content', null)}</p>
+        <ul class="flags-container">
+            <li class="flag">
+                <a class="region-switch" title="${pdict.shipCountry}" href="${pdict.localCountryURL}">
+                    <div class="flag-img">
+                        <img alt="${pdict.shipCountry}"
+                            title="${Resource.msg('field.shipping.address.country', 'address', null)}"
+                            src="https://underarmour.scene7.com/is/image/Underarmour/${pdict.shipCountry.toLowerCase()}?fmt=png-alpha&wid=120">
+                    </div>
+                    <p class="flag-text">
+                        <h5>${Resource.msg('welcomemat.localoption.text', 'content', null)}</h5>
+                    </p>
+                </a>
+            </li>
+            <li class="flag">
+                <a title="US" class="flag-block dismiss-modal" href="${pdict.defaultCountryURL}">
+                    <div class="flag-img">
+                        <img alt="US" title="${Resource.msg('field.shipping.address.country', 'address', null)}"
+                            src="https://underarmour.scene7.com/is/image/Underarmour/us?fmt=png-alpha&wid=120">
+                    </div>
+                    <p class="flag-text">
+                        <h5>${Resource.msg('welcomemat.defaultoption.text', 'content', null)}</h5>
+                    </p>
+                </a>
+            </li>
+            <div class="clear"></div>
+        </ul>
+
+        <p class="select-region"><a href="${URLUtils.url('Page-CountriesList')}">See All Countries</a></p>
+
+    </sdiv>
+<iselseif condition="${pdict.isBorderFreeEnabled}">
+        <div class="g-welcome-mat-modal-container">
+            <h2>${Resource.msg('welcomemat.nonglobalaccess.heading1', 'content', null)}</h2>
+            <p class="select-text">${Resource.msg('welcomemat.nonglobalaccess.heading2', 'content', null)}</p>
+            <ul>
+                <li class="flag">
+                    <a title="US" class="region-switch" href="${pdict.defaultCountryURL}">
+                        <img alt="US" title="${Resource.msg('field.shipping.address.country', 'address', null)}"
+                            src="https://underarmour.scene7.com/is/image/Underarmour/us?fmt=png-alpha&wid=120">
+                        <p class="flag-text">
+                            <h5>${pdict.defaultCountryName}</h5>
+                        </p>
+                    </a>
+                </li>
+                <li class="flag">
+                    <a title="${pdict.shipCountry}" class="dismiss-modal" data-dismiss="modal" data-confirm="callout"
+                        data-action="close" href="javascript:void(0);">
+                        <img alt="${pdict.shipCountry}"
+                            title="${Resource.msg('field.shipping.address.country', 'address', null)}"
+                            src="https://underarmour.scene7.com/is/image/Underarmour/${pdict.shipCountry.toLowerCase()}?fmt=png-alpha&wid=120">
+                        <p class="flag-text">
+                            <h5>${pdict.shipCountryName}</h5>
+                        </p>
+                    </a>
+                </li>
+                <div class="clear"></div>
+            </ul>
+            <p class="select-region"><a href="${URLUtils.url('Page-CountriesList')}">See All</a></p>
+        </div>
+    </iselseif>
+<iselseif condition="${pdict.localURL}">
+        <div class="g-welcome-mat-modal-container">
+            <h2>${Resource.msg('welcomemat.nonglobalaccess.heading1', 'content', null)}</h2>
+            <p class="select-text">${Resource.msg('welcomemat.nonglobalaccess.heading2', 'content', null)}</p>
+            <ul>
+                <li class="flag">
+                    <a title="US" class="region-switch" href="${pdict.defaultCountryURL}">
+                        <img alt="US" title="${Resource.msg('field.shipping.address.country', 'address', null)}"
+                            src="https://underarmour.scene7.com/is/image/Underarmour/us?fmt=png-alpha&wid=120">
+                        <p class="flag-text">
+                            <h5>${pdict.defaultCountryName}</h5>
+                        </p>
+                    </a>
+                </li>
+                <li class="flag">
+                    <a title="${pdict.shipCountry}" class="dismiss-modal" href="${pdict.localURL}">
+                        <img alt="${pdict.shipCountry}"
+                            title="${Resource.msg('field.shipping.address.country', 'address', null)}"
+                            src="https://underarmour.scene7.com/is/image/Underarmour/${pdict.shipCountry.toLowerCase()}?fmt=png-alpha&wid=120">
+                        <p class="flag-text">
+                            <h5>${pdict.localCountryName}</h5>
+                        </p>
+                    </a>
+                </li>
+                <div class="clear"></div>
+            </ul>
+            <p class="select-region"><a href="${URLUtils.url('Page-CountriesList')}">See All</a></p>
+        </div>
+    </iselseif>
+</isif>
+<input type="hidden" value="${pdict.defaultCountryURL}" id="default-country">

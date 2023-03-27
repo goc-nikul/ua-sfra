@@ -1,0 +1,12 @@
+<div class="g-accordion-item g-tabs-pane tab-pane applepay-tab-wrapper ${pdict.eligiblePaymentMethods.applePay && !pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') ? '' : 'hide'} ${pdict.selectedPaymentMethod == paymentOption.ID ? 'active' : ''}" id="applepay-content" role="tabpanel">
+
+    <div class="b-payment-accordion-head g-accordion-header ${pdict.selectedPaymentMethod == paymentOption.ID ? 'show' : 'collapsed'}" data-method-id="${paymentOption.ID}" role="button" data-toggle="collapse" data-target="#acc-3" aria-expanded="true" aria-controls="acc-3">
+        <isprint value="${Resource.msg('heading.payment.applePay', 'checkout', null)}" />
+    </div>
+
+    <div class="g-accordion-content collapse ${pdict.selectedPaymentMethod == paymentOption.ID ? 'show' : ''}" id="acc-3" data-parent="#g-accordion-parent">
+        <div  class="applepay-content applepay-tab-wrapper" data-analytics-track="apayStart">
+            <isapplepay class="apple-pay-cart btn btn-block"></isapplepay>
+        </div>
+    </div>
+</div>

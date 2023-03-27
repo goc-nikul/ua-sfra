@@ -1,0 +1,362 @@
+<isset name="customerCountry" value="${pdict.currentCountry}" scope="page" />
+<isset name="isLoyaltyEnabled" value="${'isLoyaltyEnable' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.isLoyaltyEnable}" scope="page" />
+<isset name="isAurusEnabled" value="${!empty(dw.system.Site.current.getCustomPreferenceValue('enableAurusPay')) && dw.system.Site.current.getCustomPreferenceValue('enableAurusPay')}" scope="page" />
+<isset name="isEmployee" value="${(customer.authenticated && !empty(customer.profile) && customer.profile.custom.isEmployee === true)}" scope="page" />
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isdecorate template="common/layout/checkout">
+
+    <!----------------------------------------------------------------------------------->
+    <!-- Load Static Assets -->
+    <!----------------------------------------------------------------------------------->
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/js/checkout.js');
+        assets.addCss('/css/checkout/checkout.css');
+        if (!empty(dw.system.Site.current.getCustomPreferenceValue('enableAurusPay')) && dw.system.Site.current.getCustomPreferenceValue('enableAurusPay')) {
+        	assets.addJs('/js/digitalWalletCheckout.js');
+        }
+    </isscript>
+
+    <script>
+        window.GLOBAL_VALUES = {
+            'pageRef': 'checkoutPage'
+        };
+    </script>
+
+	<div class="cart-display-listener" data-cmp="cartTile"></div>
+    <div class="cart-error-messaging cart-global-error">
+        <isinclude template="paypal/errorMessage" />
+    </div>
+    <isif condition="${pdict.isKlarnaEnabled}">
+        <isset name="klarnaThresholdPreference" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('klarnaMinimumThreshold')}" scope="page" />
+        <isset name="klarnaMinimumThreshold" value="${klarnaThresholdPreference ? klarnaThresholdPreference * 100 : 1000}" scope="page" />
+        <isset name="klarnaMaxPreference" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('klarnaMaximumThreshold')}" scope="page" />
+        <isset name="klarnaMaximumThreshold" value="${klarnaMaxPreference ? klarnaMaxPreference * 100 : 100000}" scope="page" />
+        <input type="hidden" class="klarna-min-threshold" value="${klarnaMinimumThreshold}">
+        <input type="hidden" class="klarna-max-threshold" value="${klarnaMaximumThreshold}">
+    </isif>
+
+    <isif condition="${pdict.reportingURLs && pdict.reportingURLs.length}">
+        <isinclude template="reporting/reportingUrls" />
+    </isif>
+    <!-- Tealium -->
+    <isscript>var pageContext={title:'Checkout',type:'checkout',ns:'checkout'};</isscript>
+
+    <div id="checkout-main" data-enter-manually="${Resource.msg('enter.manually.address', 'forms', null)}" data-onlyBopisitemExist= "${pdict.order.hasOnlyBopisItems}" data-hasbopisitems= "${pdict.order.hasBopisItems}" data-customer-address="${pdict.customer.addresses.length ? 'true' : 'false'}" data-productLineItemExist="${pdict.productLineItemExist}" class="b-checkout_main container data-checkout-stage ${pdict.shipToCollectionPoint ? 'hal-active' : ''} ${pdict.isBOPISEnabled ? 'bopis-active' : ''} <isif condition="${pdict.order.usingMultiShipping && pdict.order.shipping.length > 1}">multi-ship</isif>" data-customer-type="${!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer.registeredUser ? 'registered' : 'guest'}" data-checkout-stage="${pdict.currentStage}" data-replace-shipping-url="${URLUtils.https('Checkout-ReplaceShippingContent')}" data-checkout-get-url="${URLUtils.https('CheckoutServices-Get')}" data-placeorder="${Resource.msg('button.place.order', 'checkout', null)}" data-klarna-placeorder="${Resource.msg('checkout.klarna.placeorder', 'checkout', null)}" data-oxxo-placeorder="${Resource.msg('checkout.oxxo.placeorder', 'checkout', null)}" data-safetypay-placeorder="${Resource.msg('checkout.safetypay.placeorder', 'checkout', null)}" data-cart-url="${URLUtils.https('Cart-Show')}" data-is-legendsoft="${pdict.isLegendSoftEnable}" data-legendsoft-url="${URLUtils.url('LegendSoft-GetAllOptionsByPostalCode')}">
+        <!----------------------------------------------------------------------------------->
+        <!-- Help and Phone -->
+        <!----------------------------------------------------------------------------------->
+        <iscomment><div class="row hidden-xs-down">
+            <div class="col-12 col-sm-5 offset-sm-7 col-md-5 offset-md-7">
+                <div class="text-center">
+                    <span>${Resource.msg('info.need.help','cart',null)}</span>
+                    <span><a href="tel:${Resource.msg('info.phone.number','common',null)}">${Resource.msg('info.phone.number','common',null)}</a></span>
+                </div>
+            </div>
+        </div></iscomment>
+
+        <iscomment><div class="row d-sm-none">
+            <div class="col-12">
+                <span class="grand-total-label">${Resource.msgf('label.number.items.in.cart','cart', null, pdict.order.items.totalQuantity)}</span>
+                <span class="grand-total-price">${pdict.order.totals.subTotal}</span>
+            </div>
+        </div></iscomment>
+        <div class="b-checkout_page" data-onlyEgiftCard="${pdict.IsbasketHasOnlyEGiftCard}">
+            <div class="b-checkout_progress-indicator">
+                <div class="b-checkout_progress-indicator-steps step-1">
+                    <div class="progress-bar"></div>
+                    <div class="progress-text">${Resource.msg('checkoutprogressindicator.shipping','checkout',null)}</div>
+                </div>
+
+                <div class="b-checkout_progress-indicator-steps step-2">
+                    <div class="progress-bar"></div>
+                    <div class="progress-text">${Resource.msg('checkoutheaderprogressindicator.paymentDetails','checkout',null)}</div>
+                </div>
+
+                <div class="b-checkout_progress-indicator-steps step-3">
+                    <div class="progress-bar"></div>
+                    <div class="progress-text">${Resource.msg('checkoutheaderprogressindicator.reviewAndPlaceOrder','checkout',null)}</div>
+                </div>
+            </div>
+            <isset name="customerCountry" value="${pdict.CurrentSession.custom.customerCountry || (request.getLocale().slice(-2).toUpperCase())}" scope="page" />
+            <div class="b-checkout_left">
+                <div class="b-checkout_innerleft">
+	                <div class="b-checkout_subheader">
+	                   <div class="b-checkout_subheader-left">
+		                    <span class="b-checkout-logolink"
+			                    title="${Resource.msgf('global.home', 'common', null, customerCountry)}">
+			                    <img class="b-logo-image" src="${URLUtils.staticURL('/images/uablacklogo.svg')}"
+                                    title="${Resource.msg('global.storename', 'common', null)}"
+			                        alt="${Resource.msg('global.logo', 'common', null)}" />
+			                </span>
+			                <h1 class="page-title b-checkout_title">
+						        ${Resource.msg('title.checkout','checkout',null)}
+						    </h1>
+					    </div>
+					    <isif condition="${customer.authenticated && customer.profile && customer.profile.getEmail()}">
+					        <div class="b-checkout_subheader-email-address">${Resource.msg('msg.heading.account.login', 'checkout', null)} ${customer.profile.getEmail()}</div>
+					    <iselse>
+						    <div class="b-checkout_subheader-right">
+	                           <div class="b-checkout_subheader-account">
+	                               ${Resource.msg('msg.heading.account.create', 'checkout', null)}
+	                           </div>
+
+	                           <button data-href="${URLUtils.https('Login-Show','rurl','2')}" class="g-button_secondary--black js-login g-button_base b-checkout_subheader-button">
+	                                ${Resource.msg('button.faster.login', 'checkout', null)}
+	                           </button>
+	                        </div>
+					    </isif>
+				    </div>
+	                <!----------------------------------------------------------------------------------->
+	                <!-- Checkout Forms: Shipping, Payment, Coupons, Billing, etc -->
+	                <!----------------------------------------------------------------------------------->
+
+	                <div class="alert alert-danger error-message" role="alert">
+	                    <span class="error-icon"></span>
+	                    <p class="error-message-text"></p>
+	                </div>
+	                <div class="b-checkout_subheader-login">
+                        <isif condition="${customer.authenticated && customer.profile && customer.profile.getEmail()}">
+                            <div class="b-checkout_subheader-email-address">${Resource.msg('msg.heading.account.login', 'checkout', null)} ${customer.profile.getEmail()}</div>
+                        <iselse>
+                            <button data-href="${URLUtils.https('Login-Show','rurl','2')}" class="g-button_secondary--black js-login g-button_base b-checkout_subheader-button">
+                                ${Resource.msg('button.faster.login', 'checkout', null)}
+                            </button>
+                        </isif>
+                    </div>
+	                <isset name="isExpressCheckoutEnabled" value="${dw.system.Site.current.getCustomPreferenceValue('isExpressCheckoutEnabled')}" scope="page" />
+	                <isset name="isExpressPaypalEnabled" value="${dw.system.Site.current.getCustomPreferenceValue('PP_ShowExpressCheckoutButton') && (pdict.eligiblePaymentMethods.payPal || pdict.eligiblePaymentMethods.giftCard)}" scope="page" />
+	                <isset name="isExpressApplePayEnabled" value="${dw.system.Site.current.getCustomPreferenceValue('isExpressApplePayEnabled') && (pdict.eligiblePaymentMethods.applePay || pdict.eligiblePaymentMethods.giftCard)}" scope="page" />
+	                <isset name="isEnabledExpressKlarna" value="${dw.system.Site.current.getCustomPreferenceValue('isEnabledExpressKlarna') && (pdict.eligiblePaymentMethods.klarna || pdict.eligiblePaymentMethods.giftCard)}" scope="page" />
+                    <isset name="isKlarnaThresholdFall" value="${pdict.order.totals && pdict.order.totals.klarnaTotal && (pdict.order.totals.klarnaTotal < klarnaMinimumThreshold || pdict.order.totals.klarnaTotal > klarnaMaximumThreshold)}" scope="page" />
+                    <input type="hidden" class="applepay-enabled" value="${isExpressApplePayEnabled && !pdict.isVIP && !pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR')}"/>
+                    <input type="hidden" class="klarna-enabled" value="${!isExpressPaypalEnabled && isEnabledExpressKlarna}"/>
+                    <input type="hidden" class="vip-account" value="${pdict.isVIP && !pdict.order.isVIPOrder}"/>
+                    <isif condition="${isExpressCheckoutEnabled && (isExpressPaypalEnabled || isExpressApplePayEnabled || isEnabledExpressKlarna)}">
+                        <div class="b-checkout_subheader-express-login${(!(isExpressPaypalEnabled || isEnabledExpressKlarna)) || (isKlarnaThresholdFall && isExpressApplePayEnabled && !isExpressPaypalEnabled) ? ' only-apple-pay' : ''}${isKlarnaThresholdFall && pdict.isVIP && !pdict.order.isVIPOrder ? ' vip-with-klarna hide' : ''}${pdict.order.isVIPOrder  ? ' vip-user hide' : ''}${pdict.gcPaymentInstruments.length > 0 || (isKlarnaThresholdFall && !isExpressApplePayEnabled && !isExpressPaypalEnabled) ? ' hide' : ''}">
+                            <div class="card-header">
+                                <h2 class="card-header-custom">${Resource.msg('heading.express.checkout', 'checkout', null)}</h2>
+                            </div>
+                            <div class="express-checkout-container ${((!isEnabledExpressKlarna && isExpressPaypalEnabled) || (isEnabledExpressKlarna && !isExpressPaypalEnabled) || pdict.isVIP) ? 'only-one-button' : ''}">
+                                <isif condition="${isExpressPaypalEnabled && !pdict.isVIP && !pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR')}">
+                                    <div class="paypal button g-button_base g-button_secondary--gray">
+                                        <isset name="payPalLogoPath" value="${!empty(dw.system.Site.current.getCustomPreferenceValue('payPalLogoPath')) && dw.system.Site.current.getCustomPreferenceValue('payPalLogoPath')}" scope="page" />
+                                        <div class="custom-button g-button_base"><img src="${payPalLogoPath ? URLUtils.httpsStatic(URLUtils.CONTEXT_LIBRARY, '', payPalLogoPath) : URLUtils.staticURL('/images/iconimages/paypal-logo.svg')}"></div>
+                                        <isif condition="${isAurusEnabled}">
+                                            <isinclude template="paypal/cart/aurusPaypalButton"/>
+                                        <iselse/>
+                                            <isinclude template="paypal/cart/paypalButton"/>
+                                        </isif>
+                                    </div>
+                                </isif>
+                                <isif condition="${isEnabledExpressKlarna && !isEmployee}">
+                                    <div class="klarna-button button g-button_base g-button_secondary--gray ${isKlarnaThresholdFall ? 'hide' : ''}">
+                                        <isset name="klarnaLogoPath" value="${!empty(dw.system.Site.current.getCustomPreferenceValue('klarnaLogoPath')) && dw.system.Site.current.getCustomPreferenceValue('klarnaLogoPath')}" scope="page" />
+                                        <div class="custom-button g-button_base"><img src="${klarnaLogoPath ? URLUtils.httpsStatic(URLUtils.CONTEXT_LIBRARY, '', klarnaLogoPath) : URLUtils.staticURL('/images/iconimages/klarna-logo.svg')}"></div>
+                                        <isinclude template="klarnapayments/modules.isml"/>
+                                        <iskebcheckout />
+                                    </div>
+                                </isif>
+                                <isif condition="${isExpressApplePayEnabled && !pdict.isVIP && !pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR')}">
+                                    <div class="apple-pay button g-button_base g-button_secondary--gray">
+                                        <isset name="applePayLogoPath" value="${!empty(dw.system.Site.current.getCustomPreferenceValue('applePayLogoPath')) && dw.system.Site.current.getCustomPreferenceValue('applePayLogoPath')}" scope="page" />
+                                        <div class="custom-button btn btn-primary btn-block g-button_base"><img src="${applePayLogoPath ? URLUtils.httpsStatic(URLUtils.CONTEXT_LIBRARY, '', applePayLogoPath) : URLUtils.staticURL('/images/iconimages/apple-pay-logo.svg')}"></div>
+                                        <isapplepay class="apple-pay-cart"></isapplepay>
+                                    </div>
+                                </isif>
+                            </div>
+                        </div>
+                    </isif>
+                    <isif condition="${pdict.shipToCollectionPoint}">
+                        <div class="ship-options" id="ship-collection-options">
+                            <div class="g-radio ship-to-address" data-action-url="${URLUtils.url('CheckoutShippingServices-ToggleShipTo')}" id="ship-to-address-wrap" data-analytics-track="shipping : ship to address">
+                                <input type="radio" id="ship-to-address" name="ship-to-address" class="input-radio g-radio-input" ${!pdict.isCommercialPickup ? 'checked' : ''}>
+                                <label for="ship-to-address" class="g-radio-label labelstyle">
+                                    ${Resource.msg('heading.shipto.address','checkout', null)}
+                                </label>
+                            </div>
+                            <div class="g-radio ship-to-point" data-action-url="${URLUtils.url('CheckoutShippingServices-ToggleShipTo')}" id="ship-to-point-wrap" data-analytics-track="shipping : ship to collection point">
+                                <input type="radio" id="ship-to-collectionPoint" name="ship-to-address" class="input-radio g-radio-input" ${pdict.isCommercialPickup ? 'checked' : ''}>
+
+                                <label for="ship-to-collectionPoint" class="g-radio-label shipcollectionpoint">
+                                    <span class="new-alert">${Resource.msg('heading.shipto.new','checkout', null)}</span>
+                                    <span class="radiolabel">${Resource.msg('heading.shipto.collection.point','checkout', null)}</span>
+                                    <span class="promolabel">${Resource.msg('shipto.collection.text','checkout',null)}</span>
+                                </label>
+                                <div class="g-tooltip b-contact_tooltip">
+                                      <span class="g-tooltip-icon g-tooltip">
+                                          <span class="g-tooltip-arrow"></span>
+                                      </span>
+                                      <span class="g-tooltip-text">
+                                           ${Resource.msg('shipto.collection.tooltip','checkout',null)}
+                                      </span>
+                                  </div>
+                            </div>
+                        </div>
+                    </isif>
+                    <isif condition="${pdict.isBOPISEnabled && pdict.order.hasBopisItems}">
+                        <isinclude template= "checkout/pickUpStoreDetails"/>
+                    </isif>
+	                <!-- Step 1: Shipping -->
+		            <isif condition="${pdict.productLineItemExist}">
+                    <isif condition="${customer.authenticated && !empty(customer.profile) && customer.profile.custom.isEmployee === true}">
+                        <isinclude template="checkout/shipping/employeeShipping" />
+                    <iselse/>
+                        <isinclude template="checkout/shipping/shipping" />
+                    </isif>
+                    <isif condition="${!pdict.order.hasOnlyBopisItems}">
+	                <div class="card shipping-summary b-shipping-summary">
+	                    <div class="card-header clearfix b-shipping-summary_header-line" data-shippingheading="${Resource.msg('heading.checkout.shipping', 'checkout', null)}" data-pickupHeading="${Resource.msg('heading.collection.pont.shipping', 'checkout', null)}">
+	                       <isif condition="${pdict.isCommercialPickup}">
+	                           <h2 class="pull-left card-header-custom b-shipping-summary_header">${Resource.msg('heading.collection.pont.shipping', 'checkout', null)}</h2>
+	                       <iselse>
+	                           <h2 class="pull-left card-header-custom b-shipping-summary_header">${Resource.msg('heading.checkout.shipping', 'checkout', null)}</h2>
+	                       </isif>
+	                        <span class="edit-button pull-right b-shipping-summary_edit" data-hal="${pdict.isHALbasket || pdict.isCommercialPickup}" data-currentsite="${dw.system.Site.current.ID ? dw.system.Site.current.ID : ""}">${Resource.msg('action.edit.step', 'checkout', null)}</span>
+	                    </div>
+	                    <div class="card-body">
+	                        <isinclude template="checkout/shipping/shippingSummary" />
+	                    </div>
+	                </div>
+	                </isif>
+					</isif>
+
+	                <!-- Step 2: Payment and Billing-->
+	                <isinclude template="checkout/billing/billing" />
+	                <div class="card payment-summary b-payment-summary">
+	                    <div class="card-header clearfix b-payment-summary_header-line">
+	                        <h2 class="pull-left card-header-custom b-payment-summary_header">${Resource.msg('heading.payment', 'checkout', null)}</h2>
+	                        <span class="edit-button pull-right b-payment-summary_edit">${Resource.msg('action.edit.step', 'checkout', null)}</span>
+	                    </div>
+
+	                    <div class="card-body">
+	                        <isinclude template="checkout/billing/billingSummary" />
+	                    </div>
+	                    <div class="contact-info">
+	                       <isinclude template= "checkout/contactInformation"/>
+	                    </div>
+	                </div>
+	                <div class="b-checkout_privacy">
+	                   <iscontentasset aid="checkout-privacy" />
+	                </div>
+	                <!----------------------------------------------------------------------------------->
+	                <!-- Checkout Workflow Buttons -->
+	                <!----------------------------------------------------------------------------------->
+	               <isset name="paymentMethod" value="${!empty(pdict.order.billing.payment.selectedPaymentInstruments) ? pdict.order.billing.payment.selectedPaymentInstruments[0].paymentMethod : null}" scope="page" />
+                    <input type="hidden" class="klarna-session-update-url" value="${URLUtils.url('Checkout-updateKlarnaSession')}">
+                    <div class="b-checkout_nextStep next-step-button">
+                        <div class="b-checkout_inner-nextStep">
+                            <button enterkeyhint="go" class="btn btn-primary btn-block submit-shipping g-button_base g-button_primary--black" type="submit" name="submit" value="submit-shipping">
+                                ${Resource.msg('button.next.payment', 'checkout', null)}
+                            </button>
+
+                            <button enterkeyhint="go" class="btn btn-primary btn-block submit-payment g-button_base g-button_primary--black" type="submit" name="submit" value="submit-payment" data-payment-contact="${Resource.msg('button.next.place.order', 'checkout', null)}" data-payment-paypal="<isprint value="${Resource.msg('button.paypal', 'checkout', null)}" encoding="off" />">
+                                <isif condition="${paymentMethod === 'PayPal' && (pdict.order.billing.payment && pdict.order.billing.payment.isAlreadyPaidFromPayPal)}">
+                                    <isprint value="${Resource.msg('button.paypal', 'checkout', null)}" encoding="off" />
+                                <iselse>
+                                    ${Resource.msg('button.next.place.order', 'checkout', null)}
+                                </isif>
+                            </button>
+                            <isif condition="${!empty(dw.system.Site.current.getCustomPreferenceValue('enableAurusPay')) && dw.system.Site.current.getCustomPreferenceValue('enableAurusPay')}">
+                                <button id="${paymentMethod}" enterkeyhint="go" class="btn btn-primary btn-block g-button_base payment-paypal <isif condition="${paymentMethod === 'KLARNA_PAYMENTS' || paymentMethod === 'AURUS_OXXO' || paymentMethod === 'AURUS_SAFETYPAY'}">place-order g-button_primary--black<iselse>place-order g-button_tertiary</isif>" ${pdict.isVIP ? 'disabled' : ''} data-action="${URLUtils.url('CheckoutServices-PlaceOrder')}"
+                                    data-placeorder="${Resource.msg('button.place.order', 'checkout', null)}" data-klarna-placeorder="${Resource.msg('checkout.klarna.placeorder', 'checkout', null)}" data-oxxo-placeorder="${Resource.msg('checkout.oxxo.placeorder', 'checkout', null)}" data-safetypay-placeorder="${Resource.msg('checkout.safetypay.placeorder', 'checkout', null)}" data-analytics-track="${Resource.msg('checkout.klarna.placeorder', 'checkout', null)}" type="submit" name="submit" value="place-order" <isif condition="${customer.authenticated && !empty(customer.profile) && customer.profile.custom.isEmployee === true}">disabled="disabled"</isif>> <span class="place-order-text"><isif condition="${paymentMethod === 'KLARNA_PAYMENTS'}"> ${Resource.msg('checkout.klarna.placeorder', 'checkout', null)} <iselseif condition="${paymentMethod === 'AURUS_OXXO'}" />${Resource.msg('checkout.oxxo.placeorder', 'checkout', null)} <iselseif condition="${paymentMethod === 'AURUS_SAFETYPAY'}" />${Resource.msg('checkout.safetypay.placeorder', 'checkout', null)} <iselse> ${Resource.msg('button.place.order', 'checkout', null)} </isif></span>
+                                    <ul class="b-cart-loader hide">
+                                        <li class="b-loader-icon"></li>
+                                        <li class="b-loader-icon"></li>
+                                        <li class="b-loader-icon"></li>
+                                        <li class="b-loader-hidden_text">Loading</li>
+                                    </ul>
+                                </button>
+                            <iselse/>
+                                <button id="${paymentMethod}" enterkeyhint="go" class="btn btn-primary btn-block g-button_base payment-paypal <isif condition="${paymentMethod === 'KLARNA_PAYMENTS'  || paymentMethod === 'AURUS_OXXO' || paymentMethod === 'AURUS_SAFETYPAY'}">klarna-place-order g-button_primary--black<iselse>place-order g-button_tertiary</isif>" ${pdict.isVIP ? 'disabled' : ''} data-action="${URLUtils.url('CheckoutServices-PlaceOrder')}"
+                                    <isif condition="${paymentMethod === 'KLARNA_PAYMENTS'}">data-placeorder="${Resource.msg('button.place.order', 'checkout', null)}" data-klarna-placeorder="${Resource.msg('checkout.klarna.placeorder', 'checkout', null)}" data-analytics-track="${Resource.msg('checkout.klarna.placeorder', 'checkout', null)}"</isif> data-oxxo-placeorder="${Resource.msg('checkout.oxxo.placeorder', 'checkout', null)}" data-safetypay-placeorder="${Resource.msg('checkout.safetypay.placeorder', 'checkout', null)}" type="submit" name="submit" value="place-order" <isif condition="${customer.authenticated && !empty(customer.profile) && customer.profile.custom.isEmployee === true}">disabled="disabled"</isif>> <span class="place-order-text"><isif condition="${paymentMethod === 'KLARNA_PAYMENTS'}"> ${Resource.msg('checkout.klarna.placeorder', 'checkout', null)} <iselseif condition="${paymentMethod === 'AURUS_OXXO'}" />${Resource.msg('checkout.oxxo.placeorder', 'checkout', null)} <iselseif condition="${paymentMethod === 'AURUS_SAFETYPAY'}" />${Resource.msg('checkout.safetypay.placeorder', 'checkout', null)} <iselse> ${Resource.msg('button.place.order', 'checkout', null)} </isif></span>
+                                    <ul class="b-cart-loader hide">
+                                        <li class="b-loader-icon"></li>
+                                        <li class="b-loader-icon"></li>
+                                        <li class="b-loader-icon"></li>
+                                        <li class="b-loader-hidden_text">Loading</li>
+                                    </ul>
+                                </button>
+                            </isif>
+                            <div  class="applepay-button-display hide" data-analytics-track="apayStart">
+                                <div class="button btn btn-primary btn-block g-button_base g-button_primary--black"><isprint value="${Resource.msg('button.apple.pay', 'checkout', null)}" encoding="off" /></div>
+                                <isapplepay class="apple-pay-cart btn btn-block"></isapplepay>
+                            </div>
+                            <isinclude template="checkout/paypalContent" />
+                        </div>
+                    </div>
+	                <div class="card ghost payment">
+					    <div class="card-header">
+					        <span class="checkout-card-header">${Resource.msg('heading.payment', 'checkout', null)}</span>
+					    </div>
+					</div>
+					<div class="card ghost contact">
+					    <div class="card-header">
+					        <span class="checkout-card-header">${Resource.msg('msg.heading.contact', 'checkout', null)}</span>
+					    </div>
+					</div>
+	                <isinclude template="checkout/shipping/shippingAddressTemplate" />
+	                <isif condition="${!empty(pdict.fullyRemovedItems) || !empty(pdict.partiallyRemovedItems)}">
+	                	<isinclude template="checkout/availabilityModal" />
+	                </isif>
+	            </div>
+            </div>
+
+            <!----------------------------------------------------------------------------------->
+            <!-- Order Totals, Details and Summary. Hide on mobile as it's moving to next screen -->
+            <!----------------------------------------------------------------------------------->
+            <div class="b-checkout_right">
+            <div class="g-accordion--mobile b-checkout_sticky-accordion">
+	            <div class="g-accordion-item">
+
+		            <button class="b-checkout_sticky-applypromo g-accordion-header collapsed"
+		                    type="button"
+		                    data-toggle="collapse"
+		                    data-target="#acc1"
+		                    aria-expanded="false"
+		                    aria-controls="acc1"
+		                    data-analytics-track="summary-mobile-expand">
+		                    <isif condition="${!pdict.isVIP && !pdict.isEmployee}">
+		                        <span class="apply-promo-icon sticky-applypromo-text" aria-label="apply promo icon"></span>
+		                        <span class="sticky-applypromo-text">${Resource.msg('mobile.orderpanel.applypromo', 'checkout', null)}</span>
+		                    </isif>
+		              <span class="b-sticky_ordersummery-total grand-total-sum">${pdict.order.totals.grandTotal}</span>
+		            </button>
+		            <div class="g-accordion-content collapse" id="acc1">
+			                <div class="b-checkout_product-summary b-order_est_coupon">
+			                    <h2 class="order-summary_title">${Resource.msg('heading.order.summary', 'checkout', null)}</h2>
+			                    <div class="b-order-total_summary">
+			                        <isinclude template="checkout/orderTotalSummary" />
+                                    <isif condition="${isLoyaltyEnabled || (!isLoyaltyEnabled && !pdict.isVIP && !pdict.isEmployee)}">
+				                            <div class="b-promo_checkout">
+				                                <isinclude template="cart/cartPromoCode" />
+				                                <div class="clearfix"></div>
+				                            </div>
+					                        <div class="b-cart-content">
+						                        <div class="coupons-and-promos b-coupons">
+						                             <isinclude template="cart/cartCouponDisplay" />
+						                         </div>
+												 <isif condition="${(!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && !pdict.isVIP && !pdict.isEmployee)}">
+							                         <div class="idme-content" data-cmp="idme">
+														<isinclude template="customPromosList" />
+							                         </div>
+							                     </isif>
+					                        </div>
+					                </isif>
+			                    </div>
+			                </div>
+
+			                <div class="b-checkout_right_summary_container" data-url="${URLUtils.url('Checkout-OrderSummary')}">
+			                    <isinclude template="checkout/orderProductSummary" />
+			                </div>
+			            </div>
+		            </div>
+	            </div>
+            </div>
+            <input type="hidden" id="selectedCountry" value="${customerCountry}"/>
+            <input type="hidden" id="getStateCode" value="${pdict.order.billing.billingAddress.address != null && pdict.order.billing.billingAddress.address.stateCode ? pdict.order.billing.billingAddress.address.stateCode : ''}">
+            <input type="hidden" id="devTID" name="devTID" value=""/>
+        </div>
+    </div>
+
+</isdecorate>

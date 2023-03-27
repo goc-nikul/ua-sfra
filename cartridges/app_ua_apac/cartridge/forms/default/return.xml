@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19" secure="false">
+    <!-- form for creating and editing shipping address -->
+       <field formid="firstName" label="label.input.firstname.profile" type="string" mandatory="true" binding="firstName" regexp="(^(?!-)[a-zA-Z0-9\p{L}\p{Nd}\s.-]*$)"  parse-error="forms.address.field.emojifree"
+           max-length="50" missing-error="address.firstname.missing" range-error="error.message.lessthan50"/>
+       <field formid="lastName" label="label.input.lastname.profile" type="string" mandatory="true" binding="lastName" regexp="^(?!-)[a-zA-Z0-9\p{L}\p{Nd}\s.-]*$" parse-error="forms.address.field.emojifree"
+           max-length="50" missing-error="address.lastname.missing" range-error="error.message.lessthan50"/>
+       <field formid="address1" label="label.input.address1" type="string" mandatory="true" binding="address1" max-length="50"  description="forms.address1.description"
+           missing-error="address.address1.missing" range-error="error.message.lessthan50"/>
+       <field formid="address2" label="label.input.address2" type="string" mandatory="false" binding="address2"
+           max-length="50" range-error="error.message.lessthan50"/>
+       <field formid="city" label="label.input.city" type="string" mandatory="true" binding="city" min-length="2"
+           max-length="50" parse-error="forms.address.field.invalid" missing-error="address.city.missing" range-error="error.message.between2and50"/>
+
+       <field formid="pickupOption" label="label.input.pickupOption.profile" type="string" mandatory="true" binding="pickupOption"/>
+
+    <!--  postal code -->
+       <field formid="postalCode" label="label.input.zipcode" type="string" mandatory="true" min-length="5" max-length="10"
+           regexp="(^\d{6}?$)|(^[abceghjklmnprstvxyABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Za-z]{1} *\d{1}[A-Za-z]{1}\d{1}$)"
+           binding="postalCode"
+           range-error="error.message.between5and10"
+           missing-error="error.message.required"
+           parse-error="error.message.parse.zip"/>
+
+       <field
+              formid="email"
+              label="label.input.email.profile"
+              mandatory="true"
+              max-length="50"
+              missing-error="error.message.required"
+              parse-error="error.message.parse.email.profile.form"
+              range-error="error.message.50orless"
+              regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$"
+              value-error="ValueErrorText"
+              type="string"/>
+
+       <!-- phone is mandatory for addresses -->
+       <field formid="phone" label="label.input.phonenumber" description="address.phone.example" type="string" mandatory="true"
+           binding="phone" min-length="0" max-length="20" regexp="^[0-9- ]{0,20}$" missing-error="error.message.required" range-error="forms.address.field.invalid" value-error="forms.address.field.invalid" />
+
+       <!-- use set of supported countries -->
+       <field formid="country" label="label.input.country" type="string" default="SG" mandatory="true" binding="countryCode"  missing-error="error.message.required">
+              <options>
+                     <option optionid="SG" label="country.singapore" value="SG" />
+              </options>
+       </field>
+
+
+       <field formid="returnDate" label="label.input.returnDate" type="string" mandatory="false" binding="returnDate">
+              <options>
+              <option optionid=""   label="label.select"         value=""/>
+              </options>
+       </field>
+       <field formid="returnTime" label="label.input.returnTime" type="string" mandatory="false" binding="returnTime">
+              <options>
+              <option optionid=""   label="label.select"         value=""/>
+              </options>
+       </field>
+</form>

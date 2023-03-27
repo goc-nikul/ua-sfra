@@ -1,0 +1,79 @@
+<isset name="shippingAddress" value="${pdict.forms.shippingForm.shippingAddress}" scope="page"/>
+<isset name="isVIP" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableVIPCheckoutExperience') && customer.authenticated && !empty(customer.profile) && 'vipAccountId' in customer.profile.custom && !empty(customer.profile.custom.vipAccountId)}" scope="page" />
+
+<h3 class="b-shipping-method_sub-heading${shippingModel.selectedShippingMethod ? ' d-none' : ''}">
+	<isprint value="${Resource.msg('subheading.shipping.method', 'checkout', null)}" />
+</h3>
+
+<div class="b-shipping-method_row shipping-method-list" data-select-shipping-method-url="${URLUtils.https('CheckoutShippingServices-SelectShippingMethod')}" data-action-url="${URLUtils.https('CheckoutShippingServices-UpdateShippingMethodsList')}" data-is-preorder="${pdict.orderContainsPreorder}">
+    <isset name="zeroCost" value="${dw.util.StringUtils.formatMoney(new dw.value.Money(0, pdict.CurrentSession.currency.currencyCode))}" scope="page" />
+	<input name="shipmentUUID" type="hidden" value="${shippingModel.UUID}" />
+	<input class="shippingCostID" value="${zeroCost}" type="hidden">
+    <input class="freeTextID" value="${Resource.msg('heading.shipping.method.freeprice', 'checkout', null)}" type="hidden">
+    <input class="freeTextShippingID" value="${Resource.msg('label.free.shipping', 'cart', null)}" type="hidden">
+
+    <isloop items="${shippingModel.applicableShippingMethods}" var="shippingMethod">
+		<isif condition="${shippingMethod.ID === 'shoprunner' && (pdict.orderContainsPreorder || isVIP)}">
+			<iscontinue/>
+		</isif>
+		<isif condition="${shippingMethod.ID !== 'store-pickup'}">
+        <div data-analytics-track="shipping options : ${shippingMethod.ID}" class="b-shipping-method_column <isif condition="${shippingMethod.ID === 'shoprunner'}">sr-shipping-method-content</isif><isif condition="${shippingModel.selectedShippingMethod && shippingMethod.ID === shippingModel.selectedShippingMethod.ID}"> selected</isif>">
+	        <div class="b-shipping-method_check form-check">
+                <isinclude template="checkout/shipping/selectedShippingMethod"/>
+	            <label class="b-shipping-method_check-label form-check-label shipping-method-option" for="shippingMethod-${shippingMethod.ID}-${shippingModel.UUID}">
+	                <div class="b-shipping-method_label">
+		                <div class="b-shipping-method_name b-shipping-method_subheading display-name">${shippingMethod.displayName}</div>
+		                <isif condition="${shippingMethod.shippingDeliveryDates && !pdict.preOrderProductTileMessage}">
+						<div class="b-shipping-method_name b-shipping-method_subheading display-name-delivery">${Resource.msg('shipping.deliveryType', 'checkout', null)}</div>
+		                <div class="b-shipping-method_time b-shipping-method_subheadingText text-muted arrival-time">${shippingMethod.shippingDeliveryDates}</div>
+		                </isif>
+		            </div>
+		            <div class="b-shipping-method_pricing shipping-method-pricing">
+	                    <isif condition="${zeroCost === shippingMethod.shippingCost}">
+			                <div class="b-shipping-method_subheading shipping-method-cost t-align-right bfx-price bfx-list-price">${Resource.msg('heading.shipping.method.freeprice', 'checkout', null)}</div>
+			            <iselse>
+			                <div class="b-shipping-method_subheading shipping-method-cost t-align-right bfx-price bfx-list-price">${shippingMethod.shippingCost}</div>
+			            </isif>
+	                </div>
+	            </label>
+	        </div>
+        </div>
+        </isif>
+    </isloop>
+</div>
+<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_enabled') && !isVIP && !(customer.authenticated && !empty(customer.profile) && customer.profile.custom.isEmployee === true) && !pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && !pdict.orderContainsPreorder}">
+    <isinclude template="shoprunner/modules"/>
+    <div class="shoprunner">
+       <isshoprunner p_divname="sr_productDetailDiv">
+    </div>
+</isif>
+
+<!---------------------------------------------------------------------------------->
+<!-- Template used by client to redraw shipping methods                           -->
+<!---------------------------------------------------------------------------------->
+<div id="shipping-method-template" style="display:none;" >
+    <div class="b-shipping-method_column">
+        <isset name="zeroCost" value="${dw.util.StringUtils.formatMoney(new dw.value.Money(0, pdict.CurrentSession.currency.currencyCode))}" scope="page" />
+        <input class="shippingCostID" value="${zeroCost}" type="hidden">
+        <input class="freeTextID" value="${Resource.msg('heading.shipping.method.freeprice', 'checkout', null)}" type="hidden">
+        <input class="freeTextShippingID" value="${Resource.msg('label.free.shipping', 'cart', null)}" type="hidden">
+	    <div class="b-shipping-method_check form-check">
+	        <input type="radio" class="b-shipping-method_input form-check-input" id="shippingMethodRadioButton">
+	        <span class="b-shipping-method_custom-radio g-custom-radio"></span>
+	        <label class="form-check-label b-shipping-method_check-label shipping-method-option" for="shippingMethodRadioButton">
+	            <div class="b-shipping-method_label">
+		            <div class="b-shipping-method_name b-shipping-method_subheading display-name"></div>
+		            <isif condition="${!pdict.preOrderProductTileMessage}">
+					<div class="b-shipping-method_name b-shipping-method_subheading display-name-delivery"></div>
+		                <div class="b-shipping-method_time b-shipping-method_subheadingText text-muted arrival-time" style="display:none"></div>
+		            </isif>
+	            </div>
+	            <div class="b-shipping-method_pricing shipping-method-pricing">
+		            <div class="b-shipping-method_subheading shipping-method-cost t-align-right bfx-price bfx-list-price"></div>
+		        </div>
+	        </label>
+	    </div>
+	</div>
+</div>
+
+ 

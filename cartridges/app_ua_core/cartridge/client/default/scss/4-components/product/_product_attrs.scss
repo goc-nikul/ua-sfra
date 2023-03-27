@@ -1,0 +1,93 @@
+.b-product_attrs {
+    .outofstock {
+        @include font(main_med, rem-calc(12), 1.67);
+
+        color: $red;
+
+        div {
+            margin-top: rem-calc(10);
+        }
+    }
+
+    &-item {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding-bottom: spacing(xs);
+        margin-top: rem-calc(8);
+        border-bottom: 1px solid $grey3;
+        font-size: rem-calc(14);
+
+        &[data-attr='color'] {
+            border-top: 1px solid $grey3;
+            padding-top: rem-calc(16);
+
+            @include respond-to(mobile) {
+                padding-bottom: 0;
+            }
+        }
+
+        &[data-attr='length'] {
+            border-bottom: none;
+            padding: 0;
+
+            @include respond-to(mobile) {
+                margin-top: 0;
+            }
+        }
+
+        &[data-attr='size'] {
+            border-bottom: 0;
+        }
+
+        &.has-error {
+            border: 1px solid $red;
+            padding: rem-calc(15);
+            margin: 0 -1rem 1rem;
+            border-radius: 0.25rem;
+            @include respond-to(mobile) {
+                margin-left: 0;
+                margin-right: 0;
+            }
+        }
+
+        .l-size_selected-label {
+            opacity: 0;
+        }
+    }
+
+    &-border {
+        border-bottom: 1px solid $grey3;
+
+        @include respond-to(mobile) {
+            border-bottom: 0;
+        }
+    }
+
+    &-item.m-description {
+        margin: 0;
+        padding: 0;
+        border: none;
+        @include respond-to(mobile) {
+            margin-top: rem-calc(-1);
+            border-top: none;
+        }
+    }
+
+    .invalid-feedback {
+        font-size: rem-calc(12);
+        position: relative;
+        padding: rem-calc(2) 0 0 rem-calc(20);
+        padding-left: rem-calc(20) !important;
+        @include icon('alert');
+
+        &::before {
+            position: absolute;
+            top: 2px;
+            left: 0;
+            margin-right: rem-calc(5);
+            vertical-align: text-bottom;
+        }
+    }
+}

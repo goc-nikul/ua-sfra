@@ -1,0 +1,74 @@
+<div class="s-giftcard gift-card-payment">
+    <div class="s-giftcard__heading">
+        <span>${Resource.msg('giftcard.payment.heading', 'giftcards', null)}</span>
+    </div>
+    <div class="s-giftcard__section">
+        <form class="js-giftcard-form" action="${URLUtils.url('GiftCard-ApplyGiftCard')}" method="POST" data-cmp="giftCardFormGeneric">
+            <div class="g-checkbox s-giftcard__checkbox">
+                <isif condition="${pdict.gcPaymentInstruments && pdict.gcPaymentInstruments.length > 0}">
+                    <input class="g-checkbox-input js-giftCard-section" type="checkbox" id="giftCard" checked="checked" data-analytics-track="payment : redeem_gift_card" data-removeallgcurl="${URLUtils.url('GiftCard-RemoveAllGiftCardPaymentInstrument')}">
+                <iselse>
+                    <input class="g-checkbox-input js-giftCard-section" type="checkbox" id="giftCard" data-analytics-track="payment : redeem_gift_card" data-removeallgcurl="${URLUtils.url('GiftCard-RemoveAllGiftCardPaymentInstrument')}">
+                </isif>
+                <label class="g-checkbox-label" for="giftCard">${Resource.msg('giftcard.payment.checkbox.label', 'giftcards', null)}</label>
+                <span class="s-giftcard__logo"></span>
+            </div>
+            <div class="s-giftcard_section_ajax">
+            <isif condition="${pdict.gcPaymentInstruments}">
+                <div>
+                    <isinclude template="checkout/giftcard/giftcardPaymentInstruments" />
+                </div>
+            </isif>
+            <isset name="enabledGiftCardForm" value="${true}" scope="page" />
+            <isif condition="${pdict.giftCardsLimitExceeded || pdict.gcPaymentInstruments && pdict.gcPaymentInstruments.length > 0 && pdict.isOrderTotalRedeemed}">
+                <isset name="enabledGiftCardForm" value="${false}" scope="page" />
+            </isif>
+            <isif condition="${enabledGiftCardForm}">
+                <div class="s-giftcard_apply_another_gc ${pdict.gcPaymentInstruments && pdict.gcPaymentInstruments.length > 0 ? 'active' : 'hide'}">
+                    <a href="#" class="apply_another_gc btn_credit_card btn btn-save btn-block btn-primary g-button_base g-button_secondary--black">${Resource.msg('giftcard.payment.applyanother.button', 'giftcards', null)}</a>
+                </div>
+	            <div class="s-giftcard__formFields hide">
+	                <div class="s-giftcard-rfholder">
+	                    <span class="required-fields">${Resource.msg('giftcard.payment.required.fields', 'giftcards', null)}</span>
+	                </div>
+	                <div class="b-account_form-row">
+	                    <div class="b-account_form-column">
+	                        <div class="form-group required b-input_row">
+	                            <label class="b-input_row-label form-control-label" for="gcNumber">
+	                                ${Resource.msg('giftcard.payment.input.gcNumberlabel', 'giftcards', null)}
+	                           </label>
+	                            <input type="text" class="b-input_row-input form-control" name="gcNumber" id="gcNumber"
+                                data-analytics-track="payment : gift_card_number"
+	                            maxlength="16"
+                                data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
+                                data-parse-error="${Resource.msg('error.message.validinput', 'forms', null)}"
+                                pattern="(^\d{16}?$)">
+	                            <div class="invalid-feedback"></div>
+	                        </div>
+	                    </div>
+	
+	                    <div class="b-account_form-column">
+	                        <div class="form-group required b-input_row">
+	                            <label class="b-input_row-label form-control-label" for="gcPin">
+	                                ${Resource.msg('giftcard.payment.input.gcPinlabel', 'giftcards', null)}
+	                            </label>
+	                            <input type="text" class="b-input_row-input form-control" name="gcPin" id="gcPin"
+                                data-analytics-track="payment : gift_card_pin"
+	                            maxlength="8"
+                                data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
+                                data-parse-error="${Resource.msg('error.message.validpin', 'forms', null)}"
+                                pattern="(^\d{8}?$)">
+	                            <div class="invalid-feedback"></div>
+	                        </div>
+	                    </div>
+	                </div>
+	                <div class="error-info"></div>
+	                <button id="gcApplyAction" type="submit" name="save" class="btn btn-save btn-block btn-primary g-button_base g-button_primary--black gcButton">${Resource.msg('giftcard.payment.apply.button', 'giftcards', null)}</button>
+	                <div class="clearfix"></div>
+	            </div>
+             </isif>
+             </div>
+            <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+        </form>
+    </div>
+</div>

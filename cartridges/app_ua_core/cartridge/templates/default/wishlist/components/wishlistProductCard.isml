@@ -1,0 +1,35 @@
+<div class="b-wishlist-products_tile uuid-${item.UUID} ${typeof item.imageObj.gridTileDesktop[0] !=='undefined' && item.imageObj.gridTileDesktop[0].title === 'No image' ? 'product_tile-noimage' : ''}
+    ${((item.master && !item.available) || ('productAvailability' in item.custom && item.custom.productAvailability === false)) ? 'b-wishlist-products_tile-outofstock' : ''}">
+    <!--- image, attributes, availability --->
+           <div class="item-image"> 
+               <isif condition="${item.custom.style}">
+                   <isset name="styleCode" value="${item.custom.style}" scope="page" />
+               <iselse>
+                   <isset name="mainProduct" value="${require('dw/catalog/ProductMgr').getProduct(item.pid)}" scope="page">
+                   <isset name="styleCode" value="${mainProduct.isMaster() ? mainProduct.ID : mainProduct.getVariationModel().getMaster().ID}" scope="page" />
+               </isif>
+               <a href="${URLUtils.url('Product-Show', 'pid', item.pid)}"><img class="b-wishlist-products_img" src="${typeof item.imageObj.gridTileDesktop !=='undefined' ? item.imageObj.gridTileDesktop[0].url: null}" alt="${typeof item.imageObj.gridTileDesktop !=='undefined' ? item.imageObj.gridTileDesktop[0].url : null}" title="${typeof item.imageObj.gridTileDesktop[0] !=='undefined' ? item.imageObj.gridTileDesktop[0].title : null}"></a>
+               <isif condition=${!pdict.wishlist.publicView}>
+			        <!--- remove wishlist icon--->
+			        <button type="button" class="b-wishlist_tile-fav_defultButton remove-btn remove-from-wishlist btn btn-light"
+			            data-url="${URLUtils.url('Wishlist-RemoveProduct','pid', item.pid)}"
+			            data-style="${styleCode}"
+			            aria-label="remove">
+			            <span class="b-wishlist_tile-fav_selectButton" aria-hidden=""></span>
+			        </button>
+			    </isif>
+			    <isif condition="${(item.master && !item.available) || ('productAvailability' in item.custom && item.custom.productAvailability === false)}">
+			        <span class="outofstock-message">${Resource.msg('label.not.available', 'common', null)}</span>
+			    </isif>
+           </div>
+    <div class="b-tile-info">
+        <div class="b-tile-gift-container">
+            <isinclude template="wishlist/components/wishlistProductCardHeader">
+        <!---unit price and quantity --->
+            <isinclude template="wishlist/components/productListItemProductPrice" />
+        </div>
+    </div>
+    <isif condition="${(item.custom.exclusive === 'coming-soon')}">
+	    <p class="b-product_preorder-maskpdp">${item.custom.comingSoonMessage}</p>
+	</isif>
+</div>

@@ -1,0 +1,32 @@
+<div class="g-modal g-availability-modal-check" id="cartAvailabilityModal" tabindex="-1" role="dialog" aria-labelledby="cartAvailabilityModal">
+    <div class="g-modal-dialog g-availability-modal-check-dialog" role="document">
+        <div class="g-modal-content g-availability-modal-check-content">  
+            <!-- Modal content-->
+            <button type="button" class="g-modal-close" data-dismiss="modal" aria-label="Close">
+                <div aria-hidden="true" class="g-modal-close-button g-availability-modal-check-close-button"></div>
+            </button>
+            <div class="g-modal-body g-availability-modal-check-body">
+                <isif condition="${pdict.hasPartiallyRemoved}">
+                    <div class="g-availability-modal-check-title">${Resource.msg('item.qty.unavailable', 'cart', null)}</div>
+                    <p class="g-availability-modal-check-text">${Resource.msg('msg.qty.unavailable', 'cart', null)}</p>
+                    <div class="g-modal-footer g-availability-modal-check-footer">
+                        <a class="g-button_base g-button_primary--black btn btn-outline-primary button-styles" href="${URLUtils.https('Cart-Show')}">${Resource.msg('msg.item.ok', 'cart', null)}</a>
+                    </div>
+                <iselseif condition="${pdict.hasFullyRemoved}">
+                    <isset name="removeItemsData" value="" scope="page" />
+                    <isloop items="${pdict.fullyRemoveItems}" var="fullyRemoveItem" > 
+                        <isset name="removeItemsData" value="${(removeItemsData ? removeItemsData + ',' : '') + JSON.stringify(fullyRemoveItem)}" scope="page" />
+                    </isloop>
+                    <isset name="removeItemsData" value="${[removeItemsData]}" scope="page" />
+                    <input type="hidden" class="fullyRemoveitems" value="${removeItemsData}">
+                    <div class="g-availability-modal-check-title">${Resource.msg('heading.item.outofstock', 'cart', null)}</div>
+                    <p class="g-availability-modal-check-text">${Resource.msg('msg.item.outofstock', 'cart', null)}</p>
+                    <div class="g-modal-footer g-availability-modal-check-footer">
+                        <a class="g-button_base g-button_primary--black btn btn-outline-primary button-styles js-cart-buttons" data-href="${URLUtils.url('Cart-SaveAllForLater')}">${Resource.msg('link.savelater.item', 'cart', null)}</a>
+                        <a class="g-button_base g-button_secondary--black btn btn-outline-primary button-styles last-button-styles js-cart-buttons" data-href="${URLUtils.url('Cart-RemoveProductLineItems')}">${Resource.msg('text.remove.product.line.item', 'cart', null)}</a>
+                    </div>
+                </isif>
+            </div>
+        </div>  
+    </div>
+</div>

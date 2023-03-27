@@ -1,0 +1,27 @@
+
+<isdecorate template="common/layout/page">
+
+<iscomment>Include CoreMedia header resources</iscomment>
+<isinclude template="coremedia/cms/header"/>
+<isinclude template="coremedia/modules.isml"/>
+
+    <iscomment> This is slot definition for correct context="category" slots assignment in BM
+        <isslot id="menu-category-banner" description="Slot of category for the main menu" context="category" context-object="${pdict.category}" />
+    </iscomment>
+
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets');
+    </isscript>
+
+    <isif condition="${CMUtil.isLiveContextEnabled() && (!empty(pdict.content.coremediaId) || !empty(pdict.content.coremediaPlacement) || !empty(pdict.content.coremediaView))}">
+        <isset name="pageId" value="${!empty(pdict.content.coremediaId) ? pdict.content.coremediaId : CMUtil.pageId(pdict)}" scope="page"/>
+        <islcinclude pageId="${pageId}" placement="main" prefetch="true" exposeErrors="true"/>
+    <iselse/>
+        <div class="content-asset"><!-- dwMarker="content" dwContentID="${pdict.content.UUID}" -->
+		<isprint value="${pdict.content.body}" encoding="off"/>
+	    </div><!-- End content-asset -->
+    </isif>
+
+        <iscomment>Include CoreMedia footer resources</iscomment>
+    <isinclude template="coremedia/cms/footer"/>
+</isdecorate>

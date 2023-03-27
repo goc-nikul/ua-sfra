@@ -1,0 +1,274 @@
+.b-tile {
+    position: relative;
+    max-width: 100%;
+
+    @include respond-to(desktop) {
+        &:hover &-swatches {
+            opacity: 1;
+        }
+    }
+
+    &-variations_container {
+        position: relative;
+        max-width: 100%;
+    }
+
+    &-images_container {
+        display: block;
+        position: relative;
+    }
+
+    &-image {
+        width: 100%;
+    }
+
+    &-swatches {
+        background-color: $white;
+        display: flex;
+        padding: spacing(xs2) / 2 0;
+        z-index: 1;
+
+        & &_slider {
+            display: flex;
+            overflow: hidden;
+
+            &.swatch-carousel {
+                width: auto;
+                margin: 0 spacing(sm);
+            }
+        }
+
+        .b-swatches_circle-item {
+            flex: 1 0 auto;
+        }
+
+        .b-swatches_circle-link {
+            margin: spacing(xs2) / 2 rem-calc(7);
+            width: rem-calc(29);
+        }
+
+        @include respond-to(desktop) {
+            opacity: 0;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+
+        @include respond-to(mobile) {
+            display: none;
+        }
+    }
+
+    &-swatches_container {
+        position: relative;
+    }
+
+    &-swatches_count {
+        @include font($size: 12px);
+
+        display: block;
+        padding: spacing(xs2) / 2 0;
+        color: $grey5;
+        text-decoration: none;
+
+        @include respond-to(mobile) {
+            padding-top: 0;
+        }
+    }
+
+    &-swatches_slider_button {
+        @include button-to-link;
+
+        padding: 0 spacing(xs2);
+        cursor: pointer;
+        position: absolute;
+        top: 58%;
+        transform: translateY(-58%);
+
+        &.mac-only {
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        &.m-left {
+            @include icon(caret-left);
+
+            left: 0;
+        }
+
+        &.m-right {
+            @include icon(caret-right);
+
+            right: 0;
+        }
+
+        &.m-disabled {
+            color: $grey3;
+            cursor: default;
+        }
+    }
+
+    &-image_link {
+        position: relative;
+        display: block;
+    }
+
+    &-fav_defultButton {
+        display: inline-block;
+        cursor: pointer;
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 1;
+        background: transparent;
+        border: 0;
+        border-radius: 50%;
+        -webkit-box-shadow: 0 -1px 11px -3px rgba(148, 148, 148, 0.57);
+        -moz-box-shadow: 0 -1px 11px -3px rgba(148, 148, 148, 0.57);
+        box-shadow: 0 -1px 11px -3px rgba(148, 148, 148, 0.57);
+
+        @include respond-to(phones) {
+            top: spacing(xs2);
+            right: spacing(xs2);
+        }
+    }
+
+    &-fav_button,
+    &-fav_selectButton {
+        display: inline-block;
+        border: none;
+        outline: none;
+        width: 28px;
+        height: 28px;
+        padding-top: 7px;
+        border-radius: 50%;
+        background-color: $white;
+        color: $black;
+        text-align: center;
+        @include icon(fav-default);
+    }
+
+    &-fav_selectButton {
+        @include icon(fav-selected);
+    }
+
+    &-badge_top_left {
+        @include font($size: 10px);
+
+        position: absolute;
+        display: block;
+        cursor: default;
+        top: rem-calc(12);
+        left: rem-calc(12);
+        padding: rem-calc(2) rem-calc(8);
+        border-radius: rem-calc(4);
+        background: $white;
+        z-index: 1;
+        max-width: calc(100% - 60px);
+
+        @include respond-to (mobile) {
+            @include font($size: 9px);
+
+            line-height: rem-calc(12);
+            top: rem-calc(5);
+            left: rem-calc(5);
+            padding: rem-calc(4) rem-calc(4) rem-calc(2);
+            border-radius: rem-calc(3);
+            background: rgba(255, 255, 255, 0.75);
+        }
+    }
+
+    &-badge_bottom_left {
+        position: absolute;
+        display: block;
+        bottom: 20px;
+        left: spacing(xs);
+        z-index: 1;
+        line-height: 0;
+
+        @include respond-to(phones) {
+            bottom: spacing(xs);
+            left: 12px;
+        }
+    }
+
+    &-name {
+        @include font(main_med, 14px, 1.14);
+
+        display: inline-block;
+        text-decoration: none;
+        color: $black;
+        cursor: pointer;
+
+        @include respond-to (mobile) {
+            font-size: 12px;
+        }
+    }
+
+    &-info {
+        padding: spacing(xs) 0;
+
+        .plp-outofstock,
+        .gift-outofstock {
+            @include font(main_med, rem-calc(12), 1.67);
+
+            color: $green;
+        }
+    }
+
+    &-quickView-cta {
+        position: absolute;
+        bottom: rem-calc(16);
+        right: rem-calc(10);
+    }
+
+    &-recommendation {
+        .b-tile-info {
+            padding: 0;
+        }
+
+        .b-tile-swatches {
+            padding: 0 0 rem-calc(5) 0;
+        }
+
+        .b-tile-name {
+            padding-bottom: rem-calc(5);
+        }
+    }
+}
+
+// style for product tile image background
+
+.b-tile-image {
+    &.b-tile-main_image {
+        position: relative;
+    }
+}
+
+@keyframes placeHolderShimmer {
+    0% { background-position: -468px 0; }
+    100% { background-position: 468px 0; }
+}
+
+.b-tile-images_container {
+    .b-tile-image-background {
+        animation-duration: 1.5s;
+        animation-fill-mode: forwards;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+        animation-name: placeHolderShimmer;
+        background: linear-gradient(to right, $grey2 8%, $grey9 18%, $grey2 33%);
+        background-size: rem-calc(800) rem-calc(104);
+        position: absolute;
+        width: 100%;
+        height: calc(100% - 8px);
+    }
+}
+
+.b-swatches_circle-link {
+    &.no-border {
+        &::before {
+            border: none !important;
+        }
+    }
+}

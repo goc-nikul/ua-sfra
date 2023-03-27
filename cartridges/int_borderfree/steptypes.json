@@ -1,0 +1,207 @@
+{
+    "step-types": {
+        "script-module-step": [
+            {
+                "@type-id": "custom.DownloadFeedToImpex",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "description": "DownloadFeed",
+                "module": "int_borderfree/cartridge/scripts/DownloadFeed.js",
+                "function": "run",
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when an error occurred."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when everything went well."
+                        },
+                        {
+                            "@code": "WARN",
+                            "description": "Used when small, but acceptable problems occurred."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.ProcessPO",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "description": "Process PO",
+                "module": "int_borderfree/cartridge/scripts/ProcessPO.js",
+                "function": "run",
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when an error occurred."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when everything went well."
+                        },
+                        {
+                            "@code": "WARN",
+                            "description": "Used when small, but acceptable problems occurred."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.BFCatalogFeed",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "description": "Create Catalog Feed",
+                "module": "int_borderfree/cartridge/scripts/BFCatalogFeed.js",
+                "function": "run",
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when an error occurred."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when everything went well."
+                        },
+                        {
+                            "@code": "WARN",
+                            "description": "Used when small, but acceptable problems occurred."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.BFCustomFeed",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "description": "Create Custom Feed",
+                "module": "int_borderfree/cartridge/scripts/BFCustomsFeed.js",
+                "function": "run",
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when an error occurred."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when everything went well."
+                        },
+                        {
+                            "@code": "WARN",
+                            "description": "Used when small, but acceptable problems occurred."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.BFKitsFeed",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "description": "Create Kits Feed",
+                "module": "int_borderfree/cartridge/scripts/BFKitsFeed.js",
+                "function": "run",
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when an error occurred."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when everything went well."
+                        },
+                        {
+                            "@code": "WARN",
+                            "description": "Used when small, but acceptable problems occurred."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.BFFtpUpload",
+                "description": "Upload files to an SFTP server",
+                "module": "int_borderfree/cartridge/scripts/FtpUpload.js",
+                "function": "Run",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "ServiceID",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "FileType",
+                            "@type": "string",
+                            "@required": "false",
+                            "description": "Must be 'kits', 'customs', or 'standard'",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "SourceFolder",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true",
+                            "description": "Local folder with files, relative to IMPEX/",
+                            "default-value": "src/upload"
+                        },
+                        {
+                            "@name": "TargetFolder",
+                            "@type": "string",
+                            "@required": "true",
+                            "description": "Remote folder on Server, relative to home directory",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "ArchiveFolder",
+                            "@type": "string",
+                            "@required": "false",
+                            "description": "Local folder where to archive files, relative to IMPEX/",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "NoFileFoundStatus",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true",
+                            "enum-values": {
+                                "value": [
+                                    "OK",
+                                    "ERROR"
+                                ]
+                            },
+                            "description": "Exit code in case no files were found.",
+                            "default-value": "OK"
+                        },
+                        {
+                            "@name": "IsDisabled",
+                            "description": "Mark the step as disabled. This will skip the step and returns a OK status",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "@trim": "true"
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [{
+                            "@code": "ERROR",
+                            "description": "Used when an error occurred."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when everything went well."
+                        },
+                        {
+                            "@code": "NO_FILE_FOUND",
+                            "description": "In case exit status is OK and no files were found."
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

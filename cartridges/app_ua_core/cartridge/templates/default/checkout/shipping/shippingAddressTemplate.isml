@@ -1,0 +1,60 @@
+<!---------------------------------------------------------------------------------->
+<!-- Template used by client to redraw shipping methods                           -->
+<!---------------------------------------------------------------------------------->
+<div id="pli-shipping-summary-template" class="hide">
+    <h3 class="shipping-header-text">${Resource.msg('heading.shipping.to', 'checkout', null)}</h3>
+    <p>
+        <span class="ship-to-message"></span>
+        <span class="ship-to-name"></span>
+        <span class="ship-to-address1"></span>
+        <span class="ship-to-address2"></span>
+        <span class="ship-to-city-st-zip"><span class="ship-to-city"></span> <span class="ship-to-st"></span> <span class="ship-to-zip"></span> </span>
+        <span class="ship-to-phone"></span>
+    </p>
+    <h3 class="pickup-primary-contact-text">${Resource.msg('heading.primary.contact', 'checkout', null)}</h3>
+    <p class="pickup-primary-contact">
+        <span class="ship-to-primary-firstname"></span>
+        <span class="ship-to-primary-lastname"></span>
+        <span class="ship-to-primary-email"></span>
+        <span class="ship-to-primary-number"></span>
+    </p>
+    <h3 class="pickup-secondary-contact-text">${Resource.msg('heading.secondary.contact', 'checkout', null)}</h3>
+    <p class="pickup-secondary-contact">
+        <span class="ship-to-secondary-firstname"></span>
+        <span class="ship-to-secondary-lastname"></span>
+        <span class="ship-to-secondary-email"></span>
+        <span class="ship-to-secondary-number"></span>
+    </p>
+    <h3>${Resource.msg('heading.shipping.method', 'checkout', null)}<span></span></h3>
+    <div class="row leading-lines">
+        <p class="col-8 start-lines">
+            <span class="display-name"></span>
+            <span class="text-muted arrival-time"></span>
+        </p>
+        <p class="col-4 end-lines text-right">
+            <span class="price"></span>
+        </p>
+    </div>
+
+    <div class="summary-details gift-summary">
+        <h3>${Resource.msg('heading.gift.message', 'checkout', null)}</h3>
+        <div class="gift-message-summary"></div>
+    </div>
+</div>
+
+<div id="pickup-information-data" class="hide">
+    <h3 class="pickup-primary-contact-text">${Resource.msg('heading.primary.contact', 'checkout', null)}</h3>
+    <p class="pickup-primary-contact">
+        <span class="ship-to-primary-firstname"><isprint value="${(typeof primaryContactBOPIS !== 'undefined' && !empty(primaryContactBOPIS)) ? primaryContactBOPIS.firstName : ''}" /> </span>
+        <span class="ship-to-primary-lastname"><isprint value="${(typeof primaryContactBOPIS !== 'undefined' && !empty(primaryContactBOPIS)) ? primaryContactBOPIS.lastName : ''}" /></span>
+        <span class="ship-to-primary-email"><isprint value="${(typeof primaryContactBOPIS !== 'undefined' && !empty(primaryContactBOPIS)) ? primaryContactBOPIS.email : ''}" /></span>
+        <span class="ship-to-primary-number"><isprint value="${(typeof primaryContactBOPIS !== 'undefined' && !empty(primaryContactBOPIS)) ? primaryContactBOPIS.phone : ''}" /></span>
+    </p>
+    <h3 class="pickup-secondary-contact-text">${Resource.msg('heading.secondary.contact', 'checkout', null)}</h3>
+    <p class="pickup-secondary-contact">
+        <span class="ship-to-secondary-firstname"><isprint value="${(typeof secondaryContactBOPIS !== 'undefined' && !empty(secondaryContactBOPIS)) ? secondaryContactBOPIS.firstName : ''}" /></span>
+        <span class="ship-to-secondary-lastname"><isprint value="${(typeof secondaryContactBOPIS !== 'undefined' && !empty(secondaryContactBOPIS)) ? secondaryContactBOPIS.lastName : ''}" /></span>
+        <span class="ship-to-secondary-email"><isprint value="${(typeof secondaryContactBOPIS !== 'undefined' && !empty(secondaryContactBOPIS)) ? secondaryContactBOPIS.email : ''}" /></span>
+        <span class="ship-to-secondary-number"><isprint value="${(typeof secondaryContactBOPIS !== 'undefined' && !empty(secondaryContactBOPIS)) ? secondaryContactBOPIS.phone : ''}" /></span>
+    </p>
+</div>

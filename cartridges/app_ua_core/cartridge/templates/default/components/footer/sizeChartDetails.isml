@@ -1,0 +1,134 @@
+<isscript>
+
+    var standaloneSizeChart = pdict.standaloneSizeChart;
+    if (!empty(standaloneSizeChart)) {
+        sizeChartAsset = standaloneSizeChart;
+    } 
+        
+    var customTopContent,
+        customBottomVideo,
+        customBottomImage,
+        customBottomAltTag;
+    
+    if (!empty(sizeChartAsset) && !empty(sizeChartAsset.custom.sizechartTopContent)) {
+        customTopContent = sizeChartAsset.custom.sizechartTopContent;
+    }
+    if (!empty(sizeChartAsset) && !empty(sizeChartAsset.custom.sizechartBottomVideoWidget)) {
+        customBottomVideo = sizeChartAsset.custom.sizechartBottomVideoWidget;
+    } else if (!empty(sizeChartAsset) && !empty(sizeChartAsset.custom.sizechartBottomImageURL)) {
+        customBottomImage = sizeChartAsset.custom.sizechartBottomImageURL;
+    }
+    if (!empty(sizeChartAsset) && !empty(sizeChartAsset.custom.sizechartBottomAltTag)) {
+        customBottomAltTag = sizeChartAsset.custom.sizechartBottomAltTag;
+    }
+    
+//sets measurement system based on locales from custom preference: sizeChartMeasures
+    var sizeChartMeasures = require("dw/system/Site").getCurrent().getCustomPreferenceValue('sizeChartMeasures');
+
+    var measurement = 'inches';
+    if (sizeChartMeasures && sizeChartMeasures !== undefined) {
+        measurement = sizeChartMeasures.toString().toLowerCase();
+    }
+
+//determines measurement switch visibility  
+    var showSwitch : Boolean = false;
+    if (!empty(sizeChartAsset) && sizeChartAsset.custom.sizechartSwitchDisplay.value == "Yes") {
+        showSwitch = true;
+    }       
+</isscript>
+
+<div class="sf-guide__shell">
+<div class="sf-guide__wrapper ${measurement}">
+
+    <div title="close" role="control">
+        <svg xmlns="http://www.w3.org/2000/svg" class="sf-guide__close-modal icon__close--light">
+            <use xlink:href="#icon-times" />
+        </svg>
+    </div>
+<iscomment>Page Title</iscomment>
+    <isif condition="${sizeChartAsset != null && !empty(sizeChartAsset)}">
+    <div class="sf-guide__header"><isprint value="${sizeChartAsset.name}" encoding="off"/></div>
+    </isif>
+
+<iscomment>Asset Content</iscomment>
+    <div class="sf-guide__content"> 
+            
+        <div class="detail-container"> 
+            <isif condition="${sizeChartAsset != null && !empty(sizeChartAsset) && !empty(sizeChartAsset.name)}">
+                <h2 class="sf-guide-page__header"><isprint value="${sizeChartAsset.name}" encoding="off"/></h2>
+            </isif>
+            <iscomment>Optional Top Content</iscomment>
+                <isif condition="${!empty(customTopContent)}">
+                    <div class="sf-guide__custom-content detail-section">
+                        <isprint value="${customTopContent}" encoding="off"/>
+                    </div>
+                </isif>
+                
+            <iscomment>How To Measure Content</iscomment>
+                <isif condition="${sizeChartAsset != null && !empty(sizeChartAsset) && 'body' in  sizeChartAsset.custom && sizeChartAsset.custom.body != null && !empty(sizeChartAsset.custom.body)}">  
+                    <isprint value="${sizeChartAsset.custom.body}" encoding="off"/>
+                </isif>
+                
+            <iscomment>Mobile Image</iscomment>
+            <isif condition="${sizeChartAsset != null && !empty(sizeChartAsset) && 'sizechartImageURL' in  sizeChartAsset.custom && sizeChartAsset.custom.sizechartImageURL != null && !empty(sizeChartAsset.custom.sizechartImageURL)}">
+                <div class="detail-image visible-mobile">
+                    <img alt="${Resource.msg('global.sizechart.image','common',null)}" src="${sizeChartAsset.custom.sizechartImageURL}"  />
+                </div>  
+            </isif>
+
+            
+            <iscomment>Size Chart Content</iscomment>
+            <isif condition="${sizeChartAsset != null && !empty(sizeChartAsset) && 'sizechartTable' in  sizeChartAsset.custom && sizeChartAsset.custom.sizechartTable != null && !empty(sizeChartAsset.custom.sizechartTable)}">
+                <div class="detail-container">
+                    <isprint value="${sizeChartAsset.custom.sizechartTable}" encoding="off"/>
+                </div>
+            </isif> 
+                
+            <iscomment>Metric Switch</iscomment>
+            <isif condition="${showSwitch == true}">
+                <div class="sf-guide__switch clearfix">
+                  <span class="inches">
+                  ${Resource.msg('product.sizechart.inches', 'product', 'INCHES')}
+                  </span><span class="centimeters">
+                  ${Resource.msg('product.sizechart.centimeters', 'product', 'CENTIMETERS')}
+                  </span><div></div>
+                </div>
+            </isif>
+            
+        </div>  
+        
+        <iscomment>Desktop Image</iscomment>
+        <isif condition="${sizeChartAsset != null && !empty(sizeChartAsset) && 'sizechartImageURL' in  sizeChartAsset.custom && sizeChartAsset.custom.sizechartImageURL != null && !empty(sizeChartAsset.custom.sizechartImageURL)}">
+            <div class="detail-image hidden-mobile">
+                <img alt="${Resource.msg('global.sizechart.image','common',null)}" src="${sizeChartAsset.custom.sizechartImageURL}"  />
+            </div>
+        </isif>
+        
+        
+        <iscomment>Fit Guide</iscomment>
+        <isif condition="${sizeChartAsset != null && !empty(sizeChartAsset) && 'sizechartFitGuide' in  sizeChartAsset.custom && sizeChartAsset.custom.sizechartFitGuide != null && !empty(sizeChartAsset.custom.sizechartFitGuide)}">
+            <div class="sf-fitguide__wrapper">
+                <isprint value="${sizeChartAsset.custom.sizechartFitGuide}" encoding="off"/>
+            </div>
+        </isif>
+
+        <iscomment>Optional Bottom Content</iscomment>
+        <isif condition="${!empty(customBottomVideo)}">
+            <div class="sf-guide__extra-content">
+            <hr class="sf-guide__extra-content-hr">
+                <div class="sizechart__custom-content detail-container sizechart-custom-video">
+                    <div id="${customBottomVideo}" class="LiveclickerVideoDiv" data-video="${customBottomVideo},3705" title="${customBottomAltTag}"></div>
+                </div>
+            </div>
+        </isif> 
+        <isif condition="${!empty(customBottomImage)}">
+            <div class="sf-guide__extra-content">
+                <div class="detail-container">
+                    <img src="${customBottomImage}" alt="${Resource.msg('global.sizechart.custom','common',null)}">
+                </div>
+            </div>
+        </isif>
+    </div>
+    
+</div>
+</div>

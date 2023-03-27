@@ -1,0 +1,82 @@
+@mixin g-flyout-common {
+    position: fixed;
+    z-index: 10;
+    transition: all 0.3s ease;
+}
+
+@mixin flyout-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    display: none;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+@mixin flyout-absolute-common($right: 0, $left: 0, $top: 100%) {
+    position: absolute;
+    top: $top;
+    right: $right;
+    left: $left;
+}
+
+@mixin g-flyout($position: top) {
+    background-color: $modal-bg;
+
+    @if ($position == top) {
+        top: -100%;
+        left: 0;
+        visibility: hidden;
+        width: 100%;
+        max-height: 100%;
+
+        &.show,
+        &.m-show {
+            top: 0;
+            visibility: visible;
+        }
+    }
+
+    @else if ($position == right) {
+        top: 0;
+        right: -100%;
+        visibility: hidden;
+        height: 100%;
+        max-width: 100%;
+
+        &.m-search-show,
+        &.show {
+            right: 0;
+            visibility: visible;
+        }
+    }
+
+    @else if ($position == bottom) {
+        bottom: -100%;
+        left: 0;
+        visibility: hidden;
+        width: 100%;
+        max-height: 100%;
+
+        &.show {
+            bottom: 0;
+            visibility: visible;
+        }
+    }
+
+    @else if ($position == left) {
+        top: 0;
+        left: -100%;
+        visibility: hidden;
+        height: 100%;
+        max-width: 100%;
+
+        &.show,
+        &.m-menu-show {
+            left: 0;
+            visibility: visible;
+        }
+    }
+}

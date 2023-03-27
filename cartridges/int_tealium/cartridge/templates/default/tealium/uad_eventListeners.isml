@@ -1,0 +1,354 @@
+<script>var safetyFirst = window.UADatalayer.prototype.safetyFirst;</script>
+<isinclude template="tealium/eventListenerTemplates/uad_cart_events" />
+<isif condition="${pdict.pageContext && pdict.pageContext.ns === 'checkout'}">
+    <isinclude template="tealium/eventListenerTemplates/uad_checkout_events" />
+</isif>
+<script>
+   window.UADatalayer.prototype.onDependenciesReady(function bindSubscribeEvents() {
+     $('body').on('global:emailSubscribeSuccess', function (jqEV, data) {
+        uaDatalayer.action('emailSubscribed', {
+          type: 'ua',
+          plain_text_email: data.email,
+          email_hashed: data.emailHashed,
+          opt_in_source: data.merkleCode,
+          opt_in_location: data.signupLocation
+        });
+     });
+   });
+</script>
+<isinclude template="tealium/eventListenerTemplates/uad_modal_events" />
+<isinclude template="tealium/eventListenerTemplates/uad_LoginRegister_events" />
+<script>
+  window.UADatalayer.prototype.onDependenciesReady(function suggestedSearchEvents() {
+      $('body').on('click', '[data-analytics-track="search-suggestion"]', function () {
+          try {
+              var val = $(this).attr('data-analytics-value');
+              var split = val && val.split && val.split('|');
+              sessionStorage.setItem('uadNavigated', JSON.stringify({
+                  suggestedSearch: {
+                      method: split[0],
+                      term: split[1] || ''
+                  }
+              }));
+          } catch (ex) {}
+      });
+      $('[data-analytics-size-model]').change(function() {
+          uaDatalayer.applyNextPageData({
+            grid_preferred_size: $(this).val()
+          });   
+      });
+  });
+</script>
+<script>
+  window.UADatalayer.prototype.onDependenciesReady(function bindFavoritesEvents(){
+    $('body').on('wishlist:addItemSuccess', function (jqEv, data){
+        var style = data.style;
+        uaDatalayer.action('favoritesAdd', {
+          products: [{
+              product_style: style
+          }]
+        });
+    });
+    $('body').on('wishlist:removeItemSuccess', function (jqEv, data){
+        var style = data.style;
+        uaDatalayer.action('favoritesRemove', {
+          products: [{
+              product_style: style
+          }]
+        });
+    });
+  });
+</script>
+<isif condition="${pdict.pageContext && pdict.pageContext.ns === 'search'}">
+    <isinclude template="tealium/eventListenerTemplates/uad_grid_events" />
+</isif>
+<isif condition="${pdict.pageContext && pdict.pageContext.ns === 'content'}">
+    <isinclude template="tealium/eventListenerTemplates/uad_quiz_events" />
+</isif>
+<isif condition="${pdict.pageContext && pdict.pageContext.ns === 'product'}">
+    <isinclude template="tealium/eventListenerTemplates/uad_PDP_events" />
+</isif>
+<script>
+  window.UADatalayer.prototype.onDependenciesReady(function bindGlobalEvents() {
+    safetyFirst(function tealiumCartridgeRecZoneListener(){
+      function pathParseStyle(url) {
+        return url.split('.')[0].split('/').pop().split('-').pop();
+      }
+      $('body').on('click', '.bucket--complete-the-look a, .b-product_completelook-grid a', function () {
+        var $ele = $(this);
+          safetyFirst(function completeTheLookListener(){
+            uaDatalayer.applyNextPageData({
+              page_finding_method: 'Complete the Look',
+              page_finding_method_style: pathParseStyle($ele.attr('href'))
+            });
+          });
+      });
+      $('body').on('click', '[data-mboxid] a, .js-recommendation-wrapper a', function () {
+        var $ele = $(this);
+        safetyFirst(function recZoneListener(){
+          var style = $ele.parent().find('[data-analytics-style]')
+                      .attr('data-analytics-style') || pathParseStyle($ele.attr('href'));
+          uaDatalayer.applyNextPageData({
+            page_finding_method: 'Rec Zone',
+            page_finding_method_style: style
+          });
+	    });
+      });
+    });
+    if (window.MutationObserver) {
+      // global error message tracking
+      safetyFirst(function tealiumCartridgeErrorListener(){
+        function getNearestName($ele) {
+          var errorName = $ele.siblings('[for]').attr('for') || $ele.parent().siblings('[for]').attr('for');
+          if (!errorName) {
+            errorName = $ele.siblings('[name]').attr('name') || $ele.parent().siblings('[name]').attr('name');
+          }
+          if (!errorName) {
+            errorName = $ele.parents('[data-cmp]').attr('data-cmp');
+          }
+          return errorName || uaDatalayer.getPageData().page_name;
+         }
+        function errorObserve(selectorListArray, callback) {
+          var observer = new MutationObserver(function tealiumCartridgeErrorListener(mutations){
+            safetyFirst(function tealiumCartridgeErrorListener(){
+              var $ele = $(mutations && mutations[0] && mutations[0].target);
+              var visible = $ele.is(':visible');
+              if (visible) {
+                callback({
+                  errorFor: getNearestName($ele),
+                  errorMessage: $ele.text()
+                });
+              }
+            });
+          });
+          var nodeList = document.querySelectorAll(selectorListArray.join(', '));
+          nodeList.forEach(function nodeListForEach(target){
+            observer.observe(target, {
+              childList: true,
+              attributes: true,
+              attributeFilter: ['style']
+            });
+          });
+          return observer;
+        }
+        function setObserver() {
+          return errorObserve(['.invalid-feedback', '.gs-error-message', '#missingCouponCode'], function (observedError){
+            uaDatalayer.action('errorMessageShown', {
+              error_name: observedError.errorFor,
+              error_message: observedError.errorMessage
+            });
+          });
+        }
+        var observerStore = {
+          errorObserver: setObserver()
+        };
+        $('body').on('modalShown', function (){
+          safetyFirst(function () {
+            observerStore && observerStore.errorObserver && observerStore.errorObserver.disconnect();
+            observerStore.errorObserver = setObserver();
+          });
+        });
+      });
+    }
+    var eventTriggered = false;
+    document.addEventListener('play', function(e){
+        if (!eventTriggered) {
+            var videoName = $(e.target).closest('[data-video]').attr('data-video');
+            uaDatalayer.action('videoInteraction', 
+                {
+                    type: 'play',
+                    videoName: videoName
+                 }
+            );
+            eventTriggered = true;
+        }
+    }, true);
+    $('body').on('click', '[data-analytics-nav-track]', function () {
+      var navigation_structure = 'TopNav|' + $(this).attr('data-analytics-nav-track');
+      if (navigation_structure === 'TopNav|mobile|hamburger|n/a') {
+        uaDatalayer.action('genericLink', {
+          navigation_structure: navigation_structure
+        });
+      } else {
+        uaDatalayer.applyNextPageData({
+          navigation_structure: navigation_structure,
+          page_finding_method: 'Navigation'
+        });
+      }
+    });
+    var pageData = uaDatalayer.getPageData() || {};
+    function productData() {
+        var product = pageData.products[0] || {};
+        return { 
+            productStyle: $('[data-analytics-style-bv]').attr('data-analytics-style-bv') || product.product_style, 
+            productRating: $('[data-analytics-order-rating]').attr('data-analytics-order-rating') || product.product_rating, 
+            productReviewCount: $('[data-analytics-order-review]').attr('data-analytics-order-review') || product.product_review_count
+        };
+    }
+    function productSellingTool(sellingTool) {
+        var data = productData();
+        if (pageData.page_type === 'content') {
+            sellingTool = 'order history: submit review'
+        }
+        uaDatalayer.action('productSellingTool', {
+            pdp_selling_tool: sellingTool,
+            products: [{
+                product_style: data.productStyle,
+                product_rating: data.productRating,
+                product_review_count: data.productReviewCount
+            }]
+        });
+    }
+    $('body').on('view:review', function () {
+        var sellingTool = 'pdp: view reviews';
+        productSellingTool(sellingTool);
+    });
+    $('body').on('write:review', function () {
+        var sellingTool = 'pdp: start review';
+        var data = productData();
+        if (pageData.page_type === 'content') {
+            sellingTool = 'order history: start review'
+        }
+        uaDatalayer.action('modalOpened', {
+            pdp_selling_tool: sellingTool,
+            site_modal: 'reviews: write review',
+            products: [{
+                product_style: data.productStyle,
+                product_rating: data.productRating,
+                product_review_count: data.productReviewCount
+            }]
+        });
+    });
+    $('body').on('submit:review', function () {
+        var sellingTool = 'pdp: submit review';
+        productSellingTool(sellingTool);
+    });
+    $('body').on('start:question', function () {
+        var sellingTool = 'pdp: start question';
+        productSellingTool(sellingTool);
+    });
+    $('body').on('submit:question', function () {
+        var sellingTool = 'pdp: submit question';
+        productSellingTool(sellingTool);
+    });
+    function getCoreMediaData($jqEle) {
+        var data = $jqEle.closest('[data-analytics^="{"').attr('data-analytics');
+        return JSON.parse(data);
+    }
+    function getHrefPathValue(href) {
+        return href.split(window.UADatalayer.prototype.serverPageData.locale)[1];
+    }
+    $('body').on('click', '[data-analytics-track="buy-again"]', function () {
+        safetyFirst(function tealiumBuyAgainClickAction(){
+            uaDatalayer.applyNextPageData({
+                product_finding_method: 'Order History' 
+          });
+        });
+    });
+    $('body').on('click', '[data-analytics-type="bm-content-text-link"], [data-analytics-type="coremedia-content-text-link"], [data-analytics-type="coremedia-content-img-link"]', function () {
+        var $jqEle = $(this);
+        safetyFirst(function coreMediaContentClicks() {
+            var cm = getCoreMediaData($jqEle);
+            if (cm && cm['data-asset-id'] !== undefined) {
+                uaDatalayer.applyNextPageData({
+                    internal_campaign_asset_name: cm['data-asset-id'],
+                    internal_campaign_module: cm['data-variant'],
+                    internal_campaign_link: getHrefPathValue($jqEle.attr('href')),
+                    internal_campaign_cta_text: cm['data-cta-text'],
+                    internal_campaign_placement: cm['data-placement'],
+                    internal_campaign_snipe: cm['data-snipe'],
+                    internal_campaign_headline: cm['data-headline'],
+                });
+            }
+        });
+    });
+    $('body').on('click', '[data-analytics-type="bm-header-text-link"] a', function promoBannerClick() {
+        const $jqEle = $(this);
+        safetyFirst(function headerPromoClicks() {
+            const data = $jqEle.closest('div[data-analytics-type]');
+            const dataAssetID = data.attr('data-analytics-id');
+            const dataVariant = data.attr('data-analytics-variant');
+            if (dataAssetID !== undefined) {
+                uaDatalayer.applyNextPageData({
+                    internal_campaign_asset_name: dataAssetID,
+                    internal_campaign_module: dataVariant,
+                    internal_campaign_link: getHrefPathValue($jqEle.attr('href')),
+                });
+            }
+        });
+    });
+    const $orderTrackEle = $('[data-analytics-type="order-track-err"]');
+    if (($orderTrackEle).length) {
+        uaDatalayer.action('errorMessageShown', {
+             error_name: 'trackOrderEmail',
+             error_message: ($orderTrackEle).text().trim()
+         }); 
+     }
+    $('body').on('return:exchangepage', function (jqEv,data) {
+        uaDatalayer.applyPageData({
+              site_section: 'My Account',
+              page_name: 'my-account|exchanges|' + data.pageType,
+              page_category: 'my-account',
+              page_subcategory1: 'exchanges',
+              page_subcategory2: data.pageType,
+              page_subcategory3: undefined,
+              page_subcategory4: undefined
+            });
+        uaDatalayer.action('pageView', {});
+      });
+    $('body').on('addtobag:error', function (jqEv,data) {
+        uaDatalayer.action('errorMessageShown', {
+            error_name: 'Invalid Form',
+            error_message: data.errorMsg
+        });
+    });
+    $('body').on('return:exchangelabel', function () {
+        var url_string = window.location.href;
+        var url = new URL(url_string);
+        var orderID = url.searchParams.get("orderID");
+        uaDatalayer.applyPageData({
+            site_section: 'My Account',
+            page_name: 'my-account|exchanges|label',
+            page_category: 'my-account',
+            page_subcategory1: 'exchanges',
+            page_subcategory2: 'label',
+            page_subcategory3: undefined,
+            page_subcategory4: undefined,
+            order_id: orderID,
+            products: $('.analyticsProductClass').val()
+        });
+        uaDatalayer.action('pageView', {});
+    });
+    $('body').on('register:error', function (jqEv,data) {
+        uaDatalayer.action('errorMessageShown', {
+            error_name: 'registration-form-email',
+            error_message: data.errorMsg
+        });
+    });
+    $('body').on('return:reasonpage', function (jqEv,data) {
+        uaDatalayer.applyPageData({
+            site_section: 'My Account',
+            page_name: 'my-account|returns|' + data.pageType,
+            page_category: 'my-account',
+            page_subcategory1: 'returns',
+            page_subcategory2: data.pageType,
+            page_subcategory3: undefined,
+            page_subcategory4: undefined
+        });
+        uaDatalayer.action('pageView', {});
+      });
+    $('body').on('checkout:error', function (jqEv,errorMsg) {
+        uaDatalayer.action('errorMessageShown', {
+            error_name: 'Checkout Proccesing Error',
+            error_message: errorMsg
+        });
+    });
+    safetyFirst(function checkoutPayPalTracking() {
+      $('body').on('checkout:paypal', function () {
+          uaDatalayer.action('checkoutPaypal', {
+              payPal:true
+          });
+      });
+    });
+  });
+</script>

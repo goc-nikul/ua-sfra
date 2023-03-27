@@ -1,0 +1,126 @@
+<script>
+    window.UADatalayer.prototype.onDependenciesReady(function bindCheckoutEvents() {
+      var safetyFirst = window.UADatalayer.prototype.safetyFirst;
+      var pageData = uaDatalayer.getPageData();
+      if (pageData && pageData.page_type !== 'checkout') {
+        return;
+      }
+      (function tealiumCheckoutTracking() {
+        function track(jqEv) {
+          var trackValue = $(this).attr('data-analytics-track');
+          safetyFirst(function checkoutTrackingWrap(){
+            if (trackValue === 'apayStart') {
+              var pageData = uaDatalayer.getPageData();
+              uaDatalayer.action('thirdPartyPayStart', {
+                type: 'applePay',
+                products: pageData.products
+              });
+            } else {
+              uaDatalayer.action('lastTouchedCheckoutField', {
+                abandon_checkout_field: trackValue
+              });
+            }
+          });
+        }
+        var stageNameMap = [
+            'shipping',
+            'payment',
+            'contact',
+            'submitted'
+        ];
+        function qasOpen(jqEv) {
+          var stg = $(this).attr('data-analytics-typeahead');
+          var elem = $(this).attr('id');
+          var elementToBind = document.getElementById(elem);
+          if (elementToBind) {
+            var config = { attributes: true, childList: true, subtree: false };  
+            var callback = function(mutations, observer) {
+              if ($('#' + elem + ' .address-picklist-container').length) {
+                uaDatalayer.action('lastTouchedCheckoutField', {
+                  name: (stg + ' : line1:type_ahead_show')
+                });
+                
+                observer.disconnect();     
+              }
+            }; 
+
+            var observer = new MutationObserver(callback);  
+            observer.observe(elementToBind, config);
+          }          
+        }
+
+        function qasAddressSelected () {
+          var step = $(this).closest('div[data-analytics-typeahead]').attr('data-analytics-typeahead');
+          if (step) {
+              uaDatalayer.action('lastTouchedCheckoutField', {
+                  name: (step + ' : line1:type_ahead_select')
+              });
+          }
+        }
+
+        var safetyFirst = window.UADatalayer.prototype.safetyFirst;
+        $('body').on('idme:loginAttempt', function (jqEv, data) {
+          safetyFirst(function idMeLoginAttemptWrap(){
+            var status = data.idmeLoginStatus;
+            var group = data.idmeGroup;
+            if (status !== '') {
+              uaDatalayer.action('loginSuccess', {
+                  type: 'idme',
+                  idme_group: group
+              });
+            }
+          });
+        });
+        $('[data-klarna-placeorder="Checkout with Klarna"]').on('click', function() {
+            safetyFirst(function klarnaPayment() {
+                var productArray = uaDatalayer.getPageData().products;
+                var prodSkuArray = [];
+                var prodStyleArray = [];
+                var prodColorArray = [];
+                productArray.forEach(function(value) {
+                    prodStyleArray.push(value.product_style);
+                    prodSkuArray.push(value.product_sku);
+                    prodColorArray.push(value.product_color);
+                });
+                uaDatalayer.action('thirdPartyPayStart', {
+                    type: 'klarna',
+                    products: [{
+                        product_style: prodStyleArray,
+                        product_sku: prodSkuArray,
+                        product_color: prodColorArray
+                    }]
+                });
+            });
+        });
+        $('body').on('checkout:stageChange', function (jqEv, data) {
+            const $giftCardCheckBox = $('[data-analytics-track="gift options : this_is_a_gift"]');
+            var checked;
+            if (data.stageEnum === 1 && $giftCardCheckBox.is(':visible')) {
+                if($giftCardCheckBox.prop('checked')) {
+                    checked = 'yes';   
+                } else {
+                    checked = 'no';   
+                }
+            }
+           uaDatalayer.action('checkoutStepChange', {
+              checkout_step: stageNameMap[data.stageEnum] || 'unknown',
+              gift_box_checked: checked
+           });
+        });
+        $('body').on('shipping:lastTouchedCheckoutField', function () {
+            uaDatalayer.action('lastTouchedCheckoutField', {name: 'shipping:address_validation_select'});
+        });
+        $('body').on('click', '[data-analytics-track="summary-mobile-expand"]', function () {
+          uaDatalayer.action('lastTouchedCheckoutField', {
+            abandon_checkout_field : "order summary : mobile expand" 
+          });
+        });
+        $('body').on('focus', 'input[data-analytics-track][type=text]', track);
+        $('body').on('focus', 'input[data-analytics-track][type=tel]', track);
+        $('body').on('click', 'div[data-analytics-track], input[data-analytics-track][type=checkbox]', track);
+        $('body').on('focus', 'select[data-analytics-track]', track);
+        $('body').on('focus', 'div[data-analytics-typeahead]', qasOpen);
+        $('body').on('click', 'div[data-analytics-typeahead-select]', qasAddressSelected);
+      })();
+    });
+</script>

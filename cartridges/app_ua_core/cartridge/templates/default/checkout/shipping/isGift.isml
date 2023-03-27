@@ -1,0 +1,54 @@
+<div class="form-group b-gift-message-heading">
+    <h3 class="b-gift-message-header">${Resource.msg('msg.gift.option.heading', 'checkout', null)}</h3>
+    <div class="custom-control custom-checkbox">
+        <div class="g-checkbox">
+	        <input class="custom-control-input gift g-checkbox-input" type="checkbox" id="isGift-${lineItem ? lineItem.UUID : 'default'}-${shippingModel.UUID}"
+              data-analytics-track="gift options : this_is_a_gift"
+              <isif condition="${shippingModel.isGift}">
+	                checked="checked"
+	            </isif>
+	            <isprint value="${pdict.forms.shippingForm.shippingAddress.isGift.attributes}" encoding="off" />
+	        >
+	        <label for="isGift-${lineItem ? lineItem.UUID : 'default'}-${shippingModel.UUID}" class="custom-control-label checkout-checkbox g-checkbox-label">
+	            <span class="b-gift-message-icon"></span><span>${Resource.msg('check.gift', 'checkout', null)}</span>
+	        </label>
+        </div>
+    </div>
+</div>
+
+<div class="b-gift-message-section gift-message ${shippingModel.isGift ? '' : 'd-none'}">
+    <div class="b-gift-message-bottom">
+        <div class="b-gift-message-block-inner">
+            <div class="b-gift-message-text">${Resource.msg('check.giftmessage', 'checkout', null)}</div>
+            <div class="form-group">
+                <div class="b-input_row">
+                    <label class="b-input_row-label">${Resource.msg('label.input.giftmessage', 'forms', null)}
+                        <span class="b-input_row-label_simple">(${Resource.msg('label.input.optional', 'forms', null)})</span>
+                    </label>
+
+	            <input data-analytics-track="gift options : gift_message" type="text" class="b-input_row-input form-control gift-message-${shippingModel.UUID}" 
+	            value="${shippingModel.isGift && shippingModel.giftMessage ? shippingModel.giftMessage: '' }" id="giftMessage"
+	            <isprint value="${pdict.forms.shippingForm.shippingAddress.giftMessage.attributes}" encoding="off" /> />
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <isif condition="${shippingModel && shippingModel.giftItems && shippingModel.giftItems.length >0}">
+	    <div class="b-product_giftitems-grid">
+	        <div class="b-product_giftitems-message g-carousel-heading">${Resource.msg('check.giftitems.message', 'checkout', null)}</div>
+	        <div class="g-carousel js-recommendation-wrapper recommendations-section">
+	            <div class="product-listing recommended-products js-carousel swiper-container" data-cmp="carousel"
+	            data-json-config='${JSON.stringify(require('*/cartridge/config/carousel').giftOptionTile)}'>
+	                <div class="g-carousel-wrapper swiper-wrapper js-swiper-wrapper">
+	                    <isloop items="${shippingModel.giftItems}" var="giftItem" status="loopState">
+	                        <div class="g-carousel-slide swiper-slide" data-pid="${giftItem.id}">
+	                            <isinclude url="${URLUtils.url('Tile-Show', 'pid', giftItem.id, 'pview', 'tile', 'ratings', false, 'swatches', false,'isGiftItem', true,'inBasket', giftItem.inBasket,'availabilityStatus',giftItem.outOfStock)}"/>
+	                        </div>
+	                    </isloop>
+	                </div>
+	            </div>
+	         </div>
+	     </div>
+     </isif>
+</div>

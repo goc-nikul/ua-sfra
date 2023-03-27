@@ -1,0 +1,197 @@
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.object );
+importPackage( dw.catalog );
+importPackage( dw.io );
+importPackage( dw.net );
+importPackage( dw.web );
+importPackage( dw.crypto );
+importPackage( dw.content );
+importScript( "submitItem.ds" );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "helpFunctions"));
+var version = require("/bm_smartling_integration/cartridge/scripts/version");
+
+/**
+    Resubmit a custom object into the translation workflow.
+*/
+function resend(itemId : String, languages : ArrayList, submitter : String, type : String) : Boolean
+{
+    try {
+        var smartlingConfigurationJson : JSON = getConfiguration();
+        var targetLocale : JSON = JSON .parse(smartlingConfigurationJson['target_locale']);
+
+        switch (type) {
+             case 'product' :
+                var product : Product = ProductMgr.getProduct(itemId);
+                for each (var language : String in languages) {
+                    var submission : CustomObject = issetSubmission(itemId, language);
+                    if (!submission) {
+                        var submission : CustomObject = CustomObjectMgr.createCustomObject('SMARTLING_SUBMISSION', UUIDUtils.createUUID());
+                    }
+                    submitProduct(submission, product, submitter, language, submission.custom['fileUri']);
+                }
+                break;
+
+            case 'content' :
+                var content : Content = ContentMgr.getContent(itemId);
+                for each (var language : String in languages) {
+                    var submission : CustomObject = issetSubmission(itemId, language);
+                    if (!submission) {
+                        var submission : CustomObject = CustomObjectMgr.createCustomObject('SMARTLING_SUBMISSION', UUIDUtils.createUUID());
+                    }
+                    submitContent(submission, content, submitter, language);
+                }
+                break;
+
+            case 'category' :
+                var category : Category = CatalogMgr.getCategory(itemId);
+                for each (var language : String in languages) {
+                    var submission : CustomObject = issetSubmission(itemId, language);
+                    if (!submission) {
+                        var submission : CustomObject = CustomObjectMgr.createCustomObject('SMARTLING_SUBMISSION', UUIDUtils.createUUID());
+                    }
+                    submitCategory(submission, category, submitter, language);
+                }
+                break;
+         }
+    } catch (e) {
+        LOGGER.errorException('Resend translation failed for itemId={0}, languages="{1}", submitter="{2}", type="{3}"', itemId, languages, submitter, type, e);
+        return false;
+    }
+
+    return true;
+}
+
+/**
+    Utility method to get a configured HTTP client with timeouts.
+*/
+function getHttpClient(delimiter : String, url : String, protocol : String, length : String) : HTTPClient
+{
+    try {
+        var smartlingConfigurationJson : JSON = getConfiguration();
+        var httpClient : HTTPClient = new HTTPClient();
+        httpClient.setRequestHeader('Content-Type', "multipart/form-data; boundary=" + delimiter);
+        httpClient.open(protocol, url);
+        httpClient.setRequestHeader("User-Agent", "demandware-connector/" + version.getVersion());
+        httpClient.setTimeout(smartlingConfigurationJson['time_out']);
+        return httpClient;
+    } catch (e) {
+        LOGGER.errorException('Failed creating HTTPClient for delimiter="{0}", url="{1}", protocol="{2}", length="{3}"', delimiter, url, protocol, length, e);
+        throw new Error(e);
+    }
+}
+
+/**
+    Convenience method to read the cartridge configuraiton data.
+*/
+function getConfiguration() : JSON
+{
+    try {
+        var sitePrefs : SitePreferences = Site.getCurrent().getPreferences();
+        var smartlingConfiguration : String = sitePrefs.custom['smartling_configuration_data'];
+        var smartlingConfigurationJson : JSON = JSON.parse(smartlingConfiguration);
+        return smartlingConfigurationJson;
+    } catch (e) {
+        LOGGER.errorException("Loading configuration failed", e);
+        throw new Error(e);
+    }
+}
+
+/**
+    Convenience method for creating a file
+*/
+function createFile(type, fileName)
+{
+    try {
+        var file = new File(File.IMPEX + File.SEPARATOR + 'smartling' + File.SEPARATOR + type +  File.SEPARATOR +'upload' + File.SEPARATOR);
+        if (!file.isDirectory()) {
+            file.mkdirs();
+        }
+        var file = new File(File.IMPEX + File.SEPARATOR + 'smartling' + File.SEPARATOR + type + File.SEPARATOR + 'upload' + File.SEPARATOR + fileName);
+        if (file.exists()) {
+            file.remove();
+        }
+        return file;
+    } catch (e) {
+        LOGGER.errorException('Create file failed, type="{0}", fileName="{1}"', type, fileName, e);
+        throw new Error(e);
+    }
+}
+
+/**
+    Convenience method to reset a CO back to it's new state.
+*/
+function issetSubmission(itemId : String, language : String) : CustomObject
+{
+    try {
+        var submission : CustomObject = CustomObjectMgr.queryCustomObject('SMARTLING_SUBMISSION', "custom.itemId = {0} AND custom.locale = {1}", itemId, language );
+
+        return submission;
+    } catch (e) {
+        LOGGER.errorException('Failed reset submission for itemId={0}, language="{1}"', itemId, language, e);
+        throw new Error(e);
+    }
+}
+
+/**
+*   Generating token for input params using secret salt
+*/
+function generateToken(sourceString : String) : String
+{
+    var smartlingConfigurationJson : JSON = getConfiguration();
+    var salt : String = smartlingConfigurationJson["tokenSalt"];
+    var phrase : String = sourceString + ":" + salt;
+    var digest : MessageDigest = new MessageDigest("SHA-256");
+    var token : String = Encoding.toHex(digest.digestBytes(new Bytes(phrase, "UTF-8")));
+
+    return token;
+}
+
+/**
+    Get demandware locale by smartling locale
+*/
+// TODO : Duplicate
+function getDemandwareLocale(smartlingLocale : String) : String
+{
+    var smartlingConfigurationJson : JSON = getConfiguration();
+    var targetLocale : JSON = JSON.parse(smartlingConfigurationJson['target_locale']);
+    for each (var locale : Object in targetLocale['target_locale'])
+    {
+        if (locale['smartling'] == smartlingLocale)
+        {
+            return locale['demandware'] ;
+        }
+    }
+    return "";
+}
+
+/**
+    Get all target locales
+*/
+function getTargetLocalesList() : List
+{
+    var smartlingConfigurationJson : JSON = getConfiguration();
+    var targetLocale : JSON = JSON.parse(smartlingConfigurationJson['target_locale']);
+
+    var list : ArrayList = new ArrayList;
+    for each (var locale : Object in targetLocale['target_locale']) {
+        var localeData : ArrayList =  new ArrayList;
+        localeData.addAt(0, locale['demandware']);
+        if (locale['demandware'] == "default") {
+            localeData.addAt(1, "default");
+        } else {
+            var language : CustomObject = CustomObjectMgr.queryCustomObject("SMARTLING_LOCALES", "custom.ID = '" + locale['demandware'] + "'");
+            localeData.addAt(1, language.getCustom()['name']);
+        }
+        list.push(localeData);
+    }
+
+    return list;
+}
+
+if (typeof (exports) !== 'undefined') {
+    exports.createFile = createFile;
+    exports.generateToken = generateToken;
+}

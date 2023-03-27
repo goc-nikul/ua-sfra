@@ -1,0 +1,21 @@
+<div class="approaching-discounts">
+    <isif condition="${pdict.approachingDiscounts && pdict.approachingDiscounts.length > 0}">
+        <div class="approaching-discounts-content">
+            <isloop items="${pdict.approachingDiscounts}" var="approachingDiscount">
+                <isif condition="${approachingDiscount.progressBarEnabled}">
+                    <div class="b-header_progress-bar">
+                        <h4 class="${approachingDiscount.approachingPromoPercentage === '100' ? 't-order_greentick' : 't-orderamount'}"><span></span> <isprint value="${approachingDiscount.discountMsg}"/></h4>
+                        <div class="meter nostripes ${approachingDiscount.approachingPromoPercentage === '100' ? 'green' : 'black'}">
+                            <span style="width: 0" data-promo-width="${approachingDiscount.approachingPromoPercentage + '%'}" data-previous-promo-width="${'0%'}"></span>
+                        </div>
+                        <input class="approchingPromotionID" type="hidden" value="${approachingDiscount.promotionID}" />
+                    </div>
+                <iselse/>
+                    <div class="single-approaching-discount text-center">
+                        ${approachingDiscount.discountMsg}
+                    </div>
+                </isif>
+            </isloop>
+        </div>
+    </isif>
+</div>

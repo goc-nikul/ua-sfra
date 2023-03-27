@@ -1,0 +1,43 @@
+{
+   "columns" :
+      [
+         {
+            "layout" :
+               {
+                  "attribute" : "customer_name"
+               }
+         },
+         {
+            "layout" :
+               {
+                  "attribute" : "customer_info.customer_no"
+               }
+         },
+               {
+                  "label" : "Items",
+                  "layout" :
+                     {
+                       "xpath" : "replace(trim(concat(/product_items[1]/product_name , '\n' , /product_items[2]/product_name,  '\n' , /product_items[3]/product_name  )),'\n',', ')",
+                       "meta" : {"type":"string"}
+                     }
+               },
+         {
+            "layout" :
+               {
+                  "attribute" : "creation_date"
+               }
+         },
+         {
+            "layout" :
+               {
+                  "attribute" : "status"
+               }
+         },
+         {
+            "layout" :
+               {
+                  "attribute" : "billing_address.phone"
+               }
+         }
+      ]
+}

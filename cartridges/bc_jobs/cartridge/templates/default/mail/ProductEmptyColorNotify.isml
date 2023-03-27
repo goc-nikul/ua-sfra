@@ -1,0 +1,60 @@
+<iscontent compact="true">
+<div style="font: normal 12px/150% Arial, Helvetica, sans-serif;background:#fff;text-align:left;">
+	<table cellpadding="4" style="border:1px solid #8C8C8C;border-collapse: collapse;">
+		<tr>
+            <th style="background-color:#8C8C8C;color:#FFFFFF;font-size:15px;font-weight:bold;text-align:left;padding:5px 10px;">
+            	${Resource.msg('email.masterid', 'imageassignment', null)}
+            </th>
+            <th style="background-color:#8C8C8C;color:#FFFFFF;font-size:15px;font-weight:bold;text-align:left;padding:5px 10px;border-left:1px solid #A3A3A3;">
+            	${Resource.msg('email.masteridcolor', 'imageassignment', null)}
+            </th> 
+            <th style="background-color:#8C8C8C;color:#FFFFFF;font-size:15px;font-weight:bold;text-align:left;padding:5px 10px;border-left:1px solid #A3A3A3;">
+            	${Resource.msg('email.variationid', 'imageassignment', null)}
+            </th>
+            <th style="background-color:#8C8C8C;color:#FFFFFF;font-size:15px;font-weight:bold;text-align:left;padding:5px 10px;border-left:1px solid #A3A3A3;">
+            	${Resource.msg('email.emptyfields', 'imageassignment', null)}
+            </th>
+        </tr>
+        <isif condition="${!empty(pdict.products)}">
+        	<isloop items="${pdict.products}" var="product" status="loopstate">
+        	<tr>
+        		<td style="padding:5px 10px;color:#7D7D7D;font-size:12px;border-bottom:1px solid #DBDBDB;">
+        			${product.getMasterProduct().getID()}
+        		</td>
+        		<td style="padding:5px 10px;color:#7D7D7D;border-left:1px solid #DBDBDB;font-size:12px;border-bottom:1px solid #DBDBDB;">
+        			${product.getMasterProduct().getID() + "-" + product.custom.color}
+        		</td>
+        		<td style="padding:5px 10px;color:#7D7D7D;border-left:1px solid #DBDBDB;font-size:12px;border-bottom:1px solid #DBDBDB;">
+        			${product.getID()}
+        		</td>
+        		<td style="padding:5px 10px;color:#7D7D7D;border-left:1px solid #DBDBDB;font-size:12px;border-bottom:1px solid #DBDBDB;">
+        			<isif condition="${empty(product.custom.hexcolor) && !empty(product.custom.colorgroup)}">
+        				${Resource.msg('email.hexcolor', 'imageassignment', null)}
+        				<iselseif condition="${!empty(product.custom.hexcolor) && empty(product.custom.colorgroup)}">
+        					${Resource.msg('email.colorgroup', 'imageassignment', null)}
+        				</iselseif>
+        				<iselse>
+        				${Resource.msg('email.hexcolorcolorgroup', 'imageassignment', null)}
+        			</isif>
+        		</td>
+        	</tr>
+            </isloop>
+        </isif>
+	</table>
+</div>
+<br/>
+<div>
+	<span style="font-weight:bold;text-decoration:underline">${Resource.msg('email.steptofix', 'imageassignment', null)}</span>
+	<ol>
+		<li>${Resource.msg('email.steptofix.first', 'imageassignment', null)}</li>
+		<li>${Resource.msg('email.steptofix.second', 'imageassignment', null)}
+			<ul>
+				<li>${Resource.msg('email.steptofix.second.subfirst', 'imageassignment', null)}</li>
+				<li>${Resource.msg('email.steptofix.second.subsecond', 'imageassignment', null)}</li>
+			</ul>
+		</li>
+		<li>${Resource.msg('email.steptofix.third', 'imageassignment', null)}</li>
+		<li>${Resource.msg('email.steptofix.fourth', 'imageassignment', null)}</li>
+	</ol>
+	<isprint value="${Resource.msg('email.steptofix.note', 'imageassignment', null)}" encoding="off"/>	
+</div>

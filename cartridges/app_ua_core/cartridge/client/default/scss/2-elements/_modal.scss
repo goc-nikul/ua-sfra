@@ -1,0 +1,304 @@
+/* md
+
+# Popups
+Popup element can be modified
+
+```html
+    <div class="g-modal" tabindex="-1" role="dialog">
+        <div class="g-modal-dialog" role="document">
+            <div class="g-modal-content">
+                <div class="g-modal-close">
+                    <button type="button" class="close g-modal-close_button" data-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div class="g-modal-header">
+                    <h3 class="g-modal-header_title t-title-3">Shopping preferences</h5>
+                </div>
+                <div class="g-modal-body">
+                    <p>Note! If you change your location while shopping, we regret that you will lose the items in your shopping bag and any promo codes applied.</p>
+                </div>
+                <div class="g-modal-footer">
+                    <button type="button" class="g-button_third">
+                        Start shopping
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+```
+
+# Global popup desktop
+
+```html_example
+    <div style="display: block; position: relative; height: 415px; width: 350px;" class="g-modal fade show" tabindex="-1" role="dialog">
+        <div style="max-height: 415px;" class="g-modal_dialog" role="document">
+            <div class="g-modal_content">
+                <div class="g-modal_close">
+                    <button type="button" class="close g-modal_close-button" data-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div class="g-modal_header">
+                    <h3 class="g-modal_header-title t-title-3">Shopping preferences</h5>
+                </div>
+                <div class="g-modal_body">
+                    <p style="margin-bottom: 35px;">Note! If you change your location while shopping, we regret that you will lose the items in your shopping bag and any promo codes applied.</p>
+                    <div class="b-input_row">
+                        <label class="b-input_row-label">Email</label>
+                        <input type="text" class="b-input_row-input">
+                    </div>
+                    <div class="b-input_row">
+                        <label class="b-input_row-label">Email</label>
+                        <input type="text" class="b-input_row-input">
+                    </div>
+                </div>
+                <div class="g-checkbox">
+                    <input class="g-checkbox_input" type="checkbox" id="checkbox-1">
+                    <label class="g-checkbox_label" for="checkbox-1"><span>By signing up, you agree to our Privacy.</span></label>
+                </div>
+                <div class="g-modal_footer">
+                    <button class="g-button_primary-black">button (on button)</button>
+                    <button class="g-button_facebook">button (on button)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="position: absolute; width: 522px;" class="modal-backdrop show"></div>
+```
+
+*/
+
+// Global modal styling
+.g-modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1051;
+    display: none;
+    overflow-y: auto;
+    outline: 0;
+    -webkit-overflow-scrolling: auto;
+
+    &.g-modal-sizeChart.show,
+    &.g-modal-instorepickup.show {
+        z-index: 1053;
+
+        + .modal-backdrop {
+            z-index: 1052;
+        }
+    }
+
+    &-dialog {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: auto;
+        height: auto;
+        margin: 0 auto;
+        pointer-events: none;
+
+        &.g-productZoom-modal-dialog {
+            @include respond-to(mobile) {
+                align-items: flex-start;
+                height: 100%;
+            }
+        }
+    }
+
+    &-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        padding: rem-calc(40) rem-calc(40) rem-calc(45);
+        background-color: $white;
+        outline: 0;
+        pointer-events: auto;
+        box-shadow: 0 0 100vw 100vw rgba(0, 0, 0, 0.6);
+
+        .b-loader {
+            position: absolute;
+        }
+
+        &.g-productZoom-modal-content {
+            padding: 0;
+            height: 100vh;
+
+            @include respond-to(mobile) {
+                height: 100%;
+
+                .g-productZoom-modal-body,
+                .b-product_carousel {
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+    &-header {
+        margin-bottom: rem-calc(23);
+    }
+
+    &-header_title {
+        @include t-title-5;
+    }
+
+    &-body {
+        @include t-text-2;
+
+        min-height: 1px; // hack for IE 10/11
+    }
+
+    &-footer {
+        margin-top: rem-calc(30);
+
+        &.g-productZoom-modal-footer {
+            margin: 0;
+            position: absolute;
+            top: rem-calc(24);
+            right: rem-calc(24);
+
+            @include respond-to(mobile) {
+                top: rem-calc(16);
+                right: rem-calc(16);
+            }
+
+            button {
+                background: $white;
+                border-radius: 50%;
+                width: rem-calc(32);
+                height: rem-calc(32);
+                border: 0;
+
+                &:focus {
+                    box-shadow: none !important;
+                }
+            }
+
+            .g-modal-close-button {
+                margin: 0 auto;
+                position: relative;
+                top: rem-calc(8);
+                width: rem-calc(16);
+                height: rem-calc(16);
+                cursor: pointer;
+
+                &::before,
+                &::after {
+                    width: rem-calc(16);
+                }
+            }
+        }
+    }
+
+    &-close {
+        position: absolute;
+        top: rem-calc(24);
+        right: rem-calc(24);
+        z-index: 1;
+        border: 0;
+        background: transparent;
+    }
+
+    &-close-button {
+        @include closeIcon;
+    }
+
+    &-zoom {
+        .b-product_carousel {
+            height: 100vh;
+            background: $grey2;
+
+            .b-product_carousel-wrapper {
+                @include respond-to(desktop) {
+                    flex-wrap: wrap;
+                    overflow-y: scroll;
+                }
+            }
+
+            .b-product_carousel-slide {
+                flex-basis: 100%;
+
+                @include respond-to(desktop) {
+                    margin-bottom: rem-calc(24);
+                    height: 100vh;
+
+                    .b-product_carousel-image {
+                        height: 100%;
+                    }
+                }
+            }
+
+            @include respond-to(mobile) {
+                position: static;
+
+                .b-product_carousel-wrapper {
+                    overflow-x: scroll;
+                }
+
+                .b-product_carousel-slide {
+                    padding: 0 rem-calc(10);
+                }
+            }
+
+            &-pagination {
+                position: absolute;
+                left: rem-calc(27);
+                transition: 0.3s opacity;
+                top: rem-calc(24);
+                z-index: 99;
+
+                @include respond-to(mobile) {
+                    left: 50%;
+                    transform: translate(-50%);
+                    top: auto;
+                    bottom: rem-calc(20);
+                    width: 100%;
+                    text-align: center;
+                }
+
+                .b-product_carousel-pagination-dot {
+                    width: rem-calc(10);
+                    height: rem-calc(10);
+                    border-radius: 100%;
+                    margin-bottom: rem-calc(14);
+                    background: $grey3;
+                    display: block;
+                    cursor: pointer;
+
+                    @include respond-to(mobile) {
+                        outline: 0;
+                        margin-left: rem-calc(12);
+                        margin-bottom: 0;
+                        display: inline-block;
+
+                        &:first-child {
+                            margin-left: 0;
+                        }
+                    }
+
+                    &.b-product_carousel-pagination-active {
+                        background: $black;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 100vw;
+    height: 100vh;
+    background-color: $primary-color;
+    opacity: 0.6;
+
+    &.overlay {
+        z-index: 101;
+    }
+}

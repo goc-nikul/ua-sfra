@@ -1,0 +1,31 @@
+<isset name="DataCollectorUrl" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('accertifyDataCollectorUrl')}" scope="page" />
+     <script lang="text/javascript" async=true>
+      var start = performance.now();
+	  var DATA_COLLECTOR_URL = "${DataCollectorUrl}";
+	  // Data Collector script
+	  var s = document.createElement( 'script' );
+	  s.setAttribute( 'type', 'text/javascript' );
+	  s.setAttribute( 'src', DATA_COLLECTOR_URL );
+	  s.setAttribute( 'dvct', '500' );
+	  s.setAttribute( 'id', 'bcn' );
+	  s.setAttribute( 'dvc', 'a' );
+	  s.onload = function() { 
+	    start = performance.now();
+	    if(window.hasOwnProperty('_bcn') && window._bcn.hasOwnProperty('dvc')) {
+		   window._bcn.dvc.setSubmissionCallback(registeredCallBackMethod); 
+		}
+	  }
+	  document.head.appendChild( s );	  
+	  // call back method that will be invoked when the transaction was successfully sent
+	  function registeredCallBackMethod() { 
+	     const callback = performance.now();
+	    // console.log("Time for callback " + (callback - start)/1000.000 + " seconds");
+	     if(window.hasOwnProperty('_bcn') && window._bcn.hasOwnProperty('dvc')) {
+	    	//console.log("Set the device transaction ID: " + window._bcn.dvc.getTID());
+			//Under Armour sets its own device transaction id server-side
+			document.getElementById("devTID").value = window._bcn.dvc.getTID();
+			document.cookie = "deviceID=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+		    document.cookie = "deviceID="+window._bcn.dvc.getTID();
+		 }
+	  }
+   </script>

@@ -1,0 +1,27 @@
+/**
+*   @input itemId : String
+*   @output catalog : dw.catalog.Catalog
+*
+*/
+importPackage( dw.system );
+importPackage( dw.catalog );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "category.getInformation"));
+
+/**
+    Get the category for the passed in itemId
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        pdict.catalog =  CatalogMgr.getSiteCatalog();
+        var category : Category = CatalogMgr.getCategory(pdict.itemId);
+    } catch (e) {
+        LOGGER.errorException("Can not get category information for itemId={0}", pdict.itemId, e);
+        return PIPELET_ERROR;
+     }
+
+
+   return PIPELET_NEXT;
+}

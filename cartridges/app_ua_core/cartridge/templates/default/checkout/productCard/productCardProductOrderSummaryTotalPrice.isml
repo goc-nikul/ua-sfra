@@ -1,0 +1,16 @@
+<isif condition="${!empty(lineItem.priceTotal.strikeThroughPrice)}">
+    <span class="${lineItem.priceTotal.strikeThroughPrice ? 'highlighted' : ''} strike-through bfx-price bfx-original-price non-adjusted-price">
+        <isprint value=${lineItem.priceTotal.strikeThroughPrice} encoding="off" />
+    </span>
+</isif>
+<isif condition="${lineItem.bfPriceTotal && !empty(lineItem.bfPriceTotal.adjustedUnitPrice)}"> 
+    <span class="cart-item-list-pricefirst bfx-price bfx-list-price hide">${lineItem.custom.giftCard === 'EGIFT_CARD' ? lineItem.priceTotal.price : lineItem.bfPriceTotal.adjustedUnitPrice}</span>
+    <span class="${lineItem.priceTotal.strikeThroughPrice ? 'highlighted' : ''} pricing line-item-total-price-amount bfx-price bfx-product-subtotal item-total-${lineItem.UUID}">
+        <isprint value="${lineItem.custom.giftCard === 'EGIFT_CARD' ? lineItem.priceTotal.price : lineItem.bfPriceTotal.adjustedUnitPrice}" encoding="off" /> x <isprint value="${lineItem.quantity}" formatter="##" />
+    </span>
+<iselse>
+    <span class="cart-item-list-pricefirst bfx-price bfx-list-price hide">${lineItem.custom.giftCard === 'EGIFT_CARD' ? lineItem.priceTotal.price : lineItem.price.sales.formatted}</span>
+<span class="${lineItem.priceTotal.strikeThroughPrice ? 'highlighted' : ''} pricing line-item-total-price-amount bfx-price bfx-product-subtotal item-total-${typeof lineItem !=='undefined' ? lineItem.UUID :''}">
+    <isprint value="${lineItem.custom.giftCard === 'EGIFT_CARD' ? lineItem.priceTotal.price : lineItem.price.sales.formatted}" encoding="off" /> x <isprint value="${lineItem.quantity}" formatter="##" />
+</span>
+</isif>

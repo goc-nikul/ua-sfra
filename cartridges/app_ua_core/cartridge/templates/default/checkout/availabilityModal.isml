@@ -1,0 +1,76 @@
+<div class="g-modal g-availability-modal" id="checkoutAvailabilityModal" tabindex="-1" role="dialog" aria-labelledby="checkoutAvailabilityModal" data-addr-ID="">
+    <div class="g-modal-dialog g-availability-modal-dialog" role="document">
+		<div class="g-modal-content g-availability-modal-content">	
+			<!-- Modal content-->
+			<div class="g-modal-body g-availability-modal-body">
+				<div class="g-availability-modal-title">${Resource.msg('msg.checkout.availability', 'checkout', null)}</div>
+				<isset name="productHelpers" value="${require('*/cartridge/scripts/helpers/productHelpers')}" scope="page"/>
+				<isif condition="${!empty(pdict.fullyRemovedItems)}">
+					<isloop items="${pdict.fullyRemovedItems}" var="lineItem" status="loopState" >		
+						<p class="g-availability-modal-text">${Resource.msg('msg.checkout.outofstock', 'checkout', null)}</p>
+						<div class="b-cartlineitem_row">
+					        <div class="b-cartlineitem_image line-item-image">
+					             <img src="${lineItem.images.cartFullDesktop[0].url}" class="line-item-product-image" title="${lineItem.images.cartFullDesktop[0].title}" alt="${lineItem.images.cartFullDesktop[0].alt} image number ${lineItem.images.cartFullDesktop[0].index}" itemprop="image" />
+					        </div>
+					    	<div class="b-cartlineitem_details">
+					            <isinclude template="cart/productCard/cartProductCardHeader" />
+					             <div class="b-cartlineitem_attributes">
+					                <isif condition="${lineItem.custom.style}">
+					                    <p class="t-lineitem_attributes">${Resource.msg('label.product.item.name', 'cart', null)} ${lineItem.custom.style}</p>
+					                 </isif>
+					                 <isloop items="${lineItem.variationAttributes}" var="attribute">
+					                    <isif condition="${attribute.attributeId == 'color'}"> 
+					                        <p class="t-lineitem_attributes ${attribute.displayName}-${lineItem.UUID}">
+												<isset name="fixProductColorNames" value="${productHelpers.fixProductColorNames(lineItem.custom.colorway)}" scope="page"/>
+					                            ${attribute.displayName}: <isif condition="${lineItem.custom.colorway}"> <span>${fixProductColorNames}</span></isif><span> - <isprint value="${lineItem.custom.color}"/></span>
+					                        </p>
+					                    <iselse>
+					                        <p class="t-lineitem_attributes ${attribute.displayName}-${lineItem.UUID}">${attribute.displayName}: ${attribute.displayValue}</p>
+					                    </isif>
+						             </isloop>
+						        </div>	        
+					        </div>
+					    </div>
+					</isloop>
+				</isif>	
+				<isif condition="${!empty(pdict.partiallyRemovedItems)}">
+					<isloop items="${pdict.partiallyRemovedItems}" var="lineItem" status="loopState" >	
+						<p class="g-availability-modal-text">${Resource.msgf('cart.partiallyremoveditems', 'checkout', null, lineItem.removedQuantity)}</p>
+						<div class="b-cartlineitem_row">
+					        <div class="b-cartlineitem_image line-item-image">
+					             <img src="${lineItem.images.cartFullDesktop[0].url}" class="line-item-product-image" title="${lineItem.images.cartFullDesktop[0].title}" alt="${lineItem.images.cartFullDesktop[0].alt} image number ${lineItem.images.cartFullDesktop[0].index}" itemprop="image" />
+					        </div>
+					    	<div class="b-cartlineitem_details">
+					            <isinclude template="cart/productCard/cartProductCardHeader" />
+					             <div class="b-cartlineitem_attributes">
+					                <isif condition="${lineItem.custom.style}">
+					                    <p class="t-lineitem_attributes">${Resource.msg('label.product.item.name', 'cart', null)} ${lineItem.custom.style}</p>
+					                 </isif>
+					                 <isloop items="${lineItem.variationAttributes}" var="attribute">
+					                    <isif condition="${attribute.attributeId == 'color'}"> 
+					                        <p class="t-lineitem_attributes ${attribute.displayName}-${lineItem.UUID}">
+		                    					<isset name="fixProductColorNames" value="${productHelpers.fixProductColorNames(lineItem.custom.colorway)}" scope="page"/>
+					                            ${attribute.displayName}: <isif condition="${lineItem.custom.colorway}"> <span>${fixProductColorNames}/</span> </isif><span> - <isprint value="${lineItem.custom.color}"/></span>
+					                        </p>
+					                    <iselse>
+					                        <p class="t-lineitem_attributes ${attribute.displayName}-${lineItem.UUID}">${attribute.displayName}: ${attribute.displayValue}</p>
+					                    </isif>
+						             </isloop>
+						        </div>	        
+					        </div>
+					    </div>
+					</isloop>
+				</isif>
+			</div>
+			<div class="g-modal-footer g-availability-modal-footer">
+				<isif condition="${pdict.productQuantityTotal === 0}">
+					 <a class="g-button_base g-button_secondary--black btn btn-outline-primary" href="${URLUtils.https('Cart-Show')}">${Resource.msg('msg.checkout.returtocart', 'checkout', null)}</a>
+					 <a class="g-button_base g-button_primary--black btn btn-primary b-button-continue" href="${URLUtils.https('Home-Show')}">${Resource.msg('msg.checkout.continueshopping', 'checkout', null)}</a>
+				<iselse>
+					<button type="button" class="g-button_base g-button_primary--black btn btn-primary b-button-continue" data-dismiss="modal" data-action="home">${Resource.msg('msg.checkout.continue', 'checkout', null)}</button>		
+					<a class="g-button_base g-button_secondary--black btn btn-outline-primary" href="${URLUtils.https('Cart-Show')}">${Resource.msg('msg.checkout.returtocart', 'checkout', null)}</a>
+				</isif>	
+			</div>
+		</div>	
+    </div>
+</div>

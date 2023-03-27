@@ -1,0 +1,15 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+
+<script src="https://js.tosspayments.com/v1"></script>
+<script>
+    var clientKey = '<isprint value="${pdict.clientKey}" encoding="off"/>';
+    var tossPaymentType = '<isprint value="${pdict.paymentType}" encoding="off"/>';
+    var tossPaymentObject = <isprint value="${pdict.paymentObject}" encoding="off"/>;
+    var returnUrl = '<isprint value="${pdict.returnUrl}" encoding="off"/>';
+    var tossPayments = TossPayments(clientKey);
+    tossPayments.requestPayment(tossPaymentType, tossPaymentObject).catch(function (error) {
+        if (error.code === 'USER_CANCEL') {
+            window.location.replace(returnUrl)
+        }
+    });
+</script>

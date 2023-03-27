@@ -1,0 +1,85 @@
+// scss-lint:disable SpaceAfterPropertyColon
+
+///	Mixin for adding an Arrow/Triangle as a pseudo-element
+///	@group Styling
+///	@example
+///		@include arrow($position: before,  $direction: left, $color: color(text), $size: 5px, $margin: 0 0 0 0)
+
+@mixin arrow($position: before, $direction: left, $color: color(text), $size: 6px, $margin: 0 0 0 0) {
+    // arrow is straight in element
+    @if $position == self {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        margin: $margin;
+        vertical-align: middle;
+
+        @if $direction == left {
+            border-top: $size solid transparent;
+            border-right: $size solid $color;
+            border-bottom: $size solid transparent;
+            border-left: 0;
+        }
+
+        @if $direction == right {
+            border-top: $size solid transparent;
+            border-right: 0;
+            border-bottom: $size solid transparent;
+            border-left: $size solid $color;
+        }
+
+        @if $direction == up {
+            border-top: 0;
+            border-right: $size solid transparent;
+            border-bottom: $size solid $color;
+            border-left: $size solid transparent;
+        }
+
+        @if $direction == down {
+            border-top: $size solid $color;
+            border-right: $size solid transparent;
+            border-bottom: 0;
+            border-left: $size solid transparent;
+        }
+    } @else {// arrow in pseudo element
+        &:#{$position} {
+            content: '';
+            display: inline-block;
+            width: 0;
+            height: 0;
+            margin: $margin;
+            vertical-align: middle;
+
+            @if $direction == left {
+                border-top: $size solid transparent;
+                border-right: $size solid $color;
+                border-bottom: $size solid transparent;
+                border-left: 0;
+            }
+
+            @if $direction == right {
+                border-top: $size solid transparent;
+                border-right: 0;
+                border-bottom: $size solid transparent;
+                border-left: $size solid $color;
+            }
+
+            @if $direction == up {
+                border-top: 0;
+                border-right: $size solid transparent;
+                border-bottom: $size solid $color;
+                border-left: $size solid transparent;
+            }
+
+            @if $direction == down {
+                border-top: $size solid $color;
+                border-right: $size solid transparent;
+                border-bottom: 0;
+                border-left: $size solid transparent;
+            }
+
+            @content;
+        }
+    }
+}
+

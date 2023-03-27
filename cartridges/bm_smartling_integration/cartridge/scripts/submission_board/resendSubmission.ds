@@ -1,0 +1,42 @@
+/**
+*   @input button : String
+*   @input uuids : dw.util.Collection
+*   @input submitter : String
+*   @output message : String
+*/
+importPackage( dw.system );
+importPackage( dw.object );
+importPackage( dw.net );
+importPackage( dw.util );
+importPackage( dw.crypto );
+importScript( "helpFunctions.ds" );
+importScript( "dao/submission.ds");
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "submissionBoard.resendSubmission"));
+
+/**
+    Call the smartling API to resend for translation.
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        for each (var uuid : String in pdict.uuids) {
+            var submission : CustomObject = CustomObjectMgr.queryCustomObject('SMARTLING_SUBMISSION', "UUID = '" + uuid + "'", null);
+            switch (pdict.button) {
+                case "resend" :
+                    LOGGER.info('Resending submission: {0}', submissionToString(submission));
+                    var languages : ArrayList = new ArrayList(submission.custom['locale']);
+                    resend(submission.custom['itemId'], languages, pdict.submitter, submission.custom['itemType']);
+                    pdict.message = "Resend successful";
+                    break;
+                default :
+                    LOGGER.warn("Wrong action received for resend: {0}", pdict.button);
+            }
+        }
+    } catch (e) {
+        LOGGER.errorException('submissionBoard.resendSubmission execution failed: button="{0}", uuids="{1}", submitter="{2}"', pdict.button, pdict.uuids, pdict.submitter, e);
+        return PIPELET_ERROR;
+    }
+   return PIPELET_NEXT;
+}

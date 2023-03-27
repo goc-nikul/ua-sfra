@@ -1,0 +1,113 @@
+.b-nosearch_results {
+    &-wrapper {
+        display: flex;
+        flex-direction: column;
+
+        @include respond-to(desktop) {
+            @include grid-row;
+        }
+    }
+
+    &-section {
+        @include respond-to(desktop) {
+            display: flex;
+            padding-top: spacing(lg);
+            padding-bottom: rem-calc(100);
+        }
+
+        @include respond-to(desktop-large) {
+            padding-top: spacing(xl2);
+            padding-bottom: spacing(xl3);
+        }
+    }
+
+    &-content {
+        @include respond-to(mobile) {
+            padding-top: spacing(sm);
+            padding-bottom: spacing(md);
+        }
+
+        @include respond-to(desktop) {
+            @include grid-col(10);
+        }
+
+        @include respond-to(desktop-large) {
+            @include grid-col(8);
+            @include grid-col-offset(1);
+        }
+    }
+
+    &-contact_us {
+        @include respond-to(mobile) {
+            padding-top: spacing(md);
+            padding-bottom: spacing(sm);
+            border-top: 1px solid $grey3;
+        }
+
+        @include respond-to(desktop) {
+            @include grid-col(2);
+        }
+
+        @include respond-to(desktop-large) {
+            @include grid-col-offset(1, right);
+        }
+    }
+
+    &-recommendation {
+        padding-top: rem-calc(32);
+        border-top: 1px solid $grey3;
+
+        @include respond-to(desktop-large) {
+            @include grid-col-offset(1);
+            @include grid-col-offset(1, right);
+
+            padding-top: spacing(xl3);
+        }
+
+        @include respond-to(tablets-landscape) {
+            padding-top: rem-calc(100);
+        }
+    }
+
+    &-recommendation_title {
+        @include t-title-4;
+
+        margin-bottom: rem-calc(40);
+
+        @include respond-to(mobile) {
+            margin-bottom: rem-calc(16);
+        }
+    }
+
+    &-title {
+        @include t-title-3;
+
+        padding-bottom: rem-calc(24);
+    }
+
+    &-info {
+        font-weight: $font-medium;
+
+        @include respond-to(mobile) {
+            font-size: rem-calc(12);
+        }
+    }
+
+    &-link {
+        @include link;
+
+        text-decoration: underline;
+
+        &:hover {
+            text-decoration: none;
+        }
+
+        @include respond-to(mobile) {
+            color: inherit;
+        }
+    }
+
+    &-text {
+        color: $grey5;
+    }
+}

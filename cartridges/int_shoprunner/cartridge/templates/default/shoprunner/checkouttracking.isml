@@ -1,0 +1,44 @@
+<!--- TEMPLATENAME: checkouttracking.isml --->
+
+<iscomment>
+	Checkout page tracking for all orders regardless of ShopRunner status
+</iscomment>
+
+<isscript>
+	var pixelProcessor = require( "~/cartridge/scripts/feeds/PixelProcessor").getProcessor(pdict.Order);
+	var productTrackingPixel = pixelProcessor.process();
+</isscript>
+
+<script type="text/javascript"><!--
+function srOrderSubmit()
+{
+    _shoprunner_com.orderID = "${pdict.Order.orderNo}";
+    _shoprunner_com.tokenID = "${productTrackingPixel.tokenID}";
+
+    // Repeat the line for each product in the order
+    _shoprunner_com.confirmedProducts = "${productTrackingPixel.productConfirmed}" //"|ABC~1~10.99~SR 2Day~true~UNK";
+    // SKU~Quantity~UnitPrice~ShipMethod~SR Eligibility~ItemAvailability
+
+   _shoprunner_com.totalOrderAmount = ${pdict.Order.totalGrossPrice.value};
+   _shoprunner_com.billingSubTotal = ${pdict.Order.adjustedMerchandizeTotalNetPrice.value};
+   _shoprunner_com.tenderType = "${productTrackingPixel.tenderType}";
+   _shoprunner_com.environmentID = ${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_environment').value};
+   _shoprunner_com.submitConfirmationData();
+}
+(function() {
+    var interval, count = 0;
+    // once the SR code has loaded, submit the order data.
+    function srTryToSubmit() {
+        if (typeof(_shoprunner_com) != 'undefined'
+        && typeof(_shoprunner_com.submitConfirmationData) == 'function') {
+            clearInterval(interval);
+            srOrderSubmit();
+        }
+        count += 1;
+        if(count > 10) // Retry for 5 seconds
+            clearInterval(interval);
+    }
+    // try to submit the order data every 500ms.
+    interval = setInterval(srTryToSubmit, 500);
+})();
+--></script>

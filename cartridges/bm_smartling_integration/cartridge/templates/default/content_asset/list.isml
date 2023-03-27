@@ -1,0 +1,179 @@
+<isdecorate template="application/MenuFrame">
+<iscontent type="text/html" charset="UTF-8"/>
+<isinclude template="inc/Modules"/>
+<!-- Page Navigator -->
+
+<table border="0" cellspacing="0" cellpadding="0">
+    <tbody>
+        <tr>
+            <td class="breadcrumb">
+                <a class="breadcrumb" href="${URLUtils.url('ViewApplication-CompressMenuGroup', 'MenuGroupID', 'SiteMenu', 'OverviewPage', 'SiteNavigationBar-ShowSiteOverview')}">Site</a>
+                &nbsp>&nbsp
+                <a class="breadcrumb" href="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', 'smartling')}">Smartling</a>
+                &nbsp>&nbsp Content Assets List
+            </td>
+        </tr>
+    </tbody>
+</table>
+<!-- EO Page Navigator -->
+
+<isscript>
+var util = require("~/cartridge/scripts/util");
+</isscript>
+
+<h1>Content Assets List </h1>
+
+<form action="${URLUtils.url('ContentAsset-SendTranslate')}" onsubmit="return submitForm();" method="post" name="contentAssetsSendTranslate">
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="  margin-bottom: 30px; margin-left: 20px;">
+<isloop items="${pdict.localesList}" var="locale">
+    <tr><td>
+        <input type="checkbox" name="language" value="${locale.get(0)}" id="${locale.get(0)}"/><label for="${locale.get(0)}"> ${locale.get(1)}</label>
+    </td></tr>
+</isloop>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+        <td class="table_header w e s" width="10px" style="width:10px"><a id="select" onclick="checkAll('itemId')">Select All<a/> <a id="clean" style="display: none;"onclick="unCheckAll('itemId')">Clean All<a/></td>
+        <td class="table_header e s">ID</td>
+        <td class="table_header e s">Name</td>
+        <td class="table_header e s">Locales</td>
+        <td class="table_header e s">Status Link</td>
+    </tr>
+
+        <isloop items="${pdict.contentModel.pageElements}" var="content">
+            <tr>
+                <td class="table_detail w e s" width="10px" style="width:10px"><input type="checkbox" name="itemId" value="${content.ID}"/></td>
+                <td class="table_detail e s"><a href="${URLUtils.url('ViewLibraryContent_52-Start', 'ContentUUID', content.getUUID())}">${content.ID}</a></td>
+                <td class="table_detail e s">${content.name}</td>
+                <td class="table_detail e s" nowrap="nowrap">
+                    ${util.getLocales(content.ID)}
+                </td>
+                <td class="table_detail e s" nowrap="nowrap">
+                    <a href="${URLUtils.url('ContentAsset-ShowItemStatus', 'item', content.ID)}">Show Status</a>
+                </td>
+            </tr>
+        </isloop>
+
+
+
+        <tr>
+            <td colspan="5" class="w e s" align="right">
+                <table border="0" cellspacing="5" cellpadding="0">
+                    <tr>
+                        <td class="button"><input type="submit" name="send" value="Translate" class="button"/></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+</table>
+<isscript>
+    current = pdict.CurrentHttpParameterMap.page.stringValue;
+    totalCount = pdict.contentCount;
+    maxPage = 20;
+
+    lr = 5; // number of explicit page links to the left and right
+    if ( maxPage <= 2*lr )
+    {
+        rangeBegin = 0;
+        rangeEnd = maxPage;
+    }
+    else
+    {
+        rangeBegin = Math.max( Math.min( current - lr, maxPage - 2*lr ), 0 );
+        rangeEnd = Math.min( rangeBegin + 2*lr, maxPage );
+    }
+
+
+
+</isscript>
+<table class="pagecursor" width="100%" border="0" cellspacing="1" cellpadding="1">
+    <tbody>
+        <tr>
+            <td class="pagecursortxt top" align="left" width="100%" nowrap="nowrap"></td>
+
+            <isloop status="i" begin="${rangeBegin}" end="${rangeEnd}">
+                <isif condition="${i.index < totalCount-1}">
+                    <isif condition="${i.index == current-1}">
+                        <td class="pagecursoritem" align="right" width="1">
+                            <a href="${URLUtils.url('ContentAsset-List', 'page', (i.index + 1).toString())}" class="pagecursorbtn" style="border: 1px solid #ccc;"><b>[${(i.index + 1).toString()}]</b></a>
+                        </td>
+                    <iselse>
+                        <td class="pagecursortxt" align="right" width="1">
+                            <a href="${URLUtils.url('ContentAsset-List', 'page', (i.index + 1).toString())}" class="pagecursorbtn" style="border: 1px solid #ccc;"><b>[${(i.index + 1).toString()}]</b></a>
+                        </td>
+                    </isif>
+                </isif>
+                <isif condition="${(totalCount-((i.index+1)*maxPage)) <= 0}">
+                    <isbreak/>
+                </isif>
+            </isloop>
+        </tr>
+    </tbody>
+</table>
+</form>
+<script type="text/javascript">
+function submitForm()
+{
+    var itemCheckbox = jQuery("[name='itemId']");
+    var languageCheckbox = jQuery("[name='language']");
+    var items = new Array();
+    var languages = new Array();
+    var languageNames = new Array();
+    var ajaxUrl = "${URLUtils.url('ContentAsset-SendTranslate')}";
+
+
+    itemCheckbox.each(function(index, value) {
+        if(jQuery(this).prop( "checked" )) {
+            items.push(jQuery(this).val());
+        }
+    });
+
+    languageCheckbox.each(function(index, value) {
+        if(jQuery(this).prop( "checked" )) {
+            languages.push(jQuery(this).val());
+            languageNames.push(jQuery("label[for='"+jQuery(this).attr("id")+"']").text())
+        }
+    });
+
+    if (languages.size() == 0 || items.size() == 0) {
+        alert("Please select both content assets and languages.")
+        return false;
+    }
+
+    if (! window.confirm("You have selected " + items.size() + " items for translation.\n" +
+               "Target languages: " + languageNames.join().replace(',', ' ,') + ".\n" +
+               "Click OK to submit for translation.")) {
+        return;
+    }
+
+    jQuery.ajax({
+      url: ajaxUrl + '?itemId=' + items.join() + '&language=' + languages.join()
+    }).done(function(response) {
+        alert("Items sent for translation. Thank you!");
+        window.location.reload(true);
+    });
+}
+
+function checkAll(name)
+{
+    var checkbox = jQuery("[name='"+name+"']");
+    checkbox.each(function(index, value) {
+        jQuery(this).prop("checked", true);
+    });
+    jQuery(document.getElementById('select')).hide();
+    jQuery(document.getElementById('clean')).show();
+}
+
+function unCheckAll(name)
+{
+    var checkbox = jQuery("[name='"+name+"']");
+    checkbox.each(function(index, value) {
+        jQuery(this).removeAttr('checked');
+    });
+    jQuery(document.getElementById('clean')).hide();
+    jQuery(document.getElementById('select')).show();
+}
+</script>
+</isdecorate>

@@ -1,0 +1,25 @@
+<link rel="stylesheet" href="${URLUtils.staticURL('/lib/jqueryui/jquery-ui.min.css')}" />
+<link rel="stylesheet" href="${URLUtils.staticURL('/lib/bootstrap/css/bootstrap.min.css')}" />
+<link rel="stylesheet" href="${URLUtils.staticURL('/lib/jquerydatatable/dataTables.bootstrap.min.css')}" />
+<link rel="stylesheet" href="${URLUtils.staticURL('/css/sdlstyling.css')}" />
+
+<script type="text/javascript" src="${URLUtils.staticURL('/lib/jquery-1.12.4.min.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/lib/jqueryui/jquery-ui.min.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/lib/bootstrap/bootstrap.min.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/lib/jquerydatatable/jquery.dataTables.min.js')}"></script>
+<script type="text/javascript" src="${URLUtils.staticURL('/lib/jquerydatatable/dataTables.bootstrap.min.js')}"></script>
+
+<script type="text/javascript">
+    jQuery.noConflict();
+    </script>
+    <script>
+    jQuery(document).ready(function() {
+        window.DestroyOnClose = true;
+    });
+</script>
+
+<script type="text/javascript"><isinclude template="addResources"/></script>
+
+<isset name="merchantToolsURL" value="${URLUtils.https('ViewApplication-SelectSite', 'MenuGroupID', 'ChannelMenu', 'ChannelID', pdict.ChannelID, 'SelectedSiteID', pdict.ChannelID).toString()}" scope="page" />
+
+<isset name="SDLURL" value="${URLUtils.https('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', 'bm_SDLTranslation').toString()}" scope="page" />

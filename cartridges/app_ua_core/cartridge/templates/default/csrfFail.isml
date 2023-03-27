@@ -1,0 +1,33 @@
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addCss('/css/csrf.css');
+    </isscript>
+<div class="b-error_page-container b-error_page">
+    <div class="b-error_page-content">
+        <div class="error-page-assetcontent">
+            <div class="sessionOut-page-wrapper">
+                <div class="hero slant-down">
+                    <h1 class="page-title">${Resource.msg('csrf.oops','common',null)}</h1>
+                </div>
+                <div>
+                    <p>${Resource.msg('csrf.session.end', 'common', null)}</p>
+                    <p>${Resource.msg('csrf.session.message', 'common', null)}</p>
+                    <a href="${URLUtils.url('Home-Show')}" class="g-button_base g-button_primary--black error-button" role="button" aria-pressed="true">
+                        ${Resource.msg('button.gotohomepage','common',null)}
+                    </a>
+                </div>
+            </div>
+       </div>
+                <div class="b-error_page-csrf-img">
+                    <isslot id="csrf-banner-image" description="csrf banner image" context="global" />
+                </div>
+    </div>
+   <div class="b-error_page-bestsellers-products">
+     <iscomment>Best Sellers Products Carousel Starts </iscomment>
+       <div class="b-error_page-bestsellers-carousel js-csrf-fail-carousel">
+           <isslot id="csrf-product-recommendations" description="csrf recommendation powered by Adobe Test and Target" context="global" />
+        </div>
+    </div>
+</div>
+    </isdecorate>

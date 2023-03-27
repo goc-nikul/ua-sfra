@@ -1,0 +1,59 @@
+<div class="address-summary">
+    <div>
+        <span class="firstName">
+            <isif condition="${typeof address !== 'undefined' && address && address.firstName && (address.firstName !== dw.system.Site.current.getCustomPreferenceValue('shippingFirstName'))}">
+                <isprint value="${address.firstName}"/>
+            </isif>
+        </span>
+        <span class="lastName">
+            <isif condition="${typeof address !== 'undefined' && address && address.lastName && (address.lastName !== dw.system.Site.current.getCustomPreferenceValue('shippingLastName'))}"><isprint value="${address.lastName}" /></isif>
+        </span>
+    </div>
+    <div>
+        <span class="address1">
+            <isif condition="${typeof address !== 'undefined' && address && address.address1}"><isprint value="${address.address1}" /></isif>
+        </span>
+
+        <span class="exteriorNumber">
+            <isif condition="${typeof address !== 'undefined' && address && address.exteriorNumber}"><isprint value="${address.exteriorNumber}" />,</isif>
+        </span>
+
+        <span class="interiorNumber">
+            <isif condition="${typeof address !== 'undefined' && address && !empty(address.interiorNumber)}"><isprint value="${address.interiorNumber}" />,</isif>
+        </span>
+    </div>
+    <div>
+        <span class="additionalInformation">
+            <isif condition="${typeof address !== 'undefined' && address && address.additionalInformation}"><isprint value="${address.additionalInformation}" /></isif>
+        </span>
+    </div>
+    <div>
+        <span class="colony">
+           <isif condition="${typeof address !== 'undefined' && address && address.colony}"><isprint value="${address.colony}" /></isif>
+        </span>
+        <span class="dependentLocality">
+           <isif condition="${typeof address !== 'undefined' && address && address.dependentLocality}"><isprint value="${address.dependentLocality}" /></isif>
+        </span>
+    </div>
+    <div>
+        <span class="city">
+            <isif condition="${typeof address !== 'undefined' && address && address.city}"><isprint value="${address.city}" />,</isif>
+        </span>
+        <span class="stateCode">
+        	<isif condition="${typeof address !== 'undefined' && address && address.stateCode}"><isprint value="${address.stateCode}" />,</isif>
+        </span>
+        <span class="postalCode">
+        	<isif condition="${typeof address !== 'undefined' && address && address.postalCode}"><isprint value="${address.postalCode}" />,</isif>
+        </span>
+    </div>
+    <div>
+        <span class="country">
+        	<isif condition="${typeof address !== 'undefined' && address}"><isprint value="${Resource.msg('label.country.mexico','forms',null)}" /></isif>
+        </span>
+    </div>
+    <isif condition="${typeof shippingModel !== 'undefined' && shippingModel && shippingModel.productLineItems && shippingModel.productLineItems.items && shippingModel.productLineItems.items[0].fromStoreId}">
+        <isloop items="${shippingModel.productLineItems.items}" var="lineItem" >
+            <isinclude template="checkout/shipping/PickUpContactData" />
+        </isloop>
+    </isif>
+</div>

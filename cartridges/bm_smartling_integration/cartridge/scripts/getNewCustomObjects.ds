@@ -1,0 +1,37 @@
+/**
+*   @input request: dw.system.Request
+*   @output submissions : dw.util.List
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.object );
+importScript("dao/configuration.ds");
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "getNewCustomObjects"));
+
+/**
+    Retrieve all new submissions from the system
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    var submissionsIterator : SeekableIterator = CustomObjectMgr.queryCustomObjects('SMARTLING_SUBMISSION', "custom.status = 'new'", null );
+    pdict.submissions = submissionsIterator.asList();
+    submissionsIterator.close();
+
+    var sourceLocaleId = getSourceLocale();
+    if (!pdict.submissions.empty)
+    {
+        LOGGER.info('Got {0} submissions to upload', pdict.submissions.size());
+        if (Site.getCurrent().getAllowedLocales().contains(sourceLocaleId))
+        {
+            LOGGER.info('Using source locale "{0}" for uploaded content', sourceLocaleId);
+            pdict.request.setLocale(sourceLocaleId);
+        } else {
+            LOGGER.warn('Configured locale "{0}" is not allowed by site "{1}". Using locale "default" for uploaded content', sourceLocaleId, Site.current.getName());
+            pdict.request.setLocale("Default");
+        }
+    }
+
+    return PIPELET_NEXT;
+}

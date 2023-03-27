@@ -1,0 +1,19 @@
+<isinclude template="/components/modules"/>
+
+<isset name="Site" value="${require('dw/system/Site')}" scope="page"/>
+<isset name="showLoyalty" value="${false}" scope="page" />
+<isif condition="${Site.getCurrent().getCustomPreferenceValue('isLoyaltyEnable')}">
+    <isset name="loyaltyHelper" value="${require('*/cartridge/scripts/helpers/loyaltyHelper')}" scope="page" />
+    <isset name="postalCode" value="${pdict.order.billing.billingAddress.address.postalCode}" scope="page">
+    <isif condition="${loyaltyHelper.isLoyaltyPilotEnabled() ? loyaltyHelper.isLoyaltyPilotZipCode(postalCode) : true}">
+        <isset name="showLoyalty" value="${true}" scope="page" />
+    </isif>
+</isif>
+
+<div class="card b-order-confirmation_card">
+    <isif condition="${showLoyalty}">
+        <isinclude template="/checkout/confirmation/loyaltyCreateAccountCard" />
+    <iselse/>
+        <isinclude template="/checkout/confirmation/createAccountCard" />
+    </isif>
+</div>

@@ -1,0 +1,72 @@
+<form action="${pdict.createAccountUrl}" class="b-return-wrap registration" method="POST" data-cmp="formGeneric"
+    name="${pdict.profileForm.htmlName}">
+
+    <div class="form-group b-order-return-input b-input_row
+        <isif condition="${!!pdict.profileForm.customer.email.mandatory === true}">required</isif>">
+        <label class="b-input_row-label form-control-label" for="registration-form-email">
+            <isprint value=${pdict.profileForm.customer.email.label} encoding="off" />
+        </label>
+        <input type="text" class="form-control order-return-form-input b-quantity-select js-custom-input js-email-field"
+            id="registration-form-email"
+            data-missing-error="${Resource.msg('error.card.info.missing.email', 'forms', null)}"
+            data-pattern-mismatch="${Resource.msg('error.message.parse.email.profile.form', 'forms', null)}"
+            data-range-error="${Resource.msg('error.message.50orless', 'forms', null)}"
+            aria-describedby="form-email-error" value="" required <isprint
+            value=${pdict.profileForm.customer.email.attributes} encoding="off" />>
+        <div class="invalid-feedback" id="form-email-error"></div>
+        <div class="b-registration-error hide">
+            <span class="b-registration-error-span"
+                data-analytics-track="error-span">${Resource.msg('error.message.user.already.exist', 'forms', null)}</span>
+            <a class="b-registration-error-link js-login" data-analytics-track="error-link"
+                href="${URLUtils.https('Login-Show')}" role="button"
+                aria-label="${Resource.msg('label.header.loginbutton', 'account', null)}">
+                ${Resource.msg('error.message.user.already.exist.link', 'forms', null)}
+            </a>
+        </div>
+    </div>
+
+    <div class="form-group b-order-return-input b-input_row
+        <isif condition="${!!pdict.profileForm.login.password.mandatory === true}">required</isif>">
+        <span class="password-display">
+            <div class="js-password-ToggleDisplay">${Resource.msg('label.create.account.show', 'login', null)}</div>
+        </span>
+        <label class="b-input_row-label form-control-label" for="registration-form-password">
+            <isprint value=${pdict.profileForm.login.creatPassword.label} encoding="off" />
+        </label>
+        <input type="password"
+            class="form-control order-return-form-input b-quantity-select js-custom-input form-user-password-input js-password-field"
+            id="registration-form-password"
+            data-missing-error="${Resource.msg('error.card.info.missing.password', 'login', null)}"
+            data-range-error="${Resource.msg('error.message.8_255characters', 'forms', null)}"
+            aria-describedby="form-password-error" pattern="${pdict.passwordRules.regex}"
+            data-can-contains-email="${dw.system.Site.current.getCustomPreferenceValue('allowEmailInPassword') === false ? false : true}"
+            data-contains-email-error="${Resource.msg('password.contains.email.error', 'account', null)}" value=""
+            required autocomplete="off" <isprint value=${pdict.profileForm.login.password.attributes} encoding="off" />>
+        <div class="input-feedback" id="form-password-rules">
+            <isprint value="${pdict.passwordRules.errorMsg}" encoding="off" />
+        </div>
+        <div class="invalid-feedback-email"></div>
+    </div>
+
+    <iscomment> News and promotion checkbox </iscomment>
+    <isinclude template="account/components/emailOptInCheckbox" />
+
+    <isif condition="${'isLoyaltyEnable' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.isLoyaltyEnable}">
+        <isif condition="${!!pdict.showLoyaltyEnroll}">
+            <isinclude template="account/components/forms/enrollinput" sf-toolkit="off" />
+        </isif>
+    </isif>
+
+    <div class=" form-group submit-section text-center mb-4 submit-tans-sec">
+        <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}" />
+        <button class="btn btn-primary btn-block js-createaccount-button g-button_base g-button_primary--black"
+            name="${pdict.CurrentForms.profile.create.htmlName}">
+            ${Resource.msg('button.createaccount.registration', 'login', null)}
+        </button>
+    </div>
+    <input type="hidden" class="showlabel" value="${Resource.msg('label.create.account.show', 'login', null)}">
+    <input type="hidden" class="hidelabel" value="${Resource.msg('label.create.account.hide', 'login', null)}">
+</form>
+<isif condition="${pdict.isFacebookLoginEnabledInRegisterModal}">
+    <isinclude template="account/components/oauth" />
+</isif>

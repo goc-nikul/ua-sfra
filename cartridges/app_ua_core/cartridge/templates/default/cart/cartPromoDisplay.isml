@@ -1,0 +1,29 @@
+<!--- TEMPLATENAME: cartPromoDisplay.isml --->
+<isset name="loyaltyEnable" value="${'isLoyaltyEnable' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.isLoyaltyEnable}" scope="page" />
+<isif condition="${!empty(pdict.totals) && !empty(pdict.totals.discounts)}">
+<!--- Remove for EPMD-3847 (All Promotion Name will Display)
+    <isloop items="${pdict.totals.discounts}" var="discount">
+        <isif condition="${discount.type !== 'coupon'}">
+            <div class="b-promotion-information">
+                <span class="b-promotion-name">${discount.lineItemText}</span>
+            </div>
+        </isif>
+    </isloop>
+--->
+    <div class="order-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.orderLevelDiscountTotal.value === 0}">hide-order-discount</isif>">
+        <span class="order-summary_itemsattr">
+            <isif condition="${customer.authenticated && customer.profile.custom.isEmployee}">
+                <span>${Resource.msg('employee.order.discount', 'common', null)}:</span>
+            <iselse>
+                <span>${Resource.msg('label.order.discount', 'common', null)}:</span>
+            </isif>
+        </span>
+        <span class="order-summary_itemsvalue">
+            <isif condition="${loyaltyEnable && customer.authenticated && customer.profile.custom.isEmployee}">
+                <span class="text-right bfx-price order-discount-total"> ${pdict.totals.discountDistribution.employeeDiscountTotal}</span>
+            <iselse/>
+                <span class="text-right bfx-price order-discount-total"> - ${pdict.totals.orderLevelDiscountTotal.formatted}</span>
+            </isif>
+        </span>
+    </div>
+</isif>

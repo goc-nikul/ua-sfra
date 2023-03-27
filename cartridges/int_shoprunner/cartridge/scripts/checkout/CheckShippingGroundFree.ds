@@ -1,0 +1,46 @@
+var Logger = require('dw/system/Logger');
+var Status = require('dw/system/Status');
+
+/**
+* CheckShippingGroundFree Script File
+* Check if the customer can get a Ground free discount
+*
+*	@input Basket : dw.order.Basket
+*
+*/
+
+importScript( "util/srProductUtils.ds" );
+importScript( "checkout/Utils.ds" );
+
+function execute(args) {
+	var basket = args.Basket;
+	var result = checkFreeGround(basket);
+	if (result.status === Status.ERROR) {
+		return PIPELET_ERROR;
+	}
+	return PIPELET_NEXT;
+}
+
+function checkFreeGround(basket) {
+   try {	
+	   if (basket != null) {
+	   		var productLineItems = basket.getAllProductLineItems();
+	   		var status = SRProductUtils.checkCartEligibility(productLineItems);
+	   		var token = getSRToken();
+	   		var signin = empty(token) ? false : true;
+	   
+	  		// call the function from Utils to set the srgroundfree value in custom.session
+	   		setShippingGroundFreeSession(status, signin);
+	   }
+   }
+   catch (e) {
+		Logger.getLogger('ShopRunner', 'ShopRunner').error('ShopRunner: CheckShippingGroundFreet.ds general error: ' + e.message);
+		return new Status(Status.ERROR);
+   }
+   return new Status(Status.OK);
+}
+
+module.exports = {
+    execute: execute,
+	checkFreeGround: checkFreeGround
+};

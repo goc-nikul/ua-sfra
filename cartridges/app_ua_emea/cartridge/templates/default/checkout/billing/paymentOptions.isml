@@ -1,0 +1,18 @@
+<isscript>
+    var assets = require('*/cartridge/scripts/assets.js');
+    assets.addCss('/css/adyenCss.css');
+</isscript>
+<div class="g-tabs--desktop b-payement-tab-emea ${pdict.eligiblePaymentMethods.nonGCPayment ? '' : 'hide'}">
+    <fieldset>
+        <input type="hidden" class="form-control" id="selectedPaymentOption"
+           name="${pdict.forms.billingForm.paymentMethod.htmlName}"
+           value="AdyenComponent">
+
+        <isset name="creditFields" value="${pdict.forms.billingForm.creditCardFields}" scope="page"/>
+        <div class="credit-card-selection-new" >
+            <div class="g-tabs-content">
+                <isinclude template="checkout/billing/paymentOptions/paymentOptionsContent" />
+            </div>
+        </div>
+     </fieldset>
+</div>

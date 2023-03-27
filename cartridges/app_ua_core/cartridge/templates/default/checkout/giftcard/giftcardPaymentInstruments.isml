@@ -1,0 +1,23 @@
+<isif condition="${!empty(pdict.gcPaymentInstruments)}">
+    <div class="b-giftcard_applied_list">
+        <isloop items="${pdict.gcPaymentInstruments}" var="gcData" status="loopstate">
+            <div class="b-giftcard_applied_card js-giftcard_${gcData.maskedGcLastFourNumber}">
+                <div class="b-giftcard_applied_card_number">
+                    <div class="bold giftcard-title">${Resource.msg('giftcard.checkout.number', 'giftcards', null)}:</div>
+                    <div><isprint value="${gcData.maskedGcNumber}" /></div>
+                    <div class="b-giftcard_applied_card_remainingbalance">
+                        <span class="">${Resource.msg('giftcard.checkout.remainingbalance', 'giftcards', null)}:</span>
+                        <span><isprint value="${gcData.gcBalanceRemaining}" /></span>
+                    </div>
+                </div>
+                <div class="b-giftcard_applied_card_pin">
+                    <div class="bold">${Resource.msg('giftcard.checkout.pin', 'giftcards', null)}:</div>
+                    <div><isprint value="${gcData.maskedGcPin}" /></div>
+                </div>
+                <div class="b-giftcard_remove">
+                    <a href="${URLUtils.url('GiftCard-RemovePaymentInstrument')}" class="b-giftcard_remove_uuid remove-link anchorLinks" title="${Resource.msg('text.remove.product.line.item', 'cart',null)}" data-maskedgckastfournumber="${gcData.maskedGcLastFourNumber}" >${Resource.msg('text.remove.product.line.item', 'cart', null)} </a>
+                </div>
+            </div>
+        </isloop>
+    </div>
+</isif>

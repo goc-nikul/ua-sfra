@@ -1,0 +1,41 @@
+{
+    "step-types": {
+        "script-module-step": [{
+            "@type-id": "custom.Process-Email-Return-Label-Requests",
+            "module": "int_s3/cartridge/scripts/processReturnLabelEmailRequests",
+            "function": "process",
+            "parameters": {
+                "parameter": [{
+                        "@name": "returnLabelDir",
+                        "description": "The directory name to temporarily store return labels. Default directory name is 'returnLabels'",
+                        "@type": "string",
+                        "@required": "false",
+                        "@trim": "true"
+                    },
+                    {
+                        "@name": "awstimeoutinms",
+                        "description": "AWS Timeout in ms. Default timeout is 1000ms",
+                        "@type": "string",
+                        "@required": "false",
+                        "@trim": "true"
+                    }
+                ]
+            },
+            "status-codes": {
+                "status": [{
+                        "@code": "ERROR",
+                        "description": "Used when an error occurred."
+                    },
+                    {
+                        "@code": "OK",
+                        "description": "Used when everything went well."
+                    },
+                    {
+                        "@code": "WARN",
+                        "description": "Used when small, but acceptable problems occurred."
+                    }
+                ]
+            }
+        }]
+    }
+}

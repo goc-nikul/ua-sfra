@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+
+    <field formid="addressId" label="label.input.addressid" type="string" mandatory="true"
+           max-length="20" missing-error="error.message.required" range-error="error.message.lessthan20"/>
+    <field formid="firstName" label="label.input.firstname.profile" type="string" mandatory="true" parse-error="forms.address.field.emojifree" binding="firstName" regexp="^(?!-)[a-zA-Z0-9\p{L}\p{Nd}\s.-]*$"
+           max-length="50" missing-error="error.message.required" range-error="error.message.lessthan50"/>
+    <field formid="lastName" label="label.input.lastname.profile" type="string" mandatory="true" parse-error="forms.address.field.emojifree" binding="lastName" regexp="^(?!-)[a-zA-Z0-9\p{L}\p{Nd}\s.-]*$"
+           max-length="50" missing-error="error.message.required" range-error="error.message.lessthan50"/>
+    <field formid="address1" label="label.input.address1" type="string" mandatory="true" binding="address1"  max-length="50"
+           missing-error="error.message.required" range-error="error.message.lessthan50" description="forms.address1.description"/>
+    <field formid="address2" label="label.input.address2" type="string" mandatory="false" binding="address2"
+           max-length="50" range-error="error.message.lessthan50"/>
+
+    <!-- use set of supported countries -->
+    <field formid="country" label="label.input.country" type="string" mandatory="true" binding="countryCode"
+           missing-error="error.message.required">
+        <options>
+            <option optionid="HK" label="country.hongkong" value="HK"/>
+        </options>
+    </field>
+    <field formid="state" label="forms.district" type="string" mandatory="true" binding="state"
+           max-length="50" missing-error="forms.address.district.missing" value-error="forms.address.field.invalid" />
+
+    <!-- use global state list -->
+   <!--  <include formid="states" name="states"/> -->
+
+    <!-- phone is mandatory for addresses -->
+    <field formid="phone" label="label.input.phonenumber" description="address.phone.example" type="string" mandatory="true"
+           binding="phone" min-length="8" max-length="8"
+           missing-error="error.message.required"
+           range-error="error.message.between10and20"
+           value-error="forms.address.field.invalid"/>
+
+
+    <field formid="setAsDefault" type="boolean" mandatory="false"/>
+    <field formid="setAsDefaultBilling" type="boolean" mandatory="false"/>
+
+    <field formid="saveToAccount" type="boolean" mandatory="false" checked="true"/>
+
+    <!-- actions provided by the edit shipping address dialog -->
+    <action formid="apply" valid-form="true"/>
+    <action formid="remove" valid-form="false"/>
+</form>

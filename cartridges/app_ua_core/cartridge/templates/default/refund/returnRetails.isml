@@ -1,0 +1,44 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/lib/pdf.worker.js');
+        assets.addJs('/lib/pdf.js');
+        assets.addJs('/js/orderReturnLabel.js');
+    </isscript>
+<form action="${URLUtils.url('Order-TrackReturns')}" class="proof-purchase" method="POST" name="proof-purchase">
+	<div class="return-label-div">
+		<div class="b-return-wrap">
+			<h2>${Resource.msg('returns.refunds.returnexchange','refunds',null)}</h2>
+			<p>${Resource.msg('returns.refunds.returnexchangedescription','refunds',null)}
+			<span id="desText">${Resource.msg('returns.refunds.returnexchangedescription1','refunds',null)}</span>
+			</p>
+			
+			<isset name="purchaseLocationForm" value="${pdict.returnRetailForm}" scope="page"/>
+			<div class="form-group b-quantity">
+			    <div class="b-order-return-input b-select-location">
+			    <label class="b-quantity-label form-control-label">
+	       			 ${Resource.msg('returns.refunds.returnexchangepl','refunds',null)}
+	    		</label>
+				<select class=" b-quantity-select custom-select form-control order-return-form-input" required id="purchaselocation" name="purchaselocation"
+				data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}">
+					<isloop items=${purchaseLocationForm.purchaselocation.options} var="purchaselocation">
+						<option id="${purchaselocation.id}" value="${purchaselocation.htmlValue}">${purchaselocation.label || ' '}</option>
+					</isloop>
+				</select>
+				<div class="invalid-feedback"></div>
+				</div>
+				 
+				<input type="hidden" name="template" value="proof-purchase">
+				<div class="submit-section text-center mb-4">
+					<button class="btn btn-primary btn-block g-button_base g-button_primary--black continueReturn" data-href="${URLUtils.url('Order-ProofOfPurchase')}" name="submit" type="submit">
+						${Resource.msg('returns.refunds.continue','refunds',null)}</br>
+					</button>
+				</div>
+				    <h4 class="b-return-policy"><a class="g-button_tertiar" href="${Resource.msg('refunds.return.policy','refunds',null)}" target="_blank">${Resource.msg('returns.refunds.returnexchangepolicy','refunds',null)}</a></h4>
+			</div>
+		</div>
+	</div>
+	<input type="hidden" name="${pdict.csrf ? pdict.csrf.tokenName : ""}" value="${pdict.csrf ? pdict.csrf.token : ""}"/>
+</form>
+</isdecorate>

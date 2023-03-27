@@ -1,0 +1,36 @@
+<!--- TEMPLATENAME: membersonConsentPopUpModal.isml --->
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isif condition="${pdict.displayPopup}">
+    <isset name="customerID" value="${pdict.customerNo}" scope="page" />
+    <input type="hidden" value="${pdict.membersonEnabled}" name="membersonEnabled">
+    <div class="modal g-modal g-modal-officeClosed" id="consentPopUpModal" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog g-modal-dialog rewards-modal">
+            <!-- Modal content-->
+            <div class="modal-content g-modal-content" id="mainBody">
+                <div class="modal-body g-modal-body">
+                <iscontentasset aid="consent-popup-agree-message" />
+                </div>
+                <div class="modal-footer g-modal-footer btn-group">
+                    <button class="btn-outline-primary g-button_base g-button_primary--black rewards-btn" id="cancelButton">${Resource.msg('button.consentCancel.account', 'membersonGlobal', null)}</button>
+
+                    <a class="btn-outline-primary g-button_base g-button_primary--black rewards-btn" id="agreeButton" href="javascript:void(0);" data-href="${URLUtils.https('Memberson-Agreeconsent', 'customerID', customerID)}">${Resource.msg('button.consentAgree.account', 'membersonGlobal', null)}</a>
+                </div>
+            </div>
+
+            <div class="modal-content g-modal-content d-none" id="primaryBody">
+                <div class="modal-body g-modal-body">
+                <isif condition="${!pdict.isBasketEmpty}">
+                    <iscontentasset aid="consent-popup-cart-not-empty-message" />
+                <iselse/>
+                    <iscontentasset aid="consent-popup-decline-message" />
+                </isif>
+                </div>
+                <div class="modal-footer">
+                    <a class="leaveuareward-text" id="continueButton" href="${URLUtils.url('Login-Logout')}">${Resource.msg('button.consentLeaveUARewards.account', 'membersonGlobal', null)}</a>
+
+                    <button class="btn-outline-primary g-button_base g-button_primary--black" id="backButton">${Resource.msg('button.consentStayEnrolled.account', 'membersonGlobal', null)}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</isif>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shipping xmlns="http://www.demandware.com/xml/impex/shipping/2007-03-31">
+
+    <shipping-method method-id="AU-standard-shipping" default="true">
+        <display-name xml:lang="x-default">Standard Shipping</display-name>
+        <description xml:lang="x-default">Standard Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0">9.99</amount>
+        </price-table>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isExpressShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isScheduledDelivery">false</custom-attribute>
+        </custom-attributes>
+        <currency>AUD</currency>
+    </shipping-method>
+
+    <shipping-method method-id="NZ-standard-shipping" default="true">
+        <display-name xml:lang="x-default">Standard Shipping</display-name>
+        <description xml:lang="x-default">Standard Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0">14.99</amount>
+        </price-table>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeShipping">false</custom-attribute>
+        </custom-attributes>
+        <currency>NZD</currency>
+    </shipping-method>
+
+    <shipping-method method-id="AU-free-shipping" default="false">
+        <display-name xml:lang="x-default">Employee Free Shipping</display-name>
+        <description xml:lang="x-default">Employee Free Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.countryCode</attribute-path>
+                        <operator>exists</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+            <excluded-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>41-43 Bourke Rd</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address2</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>Level 1, The Mill 2</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.postalCode</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>2015</string>
+                    </condition>
+                </condition-group>
+            </excluded-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeShipping">true</custom-attribute>
+            <custom-attribute attribute-id="isExpressShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isScheduledDelivery">false</custom-attribute>
+        </custom-attributes>
+        <currency>AUD</currency>
+    </shipping-method>
+
+    <shipping-method method-id="AU-global-shipping" default="false">
+        <display-name xml:lang="x-default">AU Global Shipping</display-name>
+        <description xml:lang="x-default">AU Global Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0">15</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.countryCode</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>AU</string>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isExpressShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isScheduledDelivery">false</custom-attribute>
+        </custom-attributes>
+        <currency>AUD</currency>
+    </shipping-method>
+
+    <shipping-method method-id="NZ-global-shipping" default="false">
+        <display-name xml:lang="x-default">NZ Global Shipping</display-name>
+        <description xml:lang="x-default">NZ Global Shipping</description>
+        <online-flag>true</online-flag>
+        <price-table>
+            <amount order-value="0">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.countryCode</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>NZ</string>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isExpressShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isScheduledDelivery">false</custom-attribute>
+        </custom-attributes>
+        <currency>NZD</currency>
+    </shipping-method>
+
+    <shipping-method method-id="NZ-free-shipping" default="false">
+        <display-name xml:lang="x-default">Employee Free Shipping</display-name>
+        <description xml:lang="x-default">Employee Free Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeShipping">true</custom-attribute>
+        </custom-attributes>
+        <currency>NZD</currency>
+    </shipping-method>
+
+</shipping>

@@ -1,0 +1,52 @@
+/* md
+
+# Search
+
+```html
+    <form class="g-search">
+            <div class="g-search-container">
+            <input class="g-search-input" type="text" placeholder="Search">
+            <button type="submit" class="g-search-button"></button>
+        </div>
+    </form>
+
+    <form class="g-search_black">
+        <div class="g-search_black-container">
+            <input class="g-search_black-input" type="text" placeholder="Search">
+            <button type="submit" class="g-search_black-button"></button>
+        </div>
+    </form>
+```
+#Search White
+
+```html_example
+    <div style="padding: 15px 0;  display: flex; justify-content: space-around; background: #1d1d1d;">
+        <form class="g-search" style="width: 100%">
+            <div class="g-search-container">
+                <input class="g-search-input" type="text" placeholder="Search">
+                <button type="submit" class="g-search-button"></button>
+            </div>
+        </form>
+    </div>
+```
+#Search Black
+
+```html_example
+    <div style="padding: 15px 0;  display: flex; justify-content: space-around;">
+        <form class="g-search_black" style="width: 100%">
+            <div class="g-search_black-container">
+                <input class="g-search_black-input" type="text" placeholder="Search">
+                <button type="submit" class="g-search_black-button"></button>
+            </div>
+        </form>
+    </div>
+```
+*/
+
+.g-search {
+    @include search;
+}
+
+.g-search_black {
+    @include search($search-black);
+}

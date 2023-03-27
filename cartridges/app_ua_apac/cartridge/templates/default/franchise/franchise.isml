@@ -1,0 +1,369 @@
+<iscontent compact="true">
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isinclude template="common/daumScript" />
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/js/franchise.js');
+        assets.addCss('/css/franchise.css');
+    </isscript>
+    <div id="main" class="pt_franchise_inquiry">
+        <div id="primary" class="primary-content">
+            <div class="row heading-row">
+                    <h1 class="cs-heading">
+                        ${Resource.msg("forms.franchise.title", "forms", null)}
+                    </h1>
+            </div>
+            <div class="faq__wrapper clearfix row">
+                <div class="column-8">
+                    <div class="primary-content uni-width">
+                        <div class="franchise-result d-none">
+                            <h1 class="franchise-result-part">${Resource.msg('forms.franchise.success.title', 'forms', null)}</h1>
+                            <h2 class="franchise-result-part success-subtitle">${Resource.msg('forms.franchise.success.subtitle', 'forms', null)}</h2>
+                            <p class="franchise-result-part">${Resource.msg('forms.franchise.success.text1', 'forms', null)}</p>
+                            <p class="franchise-result-part">${Resource.msg('forms.franchise.success.text2', 'forms', null)}</p>
+                        </div>
+                        <div class="franchise-form-container">
+                        <iscontentasset aid="franchise-form-top"/>
+                            <form class="franchise-form" name="${pdict.franchiseinquiry.htmlName}"  data-url="${pdict.franchiseSubmit}">
+                                <div class="franchise-inputs">
+                                    <div class="inline-row">
+                                        <iscomment> Email Field starts</iscomment>
+                                        <div class="form-group b-input_row
+                                            ${pdict.franchiseinquiry.storeinquiry.email.mandatory === true ? 'required' : ''}
+                                            ${pdict.franchiseinquiry.storeinquiry.email.htmlName}">
+                                            <label class="form-control-label b-input_row-label" for="email">
+                                                ${Resource.msg('forms.franchise.email', 'forms', null)}
+                                            </label>
+                                            <input type="text" class="form-control b-input_row-input"
+                                                aria-describedby="email"  <isprint
+                                                value="${pdict.franchiseinquiry.storeinquiry.email.attributes}"
+                                                encoding="off" />
+                                                data-pattern-mismatch="${Resource.msg('forms.pleaseenter.email.validation', 'forms', null)}"
+                                                data-missing-error="${Resource.msg('forms.pleaseenter.email', 'forms', null)}"/>
+                                            <div class="invalid-feedback" id="email"></div>
+                                        </div>
+                                        <iscomment> Name Field starts </iscomment>
+                                        <div class="form-group b-input_row
+                                            ${pdict.franchiseinquiry.storeinquiry.name.mandatory === true ? 'required' : ''}
+                                            ${pdict.franchiseinquiry.storeinquiry.name.htmlName}">
+                                            <label class="form-control-label b-input_row-label" for="name">
+                                                ${Resource.msg('forms.franchise.name', 'forms', null)}
+                                            </label>
+                                            <input type="text" class="form-control b-input_row-input"
+                                                aria-describedby="name" pattern="^[^%<>^$!@?={}()]+$" <isprint
+                                                value="${pdict.franchiseinquiry.storeinquiry.name.attributes}"
+                                                encoding="off" />
+                                                data-pattern-mismatch="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"
+                                                data-missing-error="${Resource.msg('forms.pleaseenter.name', 'forms', null)}"/>
+                                            <div class="invalid-feedback" id="name"></div>
+                                        </div>
+                                    </div>
+                                    <div class="inline-row">
+                                        <iscomment> Phone Field starts</iscomment>
+                                        <div class="form-group b-input_row
+                                            ${pdict.franchiseinquiry.storeinquiry.phone.mandatory === true ? 'required' : ''}
+                                            ${pdict.franchiseinquiry.storeinquiry.phone.htmlName}">
+                                            <label class="form-control-label b-input_row-label" for="phonenumber">
+                                                ${Resource.msg('forms.franchise.phonenumber', 'forms', null)}
+                                            </label>
+                                            <input type="text" class="form-control b-input_row-input"
+                                                aria-describedby="phone" <isprint
+                                                value="${pdict.franchiseinquiry.storeinquiry.phone.attributes}"
+                                                encoding="off" />
+                                                data-pattern-mismatch="${Resource.msg('forms.ordertrack.phone.parse-error', 'forms', null)}"
+                                                data-missing-error="${Resource.msg('forms.pleaseenter.phone', 'forms', null)}"/>
+                                            <div class="invalid-feedback" id="phone"></div>
+                                        </div>
+                                        <iscomment> Birthdate Field starts </iscomment>
+                                        <div class="form-group b-input_row
+                                            ${pdict.franchiseinquiry.storeinquiry.dob.mandatory === true ? 'required' : ''}
+                                            ${pdict.franchiseinquiry.storeinquiry.dob.htmlName}">
+                                            <label class="form-control-label b-input_row-label" for="birthdate">
+                                                ${Resource.msg('forms.franchise.birthdate', 'forms', null)}
+                                            </label>
+                                            <input type="text" class="form-control b-input_row-input"
+                                                aria-describedby="dob" pattern="^[^%<>^$!@?={}()]+$"
+                                                 <isprint
+                                                value="${pdict.franchiseinquiry.storeinquiry.dob.attributes}"
+                                                encoding="off" />
+                                                data-pattern-mismatch="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"/>
+                                                <iscomment> data-missing-error="${Resource.msg('forms.pleaseenter.name', 'forms', null)}"/> </iscomment>
+                                            <div class="invalid-feedback" id="dob"></div>
+                                        </div>
+                                    </div>
+                                    <iscomment> DAUM Heading </iscomment>
+                                        <div class="franchise-subtitle">
+                                            <h2 class="franchise-subtitle-size"> ${Resource.msg("forms.franchise.storeinfo", "forms", null)}</h2>
+                                            <p class="franchise-subtitle-select"> ${Resource.msg("forms.franchise.address", "forms", null)}</p>
+                                        </div>
+                                    <div>
+                                        <iscomment> DAUM field starts </iscomment>
+                                        <isif condition="${pdict.daumAddressLookupEnabled}">
+                                            <div class="b-account_form-row">
+                                                    <div class="b-account_form-column">
+                                                        <div class="form-group b-input_row leasewidth
+                                                            ${pdict.franchiseinquiry.storeinquiry.postalCode.mandatory === true ? 'required' : ''}
+                                                            ${pdict.franchiseinquiry.storeinquiry.postalCode.htmlName}">
+                                                            <label class="form-control-label b-input_row-label" for="postalCode">
+                                                                ${Resource.msg('forms.franchise.zipcode', 'forms', null)}
+                                                            </label>
+                                                                <input type="text" class="b-input_row-input form-control js-daum-readonly" id="postalCode"
+                                                                    <isprint value="${pdict.franchiseinquiry.storeinquiry.postalCode.attributes}" encoding="off" />
+                                                                    data-pattern-mismatch="${Resource.msg('error.message.parse.zip', 'forms', null)}"
+                                                                    data-missing-error="${Resource.msg('forms.errorzip', 'forms', null)}" ${pdict.daumaddresslookupenabled} ? autocomplete="none" : autocomplete="postal-code" />
+                                                            <div class="invalid-feedback"></div>
+                                                        </div>
+                                                    </div>
+                                                <div class="b-account_form-column">
+                                                    <div class="form-group b-input_row">
+                                                        <button type="button" class="btn btn-save btn-block btn-primary g-button_base g-button_primary--black btn btn-save btn-block btn-primary g-button_base g-button_primary--black js-daum-address-search" >${Resource.msg('button.zipcode.find','forms',null)}</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <iselse>
+                                                <div class="b-account_form-column">
+                                                    <div class="form-group b-input_row leasewidth
+                                                        ${pdict.franchiseinquiry.storeinquiry.postalCode.mandatory === true ? 'required' : ''}
+                                                        ${pdict.franchiseinquiry.storeinquiry.postalCode.htmlName}">
+                                                        <label class="form-control-label b-input_row-label" for="postalCode">
+                                                            ${Resource.msg('forms.franchise.zipcode', 'forms', null)}
+                                                        </label>
+                                                        <input type="text" class="b-input_row-input form-control js-daum-readonly" id="postalCode"
+                                                            <isprint value="${pdict.franchiseinquiry.storeinquiry.postalCode.attributes}" encoding="off" />
+                                                            data-pattern-mismatch="${Resource.msg('forms.ziperror.invalid', 'forms', null)}"
+                                                            data-missing-error="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}" ${pdict.daumaddresslookupenabled} ? autocomplete="none" : autocomplete="postal-code" />
+                                                        <div class="invalid-feedback"></div>
+                                                    </div>
+                                                </div>
+                                        </isif>
+
+                                            <iscomment> Address 1 field </iscomment>
+                                            <div class="form-group b-input_row leasewidth
+                                                ${pdict.franchiseinquiry.storeinquiry.address1.mandatory === true ? 'required' : ''}
+                                                ${pdict.franchiseinquiry.storeinquiry.address1.htmlName}">
+                                                <label class="form-control-label b-input_row-label" for="address1">
+                                                    ${Resource.msg('forms.franchise.address1', 'forms', null)}
+                                                </label>
+                                                <input type="text" class="form-control b-input_row-input js-daum-readonly"
+                                                    aria-describedby="address1" pattern="^[^%<>^$!@?={}()]+$" <isprint
+                                                    value="${pdict.franchiseinquiry.storeinquiry.address1.attributes}"
+                                                    encoding="off" />
+                                                    data-pattern-mismatch="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"
+                                                    data-missing-error="${Resource.msg('forms.addresserror1', 'forms', null)}"/>
+                                                <div class="invalid-feedback" id="address1"></div>
+                                            </div>
+                                            <iscomment> Address 2 Field </iscomment>
+                                            <div class="form-group b-input_row leasewidth
+                                                ${pdict.franchiseinquiry.storeinquiry.address2.mandatory === true ? 'required' : ''}
+                                                ${pdict.franchiseinquiry.storeinquiry.address2.htmlName}">
+                                                <label class="form-control-label b-input_row-label" for="address2">
+                                                    ${Resource.msg('forms.franchise.address2', 'forms', null)}
+                                                </label>
+                                                <input type="text" class="form-control b-input_row-input"
+                                                    aria-describedby="address2" pattern="^[^%<>^$!@?={}()]+$" <isprint
+                                                    value="${pdict.franchiseinquiry.storeinquiry.address2.attributes}"
+                                                    encoding="off" />
+                                                    data-pattern-mismatch="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"
+                                                    data-missing-error="${Resource.msg('forms.error.message.required', 'forms', null)}"/>
+                                                <div class="invalid-feedback" id="address2"></div>
+                                            </div>
+                                    </div>
+                                        <iscomment> Store Measurement Information </iscomment>
+                                        <div class="franchise-subtitle franchise-subtitle-select">
+                                            <h2> ${Resource.msg("forms.franchise.storespecs", "forms", null)}</h2>
+                                        </div>
+                                    <div class="franchise-inputs">
+                                        <div class="inline-row">
+                                            <iscomment> Sales Rating </iscomment>
+                                            <div class="form-group b-input_row
+                                                ${pdict.franchiseinquiry.storeinquiry.sellingspace.mandatory === true ? 'required' : ''}
+                                                ${pdict.franchiseinquiry.storeinquiry.sellingspace.htmlName}">
+                                                <label class="form-control-label b-input_row-label" for="sellingspace">
+                                                    ${Resource.msg('forms.franchise.sellingspace', 'forms', null)}
+                                                </label>
+                                                <input type="text" class="form-control b-input_row-input"
+                                                    aria-describedby="sellingspace" pattern="^(?![A-Za-z]+$)^[^%<>^$!@?={}()][0-9A-Za-z]*$" <isprint
+                                                    value="${pdict.franchiseinquiry.storeinquiry.sellingspace.attributes}"
+                                                    encoding="off" />
+                                                    data-pattern-mismatch="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"
+                                                    data-missing-error="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"/>
+                                                <div class="invalid-feedback" id="sellingspace"></div>
+                                            </div>
+                                            <iscomment> Warehouse Acreage </iscomment>
+                                            <div class="form-group b-input_row
+                                                ${pdict.franchiseinquiry.storeinquiry.storagespace.mandatory === true ? 'required' : ''}
+                                                ${pdict.franchiseinquiry.storeinquiry.storagespace.htmlName}">
+                                                <label class="form-control-label b-input_row-label" for="storagespace">
+                                                    ${Resource.msg('forms.franchise.storagespace', 'forms', null)}
+                                                </label>
+                                                <input type="text" class="form-control b-input_row-input"
+                                                    aria-describedby="storagespace" pattern="^(?![A-Za-z]+$)^[^%<>^$!@?={}()][0-9A-Za-z]*$" <isprint
+                                                    value="${pdict.franchiseinquiry.storeinquiry.storagespace.attributes}"
+                                                    encoding="off" />
+                                                    data-pattern-mismatch="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"
+                                                    data-missing-error="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"/>
+                                                <div class="invalid-feedback" id="storagespace"></div>
+                                            </div>
+                                        </div>
+                                        <div class="inline-row">
+                                            <iscomment> Front(m) </iscomment>
+                                            <div class="form-group b-input_row
+                                                ${pdict.franchiseinquiry.storeinquiry.frontwidth.mandatory === true ? 'required' : ''}
+                                                ${pdict.franchiseinquiry.storeinquiry.frontwidth.htmlName}">
+                                                <label class="form-control-label b-input_row-label" for="frontwidth">
+                                                    ${Resource.msg('forms.franchise.frontwidth', 'forms', null)}
+                                                </label>
+                                                <input type="text" class="form-control b-input_row-input"
+                                                    aria-describedby="frontwidth" pattern="^(?![A-Za-z]+$)^[^%<>^$!@?={}()][0-9A-Za-z]*$" <isprint
+                                                    value="${pdict.franchiseinquiry.storeinquiry.frontwidth.attributes}"
+                                                    encoding="off" />
+                                                    data-pattern-mismatch="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"
+                                                    data-missing-error="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"/>
+                                                <div class="invalid-feedback" id="frontwidth"></div>
+                                            </div>
+                                            <iscomment> Height(m) </iscomment>
+                                            <div class="form-group b-input_row
+                                                ${pdict.franchiseinquiry.storeinquiry.height.mandatory === true ? 'required' : ''}
+                                                ${pdict.franchiseinquiry.storeinquiry.height.htmlName}">
+                                                <label class="form-control-label b-input_row-label" for="height">
+                                                    ${Resource.msg('forms.franchise.height', 'forms', null)}
+                                                </label>
+                                                <input type="text" class="form-control b-input_row-input"
+                                                    aria-describedby="height" pattern="^(?![A-Za-z]+$)^[^%<>^$!@?={}()][0-9A-Za-z]*$" <isprint
+                                                    value="${pdict.franchiseinquiry.storeinquiry.height.attributes}"
+                                                    encoding="off" />
+                                                    data-pattern-mismatch="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"
+                                                    data-missing-error="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"/>
+                                                <div class="invalid-feedback" id="height"></div>
+                                            </div>
+                                        </div>
+                                        <div class="inline-row">
+                                            <iscomment> Parking Availability </iscomment>
+                                            <div class="form-group b-input_row b-franchise
+                                                ${pdict.franchiseinquiry.storeinquiry.parking.mandatory === true ? 'required' : ''}
+                                                ${pdict.franchiseinquiry.storeinquiry.parking.htmlName}">
+                                                <label class="form-control-label b-input_row-label" for="parking">
+                                                    ${Resource.msg('forms.franchise.parking', 'forms', null)}
+                                                </label>
+                                                <select class="form-control b-franchise-select"
+                                                    <isprint value="${pdict.franchiseinquiry.storeinquiry.parking.attributes}" encoding="off" />>
+                                                    <isloop items=${pdict.franchiseinquiry.storeinquiry.parking.options} var="parkingSelect">
+                                                    <option id="${parkingSelect.id}" value="${parkingSelect.htmlValue}">${parkingSelect.label || ' '}</option>
+                                                    </isloop>
+                                                </select>
+                                            </div>
+                                            <iscomment> number of floors  </iscomment>
+                                            <div class="form-group b-input_row b-franchise
+                                                ${pdict.franchiseinquiry.storeinquiry.stories.mandatory === true ? 'required' : ''}
+                                                ${pdict.franchiseinquiry.storeinquiry.stories.htmlName}">
+                                                <label class="form-control-label b-input_row-label" for="stories">
+                                                    ${Resource.msg('forms.franchise.stories', 'forms', null)}
+                                                </label>
+                                                <select class="form-control b-franchise-select"
+                                                    <isprint  value="${pdict.franchiseinquiry.storeinquiry.stories.attributes}" encoding="off" />>
+                                                    <isloop items=${pdict.franchiseinquiry.storeinquiry.stories.options} var="floorSelect">
+                                                    <option id="${floorSelect.id}" value="${floorSelect.htmlValue}">${floorSelect.label || ' '}</option>
+                                                    </isloop>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <iscomment> Rent/Lease Terms </iscomment>
+                                        <div class="franchise-subtitle franchise-subtitle-select">
+                                            <h2> ${Resource.msg("forms.franchise.leasingterms", "forms", null)}</h2>
+                                        </div>
+                                        <iscomment> Lease Classification</iscomment>
+                                        <div class="leasewidth form-group b-input_row b-franchise
+                                            ${pdict.franchiseinquiry.storeinquiry.lease.mandatory === true ? 'required' : ''}
+                                            ${pdict.franchiseinquiry.storeinquiry.lease.htmlName}">
+                                            <label class="form-control-label b-input_row-label" for="lease">
+                                                ${Resource.msg('forms.franchise.lease', 'forms', null)}
+                                            </label>
+                                            <select class="form-control b-franchise-select" data-missing-error="${Resource.msg('forms.select.error.required', 'forms', null)}" aria-describedby="lease"
+                                                <isprint  value="${pdict.franchiseinquiry.storeinquiry.lease.attributes}" encoding="off" />>
+                                                    <isloop items=${pdict.franchiseinquiry.storeinquiry.lease.options} var="leaseSelect">
+                                                    <option id="${leaseSelect.id}" value="${leaseSelect.htmlValue}">${leaseSelect.label || ' '}</option>
+                                                    </isloop>
+                                            </select>
+                                                <div class="invalid-feedback" id="lease"></div>
+                                        </div>
+                                        <div class="inline-row">
+                                            <iscomment> Deposit </iscomment>
+                                            <div class="form-group b-input_row
+                                                ${pdict.franchiseinquiry.storeinquiry.deposit.mandatory === true ? 'required' : ''}
+                                                ${pdict.franchiseinquiry.storeinquiry.deposit.htmlName}">
+                                                <label class="form-control-label b-input_row-label" for="deposit">
+                                                    ${Resource.msg('forms.franchise.deposit', 'forms', null)}
+                                                </label>
+                                                <input type="text" class="form-control b-input_row-input"
+                                                    aria-describedby="deposit" pattern="^(?![A-Za-z]+$)^[^%<>^$!@?={}()][0-9A-Za-z]*$" <isprint
+                                                    value="${pdict.franchiseinquiry.storeinquiry.deposit.attributes}"
+                                                    encoding="off" />
+                                                    data-pattern-mismatch="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"
+                                                    data-missing-error="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"/>
+                                                <div class="invalid-feedback" id="deposit"></div>
+                                            </div>
+                                            <iscomment> Rights </iscomment>
+                                            <div class="form-group b-input_row
+                                                ${pdict.franchiseinquiry.storeinquiry.premium.mandatory === true ? 'required' : ''}
+                                                ${pdict.franchiseinquiry.storeinquiry.premium.htmlName}">
+                                                <label class="form-control-label b-input_row-label" for="premium">
+                                                    ${Resource.msg('forms.franchise.premium', 'forms', null)}
+                                                </label>
+                                                <input type="text" class="form-control b-input_row-input"
+                                                    aria-describedby="premium" pattern="^(?![A-Za-z]+$)^[^%<>^$!@?={}()][0-9A-Za-z]*$" <isprint
+                                                    value="${pdict.franchiseinquiry.storeinquiry.premium.attributes}"
+                                                    encoding="off" />
+                                                    data-pattern-mismatch="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"
+                                                    data-missing-error="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"/>
+                                                <div class="invalid-feedback" id="premium"></div>
+                                            </div>
+                                        </div>
+                                        <div class="inline-row">
+                                            <iscomment> Monthly Rent </iscomment>
+                                            <div class="form-group b-input_row
+                                                ${pdict.franchiseinquiry.storeinquiry.rent.mandatory === true ? 'required' : ''}
+                                                ${pdict.franchiseinquiry.storeinquiry.rent.htmlName}">
+                                                <label class="form-control-label b-input_row-label" for="rent">
+                                                    ${Resource.msg('forms.franchise.rent', 'forms', null)}
+                                                </label>
+                                                <input type="text" class="form-control b-input_row-input"
+                                                    aria-describedby="rent" pattern="^(?![A-Za-z]+$)^[^%<>^$!@?={}()][0-9A-Za-z]*$" <isprint
+                                                    value="${pdict.franchiseinquiry.storeinquiry.rent.attributes}"
+                                                    encoding="off" />
+                                                    data-pattern-mismatch="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"
+                                                    data-missing-error="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"/>
+                                                <div class="invalid-feedback" id="rent"></div>
+                                            </div>
+                                            <iscomment> Management Fee </iscomment>
+                                            <div class="form-group b-input_row
+                                                ${pdict.franchiseinquiry.storeinquiry.maintenance.mandatory === true ? 'required' : ''}
+                                                ${pdict.franchiseinquiry.storeinquiry.maintenance.htmlName}">
+                                                <label class="form-control-label b-input_row-label" for="maintenance">
+                                                    ${Resource.msg('forms.franchise.maintenance', 'forms', null)}
+                                                </label>
+                                                <input type="text" class="form-control b-input_row-input"
+                                                    aria-describedby="maintenance" pattern="^(?![A-Za-z]+$)^[^%<>^$!@?={}()][0-9A-Za-z]*$" <isprint
+                                                    value="${pdict.franchiseinquiry.storeinquiry.maintenance.attributes}"
+                                                    encoding="off" />
+                                                    data-pattern-mismatch="${Resource.msg('forms.franchise.field.invalid', 'forms', null)}"
+                                                    data-missing-error="${Resource.msg('forms.pleaseenter.name', 'forms', null)}"/>
+                                                <div class="invalid-feedback" id="maintenance"></div>
+                                            </div>
+                                        </div>
+                                        <div class="franchise-btn__wrapper">
+                                            <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+                                            <button type="submit" name="submit"
+                                                class="g-button_base g-button_primary--black js-franchise-submit-btn"
+                                                data-url="${URLUtils.url('Franchise-Submit')}">${Resource.msg("forms.franchise.submitproposal", "forms", null)}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</isdecorate>

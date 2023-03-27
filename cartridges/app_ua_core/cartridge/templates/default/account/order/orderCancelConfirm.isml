@@ -1,0 +1,17 @@
+<img alt="success-sign" class="cancel-confirmation-modal_formSubmit_successImg" src="${URLUtils.staticURL('/images/checkmark-success.svg')}">
+<div class="cancel-confirmation-modal_formSubmit_successTitle">${Resource.msg('order.cancel.success', 'order', null)}</div>
+<div class="cancel-confirmation-modal_formSubmit_successMsg">${Resource.msg('order.cancel.email', 'order', null)}</div>
+<div class="cancel-confirmation-modal_formSubmit_successButtons">
+    <isif condition="${customer.authenticated}">
+        <a href="${URLUtils.https('Order-Details','orderID', pdict.orderID)}" class="g-button_base g-button_secondary--black checkout-btn">
+            ${Resource.msg('view.order.details', 'order', null)}
+        </a>
+    <iselse/>
+        <a href="${URLUtils.https('Order-TrackOrder')}" class="g-button_base g-button_secondary--black checkout-btn">
+            ${Resource.msg('view.order.details', 'order', null)}
+        </a>
+    </isif>
+    <a href="${URLUtils.https('Home-Show')}" class="g-button_base g-button_primary--black checkout-btn">
+        ${Resource.msg('link.continue.shopping', 'cart', null)}
+    </a>
+</div>

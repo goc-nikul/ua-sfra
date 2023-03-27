@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schedules xmlns="http://www.demandware.com/xml/impex/schedules/2007-03-31">
+    <schedule schedule-id="UAS7 - Image Assignments">
+        <description>This job is used to process image assignments for a given product.  This job will iterate over the collection of files found in the /src/image-assignments/ folder, and process each file against the catalogImport pipelet.</description>
+        <enabled-flag>true</enabled-flag>
+        <execution-scope>site</execution-scope>
+        <pipeline>
+            <name>UAS7Import</name>
+            <startnode>ImageAssignmentImport</startnode>
+        </pipeline>
+        <sites>
+            <site site-id="EU"/>
+        </sites>
+        <run-once>2014-08-13T13:31:00.000Z</run-once>
+        <notification>
+            <enabled-flag>false</enabled-flag>
+            <threshold>
+                <success/>
+                <exception/>
+                <error/>
+                <hang/>
+                <retry/>
+            </threshold>
+            <max-execution-time>5</max-execution-time>
+            <hang-detection-enabled-flag>true</hang-detection-enabled-flag>
+            <failure-rule>continue</failure-rule>
+        </notification>
+    </schedule>
+
+</schedules>

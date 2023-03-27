@@ -1,0 +1,114 @@
+<div class="b-header_utility-item t-livechat-link">
+    <a class="b-header_account-link" href="${Resource.msg('global.scLiveChatLink', 'common', null)}" target="_blank">${Resource.msg('global.header.need.help', 'common', null)}</a>
+</div>
+<iscomment> Country Switcher </iscomment>
+<isif condition="${pdict.baseCountries && pdict.baseCountries.length > 0}">
+
+<isset name="currentCountry" value="${pdict.shipCountry ? pdict.shipCountry : pdict.CountryModel.country.countryCode.toLowerCase()}" scope="page">
+
+    <div class="b-header_utility-item headerItemCountry">
+        <button class="b-header_utility-toggle collapsed" data-toggle="collapse" data-target="#countrySwitcher" aria-expanded="false" aria-controls="countrySwitcher">
+            <i class="b-header_utility-toggle_icon fflag fflag-${currentCountry.toUpperCase()}"></i>
+            ${currentCountry}
+        </button>
+        <div class="b-header_utility-container collapse" id="countrySwitcher">
+            <h6 class="b-header_utility-title">
+                <isprint value="${Resource.msg('global.countries.title', 'locale', null)}" encoding="off"/>
+            </h6>
+            <ul class="b-header_utility-list">
+                <isloop items="${pdict.baseCountries}" var="country">
+                    <isif condition="${country.countryCode != pdict.localeModel.locale.countryCode}">
+                        <li class="b-header_utility-subitem">
+                            <a class="b-header_utility-link" href="${country.url || pdict.CountryModel.getSiteURL(country.siteID, country.locales[0])}">
+                                <i class="b-header_utility-icon fflag fflag-${country.countryCode.toUpperCase()}"></i>
+                                <span class="b-header_utility-text">${country.countryCode}</span>
+                            </a>
+                        </li>
+                    </isif>
+                </isloop>
+            </ul>
+            <div class="b-header_utility-more_container">
+                <a href="${URLUtils.http('Page-CountriesList')}" class="b-header_utility-more_link">
+                    <isprint value="${Resource.msg('global.countries.seeall', 'locale', null)}" encoding="off"/>
+                </a>
+            </div>
+        </div>
+    </div>
+<iselse>
+    <div class="b-header_utility-item">
+        <span class="b-header_utility-heading">
+            <i class="b-header_utility-icon fflag fflag-${country.countryCode.toUpperCase()}"></i>
+            <span class="b-header_utility-text">
+                ${pdict.CountryModel.country.displayName}
+             </span>
+        </span>
+    </div>
+</isif>
+
+<iscomment> Locale Switcher </iscomment>
+<isif condition="${pdict.localeModel.locale.localLinks.length > 0}">
+    <div class="b-header_utility-item headerItemLocal" data-cmp="localeSelector" data-url="${URLUtils.url('Page-SetLocale')}">
+        <button class="b-header_utility-toggle collapsed" data-toggle="collapse" data-target="#localeSwitcher" aria-expanded="false" aria-controls="localeSwitcher">
+            ${Resource.msg('locale.select.' + pdict.locale, 'locale', null)}
+        </button>
+        <div class="b-header_utility-container collapse" id="localeSwitcher">
+            <ul class="b-header_utility-list">
+                <li class="b-header_utility-subitem">
+                    <a class="b-header_utility-link m-active m-link-medium " href="${'#'}" data-locale="${pdict.locale}"
+                        data-currencyCode="${pdict.localeModel.locale.currencyCode}"
+                        aria-label="${Resource.msg('locale.select.' + pdict.locale, 'locale', null)}">
+                        ${Resource.msg('locale.select.' + pdict.locale, 'locale', null)}
+                    </a>
+                </li>
+                <isloop items="${pdict.localeModel.locale.localLinks}" var="localeLink">
+                    <li class="b-header_utility-subitem">
+                        <a class="b-header_utility-link m-link-medium js-locale-item" href="${'#'}"
+                            data-locale="${localeLink.localID}" data-currencyCode="${localeLink.currencyCode}"
+                            aria-label="${Resource.msg('locale.select.' + localeLink.localID, 'locale', null)}">
+                            ${Resource.msg('locale.select.' + localeLink.localID, 'locale', null)}
+                        </a>
+                    </li>
+                </isloop>
+            </ul>
+        </div>
+    </div>
+<iselse>
+    <div class="b-header_utility-item">
+        <span class="b-header_utility-heading">
+            ${Resource.msg('locale.select.' + pdict.locale, 'locale', null)}
+        </span>
+    </div>
+</isif>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var $headerItemsCountry = $('.headerItemCountry');
+    var $headerToggleCountry = $headerItemsCountry.children('.b-header_utility-toggle');
+    var $headerDropdownCountry = $headerItemsCountry.children('.b-header_utility-container');
+    
+    var $headerItemsLocale = $('.headerItemLocal');
+    var $headerToggleLocale = $headerItemsLocale.children('.b-header_utility-toggle');
+    var $headerDropdownLocale = $headerItemsLocale.children('.b-header_utility-container');
+
+    var $headerItemsAccount = $('.headerItemAccount');
+    var $headerToggleAccount = $headerItemsAccount.children('.b-header_utility-toggle');
+    var $headerDropdownAccount = $headerItemsAccount.children('.b-header_utility-container');
+
+    $(document).on('click', function(event){
+        if($headerItemsCountry !== event.target && !$headerItemsCountry.has(event.target).length){
+            if($headerDropdownCountry.hasClass('show')){
+            $($headerToggleCountry).click();
+            }
+        }
+        if($headerItemsLocale !== event.target && !$headerItemsLocale.has(event.target).length){
+             if($headerDropdownLocale.hasClass('show')){
+            $($headerToggleLocale).click();
+             }
+        }
+        if($headerItemsAccount !== event.target && !$headerItemsAccount.has(event.target).length){
+             if($headerDropdownAccount.hasClass('show')){
+            $($headerToggleAccount).click();
+             }
+        }
+    });
+});
+</script>

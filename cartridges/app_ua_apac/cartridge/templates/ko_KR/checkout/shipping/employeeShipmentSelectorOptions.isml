@@ -1,0 +1,24 @@
+<isset name="addressCountry" value="${pdict.CurrentRequest.locale && pdict.CurrentRequest.locale != 'default' ? pdict.CurrentRequest.locale.split('_')[1] : 'US'}" scope="page" />
+
+<isif condition="${pdict.officeAddresses.length > 0}">
+    <isloop items="${pdict.officeAddresses}" var="address" status="loopStatus">
+        <isif condition="${address.countryCode === addressCountry}">
+	        <div class="shipping-address-section <isif condition="${!empty(shippingModel.shippingAddress) && shippingModel.shippingAddress.isOfficeAddress == true && shippingModel.shippingAddress.address1 === address.address1}">default-address</isif> default-office-address">
+	            <div class="shipping-address-option" value="${'ab_' + loopStatus.index}" data-addr-id="${loopStatus.index}" data-address-name="${address.name}"
+	                    ${address.ID==shippingModel.matchingAddressId ? 'selected="selected"' : '' }
+	            data-first-name="${customer.profile.firstName||''}" data-last-name="${customer.profile.lastName||''}" data-business-name="${address.businessName||''}"
+	            data-address1="${address.address1||''}" data-address2="${address.address2||''}"
+	            data-suburb="${address.suburb||''}"  data-district="${address.district||''}"  data-city="${address.city||''}" data-state-code="${address.stateCode||''}"
+	            data-country-code="${address.countryCode||''}" data-postal-code="${address.postalCode||''}"
+	            data-phone="${address.phone||''}" data-phone1="${address.phone1||''}" data-phone2="${address.phone2||''}" data-phone3="${address.phone3||''}" data-is-gift="${''}" data-gift-message="${''}" data-sap-carrier-code="${address.sapCarrierCode}">
+					<div>${address.name || ''}</div>
+					<div>${address.businessName || ''}</div>
+	                <div>${address.address1 || ''}</div>
+	                <div>${address.address2 || ''}</div>
+	                <div><isif condition="${address.suburb}">${address.suburb + ','}</isif> <isif condition="${address.district}">${address.district + ','}</isif> <isif condition="${address.city}"> ${address.city + ','} </isif> ${address.stateCode||''} ${address.postalCode||''}</div>
+	            </div>
+	            <span class="icon"></span>
+	        </div>
+       </isif>
+    </isloop>
+</isif>

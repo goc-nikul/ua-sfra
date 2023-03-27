@@ -1,0 +1,19 @@
+<isif condition="${product.swatches && product.swatches.count > 0}">
+    <ul class="b-swatches swiper-wrapper js-swiper-wrapper">
+        <isloop items="${product.swatches.values}" var="swatch" status="loopState">
+            <li class="b-swatches-item swiper-slide">
+                <a href="${swatch.url}"
+                    data-product-img="${swatch.hoverImage.getURL()}"
+                    data-index="${loopState.count-1}"
+                    class="b-swatches-link js-swatch-link"
+                    alt="${swatch.image.alt}"
+                >
+                    <span class="b-swatches-value" 
+                        style="background-color: ${swatch.color.hexValue}; 
+                            ${swatch.type === 'image' && !isPLP && swatch.image.URL ? 'background-image: url('+swatch.image.URL+')' : ''}" >
+                    </span>
+                </a>
+            </li>
+        </isloop>
+    </ul>
+</isif>

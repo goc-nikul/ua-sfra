@@ -1,0 +1,55 @@
+<iscontent compact="true">
+<isdecorate template="common/layout/page">
+    <isinclude template="/components/modules" sf-toolkit="off" />
+    <div class="sitemap">
+        <div class="sitemap-title-main">
+            <h1>${Resource.msg('global.sitemap','locale',null)}</h1>
+        </div>
+
+        <isloop items="${pdict.siteMapCategories.iterator()}" var="topCategory" status="loopstatus">
+            <div class="sitemap-section">
+                <isif condition="${'showInMenu' in topCategory.custom && topCategory.custom.showInMenu.valueOf() && topCategory.custom.showInMenu.valueOf().toString() === 'true'}">
+                    <isif condition="${'disableClick' in topCategory.custom && !topCategory.custom.disableClick}">
+                        <div class="sitemap-title">
+                            <h2>
+                                <a class="sitemap-title-text" href="${URLUtils.http('Search-Show','cgid', topCategory.getID())}" title="${topCategory.custom.categorySearchDisplayName ? topCategory.custom.categorySearchDisplayName : topCategory.displayName}">
+                                    <isprint value="${topCategory.custom.categorySearchDisplayName ? topCategory.custom.categorySearchDisplayName : topCategory.displayName}"/>
+                                </a>
+                            </h2>
+                        </div>
+                    </isif>
+                    
+                    <isset name="contentHelpers" value="${require('*/cartridge/scripts/helpers/contentHelpers')}" scope="page" />
+                    <isset name="subCategories" value="${contentHelpers.getOnlineSubCategoriesRefactor(topCategory)}" scope="page" />
+                    <isif condition="${subCategories.iterator().hasNext()}">
+                        <ul class="sitemap-subCat-sec">
+                            <isloop items="${subCategories.iterator()}" var="subCategory" status="loopstatus">
+                                <isif condition="${'showInMenu' in subCategory.custom && subCategory.custom.showInMenu.valueOf() && subCategory.custom.showInMenu.valueOf().toString() === 'true'}">
+                                    <isif condition="${'disableClick' in subCategory.custom && !subCategory.custom.disableClick}">
+                                        <li class="sitemap-subCat-text">
+                                            <a href="<isprint value="${contentHelpers.getCategoryUrl(subCategory)}" encoding="off"/>"  title="${subCategory.custom.categorySearchDisplayName ? subCategory.custom.categorySearchDisplayName : subCategory.displayName}">
+                                                <isprint value="${subCategory.custom.categorySearchDisplayName ? subCategory.custom.categorySearchDisplayName : subCategory.getDisplayName()}" encoding="off"/>
+                                            </a>
+                                        </li>
+                                    </isif>
+                                    <isset name="thirdsubCategories" value="${contentHelpers.getOnlineSubCategoriesRefactor(subCategory)}" scope="page" />
+                                    <isif condition="${thirdsubCategories.iterator().hasNext()}">
+                                        <isloop items="${thirdsubCategories.iterator()}" var="thirdsubCategory" status="loopstatus">
+                                            <isif condition="${('showInMenu' in thirdsubCategory.custom && thirdsubCategory.custom.showInMenu.valueOf() && thirdsubCategory.custom.showInMenu.valueOf().toString() === 'true') && !('disableClick' in thirdsubCategory.custom && thirdsubCategory.custom.disableClick)}">
+                                                <li class="sitemap-subCat-text">
+                                                    <a href="<isprint value="${contentHelpers.getCategoryUrl(thirdsubCategory)}" encoding="off"/>"  title="${thirdsubCategory.custom.categorySearchDisplayName ? thirdsubCategory.custom.categorySearchDisplayName : !thirdsubCategory.displayName}">
+                                                        <isprint value="${thirdsubCategory.custom.categorySearchDisplayName ? thirdsubCategory.custom.categorySearchDisplayName : thirdsubCategory.getDisplayName()}" encoding="off"/>
+                                                    </a>
+                                                </li>
+                                            </isif>
+                                        </isloop>
+                                    </isif>
+                                </isif>
+                            </isloop>
+                        </ul>
+                    </isif>
+                </isif>
+            </div>
+        </isloop>
+    </div>
+</isdecorate>

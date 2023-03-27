@@ -1,0 +1,93 @@
+.borderfree-content {
+    #bfx-cc-wrapper {
+        display: none;
+        position: relative;
+        top: auto;
+        right: auto;
+        visibility: visible;
+
+        @include respond-to(mobile) {
+            position: static;
+        }
+
+        .bfx-cc-collapsed {
+            background: transparent;
+
+            .bfx-cc-country-name {
+                display: none;
+            }
+        }
+
+        .bfx-cc-expanded {
+            position: absolute;
+            margin-top: rem-calc(5);
+            border: 1px solid $grey3;
+            padding: 0;
+            right: 0;
+            left: auto;
+            z-index: 4;
+
+            @include respond-to(mobile) {
+                width: 100%;
+            }
+        }
+
+        .bfx-cc-content {
+            width: rem-calc(320);
+            padding: rem-calc(25);
+
+            @include respond-to(mobile) {
+                width: 100%;
+            }
+
+            form {
+                .bfx-cc-text {
+                    margin: 0;
+                }
+
+                #bfx-cc-btn {
+                    width: 100% !important;
+                    border-radius: rem-calc(4);
+                    background: $black;
+                }
+
+                .bfx-cc-select-wrapper {
+                    width: 100%;
+                    margin-top: rem-calc(15);
+
+                    select {
+                        width: 100%;
+                        margin: 0;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.l-body-page {
+    &.bfx-enabled {
+        .l-header-section_top {
+            @include respond-to(mobile) {
+                position: relative;
+
+                .b-header-utility {
+                    display: flex;
+                }
+
+                .b-header_utility-item {
+                    display: none;
+                }
+            }
+        }
+
+        .borderfree-content,
+        #bfx-cc-wrapper {
+            display: none;
+        }
+    }
+}
+
+#bfx-cc-wrapper {
+    display: none;
+}

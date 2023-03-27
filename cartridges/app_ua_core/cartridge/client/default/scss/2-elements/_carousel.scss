@@ -1,0 +1,154 @@
+/* md
+
+# ISML structure example
+
+```html
+    <div
+        class="g-carousel js-main-image-carousel js-carousel"
+        data-cmp="carousel"
+        data-json-config='${JSON.stringify(require('STAR_SYMBOL/cartridge/config/carousel').mainImage)}'>
+        <div class="g-carousel-wrapper js-swiper-wrapper swiper-wrapper">
+            <isloop items="${product.images['pdpMainDesktop']}" var="image" status="loopStatus">
+                <div class='g-carousel-slide js-product_carousel-slide swiper-slide'>
+                    <img src="${image.url}" class="g-carousel-image" alt="${image.alt} image number ${image.index}" itemprop="image" />
+                </div>
+            </isloop>
+        </div>
+
+        <isif condition="${product.images['pdpMainDesktop'].length > 1}">
+            <div class="g-carousel-control m-next js-swiper-button-next"></div>
+            <div class="g-carousel-control m-prev js-swiper-button-prev"></div>
+        </isif>
+    </div>
+```
+
+# SCSS structure example
+
+```html
+    .g-carousel {
+        @include g-carousel();
+
+        &-wrapper {
+            @include g-carousel(wrapper);
+        }
+
+        &-slide {
+            @include g-carousel(slide);
+        }
+
+        &-image {
+            @include g-carousel(image);
+        }
+
+        &-control {
+            @include g-carousel(control);
+        }
+
+        &-control.m-next {
+            @include g-carousel(control-next);
+        }
+
+        &-control.m-prev {
+            @include g-carousel(control-prev);
+        }
+    }
+```
+*/
+
+.g-carousel {
+    @include g-carousel();
+
+    &-heading {
+        @include g-carousel(heading);
+    }
+
+    &-title {
+        @include g-carousel(title);
+    }
+
+    &-link {
+        @include g-carousel(link);
+    }
+
+    &-wrapper {
+        @include g-carousel(wrapper);
+    }
+
+    &-slide {
+        @include g-carousel(slide);
+    }
+
+    &-image {
+        @include g-carousel(image);
+    }
+
+    &-control {
+        @include g-carousel(control);
+
+        &.swiper-button-disabled {
+            display: none;
+        }
+    }
+
+    &-control.m-next {
+        @include g-carousel(control-next);
+    }
+
+    &-control.m-prev {
+        @include g-carousel(control-prev);
+    }
+
+    &.g-einstein-recommendations {
+        .product-listing {
+            display: none;
+
+            &.js-cmp-inited {
+                display: block;
+            }
+        }
+    }
+}
+
+.recommended-products {
+    .g-carousel-wrapper {
+        align-items: baseline;
+    }
+
+    .g-carousel-slide {
+        align-items: flex-start;
+    }
+
+    .b-product_promo {
+        display: none;
+    }
+
+    .b-tile-variations_container {
+        .b-tile-images_outer {
+            position: relative;
+        }
+    }
+
+    @include respond-to (desktop) {
+        .b-tile {
+            height: 100%;
+            display: flex;
+            flex-flow: wrap;
+            align-content: flex-start;
+            flex-direction: column;
+
+            .b-tile-variations_container {
+                flex-grow: 1;
+
+                .b-tile-images_container {
+                    height: 100%;
+                }
+            }
+        }
+    }
+}
+
+.owl-nav {
+    .button {
+        overflow: visible !important;
+    }
+}

@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+    <group formid="egiftcard">
+        <field 
+            formid="gcRecipientName" 
+            label="giftcards.recipientsname" 
+            type="string" mandatory="true" 
+            missing-error="error.message.required"
+            range-error="error.message.8_255characters"
+            max-length="50"/>
+        <field 
+            formid="gcRecipientEmail" 
+            label="giftcards.recipientsemail" 
+            type="string" 
+            mandatory="true" 
+            regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$" 
+            parse-error="validate.email" 
+            missing-error="error.message.required"
+            range-error="error.message.8_255characters"
+            max-length="50" 
+            value-error="profile.usernametaken"/>
+        <field 
+            formid="gcFrom" 
+            label="giftcards.from" 
+            type="string" 
+            mandatory="true" 
+            missing-error="error.message.required"
+            range-error="error.message.8_255characters"
+            max-length="50"/>
+        <field 
+            formid="gcDeliveryDate" 
+            label="giftcards.deliverydate"  
+            type="date" 
+            mandatory="false" 
+            format="yyyy-MM-dd" 
+            max="now" 
+            max-length="10"/>
+        <field 
+            formid="gcAmount" 
+            label="giftcards.amount" 
+            type="string" 
+            mandatory="true" 
+            missing-error="error.message.required"
+            range-error="error.message.8_255characters"
+            min-length="1" 
+            max-length="6"/>
+        <field 
+            formid="gcMessage" 
+            label="giftcards.message" 
+            type="string" 
+            mandatory="false" 
+            max-length="50"/>
+    </group>
+    <group formid="balance">
+        <field 
+            formid="cardNumber"
+            label="checkbalance.enter.cardnumber"
+            type="string" 
+            mandatory="true" 
+            max-length="16"
+            regexp="(^\d{16}?$)" />
+        <field 
+            formid="pin" 
+            label="checkbalance.enter.pin" 
+            type="string" 
+            mandatory="true" 
+            max-length="8"
+            regexp="(^\d{8}?$)" />
+    </group>
+
+    <action formid="checkBalance" valid-form="true"/>
+</form>
+

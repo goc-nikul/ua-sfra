@@ -1,0 +1,118 @@
+/* md
+
+# Inputs
+
+```html
+    <form>
+        <div class="g-input-container">
+            <input class="g-input" type="text" placeholder="Enter your email address">
+        </div>
+    </form>
+```
+
+## Default
+
+```html_example
+    <div style="padding: 15px 0;  display: flex; justify-content: space-around">
+        <form style="width: 50%">
+            <div class="g-input-container">
+                <input class="g-input" type="text" placeholder="Enter your email address">
+            </div>
+        </form>
+    </div>
+```
+
+## Error
+
+```html_example
+    <div style="padding: 15px 0;  display: flex; justify-content: space-around">
+        <form style="width: 50%">
+            <div class="g-input-container">
+                <input class="g-input m-error" type="text" placeholder="Enter your email address" required>
+            </div>
+            <div class="g-input-error_message">Please enter a valid email address</div>
+        </form>
+    </div>
+```
+*/
+
+// Input style
+.g-input {
+    @include input;
+}
+
+// Error message style
+.invalid-feedback,
+.invalid-feedback-email,
+.g-input-error_message {
+    @include error_message;
+    @include t-text-5;
+
+    line-height: 1.25rem;
+}
+
+.invalid-feedback,
+.invalid-feedback-email {
+    padding: 0 !important;
+    font-size: rem-calc(12);
+
+    p {
+        font-size: rem-calc(14);
+        padding-top: 1rem;
+
+        &:last-child {
+            padding-bottom: 1rem;
+        }
+    }
+
+    ul {
+        font-size: rem-calc(14);
+
+        li {
+            list-style: inside disc;
+        }
+    }
+}
+
+.input-feedback {
+    display: none;
+    font-size: rem-calc(14);
+    padding-top: rem-calc(16);
+    text-align: left;
+
+    ul {
+        padding-bottom: rem-calc(16);
+
+        li {
+            list-style: inside disc;
+        }
+    }
+}
+
+.b-checkout_main {
+    .invalid-feedback {
+        display: none;
+    }
+
+    .form-control {
+        &.is-invalid {
+            ~ .invalid-feedback {
+                display: block;
+            }
+        }
+    }
+}
+
+.b-return-wrap {
+    .invalid-feedback {
+        p {
+            font-size: rem-calc(14);
+        }
+    }
+}
+
+.b-checkout-registration {
+    .input-feedback {
+        font-size: rem-calc(12);
+    }
+}

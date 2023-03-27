@@ -1,0 +1,21 @@
+<div class="b-quantity">
+    <label class="b-quantity-label" for="quantity-${typeof lineItem !=='undefined' ? lineItem.UUID : ''}">${Resource.msg('field.selectquantity','cart',null)}</label>
+    <select class="b-quantity-select custom-select form-control js-quantity-select bfx-product-qty"
+            data-uuid="${typeof lineItem !=='undefined' ? lineItem.UUID : ''}"
+            data-pid="${lineItem.id}"
+            data-action="${pdict.actionUrls.updateQuantityUrl}"
+            data-pre-select-qty="${lineItem.quantity}"
+            id="quantity-${typeof lineItem !=='undefined' ? lineItem.UUID : ''}"
+            name="quantity-${typeof lineItem !=='undefined' ? lineItem.UUID :''}"
+            aria-label="quantity: ${StringUtils.formatInteger(lineItem.quantity)}">
+        <isloop begin="${lineItem.quantityOptions.minOrderQuantity}"
+                end="${lineItem.quantityOptions.maxOrderQuantity}"
+                status="status">
+            <isif condition="${lineItem.quantity === status.index}">
+                <option selected>${status.index}</option>
+            <iselse/>
+                <option>${status.index}</option>
+            </isif>
+        </isloop>
+    </select>
+</div>

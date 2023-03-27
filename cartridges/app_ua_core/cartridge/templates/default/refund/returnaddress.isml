@@ -1,0 +1,94 @@
+<!--- TEMPLATENAME: returnreasons.isml --->
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+<a class="backbtn" data-href="${URLUtils.url('Order-ProofOfPurchase')}" data-template="proof-purchase"><span>${Resource.msg('returns.refunds.backbtn','refunds',null)}</span></a>
+<div class="b-return-wrap b-return-address-sec">
+    <h2>${Resource.msg('returns.refunds.underaarmourstorereturns','refunds',null)}</h2>
+    <h3>${Resource.msg('returns.refunds.underaarmourstoreaddresshead','refunds',null)}</h3>
+    <p>${Resource.msg('returns.refunds.underaarmourstoreshipping','refunds',null)}</p>
+    <div class="b-return-error"></div>
+	<isset name="purchaseLocationForm" value="${pdict.returnRetailForm}" scope="page"/>
+        <div class="b-shippinglabel-wrap b-return-trns">
+	        <div class="form-group b-input_row b-order-return-input">
+		        <label class="b-input_row-label form-control-label">${Resource.msg('returns.refunds.underaarmourstorefn','refunds',null)}</label>
+				<input type="text" class="b-quantity-select form-control returnfirstname order-return-form-input" data-missing-error="${Resource.msg('or.fname.error.required', 'forms', null)}"
+	              required name="returnfirstName" id="returnfirstname" value="" <isprint value="${purchaseLocationForm && purchaseLocationForm.returnfirstname ? purchaseLocationForm.returnfirstname.attributes : ""}" encoding="off"/>/>
+			      <div class="invalid-feedback"></div>
+			</div>
+			<div class="form-group b-input_row b-order-return-input">
+	            <label class="b-input_row-label form-control-label">${Resource.msg('returns.refunds.underaarmourstoreln','refunds',null)}</label>
+			    <input type="text" class="b-quantity-select form-control returnfirstname order-return-form-input" data-missing-error="${Resource.msg('or.lname.error.required', 'forms', null)}"
+	              required name="returnLastName" id="returnLastname" value="" <isprint value="${purchaseLocationForm && purchaseLocationForm.returnLasttname ? purchaseLocationForm.returnLasttname.attributes : ""}" encoding="off"/>/>
+	              <div class="invalid-feedback"></div>
+			</div>
+		</div>
+		<div class="b-shippinglabel-wrap">
+			<div class="form-group b-input_row b-order-return-input">
+	            <label class="b-input_row-label form-control-label">${Resource.msg('returns.refunds.underaarmourstorestreet','refunds',null)}</label>
+			     <input type="text" class="b-quantity-select form-control streetaddress order-return-form-input" data-missing-error="${Resource.msg('or.address.error.required', 'forms', null)}"
+	              required id="streetaddress" name="streetAddress" value="" <isprint value="${purchaseLocationForm.streetaddress.attributes}" encoding="off"/>/>
+			      <div class="invalid-feedback"></div>
+			</div>
+			<div class="form-group b-input_row b-order-return-input">
+	            <label class="b-input_row-label">${Resource.msg('returns.refunds.underaarmourstoreasu','refunds',null)}</label>
+			    <input type="text" class="b-quantity-select order-return-form-input" id="apt" name="apartment" value="" <isprint value="${purchaseLocationForm.apt.attributes}" encoding="off"/>/>
+			</div>
+		</div>
+		<div class="b-shippinglabel-wrap">
+		<div class="form-group b-input_row b-order-return-input">
+            <label class="b-input_row-label form-control-label">${Resource.msg('returns.refunds.underaarmourstorecity','refunds',null)}</label>
+			    <input type="text" class="b-quantity-select form-control city order-return-form-input" data-missing-error="${Resource.msg('or.city.error.required', 'forms', null)}"
+         required id="city" name="city" value="" <isprint value="${purchaseLocationForm.city.attributes}" encoding="off"/>/>
+		<div class="invalid-feedback"></div>
+		</div>
+			<div class="b-return-statezip">
+				<div class="form-group b-input_row b-quantity b-order-return-input b-sz-top">
+            <label class="b-input_row-label form-control-label">${Resource.msg('returns.refunds.underaarmourstorestate','refunds',null)} *</label>
+			<select class="form-control b-quantity-select custom-select order-return-form-input" data-missing-error="${Resource.msg('or.state.error.required', 'forms', null)}"
+             required id="returnstate" name="returnstate">
+				<isloop items=${purchaseLocationForm.returnstate.options} var="returnstate">
+					<option id="${returnstate.id}" value="${returnstate.htmlValue}">${returnstate.label || ' '}</option>
+				</isloop>
+			</select>
+			<div class="invalid-feedback"></div>
+		</div>
+		<iscomment><div class=" b-return-selectall form-group b-input_row b-quantity b-order-return-input">
+            <label class="b-input_row-label form-control-label">${Resource.msg('returns.refunds.underaarmourstorestate','refunds',null)}</label>
+            <select class="b-country-select form-control b-quantity-select custom-select order-return-form-input">
+                <option id="01" value="${pdict.siteID}"></option>
+            </select>
+        </div></iscomment>
+	    <div class="form-group b-input_row b-order-return-input b-sz-bottom">
+              <label class="b-input_row-label form-control-label">${Resource.msg('returns.refunds.underaarmourstorezip','refunds',null)}</label>
+				      <input type="text" class="b-quantity-select form-control returnzip order-return-form-input js-billingZipCode" data-missing-error="${Resource.msg('or.zip.error.required', 'forms', null)}"
+				      data-pattern-mismatch="${Resource.msg('or.error.pattern.mismatch', 'forms', null)}"
+         required id="returnzip" name="returnzip" value="" <isprint value="${purchaseLocationForm.returnzip.attributes}" encoding="off"/>/>
+		<div class="invalid-feedback"></div>
+		</div>
+			</div>
+		</div>
+		<div class="b-shippinglabel-wrap">
+		<div class="form-group b-input_row b-order-return-input">
+              <label class="b-input_row-label form-control-label">${Resource.msg('returns.refunds.underaarmourstoreemail','refunds',null)}</label>
+			      <input type="text" class="b-quantity-select form-control returnemail order-return-form-input" pattern="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$" data-missing-error="${Resource.msg('or.email.error.required', 'forms', null)}"
+         required id="returnemail" name="returnemail" value="" <isprint value="${purchaseLocationForm.returnemail.attributes}" encoding="off"/>/>
+		<div class="invalid-feedback"></div>
+		</div>
+		<div class="form-group b-input_row b-order-return-input">
+            <label class="b-input_row-label form-control-label">${Resource.msg('returns.refunds.underaarmourstorephone','refunds',null)}</label>
+			    <input type="text" class="b-quantity-select form-control returnphone order-return-form-input" data-missing-error="${Resource.msg('or.phone.error.required', 'forms', null)}"
+         required id="returnphone" name="returnphone" value="" <isprint value="${purchaseLocationForm.returnphone.attributes}" encoding="off"/>/>
+		<div class="invalid-feedback"></div>
+		</div>
+		</div>
+		<div class="form-group submit-section text-center mb-4">
+			<button class="btn btn-primary btn-block submit-shipping g-button_base g-button_primary--black continueReturn" data-href="${pdict.isUACAPIActive ? URLUtils.url('Order-ProofOfPurchase') : URLUtils.url('Order-GuestRefundService')}" name="submit" type="submit">
+				${pdict.isUACAPIActive ? Resource.msg('returns.refunds.underaarmourstorercontinue','refunds',null) : Resource.msg('returns.refunds.underaarmourstoregenerate','refunds',null)}
+			</button>
+		</div>
+		<input type="hidden" id="template" name="template" value="">
+		<input type="hidden" id="requestType" name="requestType" value="gueststorerma">
+		<input type="hidden" id="transactionno" name="transactionno" value="${pdict.formData.transactionno}">
+		<input type="hidden" id="returnquantity" name="returnquantity" value="${pdict.formData.returnquantity}">
+		<input type="hidden" id="returnreasons" name="returnreasons" value="${pdict.formData.returnreasons}">
+		<input type="hidden" id="returncomments" name="returncomments" value="${pdict.formData.returncomments}">
+</div>

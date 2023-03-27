@@ -1,0 +1,34 @@
+/**
+* Retrieves a list of catalog IDs from the Smartling Configuration.
+*
+* @output CatalogIds : dw.util.List
+*
+*/
+importPackage( dw.system );
+importScript( "helpFunctions.ds" );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "getCatalogIds"));
+
+/**
+    Retrieves a list of catalog IDs from the Smartling Configuration.
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        var smartlingConfigurationJson : JSON = getConfiguration();
+        var rawIds : String = smartlingConfigurationJson['catalog_ids'];
+        var catalogIds : Array = rawIds.split(",");
+
+        for (var i = 0; i < catalogIds.length; i++) {
+            catalogIds[i] = dw.util.StringUtils.trim(catalogIds[i]);
+        }
+
+        pdict.CatalogIds = new dw.util.ArrayList(catalogIds);
+    } catch (e) {
+        LOGGER.errorException("getCatalogIds execution failed", e);
+        return PIPELET_ERROR;
+    }
+
+    return PIPELET_NEXT;
+}

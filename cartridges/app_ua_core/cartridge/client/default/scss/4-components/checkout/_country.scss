@@ -1,0 +1,41 @@
+.b-country {
+    @include icon('caret-down', 'before', 16, rem-calc(16));
+
+    position: relative;
+    flex-grow: 1;
+    margin-bottom: rem-calc(20);
+
+    &::before {
+        position: absolute;
+        top: rem-calc(22);
+        right: rem-calc(22);
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    &-label {
+        position: absolute;
+        top: 0;
+        left: rem-calc(12);
+        z-index: 1;
+        padding: 0 rem-calc(4);
+        background-color: $white;
+        font-size: rem-calc(10);
+        font-weight: 900;
+        transform: translateY(-50%);
+    }
+
+    &-select {
+        width: 100%;
+        height: rem-calc(44);
+        padding: 0 rem-calc(40) 0 rem-calc(16);
+        box-sizing: border-box;
+        border: 1px solid $grey3;
+        border-radius: rem-calc(4);
+        line-height: rem-calc(44);
+        appearance: none;
+        cursor: pointer;
+        background-color: $white;
+        @include font(main_med, rem-calc(12), 1.67);
+    }
+}

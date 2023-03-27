@@ -1,0 +1,27 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isif condition="${pdict.displayPoints}">
+    <div class="memberson-points-summary">
+        <div class="memberson-points-section">
+            <table>
+                <tr>
+                    <th class="memberTableHeader">${Resource.msg('membershipsummary.table.header.points','membersonGlobal',null)}</th>
+                    <th class="memberTableHeader">${Resource.msg('membershipsummary.table.header.expiry','membersonGlobal',null)}</th>
+                </tr>
+                <tr>
+                    <td>${pdict.pointsBalance}</td>
+                    <td>${pdict.pointsExpiry}</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="last-updated-date">
+                            <p class="last-update"><span>${Resource.msg('memberson.msg.lastUpdateDate.label','membersonGlobal',null)}</span> ${pdict.lastUpdatedDate}</p>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="memberson-text-section">
+            <iscontentasset aid="memberson-app-links" />
+        </div>
+    </div>
+</isif>

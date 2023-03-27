@@ -1,0 +1,46 @@
+<link rel="stylesheet" href="${URLUtils.staticURL('/lib/jqueryui/jquery-ui.min.css')}" />
+<link rel="stylesheet" href="${URLUtils.staticURL('/lib/bootstrap/css/bootstrap.min.css')}" />
+<link rel="stylesheet" href="${URLUtils.staticURL('/lib/jquerydatatable/dataTables.bootstrap.min.css')}" />
+<link rel="stylesheet" href="${URLUtils.staticURL('/css/sdlstyling.css')}" />
+
+<script src="${URLUtils.staticURL('/lib/jquery-1.12.4.min.js')}"></script>
+<script src="${URLUtils.staticURL('/lib/jqueryui/jquery-ui.min.js')}"></script>
+<script src="${URLUtils.staticURL('/lib/bootstrap/bootstrap.min.js')}"></script>
+<script src="${URLUtils.staticURL('/lib/jquerydatatable/jquery.dataTables.min.js')}"></script>
+<script src="${URLUtils.staticURL('/lib/jquerydatatable/dataTables.bootstrap.min.js')}"></script>
+<script src="${URLUtils.staticURL('/lib/chart/Chart.bundle.min.js')}"></script>
+<script>
+    var $j = jQuery.noConflict();
+    jQuery(document).ready(function() {
+        window.DestroyOnClose = true;
+    });
+</script>
+
+<script src="${URLUtils.staticURL('/js/appSDLTranslation.js')}"></script>
+
+<script><isinclude template="addResources"/></script>
+
+<isset name="merchantToolsURL" value="${URLUtils.https('ViewApplication-SelectSite', 'MenuGroupID', 'ChannelMenu', 'ChannelID', pdict.ChannelID, 'SelectedSiteID', pdict.ChannelID).toString()}" scope="page" />
+
+<isset name="SDLURL" value="${URLUtils.https('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', 'bm_SDLTranslation').toString()}" scope="page" />
+
+<div class="sdlSpinnerContainer">
+    <img src="${URLUtils.staticURL('/images/spinner.gif')}" alt="progress-spinner" />
+</div>
+
+<div class="modal" id="sdlErrorModal" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Incomplete Entry</h4>
+            </div>
+            <div class="modal-body">
+                <label id="sdlErrorText"></label>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,113 @@
+.b-gated-enrollment {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+    margin: rem-calc(100) auto;
+    text-align: center;
+
+    .b-gated-enrollment_form {
+        width: 100%;
+    }
+
+    &_header {
+        text-align: center;
+        margin: 0 0 rem-calc(16);
+        @include font(main, rem-calc(14), rem-calc(20));
+
+        &-login {
+            margin: 0 0 rem-calc(24);
+            max-width: rem-calc(320);
+        }
+
+        &-waitlist {
+            margin: 0 0 rem-calc(24);
+        }
+
+        &_bold {
+            margin: rem-calc(24) 0 rem-calc(16);
+            @include font(main_bold, rem-calc(24), rem-calc(32));
+        }
+
+        &_extended {
+            margin: 0 0 rem-calc(24);
+        }
+    }
+
+    &_intro {
+        @include font(main_med, rem-calc(16), rem-calc(20));
+    }
+
+    &_callout {
+        font-stretch: condensed;
+        letter-spacing: rem-calc(1);
+        margin: rem-calc(24) 0;
+        @include font(main_bold, rem-calc(64), rem-calc(64));
+
+        @include respond-to(mobile) {
+            font-size: rem-calc(24);
+            line-height: rem-calc(24);
+        }
+    }
+
+    &_tq {
+        margin: rem-calc(24) auto 0;
+        max-width: rem-calc(375);
+        @include font(main, rem-calc(12), rem-calc(20));
+    }
+
+    &_waitlist-form {
+        max-width: rem-calc(375);
+        padding: 0 rem-calc(24);
+    }
+
+    .form-group {
+        width: 100%;
+    }
+
+    &_input-zip {
+        margin: 0 0 rem-calc(24);
+    }
+
+    &_input-waitlist {
+        margin: 0 0 rem-calc(16);
+    }
+
+    &_icon-status {
+        margin: 0 0 rem-calc(8);
+        line-height: 1;
+    }
+
+    &_submit {
+        margin: 0 0 rem-calc(24);
+    }
+
+    .register-login {
+        margin: rem-calc(16) 0 0;
+        font-size: rem-calc(12);
+
+        a {
+            font-weight: $font-regular;
+        }
+    }
+
+    &_fixed-width {
+        max-width: rem-calc(327);
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+.b-block-group {
+    width: 100%;
+    max-width: rem-calc(256);
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: rem-calc(16) 0;
+
+    &_create-account {
+        margin: 0 0 rem-calc(24);
+    }
+}

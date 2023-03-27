@@ -1,0 +1,43 @@
+/**
+*   @input status : String  Status to filter
+*   @input itemType : String itemType to filter
+*   @input ascDesc : String  Sort order
+*   @input sortField : String  Sort field
+*   @output coList : dw.util.SeekableIterator
+*
+*/
+importPackage( dw.system );
+importPackage( dw.object );
+importPackage( dw.util );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "submissionBoard.filter"));
+
+/**
+    Filter items on the submission board based on status, type, date.
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        var sort : String = "custom.itemId asc";
+        if (pdict.sortField != null ) {
+            sort = "custom." + pdict.sortField + " " + pdict.ascDesc;
+        }
+        var filterParameter : ArrayList = new ArrayList;
+
+        if (pdict.itemType != null && pdict.itemType != "") {
+            filterParameter.push("custom.itemType = '" + pdict.itemType + "'");
+        }
+
+        if (pdict.status != null && pdict.status != "") {
+            filterParameter.push("custom.status = '" + pdict.status + "'");
+        }
+
+        pdict.coList = CustomObjectMgr.queryCustomObjects('SMARTLING_SUBMISSION', filterParameter.join(" AND "), sort);
+    } catch (e) {
+        LOGGER.errorException("submissionBoard.filter failed, ascDesc={0}, sortField={1}, status={2}, itemType={3}", pdict.ascDesc, pdict.sortField, pdict.status, pdict.itemType, e);
+        return PIPELET_ERROR;
+    }
+
+   return PIPELET_NEXT;
+}

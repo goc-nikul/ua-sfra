@@ -1,0 +1,117 @@
+{
+   "step-types":{
+      "script-module-step":[
+         {
+            "@type-id":"custom.PaymentTokenExchange",
+            "module":"int_paymetric/cartridge/scripts/job/paymentTokenExchange.js",
+            "function":"execute",
+            "parameters":{
+
+            }
+         },
+         {
+            "@type-id":"custom.AccertifyProcessFraudOrders",
+            "module":"int_accertify/cartridge/scripts/order/PendingFraudOrders.js",
+            "function":"execute",
+            "parameters":{
+
+            }
+         },
+         {
+            "@type-id":"custom.accertifyProcess",
+            "@supports-parallel-execution":"false",
+            "@supports-site-context":"true",
+            "@supports-organization-context":"false",
+            "description":"Accertify fraud call.",
+            "module":"int_accertify/cartridge/scripts/order/PendingFraudCustomObject.js",
+            "function":"process",
+            "transactional":"false",
+            "timeout-in-seconds":"900",
+            "parameters":{
+               "parameter":[
+
+               ]
+            },
+            "status-codes":{
+               "status":[
+                  {
+                     "@code":"ERROR",
+                     "description":"Used when an error occurred."
+                  },
+                  {
+                     "@code":"OK",
+                     "description":"Used when everything went well."
+                  },
+                  {
+                     "@code":"WARN",
+                     "description":"Used when small, but acceptable problems occurred."
+                  }
+               ]
+            }
+         },
+         {
+            "@type-id":"custom.accertifyClear",
+            "@supports-parallel-execution":"false",
+            "@supports-site-context":"true",
+            "@supports-organization-context":"false",
+            "description":"Accertify fraud call.",
+            "module":"int_accertify/cartridge/scripts/order/PendingFraudCustomObject.js",
+            "function":"clear",
+            "transactional":"false",
+            "timeout-in-seconds":"900",
+            "parameters":{
+               "parameter":[
+
+               ]
+            },
+            "status-codes":{
+               "status":[
+                  {
+                     "@code":"ERROR",
+                     "description":"Used when an error occurred."
+                  },
+                  {
+                     "@code":"OK",
+                     "description":"Used when everything went well."
+                  },
+                  {
+                     "@code":"WARN",
+                     "description":"Used when small, but acceptable problems occurred."
+                  }
+               ]
+            }
+         },
+         {
+            "@type-id":"custom.MaoSendStatusUpdate",
+            "@supports-parallel-execution":"false",
+            "@supports-site-context":"true",
+            "@supports-organization-context":"false",
+            "description":"Send MAO status.",
+            "module":"int_mao/cartridge/scripts/MaoSendStatusUpdate.js",
+            "function":"execute",
+            "timeout-in-seconds":"900",
+            "parameters":{
+               "parameter":[
+
+               ]
+            },
+            "status-codes":{
+               "status":[
+                  {
+                     "@code":"ERROR",
+                     "description":"Used when an error occurred."
+                  },
+                  {
+                     "@code":"OK",
+                     "description":"Used when everything went well."
+                  },
+                  {
+                     "@code":"WARN",
+                     "description":"Used when small, but acceptable problems occurred."
+                  }
+               ]
+            }
+         }
+      ]
+   }
+}

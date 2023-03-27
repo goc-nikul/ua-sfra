@@ -1,0 +1,126 @@
+/* md
+
+# Buttons
+If you need it could be added to different types of HTML-elements
+Base button constructor: [g-button_base] has all shared CTA button attributes.
+Secondary button constructors: [g-button_primary--white] have only the unique button attributes for that style.
+Use both to render the proper button style.
+
+```html
+    <a href="#" class="g-button_base g-button_facebook">button (on a)</a>
+    <button class="g-button_base g-button_tertiary">button (on button)</button>
+    <span class="g-button_base g-button_primary">button (on span)</span>
+    <form>
+        <input class="g-button_base g-button_tertiary" type="submit" value="submit (on input)">
+        <input class="g-button_base g-button_tertiary" type="submit" value="submit (on input disable)" disabled>
+    </form>
+
+```
+
+# Primary button white
+
+```html_example
+    <div style="padding: 15px 0; display: flex; justify-content: space-around; background: #1d1d1d;">
+        <a href="#" class="g-button_base g-button_primary--white">button (on a)</a>
+        <span class="g-button_base g-button_primary--white">button (on span)</span>
+        <button class="g-button_base g-button_primary--white">button (on button)</button>
+        <button class="g-button_base g-button_primary--white" disabled>button (disable)</button>
+    </div>
+```
+
+# Primary button black
+
+```html_example
+    <div style="padding: 15px 0; display: flex; justify-content: space-around">
+        <a href="#" class="g-button_base g-button_primary-black">button (on a)</a>
+        <span class="g-button_base g-button_primary--black">button (on span)</span>
+        <button class="g-button_base g-button_primary--black">button (on button)</button>
+        <button class="g-button_base g-button_primary--black" disabled>button (disable)</button>
+    </div>
+```
+
+# Secondary button white
+
+```html_example
+    <div style="padding: 15px 0; display: flex; justify-content: space-around; background: #1d1d1d;">
+        <a href="#" class="g-button_base g-button_secondary--white">button (on a)</a>
+        <span class="g-button_base g-button_secondary--white">button (on span)</span>
+        <button class="g-button_base g-button_secondary--white">button (on button)</button>
+        <button class="g-button_base g-button_secondary--white" disabled>button (disable)</button>
+    </div>
+```
+
+# Secondary button black
+
+```html_example
+    <div style="padding: 15px 0; display: flex; justify-content: space-around">
+        <a href="#" class="g-button_base g-button_secondary-black">button (on a)</a>
+        <span class="g-button_base g-button_secondary--black">button (on span)</span>
+        <button class="g-button_base g-button_secondary--black">button (on button)</button>
+        <button class="g-button_base g-button_secondary--black" disabled>button (disable)</button>
+    </div>
+```
+
+# Tertiary button
+
+```html_example
+    <div style="padding: 15px 0; display: flex; justify-content: space-around">
+        <a href="#" class="g-button_base g-button_tertiary">button (on a)</a>
+        <span class="g-button_base g-button_tertiary">button (on span)</span>
+        <button class="g-button_base g-button_tertiary">button (on button)</button>
+        <button class="g-button_base g-button_tertiary" disabled>button (disable)</button>
+    </div>
+```
+
+# Facebook button
+
+```html_example
+    <div style="padding: 15px 0;  display: flex; justify-content: space-around">
+        <a href="#" class="g-button_base g-button_facebook">button (on a)</a>
+        <span class="g-button_base g-button_facebook">button (on span)</span>
+        <button class="g-button_base g-button_facebook">button (on button)</button>
+        <button class="g-button_base g-button_facebook" disabled>button (disable)</button>
+    <div>
+```
+*/
+
+// base button constructor
+.g-button_base {
+    @include button-base_styles;
+}
+// base button constructor
+.g-button_base_secondary {
+    @include button-base_styles_secondary;
+}
+
+// Primary button
+.g-button_primary--black {
+    @include button(primary-black);
+}
+
+.g-button_primary--white {
+    @include button(primary-white);
+}
+
+// Secondary button
+.g-button_secondary--black {
+    @include button(secondary-black);
+}
+// Secondary button
+.g-button_secondary--gray {
+    @include button(secondary-gray);
+}
+
+.g-button_secondary--white {
+    @include button(secondary-white);
+}
+
+// Tertiary button
+.g-button_tertiary {
+    @include button(tertiary);
+}
+
+// Facebook button
+.g-button_facebook {
+    @include button(facebook);
+}

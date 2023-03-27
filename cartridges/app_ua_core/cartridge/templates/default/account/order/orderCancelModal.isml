@@ -1,0 +1,62 @@
+<isset name="orderID" value="${pdict.order.orderNumber || pdict.order.orderNo}" scope="page" />
+<isset name="orderUUID" value="${pdict.orderUUID || pdict.order.orderUUID}" scope="page" />
+<isset name="trackOrderEmail" value="${pdict.trackOrderEmail || ''}" scope="page" />
+<isset name="orderTracking" value="${pdict.orderTracking || false}" scope="page" />
+<isset name="orderConfirmationEmail" value="${pdict.order.customerEmail || ''}" scope="page" />
+
+
+<div class="modal g-modal g-modal-loginform cancel-confirmation-modal d-none" id="cancel-confirmation-modal" role="dialog" aria-modal="true">
+    <div class="modal-dialog g-modal-dialog">
+    <!-- Modal content-->
+        <div class="modal-content g-modal-content cancel-confirmation-modal_content">
+            <a class="cancel-confirmation-modal_content_closeIcon" href="javascript:void(0)" data-dismiss="modal">
+                <img src="${URLUtils.staticURL('/images/ic-sm-black-exit.svg')}" alt="close-icon">
+            </a>
+            <div class="cancel-confirmation-modal_form">
+                <form action="${URLUtils.url('OrderCancel-Cancel')}" method="POST" id="order-cancel">
+                    <div class="cancel-confirmation-modal_body">
+                        <div class="cancel-confirmation-modal_top">
+                            <h2 class="cancel-confirmation-modal_top_heading">${Resource.msg('order.cancel', 'order', null)}</h2>
+                            <p class="cancel-confirmation-modal_top_text">${Resource.msgf('order.cancel.reason', 'order', null, orderID)}</p>
+                        </div>
+                        <div class="cancel-confirmation-modal_fields">
+                            <input type="hidden" id="orderId" name="orderId" value="${orderID}" />
+                            <input type="hidden" id="orderUUID" name="orderUUID" value="${orderUUID}" />
+                            <input type="hidden" id="trackOrderEmail" name="trackOrderEmail" value="${trackOrderEmail}" />
+                            <input type="hidden" id="orderTracking" name="orderTracking" value="${orderTracking}" />
+                            <input type="hidden" id="orderConfirmationEmail" name="orderConfirmationEmail" value="${orderConfirmationEmail}" />
+                            <div class="b-account_form-column b-cancelReasons">
+                                <div class="g-selectric-container  b-cancelReasons-selectric form-group">
+                                    <select data-cmp="customSelect" data-cmp-id="selectric" class="js-input_field input-select" id="cancelReasons" name="cancelReasons" tabindex="-1" data-missing-error="${Resource.msg('order.cancel.reason.error', 'order', null)}" required>
+                                        <option class="select-option default"  value="">${Resource.msg('order.cancel.reason.select', 'order', null)}</option>
+                                        <isloop items="${pdict.order.cancelReasons}" var="cancelReason">
+                                            <option class="select-option ${cancelReason}"  value="${cancelReason}">${Resource.msg('order.cancel.reason.' + cancelReason, 'order', null)}</option>
+                                        </isloop>
+                                    </select>
+                                    <label for="cancelReasons" class="g-selectric-label form-control-label b-cancelReasons-label js-input-label">${Resource.msg('order.cancel.reason.label', 'order', null)}</label>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="b-account_form-column b-reason-textarea">
+                                <label for="cancel-text-area" class="b-reason-textarea-label">${Resource.msg('order.cancel.comments.label', 'order', null)}</label>
+                                <textarea id="cancel-text-area" class="js_textarea b-reason-textarea-inputfield js-valideComment" name="note" cols="50" rows="10" data-maxcount="200"></textarea>
+                                <p class="b-reason-textarea-textlimit">${Resource.msg('order.cancel.comments.size', 'order', null)}</p>
+                            </div>
+                        </div>
+                        <div class="cancel-confirmation-modal_buttons">
+                            <button type="button" class="g-button_base c-modal-close" data-dismiss="modal" aria-label="Close">
+                                ${Resource.msg('go.back','order',null)}
+                            </button>
+                            <button type="button" class="g-button_base g-button_primary--black c-modal-submit-button"
+                                    data-order-id="${orderID}">
+                                ${Resource.msg('order.cancel','order',null)}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="cancel-confirmation-modal_formSubmit d-none">
+            </div>
+        </div>
+    </div>
+</div>

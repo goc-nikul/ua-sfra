@@ -1,0 +1,52 @@
+.g-toast-message {
+    display: flex;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: rem-calc(150);
+    left: 50%;
+    min-width: rem-calc(325);
+    max-width: rem-calc(450);
+    padding: rem-calc(15);
+    border-radius: rem-calc(8);
+    border: rem-calc(2) solid $red;
+    align-items: center;
+    animation: fade var(--value) linear forwards;
+    z-index: 102;
+
+    @include respond-to(mobile) {
+        max-width: rem-calc(375);
+        top: rem-calc(175);
+    }
+
+    &.fixed {
+        position: fixed;
+    }
+
+    &-body {
+        position: relative;
+        padding: 0 0 0 rem-calc(22);
+    }
+
+    &.error {
+        background-color: $red2;
+
+        .g-toast-message-body {
+            color: $red;
+            @include font(main_bold, rem-calc(12), rem-calc(20));
+            @include icon(alert);
+
+            &::before {
+                position: absolute;
+                top: rem-calc(2);
+                left: 0;
+            }
+        }
+    }
+
+    @keyframes fade {
+        0% { opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+}

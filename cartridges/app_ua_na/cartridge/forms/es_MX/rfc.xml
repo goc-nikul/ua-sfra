@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+
+   <field formid="fiscalInvoice" label="forms.fiscalInvoice" type="boolean" mandatory="false" />
+   <field formid="rfc" label="forms.rfc" type="string" mandatory="false" binding="custom.rfc" regexp="(?:[a-zA-Z]{3}[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[A-Za-z0-9]{3})$|^(?:[a-zA-z]{4}[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[A-Za-z0-9]{3})" min-length="12" max-length="13" missing-error="forms.address.rfc.missing" range-error="forms.address.field.invalid" />
+   <field formid="razonsocial" label="forms.razonsocial" type="string" mandatory="false" binding="custom.razonsocial" regexp=".{2,60}" min-length="2" max-length="60" missing-error="forms.address.razonsocial.missing" range-error="forms.address.field.invalid"/>
+
+   <field formid="cfdiCheckbox" label="forms.cfdiCheckbox" type="boolean" mandatory="false"/>
+
+   <field formid="usoCFDI" label="forms.usoCFDI" type="string" mandatory="false" binding="custom.usoCFDI" missing-error="forms.address.id.missing" value-error="forms.address.field.invalid">
+      <options>
+         <option optionid="" label="forms.select" value=""/>
+         <option optionid="G01" label="usoCFDI.G01" value="G01" />
+         <option optionid="G02" label="usoCFDI.G02" value="G02" />
+         <option optionid="G03" label="usoCFDI.G03" value="G03" />
+         <option optionid="I01" label="usoCFDI.I01" value="I01" />
+         <option optionid="I02" label="usoCFDI.I02" value="I02" />
+         <option optionid="I03" label="usoCFDI.I03" value="I03" />
+         <option optionid="I04" label="usoCFDI.I04" value="I04" />
+         <option optionid="I05" label="usoCFDI.I05" value="I05" />
+         <option optionid="I06" label="usoCFDI.I06" value="I06" />
+         <option optionid="I07" label="usoCFDI.I07" value="I07" />
+         <option optionid="I08" label="usoCFDI.I08" value="I08" />
+         <option optionid="D01" label="usoCFDI.D01" value="D01" />
+         <option optionid="D02" label="usoCFDI.D02" value="D02" />
+         <option optionid="D03" label="usoCFDI.D03" value="D03" />
+         <option optionid="D04" label="usoCFDI.D04" value="D04" />
+         <option optionid="D05" label="usoCFDI.D05" value="D05" />
+         <option optionid="D06" label="usoCFDI.D06" value="D06" />
+         <option optionid="D07" label="usoCFDI.D07" value="D07" />
+         <option optionid="D08" label="usoCFDI.D08" value="D08" />
+         <option optionid="D09" label="usoCFDI.D09" value="D09" />
+         <option optionid="D10" label="usoCFDI.D10" value="D10" />
+         <option optionid="S01" label="usoCFDI.S01" value="S01" />
+         <option optionid="CP01" label="usoCFDI.CP01" value="CP01" />
+         <option optionid="CN01" label="usoCFDI.CN01" value="CN01" />
+      </options>
+   </field>
+
+   <field formid="regimenFiscal" label="forms.regimenFiscal" type="string" mandatory="false" binding="custom.regimenFiscal" missing-error="forms.address.id.missing" value-error="forms.address.field.invalid">
+      <options>
+            <option optionid="" label="forms.select" value=""/>
+            <option optionid="regimenFiscal601" label="regimenFiscal.601" value="601" />
+            <option optionid="regimenFiscal603" label="regimenFiscal.603" value="603" />
+            <option optionid="regimenFiscal605" label="regimenFiscal.605" value="605" />
+            <option optionid="regimenFiscal606" label="regimenFiscal.606" value="606" />
+            <option optionid="regimenFiscal607" label="regimenFiscal.607" value="607" />
+            <option optionid="regimenFiscal608" label="regimenFiscal.608" value="608" />
+            <option optionid="regimenFiscal610" label="regimenFiscal.610" value="610" />
+            <option optionid="regimenFiscal611" label="regimenFiscal.611" value="611" />
+            <option optionid="regimenFiscal612" label="regimenFiscal.612" value="612" />
+            <option optionid="regimenFiscal614" label="regimenFiscal.614" value="614" />
+            <option optionid="regimenFiscal615" label="regimenFiscal.615" value="615" />
+            <option optionid="regimenFiscal616" label="regimenFiscal.616" value="616" />
+            <option optionid="regimenFiscal620" label="regimenFiscal.620" value="620" />
+            <option optionid="regimenFiscal621" label="regimenFiscal.621" value="621" />
+            <option optionid="regimenFiscal622" label="regimenFiscal.622" value="622" />
+            <option optionid="regimenFiscal623" label="regimenFiscal.623" value="623" />
+            <option optionid="regimenFiscal624" label="regimenFiscal.624" value="624" />
+            <option optionid="regimenFiscal625" label="regimenFiscal.625" value="625" />
+            <option optionid="regimenFiscal626" label="regimenFiscal.626" value="626" />
+      </options>
+   </field>
+   <field formid="codigoPostal" label="forms.codigoPostal" type="string" mandatory="false" regexp="([0-9]{5})" parse-error="forms.address.field.emojifree" binding="custom.codigoPostal" min-length="5" max-length="5" missing-error="forms.address.text.missing" range-error="forms.address.field.invalid" />
+</form>

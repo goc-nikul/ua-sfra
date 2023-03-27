@@ -1,0 +1,26 @@
+'use strict';
+
+var SRFeedType = require( "~/cartridge/scripts/models/feedmodel").SRFeedType;
+var FeedUtil = require("~/cartridge/scripts/feeds/FeedUtil");
+
+function ProductFeedProcessor(pdict) {
+	this.pdict = pdict;
+	this.prodFW = null;
+}
+
+ProductFeedProcessor.prototype.getType = function() {
+	return SRFeedType.PRODUCT_FEED;
+}
+
+
+ProductFeedProcessor.prototype.process = function() {
+	//Great Going
+	pdict = this.pdict;
+	attr = pdict.productAttr;
+}
+
+
+
+exports.getProcessor = function(pdict) {
+	return new ProductFeedProcessor(pdict);
+}

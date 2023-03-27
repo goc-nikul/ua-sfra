@@ -1,0 +1,65 @@
+<isset name="store" value="${pdict}" scope="page"/>
+<isif condition="${store}">
+    <isif condition="${typeof(store.checkoutView) != 'undefined' && !empty(store.checkoutView) && store.checkoutView == 'true'}">
+        <div class="selectedStore store-details" data-store-id="${store.ID}">
+            <div class="b-store-name store-name">${store.name}</div>
+		    <div class="b-store-type">${store.storeType}</div>
+		    <address>
+		        <a class="store-map" target='_blank' href="https://maps.google.com/?daddr=${store.latitude},${store.longitude}">
+		            ${store.address1}
+		            <isif condition="${store.address2}">
+		                ${store.address2}
+		            </isif>
+		            <isif condition="${store.city}">
+		                ${store.city}, </br>
+		            </isif>
+		            <isif condition="${store.stateCode}">
+		                ${store.stateCode}
+		            </isif>
+		            ${store.postalCode}
+		        </a>
+		    </address>
+		    <isif condition="${store.phone}">
+		        <div class="b-store-phone">
+		            <i class="fa fa-phone" aria-hidden="true"></i>
+		            <span><a class="storelocator-phone" href="tel:${store.phone}">${store.phone}</a></span>
+		        </div>
+		    </isif>
+		    <isif condition="${store.storeHours}">
+		        <div class="store-hours">
+		            <h5>${Resource.msg('store.inventory.storehours','storeLocator',null)}</h5>
+		            <ul>
+		                <isloop items="${store.storeHours.split('\n')}" var="storeOpenHours">
+		                    <li><isprint value="${storeOpenHours}" encoding="off"/></li>
+		                </isloop>
+		            </ul>
+		        </div>
+		    </isif>
+        </div>
+    <iselseif condition="${typeof(store.addressView) != 'undefined' && !empty(store.addressView) && store.addressView == 'true'}">
+        <p>
+            <span class="ship-to-message"></span>
+            <span class="ship-to-name"><isprint value="${store.name}"/></span>
+            <span class="ship-to-address1"><isprint value="${store.address1}"/></span>
+            <isif condition="${store.address2}">
+                <span class="ship-to-address2"><isprint value="${store.address2}"/></span>
+            </isif>
+            <span class="ship-to-city-st-zip">
+                <isif condition="${store.city}"><span class="ship-to-city"><isprint value="${store.city}"/></span></isif>
+                <isif condition="${store.stateCode}"><span class="ship-to-st"><isprint value="${store.stateCode}"/></span></isif>
+                <span class="ship-to-zip"><isprint value="${store.postalCode}"/></span> 
+            </span>
+            <span class="ship-to-phone"><isprint value="${store.phone}"/></span>
+        </p>
+    </iselseif>
+    <iselse/>
+        <div class="b-storedetail-cart">
+            <h5 class="b-storepickup-heading">${Resource.msg('label.instore.pickup.from','instorePickup',null)}</h5>
+            <div class="store-details b-cart-storedetails" data-store-id="${store.ID}">
+                <div class="b-store-name store-name"><isprint value="${store.name}"/></div>
+                <div class="b-store-type"><isprint value="${store.storeType}"/></div>
+                <div class="b-store-openhours"><isprint value="${store.storeOpenUntil}"/></div>
+            </div>
+        </div>
+    </isif>
+</isif>

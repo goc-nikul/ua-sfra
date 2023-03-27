@@ -1,0 +1,27 @@
+<form role="search"
+    action="${URLUtils.url('Search-Show')}"
+    method="get"
+    name="simpleSearch"
+    class="b-search js-site-search">
+    <div class="b-search-container js-search-container">
+        <input class="form-control js-search-field b-search-input"
+            type="search"
+            name="q"
+            value=""
+            placeholder="${Resource.msg('label.header.searchwatermark', 'common', null)}"
+            role="combobox"
+            autocomplete="off"
+            data-min-chars="${dw.system.Site.current.getCustomPreferenceValue('searchMinLength') || 3}"
+            aria-haspopup="listbox"
+            aria-owns="search-results"
+            aria-controls="search-results"
+            aria-expanded="false"
+            aria-autocomplete="list"
+            aria-activedescendant=""
+            aria-label="${Resource.msg('simplesearch.searchtext', 'common', null)}" />
+        <button type="reset" name="search-clear" class="b-search-button m-close js-search-clear" aria-label="${Resource.msg('label.header.search.clear', 'common', null)}">${Resource.msg('global.clear', 'common', null)}</button>
+        <button type="submit" name="search-button" class="b-search-button m-submit" aria-label="${Resource.msg('label.header.search.go', 'common', null)}"></button>
+    </div>
+    <div class="b-search-suggestions js-suggestions-wrapper" data-url="${URLUtils.url('SearchServices-GetSuggestions', 'q')}"></div>
+    <input type="hidden" value="${pdict.locale}" name="lang" />
+</form>

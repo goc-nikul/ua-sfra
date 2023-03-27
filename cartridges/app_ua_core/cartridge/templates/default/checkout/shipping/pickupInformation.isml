@@ -1,0 +1,52 @@
+<div class="b-pickup-confirmation">
+    <div class="single-shipping b-shipping-summary_single-shipping" data-pickupAddress="${Resource.msg('label.hal.pickup.addres', 'checkout', null)}">
+        <span class="pickup-address">${Resource.msg('label.order.pickup.address', 'confirmation', null)}</span>
+        <div class="summary-details shipping b-shipping-summary_summary-details b-shipping-summary_shipping">
+            <div class="address-summary">
+                <a href="${pdict.selectedStore.storeGoogleMapLink}" target="_blank" rel="noreferrer" class="pickup-shipping-link">
+                    <div class="address1">
+                        <isprint value="${pdict.selectedStore.name}" />
+                    </div>
+                    <div class="address2">
+                        <isprint value="${pdict.selectedStore.address1}" />
+                    </div>
+                    <div class="address2">
+                        <isif condition="${pdict.selectedStore.address2}">
+                            ${pdict.selectedStore.address2}, </br>
+                        </isif>
+                    </div>
+                    <span class="city">
+                        <isif condition="${pdict.selectedStore.city}">
+                            ${pdict.selectedStore.city}, 
+                        </isif>
+                    </span>
+                    <span class="stateCode">
+                        <isif condition="${pdict.selectedStore.stateCode}">
+                            ${pdict.selectedStore.stateCode}
+                        </isif>
+                    </span>
+                    <span class="postalCode">
+                        <isprint value="${pdict.selectedStore.postalCode}" />
+                    </span>
+                </a>
+            </div>
+        </div>
+        <span class="contact-person">${Resource.msg('label.order.pickup.contactPerson', 'confirmation', null)}</span>
+        <div class="row summary-details leading-lines b-shipping-summary_summary-details">
+            <div class="col-8">
+                <input class="shippingCostID" value="$0.00" type="hidden">
+                <input class="freeTextID" value="Free" type="hidden">
+                <p class="shipping-method">
+                    <span class="shipping-method-title"> <isprint value="${pdict.primaryFullName}" />
+                    </span>
+                </p>
+                <div class="shipping-method-arrival-time">
+                    <isprint value="${pdict.order.orderEmail}" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hal-confirmation-instructions">
+        <iscontentasset aid="confirmation-callout-bopis" />
+    </div>
+</div>

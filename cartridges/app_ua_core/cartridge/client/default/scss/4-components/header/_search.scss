@@ -1,0 +1,90 @@
+.b-search {
+    @include respond-to(desktop) {
+        @include search;
+    }
+
+    @include respond-to(mobile) {
+        @include search($search-black);
+
+        padding: rem-calc(24) rem-calc(16);
+    }
+
+    &-toggle {
+        @include button-to-link;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: rem-calc(14);
+        color: $white;
+        width: rem-calc(48);
+        height: rem-calc(48);
+
+        @include respond-to(no-phones) {
+            @include grid-col(1, 8);
+        }
+
+        @include respond-to(desktop) {
+            display: none;
+        }
+    }
+
+    &-icon {
+        @include icon(search);
+    }
+
+    &-header_mobile {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: rem-calc(56);
+        padding: rem-calc(16);
+        border-bottom: 1px solid $grey3;
+
+        @include respond-to(desktop) {
+            display: none;
+        }
+    }
+
+    &-logo {
+        @include respond-to(tablets) {
+            @include grid-col(2, 8);
+        }
+
+        text-align: center;
+
+        @include respond-to(tablets) {
+            @include grid-col-offset(3, left, 8);
+        }
+
+        @include respond-to(phones) {
+            @include grid-col-offset(1, left, 4);
+        }
+    }
+
+    &-close {
+        position: relative;
+        width: 1rem;
+
+        &_button {
+            @include closeIcon(right, rem-calc(16));
+
+            position: absolute;
+            padding: rem-calc(24) !important;
+            left: -18px;
+            top: -22px;
+
+            &::before,
+            &::after {
+                top: rem-calc(22);
+                left: rem-calc(18);
+            }
+        }
+    }
+
+    &-suggestions {
+        @include respond-to(mobile) {
+            padding-top: rem-calc(32);
+        }
+    }
+}

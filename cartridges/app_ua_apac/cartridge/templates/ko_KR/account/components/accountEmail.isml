@@ -1,0 +1,92 @@
+<isif condition="${require('*/cartridge/config/preferences').isShowSplitEmailField}">
+    <div class="b-order-return-input">
+        <div class="b-account_form-row b-account_form-row-three b-account_form-row-email clear">
+            <div class="form-group b-input_row b-account_form-column b-account_form-column-mobile">
+                <label class="b-input_row-label form-control-label" for="registration-form-email">
+                    <isprint value=${pdict.profileForm.customer.email.label} encoding="off" />
+                </label>
+                <input type="text"
+                    id="registration-form-email"
+                    class="emailaddressName form-control order-return-form-input b-input_row-input js-custom-input js-email-field"
+                    pattern="^([A-Za-z]|[0-9]|[!$%&'*+-/=?_`{|}~])+$"
+                    value="" data-missing-error="${Resource.msg('error.card.info.missing.email', 'forms', null)}" data-pattern-mismatch="${Resource.msg('error.message.parse.email.profile.form','forms',null)}" required
+                    <isprint value="${pdict.profileForm.customer.emailaddressName.attributes}" encoding="off" /> />
+                <div class="invalid-feedback"></div>
+            </div>
+            <div class="form-group b-account_form-column b-account_form-column-domain-select b-account_form-column-mobile">
+                <span class="email-address-icon">@</span>
+                <div class="alt1-col-6 b-input_row required space-btw-select-domain drop-down-arrow b-email">
+                    <label class="b-input_row-label form-control-label" for="registration-form-email">
+                        <isprint value=${pdict.profileForm.customer.emailaddressDomainSelect.label} encoding="off" />
+                    </label>
+                    <select class="emailaddressDomainSelect b-input_row-input pad b-email-select"
+                        <isprint value="${pdict.profileForm.customer.emailaddressDomainSelect.attributes}" encoding="off" />>
+                        <isloop items=${pdict.profileForm.customer.emailaddressDomainSelect.options} var="emailaddressDomainSelect">
+                            <option id="${emailaddressDomainSelect.id}" value="${emailaddressDomainSelect.htmlValue}">${emailaddressDomainSelect.label || ' '}</option>
+                        </isloop>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group b-account_form-column b-account_form-column-mobile b-account_form-column-email-domain">
+                <label class="b-input_row-label form-control-label" for="registration-form-email">
+                    <isprint value=${pdict.profileForm.customer.emailaddressDomain.label} encoding="off" />
+                </label>
+                <input type="text"
+                    class="emailaddressDomain form-control order-return-form-input b-input_row-input js-custom-input js-email-field"
+                    value="" data-missing-error="${Resource.msg('error.card.info.missing.email', 'forms', null)}" data-pattern-mismatch="${Resource.msg('error.message.parse.email.profile.form','forms',null)}" required
+                    <isprint value="${pdict.profileForm.customer.emailaddressDomain.attributes}" encoding="off" /> />
+                <div class="invalid-feedback"></div>
+            </div>
+        </div>
+        <div class="b-registration-error hide">
+            <span class="b-registration-error-span"
+                data-analytics-track="error-span">${Resource.msg('error.message.user.already.exist', 'forms', null)}</span>
+            <a class="b-registration-error-link js-login" data-analytics-track="error-link"
+                href="${URLUtils.https('Login-Show')}" role="button"
+                aria-label="${Resource.msg('label.header.loginbutton', 'account', null)}">
+                ${Resource.msg('error.message.user.already.exist.link', 'forms', null)}
+            </a>
+        </div>
+    </div>
+<iselse/>
+    <isif condition="${session.customer.registered}">
+        <div class="b-account_form-column js-email-error">
+            <div class="form-group b-input_row required">
+                <label class="form-control-label b-input_row-label" for="newemail">
+                    <isprint value="${pdict.profileForm.customer.newemail.label}" encoding="htmlcontent" />
+                </label>
+                <input type="email" class="form-control b-input_row-input js-custom-input" id="newemail"
+                    data-missing-error="${Resource.msg('error.message.new.email', 'forms', null)}"
+                    data-pattern-mismatch="${Resource.msg('error.message.mismatch.login.email','forms',null)}"
+                    <isprint value="${pdict.profileForm.customer.newemail.attributes}" encoding="off" />>
+                <div class="invalid-feedback"></div>
+            </div>
+        </div>
+    <iselse/>
+        <div class="form-group b-order-return-input b-input_row
+                    <isif condition=" ${!!pdict.profileForm.customer.email.mandatory === true}">required</isif>">
+            <label class="b-input_row-label form-control-label" for="registration-form-email">
+                <isprint value=${pdict.profileForm.customer.email.label} encoding="off" />
+            </label>
+            <input type="text" class="form-control order-return-form-input b-input_row-input js-custom-input js-email-field"
+                id="registration-form-email"
+                data-missing-error="${Resource.msg('error.card.info.missing.email', 'forms', null)}"
+                data-pattern-mismatch="${Resource.msg('error.message.parse.email.profile.form', 'forms', null)}"
+                data-range-error="${Resource.msg('error.message.50orless', 'forms', null)}" aria-describedby="form-email-error"
+                value="" required <isprint value="${pdict.profileForm.customer.email.attributes}" encoding="off" /> />
+            <div class="invalid-feedback" id="form-email-error"></div>
+            <div class="b-registration-error hide">
+                <span class="b-registration-error-span"
+                    data-analytics-track="error-span">${Resource.msg('error.message.user.already.exist', 'forms', null)}</span>
+                <a class="b-registration-error-link js-login" data-analytics-track="error-link"
+                    href="${URLUtils.https('Login-Show')}" role="button"
+                    aria-label="${Resource.msg('label.header.loginbutton', 'account', null)}">
+                    ${Resource.msg('error.message.user.already.exist.link', 'forms', null)}
+                </a>
+            </div>
+        </div>
+    </isif>
+</isif>
+
+
+

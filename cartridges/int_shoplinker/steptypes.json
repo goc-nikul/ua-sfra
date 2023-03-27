@@ -1,0 +1,33 @@
+{
+    "step-types": {
+        "script-module-step": [
+            {
+                "@type-id": "custom.SendProduct.Shoplinker",
+                "@supports-site-context": "true",
+                "module": "int_shoplinker/cartridge/scripts/ShoplinkerJob.js",
+                "description": "Send products to shoplinker",
+                "function": "execute"
+            },{
+                "@type-id": "custom.Generate.ClearCategoryXML.Shoplinker",
+                "@supports-site-context": "true",
+                "module": "int_shoplinker/cartridge/scripts/catalog/RecreateCategory.js",
+                "description": "Send products to shoplinker",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [{
+                            "@name": "filePath",
+                            "description": "path for directory",
+                            "@type": "string",
+                            "@required": "true"
+                        },{
+                            "@name": "categoryID",
+                            "description": "category ID to create",
+                            "@type": "string",
+                            "@required": "true"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,10 @@
+<isset name="splitAmount" value="${require('*/cartridge/scripts/util/klarnaHelper').getSplitPaymentAmount(payment.amount)}" scope="page" />
+<isset name="installmentAmount" value="${dw.util.StringUtils.formatMoney(new dw.value.Money(splitAmount, pdict.klarna.currency))}" scope="page" />
+
+<div class="method-name klarna-method-name">
+    <isprint value="${Resource.msg('klarna.payment.tab','checkout',null)}" />
+</div>
+<div class="amount">
+    <isprint value="${dw.util.StringUtils.formatMoney(new dw.value.Money(payment.amount, pdict.klarna.currency))}" />
+	<isprint value="${Resource.msgf('klarna.confirmation.split.amount','checkout',null, installmentAmount)}" />
+</div>

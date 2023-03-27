@@ -1,0 +1,37 @@
+<isscript>
+    var assets = require('*/cartridge/scripts/assets');
+    assets.addCss('/css/checkout/loyaltyConfirmationRegistered.css');
+    assets.addJs('/js/confirmationRegistered.js');
+</isscript>
+
+<isif condition="${pdict.returningCustomer === true}">
+    <form
+        action="${URLUtils.url('Loyalty-Enroll')}"
+        method="POST"
+        class="b-loyalty-confirmation-registred_form">
+        <div class="b-order-confirmation_inner-details b-loyalty-confirmation-registred">
+            <div class="b-loyalty-confirmation-registred_left">
+                <isinclude template="/components/rewardsBanner" />
+            </div>
+            <div class="b-loyalty-confirmation-registred_right">
+                <div class="b-loyalty-confirmation-registred_logo">
+                    <img class="b-logo-image"
+                        src="${URLUtils.staticURL('/images/logo-rewards-confirmation.svg')}"
+                        alt="${Resource.msg('global.rewards.logo', 'common', null)}" />
+                </div>
+                <div class="b-loyalty-confirmation-registred_header">
+                    ${Resource.msg('loyalty.confirmation.registred.signmeup', 'loyalty', null)}
+                </div>
+                <div class="b-loyalty-confirmation-registred_cta">
+                    <button class="tn btn-primary btn-block g-button_base g-button_primary--black">${Resource.msg('loyalty.confirmation.registred.cta', 'loyalty', null)}</button>
+                </div>
+                <div class="b-loyalty-confirmation-registred_legal">
+                    <isprint value="${Resource.msg('loyalty.tq', 'loyalty', null)}" encoding="off" />
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+        <input type="hidden" name="order" value="${pdict.order.orderNumber}"/>
+        <input type="hidden" name="checkout" value="true" />
+    </form>
+</isif>

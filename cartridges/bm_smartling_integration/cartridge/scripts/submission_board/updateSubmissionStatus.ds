@@ -1,0 +1,29 @@
+/**
+* Fails Smartling submission on error
+*
+* @input submissionUUID : String
+*
+*/
+importPackage( dw.system );
+importScript( "/utils/ExceptionLog.ds" );
+importScript( "/dao/submission.ds");
+
+var STATUS_COMPLETE: String = "complete";
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "updateSubmissionStatus"));
+
+function execute( args : PipelineDictionary ) : Number
+{
+    try {
+        var submission: CustomObject = getSubmissionByUUID(args.submissionUUID);
+        updateTimeApplied(submission);
+
+        if (!(STATUS_COMPLETE.equals(submission.custom['status'])) && submission.custom['progress'] == 100) {
+            LOGGER.info('Submission completed {0}', submissionToString(submission));
+            setSubmissionStatusComplete(submission);
+        }
+        return PIPELET_NEXT;
+    } catch (e) {
+        LOGGER.errorException("updateSubmissionStatus execution failed, submissionUUID={0}", args.submissionUUID, e);
+        return PIPELET_ERROR;
+    }
+}

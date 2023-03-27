@@ -1,0 +1,71 @@
+<isset name="duration" value="${dw.system.Site.current.getCustomPreferenceValue('pickupAvailableDuration')}" scope="page" />
+<div class="b-checkout-store-pickup_content bfx-remove-element">
+    <div class="b-checkout-store-pickup_header">
+        <h2 class="store-pickup-header-text">${Resource.msg('checkout.store.pickup.heading', 'storeLocator', null)}</h2>
+    </div>
+    <div class="b-store-pickup-details">
+        <div class="b-store-selected-content">
+            <img src="${URLUtils.staticURL('/images/store.svg')}" alt="Select a Store" title="Pickup In Store">
+            <div class="b-store-pickup-selected">
+                <div class="selected-store-details">
+                    <span class="b-store-pickup-status"><isprint value="${pdict.selectedStore.availabilityMessage.split(' ')[2]}" /></span><span> </span>
+                    ${Resource.msg('checkout.product.at', 'storeLocator', null)}
+                    <span class="b-store-pickup-name"><isprint value="${ pdict.selectedStore.name}" /></span>
+                </div>
+                <div class="b-store-pickup-hrs"><isif condition="${pdict.selectedStore.orderby}">${Resource.msgf('store.orderBy.time', 'storeLocator', null, pdict.selectedStore.orderby)}</isif><isif condition="${pdict.selectedStore.orderby && duration}"> ${Resource.msgf('pickup.in.hours','checkout',null, duration)}</isif></div>
+            </div>
+        </div>
+        <div class="b-store-address-details">
+            <div class="b-store-address-name"><isprint value="${pdict.selectedStore.storeType}" />
+                <span class="b-promo-tooltip-content">
+                    <span class="g-tooltip-icon g-tooltip">
+                        <span class="g-tooltip-arrow"></span>
+                    </span>
+                    <span class="g-tooltip-text">
+                        <isif condition="${pdict.selectedStore.storeOpenHours}">
+                        <div> ${Resource.msg('checkout.pick.up.hours.tooltip', 'checkout', null)}</div>
+                        <ul>
+                            <isloop items="${pdict.selectedStore.storeOpenHours}" var="storeOpen" >
+                                <isif condition="${storeOpen.startDay == storeOpen.endDay}">
+                                    <li>
+                                        <span class="store-days"><isprint value="${storeOpen.startDay}"/>:</span> 
+                                        <span class="last-child"><isprint value="${storeOpen.openTime}"/> - <isprint value="${storeOpen.closeTime}"/></span>
+                                    </li>
+                               <iselse>
+                                   <li>
+                                       <span class="store-days"><isprint value="${storeOpen.startDay}"/> - <isprint value="${storeOpen.endDay}"/>:</span> 
+                                       <span class="last-child"><isprint value="${storeOpen.openTime}"/> - <isprint value="${storeOpen.closeTime}"/></span>
+                                   </li>
+                               </isif>
+                            </isloop>
+                        </ul>
+                        </isif>
+                    </span>
+                </span>
+            </div>
+            <a class="store-map" target='_blank' href="${pdict.selectedStore.storeGoogleMapLink}">
+                <span class="b-store-address">${pdict.selectedStore.address1},
+                <isif condition="${pdict.selectedStore.address2}">
+                    ${pdict.selectedStore.address2}, </br>
+                </isif>
+                </span>
+                <span class="b-store-address">
+                <isif condition="${pdict.selectedStore.city}">
+                    ${pdict.selectedStore.city}, 
+                </isif>
+                <isif condition="${pdict.selectedStore.stateCode}">
+                    ${pdict.selectedStore.stateCode}
+                </isif>
+                ${pdict.selectedStore.postalCode}
+                </span>
+            </a>
+        </div>
+    </div>
+    <div class="bopis-address-summary hide">
+        <span class="b-store-address1">${pdict.selectedStore.address1}</span>
+        <isif condition="${pdict.selectedStore.address2}"><span class="b-store-address2">${pdict.selectedStore.address2}</span></isif>
+        <isif condition="${pdict.selectedStore.city}"><span class="b-store-city">${pdict.selectedStore.city}</span></isif>
+        <span class="b-store-postal-code">${pdict.selectedStore.postalCode}</span>
+        <span class="b-store-country">${pdict.selectedStore.countryCode}</span>
+    </div>
+</div>

@@ -1,0 +1,53 @@
+@mixin button-to-link {
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    outline: none;
+}
+
+@mixin link($type: 'regular') {
+    display: inline-block;
+    text-decoration: none;
+    color: $grey5;
+    cursor: pointer;
+
+    @if ($type == 'medium') {
+        @include font(main_med);
+    }
+
+    @if ($type == 'uppercased') {
+        text-transform: uppercase;
+    }
+
+    @include respond-to(mobile) {
+        text-decoration: underline;
+
+        &.disabled,
+        &.m-disabled {
+            text-decoration: underline;
+        }
+    }
+
+    &:hover,
+    &:active {
+        text-decoration: underline;
+        color: $black;
+    }
+
+    &.disabled,
+    &.m-disabled {
+        opacity: 0.4;
+        pointer-events: none;
+        cursor: default;
+    }
+}
+
+@mixin disable-link {
+    color: $black;
+    text-decoration: none;
+
+    &:hover {
+        color: $black;
+        text-decoration: none;
+    }
+}

@@ -1,0 +1,90 @@
+.b-product_carousel {
+    @include g-carousel();
+
+    &.swiper-container-vertical {
+        .b-product_carousel-wrapper {
+            flex-direction: column;
+        }
+    }
+
+    &-wrapper {
+        @include g-carousel(wrapper);
+    }
+
+    &-slide {
+        @include g-carousel(slide);
+    }
+
+    &-image {
+        @include g-carousel(image);
+    }
+
+    &-control {
+        @include g-carousel(control);
+
+        &.swiper-button-disabled {
+            display: none;
+        }
+    }
+
+    &-control.m-next {
+        @include g-carousel(control-next);
+    }
+
+    &-control.m-prev {
+        @include g-carousel(control-prev);
+    }
+
+    &-pagination {
+        position: absolute;
+        left: rem-calc(27);
+        transition: 0.3s opacity;
+        top: rem-calc(24);
+        z-index: 99;
+
+        @include respond-to(mobile) {
+            left: 50%;
+            transform: translate(-50%);
+            top: auto;
+            bottom: rem-calc(20);
+            width: 100%;
+            text-align: center;
+        }
+
+        .swiper-pagination-bullet {
+            border-radius: 100%;
+            margin-bottom: rem-calc(14);
+            background: $alto-gray;
+            display: block;
+            cursor: pointer;
+
+            @include respond-to(mobile) {
+                outline: 0;
+                margin-bottom: 0;
+                display: inline-block;
+            }
+
+            &.swiper-pagination-bullet-active {
+                background: $black;
+            }
+        }
+    }
+
+    &.carousel-disabled + .shop-this-outer {
+        @include respond-to(mobile) {
+            bottom: rem-calc(12);
+        }
+    }
+}
+
+.ios.iphone {
+    .product-quickview {
+        .b-product-quickview-images {
+            overflow: hidden;
+
+            .b-product_carousel {
+                overflow: auto !important;
+            }
+        }
+    }
+}

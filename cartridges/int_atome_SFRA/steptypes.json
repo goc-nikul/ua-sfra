@@ -1,0 +1,23 @@
+{
+    "step-types": {
+      "script-module-step": [
+        {
+          "@type-id": "custom.atomeOrderCancel",
+          "@supports-site-context": "true",
+          "module": "int_atome_SFRA/cartridge/scripts/job/AtomeOrderCancel.js",
+          "description": "Cancel Atome order if the payment is not completed in certain interval. IF Enable force order cancellation attribute is checked then all ATOME created orders will be cancelled",
+          "function": "execute",
+          "parameters":
+		    {
+		    	"parameter": [{
+		          	"@name":"forceOrderCancellation",
+		          	"@type":"boolean",
+		          	"@required":"false",
+		          	"@trim":"false",
+		          	"description":"Enable Force order cancellation"
+		          	}]
+		    }
+        }
+      ]
+    }
+  }

@@ -1,0 +1,28 @@
+<div class="b-return-wrap b-return-address-sec b-order-details-returns-new return-tracking card-body">
+    <h2>${Resource.msg('returns.refunds.underaarmourstorereturns','refunds',null)}</h2>
+    <isset name="printLabelURL" value="${pdict.printLabelGuestStoreURL}" scope="page" />
+    
+    <div class="order-return-print-main">
+        <div class="b-print-label-leftsec">
+            <div class="b-print-sec order-return-label b-print-sec-separator">
+                <h2>${Resource.msg('order.print.label.heading','account',null)}</h2>
+                <div class="print-label-error-template">
+                    <span>${Resource.msg('order.return.ship.label','account',null)}</span>
+                    <span class="customer-email-text">${pdict.customerEmail || ''}</span>
+                    <div class="order-return-print">
+                        <button class="order-return-print-button g-button_base g-button_primary--black ${pdict.printLabelGuestURL ? 'guest-print-label' : ''}" data-uacapi="${true}" data-orderid="${pdict.order && pdict.order.orderNo ? pdict.order.orderNo : ''}" data-url="${printLabelURL}">${pdict.generateLabel ? pdict.generateLabel : Resource.msg('order.print.button','account',null)}</button>
+                        <div class="print-label-error-message"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="b-print-sec order-return-pack b-print-sec-separator">
+                <h2>${Resource.msg('order.print.pack.heading','account',null)}</h2>
+                <span>${Resource.msg('order.print.pack','account',null)}</span>
+            </div>
+            <div class="b-print-sec order-return-ship">
+                <h2>${Resource.msg('order.print.ship.heading','account',null)}</h2>
+                <span>${pdict.returnInstructionText}</span>
+            </div>
+        </div>
+    </div>
+</div>

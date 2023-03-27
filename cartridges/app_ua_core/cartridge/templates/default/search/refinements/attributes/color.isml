@@ -1,0 +1,28 @@
+<isset name="stdLightness" value="${refinementValue.stdLightness}" scope="page" />
+<isif condition="${refinementValue.presentationId && refinementValue.presentationId.indexOf('url') === -1}">
+    <isset name="lightnessValues" value="${refinementValue.lightnessValues}" scope="page"/>
+</isif>
+<isif condition="${typeof lightnessValues !== "undefined" && lightnessValues && lightnessValues.length === 1}">
+    <isset name="lightness" value="${lightnessValues[0]}" scope="page" />
+</isif>
+<li class="b-swatches_circle-item b-show_more-item ${cutoffThreshold === loopstate.index ? 'm-break' : ''}">
+    <a href="${refinementValue.pageUrl}" class="b-swatches_circle-link ${typeof lightnessValues !== "undefined" && lightnessValues.length === 1 && !empty(lightness) ? (lightness[2] < stdLightness ? 'no-border' : '') : ''} ${!refinementValue.selectable ? 'm-disabled' : ''} ${refinementValue.selected && refinementValue.selectable ? 'm-active' : ''}"
+            onclick="$(this).hasClass('m-active')?$(this).removeClass('m-active'):$(this).addClass('m-active')"
+            data-analytics-plp-filter-value="${refinementValue.displayValue}"
+            title="${Resource.msgf(refinementValue.selected ? 'label.refinement.selected.title' : 'label.refinement.title', 'search', null, !empty(refinement.displayName) ? refinement.displayName.toLowerCase() :'', refinementValue.displayValue)}"
+            data-href="${refinementValue.url}">
+        <span class="b-swatches_circle-value"
+            style="
+                <isif condition="${refinementValue.presentationId}" >
+                    <isif condition="${refinementValue.presentationId.indexOf('url') !== -1}" >
+                        background: ${refinementValue.presentationId};
+                    <iselse/>
+                        background-color: ${refinementValue.presentationId};
+                    </isif>
+                </isif>
+                <isif condition="${refinementValue.image && refinementValue.image.url}" >
+                    background: url(${refinementValue.type === 'image' ? refinementValue.image.url : 'none'});
+                </isif>">
+        </span>
+    </a>
+</li>

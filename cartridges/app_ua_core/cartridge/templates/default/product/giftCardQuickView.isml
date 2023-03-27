@@ -1,0 +1,56 @@
+<isset name="productCopy" value="${pdict.product}" scope="page"/>
+<isset name="product" value="${pdict.product}" scope="page"/>
+<isset name="isBundle" value="${false}" scope="page"/>
+<isset name="isQuickView" value="${true}" scope="page"/>
+<isset name="isProductSet" value="${false}" scope="page" />
+<isset name="loopState" value="{count: 1}" scope="page" />
+<div class="product-quickview product-${product.productType} col product-wrapper product-detail b-product-quickview"
+    data-pid="${product.id}"
+    data-cmp="productQuickView"
+>
+    <!-- Product Images Carousel -->
+    <div class="b-product-quickview-images">
+        <isif condition="${product.productTileUpperLeftBadge && product.productTileUpperLeftBadge.value}">
+            <div class="l-tile-badge_top_left">${product.productTileUpperLeftBadge.displayValue}</div>
+        </isif>
+        <isif condition="${pdict.itemContent}">
+            <div class="l-tile-badge_bottom_left">
+                <isprint value="${pdict.badgesMarkup}" encoding="off" />
+            </div>
+        </isif>
+        <isinclude template="product/components/imageCarousel" />
+    </div>
+
+    <!-- Product Name and Number -->
+    <div class="b-product-quickview-info">
+        <div class="b-product-quickview-heading">
+            <h1 class="product-name">${product.productName}</h1>
+        </div>
+        
+        <!-- Prices -->
+        <div class="egiftcard-range">
+            <isprint value="${pdict.eGiftCardRange}"/>
+        </div>
+
+        <!-- Product Number -->
+        <div class="b-product-quickview-number-modelName">
+            <isif condition="${product.custom.modelName}">
+                <span class="b-product-quickview-modalName">
+	                <span><isprint value="${product.custom.modelName}" encoding="off" /></span>
+	            </span>
+            </isif>
+            <isif condition="${product.custom.style}">
+	            <span class="b-product-quickview-number">
+	                <isinclude template="product/components/productNumber" />
+	            </span>
+            </isif>
+
+        </div>
+        
+        <div class="b-physicalgiftcard_outer b-product-quickview-detail-panel">
+            <isprint value="${Resource.msg('product.giftcard.nodiscount', 'product', null)}"/>
+            <isinclude template="giftcards/egiftcardsform"/>
+        </div>
+    </div>
+    <isset name="product" value="${productCopy}" scope="page"/>
+</div>

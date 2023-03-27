@@ -1,0 +1,276 @@
+.b-checkout {
+    &_innerleft {
+        width: 100%;
+        max-width: rem-calc(708);
+        padding-right: rem-calc(24);
+
+        @include respond-to(mobile) {
+            max-width: 100%;
+            padding-right: 0;
+        }
+
+        .card {
+            &.ghost {
+                opacity: 0.4;
+
+                @include respond-to(mobile) {
+                    display: none;
+                }
+
+                .card-header {
+                    padding-bottom: rem-calc(16);
+                    margin-bottom: rem-calc(16);
+                    border-bottom: 1px solid $grey3;
+                    cursor: pointer;
+                }
+
+                .checkout-card-header {
+                    font-size: rem-calc(24);
+                    font-weight: $font-bold;
+                    line-height: 1.33;
+                }
+            }
+        }
+    }
+
+    &-logolink {
+        .b-logo-image {
+            width: rem-calc(53);
+            height: rem-calc(31);
+        }
+    }
+
+    &_subheader {
+        display: flex;
+        align-items: center;
+        margin: rem-calc(56) 0;
+        justify-content: space-between;
+
+        &-email-address {
+            @include font(main, rem-calc(14), 1.43);
+
+            @include respond-to(mobile) {
+                text-align: center;
+            }
+        }
+
+        @include respond-to(mobile) {
+            display: none;
+        }
+
+        &-account {
+            @include font(main, rem-calc(14), 1.43);
+
+            flex-basis: 38%;
+            padding-right: rem-calc(16);
+        }
+
+        &-button {
+            flex-basis: 62%;
+
+            @include respond-to(mobile) {
+                flex-basis: 100%;
+                max-width: 100%;
+            }
+        }
+
+        &-left,
+        &-right {
+            display: flex;
+            align-items: center;
+            flex-basis: 50%;
+
+            @include respond-to(mobile) {
+                flex-basis: 100%;
+            }
+        }
+
+        &-left {
+            @include respond-to(desktop) {
+                align-items: baseline;
+                margin-top: rem-calc(10);
+            }
+        }
+
+        &-login {
+            display: none;
+
+            @include respond-to(mobile) {
+                display: block;
+                margin: rem-calc(32) 0;
+            }
+        }
+
+        &-express-login {
+            margin-bottom: rem-calc(24);
+
+            &.only-apple-pay {
+                display: none;
+
+                .express-checkout-container {
+                    .apple-pay {
+                        @include respond-to(mobile) {
+                            margin: 0;
+                        }
+                    }
+                }
+
+                &.ios-only {
+                    display: block;
+                }
+            }
+
+            .card-header {
+                h2 {
+                    letter-spacing: rem-calc(1);
+                    margin-bottom: rem-calc(16);
+                    border-bottom: 1px solid $black;
+                    padding-bottom: rem-calc(16);
+                    @include font(main_bold, rem-calc(24), 1.33);
+
+                    @include respond-to(mobile) {
+                        padding-bottom: rem-calc(8);
+                        margin-bottom: rem-calc(24);
+                        letter-spacing: rem-calc(0.25);
+                        @include font(main_bold, rem-calc(16), 1.5);
+                    }
+                }
+            }
+
+            .express-checkout-container {
+                display: flex;
+                max-width: 100%;
+                flex: 1 1 100%;
+
+                @include respond-to(mobile) {
+                    flex-wrap: wrap;
+                }
+
+                &.only-one-button {
+                    .button {
+                        @include respond-to(mobile) {
+                            flex: 100%;
+                            max-width: 100%;
+                            margin-left: 0;
+                            margin-right: 0;
+                        }
+                    }
+                }
+
+                .button {
+                    margin-right: rem-calc(24);
+                    max-width: rem-calc(212);
+                    flex: 1 1 33.33%;
+                    position: relative;
+                    padding: 0;
+                    background: transparent;
+                    height: rem-calc(44);
+
+                    @include respond-to(mobile) {
+                        flex: 1 1 calc(50% - 8px);
+                        max-width: calc(50% - 8px);
+                        margin: 0;
+                    }
+
+                    &:last-child {
+                        margin-right: 0;
+                    }
+
+                    .custom-button {
+                        padding: 0;
+                        position: absolute;
+                        top: auto;
+                        left: 0;
+                        z-index: -1;
+                        max-width: 100%;
+                        width: 100%;
+                        height: 100%;
+                    }
+
+                    button,
+                    .paypal-cart-buttons-container,
+                    .klarna-express-btn-cart {
+                        z-index: 1;
+                        opacity: 0;
+                        min-height: 100%;
+                        margin: 0;
+                        width: 100%;
+                        cursor: pointer;
+                    }
+                }
+
+                .klarna-button {
+                    @include respond-to(mobile) {
+                        margin-left: rem-calc(8);
+                        order: 3;
+                    }
+                }
+
+                .paypal {
+                    .paypal-cart-button {
+                        margin: 0;
+                        min-height: rem-calc(44);
+                    }
+
+                    @include respond-to(mobile) {
+                        margin-right: rem-calc(8);
+                        order: 2;
+                    }
+                }
+
+                .apple-pay {
+                    display: none;
+
+                    &.ios-only {
+                        display: block;
+                    }
+
+                    @include respond-to(mobile) {
+                        margin: 0 0 rem-calc(16) 0;
+                        order: 1;
+                        flex: 1 1 100%;
+                        max-width: 100%;
+                    }
+                }
+            }
+        }
+    }
+
+    &_title {
+        @include font(main_bold, rem-calc(40), 1.2);
+
+        margin-left: rem-calc(16);
+    }
+
+    &_privacy {
+        @include font(main, rem-calc(10), 1.6);
+
+        color: $grey5;
+        max-width: rem-calc(320);
+        float: left;
+        display: none;
+
+        @include respond-to(mobile) {
+            max-width: 100%;
+            margin-bottom: rem-calc(24);
+        }
+
+        a {
+            color: $grey5;
+            text-decoration: none;
+            position: relative;
+            @include respond-to(mobile) {
+                display: inline-block;
+            }
+        }
+
+        a::after {
+            content: '';
+            width: 100%;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            border-bottom: 1px solid $grey5;
+        }
+    }
+}

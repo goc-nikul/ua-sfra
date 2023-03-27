@@ -1,0 +1,280 @@
+/**
+ * Demandware Script File
+ * 	This file will extract all items in the Site's catalog that have a custom setting
+ * 	that identifies it as Shoprunner Eligible and send them to SR.
+ *
+ *
+ * @input productAttr : dw.util.Set
+ *
+ */
+importPackage(dw.system);
+importPackage(dw.util);
+importPackage(dw.catalog);
+importPackage(dw.io);
+importPackage(dw.net);
+importPackage(dw.web);
+importPackage(dw.value);
+importPackage(dw.object);
+importScript("util/srProductUtils.ds");
+
+var FeedUtil = require("~/cartridge/scripts/feeds/FeedUtil");
+
+var prodFW: FileWriter;
+
+function execute(pdict: PipelineDictionary): Number {
+	var srLogger: Log = Logger.getLogger('ShopRunner', 'ShopRunner');
+	if (empty(Site.getCurrent().getCustomPreferenceValue('sr_retailerID'))) {
+		srLogger.error('SR Product Feed script: Partner code is empty.');
+		return PIPELET_ERROR;
+	}
+	try {
+		var product: Product = null;
+		var allProducts: SeekableIterator = ProductMgr.queryAllSiteProducts();
+		var comma = "";
+		var prodFile: File = FeedUtil.createProductFeedFile();
+		
+		prodFW = new FileWriter(prodFile);
+		prodFW.writeLine("[");
+		var partnerObject = null;
+		
+		while (allProducts.hasNext()) {
+			var product: Product = allProducts.next();
+			var isOnline: Boolean = product.isOnline();
+			if (!isOnline) {
+				continue;
+			}
+			var isMaster: Boolean = product.isMaster();
+			var isVariant: Boolean = product.isVariant();
+
+			if (!product.isProductSet() && (isMaster || (!isMaster && !isVariant))) {
+				var productDescription = "";
+				if (product.getShortDescription() != null) {
+					productDescription = product.getShortDescription().toString();
+				} else if (product.getLongDescription() != null) {
+					productDescription = product.getLongDescription().toString();
+				}
+				var categoryList =  getCategoryMapping(product);
+				var department = categoryList.getLength() > 0 ? categoryList[0] : "";
+				
+					
+				partnerObject = {
+					"parent_sku": product.getID(),
+					"brand_manufacturer": getBrandName(product),
+					"product_description": productDescription.replace(/[\r\n]/g, ""),
+					"department": department,
+					"category_mapping": categoryList.join(" | "),
+					"product_variant": []
+				}
+				var variants = [];
+				if (isMaster) {
+					for each(var variation in product.getVariants()) {
+						var variant = getProductVariantJSON(variation);
+						variant = updateImages(variation, variant);
+						updateProductVariationAttribute(variation, variant); //updates Size,Color
+						variants.push(variant);
+					}
+				} else {
+					var variant = getProductVariantJSON(product);
+					variant = updateImages(variation, variant);
+					updateProductVariationAttribute(variation, variant);
+					variants.push(variant);
+				}
+				partnerObject["product_variant"] = variants;
+			} else if (!isVariant) {
+				// we don't send product sets
+				var this_is_product_set = product;
+			}
+			if (partnerObject) {
+				prodFW.writeLine(comma);
+				prodFW.writeLine(JSON.stringify(partnerObject));
+				partnerObject = null;
+				comma = ",";
+			}
+		}
+		prodFW.writeLine("]");
+		allProducts.close();
+		prodFW.flush();
+		prodFW.close();
+
+		var sendStatus: Boolean = require('~/cartridge/scripts/feeds/srFTP').ftpToSR(prodFile, Site.getCurrent());
+		if (sendStatus) {
+			return PIPELET_NEXT;
+		} else {
+			srLogger.error('SR Product Feed script: The feed could not be sent to SFTP.');
+			return PIPELET_ERROR;
+		}
+
+	} catch (e) {
+		var ex = e;
+		srLogger.error('SR Product Feed script: General catch error: ' + e.message);
+		return PIPELET_ERROR;
+	}
+}
+
+/**
+ * following attributes are expected to catalog specific custom attribute.
+ *  ISBN - Present if Books are there.
+ *  age_range
+ *  material
+ *  product_condition
+ */
+function getProductVariantJSON(product) {
+	return {
+		"sku": product.getID(),
+		"product_name": product.getName(),
+		"shoprunner_eligible": ('sr_eligible' in product.custom) ? product.custom.sr_eligible.value : false,
+		"product_url": getProductPageURL(product),
+		"mobile_url": "TBD",
+		"regular_price": determinePrice(product, 'standard'),
+		"sale_price": determinePrice(product, 'sale'),
+		"upc": product.getUPC() ? product.getUPC() : "",
+		"ean": product.getEAN() ? product.getEAN() : "",
+		"mpn": product.getManufacturerSKU() ? product.getManufacturerSKU() : "",
+		"ship_weight": "TBD"
+	}
+}
+
+/**
+ * @description get price type based on pricing model.
+ 		1. Price Range Flow
+ 		2. Price on Sale
+ 		3. Price by Inventory
+ 		
+ */
+function determinePrice(product: Product, priceType: String): String {
+	var price: String = '';
+	var priceModel = null;
+	
+	if (product.isMaster()) {
+		if (priceType == 'standard') {
+			priceModel = product.getPriceModel();
+			if (priceModel.isPriceRange()) {
+				price = priceModel.getMinPrice().getValue().toFixed(2) + ' - ' + priceModel.getMaxPrice().getValue().toFixed(2);
+			} else if (priceModel.getMinPrice().getValue() == priceModel.getMaxPrice().getValue()) {
+				price = priceModel.getMinPrice().getValue().toFixed(2);
+			} else {
+				price = priceModel.getPrice().getValueOrNull().toFixed(2);
+			}
+		} else if (priceType == 'sale') {
+			price = '';
+		}
+	} else {
+		if (priceType == 'standard') {
+			var pricing: Object = SRProductUtils.getPricing(product);
+			price = pricing.standardDefault > 0 ? pricing.standardDefault : '';
+		} else if (priceType == 'sale') {
+			// Check stock level and perpetuality
+			var productPrice: Money = product.getPriceModel().price;
+			var pid = product.getID();
+			var productStockLvl: Number = 0;
+			var isPerpetual: Boolean = false;
+			var productStockItem: ProductInventoryRecord = ProductInventoryMgr.getInventoryList().getRecord(pid);
+			if (!empty(productStockItem)) {
+				productStockLvl = productStockItem.getATS().getValue();
+				isPerpetual = productStockItem.perpetual;
+			}
+			// Check if the product has a price or if it is "On Sale";
+			// Observation: if ATS is 0 and Perpetual is enabled, the product is still "On Sale".
+			if (!(productPrice == Money.NOT_AVAILABLE) && (isPerpetual || productStockLvl > 0)) {
+				// this product is "On Sale"
+				priceModel = product.getPriceModel();
+				price = priceModel.getPrice().isAvailable() ? priceModel.getPrice().getValue().toFixed(2) : '';
+			}
+		} else {
+			var pricing: Object = SRProductUtils.getPricing(product);
+			price = pricing.standard > 0 ? pricing.standard.toFixed(2) : '';
+		}
+	}
+	return price;
+}
+
+/**
+ * @description reterive Hierarchical category mapping list for a master product.
+ */
+function getCategoryMapping(product) {
+	var categoryList : ArrayList = new ArrayList();
+	if (product.isCategorized()) {
+		var targetCat: Category = product.getPrimaryCategory();
+		if (targetCat != null) {
+			categoryList.add(targetCat.getDisplayName());
+			while (targetCat.parent && !targetCat.parent.root) {
+				categoryList.add(targetCat.parent.getDisplayName());
+				targetCat = targetCat.parent;
+			}
+		}
+	}
+	categoryList.reverse();
+	return categoryList;
+}
+
+/**
+ * @description get all images from product-catalog and update back to feedInfo Dictionary.
+ */
+function updateImages(product, feedInfo) {
+	try {
+		var viewTypes = ["large", "medium", "smal", "thumbnail"];
+		var additionalImageIdx = -1;
+		for (var idx = 0; idx < viewTypes.length; idx++) {
+			var imageList = product.getImages(viewTypes[idx]);
+			var imageIterator = imageList.iterator();
+
+			while (imageIterator.hasNext()) {
+				var image = imageIterator.next();
+				if (additionalImageIdx < 0) {
+					feedInfo["product_image_url_main"] = image.getHttpURL().toString();
+				} else {
+					feedInfo["product_image_url_additional_" + additionalImageIdx] = image.getHttpURL().toString();
+				}
+				additionalImageIdx++;
+			}
+		}
+		return feedInfo;
+	} catch (e) {
+		Logger.getLogger('ShopRunner', 'ShopRunner').error('SR Product Feed script: Missing Images', e);
+	}
+}
+
+/**
+ * @description get all custom attributes from product-catalog and update back to feedInfo Dictionary.
+ */
+function updateProductVariationAttribute(product, feedInfo) {
+	var inventorRecord = ProductInventoryMgr.getInventoryList().getRecord(product.getID());
+	var quantity = inventorRecord.getATS().getValue();
+	feedInfo["quantity"] = quantity;
+	var pvmAttr: ProductVariationAttribute = null;
+	var pvmAttrValue: ProductVariationAttributeValue = null;
+	var pvmAtVal: ProductVariationAttributeValue = null;
+	var pvm: ProductVariationModel = product.getVariationModel();
+	if (pvm == null) {
+		return
+	}
+	var allVars: Collection = pvm.getProductVariationAttributes();
+	for each(pvmAttr in allVars) {
+		var variantKey = pvmAttr.getDisplayName().toLowerCase();
+		var variantSRKey = null;
+		if (variantKey == "size") {
+			variantSRKey = "size";
+		} else if (variantKey == "color") {
+			variantSRKey = "product_color";
+		} else {
+			variantSRKey = variantKey;
+		}
+		pvmAttrValue = pvm.getVariationValue(product, pvmAttr);
+		feedInfo[variantSRKey] = pvmAttrValue.getDisplayValue();
+	}
+}
+
+function getProductPageURL(product) {
+	var a = URLUtils.http('Product-Show', 'pid', product.getID());
+	return a.toString();
+}
+
+function getBrandName(product) {
+	var brand = product.getBrand();
+	var merchantName = product.getManufacturerName() ? product.getManufacturerName() : ""; 
+	return brand ? brand : merchantName;
+}
+
+module.exports = {
+	execute: execute
+};

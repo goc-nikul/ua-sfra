@@ -1,0 +1,16 @@
+<!--- TEMPLATENAME: saveLaterAddToCart.isml --->
+<isif condition="${pdict.hasOnlyItem}"> 
+        <h1 class="b-cart-page_title">${Resource.msg('title.your.shopping.cart','cart',null)}</h1>
+        <div class="b-cart_empty_basket_outer">
+            <p>${Resource.msg('empty.cart.msg','cart',null)}</p>
+        </div>
+<iselse>
+    <h1 class="b-cart-page_title">
+    <span class="b-cart-content_spanno">${Resource.msg('title.your.shopping.cart','cart',null)}</span>
+    <span class="number-of-items b-cart-content_noofitems">(${parseInt(pdict.cartQuantity) === 1 ? Resource.msgf('label.number.item.in.cart','cart', null, pdict.cartQuantity) : Resource.msgf('label.number.items.in.cart','cart', null, pdict.cartQuantity)})</span>
+    </h1>
+</isif>
+<isloop items="${pdict.lineItems}" var="lineItem" status="loopState">
+	<isset name="isWishListItem" value="${pdict.isWishListItem}" scope="pdict" />
+	<isinclude template="cart/productCard/cartProductCard" />
+</isloop>

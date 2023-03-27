@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19" secure="false"> 
+
+	<field formid="returnquantity" 
+			type="string" 
+			mandatory="true" 
+			max-length="50"
+			missing-error="error.message.required"
+			range-error="error.message.lessthan50"
+			regexp="(^(\d?[1-9]|[1-9]0)$)"/>
+			
+	<field formid="returnreasons" type="string" mandatory="true" value-error="">
+        <options>
+            <option optionid="" label="Select" disabled="" selected="" value=""/>
+            <option optionid="1" label="label.input.return.big" value="SIZE_TOO_BIG"/>
+            <option optionid="2" label="label.input.return.small" value="SIZE_TOO_SMALL"/>
+            <option optionid="3" label="label.input.return.durability" value="DURABILITY_OVER_TIME"/>
+            <option optionid="4" label="label.input.return.quality" value="QUALITY"/>
+            <option optionid="5" label="label.input.return.functionality" value="FUNCTIONALITY"/>
+            <option optionid="6" label="label.input.return.pictured" value="NOT_AS_PICTURED"/>
+            <option optionid="7" label="label.input.return.changedmind" value="DO_NOT_LIKE_OR_CHANGED_MIND"/>
+            <option optionid="8" label="label.input.return.damaged" value="SHIPPING_ISSUE_DAMAGED"/>
+            <option optionid="9" label="label.input.return.late" value="SHIPPING_ISSUE_LATE"/>
+            <option optionid="10" label="label.input.return.wrongitem" value="WRONG_ITEM_SHIPPED"/>
+            <option optionid="11" label="label.input.return.defective" value="DEFECTIVE_PRODUCT"/>
+        </options>
+    </field>
+	
+	<field formid="returnquantity" 
+			type="string" 
+			mandatory="true" 
+			max-length="50"
+			missing-error="error.message.required"
+			range-error="error.message.lessthan50"/>
+
+	<action formid="send" valid-form="true"/>
+
+</form>

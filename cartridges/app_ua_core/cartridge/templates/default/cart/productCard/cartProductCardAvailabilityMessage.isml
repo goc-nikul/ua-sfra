@@ -1,0 +1,7 @@
+<div class="b-header_minicart-availability-message availability-${typeof lineItem !=='undefined' ? lineItem.UUID : null}">
+   <isif condition="${!lineItem.available}">
+	    <isloop items="${lineItem.availability.messages}" var="message">
+	        <p class="line-item-attributes">${message}</p>
+	    </isloop>
+   </isif>
+</div>

@@ -1,0 +1,97 @@
+.btn-shipping-option {
+    margin-bottom: 2rem;
+    display: flex;
+
+    @include respond-to(mobile) {
+        margin-bottom: 1.4rem;
+        margin-top: 1.5rem;
+    }
+
+    .pick-up-point-option {
+        margin-left: rem-calc(12);
+    }
+
+    .b-promo-tooltip-content {
+        top: rem-calc(28);
+        left: rem-calc(27);
+        width: auto;
+        @include respond-to(mobile) {
+            display: none;
+        }
+
+        .g-tooltip-text {
+            top: rem-calc(27);
+            left: rem-calc(5);
+        }
+    }
+}
+
+.delivery-option,
+.pick-up-point-option,
+.find-pickup-point {
+    font-size: rem-calc(16);
+    max-width: rem-calc(159);
+    padding: rem-calc(22);
+    border-color: $grey3;
+    background-color: $white;
+    color: #1d1d1d !important;
+    @include respond-to(mobile) {
+        max-width: 48%;
+    }
+
+    &.active {
+        border-color: $black;
+    }
+
+    &:hover {
+        border-color: $grey5;
+        color: $grey5;
+    }
+}
+
+.pick-up-point-content {
+    .b-shipping-sub-header {
+        display: block;
+        text-align: end;
+    }
+
+    .b-shipping_form-column {
+        display: flex;
+
+        @include respond-to(mobile) {
+            display: block;
+        }
+
+        .b-input_row {
+            max-width: 49%;
+            width: 100%;
+            margin-bottom: rem-calc(16);
+            @include respond-to(mobile) {
+                max-width: 100%;
+            }
+        }
+
+        .find-pickup-point {
+            margin-left: rem-calc(24);
+            width: 100%;
+            max-width: 48%;
+            padding: rem-calc(10) rem-calc(30);
+            max-height: rem-calc(44);
+
+            @include respond-to(mobile) {
+                max-width: 100%;
+                margin-left: 0;
+                max-height: rem-calc(68);
+                padding: rem-calc(22);
+                margin-bottom: rem-calc(15);
+            }
+        }
+    }
+}
+
+.b-shipping-privacy_links.pickup-point-hide {
+    @include respond-to(mobile) {
+        display: none;
+    }
+}
+

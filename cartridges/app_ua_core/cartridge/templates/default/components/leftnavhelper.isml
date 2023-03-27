@@ -1,0 +1,45 @@
+<iscontent compact="true">
+<script id="Noor" type="text/javascript">
+	function docReady(fn) {
+		// see if DOM is already available
+		if (document.readyState === "complete" || document.readyState === "interactive") {
+			// call on next available tick
+			setTimeout(fn, 1);
+		} else {
+			document.addEventListener("DOMContentLoaded", fn);
+		}
+	}
+	docReady(function() {
+		// add some context for auto-highlighting left nav
+		<isscript>
+			// get the translated path for the page
+			var currentURL = "";
+			try {
+				var path = pdict.CurrentRequest.httpPath.split("/")
+				var queryVars = pdict.CurrentRequest.httpQueryString.split("=");
+				currentURL = URLUtils.url(path[path.length-1]);
+				for (var i = 0; i < queryVars.length; i+=2){
+					currentURL.append(queryVars[i],queryVars[i+1]);
+				}
+			}
+			catch (e){}
+		</isscript>
+		var leftNavHelper = {
+			leftNav	: $('.left-nav'),
+			currentURL	: "${currentURL}"
+		};
+		window.leftNavHelper = leftNavHelper;
+		// find the current match in the left nav
+		leftNavHelper.leftNav.find('a[href$="${currentURL}"]').parent('li').addClass('selected');
+
+		if (window.location.href.indexOf('returnlabel') > 0) {
+			leftNavHelper.leftNav.find('a[href$="returnlabel"]').parent('li').addClass('selected');
+		} else if (window.location.href.indexOf('returns-and-exchanges') > 0) {
+			leftNavHelper.leftNav.find('a[href$="returns-and-exchanges"]').parent('li').addClass('selected');
+		}
+
+	});
+</script>
+<isif condition="${bookSessionEnabled}">
+	<isinclude template="components/bookasession" />
+</isif>

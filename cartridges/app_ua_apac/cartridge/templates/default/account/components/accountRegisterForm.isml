@@ -1,0 +1,82 @@
+ <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('additionalRegFields')}">
+ <isinclude template="account/components/accountRegisterFormSEA" />
+ <iselse/>
+    <form
+        action="${pdict.createAccountUrl}"
+        class="b-return-wrap registration"
+        method="POST"
+        data-cmp="formGeneric"
+        name="${pdict.profileForm.htmlName}">
+
+        <isinclude template="account/components/accountEmail" />
+
+        <div class="form-group b-order-return-input b-input_row
+            <isif condition="${!!pdict.profileForm.login.password.mandatory === true}">required</isif>">
+            <span class="password-display"><div class="js-password-ToggleDisplay">${Resource.msg('label.create.account.show', 'login', null)}</div></span>
+            <label class="b-input_row-label form-control-label" for="registration-form-password">
+            <isprint value=${pdict.profileForm.login.creatPassword.label} encoding="off" />
+            </label>
+            <isset name="passwordRules" value="${require('*/cartridge/scripts/helpers/accountHelpers').getPasswordRequirements()}" scope="page" />
+            <input
+                type="password"
+                class="form-control order-return-form-input b-input_row-input js-custom-input registration-form-input js-password-field"
+                id="registration-form-password"
+                data-missing-error="${Resource.msg('error.card.info.missing.password', 'login', null)}"
+                data-range-error="${Resource.msg('error.message.8_255characters','forms',null)}"
+                aria-describedby="form-password-error"
+                pattern="${pdict.passwordRules.regex}"
+                data-can-contains-email="${dw.system.Site.current.getCustomPreferenceValue('allowEmailInPassword') === false ? false : true}"
+                data-contains-email-error="${Resource.msg('password.contains.email.error','account',null)}"
+                value="" required
+                autocomplete="off"
+                <isprint value=${pdict.profileForm.login.password.attributes} encoding="off" />>
+            <div class="input-feedback" id="form-password-rules"><isprint value="${pdict.passwordRules.errorMsg}" encoding="off" /></div>
+            <div class="invalid-feedback-email"></div>
+        </div>
+
+    <iscomment> 
+        <div>
+            <span>
+                <isprint value="${Resource.msgf('label.create.account.case1', 'login', null, 8)}"/>
+            </span>
+            <span>
+                <isprint value="${Resource.msgf('label.create.account.case2', 'login', null, 1)}"/>
+            </span>
+            <span>
+                <isprint value="${Resource.msgf('label.create.account.case3', 'login', null, 1)}"/>
+            </span>
+            <span>
+                <isprint value="${Resource.msgf('label.create.account.case4', 'login', null, 1)}"/>
+            </span>
+        </div>
+    </iscomment>
+
+        <div class="form-group g-checkbox">
+            <input
+                type="checkbox"
+                class="g-checkbox-input" id="add-to-email-list" <isif condition="${dw.system.Site.current.getCustomPreferenceValue('defaultEmailOptIn')}">checked</isif> 
+                <isprint value=${pdict.profileForm.customer.addtoemaillist.attributes} encoding="off" />
+            >
+            <isif condition="${pdict.smsOptInEnabled}">
+                <label class="g-checkbox-label" for="add-to-email-list">${Resource.msg('field.checkbox.signup.SEAShipping','checkout',null)}</label>
+            <iselse/>
+            <label class="g-checkbox-label" for="add-to-email-list">
+                <isprint value="${pdict.profileForm.customer.addtoemaillist.label}" encoding="htmlcontent" />
+            </label>
+            </isif>
+        </div>
+
+
+        <div class=" form-group submit-section text-center mb-4 submit-tans-sec">
+        <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+        <button class="btn btn-primary btn-block js-createaccount-button g-button_base g-button_primary--black" name="${pdict.CurrentForms.profile.create.htmlName}">
+            ${Resource.msg('button.createaccount.registration', 'login', null)}
+        </button>
+        </div>
+        <input type="hidden" class="showlabel" value="${Resource.msg('label.create.account.show', 'login', null)}">
+        <input type="hidden" class="hidelabel" value="${Resource.msg('label.create.account.hide', 'login', null)}">
+    </form>
+    <isif condition="${pdict.isFacebookLoginEnabledInRegisterModal}">
+        <isinclude template="account/components/oauth" />
+    </isif>
+ </isif>

@@ -1,0 +1,45 @@
+// scss-lint:disable QualifyingElement, SpaceAfterPropertyColon
+
+/// Mixin for main custom font
+/// suppose we have regular, italic, bold and italic bold variant of custom font.
+/// mixin like this will help us to manage font styles through site
+/// @group fonts
+/// @example
+///     @include font(main);
+///     @include font(main_bold);
+///     @include font(main, 14px);
+///     @include font($size:10px, $line-height: 10px);
+///     @include font(alt, 10px, 15px);
+/// @param {String} $type [main] - type
+/// @param {String} $size [inherit] - size
+/// @param {Font Size} $line-height [inherit] - line-height
+
+@mixin font($type: main, $size: null, $line-height: null) {
+
+    @if $type != null {
+        $__fonts_map: map-get($fonts, default);
+
+        @if $fonts_locale != null {
+            $__fonts_map: map-merge(
+                map-get($fonts, default),
+                map-get($fonts, $fonts_locale)
+            );
+        }
+
+        @if type-of(map-get($__fonts_map, $type)) == map {
+            font-family: map-get(map-get($__fonts_map, $type), font-family);
+            font-style: map-get(map-get($__fonts_map, $type), font-style);
+            font-weight: map-get(map-get($__fonts_map, $type), font-weight);
+        } @else {
+            @warn('There is no such font type:' + $type);
+        }
+    }
+
+    font-size: $size;
+    line-height: $line-height;
+}
+
+@mixin font-smoothing {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

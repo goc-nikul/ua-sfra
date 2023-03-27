@@ -1,0 +1,552 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/2004-08-24.xsd/" xmlns:tns="http://www.intelligentsearch.com/HostedWebServices/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://www.intelligentsearch.com/HostedWebServices/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://www.intelligentsearch.com/HostedWebServices/">
+      <s:element name="wsFindPhone">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="phone" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsFindPhoneResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsFindPhoneResult" type="tns:ServiceResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ServiceResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="phone" type="tns:Phone" />
+          <s:element minOccurs="0" maxOccurs="1" name="email" type="tns:Email" />
+          <s:element minOccurs="1" maxOccurs="1" name="status_code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="status_desc" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="transactions" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="additional_info" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Phone">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ok" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="status_code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="status_desc" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="detail_level" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="number" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="extension" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="city" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="state" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="new_npa" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="country" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="county" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="latitude" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="longitude" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="timezone" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="observes_dst" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="messages" type="tns:ArrayOfPhoneMessages" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfPhoneMessages">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PhoneMessages" nillable="true" type="tns:PhoneMessages" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PhoneMessages">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="status_code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="desc" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Email">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="corrections" type="tns:ArrayOfString" />
+          <s:element minOccurs="1" maxOccurs="1" name="ok" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="validation_level" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="status_code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="status_desc" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="address" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="domain" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="wsFindEmail">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="email" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsFindEmailResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsFindEmailResult" type="tns:ServiceResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsFindEmailPhone">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="email" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="phone" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsFindEmailPhoneResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsFindEmailPhoneResult" type="tns:ServiceResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsFindEmailAdvanced">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="email" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="validationLevel" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="suggestCorrections" type="s:boolean" />
+            <s:element minOccurs="1" maxOccurs="1" name="timeoutInSeconds" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsFindEmailAdvancedResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsFindEmailAdvancedResult" type="tns:ServiceResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsFindEmailPhoneAdvanced">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="email" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="validationLevel" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="suggestCorrections" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="phone" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="timeoutInSeconds" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="wsFindEmailPhoneAdvancedResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsFindEmailPhoneAdvancedResult" type="tns:ServiceResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ServiceResponse" nillable="true" type="tns:ServiceResponse" />
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="wsFindPhoneSoapIn">
+    <wsdl:part name="parameters" element="tns:wsFindPhone" />
+  </wsdl:message>
+  <wsdl:message name="wsFindPhoneSoapOut">
+    <wsdl:part name="parameters" element="tns:wsFindPhoneResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailSoapIn">
+    <wsdl:part name="parameters" element="tns:wsFindEmail" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailSoapOut">
+    <wsdl:part name="parameters" element="tns:wsFindEmailResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailPhoneSoapIn">
+    <wsdl:part name="parameters" element="tns:wsFindEmailPhone" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailPhoneSoapOut">
+    <wsdl:part name="parameters" element="tns:wsFindEmailPhoneResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailAdvancedSoapIn">
+    <wsdl:part name="parameters" element="tns:wsFindEmailAdvanced" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailAdvancedSoapOut">
+    <wsdl:part name="parameters" element="tns:wsFindEmailAdvancedResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailPhoneAdvancedSoapIn">
+    <wsdl:part name="parameters" element="tns:wsFindEmailPhoneAdvanced" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailPhoneAdvancedSoapOut">
+    <wsdl:part name="parameters" element="tns:wsFindEmailPhoneAdvancedResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsFindPhoneHttpGetIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="phone" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="wsFindPhoneHttpGetOut">
+    <wsdl:part name="Body" element="tns:ServiceResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailHttpGetIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="email" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailHttpGetOut">
+    <wsdl:part name="Body" element="tns:ServiceResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailPhoneHttpGetIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="email" type="s:string" />
+    <wsdl:part name="phone" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailPhoneHttpGetOut">
+    <wsdl:part name="Body" element="tns:ServiceResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailAdvancedHttpGetIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="email" type="s:string" />
+    <wsdl:part name="validationLevel" type="s:string" />
+    <wsdl:part name="suggestCorrections" type="s:string" />
+    <wsdl:part name="timeoutInSeconds" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailAdvancedHttpGetOut">
+    <wsdl:part name="Body" element="tns:ServiceResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailPhoneAdvancedHttpGetIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="email" type="s:string" />
+    <wsdl:part name="validationLevel" type="s:string" />
+    <wsdl:part name="suggestCorrections" type="s:string" />
+    <wsdl:part name="phone" type="s:string" />
+    <wsdl:part name="timeoutInSeconds" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailPhoneAdvancedHttpGetOut">
+    <wsdl:part name="Body" element="tns:ServiceResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsFindPhoneHttpPostIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="phone" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="wsFindPhoneHttpPostOut">
+    <wsdl:part name="Body" element="tns:ServiceResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailHttpPostIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="email" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailHttpPostOut">
+    <wsdl:part name="Body" element="tns:ServiceResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailPhoneHttpPostIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="email" type="s:string" />
+    <wsdl:part name="phone" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailPhoneHttpPostOut">
+    <wsdl:part name="Body" element="tns:ServiceResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailAdvancedHttpPostIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="email" type="s:string" />
+    <wsdl:part name="validationLevel" type="s:string" />
+    <wsdl:part name="suggestCorrections" type="s:string" />
+    <wsdl:part name="timeoutInSeconds" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailAdvancedHttpPostOut">
+    <wsdl:part name="Body" element="tns:ServiceResponse" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailPhoneAdvancedHttpPostIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="email" type="s:string" />
+    <wsdl:part name="validationLevel" type="s:string" />
+    <wsdl:part name="suggestCorrections" type="s:string" />
+    <wsdl:part name="phone" type="s:string" />
+    <wsdl:part name="timeoutInSeconds" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="wsFindEmailPhoneAdvancedHttpPostOut">
+    <wsdl:part name="Body" element="tns:ServiceResponse" />
+  </wsdl:message>
+  <wsdl:portType name="PhoneEmailSoap">
+    <wsdl:operation name="wsFindPhone">
+      <wsdl:input message="tns:wsFindPhoneSoapIn" />
+      <wsdl:output message="tns:wsFindPhoneSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmail">
+      <wsdl:input message="tns:wsFindEmailSoapIn" />
+      <wsdl:output message="tns:wsFindEmailSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailPhone">
+      <wsdl:input message="tns:wsFindEmailPhoneSoapIn" />
+      <wsdl:output message="tns:wsFindEmailPhoneSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailAdvanced">
+      <wsdl:input message="tns:wsFindEmailAdvancedSoapIn" />
+      <wsdl:output message="tns:wsFindEmailAdvancedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailPhoneAdvanced">
+      <wsdl:input message="tns:wsFindEmailPhoneAdvancedSoapIn" />
+      <wsdl:output message="tns:wsFindEmailPhoneAdvancedSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="PhoneEmailHttpGet">
+    <wsdl:operation name="wsFindPhone">
+      <wsdl:input message="tns:wsFindPhoneHttpGetIn" />
+      <wsdl:output message="tns:wsFindPhoneHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmail">
+      <wsdl:input message="tns:wsFindEmailHttpGetIn" />
+      <wsdl:output message="tns:wsFindEmailHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailPhone">
+      <wsdl:input message="tns:wsFindEmailPhoneHttpGetIn" />
+      <wsdl:output message="tns:wsFindEmailPhoneHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailAdvanced">
+      <wsdl:input message="tns:wsFindEmailAdvancedHttpGetIn" />
+      <wsdl:output message="tns:wsFindEmailAdvancedHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailPhoneAdvanced">
+      <wsdl:input message="tns:wsFindEmailPhoneAdvancedHttpGetIn" />
+      <wsdl:output message="tns:wsFindEmailPhoneAdvancedHttpGetOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="PhoneEmailHttpPost">
+    <wsdl:operation name="wsFindPhone">
+      <wsdl:input message="tns:wsFindPhoneHttpPostIn" />
+      <wsdl:output message="tns:wsFindPhoneHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmail">
+      <wsdl:input message="tns:wsFindEmailHttpPostIn" />
+      <wsdl:output message="tns:wsFindEmailHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailPhone">
+      <wsdl:input message="tns:wsFindEmailPhoneHttpPostIn" />
+      <wsdl:output message="tns:wsFindEmailPhoneHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailAdvanced">
+      <wsdl:input message="tns:wsFindEmailAdvancedHttpPostIn" />
+      <wsdl:output message="tns:wsFindEmailAdvancedHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailPhoneAdvanced">
+      <wsdl:input message="tns:wsFindEmailPhoneAdvancedHttpPostIn" />
+      <wsdl:output message="tns:wsFindEmailPhoneAdvancedHttpPostOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="PhoneEmailSoap" type="tns:PhoneEmailSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="wsFindPhone">
+      <soap:operation soapAction="http://www.intelligentsearch.com/HostedWebServices/wsFindPhone" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmail">
+      <soap:operation soapAction="http://www.intelligentsearch.com/HostedWebServices/wsFindEmail" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailPhone">
+      <soap:operation soapAction="http://www.intelligentsearch.com/HostedWebServices/wsFindEmailPhone" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailAdvanced">
+      <soap:operation soapAction="http://www.intelligentsearch.com/HostedWebServices/wsFindEmailAdvanced" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailPhoneAdvanced">
+      <soap:operation soapAction="http://www.intelligentsearch.com/HostedWebServices/wsFindEmailPhoneAdvanced" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="PhoneEmailSoap12" type="tns:PhoneEmailSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="wsFindPhone">
+      <soap12:operation soapAction="http://www.intelligentsearch.com/HostedWebServices/wsFindPhone" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmail">
+      <soap12:operation soapAction="http://www.intelligentsearch.com/HostedWebServices/wsFindEmail" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailPhone">
+      <soap12:operation soapAction="http://www.intelligentsearch.com/HostedWebServices/wsFindEmailPhone" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailAdvanced">
+      <soap12:operation soapAction="http://www.intelligentsearch.com/HostedWebServices/wsFindEmailAdvanced" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailPhoneAdvanced">
+      <soap12:operation soapAction="http://www.intelligentsearch.com/HostedWebServices/wsFindEmailPhoneAdvanced" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="PhoneEmailHttpGet" type="tns:PhoneEmailHttpGet">
+    <http:binding verb="GET" />
+    <wsdl:operation name="wsFindPhone">
+      <http:operation location="/wsFindPhone" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmail">
+      <http:operation location="/wsFindEmail" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailPhone">
+      <http:operation location="/wsFindEmailPhone" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailAdvanced">
+      <http:operation location="/wsFindEmailAdvanced" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailPhoneAdvanced">
+      <http:operation location="/wsFindEmailPhoneAdvanced" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="PhoneEmailHttpPost" type="tns:PhoneEmailHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="wsFindPhone">
+      <http:operation location="/wsFindPhone" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmail">
+      <http:operation location="/wsFindEmail" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailPhone">
+      <http:operation location="/wsFindEmailPhone" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailAdvanced">
+      <http:operation location="/wsFindEmailAdvanced" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="wsFindEmailPhoneAdvanced">
+      <http:operation location="/wsFindEmailPhoneAdvanced" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="PhoneEmail">
+    <wsdl:port name="PhoneEmailSoap" binding="tns:PhoneEmailSoap">
+      <soap:address location="https://www.intelligentsearch.com/TowerDataWS/PhoneEmail.asmx" />
+    </wsdl:port>
+    <wsdl:port name="PhoneEmailSoap12" binding="tns:PhoneEmailSoap12">
+      <soap12:address location="https://www.intelligentsearch.com/TowerDataWS/PhoneEmail.asmx" />
+    </wsdl:port>
+    <wsdl:port name="PhoneEmailHttpGet" binding="tns:PhoneEmailHttpGet">
+      <http:address location="https://www.intelligentsearch.com/TowerDataWS/PhoneEmail.asmx" />
+    </wsdl:port>
+    <wsdl:port name="PhoneEmailHttpPost" binding="tns:PhoneEmailHttpPost">
+      <http:address location="https://www.intelligentsearch.com/TowerDataWS/PhoneEmail.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+
+    <field formid="addressId" label="label.input.addressid" type="string" mandatory="true"
+           max-length="20" missing-error="error.message.required" range-error="error.message.lessthan20"/>
+    <field formid="firstName" label="label.input.firstname.profile" regexp="^[A-Za-z0-9\u3131-\uD79D- ]+$" type="string" mandatory="true" binding="firstName"
+           max-length="45" missing-error="address.firstname.missing" range-error="error.message.lessthan50"/>
+    <field formid="lastName" label="label.input.name.profile" regexp="^[A-Za-z0-9\u3131-\uD79D- ]+$" type="string" mandatory="true" binding="lastName" max-length="45"
+           missing-error="address.lastname.missing" range-error="error.message.lessthan50"/>
+    <field formid="address1" label="label.input.address1" type="string" mandatory="true" binding="address1" max-length="45"
+           missing-error="address.address1.missing" range-error="error.message.lessthan35"/>
+    <field formid="address2" label="label.input.address2" type="string" mandatory="true" binding="address2"
+           max-length="45" range-error="error.message.lessthan35" regexp="^[A-Za-z0-9\u3131-\uD79D- ]+$"/>
+
+    <!--  postal code -->
+    <field formid="postalCode" label="label.input.zipcode" type="string" mandatory="true" min-length="5" max-length="5"
+           regexp="(^\d{5}(-\d{4})?$)|(^[abceghjklmnprstvxyABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Za-z]{1} *\d{1}[A-Za-z]{1}\d{1}$)"
+           binding="postalCode"
+           range-error="error.message.between5and10"
+           missing-error="address.zipcode.missing"
+           parse-error="error.message.parse.zip"/>
+
+    <!-- use set of supported countries -->
+    <field formid="country" label="label.input.country" type="string" mandatory="true" binding="countryCode"
+           missing-error="address.country.missing">
+        <options>
+            <option optionid="KR" label="select.option.country.southKorea" value="KR"/>
+        </options>
+    </field>
+
+    <!-- Mobile is Mandatory for address -->
+    <field formid="phone1"  label="label.input.phonenumber" type="string" mandatory="true" binding="phone1" max-length="3" missing-error="or.select.error.required" range-error="forms.mobile.field.invalid" value-error="forms.mobile.field.invalid" >
+       <options>
+           <option optionid="" label="forms.select" value=""/>
+           <option optionid="010" label="010" value="010" />
+           <option optionid="011" label="011" value="011" />
+           <option optionid="016" label="016" value="016" />
+           <option optionid="017" label="017" value="017" />
+           <option optionid="018" label="018" value="018" />
+           <option optionid="019" label="019" value="019" />
+       </options>
+   </field>
+   <field formid="phone2"  label="label.input.phonenumber" type="string" mandatory="true"    binding="phone2" max-length="4" regexp="^([0-9]{3,4})$" missing-error="forms.address.phone.missing"   range-error="error.message.phonenumber.invalid.apac" value-error="error.message.phonenumber.invalid.apac" parse-error="error.message.phonenumber.invalid.apac" />
+   <field formid="phone3"  label="label.input.phonenumber" type="string" mandatory="true"    binding="phone3" max-length="4" regexp="^([0-9]{3,4})$" missing-error="forms.address.phone.missing"   range-error="error.message.phonenumber.invalid.apac" value-error="error.message.phonenumber.invalid.apac" parse-error="error.message.phonenumber.invalid.apac"/>
+
+    <!-- Delivery Request -->
+    <field formid="carrierMessage" label="forms.message" description="forms.message.description" type="string" mandatory="false" binding="carrierMessage" max-length="30" range-error="forms.address.field.invalid" />
+
+    <!-- phone is mandatory for addresses -->
+    <field formid="phone" label="label.input.phonenumber" description="address.phone.example" type="string" mandatory="true"
+           binding="phone" min-length="8" max-length="20" regexp="^[0-9- \)\(+]{8,20}$"
+           missing-error="address.phone.missing"
+           range-error="error.message.between10and20"
+           parse-error="error.message.parse.phone"/>
+
+    <field formid="setAsDefault" type="boolean" checked="false" default-value="false" mandatory="false" />
+    <!-- actions provided by the edit shipping address dialog -->
+    <action formid="apply" valid-form="true"/>
+    <action formid="remove" valid-form="false"/>
+</form>

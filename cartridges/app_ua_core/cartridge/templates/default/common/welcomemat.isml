@@ -1,0 +1,5 @@
+<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('geoLocationModelEnabled')}">
+    <span class="welcomeMat-${pdict.alreadyWelcomed} tracking-consent welcomeMat" <isif condition="${!pdict.alreadyWelcomed}"> data-url="${URLUtils.url('CountrySelector-GetWelcomeMatContent', 'shipCountry', pdict.shipCountry, 'forwardedQueryString', request.httpQueryString)}"</isif>></span>
+<iselse/>
+    <span class="welcomeMat-${pdict.alreadyWelcomed} tracking-consent welcomeMat" <isif condition="${!pdict.alreadyWelcomed}"> data-url="${URLUtils.url('BorderFree-GetWelcomeMatContent', 'shipCountry', pdict.shipCountry)}" </isif>></span>
+</isif>

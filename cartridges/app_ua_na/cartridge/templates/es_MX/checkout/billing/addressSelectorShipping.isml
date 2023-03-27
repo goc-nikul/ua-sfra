@@ -1,0 +1,33 @@
+<isif condition="${pdict.order.shipping[0].shippingAddress}">
+    <isset name="ShipToCollection" value="${pdict.isCommercialPickup}" scope="page" />
+    <isloop items="${pdict.order.shipping}" var="aShippingModel">
+        <isif condition="${!empty(aShippingModel.selectedShippingMethod) && aShippingModel.selectedShippingMethod.ID !== 'eGift_Card' && !aShippingModel.selectedShippingMethod.storePickupEnabled && !ShipToCollection}">
+	        <div class="billing-address-section${aShippingModel.UUID === pdict.order.billing.matchingAddressId ? ' default-address' : ''}">
+	            <div value="${aShippingModel.UUID}" class="billing-address-option"
+	                data-addr-id=""
+	                ${aShippingModel.UUID === pdict.order.billing.matchingAddressId ? selected="selected" : ''}
+	                data-first-name="${aShippingModel.shippingAddress.firstName||''}" data-last-name="${aShippingModel.shippingAddress.lastName||''}"
+	                data-address1="${aShippingModel.shippingAddress.address1||''}" data-address2="${aShippingModel.shippingAddress.address2||''}"
+	                data-exterior-number="${aShippingModel.shippingAddress.exteriorNumber||''}" data-interior-number="${aShippingModel.shippingAddress.interiorNumber||''}"
+	                data-additional-information="${aShippingModel.shippingAddress.additionalInformation||''}" data-colony="${aShippingModel.shippingAddress.colony||''}"
+	                data-dependent-locality="${aShippingModel.shippingAddress.dependentLocality||''}"
+	                data-city="${aShippingModel.shippingAddress.city}" data-state-code="${aShippingModel.shippingAddress.stateCode}"
+	                data-country-code="${aShippingModel.shippingAddress.countryCode.value}" data-postal-code="${aShippingModel.shippingAddress.postalCode}"
+	                data-phone="${aShippingModel.shippingAddress.phone}"
+					data-rfc="${typeof shippingRFC !== 'undefined' && shippingRFC || aShippingModel.shippingAddress.rfc || ''}" data-razonsocial="${typeof shippingRazonSocial !== 'undefined' && shippingRazonSocial || aShippingModel.shippingAddress.razonsocial || ''}"
+	                data-sameAsShipping="true">
+	                 <div>${aShippingModel.shippingAddress.firstName || ''} ${aShippingModel.shippingAddress.lastName || ''}</div>
+	                <div>${aShippingModel.shippingAddress.address1 +' ' || ''}${aShippingModel.shippingAddress.exteriorNumber + ', ' || ''} <isif condition="${!empty(aShippingModel.shippingAddress.interiorNumber)}"> ${aShippingModel.shippingAddress.interiorNumber + ','}</isif></div>
+	                <isif condition="${aShippingModel.shippingAddress.address2}">
+                        <div>${aShippingModel.shippingAddress.address2 + ', ' || ''}</div>
+                    </isif>
+	                <isif condition="${aShippingModel.shippingAddress.additionalInformation}"><div>${aShippingModel.shippingAddress.additionalInformation || ''}</div></isif>
+	                <div>${aShippingModel.shippingAddress.colony || ''} ${aShippingModel.shippingAddress.dependentLocality || ''}</div>
+                    <div>${aShippingModel.shippingAddress.city + ', ' || ''} ${aShippingModel.shippingAddress.stateCode + ', ' ||''} ${aShippingModel.shippingAddress.postalCode + ', ' || ''}</div>
+                    <div><isprint value="${Resource.msg('label.country.mexico','forms',null)}"></div>
+	                <span class="icon"></span>
+	            </div>
+	        </div>
+        </isif>
+    </isloop>
+</isif>

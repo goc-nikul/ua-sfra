@@ -1,0 +1,157 @@
+/**
+ * Demandware Script File
+ * Bags all ShopRunner Order/Shipment Feed Utility methods.
+ */
+
+var System = require('dw/system/System');
+var Site = require('dw/system/Site');
+var List = require('dw/util/List');
+var StringUtils = require('dw/util/StringUtils');
+var File = require('dw/io/File');
+var FileWriter = require('dw/io/FileWriter');
+var Order = require('dw/order/Order');
+
+
+var SRTenderType = require("int_shoprunner/cartridge/scripts/feeds/feedconstants").SRTenderType;
+var SRFeedType = require("int_shoprunner/cartridge/scripts/feeds/feedconstants").SRFeedType;
+
+/**
+ * @description Deduce Payment TenderType with the predefined list.
+ * Code extracted from orderFeed.ds & placeOrder.ds
+ * Used: orderFeed.ds(FTP), placeOrder.ds(WS), Confirmation Pixel
+
+ * @input PaymentInstruments List
+ * @output String (Comma Separated TenderType Aliases)
+ */
+function deduceTenderType(paymentInstruments: List): String {
+    var paymentTenderType: String = '';
+
+    for each(var paymentInstrument in paymentInstruments) {
+            switch (paymentInstrument.paymentMethod.toUpperCase()) {
+                case 'BANK_TRANSFER':
+                    paymentTenderType += SRTenderType.OTHER_TYPE;
+                    break;
+                case 'BML':
+                    paymentTenderType += SRTenderType.BML;
+                    break;
+                case 'CREDIT_CARD':
+                    switch (paymentInstrument.creditCardType.toUpperCase()) {
+                        case 'AMEX':
+                            paymentTenderType += SRTenderType.AMEX;
+                            break;
+                        case 'MASTER CARD':
+                        case 'MASTERCARD':
+                        case 'MASTER':
+                            paymentTenderType += SRTenderType.MASTERCARD;
+                            break;
+                        case 'VISA':
+                            paymentTenderType += SRTenderType.VISA;
+                            break;
+                        case 'DINERSCLUB':
+                            paymentTenderType += SRTenderType.DINERSCLUB;
+                            break;
+                        case 'DISCOVER':
+                            paymentTenderType += SRTenderType.DISCOVER;
+                            break;
+                        case 'JCB':
+                            paymentTenderType += SRTenderType.JCB;
+                            break;
+                        case 'GIFTCARD':
+                            paymentTenderType += SRTenderType.GIFTCARD;
+                            break;
+                        case 'ECHECK':
+                            paymentTenderType += SRTenderType.ECHECK;
+                            break;
+                    }
+                    break;
+                case 'GIFT_CERTIFICATE':
+                    paymentTenderType += SRTenderType.GIFT_CERTIFICATE;
+                    break;
+                case 'PAYPAL':
+                    paymentTenderType += SRTenderType.PAYPAL;
+                    break;
+                default:
+                    paymentTenderType += SRTenderType.OTHER_TYPE;
+            } // end switch
+            paymentTenderType += ',';
+
+        } // end for each
+    return paymentTenderType.substr(0, paymentTenderType.length - 1).toString(); // strip the last comma
+}
+
+/** Generate a random number */
+function rand(length, current): String {
+    current = current ? current : '';
+    return length ? rand(--length, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz".charAt(
+        Math.floor(Math.random() * 60)) + current) : current;
+}
+
+/** Checks Passed in "Feed Switch Type" against Custom Perference switch "sr_feedswitch" */
+function checkFeedSwitchByType(feedSwitchType): Boolean {
+    var srFeedSwitch = Site.getCurrent().getCustomPreferenceValue('sr_feedswitch');
+    return (srFeedSwitch['value'] == feedSwitchType);
+}
+
+/*
+ * @description returns order shipment type based on order status
+ */
+function getShipmentTypeByOrderStatus(orderStatus: String ) : String {
+	if(orderStatus) {
+		if(orderStatus == Order.ORDER_STATUS_REPLACED ) {
+			return "update";
+		}
+		if(orderStatus == Order.ORDER_STATUS_CANCELLED) {
+			return "cancel";
+		}
+	}
+	return "create";
+}
+
+/**
+ * Computes Shoprunner feedfile name
+ */
+function getFeedFileName(feedType) : String {
+	var calendar = System.getCalendar();
+	var siteID = Site.getCurrent().ID;
+	var retailerId = Site.getCurrent().getCustomPreferenceValue('sr_retailerID');
+	var suffix = "unknown_feed_type.na";
+	if( feedType == SRFeedType.ORDER_FEED ) {
+		suffix = "_order-feed.xml";
+	} else if( feedType == SRFeedType.SHIPMENT_FEED ) {
+		suffix = "_shipment-feed.xml";
+	}else if( feedType == SRFeedType.PRODUCT_FEED ) {
+		suffix = '_product-feed.json';
+	}
+	return retailerId + "_" + StringUtils.formatCalendar(calendar,'yyyyMMddHHmm') + suffix;
+}
+
+/**
+ * Creates Feed File in a IMPEX directory and returns a FileWriter.
+ */
+function createFeedFile(feedType) : File {
+	var workingPath : String = File.IMPEX + '/src/sr/sr_' + Site.current.ID + '/';
+	(new dw.io.File(workingPath)).mkdirs();
+	var fileName : String = getFeedFileName(feedType);
+	return new File(workingPath + fileName);
+}
+
+function createOrderFeedFile() : File {
+	return createFeedFile(SRFeedType.ORDER_FEED);
+}
+
+function createShipmentFeedFile() : File {
+	return createFeedFile(SRFeedType.SHIPMENT_FEED);
+}
+
+function createProductFeedFile() : File {
+	return createFeedFile(SRFeedType.PRODUCT_FEED);
+}
+
+exports.SRTenderType = SRTenderType;
+exports.deduceTenderType = deduceTenderType;
+exports.rand = rand;
+exports.checkFeedSwitchByType = checkFeedSwitchByType;
+exports.getShipmentTypeByOrderStatus = getShipmentTypeByOrderStatus;
+exports.createOrderFeedFile = createOrderFeedFile;
+exports.createShipmentFeedFile = createShipmentFeedFile;
+exports.createProductFeedFile = createProductFeedFile;

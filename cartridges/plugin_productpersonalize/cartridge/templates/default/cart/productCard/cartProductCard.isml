@@ -1,0 +1,152 @@
+<isset name="hasEmbeddedBonusProducts" value="${lineItem.bonusProductLineItemUUID === 'bonus'}"  scope="page"/>
+<isset name="bonusproductlineitem" value="${hasEmbeddedBonusProducts ? 'bonus-product-line-item' : ''}" scope="page"/>
+<isset name="bonuslineitemrow" value="${hasEmbeddedBonusProducts ? 'bonus-line-item-row' : ''}" scope="page"/>
+<isset name="isEGiftCardProduct" value="${lineItem.custom.giftCard == 'EGIFT_CARD'}" scope="page"/>
+
+<div class="b-cartlineitem card-product-info card ${bonusproductlineitem} uuid-${typeof lineItem !=='undefined' ? lineItem.UUID :''} bfx-product ${loopState.first ? 'first' : ''} ${isEGiftCardProduct? 'egiftcardlineitem' : ''} ${!empty(lineItem.availabilityError) && !lineItem.isPartiallyAvailable ? 'b-cartlineitem_outofstock' : ''}" data-cmp="cartTile" 
+    data-pid="${lineItem.id}"
+    data-uuid="${typeof lineItem !=='undefined' ? lineItem.UUID :''}"
+    data-name="${lineItem.productName}">
+
+    <isif condition="${lineItem.isGift}">
+        <isset name="prodURL" value="${'#'}" scope="page" />
+    <iselse>
+        <isset name="prodURL" value="${URLUtils.url('Product-Show','pid',lineItem.id)}" scope="page" />
+    </isif>
+    <isinclude template="cart/productCard/cartProductCardAvailability" />
+    <div class="b-cartlineitem_row ${bonuslineitemrow} bfx-price-product">
+        <div class="b-cartlineitem_image line-item-image">
+            <a href="${prodURL}">
+                <img src="${typeof lineItem.images.cartFullDesktop[0] !== 'undefined' ? lineItem.images.cartFullDesktop[0].url : null}" title="${typeof lineItem.images.cartFullDesktop[0] !== 'undefined' ? lineItem.images.cartFullDesktop[0].title : null}" class="line-item-product-image bfx-product-image" alt="${typeof lineItem.images.cartFullDesktop[0] !== 'undefined' ? lineItem.images.cartFullDesktop[0].alt : null} image number ${typeof lineItem.images.cartFullDesktop[0] !== 'undefined' ? lineItem.images.cartFullDesktop[0].index :null}" itemprop="image" />
+            </a>
+        </div>
+        <div class="b-cartlineitem_details">
+            <isinclude template="cart/productCard/cartProductCardHeader" />
+            <p class="hide visually-hidden bfx-sku">${lineItem.custom.sku}</p>
+            <p class="hide visually-hidden bfx-product-customData-label">productId</p>
+            <p class="hide visually-hidden bfx-product-customData-value">${lineItem.id}</p>
+            <div class="b-cartlineitem_attributes">
+                <isif condition="${lineItem.custom.style}">
+                    <p class="t-lineitem_attributes">${Resource.msg('label.product.item.sku', 'cart', null)} <span class="product-sku">${lineItem.custom.sku}</span></p>
+                </isif>
+                <isif condition="${isEGiftCardProduct}">
+                    <p class="t-lineitem_attributes gcrecipientname"><span><isprint value="${Resource.msg('giftcard.details.recipient', 'cart', null) + ': '}"/></span><span class="egiftcard-value"><isprint value="${lineItem.custom.gcRecipientName}"/></span></p>
+                    <p class="t-lineitem_attributes gcrecipientemail"><span><isprint value="${Resource.msg('giftcard.details.email', 'cart', null) + ': '}"/></span><span class="egiftcard-value"><isprint value="${lineItem.custom.gcRecipientEmail}"/></span></p>
+                    <p class="t-lineitem_attributes gcfrom"><span><isprint value="${Resource.msg('giftcard.details.from', 'cart', null) + ': '}"/></span><span class="egiftcard-value"><isprint value="${lineItem.custom.gcFrom}"/></span></p>
+                    <p class="t-lineitem_attributes gcdeliverydate"><span><isprint value="${Resource.msg('giftcard.details.delivery', 'cart', null) + ': '}"/></span><span class="egiftcard-value"><isprint value="${lineItem.custom.gcDeliveryDate}" formatter="MM/dd/yyyy" timezone="utc"/></span></p>
+                <iselse/>
+                    <isloop items="${lineItem.variationAttributes}" var="attribute">
+                        <isif condition="${attribute.attributeId == 'color'}">
+                            <p class="t-lineitem_attributes ${attribute.displayName}-${typeof lineItem !=='undefined' ? lineItem.UUID :''}">
+                                <isset name="productHelpers" value="${require('*/cartridge/scripts/helpers/productHelpers')}" scope="page"/>
+                                <isset name="colorway" value="${lineItem.custom.colorway}" scope="page" />
+                                <isset name="fixProductColorNames" value="${colorway ? productHelpers.fixProductColorNames(colorway) : ''}" scope="page"/>
+                                ${attribute.displayName}: <isif condition="${colorway}"> <span>${fixProductColorNames}</span></isif><span> - <isprint value="${lineItem.custom.color}"/></span>
+                            </p>
+                        <iselse>
+                            <p class="t-lineitem_attributes ${attribute.displayName}-${typeof lineItem !=='undefined' ? lineItem.UUID :''}">${attribute.displayName}: ${attribute.displayValue}</p>
+                        </isif>
+                    </isloop>
+                    <isif condition="${!lineItem.isBonusProductLineItem}"/>
+			            <div class="b-cartlineitem_price price-mobile">
+			                <!--- line item total price --->
+			                <div class="b-cartlineitem_quantity-update ${lineItem.quantity === 1 ? 'hide': ''}">
+                                <span class="js-quantity-${typeof lineItem !=='undefined' ? lineItem.UUID : ''}"><isprint value="${lineItem.quantity.toFixed()}" encoding="off" /></span> ${Resource.msg('label.wishlist.results', 'search', null)}
+                            </div>
+			                <div class="b-productcard_total_price line-item-total-price">
+                                <iscomment> Promo callout message if applied </iscomment>
+                                <isinclude template="checkout/productCard/productCardProductPromotions" />
+
+			                    <div class="item-total-${typeof lineItem !=='undefined' ? lineItem.UUID : ''} price">
+			                        <isinclude template="checkout/productCard/productCardProductTotalPrice" />
+			                    </div>
+			                    <isif condition="${lineItem.bfPriceTotal && !empty(lineItem.bfPriceTotal.adjustedUnitPrice)}"> 
+                                    <span class="cart-item-list-${typeof lineItem !=='undefined' ? lineItem.UUID :''} bfx-price bfx-list-price hide">${lineItem.custom.giftCard === 'EGIFT_CARD' ? lineItem.priceTotal.price : lineItem.bfPriceTotal.adjustedUnitPrice}</span>
+                                <iselse>
+                                    <span class="cart-item-list-${typeof lineItem !=='undefined' ? lineItem.UUID :''} bfx-price bfx-list-price hide">${lineItem.custom.giftCard === 'EGIFT_CARD' ? lineItem.priceTotal.price : lineItem.price.sales.formatted}</span>
+                                </isif>
+			                </div>
+			            </div>
+			        </isif>
+                    <isloop items="${lineItem.options}" var="option">
+                        <isif condition="${!!option}">
+                            <div class="lineItem-options-values" data-option-id="${option.optionId}" data-value-id="${option.selectedValueId}">
+                                <p class="t-lineitem_attributes">${option.displayName}</p>
+                            </div>
+                        </isif>
+                    </isloop>
+                    <div class="personalize-detail t-lineitem_attributes">
+                        <isif condition="${lineItem.isPersonalizationEligible}">
+                            <isprint value="${lineItem.personalizationDetail}"/>
+                        </isif>
+                    </div>
+                    <isinclude template="cart/productCard/cartProductCardProductPrice" />
+                </isif>
+
+                <isif condition="${lineItem.bonusProductLineItemUUID === 'bonus'}">
+                    <isinclude template="cart/productCard/cartEmbeddedBonusProducts" />
+                </isif>
+
+                <isif condition="${lineItem.custom.fromStoreId}">
+                    <isset name="storeID" value="${lineItem.custom.fromStoreId}" scope="page" />
+                    <isinclude url="${URLUtils.url('Stores-GetStoreById', 'storeId', lineItem.custom.fromStoreId)}"/>
+                </isif>
+            </div>
+            <isif condition="${!lineItem.isBonusProductLineItem}"/>
+                <!--- promotions --->
+                <div class="line-item-promo not-applied">
+                    <isinclude template="checkout/productCard/productCardProductDiscountMessage" />
+                </div>
+            </isif>
+            <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_enabled') && lineItem.custom.giftCard !== 'EGIFT_CARD' && !pdict.isVIP && !pdict.isEmployee && !(pdict.CurrentCustomer && pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR')) && !pdict.orderContainsPreorder}">
+                 <span class="bfx-remove-element">
+                   <div class="eligible_sr_cart">
+                     <isinclude template="cart/productCard/cartProductCardShopRunner" />
+                   </div>
+                 </span>
+            </isif>
+        </div>
+        <isif condition="${!lineItem.isBonusProductLineItem}"/>
+            <!--- promotions --->
+            <div class="b-promoline_mobile not-applied">
+                <isinclude template="checkout/productCard/productCardProductDiscountMessage" />
+            </div>
+        </isif>
+        <isinclude template="cart/productCard/cartProductCardAvailability" />
+        <isif condition="${!lineItem.isBonusProductLineItem}"/>
+            <div class="b-cartlineitem_price">
+                <!--- line item total price --->
+                <div class="b-cartlineitem_quantity-update ${lineItem.quantity === 1 ? 'hide': ''}">
+                    <span class="js-quantity-${typeof lineItem !=='undefined' ? lineItem.UUID : ''}"><isprint value="${lineItem.quantity.toFixed()}" encoding="off" /></span> ${Resource.msg('label.wishlist.results', 'search', null)}
+                </div>
+                <div class="b-productcard_total_price line-item-total-price">
+                    <iscomment> Promo callout message if applied </iscomment>
+                    <isinclude template="checkout/productCard/productCardProductPromotions" />
+
+                    <div class="item-total-${typeof lineItem !=='undefined' ? lineItem.UUID :''} price">
+                        <isinclude template="checkout/productCard/productCardProductTotalPrice" />
+                    </div>
+                    <isif condition="${lineItem.bfPriceTotal && !empty(lineItem.bfPriceTotal.adjustedUnitPrice)}"> 
+                        <span class="cart-item-list-${typeof lineItem !=='undefined' ? lineItem.UUID :''} bfx-price bfx-list-price hide">${lineItem.custom.giftCard === 'EGIFT_CARD' ? lineItem.priceTotal.price : lineItem.bfPriceTotal.adjustedUnitPrice}</span>
+                    <iselse>
+                        <span class="cart-item-list-${typeof lineItem !=='undefined' ? lineItem.UUID :''} bfx-price bfx-list-price hide">${lineItem.custom.giftCard === 'EGIFT_CARD' ? lineItem.priceTotal.price : lineItem.price.sales.formatted}</span>
+                    </isif>
+                </div>
+            </div>
+        </isif>
+        <div class="b-cartlineitem_remove_edit">
+            <div class="b-cartlineitem_togetherbutton">
+                <isif condition="${!(pdict.CurrentCustomer && pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR'))}">
+                    <isinclude template="cart/productCard/cartProductCardSaveLater" />
+                </isif>
+                <isinclude template="cart/productCard/cartProductCardEdit" />
+                <isif condition="${!lineItem.isBonusProductLineItem}"/>
+                    <div class="hidden-md-down">
+                        <isinclude template="components/deleteButton" />
+                    </div>
+                </isif>
+            </div>
+        </div>
+    </div>
+</div>
+

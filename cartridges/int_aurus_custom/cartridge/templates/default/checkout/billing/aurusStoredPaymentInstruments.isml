@@ -1,0 +1,62 @@
+<iscomment> <label for="paymentCardSelector">${Resource.msg('label.payment.selector', 'payment', null)}</label>
+<select id="paymentCardSelector"
+        name="paymentCardSelector"
+        class="paymentCardSelector form-control">
+    <isloop items="${pdict.customer.customerPaymentInstruments}" var="paymentInstrument" status="loopState">
+        <option class="row saved-payment-instrument ${loopState.first ? 'selected' : ''}" data-uuid="${paymentInstrument.UUID}">
+            <span>
+                ${paymentInstrument.creditCardType}
+                ${paymentInstrument.maskedCreditCardNumber}
+                ${Resource.msg('msg.card.type.ending', 'confirmation', null)}
+                ${paymentInstrument.creditCardExpirationMonth}/${paymentInstrument.creditCardExpirationYear}
+            </span>
+        </option>
+    </isloop>
+</select> </iscomment>
+
+<div class="store-payments-container">
+    <isset name="defaultCCCount" value="${1}" scope="page"/>
+    <isloop items="${pdict.customer.customerPaymentInstruments}" var="paymentInstrument" status="loopState">
+        <div class="saved-payment-instrument ${paymentInstrument.defaultPaymentCard && defaultCCCount == 1 ? 'selected-payment display-order' : ''}" data-uuid="${paymentInstrument.UUID}" id="uuid-${paymentInstrument.UUID}" data-card="${JSON.stringify(paymentInstrument)}">
+            <div class="form-group required saved-security-code col-6 col-md-3">
+                <img class="card-image ${loopState.first ? 'checkout-hidden' : ''}"
+                    src="${paymentInstrument.cardTypeImage.src}"
+                    alt="${paymentInstrument.cardTypeImage.alt}"
+                    title="${paymentInstrument.cardTypeImage.title}"
+                >
+            </div>
+            <div class="saved-payment-information col-6 col-md-9">
+                <div class="saved-credit-card-type">
+	                <span>
+	                    ${Resource.msg('msg.payment.type.credit', 'confirmation', null)}
+	                    ${paymentInstrument.creditCardType}
+	                </span>
+                    <div class="saved-credit-card-number">
+	                    ${paymentInstrument.maskedCreditCardNumber}
+	                </div>
+                    <div class="saved-credit-card-expiration-date">
+	                <span>
+	                    ${Resource.msg('msg.card.type.ending', 'confirmation', null)}
+	                    ${paymentInstrument.creditCardExpirationMonth}/${paymentInstrument.creditCardExpirationYear}
+	                </span>
+	            </div>
+                <button
+	                    type="button"
+	                    class="remove-btn remove-payment btn-light"
+	                    data-toggle="modal"
+	                    data-target="#deletePaymentModal"
+	                    data-id="${paymentInstrument.UUID}"
+	                    data-card="${paymentInstrument.maskedCreditCardNumber}"
+	                    data-url="${URLUtils.url('PaymentInstruments-DeletePayment')}"
+	                    aria-label="${Resource.msg('label.payment.deletepayment','payment',null)}">
+	                    ${Resource.msg('card.type.delete', 'confirmation', null)}
+	                </button>
+	            </div>
+            </div>
+            <span class="icon"></span>
+        </div>
+        <isif condition="${paymentInstrument.defaultPaymentCard}">
+            <isset name="defaultCCCount" value="${++ defaultCCCount}" scope="page"/>
+        </isif>
+    </isloop>
+</div>

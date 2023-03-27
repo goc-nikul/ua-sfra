@@ -1,0 +1,14 @@
+<isinclude template="components/coreModules" />
+<isif condition="${pdict.wishlist.items.length > 0}">
+    <div class="wishlist-sort">
+       <isinputselect
+           fieldclass="b-sort-wishlist-select js-sort-wishlist-select"
+           label="${Resource.msgf('label.sort', 'search', null)}"
+           labelclass="b-sort-wishlist-label"
+           name="sort-wishlist-order"
+           id="sort-wishlist-order"
+           optionlist="${pdict.wishlist.wishlistSortOptions}"
+           ruleid="${pdict.productSearch && pdict.productSearch.productSort ? pdict.productSearch.productSort.ruleId : ''}"
+       />
+    </div>
+</isif>

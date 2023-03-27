@@ -1,0 +1,72 @@
+@mixin accordion-button($state: 'open', $size: 16) {
+    $icon: 'caret-up';
+    @if ($state == 'close') {
+        $icon: 'caret-down';
+    }
+
+    @include icon($icon, 'after', $size);
+
+    &::after {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+}
+
+@mixin accordion-content {
+    &-item {
+        border-bottom: 1px solid $grey3;
+    }
+
+    &-header {
+        @include accordion-button;
+        @include font(main_med, rem-calc(14), rem-calc(20));
+
+        cursor: pointer;
+        max-width: 100%;
+        padding-top: rem-calc(17);
+        padding-right: rem-calc(50);
+        padding-bottom: rem-calc(17);
+        position: relative;
+        text-align: left;
+        width: 100%;
+
+        &.collapsed {
+            @include accordion-button('close');
+        }
+    }
+
+    &-content {
+        padding-top: rem-calc(18);
+        padding-right: rem-calc(50);
+        padding-bottom: rem-calc(18);
+
+        &.collapse {
+            &:not(.show) {
+                display: none;
+            }
+        }
+
+        &.collapsing {
+            height: 0;
+            overflow: hidden;
+            position: relative;
+            transition: height 0.3s ease;
+        }
+    }
+}
+
+@mixin accordion($parent: &, $breakpoint: null) {
+    @if ($breakpoint == null) {
+        #{$parent} {
+            @include accordion-content;
+        }
+    } @else {
+        @include respond-to($breakpoint) {
+            #{$parent} {
+                @include accordion-content;
+            }
+        }
+    }
+}

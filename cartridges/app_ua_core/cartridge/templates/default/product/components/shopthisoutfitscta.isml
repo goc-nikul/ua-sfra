@@ -1,0 +1,14 @@
+<isset name="image" value="${product.images['pdpMainDesktop'][0]}" scope="page"/>
+<div class="model-shop-this-outfit">
+    <span>
+        <button class="shop-cta js-shop-this-outfit"
+                data-toggle="modal"
+                data-target="#shopThisOutfitModal"
+                data-analytics-track="shop-this-outfit"
+                data-shopthisoutfit-url="${URLUtils.url('Product-ShopThisOutfit','pid', product.id)}"
+                data-shopthisoutfit-size="${image && image.modelSpec && image.modelSpec.modelSize ? image.modelSpec.modelSize.toLowerCase() : ''}"
+                >
+            ${Resource.msg('product.model.shopthisoutfitcta','product',null)}
+        </button>
+    </span>
+</div>

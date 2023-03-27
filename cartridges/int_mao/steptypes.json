@@ -1,0 +1,44 @@
+{
+  "step-types": {
+    "script-module-step": [
+      {
+        "@type-id": "custom.MAODOMOrderExport",
+        "@supports-parallel-execution": "false",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "description": "Send order details to MAO.",
+        "module": "int_mao/cartridge/scripts/OrderExport.js",
+        "function": "execute",
+        "timeout-in-seconds": "897",
+        "parameters": {
+          "parameter": [
+            {
+              "@name":"MaxLimit",
+              "@type":"long",
+              "@required":"false",
+              "description":"An optional parameter to define the max number of order to export on each run. When empty, job falls back to system default which is 1000.",
+              "min-value":"0",
+              "max-value":"1000"
+            }
+          ]
+        },
+        "status-codes": {
+          "status": [
+            {
+                "@code": "ERROR",
+                "description": "Used when an error occurred."
+            },
+            {
+                "@code": "OK",
+                "description": "Used when everything went well."
+            },
+            {
+                "@code": "WARN",
+                "description": "Used when small, but acceptable problems occurred."
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

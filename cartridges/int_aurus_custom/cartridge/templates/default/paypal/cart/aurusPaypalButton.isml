@@ -1,0 +1,21 @@
+<isscript>
+    var assets = require('*/cartridge/scripts/assets.js');
+	var isAurusEnabled = !empty(dw.system.Site.current.getCustomPreferenceValue('enableAurusPay')) && dw.system.Site.current.getCustomPreferenceValue('enableAurusPay');
+    var showExpressCheckoutButton = !empty(dw.system.Site.current.getCustomPreferenceValue('Aurus_showExpressCheckoutButtonOnCart')) && dw.system.Site.current.getCustomPreferenceValue('Aurus_showExpressCheckoutButtonOnCart');
+    if (isAurusEnabled && showExpressCheckoutButton) {
+        assets.addJs('/js/digitalWalletCheckout.js');
+        assets.addJs('/js/aurusInit.js');
+	}
+</isscript>
+
+<isif condition="${showExpressCheckoutButton && !pdict.orderContainsPreorder}">
+    <div class="paypal-container" data-get-session-url="${URLUtils.url('AurusPay-GetAltPaymentSession')}" data-get-consumerobj-url="${URLUtils.url('AurusPay-GetPaypalConsumerObj')}" data-returnfrompaypal-url="${URLUtils.url('AurusPay-ReturnFromPayPal')}">
+        <isif condition="${!empty(pdict.expressPaypal)}">
+            <div id="expressPaypalDiv" class="paypal-cart-buttons-container"></div>
+        <iselse>
+            <div id="paypalDiv" class="paypal-cart-buttons-container"></div>
+        </isif>
+        <span id="paypal-token-error" class="d-none"></span>
+    </div>
+</isif>
+

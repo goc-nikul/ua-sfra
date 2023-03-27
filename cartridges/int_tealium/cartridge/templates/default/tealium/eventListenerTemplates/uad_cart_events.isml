@@ -1,0 +1,273 @@
+<script>
+(function cartHelpersAndEvents(){
+  function find(array, logicFunc) {
+      if (!array || !logicFunc) return null;
+      var foundItem;
+      array.forEach(function (item) {
+        var f = logicFunc(item);
+        if (f) {
+          foundItem = f;
+        }
+      });
+      return foundItem;
+  }
+  function cleanMoney(dirtyValue) {
+      /** USD or CDN to decimal **/
+      var clean = dirtyValue.replace(/[^0-9.,]/g, ''); // removes currency letters
+      var length = clean.length;
+      if (clean[length-3] === ',') {
+        // '1.356,80' to '1,356.80'
+        return clean.replace(/,/g, '_').replace(/\./g, ',').replace(/\_/g, '.');
+      }
+      return clean;
+  }
+  function mapCartItem(responseCartItem, qtyOverride) {
+      if (qtyOverride) {
+        responseCartItem.quantity = qtyOverride;
+      }
+      var qty = qtyOverride || responseCartItem.quantity;
+      var msrp = responseCartItem.price.list || responseCartItem.price.priceBookSalesPrice;
+      var bopisMessage = uaDatalayer.getPageData().products && uaDatalayer.getPageData().products.length > 0 ? uaDatalayer.getPageData().products[0].product_bopis_message : '';
+      var bopisStock =  uaDatalayer.getPageData().products && uaDatalayer.getPageData().products.length > 0 ? uaDatalayer.getPageData().products[0].product_bopis_stock : false;
+      if ($('.isStoreAvailable').val() == 'true') {
+          if ('instoreAvailability' in responseCartItem.custom && responseCartItem.custom.instoreAvailability) {
+              bopisMessage = responseCartItem.custom.storeAvailabilityMsg;
+              bopisStock = true;
+          }
+      }
+      return {
+          product_id: responseCartItem.id,
+          product_name: responseCartItem.productName,
+          product_quantity: qty.toString(),
+          product_style: responseCartItem.custom.style,
+          product_color: responseCartItem.custom.style + '-' + responseCartItem.custom.color,
+          product_sku: responseCartItem.custom.sku,
+          product_price: responseCartItem.price.sales.decimalPrice,
+          product_msrp: msrp.decimalPrice,
+          product_bopis: (responseCartItem.custom.fromStoreId || '').length ? 'yes' : 'no',
+          product_onsale: (msrp.value > responseCartItem.price.sales.value) ? 'yes' : 'no',
+          product_silhouette: responseCartItem.custom.silhouette,
+          product_gender: responseCartItem.custom.gender,
+          product_bopis_available: $('.isBopisEnabled').val() == 'true' && responseCartItem.custom.availableForInStorePickup !== false,
+          product_bopis_message: bopisMessage,
+          product_bopis_selected: responseCartItem.custom.fromStoreId && responseCartItem.custom.instoreAvailability ? true : false,
+          product_bopis_stock: bopisStock,
+          product_feature_icons: 'icons' in responseCartItem.custom && responseCartItem.custom.icons ? responseCartItem.custom.icons.map(function (icon) { return icon.value; }).join('|') : null, // feature/benefit icons
+      }
+  }
+  function getCartItemById(productId, productUUID, sfraCart) {
+    if (productId) {
+        return find(sfraCart.items, function (item) {
+            if(item.id === productId) {
+              return item;
+            }
+        });
+    } else if (productUUID) {
+        return find(sfraCart.items, function (item) {
+            if(item.UUID === productUUID) {
+              return item;
+            }
+        });
+    }
+  }
+  function fireCartChange(sfraBasket) {
+      var cartModel = sfraBasket;
+      var totals = cartModel.totals;
+      var orderLevelDiscountValue = totals.orderLevelDiscountTotal && totals.orderLevelDiscountTotal.value || 0;
+      window.uaDatalayer.action('cartChange', {
+          cart_subtotal: cleanMoney(totals.subTotal), // amount without discounts or shipping
+          cart_shipping: cleanMoney(totals.totalShippingCost), // amount of shipping
+          cart_discount: orderLevelDiscountValue.toFixed(2), // amount of applied discounts
+          cart_total: cleanMoney(totals.grandTotal), // total with shipping and tax
+          cart_tax: cleanMoney(totals.totalTax), // vat
+          cart_item_count: cartModel.items.length.toString(),
+          products: cartModel.items.map(function (item) {
+            return mapCartItem(item);
+          })
+      });
+  }
+  function getCookie(cname) {
+	  let name = cname + "=";
+	  let decodedCookie = decodeURIComponent(document.cookie);
+	  let ca = decodedCookie.split(';');
+	  for(let i = 0; i <ca.length; i++) {
+	    let c = ca[i];
+	    while (c.charAt(0) == ' ') {
+	      c = c.substring(1);
+	    }
+	    if (c.indexOf(name) == 0) {
+	      return c.substring(name.length, c.length);
+	    }
+	  }
+	  return "";
+	}
+  window.UADatalayer.prototype.onDependenciesReady(function bindCartEvents() {
+      var safetyFirst = window.UADatalayer.prototype.safetyFirst;
+
+      /**
+      * Grab product id and qty submitted for add
+      */
+      var addedProduct;
+      $('body').on('product:beforeAddToCart', function (jqEv) {
+          var $btn = $(jqEv.target);
+          if (addedProduct && addedProduct.pid && addedProduct.qty) {
+              return;
+          }
+          addedProduct = {
+              pid: $btn.attr('data-pid'),
+              qty: $btn.find('.js-quantity-select').val()
+          };
+      });
+      /**
+      * find added product in updated cart and set the qty added for payload
+      */
+      $('body').on('product:afterAddToCart', function (jqEv, data) {
+          var cart = data && data.cart;
+          if (!addedProduct || !cart) {
+            return;
+          }
+
+          var analytics = data && data.analytics || {};
+          var initiatedByPaypalButton = analytics.isPaypalButton;
+          var productId = addedProduct.pid;
+          var addedQty = parseInt(analytics.quantityAdded);
+          var sameQty = false;
+          var addedCartItem = getCartItemById(productId, null, cart);
+          if (!addedCartItem) {
+            return;
+          }
+          addedCartItem.quantity = addedQty;
+          var payload = {
+              products: [
+                mapCartItem(addedCartItem)
+              ]
+          };
+          if (initiatedByPaypalButton) {
+              payload.abandon_checkout_field = 'checkout : paypal PDP';
+          }
+          if ($('.isBopisEnabled').val() == 'true') { 
+              try {
+                  var msg = 'unavailable for pickup';
+                  var selected = false;
+                  var stock = false;
+                  var cookieObj = getCookie('preSelectedStore');
+                  if (cookieObj) {
+                      var parsedCookie = JSON.parse(cookieObj);
+                      if (typeof parsedCookie === 'string') {
+                          parsedCookie = JSON.parse(parsedCookie);
+                          if (typeof parsedCookie === 'object') {
+                              msg = parsedCookie.availableMsg;
+                              selected = parsedCookie.bopisSelected;
+                              stock = parsedCookie.bopisStock;
+                          }
+                      } else if(typeof parsedCookie === 'object') {
+                          msg = parsedCookie.availableMsg;
+                          selected = parsedCookie.bopisSelected;
+                          stock = parsedCookie.bopisStock;
+                      }
+                  }
+                  payload.products[0].product_bopis_message = typeof msg !== 'undefined' ? msg : uaDatalayer.getPageData().products[0].product_bopis_message; 
+                  payload.products[0].product_bopis_selected = typeof selected !== 'undefined' ? selected : uaDatalayer.getPageData().products[0].product_bopis_selected;
+                  payload.products[0].product_bopis_stock = typeof stock !== 'undefined' ? stock : uaDatalayer.getPageData().products[0].product_bopis_stock;
+              } catch (ex) {}
+          }
+          window.uaDatalayer.action('cartAdd', payload);
+          addedProduct = undefined;
+          fireCartChange(cart);
+      });
+
+      $('body').on('cart:afterQtyChange', function (jqEv, data) {
+          var cart = data && data.basket;
+          var productUUID = data && data.productUUID;
+          var productID = data && data.productID;
+          if ((!productID && !productUUID) || !cart) {
+            return;
+          }
+          var pageData = window.uaDatalayer.getPageData();
+          productUUID = productUUID ? productUUID.toString() : '';
+          productID = productID ? productID.toString() : '';
+          var preupdateCartItem = find(pageData.products, function (p) {
+              if((p.product_uuid && p.product_uuid.toString() === productUUID) || (p.product_id && p.product_id.toString() === productID)) {
+                return p;
+              }
+          });
+          if (!preupdateCartItem) {
+              return;
+          }
+          var updatedCartItem = getCartItemById(null, productUUID, cart);
+          if (!updatedCartItem) {
+              return;
+          }
+          var payload = {
+              qtyFrom: preupdateCartItem.product_quantity,
+              products: [
+                mapCartItem(updatedCartItem)
+              ]
+          };
+
+          window.uaDatalayer.action('cartQtyChange', payload);
+          fireCartChange(cart);
+      });
+      $('body').on('cart:afterItemRemove', function (jqEv, data) {
+          var cart = data && data.basket;
+          var productUUID = data && data.removedProductUUID;
+          var productID = data && data.removedProductID;
+          if ((!productID && !productUUID) || !cart) {
+            return;
+          }
+          var pageData = window.uaDatalayer.getPageData();
+          productUUID = productUUID.toString();
+          productID = productID.toString();
+          var preupdateCartItem = find(pageData.products, function (p) {
+              if((p.product_uuid && p.product_uuid.toString() === productUUID) || (p.product_id && p.product_id.toString() === productID)) {
+                return p;
+              }
+          });
+          if (!preupdateCartItem) {
+              return;
+          }
+          var payload = {
+              products: [
+                  preupdateCartItem
+              ]
+          };
+
+          window.uaDatalayer.action('cartRemove', payload);
+          fireCartChange(cart);
+      });
+      function cartImpliedPageView(jqEv, data) {
+        var cart = data && data.basket;
+        fireCartChange(cart);
+        window.uaDatalayer.action('pageView', {});
+      }
+      $('body').on('cart:lineItemEdited', cartImpliedPageView);
+      $('body').on('cart:couponRemoved', cartImpliedPageView);
+      $('body').on('cart:afterPromoAttempt', function (jqEv, data) {
+          safetyFirst(function afterPromoAttemptWrap(){
+              var analytics = data && data.analytics;
+              if (!analytics) {
+                  return;
+              }
+              if (analytics.promotions && analytics.promotions.length) {
+                  var promo = analytics.promotions[0];
+                  uaDatalayer.action('promoCodeAttempt', {
+                      state: 'success',
+                      promo_code: analytics.couponCode,
+                      promo_segment: promo.ID,
+                      promo_name: promo.name,
+                      promo_class: (promo.promotionClass || '').toLowerCase(),
+                      promo_trigger_id: promo.coupons && promo.coupons[0] && promo.coupons[0].ID,
+                      promo_trigger_type: 'coupon'
+                  });
+              } else {
+                  uaDatalayer.action('promoCodeAttempt', {
+                      state: 'fail',
+                      promo_code: analytics.couponCode,
+                      error_message: analytics.errorMessage
+                  });
+              }
+          });
+      });
+  });
+})();
+</script>

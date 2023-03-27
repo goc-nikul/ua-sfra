@@ -1,0 +1,272 @@
+<form action="${URLUtils.url('Account-SaveProfile')}" class="edit-profile-form" method="POST"  <isprint value="${pdict.profileForm.attributes}" encoding="off" />>
+    <div class="b-account-dashboard_profile-icon"></div>
+    <div class="b-account-edit-profile-pageHeading">
+	    <div class="b-account_form-row">
+	        <div class="b-account_form-column">
+	            <div class="form-group b-input_row">
+	                <label class="form-control-label b-input_row-label" for="firstName">
+	                    <isprint value="${pdict.profileForm.customer.firstname.label}" encoding="htmlcontent" />
+	                </label>
+	                <input type="text" class="form-control b-input_row-input" id="firstName" data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
+						data-pattern-mismatch="${Resource.msg('general.pattern.mismatch','common',null)}"
+						<isif condition="${pdict.membersonEnabled}"> pattern="${Resource.msg('input.validate.firstName','forms',null)}"</isif>
+	                    <isprint value="${pdict.profileForm.customer.firstname.attributes}" encoding="off" />>
+	                <div class="invalid-feedback"><isprint value="${(typeof(pdict.profileFieldsError.firstName) !== 'undefined' && !empty(pdict.profileFieldsError.firstName) && !empty(pdict.firstName)) ?  pdict.profileFieldsError.firstName : ''}"/></div>
+	            </div>
+	        </div>
+	
+	        <div class="b-account_form-column">
+	            <div class="form-group b-input_row">
+	                <label class="form-control-label b-input_row-label" for="lastName">
+	                    <isprint value="${pdict.profileForm.customer.lastname.label}" encoding="htmlcontent" />
+	                </label>
+	                <input type="text" class="form-control b-input_row-input" id="lastName" data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
+						data-pattern-mismatch="${Resource.msg('general.pattern.mismatch','common',null)}"
+						<isif condition="${pdict.membersonEnabled}"> pattern="${Resource.msg('input.validate.lastName','forms',null)}"</isif>
+	                    <isprint value="${pdict.profileForm.customer.lastname.attributes}" encoding="off" />>
+	                <div class="invalid-feedback"><isprint value="${(typeof(pdict.profileFieldsError.lastName) !== 'undefined' && !empty(pdict.profileFieldsError.lastName) && !empty(pdict.lastName)) ?  pdict.profileFieldsError.lastName : ''}"/></div>
+	            </div>
+	        </div>
+	    </div>
+	    <div class="b-account_form-row">
+			<isif condition="${dw.system.Site.getCurrent().getID() !== 'OC'}">
+				<div class="b-account_form-column b-account_form-column-mobile">
+					<div class="form-group b-gender">
+						<label class="form-control-label b-gender-label" for="countryDialingCode">
+							<isprint value="${pdict.profileForm.customer.countryDialingCode.label}" encoding="off" />
+						</label>
+						<isif condition="${pdict.membersonEnabled}">
+						    <select class="form-control b-gender-select" id="countryDialingCode" disabled ="true">
+						<iselse/>
+							<select class="form-control b-gender-select" id="countryDialingCode"
+							<isprint value="${pdict.profileForm.customer.countryDialingCode.attributes}" encoding="off" />>
+						</isif>
+							<isset name="selectedCountryDialingCode" value="${null}" scope="page" />
+							<isloop items=${pdict.profileForm.customer.countryDialingCode.options} var="countryDialingCode">
+								<isif condition="${countryDialingCode.selected}">
+									<isset name="selectedCountryDialingCode" value="${countryDialingCode.htmlValue}" scope="page" />
+								</isif>
+
+								<option id="${countryDialingCode.id}" value="${countryDialingCode.htmlValue}" <isif condition="${countryDialingCode.selected || pdict.currentCountryDialingCode === countryDialingCode.htmlValue}">selected</isif>>${countryDialingCode.label || ' '}</option>
+							</isloop>
+							<isif condition="${pdict.membersonEnabled}">
+							    <isif condition="${empty(selectedCountryDialingCode)}">
+								    <input type="hidden" name="${pdict.profileForm.customer.countryDialingCode.htmlName}" value="${pdict.currentCountryDialingCode}">
+								<iselse/>
+									<input type="hidden" name="${pdict.profileForm.customer.countryDialingCode.htmlName}" value="${selectedCountryDialingCode}">
+								</isif>
+							</isif>
+						</select>
+					</div>
+				</div>
+			</isif>
+	        <div class="b-account_form-column">
+	            <div class="form-group b-input_row">
+	                <label class="form-control-label b-input_row-label" for="phone">
+	                    <isprint value="${pdict.profileForm.customer.phone.label}" encoding="htmlcontent" />
+	                </label>
+	                <input type="text" data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid.format','forms',null)}" data-error="${Resource.msg('error.message.phonenumber.lesserlength','forms',null)}" class="form-control b-input_row-input validatePhoneField js-custom-input" id="phone" <isif condition="${pdict.membersonEnabled && pdict.isLoyaltyIdAvailable}">readonly</isif>
+						<isif condition="${pdict.membersonEnabled}"> pattern="${Resource.msg('input.validate.phoneNumber','forms',null)}"</isif>
+	                    <isprint value="${pdict.profileForm.customer.phone.attributes}" encoding="off" />>
+	                <div class="invalid-feedback"></div>
+	            </div>
+	        </div>
+
+		   <isif condition="${pdict.profileForm.customer.postalCode && pdict.profileForm.customer.postalCode.attributes}">
+		        <div class="b-account_form-column">
+		            <div class="form-group b-input_row ${session.custom.currentCountry === 'HK' ? 'd-none' : ''}">
+		                <label class="form-control-label b-input_row-label" for="zipCode">
+		                    <isprint value="${pdict.profileForm.customer.postalCode.label}" encoding="htmlcontent" />
+		                </label>
+		                <input type="text" class="form-control b-input_row-input" id="zipCode"
+		                    <isprint value="${pdict.profileForm.customer.postalCode.attributes}" encoding="off" />>
+		                <div class="invalid-feedback"></div>
+		            </div>
+		        </div>
+		    </isif>
+	    </div>
+
+	    <div class="b-account_form-row b-account_form-row-three">
+	        <div class="b-account_form-column b-account_form-column-mobile">
+	            <div class="form-group b-month">
+	                <label class="form-control-label b-month-label"  for="birthMonth">
+	                    <isprint value="${pdict.profileForm.customer.birthMonth.label}" encoding="htmlcontent" />
+	                </label>
+	                <select class="form-control b-month-select" id="birthMonth" <isif condition="${pdict.membersonEnabled}"> data-missing-error="${Resource.msg('or.select.error.profile.required', 'forms', null)}" required</isif>
+	                    <isprint value="${pdict.profileForm.customer.birthMonth.attributes}" encoding="off" /> <isif condition="${pdict.membersonEnabled && pdict.isBirthDateAvailable}">disabled ="true"</isif>>
+	                    <isloop items=${pdict.profileForm.customer.birthMonth.options} var="birthMonth">
+	                        <option id="${birthMonth.id}" value="${birthMonth.htmlValue}" <isif condition="${birthMonth.selected}">selected</isif>>${birthMonth.label || ' '}</option>
+	                    </isloop>
+	                </select>
+					<div class="invalid-feedback" id="form-email-error"></div>
+	            </div>
+	        </div>
+		<isif condition="${pdict.membersonEnabled}">
+			<div class="b-account_form-column b-account_form-column-mobile">
+				<div class="form-group b-year">
+					<label class="form-control-label b-year-label" for="birthYear">
+						<isprint value="${pdict.profileForm.customer.birthYear.label}" encoding="htmlcontent" />
+					</label>
+					<select class="form-control b-year-select order-return-form-input" data-missing-error="${Resource.msg('or.select.error.profile.required', 'forms', null)}" id="birthYear" required
+						<isprint value="${pdict.profileForm.customer.birthYear.attributes}" encoding="off" /> <isif condition="${pdict.isBirthDateAvailable}">disabled ="true"</isif>>
+						<isloop items="${pdict.profileForm.customer.birthYear.options}" var="birthYear">
+							<option id="${birthYear.id}" value="${birthYear.htmlValue}" <isif condition="${birthYear.selected}">selected</isif>>${birthYear.label || ' '}</option>
+						</isloop>
+					</select>
+					<div class="invalid-feedback"></div>
+				</div>
+			</div>
+		<iselse/>
+			<div class="b-account_form-column b-account_form-column-mobile">
+	            <div class="form-group b-day">
+	                <label class="form-control-label b-day-label" for="birthDay">
+	                    <isprint value="${pdict.profileForm.customer.birthDay.label}" encoding="htmlcontent" />
+	                </label>
+	                <select class="form-control b-day-select" id="birthDay"
+	                    <isprint value="${pdict.profileForm.customer.birthDay.attributes}" encoding="off" />>
+	                    <isloop items=${pdict.profileForm.customer.birthDay.options} var="birthDay">
+	                        <option id="${birthDay.id}" value="${birthDay.htmlValue}" <isif condition="${birthDay.selected}">selected</isif>>${birthDay.label || ' '}</option>
+	                    </isloop>
+	                </select>
+	            </div>
+	        </div>
+		</isif>
+	
+	        <div class="b-account_form-column b-account_form-column-mobile">
+	            <div class="form-group b-gender">
+	                <label class="form-control-label b-gender-label" for="gender">
+	                    <isprint value="${pdict.profileForm.customer.gender.label}" encoding="htmlcontent" />
+	                </label>
+	                <select class="form-control b-gender-select" id="gender"
+	                    <isprint value="${pdict.profileForm.customer.gender.attributes}" encoding="off" />>
+	                    <isloop items=${pdict.profileForm.customer.gender.options} var="gender">
+	                        <option id="${gender.id}" value="${gender.htmlValue}" <isif condition="${gender.selected}">selected</isif>>${gender.label || ' '}</option>
+	                    </isloop>
+	                </select>
+	            </div>
+	        </div>
+	    </div>
+	   <isif condition="${session.customer.registered}">
+	    <div class="b-account_form-row b-account-profile_form-row js-account-profile_form-row align-center">
+		        <div class="b-account_form-column">
+		            <div class="b-account-profile-subhead">${Resource.msg('sub.heading.emailandpassword','account',null)}</div>
+		            <div class="form-group b-input_row required js-oemail-error">
+		                <label class="form-control-label b-input_row-label" for="email">
+		                    <isprint value="${pdict.profileForm.customer.email.label}" encoding="htmlcontent" />
+		                </label>
+		                <input type="email" class="form-control b-input_row-input js-custom-input js-email-field expand-email" id="email"
+	                        data-missing-error="${Resource.msg('error.card.info.missing.email', 'forms', null)}"
+		                    <isprint value="${pdict.profileForm.customer.email.attributes}" encoding="off" /> <isif condition="${pdict.membersonEnabled && pdict.isLoyaltyIdAvailable}">readonly</isif>>
+		                    <isif condition="${session.customer.registered && !pdict.membersonEnabled}">
+		                        <span class="b-account-profile__change-email js-change-email"><isprint value="${Resource.msg('label.change','account',null)}" /> </span> 
+		                    </isif>
+		                <div class="invalid-feedback"></div>
+		            </div>
+		        </div>
+		
+		        <div class="b-account_form-column">
+	                <isif condition="${session.customer.registered}">
+                        <span class="b-account-profile__change-password js-change-password t-text-hover-state"><isprint value="${Resource.msg('label.change.password','account',null)}" /> </span> 
+                    </isif>
+                    <div class="js-account_form-column-hide hide">
+		                <div class="b-account-profile-subhead">${Resource.msg('sub.heading.password','account',null)}</div>
+		                <div class="form-group b-input_row required">
+		                    <label class="form-control-label b-input_row-label" for="password">
+		                        <isprint value="${pdict.profileForm.login.password.label}" encoding="htmlcontent" />
+		                    </label>
+                            <input type="password" class="form-control b-input_row-input js-custom-input" id="password" 
+                                data-missing-error="${Resource.msg('error.message.login.password', 'forms', null)}"
+                                <isprint value="${pdict.profileForm.login.password.attributes}" encoding="off" />>
+		                    <div class="invalid-feedback"></div>
+		                </div>
+		            </div>
+		        </div>
+	        </div>
+		</isif>
+        <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+
+	    <isif condition="${session.customer.registered}">
+		     <div class="js-email-details b-account-profile__email-details">
+		         <div class="b-account-profile-subhead">${Resource.msg('sub.heading.new.email','account',null)}</div>
+		         <div class="b-account_form-row">
+		             <div class="b-account_form-column js-email-error">
+		                 <div class="form-group b-input_row required">
+		                     <label class="form-control-label b-input_row-label" for="newemail">
+		                         <isprint value="${pdict.profileForm.customer.newemail.label}" encoding="htmlcontent" />
+		                     </label>
+		                     <input type="email" class="form-control b-input_row-input js-custom-input" id="newemail"
+	                             data-missing-error="${Resource.msg('error.message.new.email', 'forms', null)}"
+		                         <isprint value="${pdict.profileForm.customer.newemail.attributes}" encoding="off" />>
+		                     <div class="invalid-feedback"></div>
+		                 </div>
+		             </div>
+		
+	                 <div class="b-account_form-column js-email-error">
+		                 <div class="form-group b-input_row required">
+		                     <label class="form-control-label b-input_row-label" for="newConfirmEmail">
+		                         <isprint value="${pdict.profileForm.customer.newemailconfirm.label}" encoding="htmlcontent" />
+		                     </label>
+	                         <input type="email" class="form-control b-input_row-input js-custom-input" id="newConfirmEmail" 
+	                         data-missing-error="${Resource.msg('error.message.new.confirm.email', 'forms', null)}"
+	                         <isprint value="${pdict.profileForm.customer.newemailconfirm.attributes}" encoding="off" />>
+		                     <div class="invalid-feedback"></div>
+		                 </div>
+		             </div>
+		         </div>
+		         <!-- Cancel and Save Buttons -->
+		      <div class="b-account_continue-buttons">
+	              <a class="btn btn-block btn-outline-primary account-cancel-button js-email-group-cancel"><isprint value="${Resource.msg('label.cancel.email','account',null)}" /></a>
+		      </div>
+		     </div>
+		
+		     <div class="js-password-details b-account-profile__password-details">
+		        <div class="b-account-profile-subhead">${Resource.msg('sub.heading.new.password','account',null)}</div>
+		
+		         <div class="b-account_form-row b-account-profile__form-row">
+		             <div class="b-account_form-column b-account-profile__form-col">
+		                 <div class="form-group b-input_row required js-newPassword-error">
+		                     <label class="form-control-label b-input_row-label b-input_row-label--no-wrap" for="newPassword">
+		                         <isprint value="${pdict.profileForm.login.newpasswords.newpassword.label}" encoding="htmlcontent" />
+		                     </label>
+		                     <input type="password" class="form-control b-input_row-input js-custom-input js-password-field" id="newPassword"
+		                     pattern="${pdict.passwordRules.regex}"
+	                         data-missing-error="${Resource.msg('error.message.enter.new.password', 'forms', null)}"
+		                     <isprint value="${pdict.profileForm.login.newpasswords.newpassword.attributes}" encoding="off" />>
+		                     <span class="b-account-profile__show-password js-show-password" data-show="${Resource.msg('label.create.account.show', 'login', null)}" data-hide="${Resource.msg('label.create.account.hide', 'login', null)}">${Resource.msg('label.create.account.show', 'login', null)}</span>
+		                     <div class="input-feedback" id="form-password-rules"><isprint value="${pdict.passwordRules.errorMsg}" encoding="off" /></div>
+							 <div class="invalid-feedback-email"></div>
+		                 </div>
+		              </div>
+		
+		              <div class="b-account_form-column b-account-profile__form-col">
+	                     <div class="form-group b-input_row required js-newPassword-error">
+		                     <label class="form-control-label b-input_row-label" for="confirmNewPassword">
+		                         <isprint value="${pdict.profileForm.login.newpasswords.newpasswordconfirm.label}" encoding="htmlcontent" />
+		                     </label>
+		                     <input type="password" class="form-control b-input_row-input js-custom-input js-confirm-password" id="confirmNewPassword" 
+		                     pattern="${pdict.passwordRules.regex}"
+            				 data-pattern-mismatch="${pdict.passwordRules.errorMsg}"
+	                         data-missing-error="${Resource.msg('error.message.enter.confirm.password', 'forms', null)}"
+		                     data-password-mismatch="${Resource.msg('error.message.password.mismatch', 'account', null)}"
+							 <isprint value="${pdict.profileForm.login.newpasswords.newpasswordconfirm.attributes}" encoding="off" />>
+		                     <span class="b-account-profile__show-password js-show-password" data-show="${Resource.msg('label.create.account.show', 'login', null)}" data-hide="${Resource.msg('label.create.account.hide', 'login', null)}">${Resource.msg('label.create.account.show', 'login', null)}</span>
+		                     <div class="invalid-feedback"></div>
+		                 </div>
+		             </div>
+		         </div>
+		         <!-- Cancel and Save Buttons -->
+		         <div class="b-account_continue-buttons b-account-profile__adjusttopspace">
+	                 <a class="btn btn-block btn-outline-primary account-cancel-button js-password-group-cancel"><isprint value="${Resource.msg('label.cancel.password','account',null)}" /></a>
+		         </div>
+		     </div>
+		</isif>
+	</div>	
+
+	<isinclude template="account/preferences"/>
+
+	<div class="b-account_continue-buttons js-prime-save b-account_save-buttons">
+        <button type="submit" name="save" class="btn btn-save btn-block btn-primary g-button_base g-button_primary--black account-save-button" data-save="${Resource.msg('button.save','account',null)}" data-saved="${Resource.msg('button.saved','account',null)}">${Resource.msg('button.save','account',null)}</button>
+    </div>
+</form>
+
+

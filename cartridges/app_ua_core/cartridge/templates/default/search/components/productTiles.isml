@@ -1,0 +1,22 @@
+<isloop items="${pdict.productSearch.productIds}" var="product" status="loopstate">
+<isif condition="${(pdict.enableAvailablePerLocale && product.productSearchHit.getProduct().custom.availableForLocale.value !== 'No') || !pdict.enableAvailablePerLocale}">
+<isscript>
+  var myTeam = require('*/cartridge/scripts/helpers/productHelpers').selectTeamFilter(pdict.team, product);
+  if (empty(myTeam)) {
+     myTeam = pdict.team;
+  }
+</isscript>
+    <isset name="productExperience" value="${pdict.enableExperienceTypes ? product.productSearchHit.getProduct().custom.experienceType.value || pdict.experienceType : ''}" scope="page" />
+        <isobject object="${product.productSearchHit}" view="searchhit">
+            <section class="b-products_grid-tile js-products_grid-tile ${product.productID}" data-pid="${product.productID}" data-tile-num="${(pdict.productSearch.start).toFixed(0)}" id="${product.productID}" data-sizeModel="${pdict.viewPreference}"
+                data-analytics-plp-index="${loopstate.index}"
+            >
+                <isinclude url="${URLUtils.url('Tile-Show', 'pid', product.productID, 'swatches', true, 'ratings', true, 'moreViewUrl', pdict.productSearch.createNewUrl.start,'breadCrumbLast', pdict.breadCrumbLast ? pdict.breadCrumbLast : pdict.productSearch.createNewUrl.breadcrumbLast, 'experienceType', (productExperience =='both') ? pdict.experienceType : productExperience, 'colorGroup', pdict.colorGroup, 'team', myTeam, 'showWishlistStatus', false, 'outlet', pdict.isOutlet, 'viewPreference', pdict.viewPreference)}" />
+                <isif condition="${loopstate.count % pdict.productSearch.defaultPageSize === 1}">
+                    <input type="hidden" class="currentPageNumber" value="?start=${(pdict.productSearch.start).toFixed(0)}&sz=${(pdict.productSearch.defaultPageSize).toFixed(0)}"/>
+                    <div class="updateBrowserUrl" data-url="?start=${(pdict.productSearch.pageSize > pdict.productSearch.defaultPageSize) ? (loopstate.index).toFixed(0) : (pdict.productSearch.start).toFixed(0)}&sz=${(pdict.productSearch.defaultPageSize).toFixed(0)}"></div>
+                </isif>
+            </section>
+        </isobject>
+    </isif>
+</isloop>

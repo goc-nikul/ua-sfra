@@ -1,0 +1,23 @@
+<!--- TEMPLATENAME: PickUpContactData.isml --->
+<isif condition="${typeof(lineItem) != 'undefined' && !empty(lineItem)}"> 
+	<isif condition="${lineItem.custom.primaryContactBOPIS}">
+	    <isset name="primaryContactBOPIS" value="${JSON.parse(lineItem.custom.primaryContactBOPIS)}" scope="page" />
+	    <h3 class="pickup-primary-contact-text">${Resource.msg('heading.primary.contact', 'checkout', null)}</h3>
+	    <p class="pickup-primary-contact">
+	        <span class="ship-to-primary-firstname"><isprint value="${primaryContactBOPIS.firstName}" /> </span>
+	        <span class="ship-to-primary-lastname"><isprint value="${primaryContactBOPIS.lastName}" /></span>
+	        <span class="ship-to-primary-email"><isprint value="${primaryContactBOPIS.email}" /></span>
+	        <span class="ship-to-primary-number"><isprint value="${primaryContactBOPIS.phone}" /></span>
+	    </p>
+	</isif>
+	<isif condition="${lineItem.custom.secondaryContactBOPIS}">
+	    <isset name="secondaryContactBOPIS" value="${JSON.parse(lineItem.custom.secondaryContactBOPIS)}" scope="page" />
+	    <h3 class="pickup-secondary-contact-text">${Resource.msg('heading.secondary.contact', 'checkout', null)}</h3>
+	    <p class="pickup-secondary-contact">
+	        <span class="ship-to-secondary-firstname"><isprint value="${secondaryContactBOPIS.firstName}" /></span>
+	        <span class="ship-to-secondary-lastname"><isprint value="${secondaryContactBOPIS.lastName}" /></span>
+	        <span class="ship-to-secondary-email"><isprint value="${secondaryContactBOPIS.email}" /></span>
+	        <span class="ship-to-secondary-number"><isprint value="${secondaryContactBOPIS.phone}" /></span>
+	    </p>
+	</isif>
+</isif>

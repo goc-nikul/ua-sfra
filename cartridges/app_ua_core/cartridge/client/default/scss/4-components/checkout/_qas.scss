@@ -1,0 +1,125 @@
+.g-address-verification {
+    pointer-events: none;
+
+    &-modal-dialog {
+        max-width: rem-calc(544);
+        margin: rem-calc(28) auto;
+        min-height: calc(100% - (1.75rem * 2));
+    }
+
+    &-modal-content {
+        padding: rem-calc(56);
+
+        @include respond-to(mobile) {
+            padding: rem-calc(56) rem-calc(24);
+        }
+    }
+
+    &-modal-body {
+        .b-address-title {
+            @include font(main_bold, rem-calc(24), 1.33);
+
+            margin-bottom: rem-calc(8);
+        }
+
+        .b-address {
+            &::before {
+                display: none;
+            }
+        }
+
+        .b-address-info {
+            @include font(main, rem-calc(12), 1.67);
+
+            margin-bottom: rem-calc(32);
+
+            .v-address-info {
+                color: red;
+
+                .v-text-decoration {
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        .b-address_list {
+            @include font(main, rem-calc(12), 1.67);
+
+            margin-bottom: rem-calc(24);
+            flex-basis: 50%;
+            padding-right: rem-calc(16);
+        }
+
+        .b-address-info-waring {
+            text-align: center;
+
+            .b-address-info {
+                @include font(main, rem-calc(14), 1.67);
+
+                margin-bottom: rem-calc(16);
+                text-align: left;
+            }
+
+            .g-button_styling {
+                @include font(main_med, rem-calc(12), 1.67);
+
+                color: $grey5;
+                border: 0;
+                background: transparent;
+            }
+        }
+
+        .b-address-list-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .b-address_list-container {
+            padding-left: rem-calc(32);
+            overflow: auto;
+            height: 150px;
+        }
+
+        .g-radio-input:checked {
+            ~ .g-radio-label {
+                &::after {
+                    border: 0;
+                }
+            }
+        }
+
+        .g-radio-label::before {
+            top: 0;
+            left: 0;
+            width: rem-calc(16);
+            height: rem-calc(16);
+        }
+
+        .b-address-waring {
+            .b-address_list-container {
+                padding-left: 0;
+            }
+        }
+
+        .b-address_list-container-label {
+            display: inline-block;
+        }
+
+        .b-address_multiple-item {
+            margin-bottom: rem-calc(20);
+        }
+
+        .b-address_list-title,
+        .b-address-button {
+            margin-bottom: rem-calc(8);
+        }
+    }
+}
+
+.address-picklist-container {
+    display: none !important;
+}
+
+.manual-input-init .address-picklist-container {
+    display: block !important;
+}

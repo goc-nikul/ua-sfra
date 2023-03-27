@@ -1,0 +1,281 @@
+.cancel-confirmation-modal {
+    &_content_closeIcon {
+        img {
+            float: right;
+            margin: rem-calc(-16) rem-calc(-16) rem-calc(8);
+
+            @include respond-to(mobile) {
+                margin: -1rem -0.2rem 0.5rem;
+            }
+        }
+    }
+
+    &_top {
+        &_heading {
+            @include font(main_bold, rem-calc(24), 1.33);
+
+            margin-bottom: rem-calc(8);
+        }
+
+        &_text {
+            font-size: rem-calc(14);
+            margin-bottom: rem-calc(16);
+        }
+    }
+
+    &_fields {
+        .error-field {
+            .form-control-label {
+                &::after {
+                    color: #dc0019;
+                }
+            }
+        }
+
+        .b-cancelReasons {
+            &-label {
+                color: #1d1d1d;
+
+                &::after {
+                    color: #1d1d1d;
+                    content: '*';
+                }
+            }
+
+            .g-selectric-container {
+                .g-selectric-items {
+                    padding: rem-calc(16) rem-calc(16);
+
+                    .default {
+                        display: none;
+                    }
+
+                    .select-option {
+                        padding: 0 0 rem-calc(12);
+                        line-height: 1.67;
+                    }
+                }
+
+                &.is-invalid {
+                    .g-selectric {
+                        border-color: $red;
+                    }
+
+                    .form-control-label {
+                        color: $red;
+
+                        &::after {
+                            color: $red;
+                        }
+                    }
+                }
+            }
+        }
+
+        .b-reason-textarea {
+            position: relative;
+            flex-grow: 1;
+            margin-top: rem-calc(16);
+
+            &-label {
+                position: absolute;
+                top: 0;
+                left: rem-calc(12);
+                padding: 0 rem-calc(4);
+                background-color: $white;
+                font-size: rem-calc(11);
+                transform: translateY(-50%);
+                font-weight: 500;
+            }
+
+            &-inputfield {
+                border: 1px solid $grey3;
+                border-radius: rem-calc(4);
+                width: 100%;
+                margin-bottom: rem-calc(8);
+                padding: rem-calc(10);
+            }
+
+            &-textlimit {
+                font-size: rem-calc(10);
+                color: $grey5;
+                margin-bottom: rem-calc(24);
+                font-weight: 500;
+            }
+
+            &.error-field {
+                .js_textarea {
+                    border-color: $red;
+                }
+
+                .b-reason-textarea-label,
+                .b-reason-textarea-textlimit {
+                    color: $red;
+                }
+            }
+        }
+    }
+
+    &_buttons {
+        display: flex;
+
+        @include respond-to(mobile) {
+            flex-flow: column;
+        }
+
+        button {
+            border-radius: rem-calc(4);
+
+            @include respond-to(mobile) {
+                width: 100%;
+                max-width: none;
+            }
+        }
+
+        .c-modal-submit-button {
+            @include respond-to(mobile) {
+                order: 1;
+            }
+        }
+
+        .c-modal-close {
+            margin-right: rem-calc(24);
+            border-color: black;
+            background-color: white;
+
+            @include respond-to(mobile) {
+                margin: rem-calc(16) 0 0;
+                order: 2;
+            }
+        }
+    }
+
+    &_formSubmit {
+        text-align: center;
+
+        &_successImg {
+            margin-bottom: rem-calc(16);
+        }
+
+        &_successTitle {
+            font-size: rem-calc(24);
+            margin-bottom: rem-calc(8);
+            line-height: 1.33;
+            letter-spacing: rem-calc(1);
+            font-weight: bold;
+        }
+
+        &_successMsg {
+            font-size: rem-calc(14);
+            margin-bottom: rem-calc(32);
+            line-height: 1.43;
+            font-weight: normal;
+        }
+
+        &_successButtons {
+            display: flex;
+
+            @include respond-to(mobile) {
+                flex-flow: column;
+            }
+
+            a {
+                @include respond-to(mobile) {
+                    width: 100%;
+                    max-width: none;
+                }
+            }
+
+            .g-button_primary--black {
+                order: 1;
+            }
+
+            .g-button_secondary--black {
+                margin-right: rem-calc(24);
+
+                @include respond-to(mobile) {
+                    margin: rem-calc(16) 0 0;
+                    order: 2;
+                }
+            }
+        }
+
+        &_exportErrorTitle {
+            font-size: rem-calc(24);
+            font-weight: bold;
+            margin-bottom: rem-calc(8);
+            letter-spacing: rem-calc(1);
+        }
+
+        &_exportErrorText {
+            font-size: rem-calc(14);
+            font-weight: normal;
+            line-height: 1.43;
+            margin-bottom: rem-calc(24);
+        }
+
+        &_exportErrorButton {
+            width: rem-calc(172);
+
+            @include respond-to(mobile) {
+                width: 100%;
+                max-width: none;
+            }
+        }
+
+        &_technicalErrorImg {
+            margin-bottom: rem-calc(16);
+        }
+
+        &_technicalErrorTitle {
+            font-size: rem-calc(24);
+            font-weight: bold;
+            line-height: 1.33;
+            letter-spacing: rem-calc(1);
+            margin-bottom: rem-calc(16);
+        }
+
+        &_technicalErrorText {
+            font-size: rem-calc(14);
+            font-weight: normal;
+            margin-bottom: rem-calc(32);
+            line-height: 1.43;
+
+            span {
+                white-space: nowrap;
+            }
+
+            a {
+                color: $black;
+            }
+        }
+
+        &_technicalErrorButtons {
+            display: flex;
+
+            @include respond-to(mobile) {
+                flex-flow: column;
+            }
+
+            a {
+                @include respond-to(mobile) {
+                    width: 100%;
+                    max-width: none;
+                }
+            }
+
+            .g-button_primary--black {
+                order: 1;
+            }
+
+            .view-order-details {
+                margin-right: rem-calc(24);
+
+                @include respond-to(mobile) {
+                    margin: rem-calc(16) 0 0;
+                    order: 2;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,58 @@
+<isset name="miniCart" value="${true}" scope="page" />
+<isif condition="${pdict.reportingURLs && pdict.reportingURLs.length}">
+    <isinclude template="reporting/reportingUrls" />
+</isif>
+
+<div class="b-header_minicart-content-list bfx-minicart-container">
+    <isinclude template="cart/cartApproachingDiscount" />
+   <isif condition="${pdict.CurrentCustomer && pdict.CurrentCustomer.authenticated}">
+	    <div class="b-header_minicart-shipping-promotion">
+	        <isslot id="registred-cart-promo-message" context="global" description="Promotion Message on Cart Page" />
+	   </div>
+   <iselse>
+	   <div class="b-header_minicart-shipping-promotion">
+	        <isslot id="cart-promo-message" context="global" description="Promotion Message on Cart Page" />
+	   </div>
+   </isif>
+    <div class="b-header_minicart-header">
+        <span class="b-header_minicart-title">${Resource.msg('title.your.shopping.cart','cart',null)}</span>
+        <span class="b-header_minicart-number-of-items number-of-items">(${parseInt(pdict.numItems) === 1 ? Resource.msgf('label.number.item.in.cart','cart', null, pdict.numItems) : Resource.msgf('label.number.items.in.cart','cart', null, pdict.numItems)})</span>
+    </div>
+    <div class="b-header_minicart-product-summary">
+        <isloop items="${pdict.items}" var="lineItem" status="loopstate">
+            <isif condition="${lineItem.bonusProductLineItemUUID === 'bonus'}">
+                <div class="b-header_minicart-card card ${miniCart ? 'bonus-product-line-item' : ''} uuid-${typeof lineItem !=='undefined' ? lineItem.UUID : null}" data-cmp="cartTile">
+                    <div class="b-header_minicart-card-body bfx-price-container">
+                        <isinclude template="checkout/productCard/bonusProductCard" />
+                    </div>
+                </div>
+            <iselse/>
+                <div class="b-header_minicart-card card uuid-${typeof lineItem !=='undefined' ? lineItem.UUID : null}" data-cmp="cartTile">
+                    <div class="b-header_minicart-card-body bfx-price-container">
+                        <isif condition="${lineItem.noProduct === true}">
+                            <isinclude template="checkout/productCard/uncategorizedProductCard" />
+                        <iselse/>
+                            <isinclude template="checkout/productCard/productCard" />
+                        </isif>
+                    </div>
+                </div>
+            </isif>
+        </isloop>
+    </div>
+    
+    <div class="b-header_minicart-footer">
+        <div class="b-header_minicart-order-promotion b-promo-order">
+           <isinclude template="cart/cartPromoDisplay" />
+        </div>   
+        <div class="b-header_minicart-estimated-total">
+            <p class="b-header_minicart-total-label">
+                ${Resource.msg('label.cart.estimated.total','cart',null)} 
+                <span class="b-header_minicart-number-of-items number-of-items">(${parseInt(pdict.numItems) === 1 ? Resource.msgf('label.number.item.in.cart','cart', null, pdict.numItems) : Resource.msgf('label.number.items.in.cart','cart', null, pdict.numItems)})</span>:
+            </p>
+            <p class="b-header_minicart-sub-total bfx-minicart-total bfx-price">${pdict.totals && pdict.totals.discounts[0] && (pdict.totals.discounts[0].applied || pdict.totals.orderLevelDiscountTotal.value !== 0) ? pdict.totals.totalpromoDiscount : pdict.totals && pdict.totals.subTotal ? pdict.totals.subTotal : ''}</p>
+        </div>
+        <div class="b-header_minicart-checkout-continue">
+            <isinclude template="cart/minicartCheckoutButtons" />
+        </div>
+    </div>
+</div>

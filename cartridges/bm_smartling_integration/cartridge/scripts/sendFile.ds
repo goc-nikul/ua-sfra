@@ -1,0 +1,230 @@
+/**
+*   @input submission : dw.object.CustomObject
+*-   @output ExampleOut : Number
+*
+*/
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.object );
+importPackage( dw.catalog );
+importPackage( dw.io );
+importPackage( dw.net );
+importPackage( dw.web );
+importPackage( dw.crypto );
+importPackage( dw.content );
+
+var smartlingConfig =   require("/bm_smartling_integration/cartridge/scripts/dao/configuration.ds");
+var smartlingFileApi =  require("/bm_smartling_integration/cartridge/scripts/file_api/smartlingFileApi");
+var httpUtils =         require("/bm_smartling_integration/cartridge/scripts/file_api/httpUtils");
+var submissionDao =     require("/bm_smartling_integration/cartridge/scripts/dao/submission.ds");
+var submissionService = require("/bm_smartling_integration/cartridge/scripts/service/submissionService.ds");
+var localeService =     require("/bm_smartling_integration/cartridge/scripts/service/localeService.ds");
+var helpFunctions =     require("/bm_smartling_integration/cartridge/scripts/helpFunctions.ds");
+
+var ExceptionLog = require ('/bm_smartling_integration/cartridge/scripts/utils/ExceptionLog.ds').ExceptionLog;
+var LOGGER = new ExceptionLog(dw.system.Logger.getLogger("smartling", "sendFile"));
+
+var ENCODING = "UTF-8";
+
+/**
+    Determine which type of object is being considered and branch to approrpriate method to handle.
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        var submission = pdict.submission;
+        switch (submission.custom['itemType']) {
+            case 'product':
+                var product = ProductMgr.getProduct(submission.custom['itemId']);
+                sendAsset(submission, product, "product", smartlingConfig.getProductAttributes());
+                break;
+            case 'content':
+                var content = ContentMgr.getContent(submission.custom['itemId']);
+                sendAsset(submission, content, "content", smartlingConfig.getContentAttributes());
+                break;
+            case 'category':
+                var category = CatalogMgr.getCategory(submission.custom['itemId']);
+                sendAsset(submission, category, "category", smartlingConfig.getCategoryAttributes());
+                break;
+        }
+    } catch (e) {
+        LOGGER.errorException("sendFile execution failed for submissionId={0}, itemType={1}, itemId={2}", pdict.submission.getUUID(), pdict.submission.custom['itemType'], pdict.submission.custom['itemId'], e);
+        return PIPELET_ERROR;
+    }
+
+   return PIPELET_NEXT;
+}
+
+function sendAsset(submission, asset, assetType, attributes) {
+    LOGGER.info("Sending submission {0}", submissionDao.submissionToString(submission));
+
+    try{
+        var file = initiateFileWithDirectivesAndAttributes(submission, asset, assetType, attributes);
+
+        var delimiter = getDelimiter();
+        var request = buildRequest(file, delimiter, submission);
+
+        LOGGER.info('Sending {0}: assetId={1}, fileName="{2}", submissionLocale={3}', assetType, asset.ID, file.getName(), submission.custom['locale']);
+
+        var response = smartlingFileApi.uploadFile(request, delimiter);
+
+        submissionDao.updateWordsSubmitted(submission, response['response']['data']['wordCount']);
+        submissionDao.setSubmissionStatusInProgress(submission);
+        LOGGER.info("File has been sent successfully submission {0}", submissionDao.submissionToString(submission));
+    } catch (e) {
+        submissionDao.setSubmissionStatusFailed(submission);
+        LOGGER.errorException("Sending asset failed - submissionId={0}, assetId={1}", submission.getUUID(), submission.custom['itemId'], e);
+    }
+}
+
+function initiateFileWithDirectivesAndAttributes(submission, asset, assetType, attributes) {
+
+    var file = helpFunctions.createFile(submission.custom['itemType'], submission.custom['fileUri']);
+    if (file.createNewFile()) {
+        var fileWriter = new FileWriter(file, ENCODING);
+        var xsw = new XMLIndentingStreamWriter(fileWriter);
+        try {
+            xsw.writeStartDocument(ENCODING, "1.0");
+                writeDirectives(xsw, assetType);
+                xsw.writeStartElement("data");
+                    xsw.writeStartElement(assetType);
+                        xsw.writeAttribute("id", submission.custom['itemId']);
+                        processAttributes(xsw, asset, attributes);
+                    xsw.writeEndElement();
+                xsw.writeEndElement();
+            xsw.writeEndDocument();
+        } finally {
+            xsw.flush();
+            xsw.close();
+            fileWriter.close();
+        }
+    }
+    return file;
+}
+
+function buildRequest(file, delimiter, submission) {
+    var fileReader  = new FileReader(file, ENCODING);
+    try {
+        var fileString = fileReader.getString();
+
+        LOGGER.debug("File contents to send: \n{0}", fileString);
+
+        var request = getContentDisposition('fileType', 'xml', delimiter);
+        request += getContentDisposition('fileUri', file.getName(), delimiter);
+        request += getContentDisposition('callbackUrl', createCallBackUrl(file.getName()), delimiter);
+        request += getContentDisposition('authorize', 'false', delimiter);
+
+        if (smartlingConfig.getAutoAuthorizeContent()) {
+            request += getContentDisposition('localeIdsToAuthorize[]', localeService.getSmartlingLocale(submission.custom['locale']), delimiter);
+        }
+
+        request += "--" + delimiter + "\r\n";
+        request += 'Content-Disposition: form-data; name="file"';
+        request += '; filename="file"' + "\r\n";
+        request += "Content-Type: xml\r\n";
+        request += "\r\n";
+        request += fileString + "\r\n";
+        request += "--" + delimiter + "--\r\n";
+    } finally {
+        fileReader.close();
+    }
+
+    return request;
+}
+
+function writeDirectives(xsw, assetType) {
+    xsw.writeComment("smartling.translate_paths = data/" + assetType + "/content, data/" + assetType + "/contentHtml");
+    xsw.writeComment("smartling.string_format_paths = html :  data/" + assetType + "/contentHtml");
+}
+
+function processAttributes(xsw, asset, attributes) {
+    for each (var attribute in attributes) {
+        processAttribute(attribute, xsw, asset);
+    }
+}
+
+function processAttribute(attribute, xsw, asset) {
+    var attributeId = attribute['id'];
+    var aValue = assetValue(attribute, asset);
+    getXMLElement(xsw, elementName(attribute), attributeId, aValue);
+}
+
+function assetValue(attribute, asset) {
+    var attributeId = attribute['id'];
+    var attributeType = attribute['type'];
+    var assetValue = attribute['custom'] == 'true' ? asset.custom[attributeId] : asset[attributeId];
+
+    if (attributeType == "html" || attributeType == "string" || attributeType == "enum-of-string") {
+        return assetValue;
+    }
+
+    if (attributeType == "set-of-string"){
+        var setsString = "";
+        for each (var setString in assetValue) {
+            setsString += setString + "\n";
+        }
+        return setsString;
+    }
+}
+
+function elementName(attribute) {
+    var attributeType = attribute['type'];
+    return attributeType == "html"? "contentHtml": "content";
+}
+
+/**
+ Convenience method to create a XML attribute
+ */
+function getXMLElement(xsw, elementName, attributeName, value)
+{
+    try {
+        xsw.writeStartElement(elementName);
+        xsw.writeAttribute("attribute", attributeName);
+        if (value == null) {
+            xsw.writeCData('');
+        } else {
+            xsw.writeCData(value);
+        }
+        xsw.writeEndElement();
+    } catch (e) {
+        LOGGER.errorException('Creating XML element failed, elementName="{0}", attributeName="{1}", value="{2}"', elementName, attributeName, value, e);
+        throw new Error(e);
+    }
+}
+
+/**
+ Convenience method for mime separator
+ */
+function getDelimiter()
+{
+    var delimiter = '-------------';
+    var random = new SecureRandom();
+    for (var i = 0; i < 10; i++) {
+        var next = random.nextInt(10);
+        delimiter += next.toString();
+    }
+    return delimiter;
+}
+
+/**
+ Convienence method to build the content disposition header
+ */
+function getContentDisposition(name , value , delimiter)
+{
+    var request = "--" + delimiter + "\r\n";
+    request += 'Content-Disposition: form-data; name="' + name + '"';
+    request += "\r\n\r\n";
+    request += value + "\r\n";
+    return request;
+}
+
+/**
+ *   Generates callback service URI
+ */
+function createCallBackUrl(fileUri)
+{
+    var token = helpFunctions.generateToken(fileUri);
+    var callbackUrl = "https://" + Site.current.httpsHostName + "/on/demandware.store/Sites-" + Site.current.getID() + "-Site/default/CallBackService-Start?token=" + token;
+    LOGGER.debug('Generated callbackUrl="{0}"', callbackUrl);
+    return callbackUrl;
+}

@@ -1,0 +1,37 @@
+var Collection = require('dw/util/Collection');
+
+/**
+* Demandware Script File
+* Given a basket, tell if there are all shoprunner, no shoprunner or mixed items and return the status
+*
+* For example:
+*
+*   @input Basket : dw.order.Basket
+*   @output Status : String - can be MIXED, ALL_SR, NO_SR
+*
+*/
+
+importScript( "util/srProductUtils.ds" );
+
+function execute (args) {
+	var cart = args.Basket;
+	var eligibility = checkEligibility(cart);
+	args.Status = eligibility;
+	return PIPELET_NEXT;
+}
+
+function checkEligibility(basket) {
+	if (!empty(basket)) { 
+		var productLineItems = basket.getAllProductLineItems();
+	    //var status = SRProductUtils.checkCartEligibility(productLineItems);
+	    
+	    // Manually set cart eligibility ALL_SR as we do not have product specific eligibility
+	    var status = 'ALL_SR';
+	    return status;
+	}
+}
+
+module.exports = {
+    execute: execute,
+	checkEligibility: checkEligibility
+};

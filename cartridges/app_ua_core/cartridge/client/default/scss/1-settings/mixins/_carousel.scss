@@ -1,0 +1,117 @@
+// Global carousel styling
+
+@mixin g-carousel($el: default) {
+    @if ($el == default) {
+        position: relative;
+        margin: 0 auto;
+        padding: 0;
+        list-style: none;
+        overflow: hidden;
+    }
+
+    @else if ($el == heading) {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: spacing(xl2) / 2;
+
+        @include respond-to(phones) {
+            padding-bottom: spacing(xs);
+        }
+    }
+
+    @else if ($el == title) {
+        @include t-title-4;
+    }
+
+    @else if ($el == link) {
+        @include link;
+    }
+
+    @else if ($el == wrapper) {
+        position: relative;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        box-sizing: content-box;
+        transition-property: transform;
+
+        &.m-more-one {
+            .carousel-disabled & {
+                @include respond-to(no-phones) {
+                    justify-content: center;
+                }
+            }
+        }
+    }
+
+    @else if ($el == slide) {
+        position: relative;
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        transition-property: transform;
+
+        .carousel-disabled & {
+            @include respond-to(phones) {
+                width: 100%;
+            }
+        }
+
+        .carousel-disabled .m-more-one & {
+            padding-right: rem-calc(16);
+            padding-left: rem-calc(16);
+        }
+
+        .b-tile {
+            width: 100%;
+        }
+    }
+
+    @else if ($el == image) {
+        display: block;
+        height: auto;
+        max-width: 100%;
+    }
+
+    @else if ($el == control) {
+        position: absolute;
+        top: 40%;
+        z-index: 2;
+        width: rem-calc(32);
+        height: rem-calc(32);
+        outline: none;
+        transform: translateY(-50%);
+        cursor: pointer;
+
+        &::before {
+            content: '';
+            display: block;
+            width: rem-calc(32);
+            height: rem-calc(32);
+            border-radius: 50%;
+            background-color: $white;
+            text-align: center;
+            box-shadow: 0 0 rem-calc(10) rgba($black, 0.2);
+        }
+
+        .carousel-disabled & {
+            display: none;
+        }
+    }
+
+    @else if ($el == control-next) {
+        @include icon('caret-right', 'before', 16, rem-calc(32));
+
+        right: rem-calc(8);
+        left: auto;
+    }
+
+    @else if ($el == control-prev) {
+        @include icon('caret-left', 'before', 16, rem-calc(32));
+
+        right: auto;
+        left: rem-calc(8);
+    }
+}

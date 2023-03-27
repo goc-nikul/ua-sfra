@@ -1,0 +1,13 @@
+<div class="account-orders-container">
+<div class="container order-empty-list-container">
+    <isif condition="${pdict.orderHistory}">
+        <span class="start-shopping-msg">${Resource.msg('label.orderhistory.empty','account',null)}</span>
+    <iselse>
+    <isset name="returnTabMsg" value="${pdict.returnsOnly ? Resource.msg('label.returnshistory.empty.noexchange','account',null) : Resource.msg('label.returnshistory.empty','account',null)}" scope="page" />
+        <span class="start-shopping-msg">${returnTabMsg}</span>
+    </isif>
+    <div class="start-shopping">
+        <a class="g-button_base g-button_primary--black btn btn-primary b-button-continue" href="${URLUtils.https('Home-Show')}">${Resource.msg('label.account.continueshopping','account',null)}</a>
+    </div>
+</div>
+</div>

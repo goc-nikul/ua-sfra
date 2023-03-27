@@ -1,0 +1,42 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+
+<isinclude template="/components/modules" sf-toolkit="off" />
+
+<!DOCTYPE html>
+<html lang="${require('dw/util/Locale').getLocale(request.getLocale()).getLanguage()}" >
+    <head>
+        <!--[if gt IE 9]><!-->
+            <isinclude sf-toolkit="off" template="/common/scripts" />
+        <!--<![endif]-->
+        <isinclude template="/common/htmlHead" />
+        <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_enabled') && !pdict.orderContainsPreorder}">
+            <isinclude template="/shoprunner/headerincludes" />
+        </isif>
+        <isif condition="${dw.system.Site.current.getCustomPreferenceValue('isEnabledExpressKlarna')}">
+            <isinclude sf-toolkit="off" template="/klarnapayments/scripts" />
+        </isif>
+        <isactivedatahead/>
+    </head>
+    <body class="l-body ${pdict.shopRunnerSignedIn ? 'shopRunner-signedin' : ''}">
+        <isinclude template="/common/accertifydatacollecttor" />
+        <div id="bodyPage" class="l-body-page js-page ${!empty(session.custom.paypalErrorMessage) && pdict.CurrentHttpParameterMap.get('showPaypalError').booleanValue === true ? 'paypal-error-message' : ''}" data-action="${pdict.action}" data-querystring="${pdict.queryString}">
+            <isset name="currentSite" value="${dw.system.Site.current}" scope="page"/>
+            <isset name="branchSDKKey" value="${'branchSDKKey' in currentSite.preferences.custom && currentSite.getCustomPreferenceValue('branchSDKKey') ? currentSite.getCustomPreferenceValue('branchSDKKey') : ''}" scope="page"/>
+            <div class="branch-journeys-top" data-branchkey="${branchSDKKey}"></div>
+            <isinclude template="/components/header/pageHeaderNomenu" />
+            <isinclude template="/common/browsertoolscheck" />
+            <main class="l-body-page_main" role="main" id="maincontent">
+                <isreplace/>
+            </div>
+            <isinclude template="/components/footer/pageFooterNolinks" />
+        </div>
+        <!--[if lt IE 10]>
+            <isinclude sf-toolkit="off" template="/common/scripts" />
+        <![endif]-->
+        <isinclude url="${URLUtils.url('ConsentTracking-Check')}"/>
+        <isinclude template="tealium/footer_include.isml"/>
+        <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_enabled') && !pdict.orderContainsPreorder}">
+            <isinclude template="/shoprunner/footerincludes" />
+        </isif>
+    </body>
+</html>

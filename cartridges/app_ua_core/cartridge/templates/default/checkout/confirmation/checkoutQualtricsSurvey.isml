@@ -1,0 +1,24 @@
+<isset name="PreferencesUtil" value="${require('~/cartridge/scripts/utils/PreferencesUtil')}" scope="page">
+<isif condition="${PreferencesUtil.isCountryEnabled('qualtricsEnabled')}">
+    <div class="b-qualitrics-link">
+        <div class="t-text-1">${Resource.msg('checkout.qualtrics.heading', 'loyalty', null)}</div>
+        <a href="${PreferencesUtil.getValue('qualtricsCheckoutSurveySourceURL')}" class="js-open-checkout-qualtrics qualtrics-checkout-cta" data-analytics-track="data-qualtrics" target="_blank">
+            ${Resource.msg('checkout.qualtrics.cta', 'loyalty', null)}
+        </a>
+    
+        <div class="g-modal g-qualtrics-modal" id="qualtricsCheckoutModal" tabindex="-1" role="dialog" aria-labelledby="qualtricsCheckoutModal">
+            <div class="g-modal-dialog g-qualtrics-modal-dialog" role="document">
+                <div class="g-modal-content g-qualtrics-modal-content">
+                    <div class="g-modal-header g-qualtrics-modal-header">
+                        <button type="button" class="g-modal-close" data-dismiss="modal" aria-label="Close">
+                            <div aria-hidden="true" class="g-qualtrics-modal-close g-modal-close-button"></div>
+                        </button>
+                    </div>
+                    <div class="g-modal-body g-qualtrics-modal-body">
+                        <iframe name="qualtrics" id="qualtricsCheckoutModal" src="${PreferencesUtil.getValue('qualtricsCheckoutSurveySourceURL')}" frameborder="0" border="0" scrolling="no" style="width: 100%; min-height: 520px;"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</isif>

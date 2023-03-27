@@ -1,0 +1,173 @@
+<isdecorate template="application/MenuFrame">
+<iscontent type="text/html" charset="UTF-8">
+<isinclude template="inc/Modules">
+
+<!-- Page Navigator -->
+<isscript>
+var thisCategory : dw.catalog.Category = pdict.category;
+var categoryInfo =  new Array;
+categoryInfo.push(thisCategory);
+while (thisCategory.getParent()) {
+    thisCategory = thisCategory.getParent();
+    categoryInfo.push(thisCategory);
+}
+categoryInfo.reverse() ;
+</isscript>
+<table border="0" cellspacing="0" cellpadding="0">
+    <tbody>
+        <tr>
+            <td class="breadcrumb">
+                <a class="breadcrumb" href="${URLUtils.url('ViewApplication-CompressMenuGroup', 'MenuGroupID', 'SiteMenu', 'OverviewPage', 'SiteNavigationBar-ShowSiteOverview')}">Site</a>
+                &nbsp>&nbsp
+                <a class="breadcrumb" href="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', 'smartling')}">Smartling</a>
+
+            <isif condition="${pdict.category.getParent() != null }">
+                &nbsp>&nbsp<a class="breadcrumb" href="${URLUtils.url('Category-List')}">Category translation</a>
+                <isloop items="${categoryInfo}" var="category" status="status">
+                    <isif condition="${category.ID != 'root'}">
+                        <isif condition="${status.last != true}">
+                            &nbsp>&nbsp<a class="breadcrumb" href="${URLUtils.url('Category-List', 'category_id', category.ID)}">${category.displayName}</a>
+                        <iselse>
+                            &nbsp>&nbsp${category.displayName}
+                        </isif>
+                    </isif>
+                </isloop>
+            <iselse>
+                &nbsp>&nbsp Category translation
+            </isif>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<!-- EO Page Navigator -->
+
+<isscript>
+var util = require("~/cartridge/scripts/util");
+</isscript>
+
+<h1>Category translation</h1>
+
+<form action="${URLUtils.url('Category-SendTranslate', 'category_id', pdict.CurrentHttpParameterMap.category_id.stringValue)}"  method="post" name="formMask">
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="  margin-bottom: 30px; margin-left: 20px;">
+<isloop items="${pdict.localesList}" var="locale">
+    <tr><td>
+        <input type="checkbox" name="language" value="${locale.get(0)}" id="${locale.get(0)}"/><label for="${locale.get(0)}"> ${locale.get(1)}</label>
+    </td></tr>
+</isloop>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+        <td class="table_header w e s" width="30px"><a id="select" onclick="checkAll('itemId')">Select All<a/> <a id="clean" style="display: none;"onclick="unCheckAll('itemId')">Clean All<a/></td>
+        <td class="table_header e s">ID</td>
+        <td class="table_header e s">Name</td>
+        <td class="table_header e s">Locales</td>
+        <td class="table_header e s">Edit</td>
+        <td class="table_header e s">Status Link</td>
+    </tr>
+
+        <isloop iterator="${pdict.categoryList}" alias="category">
+            <tr>
+                <td class="table_detail w e s" width="30px"><input type="checkbox" name="itemId" value="${category.ID}"/></td>
+                <td class="table_detail e s">
+                    <isif condition="${category.getSubCategories().iterator().hasNext()}">
+                        <a href="${URLUtils.url('Category-List', 'category_id', category.ID)}">${category.ID}</a>
+                    <iselse>
+                        ${category.ID}
+                    </isif>
+                </td>
+                <td class="table_detail e s">${category.displayName}</td>
+                <td class="table_detail e s" nowrap="nowrap">
+                    ${util.getLocales(category.ID)}
+                </td>
+                <td class="table_detail e s"><a href="${URLUtils.url('ViewChannelCategory_52-JumpTo', 'CatalogCategoryID', category.getUUID())}">Edit</a></td>
+                <td class="table_detail e s" nowrap="nowrap">
+                    <a href="${URLUtils.url('Category-ShowItemStatus', 'item', category.ID)}">Show Status</a>
+                </td>
+            </tr>
+        </isloop>
+
+
+        <tr>
+            <td colspan="6" class="w e s" align="right">
+                <table border="0" cellspacing="6" cellpadding="0">
+                    <tr>
+                        <td class="button"><input type="button" onclick="submitForm()" name="send" value="Translate" class="button"/></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+</table>
+</form>
+<script type="text/javascript">
+function submitForm()
+{
+    var itemCheckbox = jQuery("[name='itemId']");
+    var languageCheckbox = jQuery("[name='language']");
+    var items = new Array();
+    var languages = new Array();
+    var languageNames = new Array();
+    <isif condition="${pdict.CurrentHttpParameterMap.category_id.stringValue != null}">
+        var categoryIdParam = "&category_id=${pdict.CurrentHttpParameterMap.category_id.stringValue}";
+    <iselse>
+        var categoryIdParam = "";
+    </isif>
+
+    var ajaxUrl = "${URLUtils.url('Category-SendTranslate')}";
+
+
+    itemCheckbox.each(function(index, value) {
+        if(jQuery(this).prop( "checked" )) {
+            items.push(jQuery(this).val());
+        }
+    });
+
+    languageCheckbox.each(function(index, value) {
+        if(jQuery(this).prop( "checked" )) {
+            languages.push(jQuery(this).val());
+            languageNames.push(jQuery("label[for='"+jQuery(this).attr("id")+"']").text())
+        }
+    });
+
+    if (languages.size() == 0 || items.size() == 0) {
+        alert("Please select both category and language.")
+        return false;
+    }
+
+    if (! window.confirm("You have selected " + items.size() + " items for translation.\n" +
+               "Target languages: " + languageNames.join().replace(',', ' ,') + ".\n" +
+               "Click OK to submit for translation.")) {
+        return;
+    }
+
+    jQuery.ajax({
+      url: ajaxUrl + '?itemId=' + items.join() + '&language=' + languages.join() + categoryIdParam
+    }).done(function(response) {
+        alert("Items sent for translation. Thank you!");
+        window.location.reload(true);
+    });
+}
+
+function checkAll(name)
+{
+    var checkbox = jQuery("[name='"+name+"']");
+    checkbox.each(function(index, value) {
+        jQuery(this).prop("checked", true);
+    });
+    jQuery(document.getElementById('select')).hide();
+    jQuery(document.getElementById('clean')).show();
+}
+
+function unCheckAll(name)
+{
+    var checkbox = jQuery("[name='"+name+"']");
+    checkbox.each(function(index, value) {
+        jQuery(this).removeAttr('checked');
+    });
+    jQuery(document.getElementById('clean')).hide();
+    jQuery(document.getElementById('select')).show();
+}
+</script>
+
+</isdecorate>

@@ -1,0 +1,91 @@
+<isinclude template="/components/modules"/>
+<isdecorate template="common/layout/page">
+<isset name="bookSessionEnabled" value="${require('*/cartridge/scripts/utils/PreferencesUtil').isCountryEnabled('bookSessionEnabled')}" scope="page" />
+<iscache type="relative" hour="24"/>
+<div id="main" class="pt_customer-service">
+	<div id="primary" class="primary-content">
+		<isinclude template="components/breadcrumbs/pageBreadcrumbs"/>
+
+		<div class="row heading-row">
+			<div class="column-3">
+				&nbsp;
+			</div>
+			<div class="column-6">
+				<h1 class="cs-heading">
+					<isif condition="${pdict.Content}">
+						${pdict.Content.name}
+					<iselse>
+						${Resource.msg('customerservice.title', 'content', null)}
+					</isif>
+				</h1>
+			</div>
+			<div class="column-3">
+				&nbsp;
+			</div>
+		</div>
+		<div class="row">
+			<div class="column-3">
+				<isinclude template="content/customerserviceleftnav" />
+			</div>
+			<div class="column-6">
+				<isif condition="${!empty(pdict.CurrentHttpParameterMap.cid.stringValue) && pdict.CurrentHttpParameterMap.cid.stringValue.indexOf('|')==-1 && pdict.CurrentHttpParameterMap.cid.stringValue !== 'customer-service'}">
+					<div class="customer-service-content">
+						<iscontentasset aid="${pdict.CurrentHttpParameterMap.cid}" />
+					</div>
+				<isif condition="${bookSessionEnabled}">
+					<isinclude template="components/bookasession" />
+				</isif>
+				<iselse/>
+					<ul class="customer-service-links full-width">
+						<li>
+							<a class="contact-us" href="${URLUtils.url('Page-Show', 'cid', 'customer-inquiry')}">
+								${Resource.msg('customerservice.contactus', 'content', null)}
+							</a>
+						</li>
+						<li>
+							<a class="returns-and-exchanges" href="${URLUtils.https('Order-GuestReturns')}">
+								${Resource.msg('customerservice.returnsandexchanges', 'content', null)}
+							</a>
+						</li>
+						<li>
+							<a class="shipping-info" href="${URLUtils.url('Page-Show', 'cid', 'shipping-information')}">
+								${Resource.msg('customerservice.shippinginfo', 'content', null)}
+							</a>
+						</li>
+						<isset name="location" value="${Resource.msg('customerservice.account.customerservicelocale', 'content', null)}"  scope="page" />
+						<li>
+							<a class="security-privacy" href="${'//account.underarmour.com/' + location + '/privacy'}" target="_new">
+								${Resource.msg('customerservice.securityandprivacy', 'content', null)}
+							</a>
+						</li>
+						<li>
+							<a class="terms-conditions" href="${'//account.underarmour.com/'+ location + '/terms-and-conditions?locale=' + pdict.CurrentRequest.locale}" target="_new">
+								${Resource.msg('customerservice.termsandconditions', 'content', null)}
+							</a>
+						</li>
+						<li>
+							<a class="track-order" href="${URLUtils.https('Order-History')}">
+								${Resource.msg('customerservice.trackorder', 'content', null)}
+							</a>
+						</li>
+						<isif condition="${bookSessionEnabled}">
+						<li>
+							<a class="book-a-session" href="${URLUtils.url('Page-Show', 'cid', 'book-your-expert-fit')}">
+								${Resource.msg('customerservice.bookasession', 'content', null)}
+							</a>
+						</li>
+						</isif>
+					</ul>
+				</isif>
+			</div>
+			<div class="column-3">
+				<div class="contact-information">
+					<iscontentasset aid="customer-service-contact-information" />
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+</isdecorate>

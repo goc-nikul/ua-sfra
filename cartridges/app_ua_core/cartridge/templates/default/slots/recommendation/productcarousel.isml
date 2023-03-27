@@ -1,0 +1,56 @@
+<isinclude template="/components/modules" />
+
+<isset name="slotConfigurationJSON" value="${require('~/cartridge/scripts/utils/JsonUtils').parse(slotcontent.custom.JSONData)}" scope="page" />
+
+<isif condition="${slotcontent.custom.slotTitle || slotcontent.custom.viewAllLink}">
+    <div class="g-carousel-heading">
+        <isif condition="${slotcontent.custom.slotTitle}">
+            <span class="g-carousel-title">
+                <isprint value="${slotcontent.custom.slotTitle}"/>
+            </span>
+        </isif>
+
+        <isif condition="${slotcontent.custom.viewAllLink}">
+            <a href="${slotcontent.custom.viewAllLink}" class="g-carousel-link">
+                ${Resource.msg('global.viewall', 'common', null)}
+            </a>
+        </isif>
+    </div>
+</isif>
+<isscript>
+    var productIDs = [];
+</isscript>
+
+<isloop items="${slotcontent.content}" var="product" status="loopState">
+    <isobject object="${product}" view="recommendation" />
+    <isscript>
+        productIDs.push(product.ID);
+    </isscript>
+</isloop>
+
+<div class="g-carousel js-recommendation-wrapper recommendations-section"
+    <isif condition="${slotConfigurationJSON.products || !!productIDs.length}">
+        data-products="${productIDs.join(',') || JSON.stringify(slotConfigurationJSON.products)}"
+    </isif>
+     data-cmp="loadProducts" 
+     data-products-url="${URLUtils.url('Product-GetProductsSlides').toString()}" 
+     <isif condition="${slotcontent.custom.adobemboxID}"> 
+         data-mboxID="${slotcontent.custom.adobemboxID}"
+     </isif>
+     data-siteID="${dw.system.Site.getCurrent().ID}"
+     data-swatches="${!empty(slotConfigurationJSON.swatches) ? JSON.stringify(slotConfigurationJSON.swatches) : false}"
+     data-ratings="${!empty(slotConfigurationJSON.ratings) ? JSON.stringify(slotConfigurationJSON.ratings) : false}"
+     >
+    <div class="product-listing recommended-products js-carousel swiper-container"
+        data-cmp="carousel"
+        <isif condition="${slotConfigurationJSON.carouselConfiguration}">
+            data-json-config="${JSON.stringify(slotConfigurationJSON.carouselConfiguration)}"
+        </isif>
+    >
+        <div class="g-carousel-wrapper swiper-wrapper js-swiper-wrapper
+        ${slotcontent.content.length > 1 ? 'm-more-one' : ''}"></div>
+
+        <div class="g-carousel-control m-next js-swiper-button js-swiper-button-next"></div>
+        <div class="g-carousel-control m-prev js-swiper-button js-swiper-button-prev"></div>
+    </div>
+</div>

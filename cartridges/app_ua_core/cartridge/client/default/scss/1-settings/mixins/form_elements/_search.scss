@@ -1,0 +1,119 @@
+@mixin search($search-type: $search-white, $container_class: '-container', $input_class: '-input', $button_class: '-button') {
+    &#{$container_class} {
+        position: relative;
+    }
+
+    &#{$input_class} {
+        @include font(main_med, rem-calc(16), rem-calc(32));
+
+        display: block;
+        width: 100%;
+        height: rem-calc(32);
+        max-width: 100%;
+        padding: 0 rem-calc(30) 0 0;
+        border: 0;
+        border-bottom: 1px solid map-get($search-type, default-state);
+        border-radius: 0;
+        background: transparent;
+        color: map-get($search-type, active-state);
+
+        //iOS reset default styles
+        outline-offset: 0;
+        transition: all 0.3s ease;
+        -webkit-appearance: none;
+
+        @include respond-to(no-phones) {
+            height: rem-calc(26);
+            line-height: rem-calc(26);
+        }
+
+        &::placeholder {
+            line-height: normal;
+            color: map-get($search-type, default-state);
+        }
+
+        &::-ms-clear,
+        &::-ms-reveal {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+
+        &::-webkit-search-decoration,
+        &::-webkit-search-cancel-button,
+        &::-webkit-search-results-button,
+        &::-webkit-search-results-decoration {
+            display: none;
+        }
+
+        .m-suggestions-show & {
+            padding-right: rem-calc(45);
+            border-color: map-get($search-type, default-suggestions-state);
+            color: map-get($search-type, default-suggestions-state);
+        }
+    }
+
+    &#{$input_class}:focus {
+        &::placeholder {
+            color: transparent;
+        }
+
+        &::-moz-placeholder {
+            color: transparent;
+        }
+
+        .m-suggestions-show & {
+            border-bottom: 1px solid map-get($search-type, active-state);
+        }
+    }
+
+    &#{$input_class}:focus ~ &#{$button_class},
+    &.m-suggestions-show &#{$input_class}:focus ~ &#{$button_class} {
+        color: map-get($search-type, active-state);
+    }
+
+    &.m-suggestions-show &#{$button_class} {
+        color: map-get($search-type, default-suggestions-state);
+    }
+
+    &#{$button_class} {
+        position: absolute;
+        top: 0;
+        bottom: 1px;
+        padding: 0;
+        color: map-get($search-type, default-state);
+    }
+
+    &#{$button_class}.m-submit {
+        @include icon(search);
+
+        right: 0;
+        border: none;
+        background: map-get($search-type, background-state);
+        color: map-get($search-type, default-state);
+        cursor: pointer;
+    }
+
+    &#{$button_class}.m-close {
+        @include button-to-link;
+
+        right: 0;
+        visibility: hidden;
+        color: map-get($search-type, default-state);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        font-size: 0;
+
+        .m-suggestions-show & {
+            visibility: visible;
+            margin-right: 25px;
+            opacity: 0.7;
+
+            @include icon(exit);
+
+            &::before {
+                font-size: 1rem;
+            }
+        }
+    }
+}

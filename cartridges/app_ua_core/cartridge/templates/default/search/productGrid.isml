@@ -1,0 +1,35 @@
+<isinclude template="search/components/productTiles" />
+<isif condition="${pdict.productSearch.showMoreUrl !== '' && !pdict.previous || pdict.previous === 'false'}">
+<div class="b-products_grid-footer b-grid_footer js-grid_footer"
+    data-sort-options="${JSON.stringify(pdict.productSearch.productSort)}"
+    data-page-size="${pdict.productSearch.pageSize}"
+    data-page-number="${pdict.productSearch.pageNumber}"
+>   
+        <!--- More button --->
+        <button class="b-grid_footer-more_button js-show_more triggerMore g-button_base"
+                data-url="${pdict.productSearch.showMoreUrl}"
+                data-pageSize="${pdict.productSearch.pageSize}"
+        >
+            ${Resource.msg('button.more', 'search', null)}
+        </button>
+	</div>
+    </isif>
+<input type="hidden" class="pageSize" value="${pdict.productSearch.pageSize}" />
+<input type="hidden" class="permalink" value="${pdict.productSearch.permalink}" />
+<isinclude url="${URLUtils.url('Wishlist-Items')}">
+<isif condition="${pdict.productSearch.category != null}">
+    <input type="hidden" class="category-id" value="${pdict.productSearch.category.id}" />
+</isif>
+ <div class="b-sort-content js-mob_sort" >
+     <ul class="b-sort-list">
+         <isloop items="${pdict.productSearch.productSort.options}" var="option">
+		 	<li class="b-sort-item ${pdict.productSearch.productSort.ruleId && pdict.productSearch.productSort.ruleId.replace(/-/g, '').toLowerCase() === option.id.replace(/-/g, '') ? 'm-selected' : '' } js-sort-item" data-value="${option.url}"
+                 data-id="${option.id.replace(/\s/g,'')}"
+                 data-sorting-rule-id="${option.id}"
+                 data-analytics-sort-value="${option.displayName}"
+             >
+                 ${option.displayName}
+             </li>
+         </isloop>
+     </ul>
+ </div>

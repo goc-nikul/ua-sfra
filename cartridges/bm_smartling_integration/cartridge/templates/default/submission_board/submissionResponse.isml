@@ -1,0 +1,54 @@
+<isscript>
+var util = require("~/cartridge/scripts/util");
+</isscript>
+<isinclude template="application/style"/>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr id="table_header">
+
+    </tr>
+
+    <isloop iterator="${pdict.submissions}" var="submission">
+        <tr data-row="true" name="${submission.getUUID()}">
+            <td class="table_detail w e s center"><input type="checkbox" name="uuid" value="${submission.getUUID()}" /></td>
+            <td class="table_detail e s" nowrap="nowrap">${submission.getCustom()['itemId']}</td>
+            <td class="table_detail e s">
+                <div class="tooltip">${submission.getCustom()['itemName']}
+                    <div class="tooltiptext">${submission.getCustom()['source']}</div>
+                </div>
+            </td>
+            <td class="table_detail e s" nowrap="nowrap">${submission.getCustom()['itemType']}</td>
+            <td class="table_detail e s">${util.getLocaleName(submission.getCustom()['locale'])}</td>
+            <td class="table_detail e s" nowrap="nowrap">
+                <div class="date">${submission.getCustom()['submitted']}</div>
+            </td>
+            <td class="table_detail e s" nowrap="nowrap">
+                <div class="date">${submission.getCustom()['applied']}</div>
+            </td>
+            <td class="table_detail e s" nowrap="nowrap">${submission.getCustom()['status']}</td>
+            <td class="table_detail e s" nowrap="nowrap" data-uuid="${submission.getUUID()}">${submission.getCustom()['progress']}</td>
+            <td class="table_detail e s" nowrap="nowrap">${empty(submission.getCustom()['wordsSubmitted']) ? "" : submission.getCustom()['wordsSubmitted']}</td>
+            <td class="table_detail e s">${submission.getCustom()['submitter']}</td>
+            <td class="table_detail e s">${submission.getCustom()['fileUri']}</td>
+        </tr>
+    </isloop>
+
+
+</table>
+
+<ul class="pagecursor" width="100%" border="0" cellspacing="1" cellpadding="1">
+    <li class="pagecursortxt top" align="left" width="100%" ></li>
+    <isloop status="i" begin="1" end="${pdict.totalPages}">
+        <isif condition="${i.index != (pdict.CurrentHttpParameterMap.pageNo.intValue ? pdict.CurrentHttpParameterMap.pageNo.intValue : 1)}">
+            <li class="pagecursortxt" align="right" width="1">
+                <a href="#" onclick="ajaxPage(${i.index})"><b>${(i.index).toString()}</b></a>
+            </li>
+            <iselse>
+                <li class="pagecursoritem" align="right" width="1">
+                    <b>${(i.index).toString()}</b>
+                </li>
+        </isif>
+    </isloop>
+</ul>
+
+<isinclude template="application/script"/>

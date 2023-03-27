@@ -1,0 +1,40 @@
+<isif condition="${disableProductLink}">
+    <div class="b-tile-images_container">
+<iselse>
+    <a href="${productURL}" class="b-tile-images_container">
+</isif>
+
+<isif condition="${product.images}">
+    <isset name="productTileImg" value="${product.images && product.images.desktop && product.images.desktop.main}" scope="page" />
+    <isset name="productTileRollover" value="${product.images && product.images.desktop && product.images.desktop.hover}" scope="page" />
+    <isset name="productTileMobileImg" value="${product.images && product.images.mobile && typeof product.images.mobile !=='undefined' && product.images.mobile.main}" scope="page" />
+<iselse/>
+    <isset name="productTileImg" value="${null}" scope="page" />
+    <isset name="productTileRollover" value="${null}" scope="page" />
+    <isset name="productTileMobileImg" value="${null}" scope="page" />
+</isif>
+
+<picture>
+    <iscomment>
+        Load the mobile image url if we are on a mobile device
+    </iscomment>
+    <isif condition="${productTileMobileImg && productTileMobileImg.URL}">
+        <source srcset="${productTileMobileImg.URL}"
+                title="${productTileMobileImg.title}"
+                media="(max-width: 767.99px)"
+        />
+    </isif>
+    <img class="b-tile-image b-tile-main_image js-tile-carousel_image lazyload"
+         src="${URLUtils.staticURL('/images/Tile_Skeleton_Loader.svg')}"
+         data-src="${productTileImg ? productTileImg.URL : ''}"
+         data-rollover="${productTileRollover && productTileRollover.URL ? productTileRollover.URL : productTileImg && productTileImg.URL}"
+         onerror="this.style.visibility='hidden'"
+         alt="${product.productName}"
+         title="${productTileImg ? productTileImg.title : ''}"/>
+</picture>
+
+<isif condition="${disableProductLink}">
+    </div>
+<iselse>
+    </a>
+</isif>

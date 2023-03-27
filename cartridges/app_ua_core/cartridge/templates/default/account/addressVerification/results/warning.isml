@@ -1,0 +1,42 @@
+<div class="b-address b-address-waring">
+    <div class="b-address-title">
+        ${Resource.msg('verification.warning.title','address', null)}
+    </div>
+    <div class="b-address-info">
+        <isif condition="${dw.system.Site.getCurrent().ID.equals('US')}">
+            <div class="v-address-info">
+                ${Resource.msg('verification.warning.shipping.address.message','address', null)}
+                <div class="v-text-decoration">${Resource.msg('verification.warning.action.shipping.address.message','address', null)}</div>
+            </div>
+        <iselse>
+            ${Resource.msg('verification.warning.message','address', null)}
+        </isif>
+    </div>
+    <div class="b-address-list b-address_list">
+        <div class="b-address_list-title">
+            ${Resource.msg('verification.warning.entered','address', null)}
+        </div>
+        <div class="b-address_list-container">
+            <div><isprint value="${pdict.original.address1}" /></div>
+            <div><isprint value="${pdict.original.address2}" /></div>
+            <div>
+                <isprint value="${pdict.original.city}" />,
+                <isprint value="${pdict.original.state}" />
+            </div>
+            <div><isprint value="${pdict.original.zipCode}" /></div>
+        </div>
+    </div>
+    <div class="b-address-info-waring">
+        <div class="b-address-info">
+            ${Resource.msg('verification.warning.question','address', null)}
+        </div>
+        <button type="button" class="b-address-button g-button_base g-button_primary--black" data-action="save">
+            ${Resource.msg('verification.warning.actions.ok','address', null)}
+        </button>
+        <div>
+            <button type="button" class="b-address-button g-button_styling" data-action="cancel">
+                ${Resource.msg('verification.warning.actions.cancel','address', null)}
+            </button>
+        </div>
+    </div>
+</div>

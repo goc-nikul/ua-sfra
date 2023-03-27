@@ -1,0 +1,220 @@
+[data-theme="textonly"].json-viewer {
+  font-family: monospace;
+  font-size: 14px;
+}
+[data-theme="textonly"] a.toggle {
+  text-decoration: none;
+  outline: 0;
+  display: inline-block;
+  vertical-align: middle;
+  width: 14px;
+  height: 20px;
+}
+[data-theme="textonly"] a.toggle:before {
+  content: '-';
+  font-size: 14px;
+}
+[data-theme="textonly"] a.toggle.left {
+  margin-left: 0;
+}
+[data-theme="textonly"] a.toggle.left + .tree-branch {
+  left: 20px;
+}
+[data-theme="textonly"] a.toggle.middle {
+  margin-left: 0;
+}
+[data-theme="textonly"] a.toggle.right {
+  margin-left: 0;
+}
+[data-theme="textonly"] a.toggle.inactive {
+  background-image: none !important;
+  cursor: default;
+}
+[data-theme="textonly"] a.toggle.inactive:before {
+  content: '';
+}
+[data-theme="textonly"] span.dummy {
+  display: inline-block;
+  vertical-align: top;
+  width: 14px;
+  height: 20px;
+}
+[data-theme="textonly"] div.element-head {
+  display: inline-block;
+  vertical-align: top;
+  height: 20px;
+}
+[data-theme="textonly"] span.type-icon {
+  display: none;
+}
+[data-theme="textonly"] span.element-head {
+  height: 17px;
+}
+[data-theme="textonly"] span.element-name {
+  vertical-align: middle;
+  font-weight: bold;
+  cursor: default;
+}
+[data-theme="textonly"] span.element-name:after {
+  content: ': ';
+}
+[data-theme="textonly"] span.element-value {
+  vertical-align: middle;
+  cursor: default;
+}
+[data-theme="textonly"] ul.element-container {
+  clear: left;
+  margin-top: 0;
+  margin-left: 12px;
+  padding-left: 0;
+}
+[data-theme="textonly"] ul.element-container:after {
+  display: block;
+  clear: both;
+}
+[data-theme="textonly"] li.member {
+  float: left;
+  clear: both;
+  list-style: none;
+  position: relative;
+  margin-bottom: 1px;
+  white-space: nowrap;
+  margin-left: 2px;
+  padding-right: 10px;
+  padding-left: 10px;
+  border-left: 1px dotted #e1e1e1;
+}
+[data-theme="textonly"] li.member.empty > .element-container {
+  display: none;
+}
+[data-theme="textonly"] li.member.empty.array > .element-head:after {
+  font-size: 12px;
+  content: '[ ],';
+}
+[data-theme="textonly"] li.member.empty.object > .element-head:after {
+  font-size: 12px;
+  content: '{ },';
+}
+[data-theme="textonly"] li.member.empty.last.array > .element-head:after {
+  content: '[ ]';
+}
+[data-theme="textonly"] li.member.empty.last.object > .element-head:after {
+  content: '{ }';
+}
+[data-theme="textonly"] li.member.array > .element-container:after {
+  font-size: 12px;
+  content: '],';
+}
+[data-theme="textonly"] li.member.array > .element-container > .member > .element-head > .element-name {
+  display: none;
+}
+[data-theme="textonly"] li.member.array > .element-head:after {
+  font-size: 12px;
+  content: '[';
+}
+[data-theme="textonly"] li.member.array.collapsed > .element-head:after {
+  content: '[...],';
+}
+[data-theme="textonly"] li.member.array.last > .element-container:after {
+  content: ']';
+}
+[data-theme="textonly"] li.member.array.last.collapsed > .element-head:after {
+  content: '[...]';
+}
+[data-theme="textonly"] li.member.object > .element-container:after {
+  font-size: 12px;
+  content: '},';
+}
+[data-theme="textonly"] li.member.object > .element-head:after {
+  font-size: 12px;
+  content: '{';
+}
+[data-theme="textonly"] li.member.object.collapsed > .element-head:after {
+  content: '{...},';
+}
+[data-theme="textonly"] li.member.object.last > .element-container:after {
+  content: '}';
+}
+[data-theme="textonly"] li.member.object.last.collapsed > .element-head:after {
+  content: '{...}';
+}
+[data-theme="textonly"] li.member.collapsed > .element-container {
+  display: none;
+}
+[data-theme="textonly"] li.member.collapsed > .toggle:before {
+  content: '+';
+}
+[data-theme="textonly"] li.member.number:after,
+[data-theme="textonly"] li.member.null:after,
+[data-theme="textonly"] li.member.boolean:after,
+[data-theme="textonly"] li.member.string > .element-head:after {
+  content: ',';
+}
+[data-theme="textonly"] li.member.last.number:after,
+[data-theme="textonly"] li.member.last.null:after,
+[data-theme="textonly"] li.member.last.boolean:after,
+[data-theme="textonly"] li.member.last.string > .element-head:after {
+  content: '';
+}
+[data-theme="textonly"] li.member.highlighted {
+  transition: background-color 0.2s ease-out 0.1s;
+  background-color: #bae2f5;
+}
+[data-theme="textonly"] li.member.selected {
+  background-color: #8ccff0;
+}
+[data-theme="textonly"] li.member.boolean > .element-head > .element-value {
+  color: red;
+}
+[data-theme="textonly"] li.member.null > .element-head > .element-value {
+  color: gray;
+}
+[data-theme="textonly"] li.member.number > .element-head > .element-value {
+  color: blue;
+}
+[data-theme="textonly"] li.member.string > .element-head > .element-value {
+  color: green;
+}
+[data-theme="textonly"] li.member.string > .element-head > .element-value:before,
+[data-theme="textonly"] li.member.string > .element-head > .element-value:after {
+  content: '"';
+}
+[data-theme="textonly"].json-viewer.array > .element-container:after {
+  font-size: 12px;
+  content: ']';
+}
+[data-theme="textonly"].json-viewer.array > .element-container > .member > .element-head > .element-name {
+  display: none;
+}
+[data-theme="textonly"].json-viewer.array > .element-head:after {
+  font-size: 12px;
+  content: '[';
+}
+[data-theme="textonly"].json-viewer.array.collapsed > .element-head:after {
+  content: '[...]';
+}
+[data-theme="textonly"].json-viewer.object > .element-container:after {
+  font-size: 12px;
+  content: '}';
+}
+[data-theme="textonly"].json-viewer.object > .element-head:after {
+  font-size: 12px;
+  content: '{';
+}
+[data-theme="textonly"].json-viewer.object.collapsed > .element-head:after {
+  content: '{...}';
+}
+[data-theme="textonly"].json-viewer.collapsed > .element-container {
+  display: none;
+}
+[data-theme="textonly"].json-viewer.collapsed > .toggle:before {
+  content: '+';
+}
+[data-theme="textonly"] .tree-line {
+  display: none;
+}
+[data-theme="textonly"] .tree-branch {
+  display: none;
+}
+/* MIXINS */
+

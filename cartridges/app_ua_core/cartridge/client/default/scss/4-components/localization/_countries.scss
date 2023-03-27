@@ -1,0 +1,70 @@
+.b-countries {
+    &-wrapper {
+        @include grid-container;
+
+        margin-top: spacing(xl2);
+        margin-bottom: spacing(sm);
+
+        @include respond-to(mobile) {
+            margin-top: spacing(xl);
+            margin-bottom: spacing(xl2);
+        }
+
+        @include respond-to(phones) {
+            margin-top: spacing(md);
+        }
+    }
+
+    &-content {
+        @include respond-to(mobile) {
+            border-top: 1px solid $grey3;
+        }
+
+        @include respond-to(desktop) {
+            columns: 2;
+        }
+    }
+
+    &-title {
+        @include t-title-1;
+
+        margin-bottom: spacing(xs);
+
+        @include respond-to(desktop) {
+            margin-bottom: spacing(sm);
+        }
+    }
+
+    &-sub_title {
+        @include t-title-6;
+
+        margin-bottom: spacing(lg);
+    }
+
+    &-continent {
+        @include respond-to(desktop) {
+            padding-bottom: spacing(lg);
+            -webkit-column-break-inside: avoid;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+    }
+
+    &-continent_title {
+        @include t-title-5;
+
+        @include respond-to(desktop) {
+            margin-bottom: spacing(xs);
+        }
+    }
+
+    &-item {
+        &:not(:last-child) {
+            margin-bottom: spacing(xs2);
+        }
+    }
+
+    &-link {
+        @include link;
+    }
+}

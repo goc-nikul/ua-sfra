@@ -1,0 +1,14 @@
+<isscript>
+        var assets = require('*/cartridge/scripts/assets');
+        assets.addJs('/js/custom.js');
+</isscript>
+<isif condition="${dw.system.Site.current.preferences.custom.atomeEnabled && dw.system.Site.current.preferences.custom.atomeContentOnCart}">
+<div class="atome_widget">
+    <p class="atome-paragraph">
+        <span class="atome-message">${Resource.msg('atome.site.marketing.msg', 'atome', null)}</span>
+        <span class="atome-amount atome-installment-grand-total">${pdict.totals.installmentGrandTotal}</span>
+        <span>${Resource.msg('atome.site.marketing.with', 'atome', null)}</span>
+        <img class="atome-logo atome-logo-popup" src="${URLUtils.staticURL('/images/atome-logo.svg')}" alt="Atome">
+    </p>
+</div>
+</isif>

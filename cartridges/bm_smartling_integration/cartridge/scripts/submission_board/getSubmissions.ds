@@ -1,0 +1,40 @@
+/**
+*   @input searchPhraze : String  string to search submission
+*   @input status : String  submission status
+*   @input itemType : String  type of submitted item
+*   @input sortOrder : String  sort order
+*   @input sortField : String  sort field
+*   @input pageNo : Number  page number for pagination
+*   @output submissions : dw.util.List  list of found submissions
+*   @output totalPages : Number  total number of pages
+*/
+importPackage( dw.system );
+importPackage( dw.object );
+importPackage( dw.util );
+importScript( "/dao/submission.ds" );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "submissionBoard.getSubmissions"));
+
+var PAGE_SIZE : Number = 80;
+
+/**
+*  Returns a list of submissions with given criteria and ordering
+*/
+function execute( args : PipelineDictionary ) : Number
+{
+    try {
+        var submissionsIterator : SeekableIterator = getSubmissionsByFilterOrdered(args.searchPhraze, args.status, args.itemType, args.sortField, args.sortOrder);
+
+        var pageNo = args.pageNo != null ? args.pageNo : 1;
+        args.totalPages = Math.ceil(submissionsIterator.count / PAGE_SIZE);
+        args.submissions = submissionsIterator.asList((pageNo-1) * PAGE_SIZE, PAGE_SIZE);
+        submissionsIterator.close();
+
+    } catch (e) {
+        LOGGER.errorException('submissionBoard.getSubmissions failed, searchPhraze="{0}", status={1}, itemType={2}, sortOrder={3}, sortField={4}', args.searchPhraze, args.status, args.itemType, args.sortOrder, args.sortField, e);
+        return PIPELET_ERROR;
+    }
+
+    return PIPELET_NEXT;
+}

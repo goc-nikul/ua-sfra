@@ -1,0 +1,48 @@
+var Status = require('dw/system/Status');
+
+/**
+* Demandware Script File
+* In this file is verified if the Express Checkout window was opened from PDP or from cart
+*
+*   @input Session : dw.system.Session
+*   @output modalFrom : String
+*
+*/
+
+function execute(args) {
+	var result = getURL();
+	args.modalFrom = result.modalFrom;
+	if (result.status === Status.OK) {
+		return PIPELET_NEXT;
+	} else  {
+		return PIPELET_ERROR;
+	}
+}
+
+function getURL(args) {
+	var list = session.clickStream.clicks;
+	var status, pipelineName;
+	for( var i = list.size() - 1; i >= 0; i-- ){
+		var click = list[i];
+		switch( click.pipelineName ) {
+			case "Product-Show":
+			case "Cart-Show":
+				pipelineName = click.getPipelineName();
+				status = new Status(Status.OK);
+				return {
+					modalFrom: pipelineName,
+					status: status
+				}
+		}
+	}
+	status = new Status(Status.ERROR);
+	return {
+		modalFrom: pipelineName,
+		status: status
+	}
+}
+
+module.exports = {
+    execute: execute,
+	getURL: getURL
+};

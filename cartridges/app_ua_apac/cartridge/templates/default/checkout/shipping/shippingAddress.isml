@@ -1,0 +1,309 @@
+<isset name="addressFields" value="${pdict.forms.shippingForm.shippingAddress.addressFields}" scope="page"/>
+<isset name="missingError" value="${Resource.msg('error.message.required', 'forms', null)}" scope="page"/>
+<isif condition="${!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && shippingModel.shippingAddress}">
+    <isset name="shippingAddress" value="${shippingModel.shippingAddress}" scope="page" />
+<iselse/>
+    <isset name="shippingAddress" value="${{}}" scope="page" />
+</isif>
+<div class="b-shipping_form-row  b-shipping-newAddress js-new-shipping-address hide">
+    <div class="b-shipping_form-column b-address-heading">
+        <isprint value="${Resource.msg('heading.checkout.newshippingaddress', 'checkout', null)}"/>
+    </div>
+
+     <div class="b-shipping_form-column ${addressFields.setAsDefault.htmlName} form-group g-checkbox">
+        <input type="checkbox" id="saveAsDefault" name="${addressFields.setAsDefault.htmlName}" value="${false}" class="b-shipping_saveas-default g-checkbox-input form-control" data-analytics-track="shipping new : save_as_default" />
+        <label class="g-checkbox-label" for="saveAsDefault">${Resource.msg('field.shipping.address.saveasdefault', 'address', null)}</label>
+     </div>
+</div>
+<div class="b-required_fields"><isprint value="${Resource.msg('required.fields', 'checkout', null)}"/></div>
+
+<div class="b-shipping_form-row">
+    <div class="b-shipping_form-column">
+        <div class="form-group b-input_row
+            ${addressFields.firstName.mandatory === true ? 'required' : ''}
+            ${addressFields.firstName.htmlName}">
+            <label class="form-control-label b-input_row-label" for="shippingFirstName${lineItem ? lineItem.UUID : 'default'}"  >
+                ${Resource.msg('field.shipping.address.first.name','address',null)}
+            </label>
+            <input type="text" class="form-control shippingFirstName b-input_row-input" id="shippingFirstName${lineItem ? lineItem.UUID : 'default'}" aria-describedby="${lineItem ? lineItem.UUID : 'default'}FirstName"
+                value="${shippingAddress.firstName||''}" <isprint value="${addressFields.firstName.attributes}" encoding="off"/>
+                data-pattern-mismatch="${Resource.msg('general.pattern.mismatch','common',null)}"
+                data-missing-error="${missingError}" data-analytics-track="shipping : shipping_name1" autocomplete="shipping given-name" />
+            <div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}FirstName"><isprint value="${addressFields.firstName.error}" ></div>
+        </div>
+    </div>
+    <div class="b-shipping_form-column">
+        <div class="form-group b-input_row
+            ${addressFields.lastName.mandatory === true ? 'required' : ''}
+            ${addressFields.lastName.htmlName}">
+            <label class="form-control-label b-input_row-label" for="shippingLastName${lineItem ? lineItem.UUID : 'default'}">
+                ${Resource.msg('field.shipping.address.last.name','address',null)}
+            </label>
+            <input type="text" class="form-control shippingLastName b-input_row-input" id="shippingLastName${lineItem ? lineItem.UUID : 'default'}" aria-describedby="${lineItem ? lineItem.UUID : 'default'}LastName"
+                value="${shippingAddress.lastName||''}" <isprint value="${addressFields.lastName.attributes}" encoding="off"/>
+                data-pattern-mismatch="${Resource.msg('general.pattern.mismatch','common',null)}"
+                data-missing-error="${missingError}" data-analytics-track="shipping : shipping_name2" autocomplete="shipping family-name" />
+            <div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}LastName"><isprint value="${addressFields.lastName.error}" ></div>
+        </div>
+    </div>
+    <isif condition="${addressFields.businessName && addressFields.businessName.attributes}">
+	    <div class="b-shipping_form-column">
+	        <div class="form-group b-input_row b-shipping_address2
+	            ${addressFields.businessName.mandatory === true ? 'required' : ''}
+	            ${addressFields.businessName.htmlName}">
+	            <label class="form-control-label b-input_row-label" for="shippingBusinessName${lineItem ? lineItem.UUID : 'default'}">
+	                ${Resource.msg('field.shipping.address.business.name','address',null)}
+	            </label>
+	            <input type="text" class="form-control shippingBusinessName b-input_row-input" id="shippingBusinessName${lineItem ? lineItem.UUID : 'default'}" aria-describedby="${lineItem ? lineItem.UUID : 'default'}BusinessName"
+	                value="${shippingAddress.businessName||''}" <isprint value="${addressFields.businessName.attributes}" encoding="off"/>
+	                data-pattern-mismatch="${Resource.msg('general.pattern.mismatch','common',null)}"
+	                data-missing-error="${missingError}" data-analytics-track="shipping : shipping_name2" autocomplete="shipping family-name" />
+	            <div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}BusinessName"><isprint value="${addressFields.businessName.error}" ></div>
+	        </div>
+	    </div>
+    </isif>	
+</div>
+<isset name="poBoxValidation" value="${false}" scope="page" />
+<isif condition="${(session.custom.currentCountry == 'AU') || (session.custom.currentCountry == 'NZ')}"> 
+  <isset name="poBoxValidation" value="${true}" scope="page" />
+</isif>
+<div class="b-shipping_form-row">
+    <div class="b-shipping_form-column addressOne shippingPage">
+        <div class="form-group b-input_row
+            ${addressFields.address1.mandatory === true ? 'required' : ''}
+            ${addressFields.address1.htmlName}
+            ${poBoxValidation ? 'poBox-available' : ''}" id="shipAddressOne" data-analytics-typeahead="shipping">
+            <label class="form-control-label b-input_row-label" for="shippingAddressOne${lineItem ? lineItem.UUID : 'default'}">
+                ${Resource.msg('field.shipping.address.one.emea','address',null)}
+            </label>
+            <input type="text" class="form-control shippingAddressOne b-input_row-input ${poBoxValidation ? 'js-address-field' : ''}" id="shippingAddressOne${lineItem ? lineItem.UUID : 'default'}" aria-describedby="${lineItem ? lineItem.UUID : 'default'}AddressLine1"
+                value="${shippingAddress.address1||''}" <isprint value="${addressFields.address1.attributes}" encoding="off"/>
+                data-missing-error="${missingError}" data-analytics-track="shipping : shipping_line1"
+                data-pattern-mismatch="${Resource.msg('error.message.address.fields','forms',null)}"
+                ${pdict.qasAddressSuggestion} ? autocomplete="none" : autocomplete="shipping address-line1" />
+            <div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}AddressLine1"><isprint value="${addressFields.address1.error}" ></div>
+            <isif condition="${poBoxValidation}">
+                <p class="addressHelpText"><isprint encoding="off" value="${Resource.msg('address.address1.msg','address',null)}" /></p>
+            </isif>
+        </div>
+    </div>
+	<div class="b-shipping_form-column">
+	     <div class="form-group b-shipping_address2 b-input_row
+	          ${addressFields.address2.mandatory === true ? 'required' : ''}
+	          ${addressFields.address2.htmlName}">
+	          <label class="form-control-label b-input_row-label" for="shippingAddressTwo${lineItem ? lineItem.UUID : 'default'}">
+	              ${Resource.msg('field.shipping.address.two.emea','address',null)}
+	          </label>
+	          <input type="text" class="form-control shippingAddressTwo b-input_row-input ${poBoxValidation ? 'js-address-field' : ''}" id="shippingAddressTwo${lineItem ? lineItem.UUID : 'default'}" aria-describedby="${lineItem ? lineItem.UUID : 'default'}AddressLine2"
+	              value="${shippingAddress.address2||''}" <isprint value="${addressFields.address2.attributes}" encoding="off"/>
+	              data-pattern-mismatch="${Resource.msg('error.message.address.fields','forms',null)}"
+	              data-analytics-track="shipping : shipping_line2" autocomplete="shipping address-line2" />
+	     	<div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}AddressLine2"><isprint value="${addressFields.address2.error}" ></div>
+	     </div>
+	 </div>
+</div>
+<div class="b-shipping_form-row shippingform ${session.custom.currentCountry === 'NZ' ? 'NZ-nonmandatory' : ''}">
+    <isif condition="${addressFields.suburb && addressFields.suburb.attributes}">
+	    <div class="b-shipping_form-column">
+	        <div class="form-group b-input_row
+	            ${addressFields.suburb.mandatory === true ? 'required' : ''}
+	            ${addressFields.suburb.htmlName}">
+	            <label class="form-control-label b-input_row-label" for="shippingAddressSuburb${lineItem ? lineItem.UUID : 'default'}">
+	                ${Resource.msg('field.shipping.address.suburb','address',null)}
+	            </label>
+	            <input type="text" class="form-control shippingAddressSuburb b-input_row-input suburbField cityField" id="shippingAddressSuburb${lineItem ? lineItem.UUID : 'default'}" aria-describedby="${lineItem ? lineItem.UUID : 'default'}Suburb"
+	                value="${shippingAddress.suburb||''}" <isprint value="${addressFields.suburb.attributes}" encoding="off"/>
+	                pattern=".{2,30}"
+	                data-apopattern-mismatch="${Resource.msg('error.message.city.fields','forms',null)}"
+	                data-pattern-mismatch="${Resource.msg('error.message.suburb.fields','forms',null)}"
+	                data-range-error="${Resource.msg('error.message.suburb.fields','forms',null)}"
+	                data-missing-error="${missingError}" data-analytics-track="shipping : shipping_suburb" autocomplete="shipping locality"/>
+	            <div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}suburb" data-empty-error="${Resource.msg('field.empty.error','common',null)}"><isprint value="${addressFields.suburb.error}" ></div>
+	        </div>
+	    </div>
+    </isif>
+    <isif condition="${addressFields.states && addressFields.states.stateCode && addressFields.states.stateCode.attributes }">
+     <div class="b-shipping_form-column">
+        <div class="form-group b-state adjustArrow
+            ${addressFields.states.stateCode.mandatory === true ? 'required' : ''}
+            ${addressFields.states.stateCode.htmlName}">
+            <label class="form-control-label b-state-label" for="shippingState${lineItem ? lineItem.UUID : 'default'}">
+                ${Resource.msg('label.input.state.checkout','forms',null)}
+            </label>
+            <select class="form-control shippingState custom-select b-state-select dropdownState" id="shippingState${lineItem ? lineItem.UUID : 'default'}"
+                <isprint value=${addressFields.states.stateCode.attributes} encoding="off"/>
+                data-labelselect="${Resource.msg('select.option.select','forms',null)}"
+                data-dependencyonstate="${pdict.dependencyOnState}"
+                data-missing-error="${Resource.msg('or.select.state.error.required', 'forms', null)}" data-analytics-track="shipping : shipping_state" autocomplete="shipping region"
+                aria-describedby="${lineItem ? lineItem.UUID : 'default'}State"/>
+                <isloop items=${addressFields.states.stateCode.options} var="state">
+                    <option id="${state.id}" value="${state.htmlValue}" ${state.htmlValue===shippingAddress.stateCode ? 'selected' : ''}>${state.label || ' '}</option>
+                </isloop>
+            </select>
+            <div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}State" data-empty-error="${Resource.msg('field.empty.error','common',null)}"><isprint value="${addressFields.states.stateCode.error}" ></div>
+        </div>
+     </div>
+    </isif>
+    <isif condition="${addressFields.state && addressFields.state.attributes}">
+	    <div class="b-shipping_form-column">
+	        <div class="form-group b-input_row
+	            ${addressFields.state.mandatory === true ? 'required' : ''}
+	            ${addressFields.state.htmlName}">
+	            <label class="form-control-label b-input_row-label" for="shippingState${lineItem ? lineItem.UUID : 'default'}">
+	                ${Resource.msg('label.input.state.checkout','forms',null)}
+	            </label>
+	            <input type="text" class="form-control shippingState custom-select b-input_row-input" id="shippingState${lineItem ? lineItem.UUID : 'default'}" aria-describedby="${lineItem ? lineItem.UUID : 'default'}State"
+	                value="${shippingAddress.stateCode||''}" <isprint value="${addressFields.state.attributes}" encoding="off"/>
+	                data-pattern-mismatch="${Resource.msg('general.pattern.mismatch','common',null)}"
+	                data-missing-error="${missingError}" data-analytics-track="shipping : shipping_name2" autocomplete="shipping family-name" />
+	            <div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}State" data-empty-error="${Resource.msg('field.empty.error','common',null)}"><isprint value="${addressFields.state.error}" ></div>
+	        </div>
+	    </div>
+    </isif>
+    <isif condition="${pdict.isDropDownCity}">
+        <div class="b-shipping_form-column">
+            <div class="form-group b-input_row b-general
+                ${addressFields.city.mandatory === true ? 'required' : ''}
+                ${addressFields.city.htmlName}">
+                <label class="form-control-label b-input_row-label" for="shippingAddressCity${lineItem ? lineItem.UUID : 'default'}">
+                    ${Resource.msg('field.shipping.address.city','address',null)}
+                </label>
+                <select type="text" class="form-control shippingAddressCity b-input_row-input addressCityDropdown b-general-select" id="shippingAddressCity${lineItem ? lineItem.UUID : 'default'}" aria-describedby="${lineItem ? lineItem.UUID : 'default'}City"
+                    value="${shippingAddress.city||''}" <isprint value="${addressFields.city.attributes}" encoding="off"/>
+                    data-dependencyoncity="${pdict.dependencyOnCity}"
+                    data-pattern-mismatch="${Resource.msg('error.message.city.fields','forms',null)}"
+                    data-range-error="${Resource.msg('error.message.validcity','forms',null)}"
+                    data-missing-error="${Resource.msg('or.select.city.error.required', 'forms', null)}" data-analytics-track="shipping : shipping_city" autocomplete="shipping locality"/>
+                    <isloop items=${addressFields.city.options} var="city">
+                            <option id="${city.id}" value="${city.htmlValue}" ${city.id===shippingAddress.city ? 'selected' : ''}>${city.label || ' '}</option>
+                    </isloop>
+                </select>
+                <div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}City" data-empty-error="${Resource.msg('field.empty.error','common',null)}"><isprint value="${addressFields.city.error}" ></div>
+            </div>
+        </div>
+    </isif>
+	<isif condition="${addressFields.city && addressFields.city.attributes && !(pdict.isDropDownCity)}">
+	    <div class="b-shipping_form-column">
+	        <div class="form-group b-input_row
+	            ${addressFields.city.mandatory === true ? 'required' : ''}
+	            ${addressFields.city.htmlName}">
+	            <label class="form-control-label b-input_row-label" for="shippingAddressCity${lineItem ? lineItem.UUID : 'default'}">
+	                ${Resource.msg('field.shipping.address.city','address',null)}
+	            </label>
+	            <input type="text" class="form-control shippingAddressCity b-input_row-input cityField" id="shippingAddressCity${lineItem ? lineItem.UUID : 'default'}" aria-describedby="${lineItem ? lineItem.UUID : 'default'}City"
+	                value="${shippingAddress.city||''}" <isprint value="${addressFields.city.attributes}" encoding="off"/>
+	                pattern=".{2,50}"
+	                data-apopattern-mismatch="${Resource.msg('error.message.city.fields','forms',null)}"
+	                data-pattern-mismatch="${Resource.msg('error.message.validcity','forms',null)}"
+	                data-range-error="${Resource.msg('error.message.validcity','forms',null)}"
+	                data-missing-error="${missingError}" data-analytics-track="shipping : shipping_city" autocomplete="shipping locality"/>
+	            <div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}City" data-empty-error="${Resource.msg('field.empty.error','common',null)}"><isprint value="${addressFields.city.error}" ></div>
+	        </div>
+	    </div>
+	</isif>
+    <isif condition="${addressFields.district && addressFields.district.attributes && !(pdict.isDistrictDropDown) && session.custom.currentCountry !== 'ID'}"> 
+        <div class="b-shipping_form-column">
+	        <div class="form-group b-input_row
+	            ${addressFields.district.mandatory === true ? 'required' : ''}
+	            ${addressFields.district.htmlName}">
+	            <label class="form-control-label b-input_row-label" for="shippingAddressDistrict${lineItem ? lineItem.UUID : 'default'}">
+	                ${Resource.msg('field.shipping.address.district','address',null)}
+	            </label>
+	            <input type="text" class="form-control shippingAddressDistrict b-input_row-input districtField" id="shippingAddressDistrict${lineItem ? lineItem.UUID : 'default'}" aria-describedby="${lineItem ? lineItem.UUID : 'default'}District"
+	                value="${shippingAddress.district||''}" <isprint value="${addressFields.district.attributes}" encoding="off"/>
+	                data-pattern-mismatch="${Resource.msg('error.message.suburb.fields','forms',null)}"
+	                data-range-error="${Resource.msg('error.message.validsuburb','forms',null)}"
+	                data-missing-error="${missingError}" data-analytics-track="shipping : shipping_district" autocomplete="shipping locality"/>
+	            <div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}district" data-empty-error="${Resource.msg('field.empty.error','common',null)}"><isprint value="${addressFields.district.error}" ></div>
+	        </div>
+	    </div>
+    </isif>
+    <isif condition="${addressFields.district && addressFields.district && addressFields.district.attributes  && pdict.isDistrictDropDown || session.custom.currentCountry === 'ID'}">
+        <div class="b-shipping_form-column">
+            <div class="form-group b-input_row b-general
+                ${addressFields.district.mandatory === true ? 'required' : ''}
+                ${addressFields.district.htmlName}">
+                <label class="form-control-label b-input_row-label" for="shippingAddressDistrict${lineItem ? lineItem.UUID : 'default'}">
+                    ${Resource.msg('field.shipping.address.district','address',null)}
+                </label>
+                <select type="text" class="form-control shippingAddressDistrict b-input_row-input districtFieldDropdown b-general-select" id="shippingAddressDistrict${lineItem ? lineItem.UUID : 'default'}" aria-describedby="${lineItem ? lineItem.UUID : 'default'}District"
+                    value="${shippingAddress.district ||''}" <isprint value="${addressFields.district.attributes}" encoding="off"/>
+                    data-pattern-mismatch="${Resource.msg('error.message.suburb.fields','forms',null)}"
+                    data-range-error="${Resource.msg('error.message.validsuburb','forms',null)}"
+                    data-missing-error="${Resource.msg('or.select.district.error.required', 'forms', null)}" data-analytics-track="shipping : shipping_district" autocomplete="shipping locality"/>
+                    <isloop items=${addressFields.district.options} var="district">
+                            <option id="${district.id}" value="${district.htmlValue}" ${district.id===shippingAddress.district ? 'selected' : ''}>${district.label || ' '}</option>
+                    </isloop>
+                </select>
+                <div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}District" data-empty-error="${Resource.msg('field.empty.error','common',null)}"><isprint value="${addressFields.city.error}" ></div>
+            </div>
+        </div>
+    </isif>   
+</div>
+<div class="b-shipping_form-row shippingform">
+<isif condition="${addressFields.postalCode && addressFields.postalCode && !(pdict.isPostalCodeDropDown)}">
+        <div class="b-shipping_form-column">
+			<div class="form-group b-input_row
+				${addressFields.postalCode.mandatory === true ? 'required' : ''}
+				${addressFields.postalCode.htmlName}">
+				<label class="form-control-label b-input_row-label ${addressFields.postalCode.mandatory === true ? '' : 'postalCodeNotMandatory'}" for="shippingZipCode${lineItem ? lineItem.UUID : 'default'}">
+					${Resource.msg('field.shipping.address.zip.code.emea','address',null)}
+				</label>
+				<input type="text" class="form-control shippingZipCode b-input_row-input postal-code js-zipCodeFormat" id="shippingZipCode${lineItem ? lineItem.UUID : 'default'}" aria-describedby="${lineItem ? lineItem.UUID : 'default'}ZipCode"
+					value="${shippingAddress.postalCode||''}" <isprint value="${addressFields.postalCode.attributes}" encoding="off"/>
+					data-pattern-mismatch="${Resource.msg('error.message.parse.zip','forms',null)}"
+					data-missing-error="${missingError}" data-analytics-track="shipping : shipping_zip" autocomplete="shipping postal-code"/>
+				<div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}ZipCode"><isprint value="${addressFields.postalCode.error}" ></div>
+			</div>
+		</div>
+    </isif>
+    <isif condition="${pdict.isPostalCodeDropDown}">
+        <div class="b-shipping_form-column">
+            <div class="form-group b-input_row b-general
+                ${addressFields.postalCode.mandatory === true ? 'required' : ''}
+                ${addressFields.postalCode.htmlName}">
+                <label class="form-control-label b-input_row-label ${addressFields.postalCode.mandatory === true ? '' : 'postalCodeNotMandatory'}" for="shippingZipCode${lineItem ? lineItem.UUID : 'default'}">
+                    ${Resource.msg('field.shipping.address.zip.code.emea','address',null)}
+                </label>
+                <select type="text" class="form-control shippingZipCode b-input_row-input postal-code js-zipCodeFormat dropdownPostalCode b-general-select" id="shippingZipCode${lineItem ? lineItem.UUID : 'default'}" aria-describedby="${lineItem ? lineItem.UUID : 'default'}ZipCode"
+                    value="${shippingAddress.postalCode||''}" <isprint value="${addressFields.postalCode.attributes}" encoding="off"/>
+                    data-pattern-mismatch="${Resource.msg('error.message.parse.zip','forms',null)}"
+                    data-missing-error="${Resource.msg('or.select.postalCode.error.required', 'forms', null)}" data-analytics-track="shipping : shipping_zip" autocomplete="shipping postal-code"/>
+                    <isloop items=${addressFields.postalCode.options} var="postalCode">
+                            <option id="${postalCode.id}" value="${postalCode.htmlValue}" ${postalCode.id===shippingAddress.postalCode ? 'selected' : ''}>${postalCode.label || ' '}</option>
+                    </isloop>
+                </select>
+                <div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}ZipCode"><isprint value="${addressFields.postalCode.error}" ></div>
+            </div>
+        </div>
+    </isif>
+    <div class="b-shipping_form-column">
+        <div class="form-group b-country adjustArrow
+            ${addressFields.country.mandatory === true ? 'required' : ''}
+            ${addressFields.country.htmlName}">
+            <label class="form-control-label b-country-label" for="shippingCountry${lineItem ? lineItem.UUID : 'default'}">
+                ${Resource.msg('field.shipping.address.country','address',null)}
+            </label>
+            <select class="form-control shippingCountry custom-select b-country-select" id="shippingCountry${lineItem ? lineItem.UUID : 'default'}"
+                <isprint value=${addressFields.country.attributes} encoding="off"/>
+                data-analytics-track="shipping : shipping_country" autocomplete="shipping country"/>
+                aria-describedby="${lineItem ? lineItem.UUID : 'default'}Country">
+                    <isloop items=${addressFields.country.options} var="country">
+                        <option id="${country.id}" value="${country.htmlValue}" selected>${country.label}</option>
+                    </isloop>
+            </select>
+            <div class="invalid-feedback" id="${lineItem ? lineItem.UUID : 'default'}Country"><isprint value="${addressFields.country.error}" ></div>
+        </div>
+    </div>
+</div>
+    <input type="hidden" class="form-control b-input_row-input" id="shippingAddressUseAsBillingAddress" value="${true}" <isprint value=${pdict.forms.shippingForm.shippingAddress.shippingAddressUseAsBillingAddress.attributes} encoding="off"/>/>
+
+<isif condition="${!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer.addresses && pdict.customer.addresses.length > 0 && pdict.containsLocaleAddress}">
+    <div class="continue-buttons">
+        <button type="button" class="shipping-cancel-button">${Resource.msg('shipping.address.cancel','address',null)}</button>
+        <button class="btn shipping-save-button btn-primary btn-block g-button_base g-button_secondary--black" type="button" data-action-url="${URLUtils.https('CheckoutAddressServices-UpdateShippingAddress')}">
+            ${Resource.msg('shipping.address.save','address',null)}
+        </button>
+    </div>
+</isif>
+<input type="hidden" class="selectLabel" value="${Resource.msg('select.option.select', 'forms', null)}" /> 

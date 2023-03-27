@@ -1,0 +1,25 @@
+importPackage( dw.svc );
+importPackage( dw.net );
+importPackage( dw.io );
+
+//the configure method creates the Service instance
+module.exports.ShoprunnerSftpFeedSubmit = function(site) {
+	var SRServiceConstant = require("~/cartridge/scripts/util/srGlobals").SRServiceConstant(site);
+	var service = LocalServiceRegistry.createService(SRServiceConstant.FEED_SFTP_SERVICE_ID, {
+		//the ServiceDefinition uses methods from the ServiceCallback object
+		createRequest: function(svc:FTPService, args){
+			return svc;
+		},
+		parseResponse: function(svc:FTPService, result:Array) {
+			return result;
+		},    
+		mockCall : function(svc:FTPService, params) {
+			return {
+				statusCode: 200,
+				statusMessage: "Success",
+				text: "MOCK RESPONSE (" + svc.url + ")"
+			};
+		}
+	});
+	return service;
+};

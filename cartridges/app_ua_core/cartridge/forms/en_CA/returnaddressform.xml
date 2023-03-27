@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19" secure="false"> 
+
+	<field formid="returnfirstname" 
+			type="string" 
+			mandatory="true" 
+			max-length="50"
+			missing-error="error.message.required"
+			range-error="error.message.lessthan50"/>
+			
+	<field formid="returnlastname" 
+			type="string" 
+			mandatory="true" 
+			max-length="50"
+			missing-error="error.message.required"
+			range-error="error.message.lessthan50"/>
+	
+	<field formid="streetaddress" 
+			type="string" 
+			mandatory="true" 
+			max-length="50"
+			missing-error="error.message.required"
+			range-error="error.message.lessthan50"/>
+
+	<field formid="apt" 
+			type="string" 
+			max-length="50"
+			missing-error="error.message.required"
+			range-error="error.message.lessthan50"/>
+			
+	<field formid="city" 
+			type="string" 
+			mandatory="true" 
+			max-length="50"
+			missing-error="error.message.required"
+			range-error="error.message.lessthan50"/>
+			
+	<field formid="returnstate" type="string" mandatory="true" value-error="">
+        <options>
+            <option optionid="" label="" value=""/>
+            <!-- Canadian provinces and territories -->
+            <option optionid="AB"   label="AB"   value="AB"/>
+            <option optionid="BC"   label="BC"   value="BC"/>
+            <option optionid="MB"   label="MB"   value="MB"/>
+            <option optionid="NB"   label="NB"   value="NB"/>
+            <option optionid="NL"   label="NL"   value="NL"/>
+            <option optionid="NS"   label="NS"   value="NS"/>
+            <option optionid="NT"   label="NT"   value="NT"/>
+            <option optionid="NU"   label="NU"   value="NU"/>
+            <option optionid="ON"   label="ON"   value="ON"/>
+            <option optionid="PE"   label="PE"   value="PE"/>
+            <option optionid="QC"   label="QC"   value="QC"/>
+            <option optionid="SK"   label="SK"   value="SK"/>
+            <option optionid="YT"   label="YT"   value="YT"/>
+        </options>
+    </field>
+    
+    <field formid="returnzip" 
+			type="string" 
+			mandatory="true" 
+			max-length="50"
+			missing-error="error.message.required"
+			regexp="(^(?!.*[DFIOQU])[A-VXY][0-9][A-Z] ?[0-9][A-Z][0-9]$)"
+			range-error="error.message.lessthan50"/>
+			
+	<field formid="returnemail" 
+			type="string" 
+			mandatory="true" 
+			max-length="50"
+			missing-error="error.message.required"
+			range-error="error.message.lessthan50"/>
+	
+	<field formid="returnphone" 
+			type="string" 
+			mandatory="true" 
+			max-length="50"
+			missing-error="error.message.required"
+			range-error="error.message.lessthan50"/>
+			
+	<action formid="send" valid-form="true"/>
+
+</form>

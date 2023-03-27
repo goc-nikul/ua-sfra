@@ -1,0 +1,61 @@
+@mixin t-text-1 {
+    @include font(main, rem-calc(14), rem-calc(16));
+}
+
+@mixin t-text-2 {
+    @include font(main, rem-calc(12), rem-calc(20));
+}
+
+@mixin t-text-3 {
+    @include font(main, rem-calc(12), rem-calc(16));
+}
+
+@mixin t-text-4 {
+    @include font(main, rem-calc(10), rem-calc(16));
+}
+
+@mixin t-error($size: 10, $color: color(error)) {
+    font-size: rem-calc(10);
+    color: $color;
+}
+
+@mixin t-text-state {
+    color: $grey5;
+    text-decoration: none;
+    @include font(main_semi_bold, rem-calc(12), rem-calc(20));
+
+    &:hover {
+        color: $black;
+
+        @include respond-to(mobile) {
+            text-decoration: underline;
+        }
+    }
+}
+
+@mixin t-text-oos {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-transform: uppercase;
+    color: $white;
+    background-color: rgba(95, 95, 95, 0.7);
+    z-index: 1;
+    padding: rem-calc(20) rem-calc(10);
+    width: calc(100% - 80px);
+    text-align: center;
+    border-radius: rem-calc(5);
+    letter-spacing: rem-calc(0.5);
+    @include font(main_med, rem-calc(16), 1.67);
+
+    @include respond-to(mobile) {
+        font-size: rem-calc(12);
+        width: calc(100% - 20px);
+    }
+}
+
+@mixin t-text-5 {
+    @include font(main, rem-calc(11), rem-calc(16));
+}
+

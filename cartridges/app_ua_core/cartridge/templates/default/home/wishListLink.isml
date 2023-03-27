@@ -1,0 +1,9 @@
+<!--- TEMPLATENAME: wishListLink.isml --->
+<isif condition="${!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR')}">
+    <div class="b-header-wishlist b-wishlist">
+        <iscomment> TODO: Have to add the correct link for Wishlist </iscomment>
+        <a class="b-wishlist-link" href="${URLUtils.url('Wishlist-Show')}" aria-label="${Resource.msg('button.addto.wishlist','common',null)}">
+            <span class="h-hide">${Resource.msg('global.header.wishlist', 'common', null)}</span>
+        </a>
+    </div>
+</isif>

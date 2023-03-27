@@ -1,0 +1,43 @@
+<div class="b-order-col-rightsec">
+	<isif condition="${pdict.orderReturnItems !=null && pdict.orderReturnItems == 'select' }">
+	     <div class="return-exchange-static">
+	         <div class="return-policy-asset">
+	             <iscontentasset aid="order-return-policy-asset" />
+	         </div>
+	         <div class="refunds-asset">
+	             <iscontentasset aid="order-refunds-policy-asset" />
+	         </div>
+	     </div>
+	</isif> 
+	 <div class="b-return-continuebtn">
+         <isif condition="${pdict.continueGuestReturnURL}">
+             <isset name="continueReturnURL" value="${pdict.continueGuestReturnURL}" scope="page" />
+         <iselse>
+             <isset name="continueReturnURL" value="${URLUtils.url('Order-ContinueReturn')}" scope="page" />
+         </isif>
+         <isif condition="${pdict.orderReturnItems !=null && pdict.orderReturnItems == 'select' }">
+            <input class="continue-return g-button_base g-button_primary--black ${pdict.continueGuestReturnURL ? 'continue-guest-return' : ''}" type="submit" data-orderID="${order.orderNo}" data-url="${continueReturnURL}" data-return="" value="${Resource.msg('label.order.continue.return','account',null)}">
+         </isif>
+     </div>
+     <isif condition="${pdict.orderReturnItems == 'reason'}"> 
+       <isif condition="${pdict.continueGuestReasonURL}">
+           <isset name="retunUrl" value="${pdict.continueGuestReasonURL}" scope="page" />
+       <iselse>
+           <isset name="retunUrl" value="${URLUtils.url('Order-ContinueReason')}" scope="page" />
+       </isif>
+       <div class="return-summary-container">
+           <isif condition="${pdict.orderReturnItems == 'reason' && !pdict.exchangeOrder}">
+               <isinclude template="account/order/estimatedRefundSummary"/>
+           </isif>
+           <isif condition="${pdict.orderReturnItems == 'reason' && pdict.exchangeOrder}">
+               <input class="continue-return-reason g-button_primary--black g-button_base ${pdict.continueGuestReasonURL ? 'guest-user' : ''}" type="submit" data-orderId="${pdict.order.orderNo}" data-url="${retunUrl}" value="${Resource.msg('label.order.continue.return','account',null)}">
+           <iselse>
+               <input class="continue-return-reason g-button_primary--black g-button_base ${pdict.continueGuestReasonURL ? 'guest-user' : ''}" type="submit" data-orderId="${pdict.order.orderNo}" data-url="${retunUrl}" value="${Resource.msg('label.order.continue.return','account',null)}">
+           </isif>
+           <isif condition="${pdict.isUACAPIActive}">
+               <div class="return-error-message"></div>
+               <input id="uacapi-active" type="hidden" data-status="${true}"/>
+           </isif>
+       </div>
+    </isif>
+</div>

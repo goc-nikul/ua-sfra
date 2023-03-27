@@ -1,0 +1,72 @@
+.l-pdp {
+    &[data-region='na'],
+    &[data-region='emea'],
+    &[data-region='apac'] {
+        .b-product_attrs-item[data-attr='size'] {
+            @include respond-to(mobile) {
+                border-top: 1px solid $grey3;
+                padding-top: spacing(xs);
+            }
+        }
+
+        .b-breadcrumbs-item {
+            &:last-child {
+                .b-breadcrumbs-link {
+                    font-weight: 500;
+                }
+            }
+
+            &::after {
+                margin: 0 rem-calc(4);
+                color: $grey5;
+            }
+        }
+
+        .b-breadcrumbs-link {
+            border-bottom: 1px solid $grey5;
+            line-height: rem-calc(20);
+            padding-bottom: rem-calc(2);
+            display: inline-block;
+
+            @include respond-to(desktop) {
+                &:hover {
+                    color: black;
+                }
+            }
+        }
+    }
+
+    &-main {
+        .mobile_only {
+            @include respond-to(desktop) {
+                display: none;
+            }
+
+            &.b-product_info {
+                padding: unset;
+                margin: spacing(xs);
+            }
+
+            .b-breadcrumbs-list {
+                margin: unset;
+            }
+
+            .b-product_name-fav_defultButton {
+                top: 0.25rem;
+            }
+
+            .b-product_attrs-item[data-attr='color'] {
+                border: none;
+                border-bottom: 1px solid $grey3;
+                padding: unset;
+                margin: unset;
+            }
+        }
+
+        .desktop_only {
+            @include respond-to(mobile) {
+                display: none;
+            }
+        }
+    }
+}

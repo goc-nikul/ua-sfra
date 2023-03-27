@@ -1,0 +1,68 @@
+<div class="form-group">
+    <isset name="enablePersonalAddress" value="${false}" scope="page" />
+    <isset name="isHideEmployeeOfficeAddresses" value="${pdict.hideEmployeeOfficeAddresses || pdict.officeAddresses.length === 0}" scope="page" />
+    <isif condition="${(shippingModel && shippingModel.matchingAddressId) || isHideEmployeeOfficeAddresses}">
+        <isset name="enablePersonalAddress" value="${true}" scope="page" />
+    </isif>
+    <div class="form-group">
+        <div class="js-ship-to-office ${enablePersonalAddress ? 'hide' : ''}">
+            <div class="b-address-heading">UA ${Resource.msg('heading.checkout.shippingaddress', 'checkout',null)}</div>
+            <div class="b-shipto-office-error hide js-shipto-office-error">
+                <p>${Resource.msg('error.selectshipto.officeaddress','checkout', null)}</p>
+            </div>
+            <div class="shipping-address-section-selected"></div>
+            <div>
+                <button
+                    class="btn-show-address g-button_base g-button_secondary--black js-btn-toggle-more-few hide"
+                    data-text="${Resource.msg('employee.officeaddress.showless', 'checkout', null)}"
+                    data-alt-text="${Resource.msg('employee.officeaddress.showmore', 'checkout', null)}"
+                >
+                    ${Resource.msg('employee.officeaddress.showless','checkout', null)}
+                </button>
+            </div>
+            <div class="shipping-address-container ${pdict.officeAddresses.length == 2 ? 'single-office-address' : ''}">
+                <div
+                    id="shipmentSelector-${lineItem ? lineItem.UUID : 'default'}"
+                    name="shipmentSelector"
+                    class="addressSelector employee-address-selector form-control custom-select"
+                    data-create-shipment-url="${URLUtils.https('CheckoutAddressServices-CreateNewAddress')}"
+                >
+                    <isinclude template="checkout/shipping/employeeShipmentSelectorOptions" />
+                </div>
+            </div>
+        </div>
+        <div class="js-ship-to-personal ${enablePersonalAddress ? '' : 'hide'}">
+            <div class="b-address-heading">${Resource.msg('heading.checkout.personaladdress','checkout', null)}</div>
+            <div class="shipping-address-container">
+                <div
+                    id="shipmentSelector-${lineItem ? lineItem.UUID : 'default'}"
+                    name="shipmentSelector"
+                    class="addressSelector form-control custom-select"
+                    data-create-shipment-url="${URLUtils.https('CheckoutAddressServices-CreateNewAddress')}"
+                >
+                    <isinclude template="checkout/shipping/shipmentSelectorOptions" />
+                </div>
+            </div>
+            <isinclude template="checkout/shipping/removeDeleteAddressPopup" />
+            <div class="invalid-feedback"></div>
+            <div class="row">
+                <a class="col-6 text-center btn-add-new g-button_secondary--black g-button_base">${Resource.msg('action.add.new.shipping','checkout', null)}</a>
+            </div>
+        </div>
+    </div>
+    <div class="office-is-closed-modal">
+        <div class="modal g-modal g-modal-officeClosed" id="officeisclosed" role="dialog">
+            <div class="modal-dialog g-modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content g-modal-content">
+                    <div class="modal-body g-modal-body">
+                        ${Resource.msg('error.officeaddress.noavailable', 'checkout', null)}
+                    </div>
+                    <div class="modal-footer g-modal-footer">
+                        <button class="g-button_base g-button_primary--black btn btn-outline-primary" data-dismiss="modal">${Resource.msg('employee.officeaddress.msg','checkout', null)}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+<div class="b-refinements_price">
+    <ul class="b-refinements_price-list">
+        <isloop items="${refinement.values}" var="refinementValue">
+            <li class="b-refinements_price-item">
+                <a href="${refinementValue.pageUrl}" class="b-refinements_price-btn ${refinementValue.selected ? 'm-selected' : ''}" 
+                        onclick="$(this).hasClass('m-selected')?$(this).removeClass('m-selected'):$(this).addClass('m-selected').siblings().removeClass('m-selected')"
+                        title="${Resource.msgf(refinementValue.selected ? 'label.refinement.selected.title' : 'label.refinement.title', 'search', null, refinement.displayName.toLowerCase(), refinementValue.displayValue)}"
+                        data-href="${refinementValue.url}">
+                    <span aria-hidden="true" class="bfx-price">
+                        ${refinementValue.displayValue}
+                    </span>
+                </a>
+            </li>
+        </isloop>
+    </ul>
+</div>

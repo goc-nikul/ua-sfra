@@ -1,0 +1,52 @@
+<isinclude template="components/modules"/>
+<isset name="loyaltyEnable" value="${'isLoyaltyEnable' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.isLoyaltyEnable}" scope="page" />
+
+<div class="g-modal-header g-login-modal-header">
+    <h2 class="g-modal-title g-password-modal-title request-password-title">${Resource.msg('label.create.account.header', 'login', null)}</h2>
+    <div class="g-password-modal-close">
+        <button type="button" class="g-password-modal-close_button close" data-dismiss="modal" aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+    </div>
+    <div class="free-shipping-promotion">
+        <isslot id="register-modal-promo-message" context="global" description="Message Banner In Register Modal" />
+    </div>
+</div>
+<div class="b-createaccount" id="register" aria-labelledby="register">
+    <iscontentasset aid="account-advantages-registerModal"/>
+    <isif condition="${loyaltyEnable && !!pdict.showLoyaltyEnroll}">
+            <isset name="LoginURL" value="${URLUtils.https('Login-Show', 'pilotEnroll', 'true', 'channel', pdict.channel, 'subChannel', pdict.subChannel, 'subChannelDetail', pdict.subChannelDetail)}" scope="page"/>
+        <iselse/>
+            <isset name="LoginURL" value="${URLUtils.https('Login-Show')}" scope="page"/>
+    </isif>
+    <isinclude template="account/components/accountRegisterForm" />
+
+    <div class="b-info-container">
+        <div>
+            <span>
+                <isprint value="${Resource.msg('label.create.account.myfitnessapp', 'login', null)}"/>
+            </span>
+        </div>
+
+        <div class="register-policy">
+            <span>
+                <isif condition="${loyaltyEnable && !!pdict.showLoyaltyEnroll}">
+                    <iscontentasset aid="loyalty-register-policy" />
+                <iselse/>
+                    <iscontentasset aid="register-policy" />
+                </isif>
+            </span>
+        </div>
+
+        <div class="register-login">
+            <span>
+                <isprint value="${Resource.msg('label.create.account.hasaccount', 'login', null)}"/>
+            </span>
+
+            <span>
+            <a class="b-header_account-link js-login" href="${URLUtils.https('Account-Show', 'pageRef', pdict.pageRef)}" data-href="${LoginURL}" role="button"
+                    aria-label="${Resource.msg('label.header.loginbutton', 'account', null)}">
+                    ${Resource.msg('link.header.login', 'account', null)}
+                </a>
+            </span>
+        </div>
+    </div>
+</div>

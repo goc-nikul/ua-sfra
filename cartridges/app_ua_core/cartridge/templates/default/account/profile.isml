@@ -1,0 +1,76 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/js/profile.js');
+        assets.addJs('/js/account.js');
+        assets.addJs('/js/loginProfile.js');
+    </isscript>
+    <div class="b-account b-account-profile js-account-profile-page ${pdict.refreshtokenGenerationError ? 'hide' : ''}">
+        <div class="b-account-container b-account-container-top">
+            <div class="b-account-left"></div>
+            <div class="b-account-right b-account-address_book">
+                <div class="b-account-address_book-pageHeading js-account-page-heading">
+                    <isif condition="${pdict.newCustomer}">
+                        <div class="new-customer b-account-profile__header-desktop">
+                            <iscontentasset aid="Account-Profile-New-User-Text" />
+                        </div>
+                    </isif>
+                    <div class="heading-addresses  ${pdict.newCustomer ? 'newCustProfile' : '' }">${Resource.msg('header.account.profile','account',null)}<span class="account-icon"></span></div>
+                </div>
+            </div>
+        </div>
+        <div class="b-account-container b-account-container-bottom">
+            <div class="b-account-left js-account-left">
+                <isinclude template="account/leftNavLinks"/>
+            </div>
+            <div class="b-account-right b-account-address_book-heading b-account-edit-profile b-account-profile-heading">
+
+                <div class="b-account-profile__header-desktop">
+                    <div class="b-account-address_book-heading">
+                        <h1 class="heading-addresses sub-heading-edit-profile">${Resource.msg('sub.heading.account.profile','account',null)}</h1>
+                    </div>
+                    <div class="b-account-profile-updated b-account-address_book-updated">
+                        <isif condition="${!pdict.newCustomer}">
+                            <div class="last-updated"><isprint value="${Resource.msgf('label.lastupdated','address',null, pdict.lastUpdated)}" /> </div>
+                        </isif>
+                        <span class="required-fields"><isprint value="${Resource.msgf('label.requiredfields','address',null, pdict.lastUpdated)}" /> </span>
+                    </div>
+                </div>
+                <div class="b-account-address_book-container">
+                    <div class="b-account-profile__header-mobile b-account-address_book-pageHeading noBorder">
+                        <isif condition="${pdict.newCustomer}">
+	                        <div class="new-customer">
+	                            <iscontentasset aid="Account-Profile-New-User-Text" />
+	                        </div>
+	                    </isif>
+                    </div>
+                    <div class="b-account-dashboard_profile-icon">
+                        <img class="b-logo-image" src="${URLUtils.staticURL('/images/uablacklogo.svg')}"
+                             title="${Resource.msg('global.storename', 'common', null)}"
+                             alt="${Resource.msg('global.logo', 'common', null)}"
+                        />
+                    </div>
+                    <div class="b-account-profile__header-mobile b-account-profile__heading">
+	                    <div class="b-account-address_book-heading">
+	                        <h1 class="heading-addresses sub-heading-edit-profile">${Resource.msg('sub.heading.account.profile','account',null)}</h1>
+	                    </div>
+	                    <div class="b-account-profile-updated b-account-address_book-updated">
+	                        <isif condition="${!pdict.newCustomer}">
+	                            <div class="last-updated"><isprint value="${Resource.msgf('label.lastupdated','address',null, pdict.lastUpdated)}" /> </div>
+	                        </isif>
+	                    </div>
+	               </div>
+	               <div class="b-account-profile__headwrap b-account-edit-profile-pageHeading">
+                       <span class="b-account-profile-subhead">${Resource.msg('info.account.profile','account',null)}</span>
+                       <span class="required-fields b-account-profile__header-mobile"><isprint value="${Resource.msgf('label.requiredfields','address',null, pdict.lastUpdated)}" /> </span>
+                   </div>
+                   <isinclude template="account/editProfileForm"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="js-login-screen ${pdict.refreshtokenGenerationError ? '' : 'hide'}">
+       <isinclude template="account/components/loginScreen" />
+    </div>
+</isdecorate>

@@ -1,0 +1,11 @@
+<!--- TEMPLATENAME: remoteWishListLink.isml --->
+<isif condition="${!(pdict.CurrentCustomer && pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR'))}">
+	<div class="b-header-wishlist b-wishlist b-navigation_utility-item">
+		<iscomment> TODO: Have to add the correct link for Wishlist</iscomment>
+		<a class="b-navigation_utility-link" href="${URLUtils.url('Wishlist-Show')}"
+		    title="${Resource.msg('global.header.wishlist', 'common', null)}">
+		    <i class="b-navigation_utility-icon b-wishlist-icon" aria-hidden="true"></i>
+		    <span class="b-navigation_utility-title">${Resource.msg('global.header.wishlist', 'common', null)}</span>
+		</a>
+	</div>
+</isif>

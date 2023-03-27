@@ -1,0 +1,36 @@
+/**
+*
+*   @input category : dw.catalog.Category
+*   @output allProduct : dw.util.Iterator
+*   @output countProduct : Number
+*
+*/
+importPackage( dw.system );
+importPackage( dw.catalog );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "getAllProducts"));
+
+/**
+    Get all orderable products for inclusion on display
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+
+        var psm : ProductSearchModel = new ProductSearchModel();
+
+        psm.setCategoryID(pdict.category.getID());
+        psm.setOrderableProductsOnly(false);
+        psm.setRecursiveCategorySearch(true);
+        psm.search();
+
+        pdict.allProduct = psm.getProducts();
+        pdict.countProduct = psm.getCount();
+    } catch (e) {
+        LOGGER.errorException("getAllProducts execution failed for categoryId={0}", pdict.category.getID(), e);
+        return PIPELET_ERROR;
+    }
+
+   return PIPELET_NEXT;
+}

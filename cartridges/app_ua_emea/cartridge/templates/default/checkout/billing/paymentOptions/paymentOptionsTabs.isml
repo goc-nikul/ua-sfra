@@ -1,0 +1,15 @@
+<isloop items="${pdict.order.billing.payment.applicablePaymentMethods}" var="paymentOption">
+    <isif condition="${paymentOption.ID === 'CREDIT_CARD'}">
+        <isinclude template="checkout/billing/paymentOptions/creditCardTab" />
+    <iselseif condition="${paymentOption.ID === Resource.msg(paymentOption.ID.toLowerCase() + '.payment.id', 'payment', '')}">
+        <isinclude template="${Resource.msg(paymentOption.ID.toLowerCase() + '.payment.template.tab', 'payment', '')}" />
+    <iselseif condition="${paymentOption.ID === 'DW_APPLE_PAY'}">
+        <isif condition="${pdict.CurrentSession.custom.currentCountry === 'GB'}">
+            <isinclude template="checkout/billing/paymentOptions/applePayTab" />
+        </isif>    
+    <iselseif condition="${paymentOption.ID === 'AdyenComponent'}">
+        <isinclude template="checkout/billing/paymentOptions/adyenComponentTab"/>
+    <iselseif condition="${paymentOption.ID === 'AdyenPOS'}">
+        <isinclude template="checkout/billing/paymentOptions/adyenPosTab"/>
+    </isif>
+</isloop>

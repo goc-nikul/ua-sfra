@@ -1,0 +1,124 @@
+<!--- TEMPLATENAME: cartSaveLaterCard.isml --->
+<div class="b-cartlineitem card-product-info card cart-savelater-product ${loopState.first ? 'first' : ''}" data-cmp="cartTile" data-pid="${item.pid}"
+    data-name="${item.name}">
+    <div class="availability-err hide">
+        <isinclude template="cart/productCard/cartProductSavedItemAvailability" />
+    </div>
+    <div class="b-cartlineitem_row">
+    <div class="b-cartlineitem_image line-item-image ${typeof item.imageObj.gridTileDesktop[0] !=='undefined' && item.imageObj.gridTileDesktop[0].title === 'No image' ? 'product_tile-noimage' : ''} ${((item.master && !item.available) || ('productAvailability' in item.custom && item.custom.productAvailability === false)) ? 'b-cartlineitem_image-outofstock' : ''}">
+        <a href="${URLUtils.url('Product-Show', 'pid', item.pid)}">
+            <img class="b-wishlist-products_img" src="${typeof item.imageObj.gridTileDesktop !=='undefined' ? item.imageObj.gridTileDesktop[0].url: null}" alt="${typeof item.imageObj.gridTileDesktop !=='undefined' ? item.imageObj.gridTileDesktop[0].url : null}" title="${typeof item.imageObj.gridTileDesktop[0] !=='undefined' ? item.imageObj.gridTileDesktop[0].title : null}" />
+        </a>
+        <isif condition="${(item.master && !item.available) || ('productAvailability' in item.custom && item.custom.productAvailability === false)}">
+            <span class="outofstock-message">${Resource.msg('label.not.available', 'common', null)}</span>
+        </isif>
+        <isif condition="${(item.custom.exclusive === 'coming-soon')}">
+            <p class="b-product_preorder-maskpdp">${item.custom.comingSoonMessage}</p>
+        </isif>
+    </div>
+<div class="b-cartlineitem_details">
+    <div class="cart-savelater-product-name">
+            <a href="${URLUtils.url('Product-Show', 'pid', item.pid)}" class="b-lineitem_itemname bfx-product-name">${item.name}</a>
+    </div>
+    <div class="b-cartlineitem_attributes">
+        <isif condition="${item.custom.sku}">
+            <p class="t-lineitem_attributes">${Resource.msg('label.product.item.sku', 'cart', null)} ${item.custom.sku}</p>
+        </isif>
+        <isif condition="${item.custom.giftCard == 'EGIFT_CARD'}">
+            <p class="t-lineitem_attributes gcrecipientname" data-gcrecipientname="${item.custom.gcRecipientName}"><span><isprint value="${Resource.msg('giftcard.details.recipient', 'cart', null) + ': '}"/></span><span><isprint value="${item.custom.gcRecipientName}"/></span></p>
+            <p class="t-lineitem_attributes gcrecipientemail" data-gcrecipientemail="${item.custom.gcRecipientEmail}"><span><isprint value="${Resource.msg('giftcard.details.email', 'cart', null) + ': '}"/></span><span><isprint value="${item.custom.gcRecipientEmail}"/></span></p>
+            <p class="t-lineitem_attributes gcfrom" data-gcfrom="${item.custom.gcFrom}"><span><isprint value="${Resource.msg('giftcard.details.from', 'cart', null) + ': '}"/></span><span><isprint value="${item.custom.gcFrom}"/></span></p>
+            <p class="t-lineitem_attributes gcdeliverydate" data-gcdeliverydate="${item.custom.gcDeliveryDate.toISOString().split('T')[0]}"><span><isprint value="${Resource.msg('giftcard.details.delivery', 'cart', null) + ': '}"/></span><span><isprint value="${item.custom.gcDeliveryDate}" formatter="MM/dd/yyyy" timezone="utc"/></span></p>
+            <input type="hidden" class="gcmessage" data-gcmessage="${item.custom.gcMessage}" />
+        <iselse/>
+            <isloop items="${item.variationAttributes}" var="attribute">
+                <isif condition="${attribute.attributeId == 'color'}">
+                    <p class="t-lineitem_attributes ${attribute.displayName}-${typeof lineItem !=='undefined' ? lineItem.UUID :''}">
+                        <isset name="productHelpers" value="${require('*/cartridge/scripts/helpers/productHelpers')}" scope="page"/>
+                        <isset name="colorway" value="${item.custom.colorway}" scope="page" />
+                        <isset name="fixProductColorNames" value="${colorway ? productHelpers.fixProductColorNames(colorway) : null}" scope="page"/>
+                        <isif condition="${item.custom.color || colorway}">${attribute.displayName}: <isif condition="${colorway}"> <span> ${fixProductColorNames} </span></isif><span> - <isprint value="${item.custom.color}"/></span><iselse/><isprint value="${Resource.msgf('label.select.attribute', 'cart', null, attribute.displayName)}"/></isif>
+                    </p>
+                <iselseif condition="${attribute.attributeId == 'size'}" />
+                    <p class="t-lineitem_attributes ${attribute.displayName}-${typeof lineItem !=='undefined' ? lineItem.UUID :''}"><isif condition="${item.custom.size}">${attribute.displayName}: ${item.custom.size}<iselse/><isprint value="${Resource.msgf('label.select.attribute', 'cart', null, attribute.displayName)}"/></isif></p>
+                <iselse/>
+                    <p class="t-lineitem_attributes ${attribute.displayName}-${typeof lineItem !=='undefined' ? lineItem.UUID :''}">
+                        <isif condition="${typeof attribute.displayValue !=='undefined' && attribute.displayValue}">
+                            <isprint value="${attribute.displayName + ': ' + attribute.displayValue}"/>
+                        <iselseif condition="${typeof attribute.values[0] !=='undefined' && attribute.values[0].displayValue}" />
+                            <isprint value="${attribute.displayName + ': ' + attribute.values[0].displayValue}"/>
+                        <iselse/>
+                             <isprint value="${Resource.msgf('label.select.attribute', 'cart', null, attribute.displayName)}"/>
+                        </isif>
+                    </p>
+                </isif>
+            </isloop>
+            <isif condition="${item.options}">	
+                <isloop items="${item.options}" var="option">
+                    <isif condition="${!!option}" >
+                        <div class="lineItem-options-values" data-option-id="${option.optionId}" data-value-id="${option.selectedValueId}">
+                            <p class="t-lineitem_attributes">${option.displayName}</p>
+                        </div>
+                    </isif>
+                </isloop>
+            </isif>
+        </isif>
+     </div>
+
+     <div class="b-cartlineitem_price price-mobile">
+        <div class="b-productcard_total_price line-item-total-price b-cartlineitem_savedItem_price">
+                <isif condition="${item.custom.giftCard == 'EGIFT_CARD' && !empty(item.custom.gcAmount)}">
+                <div class="b-price">
+                    <span class="b-price-value gcamount" content="${item.custom.gcAmount}" data-gcamount="${item.custom.gcAmount}">
+                        <isprint value="${new dw.value.Money(item.custom.gcAmount, dw.system.Site.current.getDefaultCurrency())}" encoding="off"/>
+                    </span>
+                </div>
+            <iselse/>
+                    <isset name="price" value="${item.priceObj}" scope="page" />
+                <isinclude template="product/components/pricing/main" />
+            </isif>
+         </div>
+    </div>
+     <!--- quantity --->
+     <div class="b-header_minicart-item-quantity">
+         <p class="line-item-pricing-info">
+              <span class="line-item-total-text qty-card-quantity-label">
+              ${Resource.msg('field.selectquantity','cart',null)}:
+              </span>
+              <span class="pricing qty-card-quantity-count">1</span>
+          </p>
+     </div>
+    </div>
+    <div class="b-cartlineitem_price">
+        <div class="b-productcard_total_price line-item-total-price b-cartlineitem_savedItem_price">
+            <isif condition="${item.custom.giftCard == 'EGIFT_CARD' && !empty(item.custom.gcAmount)}">
+                <div class="b-price">
+                    <span class="b-price-value gcamount" content="${item.custom.gcAmount}" data-gcamount="${item.custom.gcAmount}">
+                        <isprint value="${new dw.value.Money(item.custom.gcAmount, dw.system.Site.current.getDefaultCurrency())}" encoding="off"/>
+                    </span>
+                </div>
+            <iselse/>
+                <isset name="price" value="${item.priceObj}" scope="page" />
+                <isinclude template="product/components/pricing/main" />
+            </isif>
+         </div>
+    </div>
+    <div class="b-cartlineitem_remove_edit btn-savedItems-section">
+        <div class="b-cartlineitem_savedItems_togetherbutton">
+            <div class="b-cart-btn_savelater">
+                <isset name="addToCartUrl" value="${URLUtils.url('Cart-AddProduct')}" scope="pdict" />
+                <input type="hidden" class="cart-url" value="${URLUtils.url('Cart-AddToCartFromSaveLater')}" />
+                <isif condition="${!((item.master && !item.available) || ('productAvailability' in item.custom && item.custom.productAvailability === false))}">
+                    <iscomment>
+                        EPMD-5438 - Hide Add to cart button if none of the variants are available
+                    </iscomment>
+                    <isinclude template="cart/productCard/cartWishlistAddToCart" />
+                </isif>
+                <div class="wishlist-cart-remove">
+                    <isinclude template="cart/productCard/cartWishlistRemove" />
+                </div>
+            </div>
+        </div>
+    </div>
+   </div>
+</div>

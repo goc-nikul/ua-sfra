@@ -1,0 +1,104 @@
+.g-availability-modal {
+    &-title {
+        @include font(main_bold, rem-calc(24), 1.33);
+
+        margin-bottom: rem-calc(16);
+    }
+
+    &-text {
+        @include font(main, rem-calc(12), 1.67);
+
+        margin-bottom: rem-calc(24);
+    }
+
+    .b-cartlineitem_image {
+        max-width: rem-calc(138);
+
+        @include respond-to(mobile) {
+            max-width: rem-calc(60);
+        }
+    }
+
+    .b-cartlineitem_details {
+        @include respond-to(mobile) {
+            width: calc(100% - 88px);
+        }
+    }
+
+    .b-lineitem {
+        a {
+            vertical-align: top;
+        }
+    }
+
+    &-footer {
+        display: flex;
+        justify-content: space-between;
+        flex-direction: row-reverse;
+
+        @include respond-to(mobile) {
+            display: inline-block;
+        }
+
+        .b-button-continue {
+            @include respond-to(mobile) {
+                margin-bottom: rem-calc(16);
+                margin-top: 0;
+            }
+        }
+    }
+}
+
+.g-availability-modal-check {
+    &-dialog {
+        max-width: rem-calc(448);
+        margin: rem-calc(28) auto;
+        min-height: calc(100% - (1.75rem * 2));
+    }
+
+    &-content {
+        padding: rem-calc(40) rem-calc(40) rem-calc(48);
+    }
+
+    &-title {
+        @include font(main_bold, rem-calc(24), 1.33);
+
+        margin-bottom: rem-calc(16);
+        letter-spacing: rem-calc(1);
+    }
+
+    &-text {
+        @include font(main, rem-calc(14), 1.43);
+
+        margin-bottom: rem-calc(32);
+    }
+
+    &-footer {
+        display: flex;
+        justify-content: space-between;
+        flex-flow: wrap;
+        flex-direction: row-reverse;
+        margin-top: 0;
+
+        .button-styles {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .last-button-styles {
+            margin-top: rem-calc(24);
+        }
+    }
+
+    &-close-button {
+        width: rem-calc(16);
+        height: rem-calc(16);
+        position: relative;
+        top: rem-calc(8);
+
+        &::before,
+        &::after {
+            width: rem-calc(16);
+        }
+    }
+}

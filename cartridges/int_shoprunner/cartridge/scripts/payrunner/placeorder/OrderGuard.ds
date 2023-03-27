@@ -1,0 +1,16 @@
+/**
+ *  OrderGaurd Scripting Node checks for Unique Variable between Request & session to allow users to use GetOrderAPI
+ *   @input redirectKey : String
+ */
+importPackage( dw.system );
+
+function execute( args : PipelineDictionary ) : Number
+{
+
+	if( session.custom.redirectKey == args.redirectKey  ) {
+		session.custom.redirectKey = null;
+		return PIPELET_NEXT;
+	}
+
+   return PIPELET_ERROR;
+}

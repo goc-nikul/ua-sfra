@@ -1,0 +1,50 @@
+<script>
+  window.UADatalayer.prototype.onDependenciesReady(function bindLoginRegisterEvents() {
+    var safetyFirst = window.UADatalayer.prototype.safetyFirst;
+    $('body').on('login:failed', function tealiumLoginFailedListener(jqEv, data){
+      safetyFirst(function tealiumLoginFailActionWrap(){
+        var d = data || {};
+        var errors = [];
+        if (d.emailErrorMessage) {
+          errors.push('email:' + d.emailErrorMessage);
+        }
+        if (d.passwordErrorMessage) {
+          errors.push('pass:' + d.passwordErrorMessage);
+        }
+        if (d.errorMessage) {
+          errors.push('response:' + d.errorMessage);
+        }
+        uaDatalayer.action('loginAttempt', {
+          type: 'ua',
+          error_name: 'login invalid',
+          error_message: errors.length ? errors.join(',') : undefined
+        });
+        uaDatalayer.action('errorMessageShown', {
+            error_name: 'login invalid',
+            error_message: errors.length ? errors.join(',') : undefined
+        });
+      });
+    });
+     $('body').on('login:success:analytics', function tealiumLoginSuccessListener(jqEv, data){
+       safetyFirst(function tealiumLoginSuccessActionWrap(){
+         uaDatalayer.action('loginSuccess', {
+           type: 'ua',
+           customer_id: data && data.customerNo,
+           plain_text_email: data && data.email
+         });
+       });
+     });
+    $('body').on('register:success:analytics', function tealiumRegisterSuccessListener(jqEv, data){
+      safetyFirst(function tealiumRegisterSuccessActionWrap(){
+        // pickup registration data on next page
+        uaDatalayer.action('registerSuccess', {
+          type: 'ua',
+          opt_in: data && data.addToEmailList ? 'yes' : 'no',
+          logged_in_status: 'Logged In',
+          customer_id: data && data.customerNo,
+          plain_text_email: data && data.email
+        });
+      });
+    });
+  });
+</script>

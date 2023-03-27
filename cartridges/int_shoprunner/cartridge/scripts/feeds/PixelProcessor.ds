@@ -1,0 +1,61 @@
+'use strict';
+
+var Collection = require('dw/util/Collection');
+
+var Order = require('dw/order/Order');
+var OrderItem = require('dw/order/OrderItem');
+var ProductLineItem = require('dw/order/ProductLineItem');
+
+var SRFeedType = require("~/cartridge/scripts/feeds/feedconstants").SRFeedType;
+var FeedUtil = require("~/cartridge/scripts/feeds/FeedUtil");
+
+
+function PixelProcessor(order: Order): String {
+    this.order = order;
+}
+
+PixelProcessor.prototype.getType = function() {
+    return SRFeedType.PIXEL_FEED;
+}
+
+PixelProcessor.prototype.process = function(): String {
+    var order = this.order;
+    //get the OrderProductLineItems
+    var orderproducts: Collection = order.getProductLineItems();
+    var productConfirmed: String = '';
+    var item: ProductLineItem;
+    var productPixel: Object = {};
+    //get sr_token
+    productPixel.tokenID = !empty(order.custom.sr_token) ? order.custom.sr_token : '';
+
+    //concatenate productConfirmed with // SKU~Quantity~UnitPrice~ShipMethod~SR Eligibility~ItemAvailability
+    for each(item in orderproducts) {
+        var unitPrice = (item.priceValue / item.quantityValue).toFixed(2);
+        var shippingMethodName = 'SR 2Day';
+        var itemStatus: String = 'UNK'; 
+        if (item.shipment.shippingMethodID != 'shoprunner') {
+            shippingMethodName = item.shipment.shippingMethod.displayName;
+        }
+        var orderItem = item.getOrderItem();
+        if(orderItem) {
+			var displayValue = orderItem.getStatus().getDisplayValue();
+			if ( displayValue ==  OrderItem.STATUS_BACKORDER ){
+				itemStatus = 'OOS';
+			} else {
+				itemStatus = "IS";
+			}
+        }
+        
+        productConfirmed += '|' + item.product.ID + '~' + item.quantityValue + '~' + unitPrice + '~' +
+            shippingMethodName + '~' + item.product.custom.sr_eligible.value + '~' + itemStatus;
+    }
+    productPixel.productConfirmed = productConfirmed;
+    productPixel.tenderType = FeedUtil.deduceTenderType(order.paymentInstruments);
+    return productPixel;
+}
+
+
+
+exports.getProcessor = function(order) {
+    return new PixelProcessor(order);
+}

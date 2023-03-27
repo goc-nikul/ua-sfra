@@ -1,0 +1,133 @@
+<iscontent type="text/html" charset="UTF-8"/>
+<isinclude template="inc/Modules"/>
+
+
+<isset name="decoratorTemplate" value="application/MenuFrame" scope="page" />
+
+<isdecorate template="${decoratorTemplate}">
+
+    <isinclude template="sdl/common/SDLCommonInclude" sf-toolkit="on" />
+    
+
+    <div class="sdlNav">
+        <isinclude template="sdl/SDLNavigation"/>
+    </div>
+
+    <div class="sdlBody">
+        <div class="container-fluid sdlContainer">
+            <div class="panel panel-success">
+                <div class="panel-heading text-center">
+                    <div class="title">${Resource.msg('msg.sdl.dictionary.webdav', 'SDLTranslation', null)}</div>
+                    <div class="subTitle">${Resource.msg('msg.sdl.dictionary.webdav.subtitle', 'SDLTranslation', null)}</div>
+                </div>
+                <div class="panel-body">
+                <isbreadcrumb name1="${Resource.msg('breadcrumb.title.merchantTools', 'SDLTranslation', null)}" url1="${merchantToolsURL}" name2="${Resource.msg('breadcrumb.title.SDL', 'SDLTranslation', null)}" url2="${SDLURL}" name3="${Resource.msg('breadcrumb.title.SDL.dictionary', 'SDLTranslation', null)}"/>
+                    <form id="webDavconfigureForm" method="post" action="${URLUtils.url('SDLTranslation-FindDictionary')}">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label>
+                                        ${Resource.msg('msg.sdl.dictionary.webdav.url', 'SDLTranslation', null)}
+                                        <sup>
+                                            ${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}
+                                        </sup>
+                                    </label>
+                                    <input
+                                        id="sdlWebDAVURL"
+                                        type="text"
+                                        name="sdlWebDAVURL"
+                                        class="form-control"
+                                        <isif condition="${!empty(pdict.Params) && !empty(pdict.Params.sdlWebDAVURL) && !empty(pdict.Params.sdlWebDAVURL.value)}">
+                                        value="${pdict.Params.sdlWebDAVURL.value}"
+                                        </isif>
+                                    />
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label>
+                                        ${Resource.msg('msg.sdl.dictionary.webdav.codeversion', 'SDLTranslation', null)}
+                                        <sup>
+                                            ${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}
+                                        </sup>
+                                    </label>
+                                    <input
+                                        id="sdlCodeVersion"
+                                        type="text"
+                                        name="sdlCodeVersion"
+                                        class="form-control"
+                                        <isif condition="${!empty(pdict.Params) && !empty(pdict.Params.sdlCodeVersion) && !empty(pdict.Params.sdlCodeVersion.value)}">value="${pdict.Params.sdlCodeVersion.value}"</isif>
+                                    />
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label>
+                                        ${Resource.msg('msg.sdl.dictionary.webdav.cartridge.name', 'SDLTranslation', null)}
+                                        <sup>
+                                            ${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}
+                                        </sup>
+                                    </label>
+                                    <input
+                                    id="sdlCartridgeName"
+                                    type="text"
+                                    name="sdlCartridgeName"
+                                    class="form-control"
+                                    <isif condition="${!empty(pdict.Params) && !empty(pdict.Params.sdlCartridgeName) && !empty(pdict.Params.sdlCartridgeName.value)}">value="${pdict.Params.sdlCartridgeName.value}"</isif> 
+                                    />
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label>
+                                        ${Resource.msg('msg.sdl.dictionary.webdav.user.name', 'SDLTranslation', null)}
+                                        <sup>
+                                            ${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}
+                                        </sup>
+                                    </label>
+                                    <input
+                                        id="sdlUserName"
+                                        type="text"
+                                        name="sdlUserName"
+                                        class="form-control"
+                                        <isif condition="${!empty(pdict.Params) && !empty(pdict.Params.sdlUserName) && !empty(pdict.Params.sdlUserName.value)}">value="${pdict.Params.sdlUserName.value}"</isif>
+                                    />
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="form-group">
+                                    <label>
+                                        ${Resource.msg('msg.sdl.dictionary.webdav.user.password', 'SDLTranslation', null)}
+                                        <sup>
+                                            ${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}
+                                        </sup>
+                                    </label>
+                                    <input
+                                        id="sdlPassword"
+                                        type="password"
+                                        name="sdlPassword"
+                                        class="form-control"
+                                        <isif condition="${!empty(pdict.Params) && !empty(pdict.Params.sdlPassword) && !empty(pdict.Params.sdlPassword.value)}">value="${pdict.Params.sdlPassword.value}"</isif>
+                                    />
+                                </div>
+                            </div>
+                            <div class="col-sm-12 text-center">
+                                <input
+                                    id="btn"
+                                    type="button"
+                                    class="sdlValidateWebDavForm btn btn-success"
+                                    value="Get Properties Files"
+                                />
+                            </div>
+                            <isif condition="${!empty(pdict.Error)}">
+                                <div class="panel-body panel-danger">
+                                    <h4 class="errorText">${pdict.MissingConfiguration}</h4>
+                                </div>
+                            </isif>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</isdecorate>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shipping xmlns="http://www.demandware.com/xml/impex/shipping/2007-03-31">
+    <shipping-method method-id="KR-emp-free-shipping" default="false">
+        <display-name xml:lang="x-default">Employee Free Shipping</display-name>
+        <display-name xml:lang="ko">임직원 결제</display-name>
+        <description xml:lang="x-default">Employee Free Shipping</description>
+        <description xml:lang="ko">임직원 결제</description>
+        <online-flag>false</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+        </price-table>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeShipping">true</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="KR-standard-shipping" default="true">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <display-name xml:lang="ko">롯데택배를 통해 배송됩니다.</display-name>
+        <description xml:lang="x-default">1-2 Days with the exception of mountain &amp; island locations that may take a few extra days.</description>
+        <description xml:lang="ko">도서 산간 지역의 경우 1~2일 정도 추가로 지연될 수 있습니다.</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0">2500</amount>
+        </price-table>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isExpressShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isScheduledDelivery">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+</shipping>

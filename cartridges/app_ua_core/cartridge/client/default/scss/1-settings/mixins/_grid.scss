@@ -1,0 +1,83 @@
+@mixin grid-container($width: null, $media: null) {
+    @include media-check($media) {
+        margin-right: auto;
+        margin-left: auto;
+        box-sizing: border-box;
+    }
+
+    @if type-of($width) == string {
+        @include media-check($media) {
+            width: 100%;
+        }
+    } @else if type-of($width) == number {
+        @include media-check($media) {
+            width: $width;
+        }
+    } @else {
+        @if ($media == null) {
+            $media: media-to-list($break-points);
+        } @else {
+            $media: media-to-list($media);
+        }
+
+        @include get-container-gutter($media);
+    }
+}
+
+@mixin grid-row($gutter: true, $media: null) {
+    @include media-check($media) {
+        display: flex;
+    }
+
+    @if ($gutter) {
+        @if ($media == null) {
+            $media: media-to-list($grid-gutter-width-map);
+        } @else {
+            $media: media-to-list($media);
+        }
+
+        @include get-row-gutter($media);
+    }
+}
+
+@mixin grid-col(
+    $size: auto,
+    $columns: $grid-columns,
+    $gutter: true,
+    $media: null
+) {
+    @include media-check($media) {
+        @include _flex-col($size, $columns);
+    }
+
+    @if ($gutter) {
+        @if ($media == null) {
+            $media: media-to-list($grid-gutter-width-map);
+        } @else {
+            $media: media-to-list($media);
+        }
+
+        @include get-col-gutter($media);
+    }
+}
+
+@mixin _flex-col($size, $columns: $grid-columns) {
+    @if type-of($size) == number {
+        flex: 1 1 grid-col-width($size, $columns);
+        max-width: grid-col-width($size, $columns);
+    } @else if $size == auto {
+        flex: 1 1 auto;
+        max-width: none;
+    } @else if $size == none {
+        flex: 0 0 auto;
+        max-width: none;
+    } @else {
+        @warn 'Invalid size type --- ' type-of($size);
+    }
+}
+
+@mixin grid-col-offset($size, $deraction: left, $columns: $grid-columns) {
+    $num: $size / $columns;
+
+    margin-#{$deraction}: if($num == 0, 0, percentage($num));
+}

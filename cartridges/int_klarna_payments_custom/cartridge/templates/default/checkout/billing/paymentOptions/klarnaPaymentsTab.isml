@@ -1,0 +1,23 @@
+<isif condition="${!empty(session.privacy.KlarnaPaymentMethods) && pdict.eligiblePaymentMethods && pdict.eligiblePaymentMethods.klarna}">
+    <isset name="klarnaThresholdPreference" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('klarnaMinimumThreshold')}" scope="page" />
+    <isset name="klarnaMinimumThreshold" value="${klarnaThresholdPreference ? klarnaThresholdPreference * 100 : 1000}" scope="page" />
+    <isset name="klarnaMaxPreference" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('klarnaMaximumThreshold')}" scope="page" />
+    <isset name="klarnaMaximumThreshold" value="${klarnaMaxPreference ? klarnaMaxPreference * 100 : 100000}" scope="page" />
+    <isloop items="${JSON.parse(session.privacy.KlarnaPaymentMethods)}" var="klarnaPaymentMethod">
+        <li id="${'klarna_payments_' + klarnaPaymentMethod.identifier + '_nav'}" class="g-tabs-chip nav-item klarna-payment-item js-klarna-payment-item" data-method-id="klarna_${klarnaPaymentMethod.identifier}">
+            <a class="g-tabs-link nav-link js-klarna-payments-link klarna-payments-${klarnaPaymentMethod.identifier}-tab ${pdict.selectedPaymentMethod == paymentOption.ID ? 'active' : ''} ${pdict.order.totals && pdict.order.totals.klarnaTotal && (pdict.order.totals.klarnaTotal < klarnaMinimumThreshold || pdict.order.totals.klarnaTotal > klarnaMaximumThreshold) ? 'hide' : ''}" data-toggle="tab" href="${'#klarna_payments_' + klarnaPaymentMethod.identifier}" role="tab">
+                <isprint value="${Resource.msg('klarna.payment.tab','checkout',null)}" />
+            </a>
+            <div class="klarna-payment-tooltip ${pdict.order.totals && pdict.order.totals.klarnaTotal && (pdict.order.totals.klarnaTotal >= klarnaMinimumThreshold && pdict.order.totals.klarnaTotal <= klarnaMaximumThreshold) ? 'hide' : ''}">
+                <span class="g-tooltip-icon g-tooltip"></span>
+                <span class="g-tooltip-text">
+                    <span class="payment-error hide">${Resource.msg('klarna.payment.error','checkout',null)}</span>
+                    <span class="threshold-error ${pdict.order.totals && pdict.order.totals.klarnaTotal && (pdict.order.totals.klarnaTotal >= klarnaMinimumThreshold && pdict.order.totals.klarnaTotal <= klarnaMaximumThreshold) ? 'hide' : ''}">
+                          <span class="klarnaMinimumThreshold-content ${pdict.order.totals.klarnaTotal < klarnaMinimumThreshold ? '' : 'hide'}">${Resource.msg('klarna.payment.minimum.threshold.error','checkout',null)}</span>
+                          <span class="klarnaMaximumThreshold-content ${pdict.order.totals.klarnaTotal > klarnaMaximumThreshold ? '' : 'hide'}">${Resource.msg('klarna.payment.maximum.threshold.error','checkout',null)}</span>
+                    </span>
+                </span>
+            </div>
+        </li>
+    </isloop>
+</isif>

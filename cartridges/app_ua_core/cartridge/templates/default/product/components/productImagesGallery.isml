@@ -1,0 +1,32 @@
+<div
+    class="b-product_carousel">
+    <div class="b-product_carousel-wrapper">
+        <isset name="video360Material" value="${product.video360Material}" scope="page" />
+        <isloop items="${product.images['pdpMainDesktop'] ? product.images['pdpMainDesktop'] : []}" var="image" status="loopStatus">
+            <isif condition="${!empty(video360Material)}">
+	            <div class='b-product_carousel-slide js-carousel-slide <isif condition="${loopStatus.count > 4}">pdp-images-hide</isif>' data-index="${image.index}">
+	                <img src="${image.url}" class="b-product_carousel-image" title="${image.title}" alt="${image.alt} image number ${image.index}" itemprop="image" />
+	            </div>
+	        <iselse>
+	        <isif condition="${loopStatus.first && (typeof image !== 'undefined' && image && image.modelSpec)}"> 
+	            <isset name="modelSpecSize" value="${image.modelSpec.modelSize}" scope="page"/>
+	        </isif>
+	           <isif condition="${!loopStatus.first}">
+	               <div class='b-product_carousel-slide js-carousel-slide <isif condition="${loopStatus.count > 5}">pdp-images-hide</isif>' data-index="${image.index}">
+                    <img src="${image.url}" class="b-product_carousel-image" title="${image.title}" alt="${image.alt} image number ${image.index}" itemprop="image" />
+                    <iscomment>Model Specification</iscomment>
+                    <isif condition="${image.modelSpec && image.modelSpec.showModelInfo === true && !empty(image.modelSpec.modelSize)}">
+                        <isif condition="${!empty(modelSpecSize) && modelSpecSize !== image.modelSpec.modelSize}">
+                            <div class="b-model-specs-altImg model-specification">
+                                <span>
+                                    <isprint value="${Resource.msgf('product.model.specflat','product',null, image.modelSpec.modelSize)}" encoding="off" />
+                                </span>
+                            </div>
+                        </isif>
+                    </isif> 
+                </div>
+	           </isif>
+            </isif>
+        </isloop>
+    </div>
+</div>

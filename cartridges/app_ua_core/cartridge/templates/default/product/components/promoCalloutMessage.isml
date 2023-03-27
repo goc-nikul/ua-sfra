@@ -1,0 +1,6 @@
+<isset name="mainProduct" value="${require('dw/catalog/ProductMgr').getProduct(product.id)}" scope="page">
+<isif condition="${mainProduct.custom.promoCalloutAssetID}">
+    <div class="b-size_text-callout b-promo">
+        <iscontentasset aid="${mainProduct.custom.promoCalloutAssetID}" />
+    </div>
+</isif>

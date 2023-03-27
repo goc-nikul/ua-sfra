@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+	<group formid="storeinquiry">
+    <!-- personal information -->
+    <field formid="email" label="forms.subscribe.email.default" type="string" mandatory="true" max-length="50" regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$"/>
+    <field formid="name" label="profile.name" type="string" mandatory="true" max-length="50"/>
+    <field formid="phone" label="forms.ordertrack.phone" type="string" mandatory="true" regexp="^[0-9- \)\(+]{8,20}$" max-length="15"/>
+    <field formid="dob" label="profile.dob" type="string" mandatory="false" max-length="20"/>
+
+    <!-- store information -->
+    <field formid="postalCode" label="forms.zippostalcode" type="string" mandatory="true" min-length="5" max-length="5" regexp="^([0-9]{5})$" range-error="forms.address.field.invalid" parse-error="forms.address.field.invalid" />
+    <field formid="address1" label="forms.address1" type="string" mandatory="true" regexp="(^((?!(?i)\w*p?(ost)?\.?\s*[o|0]?(ffice)?\.?\s*b[o|0]x\.?((\w+\d+)|\s+([\w\d]+)|\s*$)).*)$)" parse-error="forms.address.field.poboxerror" max-length="45" missing-error="forms.addresserror" range-error="forms.address.field.invalid" />
+    <field formid="address2" label="forms.address2" type="string" mandatory="false" regexp="(^((?!(?i)\w*p?(ost)?\.?\s*[o|0]?(ffice)?\.?\s*b[o|0]x\.?((\w+\d+)|\s+([\w\d]+)|\s*$)).*)$)" parse-error="forms.address.field.poboxerror" max-length="45" range-error="forms.address.field.invalid" />
+
+    <!-- store specifics -->
+    <field formid="sellingspace" label="forms.franchise.sellingspace" type="string" mandatory="true" max-length="10"/>
+    <field formid="storagespace" label="forms.franchise.storagespace" type="string" mandatory="true" max-length="10"/>
+    <field formid="frontwidth" label="forms.franchise.frontwidth" type="string" mandatory="true" max-length="10"/>
+    <field formid="height" label="forms.franchise.height" type="string" mandatory="true" max-length="10"/>
+
+    <field formid="parking" label="forms.franchise.parking" type="string" mandatory="false" binding="custom.parkingSelect">
+        <options>
+            <option label="forms.select" optionid="forms.select" value=""/>
+            <option label="forms.franchise.parking.yes" value="예"/>
+            <option label="forms.franchise.parking.no"  value="아니오"/>
+        </options>
+    </field>
+
+    <field formid="stories" label="forms.franchise.stories" type="string" mandatory="false">
+        <options>
+            <option label="forms.select" optionid="" value=""/>
+            <option label="forms.franchise.stories.1st" value="1층 (단층)"/>
+            <option label="forms.franchise.stories.2nd" value="2층 (복층)"/>
+            <option label="forms.franchise.stories.3rd" value="3층"/>
+            <option label="forms.franchise.stories.4th" value="4층"/>
+        </options>
+    </field>
+
+    <!-- leasing terms -->
+    <field formid="lease" label="forms.franchise.lease" type="string" mandatory="true">
+        <options>
+            <option label="forms.select" optionid="" value=""/>
+            <option label="forms.franchise.lease.landlord"  value="임대인(건물주)"/>
+            <option label="forms.franchise.lease.renter"    value="임차인"/>
+        </options>
+    </field>
+
+    <field formid="deposit" label="forms.franchise.deposit" type="string" mandatory="true" max-length="20" />
+    <field formid="premium" label="forms.franchise.premium" type="string" mandatory="true" max-length="20"/>
+    <field formid="rent" label="forms.franchise.rent" type="string" mandatory="true" max-length="20"/>
+    <field formid="maintenance" label="forms.franchise.maintenance" type="string" mandatory="false" max-length="20"/>
+
+    <action formid="submit" valid-form="true"/>
+    </group>
+</form>

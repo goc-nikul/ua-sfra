@@ -1,0 +1,35 @@
+<div id="idme-refresh" class="hide" data-action="${URLUtils.https('IDME-RefreshSummary')}">
+</div>
+<isset name="isLoyaltyEnabled" value="${'isLoyaltyEnable' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.isLoyaltyEnable}" scope="page" />
+
+<isif condition="${!session.custom.idmeVerified && (isLoyaltyEnabled || empty(pdict.totals.idmePromoContent.promos))}">
+	<div class="idme__promo-button">
+		<isprint value="${pdict.totals.idmePromoContent.buttonContent.body}" encoding="off"/>	
+		<input type="hidden" id="IDMEclientID" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('IDMEclientID')}">
+		<input type="hidden" id="IDMEauthorizeURI" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('IDMEauthorizeURI')}">
+		<input type="hidden" id="IDMEReturn" value="${URLUtils.https('IDME-Return')}">
+	</div>
+	<div class="idme__promo-verification">
+		<isprint value="${pdict.totals.idmePromoContent.nonVerifiedContent.body}" encoding="off"/>
+	</div>
+<iselse>
+	<isif condition="${session.custom.idmeVerified}">
+		<div id="applied-idme-campaigns-list" class="b-coupons_price applied-coupons-list">
+			<isloop items="${pdict.totals.idmePromoContent.promos}" var="promo">
+				<div class="cart-coupon-item is--applied">
+					<span class="cart-coupon-item__text">${promo.text}</span>
+					<button type="button" class="float-right remove-coupon b-coupons_removecoupon js-delete-idme-coupon-confirmation-btn"
+		                       data-code="${promo.ID}"
+		                       data-uuid="${promo.ID}"
+							   data-action="${URLUtils.url('IDME-RemoveVerifiedStatus')}"
+		                       data-cmp="removeIDMECouponModal">
+		                   ${Resource.msg('IDME.remove.verifiedStatus', 'checkout', null)}
+		               </button>
+				</div>
+			</isloop>
+		</div>
+		<div class="idme__promo-verification">
+			<isprint value="${pdict.totals.idmePromoContent.verifiedContent.body}" encoding="off"/>
+		</div>
+	</isif>	
+</isif>

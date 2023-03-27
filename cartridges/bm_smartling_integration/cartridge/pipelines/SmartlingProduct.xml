@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?demandware-pipeline version="2.0"?>
+
+<pipeline group="Extensions">
+  <description>Pipeline to extend Business Manager menu actions and include corresponding templates for visualization, forms and actions</description>
+  <branch basename="_ANONYMOUS_BRANCH_1">
+    <segment>
+      <node>
+        <text-node>
+          <description>Send a product/content/category to the Smartling FILE api by storing it as a custom object.</description>
+        </text-node>
+        <node-display x="0" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_2">
+    <segment>
+      <node>
+        <text-node>
+          <description>Pull categories to show them on the extension for selection to translate.</description>
+        </text-node>
+        <node-display x="2" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="SendTranslate">
+    <segment>
+      <node>
+        <start-node name="SendTranslate" secure="false"/>
+        <node-display x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="true"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="submission.ds"/>
+          <key-binding alias="log" key="ScriptLog"/>
+          <key-binding alias="CurrentHttpParameterMap.items.stringValue" key="itemID"/>
+          <key-binding alias="CurrentUserName" key="submitter"/>
+          <key-binding alias="CurrentHttpParameterMap.languages.stringValue" key="languages"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="1" y="0"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <end-node name="error"/>
+              <node-display orientation="horizontal" x="1" y="0"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <jump-node start-name-ref="SmartlingProduct-ShowCategory"/>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="ShowCategory">
+    <segment>
+      <node>
+        <start-node name="ShowCategory" secure="false"/>
+        <node-display x="2" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="true"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="getCategorys.ds"/>
+          <key-binding alias="log" key="ScriptLog"/>
+          <key-binding alias="categoryList" key="subCategoties"/>
+          <key-binding alias="CurrentHttpParameterMap.category_id.stringValue" key="subCategoryId"/>
+          <key-binding alias="category" key="category"/>
+          <key-binding alias="localesList" key="localesList"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="1" y="0"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <end-node name="error"/>
+              <node-display orientation="horizontal" x="1" y="0"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <decision-node condition-key="categoryList.hasNext() == true" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b3" source-connector="yes">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <interaction-node transaction-required="false">
+                <template buffered="true" dynamic="false" name="showCategoriList"/>
+              </interaction-node>
+              <node-display x="0" y="1"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="2" y="0"/>
+          <bend-point relative-to="target" x="0" y="-1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="true"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="getAllProducts.ds"/>
+          <key-binding alias="log" key="ScriptLog"/>
+          <key-binding alias="allProduct" key="allProduct"/>
+          <key-binding alias="countProduct" key="countProduct"/>
+          <key-binding alias="category" key="category"/>
+        </pipelet-node>
+        <node-display x="1" y="1"/>
+        <branch basename="b4" source-connector="error">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="1" y="0"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <end-node name="error"/>
+              <node-display orientation="horizontal" x="1" y="0"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="target" x="0" y="-1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <decision-node condition-key="!empty(CurrentHttpParameterMap.page.intValue)" condition-operator="expr"/>
+        <node-display x="0" y="2"/>
+        <branch basename="b5" source-connector="yes">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="1"/>
+              <bend-point relative-to="target" x="0" y="-1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+                <config-property key="Transactional" value="false"/>
+                <key-binding alias="CurrentHttpParameterMap.page.intValue" key="From_0"/>
+                <key-binding alias="startPage" key="To_0"/>
+                <key-binding alias="20" key="From_1"/>
+                <key-binding alias="pageMax" key="To_1"/>
+                <key-binding alias="null" key="From_2"/>
+                <key-binding alias="null" key="To_2"/>
+                <key-binding alias="null" key="From_3"/>
+                <key-binding alias="null" key="To_3"/>
+                <key-binding alias="null" key="From_4"/>
+                <key-binding alias="null" key="To_4"/>
+                <key-binding alias="null" key="From_5"/>
+                <key-binding alias="null" key="To_5"/>
+                <key-binding alias="null" key="From_6"/>
+                <key-binding alias="null" key="To_6"/>
+                <key-binding alias="null" key="From_7"/>
+                <key-binding alias="null" key="To_7"/>
+                <key-binding alias="null" key="From_8"/>
+                <key-binding alias="null" key="To_8"/>
+                <key-binding alias="null" key="From_9"/>
+                <key-binding alias="null" key="To_9"/>
+              </pipelet-node>
+              <node-display x="-1" y="1"/>
+            </node>
+            <transition target-connector="in1" target-path="../+1">
+              <transition-display>
+                <bend-point relative-to="source" x="0" y="2"/>
+              </transition-display>
+            </transition>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="2" y="0"/>
+          <bend-point relative-to="target" x="0" y="-1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <key-binding alias="startPage" key="From_0"/>
+          <key-binding alias="1" key="To_0"/>
+          <key-binding alias="pageMax" key="From_1"/>
+          <key-binding alias="20" key="To_1"/>
+          <key-binding alias="null" key="From_2"/>
+          <key-binding alias="null" key="To_2"/>
+          <key-binding alias="null" key="From_3"/>
+          <key-binding alias="null" key="To_3"/>
+          <key-binding alias="null" key="From_4"/>
+          <key-binding alias="null" key="To_4"/>
+          <key-binding alias="null" key="From_5"/>
+          <key-binding alias="null" key="To_5"/>
+          <key-binding alias="null" key="From_6"/>
+          <key-binding alias="null" key="To_6"/>
+          <key-binding alias="null" key="From_7"/>
+          <key-binding alias="null" key="To_7"/>
+          <key-binding alias="null" key="From_8"/>
+          <key-binding alias="null" key="To_8"/>
+          <key-binding alias="null" key="From_9"/>
+          <key-binding alias="null" key="To_9"/>
+        </pipelet-node>
+        <node-display x="1" y="1"/>
+      </node>
+      <transition target-connector="in1" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="2"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="-1" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Paging" pipelet-set-identifier="bc_api">
+          <key-binding alias="allProduct" key="Objects"/>
+          <key-binding alias="pageMax" key="PageSize"/>
+          <key-binding alias="(startPage - 1)*20" key="Start"/>
+          <key-binding alias="mapingModel" key="PagingModel"/>
+          <key-binding alias="countProduct" key="ObjectsCount"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+      </node>
+      <transition target-connector="in1" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="2"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <join-node/>
+        <node-display x="-1" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <interaction-node transaction-required="false">
+          <template buffered="true" dynamic="false" name="product/productList"/>
+        </interaction-node>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_5">
+    <segment>
+      <node>
+        <text-node>
+          <description>Check the status of the item by querying the state of the custom object representing the translations request.  Download and import if complete.</description>
+        </text-node>
+        <node-display x="6" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="ShowItemStatus">
+    <segment>
+      <node>
+        <start-node name="ShowItemStatus" secure="false"/>
+        <node-display x="6" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="status/product.ds"/>
+          <key-binding alias="CurrentHttpParameterMap.item.stringValue" key="productId"/>
+          <key-binding alias="localesList" key="localesList"/>
+          <key-binding alias="name" key="name"/>
+          <key-binding alias="ScriptLog" key="ScriptLog"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="1" y="0"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <end-node name="error"/>
+              <node-display orientation="horizontal" x="1" y="0"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <interaction-node transaction-required="false">
+          <template buffered="true" dynamic="false" name="status/productStatus"/>
+        </interaction-node>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="SearchByIds">
+    <segment>
+      <node>
+        <start-node name="SearchByIds" secure="false"/>
+        <node-display x="0" y="4"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <config-property key="OnError" value="PIPELET_ERROR"/>
+          <config-property key="ScriptFile" value="searchProductsByIds.ds"/>
+          <key-binding alias="log" key="ScriptLog"/>
+          <key-binding alias="CurrentHttpParameterMap.productIds.stringValue" key="productIds"/>
+          <key-binding alias="allProduct" key="allProduct"/>
+          <key-binding alias="countProduct" key="countProduct"/>
+          <key-binding alias="localesList" key="localesList"/>
+        </pipelet-node>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="1" y="0"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <end-node name="Error"/>
+              <node-display orientation="horizontal" x="1" y="0"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="target" x="0" y="-1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+          <config-property key="Transactional" value="false"/>
+          <key-binding alias="countProduct" key="From_0"/>
+          <key-binding alias="pageMax" key="To_0"/>
+          <key-binding alias="null" key="From_1"/>
+          <key-binding alias="null" key="To_1"/>
+          <key-binding alias="null" key="From_2"/>
+          <key-binding alias="null" key="To_2"/>
+          <key-binding alias="null" key="From_3"/>
+          <key-binding alias="null" key="To_3"/>
+          <key-binding alias="null" key="From_4"/>
+          <key-binding alias="null" key="To_4"/>
+          <key-binding alias="null" key="From_5"/>
+          <key-binding alias="null" key="To_5"/>
+          <key-binding alias="null" key="From_6"/>
+          <key-binding alias="null" key="To_6"/>
+          <key-binding alias="null" key="From_7"/>
+          <key-binding alias="null" key="To_7"/>
+          <key-binding alias="null" key="From_8"/>
+          <key-binding alias="null" key="To_8"/>
+          <key-binding alias="null" key="From_9"/>
+          <key-binding alias="null" key="To_9"/>
+        </pipelet-node>
+        <node-display x="0" y="2"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="target" x="-2" y="-1"/>
+          <bend-point relative-to="target" x="0" y="-1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Paging" pipelet-set-identifier="bc_api">
+          <key-binding alias="allProduct" key="Objects"/>
+          <key-binding alias="pageMax" key="PageSize"/>
+          <key-binding alias="mapingModel" key="PagingModel"/>
+          <key-binding alias="countProduct" key="ObjectsCount"/>
+          <key-binding alias="0" key="Start"/>
+        </pipelet-node>
+        <node-display x="1" y="2"/>
+      </node>
+      <transition target-connector="in1" target-path="/ShowCategory.3">
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="2"/>
+        </transition-display>
+      </transition>
+    </segment>
+  </branch>
+  <branch basename="SaveLanguageItem">
+    <segment>
+      <node>
+        <start-node name="SaveLanguageItem" secure="false"/>
+        <node-display x="6" y="4"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <decision-node condition-key="CurrentHttpParameterMap.resend.stringValue != null" condition-operator="expr"/>
+        <node-display x="0" y="1"/>
+        <branch basename="b2" source-connector="yes">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="1"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+                <config-property key="Transactional" value="true"/>
+                <config-property key="OnError" value="PIPELET_ERROR"/>
+                <config-property key="ScriptFile" value="resend.ds"/>
+                <key-binding alias="null" key="ScriptLog"/>
+                <key-binding alias="CurrentHttpParameterMap.item.stringValue" key="itemId"/>
+                <key-binding alias="CurrentHttpParameterMap.language.values" key="languages"/>
+                <key-binding alias="CurrentHttpParameterMap.type.stringValue" key="type"/>
+                <key-binding alias="CurrentUserName" key="submitter"/>
+              </pipelet-node>
+              <node-display x="0" y="1"/>
+              <branch basename="b2" source-connector="error">
+                <transition target-connector="in"/>
+                <segment>
+                  <node>
+                    <end-node name="Error"/>
+                    <node-display orientation="horizontal" x="2" y="1"/>
+                  </node>
+                </segment>
+              </branch>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="source" x="0" y="1"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <jump-node start-name-ref="SmartlingProduct-ShowItemStatus"/>
+              <node-display x="0" y="1"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <transition target-connector="in" target-path="./+1">
+        <transition-display>
+          <bend-point relative-to="source" x="1" y="0"/>
+        </transition-display>
+      </transition>
+    </segment>
+    <segment>
+      <node>
+        <loop-node element-key="locale" iterator-key="CurrentHttpParameterMap.language.values"/>
+        <node-display orientation="horizontal" x="1" y="0"/>
+        <branch basename="b2" source-connector="do">
+          <transition target-connector="in">
+            <transition-display>
+              <bend-point relative-to="source" x="1" y="0"/>
+            </transition-display>
+          </transition>
+          <segment>
+            <node>
+              <pipelet-node pipelet-name="Assign" pipelet-set-identifier="bc_api">
+                <config-property key="Transactional" value="false"/>
+                <key-binding alias="CurrentHttpParameterMap.item.stringValue" key="From_0"/>
+                <key-binding alias="itemId" key="To_0"/>
+                <key-binding alias="null" key="From_1"/>
+                <key-binding alias="null" key="To_1"/>
+                <key-binding alias="null" key="From_2"/>
+                <key-binding alias="null" key="To_2"/>
+                <key-binding alias="null" key="From_3"/>
+                <key-binding alias="null" key="To_3"/>
+                <key-binding alias="null" key="From_4"/>
+                <key-binding alias="null" key="To_4"/>
+                <key-binding alias="null" key="From_5"/>
+                <key-binding alias="null" key="To_5"/>
+                <key-binding alias="null" key="From_6"/>
+                <key-binding alias="null" key="To_6"/>
+                <key-binding alias="null" key="From_7"/>
+                <key-binding alias="null" key="To_7"/>
+                <key-binding alias="null" key="From_8"/>
+                <key-binding alias="null" key="To_8"/>
+                <key-binding alias="null" key="From_9"/>
+                <key-binding alias="null" key="To_9"/>
+              </pipelet-node>
+              <node-display orientation="horizontal" x="1" y="0"/>
+            </node>
+            <simple-transition>
+              <transition-display>
+                <bend-point relative-to="source" x="1" y="0"/>
+              </transition-display>
+            </simple-transition>
+            <node>
+              <call-node start-name-ref="SubmissionBoard-DownloadSubmission">
+                <description>Download submission</description>
+              </call-node>
+              <node-display orientation="horizontal" x="1" y="0"/>
+            </node>
+            <transition target-connector="loop" target-path="..">
+              <transition-display>
+                <bend-point relative-to="source" x="1" y="0"/>
+                <bend-point relative-to="source" x="1" y="-2"/>
+                <bend-point relative-to="target" x="0" y="-2"/>
+                <bend-point relative-to="target" x="0" y="-1"/>
+              </transition-display>
+            </transition>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="0" y="1"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <jump-node start-name-ref="SmartlingProduct-ShowItemStatus"/>
+        <node-display x="0" y="1"/>
+      </node>
+    </segment>
+  </branch>
+</pipeline>

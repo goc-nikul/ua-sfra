@@ -1,0 +1,20 @@
+<div class="hal-address-summary">
+    <isset name="isHAL_Active" value="${pdict.isCommercialPickup || pdict.isHALbasket ? true : false}" scope="page">
+    <div class="address1">
+        <isif condition="${typeof address !== 'undefined' && address && address.address1 && isHAL_Active }"><isprint value="${address.address1}" /></isif>
+    </div>
+
+    <div class="address2">
+        <isif condition="${typeof address !== 'undefined' && address && address.address2 && isHAL_Active}"><isprint value="${address.address2}" /></isif>
+    </div>
+
+    <span class="city">
+        <isif condition="${typeof address !== 'undefined' && address && address.city && isHAL_Active}"><isprint value="${address.city}" />,</isif>
+    </span>
+    <span class="stateCode">
+       <isif condition="${typeof address !== 'undefined' && address && address.stateCode && isHAL_Active}"><isprint value="${address.stateCode}" /></isif>
+    </span>
+    <span class="postalCode">
+       <isif condition="${typeof address !== 'undefined' && address && address.postalCode && isHAL_Active}"><isprint value="${address.postalCode}" /></isif>
+    </span>    
+</div>

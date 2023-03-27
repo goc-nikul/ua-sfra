@@ -1,0 +1,7 @@
+<!--- TEMPLATENAME: applePaySummary.isml --->
+<div class="applepay-method-name">
+    <span>${Resource.msg('label.order.applePay','confirmation',null)}</span>
+</div>
+<div class="applepay-amount">
+    ${dw.util.StringUtils.formatMoney(new dw.value.Money(payment.amount, pdict.CurrentSession.currency.currencyCode))}
+</div>

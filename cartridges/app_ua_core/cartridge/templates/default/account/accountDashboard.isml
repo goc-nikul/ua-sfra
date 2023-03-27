@@ -1,0 +1,68 @@
+<isdecorate template="common/layout/page">
+
+    <isif condition="${pdict.reportingURLs && pdict.reportingURLs.length}">
+        <isinclude template="reporting/reportingUrls" />
+    </isif>
+
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/js/account.js');
+        assets.addJs('/js/wishlist.js');
+		if(pdict.bvScout) {
+	        assets.addJs(pdict.bvScout);
+	    }
+	    assets.addCss('/css/account/dashboard.css');
+        var CustomerUtils = require('*/cartridge/scripts/util/CustomerUtils'),
+            customerUtils = new CustomerUtils();
+    </isscript>
+    <div class="b-account b-account-dashboard">
+        <div class="b-account-container b-account-dashboard_container">
+            <div class="b-account-dashboard_top">
+                <isset name="customerCountry" value="${pdict.CurrentSession.custom.customerCountry || (request.getLocale().slice(-2).toUpperCase())}" scope="page" />
+                <isset name="accountHeaderKey" value="${customerUtils.isEmployeeDiscount(pdict.CurrentCustomer, customerCountry) || customerUtils.isEmployeeFreeShipping(pdict.CurrentCustomer, customerCountry) ? 'header.account.employee' : 'page.heading.dashboard'}" scope="page"/>
+                <div class="b-account-dashboard_heading b-account-address_book-pageHeading js-account-page-heading">
+                    <div class="heading-addresses">${Resource.msg(accountHeaderKey,'account',null)}<span class="account-icon"></span></div>
+                </div>
+                <div class="b-account-dashboard_top-container">
+                    <div class="b-account-dashboard_profile-info">
+                        <div class="b-account-dashboard_profile-icon">
+                            <img class="b-logo-image" src="${URLUtils.staticURL('/images/uablacklogo.svg')}"
+                                 title="${Resource.msg('global.storename', 'common', null)}"
+                                 alt="${Resource.msg('global.logo', 'common', null)}"
+                            />
+                        </div>
+                        <div class="b-account-dashboard_profile-user-name">
+                            <div class="border-line">
+                                <div>
+                                    <isif condition="${!empty(pdict.account.profile.firstName) && !empty(pdict.account.profile.lastName)}">
+                                        <span class="profile-user-firstname">${pdict.account.profile.firstName}</span>
+                                        <span class="profile-user-lastname">${pdict.account.profile.lastName}</span>
+                                    <iselse>
+                                        <span class="profile-user-firstname"><isprint value="${dw.web.Resource.msg('header.account.myaccount', 'account',null)}" /></span>
+                                    </isif>
+                                </div>
+                                <div class="profile-user-location">
+                                    <iscomment>TODO
+                                    <span class="loaction-icon"></span>
+                                    Salt Lake City, UT </iscomment>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="b-account-dashboard_bottom">
+                <div class="b-account-left js-account-left">
+                    <isinclude template="account/leftNavLinks"/>
+                </div>
+                <div class="b-account-right">
+                    <div class="b-account-dashboard_bottom-container">
+                        <div class="container">
+                            <isinclude template="account/dashboardProfileCards"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</isdecorate>

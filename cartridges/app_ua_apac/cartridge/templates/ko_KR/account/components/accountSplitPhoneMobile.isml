@@ -1,0 +1,51 @@
+<isif condition="${require('*/cartridge/config/preferences').isShowSplitPhoneMobileField}">
+    <div class="b-account_form-row b-input_row b-account_form-row-three b-account_form-row-phone clear">
+        <div class="form-group b-account_form-column b-account_form-column-mobile drop-down-arrow b-phone">
+            <label class="b-input_row-label form-control-label" for="registration-form-phoneMobile1">
+                <isprint value=${pdict.profileForm.customer.phone.label} encoding="off" />
+            </label>
+            <select class="phoneMobile1 b-input_row-input pad b-phone-select" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}"
+                <isprint value="${pdict.profileForm.customer.phoneMobile1.attributes}" encoding="off" />>
+                <isloop items=${pdict.profileForm.customer.phoneMobile1.options} var="phoneMobile1Select">
+                    <option id="${phoneMobile1Select.id}" value="${phoneMobile1Select.htmlValue}" <isif condition="${pdict.profileForm.customer.phoneMobile1.value === phoneMobile1Select.htmlValue}">selected</isif>>${phoneMobile1Select.label || ' '}</option>
+                </isloop>
+            </select>
+            <div class="invalid-feedback"></div>
+        </div>
+        <div class="b-account_form-row-phone__separator"></div>
+        <div class="form-group b-account_form-column b-account_form-column-phone-2">
+            <div class="b-account_form-column-phoneMobile-2-content">
+                <input type="text"
+                id="registration-form-phoneMobile2"
+                class="phoneMobile2 form-control order-return-form-input b-input_row-input js-custom-input js-email-field"
+                data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid.apac','forms',null)}" data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
+                required
+                <isprint value="${pdict.profileForm.customer.phoneMobile2.attributes}" encoding="off" /> />
+                <div class="invalid-feedback"></div>
+            </div>
+        </div>
+        <div class="b-account_form-row-phone__separator"></div>
+        <div class="form-group b-account_form-column required b-account_form-column-mobile">
+            <input type="text"
+                class="phoneMobile3 form-control order-return-form-input b-input_row-input"
+                data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid.apac','forms',null)}" data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
+                required
+                <isprint value="${pdict.profileForm.customer.phoneMobile3.attributes}" encoding="off" /> />
+            <div class="invalid-feedback"></div>
+        </div>
+    </div>
+<iselse/>
+    <div class="b-account_form-column">
+        <div class="form-group b-input_row">
+            <label class="form-control-label b-input_row-label" for="phone">
+                <isprint value="${Resource.msg('field.customer.phone.number.apac', 'forms', null)}" />
+            </label>
+            <input type="text" data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid.apac','forms',null)}" data-missing-error="${Resource.msg('error.message.required', 'forms', null)}" data-error="${Resource.msg('error.message.phonenumber.lesserlength','forms',null)}" class="form-control b-input_row-input validatePhoneField js-custom-input order-return-form-input" id="phone"
+                required pattern="^[0-9- \)\(+]{8,20}$" max-length="20" <isprint value="${pdict.profileForm.customer.phone.attributes}" encoding="off" />>
+            <div class="invalid-feedback"></div>
+        </div>
+    </div>
+</isif>
+
+
+

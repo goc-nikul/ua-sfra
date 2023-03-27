@@ -1,0 +1,22 @@
+<div class="b-nosearch_results-wrapper">
+    <div class="b-nosearch_results-section">
+        <div class="b-nosearch_results-content">
+            <p class="b-nosearch_results-title">
+                ${Resource.msg('label.noresultsfor', 'search', null)}
+                <span>
+                    &#8220;<isprint value="${pdict.productSearch.searchKeywords ? (pdict.productSearch.searchKeywords) : ''}" />&#8221;
+                </span>
+            </p>
+            <iscontentasset aid="no-search-results-category-text" />
+        </div>
+        <div class="b-nosearch_results-contact_us b-contact_us">
+            <iscontentasset aid="no-search-results-contact-us" />
+        </div>
+    </div>
+    <div class="b-nosearch_results-recommendation">
+        <div class="b-nosearch_results-recommendation_title">
+            ${Resource.msg('search.recommendation.title', 'search', null)}
+        </div>
+        <isslot id="no-search-results-product-recommendations" description="Recommendations for no result search" context="global" />
+    </div>
+</div>

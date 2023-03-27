@@ -1,0 +1,149 @@
+<isdecorate template="common/layout/page">
+<isscript>
+    var assets = require('*/cartridge/scripts/assets.js');
+    assets.addJs('/lib/pdf.worker.js');
+    assets.addJs('/lib/pdf.js');
+    assets.addJs('/js/account.js');
+    if(pdict.bvScout) {
+        assets.addJs(pdict.bvScout);
+    }
+</isscript>
+    <div class="b-account b-account-history js-account-main-section ${pdict.orderReturnItems !=null && pdict.orderReturnItems == 'select' && pdict.orderReturnItems != 'reason' ? 'b-order-returnflow' :''}" data-login-url="${pdict.loginURL || URLUtils.url('Login-Show', 'rurl', '4')}">
+        <div class="b-account-container b-account-container-top ${pdict.orderTracking ? 'order-track-page-container' : ''} ${pdict.orderTracking && pdict.CurrentCustomer.authenticated ? 'authenticated' : ''}">
+            <div class="b-account-left"></div>
+            <isset name="order" value="${pdict.order}" scope="page" />
+            <div class="b-account-right b-account-address_book b-od-bviews ${pdict.orderReturnItems !=null && pdict.orderReturnItems == 'select' ? 'b-od-reviews' : ''}">
+                <!---Breadcrumbs--->
+                <isif condition="${!pdict.hideOrderSummary && empty(pdict.exchangeOrder)}">
+                    <isif condition="${order.status && (order.status === 'SHIPPED' || order.status === 'PARTIAL_SHIPPED' || order.status === 'DELIVERED' || order.status === 'PARTIAL_DELIVERED' || order.status === 'PARTIAL_PICKUP' || order.status === 'PICKED_UP' || order.status === 'PICKUP_READY' || order.status === 'PARTIAL_RETURN') && !pdict.rmaDetailsPage && pdict.orderReturnItems != 'select' }">
+                        <div class="order-return-exchange-items js-order-return-exchange-items">
+                            <isif condition="${!order.isCommercialPickup && order.isEligibleForExchange}">
+                                <isif condition="${(pdict.CurrentCustomer.authenticated && !pdict.CurrentCustomer.profile.custom.isEmployee && empty(pdict.CurrentCustomer.profile.custom.vipAccountId)) || !pdict.CurrentCustomer.authenticated}">
+                                    <isif condition="${order.paymentMethod !== 'KLARNA_PAYMENTS'}">
+                                        <div class="order-exchange-items">
+                                            <isif condition="${pdict.orderExchangeTrackingURL}">
+                                                <isset name="exchangeUrl" value="${pdict.orderExchangeTrackingURL}" scope="page" />
+                                            <iselse>
+                                                <isset name="exchangeUrl" value="${URLUtils.url('Order-ExchangeItems', 'orderID', order.orderNo)}" scope="page" />
+                                            </isif>
+                                            <a href="${exchangeUrl}" class="exchange-items g-button_secondary--black g-button_base">${Resource.msg('label.exchange.items','account',null)}</a>
+                                        </div>
+                                    </isif>
+                                </isif>
+                            </isif>
+                            <isif condition="${order.isEligibleForReturn}">
+                                <div class="order-return-items">
+                                    <isif condition="${pdict.orderReturnsTrackingURL}">
+                                        <isset name="retunUrl" value="${pdict.orderReturnsTrackingURL}" scope="page" />
+                                    <iselse>
+                                        <isset name="retunUrl" value="${URLUtils.url('Order-ReturnItems', 'orderID', order.orderNo)}" scope="page" />
+                                    </isif>
+                                    <a href="${retunUrl}" class="return-items g-button_secondary--black g-button_base">${Resource.msg('label.return.items','account',null)}</a>
+                                </div>
+                            </isif>
+                        </div>
+                    </isif>
+                </isif>
+                <isif condition="${pdict.exchangeDetailsPage && pdict.exchangeOrder.status && (pdict.exchangeOrder.status == 'SHIPPED' || pdict.exchangeOrder.status == 'PARTIAL SHIPPED' || pdict.exchangeOrder.status == 'DELIVERED')}">
+                    <div class="order-return-exchange-items b-exchange-rbtns js-order-return-exchange-items">
+                        <isif condition="${(pdict.CurrentCustomer.authenticated && !pdict.CurrentCustomer.profile.custom.isEmployee && empty(pdict.CurrentCustomer.profile.custom.vipAccountId)) || !pdict.CurrentCustomer.authenticated}">
+                            <div class="order-exchange-items">
+                                <isif condition="${pdict.orderExchangeTrackingURL}">
+                                    <isset name="exchangeUrl" value="${pdict.orderExchangeTrackingURL}" scope="page" />
+                                <iselse>
+                                    <isset name="exchangeUrl" value="${URLUtils.url('Order-ExchangeItems', 'orderID', pdict.exchangeOrder.orderNo)}" scope="page" />
+                                </isif>
+                                <a href="${exchangeUrl}" class="exchange-items g-button_secondary--black g-button_base">${Resource.msg('label.exchange.items','account',null)}</a>
+                            </div>
+                        </isif>
+                        <div class="order-return-items">
+                            <isif condition="${pdict.orderReturnsTrackingURL}">
+                                <isset name="retunUrl" value="${pdict.orderReturnsTrackingURL}" scope="page" />
+                            <iselse>
+                                <isset name="retunUrl" value="${URLUtils.url('Order-ReturnItems', 'orderID', pdict.exchangeOrder.orderNo)}" scope="page" />
+                            </isif>
+                            <a href="${retunUrl}" class="return-items g-button_secondary--black g-button_base">${Resource.msg('label.return.items','account',null)}</a>
+                        </div>
+                    </div>
+                </isif>
+                <isif condition="${empty(pdict.exchangeOrder)}">
+                <div class="b-pageheading-mv js-hide-sec">${Resource.msg('heading.orderproduct.summary.confirmation', 'confirmation', null)}</div>
+                </isif>
+                <div class="b-select-return-container">
+                    <isinclude template="components/breadcrumbs/pageBreadcrumbs"/>
+                    <div class="b-account-address_book-pageHeading js-account-page-heading">
+                        <isif condition="${pdict.orderReturnItems != 'select' }">
+                    <isif condition="${!empty(pdict.exchangeOrder)}">
+                        <div class="">${Resource.msg('heading.orderproduct.exchange', 'confirmation', null)}</div>
+                    <iselse>
+                        <div class="b-pageheading-mv js-hide-sec">${Resource.msg('heading.orderproduct.summary.confirmation', 'confirmation', null)}</div>
+                    </isif>
+                            <div class="heading-addresses section-mv">${Resource.msg('heading.orderproducthistory.summary.confirmation', 'confirmation', null)}<span class="account-icon"></span></div>
+                        <iselse>
+                            <isif condition="${pdict.exchangeOrder}">
+                                <div class="heading-addresses exchanges section-dv">${Resource.msg('heading.orderproduct.exchanges.heading', 'confirmation', null)}</div>
+                            <iselse>
+                                <div class="heading-addresses returns section-dv">${Resource.msg('heading.orderproduct.returns.heading', 'confirmation', null)}</div>
+                            </isif>
+                            <div class="section-mv">${Resource.msg('heading.orderproducthistory.summary.confirmation', 'confirmation', null)}<span class="account-icon"></span></div>
+                        </isif>
+                    </div>
+                </div>
+                <isif condition="${pdict.orderReturnItems !=null && pdict.orderReturnItems == 'select' }">
+                    <div class="b-order-returntabs-outer js-hide-sec">
+                    <div class="js-account-page-heading">
+                        <isif condition="${pdict.orderReturnItems != 'select' }">
+                            <div class="heading-addresses section-mv">${Resource.msg('heading.orderproducthistory.summary.confirmation', 'confirmation', null)}<span class="account-icon"></span></div>
+                        <iselse>
+                            <isif condition="${pdict.exchangeOrder}">
+                                <div class="heading-addresses exchanges section-mv">${Resource.msg('heading.orderproduct.exchanges.heading', 'confirmation', null)}</div> 
+                            <iselse>
+                            	<div class="heading-addresses returns section-mv">${Resource.msg('heading.orderproduct.returns.heading', 'confirmation', null)}</div>
+                        	</isif>
+                        </isif>
+                    </div>
+                    <div class="order-return-tabs">
+                            <div class="b-order-return-activepage order-return-select-tab active">${Resource.msg('tab.orderproduct.returns.select', 'confirmation', null)}</div>
+                            <div class="b-order-return-activepage order-return-reason-tab">${Resource.msg('tab.orderproduct.returns.reason', 'confirmation', null)}</div>
+                            <div class="b-order-return-activepage order-return-print-tab">${Resource.msg('tab.orderproduct.returns.method', 'confirmation', null)}</div>
+                        </div>
+                     </div>
+                </isif>
+            </div>
+        </div>
+
+        <div class="b-account-container b-account-container-bottom ${pdict.orderReturnItems !=null && pdict.orderReturnItems == 'select' && pdict.orderReturnItems != 'reason' ? 'b-order-details-returns-new' :''}">
+            <isif condition="${(pdict.orderTracking || pdict.orderDetailsPage || pdict.rmaDetailsPage || pdict.exchangeDetailsPage || pdict.exchangeItemsDetailsPage || pdict.returnItemsDetailsPage) && pdict.CurrentCustomer.authenticated}">
+                <div class="b-account-left js-account-left">
+                    <isinclude template="account/leftNavLinks"/>
+                </div>
+            </isif>
+
+            <div class="b-account-right">
+                <div class="account-orders-head-container">
+                    <div class="container receipt b-order_track-details <isif condition="${pdict.order && pdict.order.shipping && pdict.order.shipping.length > 1}">multi-ship</isif>">
+                        <div class="b-account-order_history">
+                            <div class="container order-list-container">
+                                <div class="account-orderlist-container">
+                                    <div class="b-order-item">
+                                        <div class="account-order-details-ajax">
+                                            <isinclude template="account/order/orderDetailsSummary" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <isif condition="${pdict.orderReturnItems !=null && pdict.orderReturnItems == 'select' && pdict.orderReturnItems != 'reason' }">
+    <div class="g-modal g-error-return-modal" id="returnErrorModal" tabindex="-1" role="dialog" aria-labelledby="returnErrorModal">
+        <div class="g-modal-dialog g-error-return-modal-dialog" role="document">
+            <div class="g-modal-content g-error-return-modal-content"></div>
+        </div>
+    </div>
+  </isif>
+</isdecorate>

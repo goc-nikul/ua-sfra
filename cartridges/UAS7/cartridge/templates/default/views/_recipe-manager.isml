@@ -1,0 +1,855 @@
+	<iscontent compact="true">
+    <!--- Load bootstrap CSS //--->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/components/bootstrap-colorpicker.min.css')}">
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/components/bootstrap-select.min.css')}">
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/components/bootstrap-editable.css')}">
+
+    <!--- Load component css //--->
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/components/animate.css')}">
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/components/pane.css')}">
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/components/themes/all.min.css')}">
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/components/jquery.nouislider.css')}">
+
+    <!--- Load custom css //--->
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/UAS7RM.css')}">
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/DWBM.css')}">
+
+    <!--- Load any custom fonts for the UI Display --->
+    <link href="https://fonts.googleapis.com/css?family=PT+Sans:400,700" rel="stylesheet" type="text/css">
+
+    <!--- Load core jquery library javascript off of CDNs --->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    
+    <script type="text/javascript">
+        var $j = jQuery.noConflict();
+    </script>
+    
+    <!--- Load the latest version of bootstrap off of CDNs --->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+    <!--- Load bootstrap js component libraries //--->
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/bootstrap.touchspin.js')}"></script>
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/bootstrap-colorpicker.min.js')}"></script>
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/bootstrap-select.min.js')}"></script>
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/bootstrap-editable.min.js')}"></script>
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/bootstrap-growl.min.js')}"></script>
+
+    <!--- Load jquery js component libraries //--->
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/jquery.nouislider.min.js')}"></script>
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/jquery.zclip.js')}"></script>
+    
+    <!--- Load the json viewer //--->
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/JSONViewer.pkd.min.js')}"></script>
+
+    <!--- Load the utility library //--->
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/lib/lo-dash.js')}"></script>
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/lib/tracer.js')}"></script>
+    <script>
+
+        // Initialize the UA Namespace
+        var UA = {};
+
+    </script>
+
+    <div class="col-lg-12">
+
+        <div class="dw-table-title">Scene 7 Recipe Manager</div>
+
+        <p class="dw-instructional-text"> Please specify the filename of a name of a <b>UA Product Material Image</b> to faciliate your recipe preview.  Once an image has been specified, the <b>GO</b> button will load the image into the display.</p>
+        <p class="dw-instructional-text"> Please use the <b>Recipe Category</b> and <b>View Type</b> controls to select a recipe to preview and edit.</p>
+
+    </div>
+
+    <div>&nbsp;</div>
+
+    <div id="product-image-grid" class="col-lg-12 container-fluid pt-sans">
+
+        <div class="panel panel-default">
+
+            <div class="panel-heading panel-heading-height">
+
+                <div class="preview-material-image-form">
+
+                    <h5 class="heading-label">Preview Image &nbsp; </h5>
+
+                    <div class="input-group product-image-field">
+                        <input type="text" class="form-control" id="image-file-name">
+                    <span class="input-group-btn">
+                        <button class="btn btn-image-submit btn-default" type="button">Go!</button>
+                    </span>
+                    </div>
+
+                </div>
+
+                <div class="recipe-button-bar">
+
+                    <button type="button" class="btn btn-default btn-save disabled">
+                        <span class="glyphicon glyphicon-floppy-saved"></span> Save
+                    </button>
+
+                    <button type="button" class="btn btn-default btn-reset disabled">
+                        <span class="glyphicon glyphicon-refresh"></span> Reset
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div id="panel-workspace" class="panel-body main-panel-body">
+
+                <div id="panel-controlview" class="panel panel-default col-lg-5 panel-standard-height">
+
+                    <div class="control-container">
+
+                        <h4 class="control-container-heading"> Recipe Selection and View Type </h4>
+
+                        <div class="control-item recipe-selector">
+
+                            <div class="control-label control-label-recipe">
+
+                                Recipe Category
+
+                            </div>
+                            
+                            <div class="input-group flex-input-group select-control-group">
+                                <a id="recipe-category-previous" class="recipe-control recipe-item-previous" data-direction="previous" data-selectid="recipe-category" href="#"><span class="glyphicon glyphicon-chevron-left"></span></a>
+                                <select data-header="Select a recipe category." data-width="100%" id="recipe-category" class="selectpicker show-tick show-menu-arrow">
+                                </select>
+                                <a id="recipe-category-next" class="recipe-control recipe-item-next" data-direction="next" data-selectid="recipe-category" href="#"><span class="glyphicon glyphicon-chevron-right recipe-category-next"></span></a>
+                            </div>
+
+                        </div>
+
+                        <div class="control-item">
+
+                            <div class="control-label control-label-recipe">
+
+                                View Type
+
+                            </div>
+
+                            <div class="input-group flex-input-group select-control-group">
+                                <a id="view-type-previous" class="recipe-control recipe-item-previous" data-direction="previous" data-selectid="view-type" href="#"><span class="glyphicon glyphicon-chevron-left"></span></a>
+                                <select data-header="Select a view-type." data-width="100%" id="view-type" class="selectpicker show-tick show-menu-arrow">
+                                </select>
+                                <a id="view-type-next" class="recipe-control recipe-item-next" data-direction="next" data-selectid="view-type" href="#"><span class="glyphicon glyphicon-chevron-right recipe-category-next"></span></a>
+                            </div>
+
+                        </div>
+
+                    </div>
+                                   
+                    <ul class="nav nav-tabs product-images-tabs">
+
+                        <li class="active"><a href="#orientation-controls" data-toggle="tab">Orientation</a></li>
+                        <li class=""><a href="#scale-positioning-controls" data-toggle="tab">Scale and Positioning</a></li>
+                        <li class=""><a href="#format-controls" data-toggle="tab">Format</a></li>
+
+                    </ul>
+
+                    <div class="tab-content tab-content-height">
+
+                        <div class="tab-pane active" id="orientation-controls">
+
+                            <div class="control-container">
+
+                                <h4 class="control-container-heading"> Image Orientation </h4>
+
+                                <div class="control-item">
+
+                                    <div class="control-label control-label-slider slider-top-label">
+
+                                        Top
+
+                                    </div>
+
+                                    <div class="input-group flex-input-group">
+                                        <div class="checkbox slider-checkbox hide">
+                                            <label>
+                                                <input type="checkbox" data-slider="top" class="image-orientation-checkbox" id="slider-top-enabled">
+                                            </label>
+                                        </div>
+                                        <button type="button" class="btn btn-xs reset-button-xs reset-slider-top disabled" title="Reset to original value">
+                                            <span class="glyphicon glyphicon-refresh"></span>
+                                        </button>
+                                        <div class="editable-label-container">
+                                            <div class="slider-value-suffix">%</div>
+                                            <a data-sliderid="recipe-topOrientation" class="slider-top-value slider-orientation-value slider-value"></a>
+                                        </div>
+                                        <div class="slider-width" id="recipe-topOrientation"></div>
+                                    </div>
+
+                                </div>
+
+                                <div class="control-item">
+
+                                    <div class="control-label control-label-slider slider-mid-label">
+
+                                        Mid
+
+                                    </div>
+
+                                    <div class="input-group flex-input-group">
+                                        <div class="checkbox slider-checkbox hide">
+                                            <label>
+                                                <input type="checkbox" data-slider="mid" class="image-orientation-checkbox" id="slider-mid-enabled">
+                                            </label>
+                                        </div>
+                                        <button type="button" class="btn btn-xs reset-button-xs reset-slider-mid disabled" title="Reset to original value">
+                                            <span class="glyphicon glyphicon-refresh"></span>
+                                        </button>
+                                        <div class="editable-label-container">
+                                            <div class="slider-value-suffix">%</div>
+                                            <a data-sliderid="recipe-midOrientation" class="slider-mid-value slider-orientation-value slider-value"></a>
+                                        </div>
+                                        <div class="slider-width" id="recipe-midOrientation"></div>
+                                    </div>
+
+                                </div>
+
+                                <div class="control-item">
+
+                                    <div class="control-label control-label-slider slider-bottom-label">
+
+                                        Bottom
+
+                                    </div>
+
+                                    <div class="input-group flex-input-group">
+                                        <div class="checkbox slider-checkbox hide">
+                                            <label>
+                                                <input type="checkbox" data-slider="bottom" class="image-orientation-checkbox" id="slider-bottom-enabled">
+                                            </label>
+                                        </div>
+                                        <button type="button" class="btn btn-xs reset-button-xs reset-slider-bottom disabled" title="Reset to original value">
+                                            <span class="glyphicon glyphicon-refresh"></span>
+                                        </button>
+                                        <div class="editable-label-container">
+                                            <div class="slider-value-suffix">%</div>
+                                            <a data-sliderid="recipe-bottomOrientation" class="slider-bottom-value slider-orientation-value slider-value"></a>
+                                        </div>
+                                        <div class="slider-width" id="recipe-bottomOrientation"></div>
+                                    </div>
+
+                                </div>
+
+                                <div class="control-item control-item-top-large">
+
+                                    <div class="control-label control-label-slider slider-zoom-label">
+
+                                        Zoom
+
+                                    </div>
+
+                                    <div class="input-group flex-input-group">
+                                        <div class="checkbox slider-checkbox hide">
+                                            <label>
+                                                <input type="checkbox" data-slider="zoom" class="image-control-checkbox" id="slider-zoom-enabled">
+                                            </label>
+                                        </div>
+                                        <button type="button" class="btn btn-xs reset-button-xs reset-slider-zoom disabled" title="Reset to original value">
+                                            <span class="glyphicon glyphicon-refresh"></span>
+                                        </button>
+                                        <div class="editable-label-container">
+                                            <div class="slider-value-suffix">%</div>
+                                            <a data-sliderid="recipe-zoomOrientation" class="slider-zoom-value slider-orientation-value slider-value"></a>
+                                        </div>
+                                        <div class="slider-width" id="recipe-zoomOrientation"></div>
+                                    </div>
+
+                                </div>
+
+                                <div class="control-item">
+
+                                    <div class="control-label control-label-slider slider-viewport-label">
+
+                                        Viewport
+
+                                    </div>
+
+                                    <div class="input-group flex-input-group">
+                                        <div class="checkbox slider-checkbox hide">
+                                            <label>
+                                                <input type="checkbox" data-slider="viewport" class="image-control-checkbox" id="slider-viewport-enabled">
+                                            </label>
+                                        </div>
+                                        <button type="button" class="btn btn-xs reset-button-xs reset-slider-viewport disabled" title="Reset to original value">
+                                            <span class="glyphicon glyphicon-refresh"></span>
+                                        </button>
+                                        <div class="editable-label-container">
+                                            <div class="slider-value-suffix">%</div>
+                                            <a data-sliderid="recipe-viewportOrientation" class="slider-viewport-value slider-orientation-value slider-value"></a>
+                                        </div>
+                                        <div class="slider-width" id="recipe-viewportOrientation"></div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="control-container">
+
+                                <h4 class="control-container-heading"> Image Magnification </h4>
+
+                                <div class="control-item">
+
+                                    <div class="control-label control-label-slider css-slider-label">
+
+                                         Width %
+
+                                    </div>
+
+                                    <div class="input-group flex-input-group">
+                                        <div class="checkbox slider-checkbox hide">
+                                            <label>
+                                                <input type="checkbox" data-slider="width" data-label="css-slider-label" id="toggle-css-width">
+                                            </label>
+                                        </div>
+                                        <button type="button" class="btn btn-xs reset-button-xs reset-css-width disabled" title="Reset to original value">
+                                            <span class="glyphicon glyphicon-refresh"></span>
+                                        </button>
+                                        <div class="editable-label-container">
+                                            <div class="slider-value-suffix">%</div>
+                                            <a data-sliderid="recipe-widthOrientation" class="slider-width-value slider-value"></a>
+                                        </div>
+                                        <div class="slider-width" id="recipe-widthOrientation"></div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="control-container">
+
+                                <h4 class="control-container-heading">Center Locking</h4>
+
+                                <div class="control-item">
+
+                                    <div class="control-label control-label-select center-x-label">
+
+                                        Center X
+
+                                    </div>
+
+                                    <div class="input-group flex-input-group">
+                                        <div class="checkbox slider-checkbox">
+                                            <label>
+                                                <input type="checkbox" data-label="center-x-label" id="lock-x-axis-enabled">
+
+                                            </label>
+                                        </div>
+                                        <div class="lock-x-axis-message toggle-message">X-Axis Unlocked</div>
+                                    </div>
+
+                                </div>
+
+                                <div class="control-item">
+
+                                    <div class="control-label control-label-select center-y-label">
+
+                                        Center Y
+
+                                    </div>
+
+                                    <div class="input-group flex-input-group">
+                                        <div class="checkbox slider-checkbox">
+                                            <label>
+                                                <input type="checkbox" data-label="center-y-label" id="lock-y-axis-enabled">
+
+                                            </label>
+                                        </div>
+                                        <div class="lock-y-axis-message toggle-message">Y-Axis Unlocked</div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="tab-pane" id="scale-positioning-controls">
+
+                            <div class="control-container">
+
+                                <h4 class="control-container-heading"> Image Scale </h4>
+
+                                <div class="control-item">
+
+                                    <div class="control-label">
+
+                                        Scale
+
+                                    </div>
+
+                                    <div class="input-group">
+                                        <input id="recipe-scale" type="text" value="" name="recipe-scale" class="form-control recipe-element">
+                                    </div>
+
+                                </div>
+
+                                <div class="control-item">
+
+                                    <div class="control-label">
+
+                                        Size X
+
+                                    </div>
+
+                                    <div class="input-group">
+                                        <input id="recipe-sizeX" type="text" value="" name="recipe-sizeX" class="form-control recipe-element">
+                                    </div>
+
+                                </div>
+
+                                <div class="control-item">
+
+                                    <div class="control-label">
+
+                                        Size Y
+
+                                    </div>
+
+                                    <div class="input-group">
+                                        <input id="recipe-sizeY" type="text" value="" name="recipe-sizeY" class="form-control recipe-element">
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="control-container">
+
+                                <h4 class="control-container-heading"> Image Height and Width </h4>
+
+                                <div class="control-item">
+
+                                    <div class="control-label">
+
+                                        Rectangle X
+
+                                    </div>
+
+                                    <div class="input-group">
+                                        <input id="recipe-rectX" type="text" value="" name="recipe-rectX" class="form-control recipe-element">
+                                    </div>
+
+                                </div>
+
+                                <div class="control-item">
+
+                                    <div class="control-label">
+
+                                        Rectangle Y
+
+                                    </div>
+
+                                    <div class="input-group">
+                                        <input id="recipe-rectY" type="text" value="" name="recipe-rectY" class="form-control recipe-element">
+                                    </div>
+
+                                </div>
+
+                                <div class="control-item">
+
+                                    <div class="control-label">
+
+                                        Image Width
+
+                                    </div>
+
+                                    <div class="input-group">
+                                        <input id="recipe-width" type="text" value="" name="recipe-width" class="form-control recipe-element">
+                                    </div>
+
+                                </div>
+
+                                <div class="control-item">
+
+                                    <div class="control-label">
+
+                                        Image Height
+
+                                    </div>
+
+                                    <div class="input-group">
+                                        <input id="recipe-height" type="text" value="" name="recipe-height" class="form-control recipe-element">
+                                    </div>
+
+                                </div>
+
+                            </div>
+<!---
+                            <div class="control-container">
+
+                                <h4 class="control-container-heading"> Image Positioning </h4>
+
+                                <div class="control-item posX-control">
+
+                                    <div class="control-label">
+
+                                        Position X
+
+                                    </div>
+
+                                    <div class="input-group">
+                                        <input id="recipe-posX" type="text" value="" name="recipe-posX" class="form-control recipe-element">
+                                    </div>
+
+                                </div>
+
+                                <div class="control-item posY-control">
+
+                                    <div class="control-label">
+
+                                        Position Y
+
+                                    </div>
+
+                                    <div class="input-group">
+                                        <input id="recipe-posY" type="text" value="" name="recipe-posY" class="form-control recipe-element">
+                                    </div>
+
+                                </div>
+
+                            </div>
+--->
+                        </div>
+
+                        <div class="tab-pane" id="format-controls">
+
+                            <div class="control-container">
+
+                                <h4 class="control-container-heading"> Image Quality</h4>
+
+                                <div class="control-item">
+
+                                    <div class="control-item">
+
+                                        <div class="control-label">
+
+                                            Quality
+
+                                        </div>
+
+                                        <div class="input-group">
+                                            <input id="recipe-quality" type="text" value="" name="recipe-quality" class="form-control recipe-element">
+                                        </div>
+
+                                    </div>
+
+                                 </div>
+
+                            </div>
+
+                            <div class="control-container">
+
+                                <h4 class="control-container-heading"> Image Format and Resolution</h4>
+
+                                <div class="control-item">
+
+                                    <div class="control-label">
+
+                                        Format
+
+                                    </div>
+
+                                    <div class="btn-group">
+
+                                        <div class="btn-group" data-toggle="buttons">
+                                            <label class="btn btn-default recipe-format-element">
+                                                <input class="image-format-button" type="radio" data-format="jpg" name="options" id="format-option-1"> jpg
+                                            </label>
+                                            <label class="btn btn-default recipe-format-element">
+                                                <input class="image-format-button" type="radio" data-format="png" name="options" id="format-option-2"> png
+                                            </label>
+                                            <label class="btn btn-default recipe-format-element">
+                                                <input class="image-format-button" type="radio" data-format="png-alpha" name="options" id="format-option-3"> png-alpha
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="control-item">
+
+                                    <div class="control-label">
+
+                                        Res. Mode
+
+                                    </div>
+
+                                    <div class="btn-group">
+
+                                        <div class="btn-group" data-toggle="buttons">
+                                            <label class="btn btn-default recipe-resmode-element">
+                                                <input class="image-format-button" type="radio" data-format="bilin" name="options" id="resmode-option-1"> bilin
+                                            </label>
+                                            <label class="btn btn-default recipe-resmode-element">
+                                                <input class="image-format-button" type="radio" data-format="bicub" name="options" id="resmode-option-2"> bicub
+                                            </label>
+                                            <label class="btn btn-default recipe-resmode-element">
+                                                <input class="image-format-button" type="radio" data-format="sharp2" name="options" id="resmode-option-3"> sharp2
+                                            </label>
+                                            <label class="btn btn-default recipe-resmode-element">
+                                                <input class="image-format-button" type="radio" data-format="trilin" name="options" id="resmode-option-4"> trilin
+                                            </label>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="control-container">
+
+                                <h4 class="control-container-heading"> Background Color </h4>
+
+                                <div class="control-item">
+
+                                    <div class="control-label">
+
+                                        Color
+
+                                    </div>
+
+                                    <div class="input-group recipe-background-color">
+                                        <input type="text" value="" class="form-control recipe-element" id="background-color-element" />
+                                        <span class="input-group-addon"><i></i></span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="control-container">
+
+                                <h4 class="control-container-heading"> Padding </h4>
+
+                                <div class="control-item">
+
+                                    <div class="control-item paddingTop-control">
+
+                                        <div class="control-label">
+
+                                            Padding Top
+
+                                        </div>
+
+                                        <div class="input-group">
+                                            <input id="recipe-paddingTop" type="text" value="" name="recipe-paddingTop" class="form-control recipe-element">
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="control-item paddingRight-control">
+
+                                        <div class="control-label">
+
+                                            Padding Right
+
+                                        </div>
+
+                                        <div class="input-group">
+                                            <input id="recipe-paddingRight" type="text" value="" name="recipe-paddingRight" class="form-control recipe-element">
+                                        </div>
+
+                                    </div>
+
+                                    <div class="control-item paddingBottom-control">
+
+                                        <div class="control-label">
+
+                                            Padding Bottom
+
+                                        </div>
+
+                                        <div class="input-group">
+                                            <input id="recipe-paddingBottom" type="text" value="" name="recipe-paddingBottom" class="form-control recipe-element">
+                                        </div>
+
+                                    </div>
+
+                                    <div class="control-item paddingLeft-control">
+
+                                        <div class="control-label">
+
+                                            Padding Left
+
+                                        </div>
+
+                                        <div class="input-group">
+                                            <input id="recipe-paddingLeft" type="text" value="" name="recipe-paddingLeft" class="form-control recipe-element">
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div id="panel-contentspace" class="panel-body col-lg-7 panel-standard-height">
+
+                    <ul class="nav nav-tabs product-images-tabs">
+
+                        <li class="active"><a href="#image-preview" data-toggle="tab">Image Preview</a></li>
+                        <li class=""><a href="#recipe-definition-preview" data-toggle="tab">Recipe Definition</a></li>
+                        <li class="" style="float:right"><div class="clipboard-container"><span class="clipboard-title">Copy Url to Clipboard</span>:&nbsp; <a href="#" class="clipboard-url" id="full-clipboard-url">Full</a>&nbsp;|&nbsp;<a href="#" id="partial-clipboard-url" class="clipboard-url">Partial</a>&nbsp;|&nbsp;<a href="#" id="raw-clipboard-url" class="clipboard-url">Raw</a></div></li>                        
+                    </ul>
+
+                    <div class="tab-content tab-content-height">
+
+                        <div class="tab-pane active" id="image-preview">
+
+                            <div class="recipe-preview-image-container">
+
+                                <div class="image-title-container">
+                                    <h3 class="image-title"></h3>
+                                </div>
+                                <h4 class="image-dimensions"></h4>
+                                <h5 class="image-display-percentage"></h5>
+                                <img class="recipe-image-preview hide" src="">
+
+                            </div>
+
+                        </div>
+
+                        <div class="tab-pane" id="recipe-definition-preview">
+
+                            <div id="json-container"></div>
+
+                        </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!--- Modal Dialogs to Convey Status //--->
+    <div class="modal fade" id="unsaved-changes-reset-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title pt-sans bold-label">You Have Unsaved Changes for the Current Recipe</h4>
+                </div>
+                <div class="modal-body pt-sans modal-body-padding">
+                    <img class="question-mark" src="${URLUtils.httpsStatic('/img/assets/questionmark.png')}" title="What would you like to do?">
+                    <p>You have made changes to the current recipe that are un-saved.  Please use the buttons below to either return to the Recipe Manager, or discard your changes and re-load the current recipe.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary btn-danger btn-discard-changes" data-dismiss="modal">Discard My Changes</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <!--- Modal Dialogs to Convey Status //--->
+    <div class="modal fade" id="unsaved-changes-advance-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title pt-sans bold-label">You Have Unsaved Changes for the Current Recipe</h4>
+                </div>
+                <div class="modal-body pt-sans modal-body-padding">
+                    <img class="question-mark" src="${URLUtils.httpsStatic('/img/assets/stop.png')}" title="What would you like to do?">
+                    <p>You have made changes to the current recipe that are un-saved.  Please use the buttons below to either return to the Recipe Manager, or discard your changes and continue to your newly selected recipe.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary btn-danger btn-discard-advance-changes" data-dismiss="modal">Discard My Changes</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <!--- Load any utility scripts that drive the display //--->
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/UA.URL.js')}"></script>
+
+    <!--- Load any scripts used to drive UI display or business logic //--->
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/UA.S7RM.js')}"></script>
+
+    <script>
+
+        // Initialize the core constants for the application
+        var constants = {
+
+        	// Enable https image display
+        	enableHttpsImageDisplay : true,
+        		
+        	// Initialize the default image name
+        	defaultImageName : "V5-1240654-003_HTF",
+        	defaultRecipeCode : "on-model-top",
+        	defaultViewType : "gridTileDesktop",
+        	
+        	// Include the demandware-path to the clipboard module
+			zeroClipboardPath : "${URLUtils.httpsStatic('/swf/ZeroClipboard.swf')}",
+			
+			// Include the Ajax url paths
+			ajaxGetRecipeCategoriesUrl : "${URLUtils.https('UAS7-getRecipeCategories')}",
+			ajaxGetViewTypesUrl : "${URLUtils.https('UAS7-getViewTypes')}",
+			ajaxGetRecipeObjectUrl : "${URLUtils.https('UAS7-getRecipeDefinition')}",
+			ajaxSaveRecipDefinitionUrl : "${URLUtils.https('UAS7-saveRecipeDefinition')}",
+			
+			// Initialize the application defaults
+            defaults : {
+
+                // Default the axis center / lock settings
+                enableCenterX: true,
+                enableCenterY: false,
+
+                // Default the initial width percentage
+                CSSWidth: 50,
+
+                // Default the top / mid / bottom orientation values
+                topOrientation: 125,
+                midOrientation: 125,                
+                bottomOrientation: 125,
+                
+                // Default the zoom / view-port orientation values
+                zoomOrientation: 125,
+				viewportOrientation: 50                
+
+            }
+
+        };
+        
+        // Init all domReady script elements:
+        jQuery(document).ready(function () {
+        	
+            // Initialize the class
+            UA.S7RM.init(constants);
+
+            // Initialize the UI events
+            UA.S7RM.initUIEvents();
+
+            // Set the image file name display
+            UA.S7RM.setImageFileName();
+            
+            // Set the selections in the recipe selection controls
+            UA.S7RM.setRecipeSelectionControls();
+
+            // Initialize the recipe manager
+           	UA.S7RM.initRecipeManager();
+
+            // Load the current / selected recipe
+            UA.S7RM.loadSelectedRecipe();
+            
+        });
+
+    </script>

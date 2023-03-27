@@ -1,0 +1,42 @@
+/**
+ * Saves a shoprunner token to a successfully placed order
+ * needs to be transactional
+ *
+ *	@input Order : dw.order.Order -order to save the token to
+ *   @input CurrentSession : dw.system.Session -pass in the current session to grab the token from
+ */
+importPackage(dw.system);
+importPackage(dw.order);
+importPackage(dw.util);
+importPackage(dw.web);
+importScript("checkout/Utils.ds");
+
+function execute(args) {
+    var save = saveToken(args.CurrentSession, args.Order);
+    return PIPELET_NEXT;
+}
+
+function saveToken(currentSession, order) {
+    var srtoken = getSRToken();
+    // re-initialize srtoken session in order to accept other ShopRunner orders after purchasing the first one
+    session.custom.srtoken = srtoken;
+    var shippingMethodID =
+        order &&
+        order.getDefaultShipment() &&
+        order.getDefaultShipment().getShippingMethod()
+            ? order.getDefaultShipment().getShippingMethod().ID
+            : null;
+
+    // Change done because of EPMD-5674
+    if (order !== null && shippingMethodID) {
+        order.custom.sr_token = srtoken;
+    }
+    // if(order !== null && shippingMethodID && shippingMethodID === 'shoprunner' ) {
+    //     order.custom.sr_token = srtoken;
+    // }
+}
+
+module.exports = {
+    execute: execute,
+    saveToken: saveToken,
+};

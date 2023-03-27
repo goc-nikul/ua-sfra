@@ -1,0 +1,78 @@
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addCss('/css/checkout/checkout.css');
+        assets.addJs('/js/checkoutRegistration.js');
+        if(pdict.bvScout) {
+            assets.addJs(pdict.bvScout);
+        }
+    </isscript>
+
+    <isif condition="${pdict.reportingURLs && pdict.reportingURLs.length}">
+        <isinclude template="reporting/reportingUrls" />
+    </isif>
+    <isset name="isUACAPIEnabled" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('orderHistoryDetailsProvider') && dw.system.Site.getCurrent().getCustomPreferenceValue('orderHistoryDetailsProvider').value === 'UACAPI'}" scope="page" />
+
+    <div class="b-order-confirmation container receipt">
+        <div class="b-order-confirmation_left">
+            <isinclude template="components/modules"/>
+            <div class="b-order-confirmation_top">
+                <h2 class="b-order-confirmation_thank order-thank-you-msg"><isprint value="${Resource.msgf('msg.placed.order.thank.you','confirmation',null, pdict.order.billing.billingAddress.address.firstName)}" /></h2>
+                <div class="b-order-confirmation_print-order">
+                    <div class="b-order-confirmation_order">
+		                <div class="b-order-confirmation_number order-number"><isprint value="${Resource.msgf('label.order.number', 'confirmation', null, pdict.order.orderNumber)}" /></div>
+		                <p class="b-order-confirmation_date order-date">${Resource.msg('label.order.date', 'confirmation', null)} ${pdict.order.formatedCreationDate}</p>
+		                <p class="b-order-confirmation_email order-thank-you-email-msg"><isprint value="${Resource.msgf('info.receive.email.confirmation', 'confirmation', null, pdict.order.orderEmail)}" encoding="htmlcontent" /></p>
+	                </div>
+	                <div class="b-order-confirmation_print">
+		                <button class="btn btn-primary btn-block g-button_base g-button_secondary--black" id="print-page" data-cmp="print">
+			                ${Resource.msg('button.print.page','confirmation',null)}
+			            </button>
+		            </div>
+                </div>
+            </div>
+            <isif condition="${!pdict.isOnlyGCPorduct && pdict.isHALOrder == true}">
+                <div class="b-order-confirmation_inner-details">
+                    <div class="b-order-confirmation_details-heading">
+                        ${Resource.msg('title.halshipping.information', 'confirmation', null)}
+                    </div>
+                    <isinclude template="checkout/confirmation/halConfirmationSummary"/>
+                </div>
+            </isif>
+            <isif condition="${pdict.isBOPISEnabled && pdict.basketHasBopisShipment}">
+                <div class="b-order-confirmation_inner-details">
+                    <div class="b-order-confirmation_details-heading pickup-heading-sec">
+                        <img class="store-icon" src="${URLUtils.staticURL('/images/store.svg')}" alt="Select a Store" title="Pickup In Store">
+                        <span class="pickup-heading">${Resource.msg('heading.order.picup.information', 'confirmation', null)}</span>
+                    </div>
+                    <isinclude template="checkout/shipping/pickupInformation" />
+                </div>
+            </isif>
+            <isslot id="app_download_banner" context="global" description="providing the customer with the option to download UA app" />
+            <isif condition="${pdict.returningCustomer === false}">
+                <div class="b-order-confirmation_account">
+                    <isinclude template="checkout/confirmation/confirmationCreateAccount" />
+                </div>
+            </isif>
+            <div class="b-order-confirmation_details">
+                <isinclude template="checkout/confirmation/confirmationDetails" />
+            </div>
+        </div>
+        <div class="b-order-confirmation_right">
+            <isinclude template="checkout/confirmation/confirmationDetailsSummary" />
+        </div>
+    </div>
+    
+    <div class="b-cart-content b-cart-content-recommendation">
+        <div class="b-cart-content_row">
+		    <div class="b-cart-content_left">
+		        <div class="b-cart-inner-content_left">
+		            <isslot id="confirmation-recommendations-m" description="Recommended products" context="global" />
+		        </div>
+		    </div>
+	    </div>
+    </div>
+ <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('bvEnableBVPixel_C2013')}"> 
+    <isinclude template="bv/bvpixel/tracktransaction"/>
+ </isif>
+</isdecorate>

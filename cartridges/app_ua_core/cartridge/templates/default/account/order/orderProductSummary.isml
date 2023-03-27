@@ -1,0 +1,48 @@
+<isinclude template="/components/modules"/>
+<div class="b-return-error"></div>
+<div class="card-body">
+    <div class="order-details-container">
+        <div class="b-card-track-status">
+             <isif condition="${!order.hasMultipleShipments && !pdict.isOrderDetailPage}">
+                <isinclude template="account/order/orderShipmentStatusCard"/>
+             </isif>
+            <div class="b-selectitems-returns ${pdict.orderReturnItems !=null && pdict.orderReturnItems == 'select' ? 'b-selectitems-returns-view' : 'b-selectitems-od-view'} ${pdict.exchangeDetailsPage ? 'b-exchange-details-sec' : ''} ${order.hasMultipleShipments ? 'b-order-multishipment-sec' : ''} ${pdict.rmaDetailsPage ? 'b-exchange-details-sec b-rma-returndetails' : ''}">
+                <iscomment>Declaring the variable to fix the error log </iscomment>
+                <isset name="pid" value="" scope="page" />
+                <isset name="checkBopisHeading" value="${true}" scope="page"/>
+                <isset name="BopisItemCount" value="${0}" scope="page"/>
+                <isset name="addBopisClass" value="${0}" scope="page"/>
+                <isset name="showItemheading" value="${true}" scope="page" />
+                <isset name="nonBopisItemCount" value="${order.orderItems.length - order.bopisItemscount}" scope="page"/>
+                <isif condition="${order.status === 'RETURNED'}">
+                    <isset name="showItemheading" value="${false}" scope="page" />                    
+                </isif>
+                <div class="order-items ${nonBopisItemCount > 0 && order.bopisItemscount > 0 ? 'order-multi-items' : ''}">
+                    <input type="hidden" class="order-detail-page-custom" value="${pdict.isOrderDetailPage}">
+                    <isloop items="${order.orderItems}" var="orderItem" status="loopStatus">
+                        <isif condition="${!order.bopisItemsOnly && orderItem.isBopis && checkBopisHeading}">
+                            <isset name="checkBopisHeading" value="${false}" scope="page"/>
+                            <div class="b-card-track-status-heading b-pickup-status_main">
+                                ${Resource.msg('order.status.bopis.heading', 'account', null)}
+                            </div>
+                            <isif condition="${!order.hasMultipleShipments}">
+                            <div class="t_dashboard-order-creation-date b-pickup-status_sub ${order.status === 'DELIVERED' ? 'order-delivered' : ''} ${(order.status === 'CANCELLED' && order.status === 'CANCELED') ? 'order-canceled' : ''}">
+                                <isprint value="${order.bopisDisplayStatus}"/>
+                            </div>
+                            </isif>
+                            <isset name="addBopisClass" value="${1}" scope="page"/>
+                        <iselseif condition="${!orderItem.isBopis && showItemheading && nonBopisItemCount !== order.orderItems.length && !order.hasMultipleShipments}"/>
+                        	<isset name="showItemheading" value="${false}" scope="page" />
+                            <div class="b-card-track-status-heading">${Resource.msg('cart.shipping', 'storeLocator', null)}</div>
+                        </isif>
+                        <isif condition="${!order.hasMultipleShipments && pdict.isOrderDetailPage}">
+                            <isinclude template="account/order/orderShipmentStatusCard"/>
+                        </isif>
+                        <isinclude template="account/order/orderDetailProductCard"/>
+                    </isloop>
+                </div>
+                <isinclude template="account/order/orderDetailSelectItemToReturn"/>
+            </div>
+        </div>
+    </div>
+</div>

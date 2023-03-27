@@ -1,0 +1,18 @@
+<isset name="product" value="${pdict.product}" scope="page"/>
+<div class="paypal-cart-buttons-container">
+    <isif condition="${pdict.paypal && pdict.paypal.prefs.PP_ShowExpressCheckoutButtonOnCart}">
+        <isif condition="${pdict.paypal.buttonConfig.billingAgreementFlow}">
+            <div class="paypal-cart-ba-button">
+                <div class="paypal-cart-button js_paypal_button" data-paypal-config="${JSON.stringify(pdict.paypal.buttonConfig)}"></div>
+                <isinclude template="paypal/cart/addShippingAddressModal"/>
+                <isinclude template="paypal/fraudnet"/>
+            </div>
+        <iselse>
+            <isif condition="${typeof(product) !== 'undefined' && !empty(product)}">
+                <div class="paypal-cart-button js_paypal_button ${(pdict.hasEGiftCards|| pdict.isVIP || pdict.hasPreOrder || (!product.price.list && (product.price.sales && !product.price.sales.value))) ? "hide" : ""}" data-paypal-config="${JSON.stringify(pdict.paypal.buttonConfig)}"></div>
+            <iselse>
+                <div class="paypal-cart-button js_paypal_button ${(pdict.valid.error || pdict.hasEGiftCards || pdict.isVIP ||  pdict.hasPreOrder) ? 'hide' : ''}" data-paypal-config="${JSON.stringify(pdict.paypal.buttonConfig)}"></div> 
+            </isif>
+        </isif>
+    </isif>
+</div>

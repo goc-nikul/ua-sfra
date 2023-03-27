@@ -1,0 +1,18 @@
+<div
+    class="b-product_carousel js-thumb-image-carousel js-carousel"
+    data-cmp="carousel"
+    data-json-config='${JSON.stringify(require('*/cartridge/config/carousel').thumbImage)}'>
+    <div class="b-product_carousel-wrapper js-swiper-wrapper swiper-wrapper">
+    	
+        <isloop items="${product.images['pdpMainDesktop'] ? product.images['pdpMainDesktop'] : []}" var="image" status="loopStatus">
+            <div class='b-product_carousel-slide js-product_carousel-slide swiper-slide'>
+                <img src="${image.url}" class="b-product_carousel-image" title="${image.title}" alt="${image.alt} image number ${image.index}" itemprop="image" />
+            </div>
+        </isloop>
+    </div>
+
+    <isif condition="${product.images['pdpMainDesktop'] && product.images['pdpMainDesktop'].length > 1}">
+        <div class="b-product_carousel-control m-next js-swiper-button-next"></div>
+        <div class="b-product_carousel-control m-prev js-swiper-button-prev"></div>
+    </isif>
+</div>

@@ -1,0 +1,138 @@
+.pt_uniform_inquiry {
+    margin-top: rem-calc(30);
+    padding: rem-calc(25) rem-calc(20);
+
+    h1 {
+        font-size: rem-calc(38);
+        margin: 0;
+        font-weight: $font-bold;
+        line-height: rem-calc(43);
+    }
+
+    .heading-row {
+        padding-bottom: rem-calc(20);
+        margin-bottom: rem-calc(30);
+        border-bottom: solid $alto-gray 1px;
+    }
+
+    .cs-heading {
+        text-align: center;
+    }
+}
+
+.uniform-image {
+    margin: rem-calc(20) rem-calc(0);
+    text-align: right;
+    @include respond-to(mobile) {
+        margin-top: 0;
+    }
+
+    .uniform__catalog-download {
+        line-height: rem-calc(44);
+        margin: rem-calc(12) rem-calc(0) rem-calc(0) auto;
+        padding: rem-calc(2) rem-calc(24);
+        @include respond-to(mobile) {
+            font-size: rem-calc(12);
+            line-height: rem-calc(34);
+            margin-right: rem-calc(20);
+        }
+    }
+}
+
+.uniform-form {
+    padding-bottom: rem-calc(30);
+    @include respond-to(mobile) {
+        padding: rem-calc(0) rem-calc(20);
+    }
+
+    .uniform-inputs {
+        .inline-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .b-input_row {
+            width: calc(50% - 12px);
+            @include respond-to(mobile) {
+                width: 100%;
+                margin-bottom: rem-calc(25);
+            }
+        }
+
+        .uniform-form__title {
+            font-size: rem-calc(14);
+            @include respond-to(mobile) {
+                width: 100%;
+                padding: 0;
+            }
+        }
+
+        .title-text {
+            font-weight: 700;
+            margin-bottom: rem-calc(20);
+            padding: rem-calc(0) rem-calc(0) rem-calc(10);
+            position: relative;
+            text-transform: uppercase;
+            width: 100%;
+        }
+    }
+
+    .uniform-btn__wrapper {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        @include respond-to(mobile) {
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .btnText {
+            padding-bottom: rem-calc(15);
+            @include respond-to(desktop) {
+                max-width: 90%;
+            }
+        }
+    }
+}
+
+.uni-width {
+    max-width: rem-calc(1200);
+    margin: 0 auto;
+    padding: rem-calc(5) rem-calc(0);
+}
+
+@media screen and (max-width: 767px) {
+    .uniform__header {
+        padding: rem-calc(0) rem-calc(20);
+    }
+
+    .uniform-btn {
+        align-self: center;
+    }
+
+    .uniform-result {
+        font-weight: bold;
+        padding: rem-calc(15);
+        border: rem-calc(1) solid #ccc;
+    }
+
+    .uniform-result-part {
+        padding: 0;
+        margin: 0;
+        line-height: 1.7;
+    }
+
+    .column-3 {
+        order: 1;
+    }
+
+    .faq__wrapper {
+        display: flex;
+        flex-direction: column;
+
+        .column-8 {
+            order: 2;
+        }
+    }
+}

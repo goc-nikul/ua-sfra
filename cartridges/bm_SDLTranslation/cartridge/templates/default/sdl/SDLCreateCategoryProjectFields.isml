@@ -1,0 +1,54 @@
+<div class="row sdlCatalogList">
+    <div class="form-group col-md-6">
+        <label>
+            ${Resource.msg('msg.sdl.select.catalog', 'SDLTranslation', null)}
+            <sup>${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}</sup>
+            <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="${Resource.msg('msg.sdl.select.catalog.tooltip','SDLTranslation',null)}"></span>
+        </label>
+        <select class="form-control" id="sdlCatalogList" name="sdlCatalogList" required>
+            <isloop items="${pdict.CatalogList.catalogIDs}" var="catalog">
+                <option value="${catalog}">
+                    ${catalog}
+                </option>
+            </isloop>
+        </select>
+    </div>
+</div>
+
+<div class="sdlCategoryTableContainer">
+    <label class="tableHeading">
+        ${Resource.msg('msg.sdl.category.select', 'SDLTranslation', null)}
+        <sup>${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}</sup>
+    </label>
+    <table id="sdlCategoryTable" class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th class="sdlHidingSort"><input type="checkbox" id="sdlCategoryCheckAll" /></th>
+                <th>${Resource.msg('msg.sdl.category.id', 'SDLTranslation', null)}</th>
+                <th>${Resource.msg('msg.sdl.category.name', 'SDLTranslation', null)}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <isloop items="${pdict.TopLevelCategory}" var="eachCategory">
+                <tr id="${eachCategory.ID}">
+                    <td>
+                        <input
+                            type="checkbox"
+                            class="categoryIDC"
+                            id="ct_${eachCategory.formattedID}"
+                            data-catid="${eachCategory.formattedID}"
+                            data-catoriginalid="${eachCategory.ID}"
+                            data-catname="${eachCategory.formattedName}"
+                            onclick="sdlCategoryMatrix('ct_${eachCategory.formattedID}','${eachCategory.formattedName}', '${eachCategory.formattedID}', '${eachCategory.ID}')" />
+                    </td>
+                    <td class="sdlCatID">
+                        <isif condition="${eachCategory.ID !== null}" >${eachCategory.ID}</isif>
+                    </td>
+                    <td>
+                        <isif condition="${eachCategory.displayName !== null}" >${eachCategory.displayName}</isif>
+                    </td>
+                </tr>
+            </isloop>
+        </tbody>
+    </table>
+</div>

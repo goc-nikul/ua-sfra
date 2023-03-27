@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<customer-groups xmlns="http://www.demandware.com/xml/impex/customergroup/2007-06-30">
+    <customer-group group-id="Everyone">
+        <description>Represents all customers of the site, both unregistered and registered.</description>
+        <custom-attributes/>
+    </customer-group>
+
+    <customer-group group-id="Registered">
+        <description>Represents all registered customers of the site.</description>
+        <custom-attributes/>
+    </customer-group>
+
+    <customer-group group-id="Unregistered">
+        <description>Represents all unregistered customers of the site.</description>
+        <custom-attributes/>
+    </customer-group>
+
+    <customer-group group-id="Employee">
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>customer.profile.custom.isEmployee</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+	
+	<customer-group group-id="Loyalty">
+        <description>Loyalty customers</description>
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>customer.profile.custom.loyaltyStatus</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>ENROLLED</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>customer.registered</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+
+</customer-groups>

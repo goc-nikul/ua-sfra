@@ -1,0 +1,11 @@
+<isif condition="${!(pdict.CurrentCustomer && pdict.CurrentCustomer.authenticated)}">
+    <a class="b-navigation_utility-link js-login bfx-remove-element" href="${URLUtils.https('Login-Show')}" role="button"
+    aria-label="${Resource.msg('label.header.loginbutton', 'account', null)}">
+        <i class="b-navigation_utility-icon m-account" aria-hidden="true"></i>
+    </a>
+<iselse/>
+    <a class="b-navigation_utility-link" href="${URLUtils.https('Account-Show')}" role="menuitem"
+    tabindex="0">
+        <i class="b-navigation_utility-icon m-account" aria-hidden="true"></i>
+    </a>
+</isif>

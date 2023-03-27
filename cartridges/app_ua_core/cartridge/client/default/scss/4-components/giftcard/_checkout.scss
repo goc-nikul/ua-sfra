@@ -1,0 +1,241 @@
+.s-giftcard {
+    display: flex;
+    position: relative;
+    margin-bottom: rem-calc(20);
+    @include respond-to(mobile) {
+        display: block;
+    }
+
+    &__logo {
+        @include icon('logo', 'before', 12, rem-calc(16));
+
+        border: 1px solid $grey3;
+        display: inline-block;
+        margin-left: rem-calc(10);
+        padding: 0 5px;
+    }
+
+    .form-group {
+        &.required .form-control-label::before {
+            content: none;
+        }
+    }
+
+    &__checkbox {
+        position: relative;
+    }
+
+    &_apply_another_gc {
+        margin-top: rem-calc(20);
+        margin-bottom: rem-calc(10);
+    }
+
+    &-rfholder {
+        text-align: right;
+        @include font(main_med, rem-calc(10), 1.6);
+
+        color: $grey5;
+        margin-bottom: rem-calc(8);
+
+        @include respond-to(mobile) {
+            border: none;
+            padding: 0;
+            margin-bottom: rem-calc(12);
+            text-align: right;
+        }
+    }
+
+    .gcButton {
+        max-width: rem-calc(225);
+        float: right;
+        margin-top: rem-calc(8);
+
+        @include respond-to(desktop) {
+            margin-top: rem-calc(16);
+        }
+
+        @include respond-to(mobile) {
+            max-width: 100%;
+        }
+    }
+
+    &__heading {
+        @include font(main_med, rem-calc(16), 2.5);
+
+        flex-basis: 30%;
+
+        @include respond-to(mobile) {
+            margin-bottom: rem-calc(23);
+        }
+    }
+
+    &__section {
+        flex-basis: 70%;
+        margin-top: rem-calc(10);
+        @include respond-to(mobile) {
+            flex-basis: 100%;
+        }
+
+        .g-checkbox-label {
+            font-size: rem-calc(14);
+            line-height: rem-calc(26);
+            float: left;
+            @include respond-to(mobile) {
+                line-height: rem-calc(20);
+                padding-left: rem-calc(27);
+            }
+        }
+    }
+
+    &__formFields {
+        margin-top: rem-calc(16);
+
+        @include respond-to(desktop) {
+            margin-bottom: rem-calc(5);
+        }
+
+        .b-input_row {
+            @include respond-to(desktop) {
+                margin-bottom: rem-calc(10);
+            }
+        }
+    }
+}
+
+.b-giftcard {
+    &_edit,
+    &_remove {
+        .anchorLinks {
+            color: $grey5;
+            @include font(main_semi_bold, rem-calc(12), 1.67);
+        }
+
+        @include respond-to(desktop) {
+            margin-left: auto;
+        }
+
+        @include respond-to(mobile) {
+            display: inline-block;
+            margin-top: rem-calc(16);
+            width: 100%;
+        }
+    }
+
+    &_applied_card {
+        display: flex;
+        margin-top: rem-calc(20);
+        margin-bottom: rem-calc(4);
+
+        @include respond-to(mobile) {
+            flex-wrap: wrap;
+            padding-left: rem-calc(32);
+        }
+
+        &_number {
+            letter-spacing: rem-calc(0.26);
+            color: $grey5;
+            @include font(main, rem-calc(13), 1.38);
+
+            .giftcard-title {
+                color: $cod-gray;
+                letter-spacing: rem-calc(0.24);
+            }
+
+            @include respond-to(mobile) {
+                flex-basis: 80%;
+            }
+        }
+
+        &_pin,
+        &_amount {
+            margin-left: rem-calc(32);
+            color: $cod-gray;
+            letter-spacing: rem-calc(0.24);
+            @include font(main_bold, rem-calc(13), 1.38);
+
+            @include respond-to(mobile) {
+                flex-basis: 20%;
+                margin: 0;
+            }
+        }
+    }
+}
+
+.clearfix {
+    clear: both;
+}
+
+.error-info {
+    color: $error-color;
+}
+
+.anchorLinks {
+    @include font(main_med, rem-calc(12), 1.67);
+
+    color: $black;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: none;
+    }
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.gift_card_applied_amount {
+    display: none;
+
+    &:nth-child(1) {
+        margin-top: rem-calc(24);
+    }
+
+    &.active {
+        display: block;
+    }
+
+    .gc-row {
+        color: $green;
+    }
+}
+
+.js-gift_card_applied_amount {
+    &.vip-points-active {
+        .gift_card_applied_amount {
+            &:nth-child(1) {
+                margin-top: 0;
+            }
+        }
+    }
+}
+
+.vip-points-ordersummary {
+    &.active {
+        margin-top: rem-calc(24);
+    }
+}
+
+.order-summary_remaing_amount {
+    display: none;
+
+    &.active {
+        display: block;
+    }
+
+    margin-top: rem-calc(20);
+}
+
+.pointer-none {
+    pointer-events: none;
+}
+
+.btn_credit_card {
+    @include respond-to(mobile) {
+        max-width: 100%;
+    }
+}
+
+.required-fields {
+    font-size: rem-calc(11) !important;
+}

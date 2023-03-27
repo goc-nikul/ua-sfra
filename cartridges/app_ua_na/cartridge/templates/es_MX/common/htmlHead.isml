@@ -1,0 +1,128 @@
+<meta charset=UTF-8>
+
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1, maximum-scale=5">
+
+<iscomment>The page meta data will be replaced by rule based content if it's available</iscomment>
+<isset name="currentSite" value="${dw.system.Site.current}" scope="page"/>
+<isset name="pageTitle" value="${!empty(pdict.CurrentPageMetaData) && (pdict.CurrentPageMetaData.title !== 'Sites-MX-Site') ? true : false}" scope="page"/>
+
+<isif condition="${dw.system.System.getInstanceType() != dw.system.System.PRODUCTION_SYSTEM && pageTitle}">
+    <title>${pdict.CurrentPageMetaData.title}</title>
+<iselseif condition="${pageTitle}"/>
+    <title><isprint value="${pdict.CurrentPageMetaData.title}" encoding="htmlcontent" /></title>
+<iselse>
+    <title>${Resource.msg('global.storename','common',null)}</title>
+</isif>
+
+<meta name="description" content="${pdict.CurrentPageMetaData.description ? pdict.CurrentPageMetaData.description : Resource.msg('global.storename','common',null)}"/>
+<meta name="keywords" content="${pdict.CurrentPageMetaData.keywords ? pdict.CurrentPageMetaData.keywords : Resource.msg('global.storename','common',null)}"/>
+<meta name="format-detection" content="telephone=no">
+<isif condition="${typeof robotMetaData !== "undefined" && !empty(robotMetaData)}">
+    <isprint value="${robotMetaData}" encoding="off"/>
+</isif>
+
+<iscomment>Additional Rule based page meta tags</iscomment>
+<isloop items="${pdict.CurrentPageMetaData.pageMetaTags}" var="pageMetaTag">
+    <isif condition="${pageMetaTag.name}">
+        <meta name="<isprint value="${pageMetaTag.ID}">" content="<isprint value="${pageMetaTag.content}">">
+    <iselseif condition="${pageMetaTag.property}">
+        <meta property="<isprint value="${pageMetaTag.ID}">" content="<isprint value="${pageMetaTag.content}">">
+    </isif>
+</isloop>
+
+<link rel="icon" type="image/png" sizes="16x16" href="${URLUtils.staticURL('/images/favicons/favicon-16x16.png')}">
+<link rel="icon" type="image/png" sizes="32x32" href="${URLUtils.staticURL('/images/favicons/favicon-32x32.png')}">
+<link rel="icon" type="image/png" sizes="48x48" href="${URLUtils.staticURL('/images/favicons/favicon-48x48.png')}">
+<link rel="icon" type="image/png" sizes="96x96" href="${URLUtils.staticURL('/images/favicons/favicon-96x96.png')}">
+<link rel="icon" type="image/png" sizes="128x128" href="${URLUtils.staticURL('/images/favicons/favicon-128.png')}">
+<link rel="icon" type="image/png" sizes="196x196" href="${URLUtils.staticURL('/images/favicons/favicon-196x196.png')}">
+
+<!-- TOP-8130 - support *-precomposed icons for max compatibility / performance -->
+<link rel="icon" sizes="192x192" href="${URLUtils.staticURL('/images/favicons/favicon-192x192.png')}">
+<link rel="apple-touch-icon-precomposed" sizes="180x180" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-180x180-precomposed.png')}">
+<link rel="apple-touch-icon" sizes="180x180" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-180x180.png')}">
+<link rel="apple-touch-icon-precomposed" sizes="152x152" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-152x152-precomposed.png')}">
+<link rel="apple-touch-icon" sizes="152x152" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-152x152.png')}">
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-144x144-precomposed.png')}">
+<link rel="apple-touch-icon" sizes="144x144" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-144x144.png')}">
+<link rel="apple-touch-icon-precomposed" sizes="120x120" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-120x120-precomposed.png')}">
+<link rel="apple-touch-icon" sizes="120x120" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-120x120.png')}">
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-114x114-precomposed.png')}">
+<link rel="apple-touch-icon" sizes="114x114" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-114x114.png')}">
+<link rel="apple-touch-icon-precomposed" sizes="76x76" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-76x76-precomposed.png')}">
+<link rel="apple-touch-icon" sizes="76x76" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-76x76.png')}">
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-72x72-precomposed.png')}">
+<link rel="apple-touch-icon" sizes="72x72" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-72x72.png')}">
+<link rel="apple-touch-icon" sizes="60x60" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-60x60.png')}">
+<link rel="apple-touch-icon" sizes="57x57" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-57x57.png')}">
+<link rel="apple-touch-icon-precomposed" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon-precomposed.png')}">
+<link rel="apple-touch-icon" href="${URLUtils.staticURL('/images/favicons//apple-touch-icon.png')}">
+
+<link rel='mask-icon' href='${URLUtils.staticURL('/images/favicons/favicon-16x16.svg')}' color='#000'>
+
+<link rel="stylesheet" href="${URLUtils.staticURL('/css/fonts.css')}" />
+<link rel="stylesheet" href="${URLUtils.staticURL('/css/normalize.css')}" />
+<link rel="stylesheet" href="${URLUtils.staticURL('/css/style.css')}" />
+<isif condition="${'isLoyaltyEnable' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.isLoyaltyEnable}">
+    <isinclude template="/loyalty/headerincludes" />
+</isif>
+<isloop items="${ require('*/cartridge/scripts/assets.js').styles }" var="style">
+     <link rel="stylesheet" href="${style.src}" <isif condition="${style.integrity != null}">integrity="${style.integrity}" crossorigin="anonymous"</isif> />
+</isloop>
+
+<isif condition="${'GoogleVerificationTag' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.GoogleVerificationTag!=''}">
+    <meta name="google-site-verification" content="<isprint value="${dw.system.Site.current.preferences.custom.GoogleVerificationTag}"/>" />
+</isif>
+
+<isset name="pxAppID" value="${dw.system.Site.current.getCustomPreferenceValue('PX_appID')}" scope="page"/>
+<isset name="pxEnabled" value="${dw.system.Site.current.getCustomPreferenceValue('PX_moduleEnabled')}" scope="page"/>
+<isif condition="${pxEnabled && pxAppID}">
+<iscomment>
+    perimeterx sensor include snippet.  For this to work, you must also add a dynamic mapping in Merchant Tools->SEO->Dynamic Mappings that looks like this:
+    /px/** p,,,PXFP-Handle,,src,{0}
+</iscomment>
+<isset name="pxScriptUrl" value="${URLUtils.https('PXFP-Handle')}" scope="page" />
+<script type="text/javascript">
+	(function(){
+		window._pxAppId = '${pxAppID}';
+		// Custom parameters
+		// window._pxParam1 = "<param1>";
+		var p = document.getElementsByTagName('script')[0],
+			s = document.createElement('script');
+        var pxScriptUrl = '${pxScriptUrl}';
+        var srcUrl = new URL(pxScriptUrl);
+        srcUrl.searchParams.append('src', window._pxAppId.substring(2) + '/init.js');
+		s.async = 1;
+        s.src = srcUrl;
+		p.parentNode.insertBefore(s,p);
+	}());
+</script>
+</isif>
+
+
+<script>
+(function () {
+    window.uaDatalayer = { action: function(){}, applyPageData: function(){}, clearPageData: function(){}, logging: function(){}, getPageData: function(){}, applyNextPageData: function(){} };
+})();
+</script>
+<isif condition="${'tealium_clientjs_enabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.tealium_clientjs_enabled}">
+    <isinclude template="tealium/sync_script_include" />
+</isif>
+
+<iscomment>
+    hook for Marketing Cloud connector & other integration which need to inject
+    logic or markup into the page header
+    IMPORTANT: Note that this hook will be called to cached as well as uncached pages
+               which means you need to put privacy information into another remote include
+</iscomment>
+
+<isscript>
+    var hookHelper = require('int_handlerframework/cartridge/scripts/template/hookHelper');
+    hookHelper.callHook('app.template.htmlHead', null, {pdict: pdict});
+</isscript>
+<input type="hidden" value="${'XSSListOfPatterns' in dw.system.Site.current.preferences.custom && dw.system.Site.current.getCustomPreferenceValue('XSSListOfPatterns')}" name="xssRegex" message="${Resource.msg('giftcard.amount.pattern.mismatch', 'giftcards', null)}" /> 
+<isinclude template="coremedia/modules.isml"/>
+<isset name="pageId" value="${CMUtil.pageId(pdict)}" scope="page"/>
+<islcincludeRemote pageId="${pageId}" view="externalHead" prefetch="true" />

@@ -1,0 +1,74 @@
+instrumentation:
+    root: .
+    extensions:
+        - .js
+    default-excludes: true
+    excludes: [
+        "*.js", # JS helpers in root folder
+        "bin/*", # JS task/command files
+        "node_modules/**",
+        "dependencies/**", # Those are remote repositories, that shouldn't be included in this coverage report
+        "**/bm_tools/**", # SFCC Cartridge that shouldn't be included in this coverage report
+        "**/plugin_wishlists/**", # SFCC Cartridge that shouldn't be included in this coverage report
+        "**/plugin_instorepickup/**", # SFCC Cartridge that shouldn't be included in this coverage report
+        "**/lib_productlist/**", # SFCC Cartridge that shouldn't be included in this coverage report
+        "**/plugin_sitemap/**", # SFCC Cartridge that shouldn't be included in this coverage report
+        "**/static/**", # Those are pre-processed client-side scripts
+        "**/js/**", # Those are client-side scripts
+        "**/controllers/**", # We can't test controllers without too much mocking
+        "**/hooks/cart/calculate.js", # Basic SFRA code
+        "**/hooks/taxes.js", # Basic SFRA code
+        "**/payment/processor/*", # Those are payment processor files, we don't test them
+        "**/bc_jobs/**", # Not refactored job scripts, could be done as TODO
+        "**/bm_paypal/**", # link cartridge is OOS
+        "**/bm_smartling_integration/**", # link cartridge is OOS
+        "**/int_accertify/**", # link cartridge is OOS
+        "**/int_coremedia/**", # link cartridge is OOS
+        "**/int_coremedia_sfra/**", # link cartridge is OOS
+        "**/int_customfeeds/**", # link cartridge is OOS
+        "**/int_fedex/**", # link cartridge is OOS
+        "**/int_handlerframework/**", # link cartridge is OOS
+        "**/int_manhattan/**", # link cartridge is OOS
+        "**/int_marketing_cloud/**", # link cartridge is OOS
+        "**/int_merkle/**", # link cartridge is OOS
+        "**/int_paymetric/**", # link cartridge is OOS
+        "**/int_paypal_sfra/**", # link cartridge is OOS
+        "**/int_qas_sfra/**", # link cartridge is OOS
+        "**/int_tealium/**", # link cartridge is OOS
+        "**/int_vertex/**", # link cartridge is OOS
+        "**/int_aurus_sfra/**", # link cartridge is OOS
+        "**/UAS7/**", # link cartridge is OOS
+        "**/int_perimeterx/**", #PerimeterX
+        "**/int_perimeterx_SFRA/**", #PerimeterX
+        "**/int_borderfree/**", # Borderfree link cartridge
+        "**/int_bazaarvoice_sfra/**", # Bazaarvoice link cartridge
+        "**/int_bazaarvoice/**", # Bazaarvoice link cartridge
+        "**/bc_bazaarvoice/**", # Bazaarvoicelink cartridge
+        "**/int_adyen_SFRA/**", # Adyen link cartridge
+        "**/int_adyen_overlay/**", # Adyen link cartridge
+        "**/bc_job_components/**", # Community Job Components cartridge
+        "**/int_s3/cartridge/scripts/lib/**", # S3 lib
+        "**/build_tools/**", # These are javascript build tools that don't need to be tested
+        "**/int_paazl_core/**", # Paazl link cartridge
+        "**/int_paazl_sfra/**", # Paazl link cartridge
+        "**/int_googlesitemap/**", # Google Sitemap cartridge
+        "**/int_cashondelivery/**", # SEA COD cartridge
+        "**/int_atome_SFRA/**", # Atome cartridge
+        "**/int_zipmoney/**", # Zippay cartridge
+        "**/bm_SDLTranslation/**", # SDL Translation
+        "**/int_klarna_payments_sfra/**", #Klarna link cartridge
+        "**/int_klarna_payments/**", #Klarna link cartridge
+        "**/int_klarna_payments_custom/**", #Klarna custom cartridge
+        "**/storefront-reference-architecture/**", #SFRA base cartridge
+        "**/plugin_instorepickup/**", #In-store pickup plugin
+        "**/plugin_shoprunner/**", #Shoprunner link cartridge
+        "**/plugin_sitemap/**", #Sitemap plugin
+        "**/plugin_wishlists/**", #Wishlist plugin
+        "**/link_zipmoney/**", #Zippay cartridge
+        "**/bm_product_personalisation/**", #bm_product_personalisation
+        "**/plugin_ua_idm/cartridge/scripts/jsrsasign/lib/**", # excluding lib
+        "**/int_QAS/cartridge/scripts/services/QASService.js",
+        "**/bm_catalogreducer/**",
+        "**/social_channel_integrations/**"
+    ]
+    include-all-sources: true

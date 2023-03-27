@@ -1,0 +1,166 @@
+<form
+    action="${pdict.createAccountUrl}"
+    class="b-return-wrap registration account-form"
+    method="POST"
+    data-cmp="formGeneric"
+    name="${pdict.profileForm.htmlName}">
+    
+    <isinclude template="account/components/accountName" />
+
+    <isinclude template="account/components/accountEmail" />
+    <isinclude template="account/components/minimumAgePreferences" />
+    <div class="form-group b-order-return-input b-input_row
+        <isif condition="${!!pdict.profileForm.login.password.mandatory === true}">required</isif>">
+        <span class="password-display"><div class="js-password-ToggleDisplay">${Resource.msg('label.create.account.show', 'login', null)}</div></span>
+        <label class="b-input_row-label form-control-label" for="registration-form-password">
+        <isprint value=${pdict.profileForm.login.creatPassword.label} encoding="off" />
+        </label>
+        <input
+            type="password"
+            class="form-control order-return-form-input b-input_row-input js-custom-input js-password-field"
+            id="registration-form-password"
+            data-missing-error="${Resource.msg('error.card.info.missing.password', 'login', null)}"
+            data-range-error="${Resource.msg('error.message.8_255characters','forms',null)}"
+            aria-describedby="form-password-error"
+            pattern="${pdict.passwordRules.regex}"
+            data-can-contains-email="${dw.system.Site.current.getCustomPreferenceValue('allowEmailInPassword') === false ? false : true}"
+            data-contains-email-error="${Resource.msg('password.contains.email.error','account',null)}"
+            value="" required
+            autocomplete="off"
+            <isprint value=${pdict.profileForm.login.password.attributes} encoding="off" />>
+        <div class="input-feedback" id="form-password-rules"><isprint value="${pdict.passwordRules.errorMsg}" encoding="off" /></div>
+        <div class="invalid-feedback-email"></div>
+    </div>
+
+    <isinclude template="account/components/accountSplitPhoneMobile" />
+    <!-- adding site spesific class for KR to display brith and gender field in single row for small devices -->
+    <div class="b-account_form-row b-account_form-row-three clear ${dw.system.Site.getCurrent().getID() === 'KR' ? 'b-account_form-row-bday-kr' : 'b-account_form-row-bday' }">
+
+        <isif condition="${dw.system.Site.current.getCustomPreferenceValue('showBirthYearField')}">
+            <div class="b-account_form-column b-account_form-column-mobile">
+                <div class="form-group b-year">
+                    <label class="form-control-label b-year-label"  for="birthYear">
+                        <isprint value="${pdict.profileForm.customer.birthYear.label}" encoding="htmlcontent" />
+                    </label>
+                    <select class="form-control b-year-select order-return-form-input" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" id="birthYear" data-minimum-age="${Resource.msgf('msg.age.validation','forms',null,pdict.minimumAgeRestriction)}"
+                        <isprint value="${pdict.profileForm.customer.birthYear.attributes}" encoding="off" />>
+                        <isloop items=${pdict.profileForm.customer.birthYear.options} var="birthYear">
+                            <option id="${birthYear.id}" value="${birthYear.htmlValue}" <isif condition="${birthYear.selected}">selected</isif>>${birthYear.label || ' '}</option>
+                        </isloop>
+                    </select>
+                    <div class="invalid-feedback"></div>
+                </div>
+            </div>
+            <!-- adding same space between birth year and month same as splited phone field for KR site -->
+            <isif condition="${dw.system.Site.getCurrent().getID() === 'KR'}" />
+                <div class="b-account_form-row-birth__separator"></div>
+            </isif>
+        </isif>
+        <div class="b-account_form-column b-account_form-column-mobile">
+            <div class="form-group b-month">
+                <label class="form-control-label b-month-label"  for="birthMonth">
+                    <isprint value="${pdict.profileForm.customer.birthMonth.label}" encoding="htmlcontent" />
+                </label>
+                <select class="form-control b-month-select order-return-form-input" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" id="birthMonth"
+                    <isprint value="${pdict.profileForm.customer.birthMonth.attributes}" encoding="off" />>
+                    <isloop items=${pdict.profileForm.customer.birthMonth.options} var="birthMonth">
+                        <option id="${birthMonth.id}" value="${birthMonth.htmlValue}" <isif condition="${birthMonth.selected}">selected</isif>>${birthMonth.label || ' '}</option>
+                    </isloop>
+                </select>
+                <div class="invalid-feedback"></div>
+            </div>
+        </div>
+        <!-- adding same space between birth month and day same as splited phone field for KR site -->
+        <isif condition="${dw.system.Site.getCurrent().getID() === 'KR'}" />
+            <div class="b-account_form-row-birth__separator"></div>
+        </isif>
+        <div class="b-account_form-column b-account_form-column-mobile">
+            <div class="form-group b-day birthMonth">
+                <label class="form-control-label b-day-label" for="birthDay">
+                    <isprint value="${pdict.profileForm.customer.birthDay.label}" encoding="htmlcontent" />
+                </label>
+                <select class="form-control b-day-select order-return-form-input" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" id="birthDay"
+                    <isprint value="${pdict.profileForm.customer.birthDay.attributes}" encoding="off" />>
+                    <isloop items=${pdict.profileForm.customer.birthDay.options} var="birthDay">
+                        <option id="${birthDay.id}" value="${birthDay.htmlValue}" <isif condition="${birthDay.selected}">selected</isif>>${birthDay.label || ' '}</option>
+                    </isloop>
+                </select>
+                <div class="invalid-feedback"></div>
+            </div>
+        </div>
+        
+        <isif condition="${!dw.system.Site.current.getCustomPreferenceValue('showBirthYearField')}">
+         <!-- adding same space between birth day and gender same as splited phone field for KR site -->
+            <isif condition="${dw.system.Site.getCurrent().getID() === 'KR'}" />
+                <div class="b-account_form-row-birth__separator"></div>
+            </isif>
+            <div class="b-account_form-column b-account_form-column-mobile">
+                <div class="form-group b-gender">
+                    <label class="form-control-label b-gender-label" for="gender">
+                        <isprint value="${pdict.profileForm.customer.gender.label}" encoding="htmlcontent" />
+                    </label>
+                    <select class="form-control b-gender-select order-return-form-input" id="gender"
+                        <isprint value="${pdict.profileForm.customer.gender.attributes}" encoding="off" />>
+                        <isloop items=${pdict.profileForm.customer.gender.options} var="gender">
+                            <option id="${gender.id}" value="${gender.htmlValue}" <isif condition="${gender.selected}">selected</isif>>${gender.label || ' '}</option>
+                        </isloop>
+                    </select>
+                </div>
+            </div>
+        </isif>
+    </div>
+    <!-- display birth year in new raw if showBirthYearField is enbale for KR site -->
+    <isif condition="${dw.system.Site.current.getCustomPreferenceValue('showBirthYearField')}">
+        <div class="b-account_form-row b-input_row clear b-account_form-row-bday">
+            <div class="b-account_form-column b-account_form-column-mobile">
+                <div class="form-group b-gender">
+                    <label class="form-control-label b-gender-label" for="gender">
+                        <isprint value="${pdict.profileForm.customer.gender.label}" encoding="htmlcontent" />
+                    </label>
+                    <select class="form-control b-gender-select order-return-form-input" id="gender"
+                        <isprint value="${pdict.profileForm.customer.gender.attributes}" encoding="off" />>
+                        <isloop items=${pdict.profileForm.customer.gender.options} var="gender">
+                            <option id="${gender.id}" value="${gender.htmlValue}" <isif condition="${gender.selected}">selected</isif>>${gender.label || ' '}</option>
+                        </isloop>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </isif>
+
+<iscomment> 
+    <div>
+        <span>
+            <isprint value="${Resource.msgf('label.create.account.case1', 'login', null, 8)}"/>
+        </span>
+        <span>
+            <isprint value="${Resource.msgf('label.create.account.case2', 'login', null, 1)}"/>
+        </span>
+        <span>
+            <isprint value="${Resource.msgf('label.create.account.case3', 'login', null, 1)}"/>
+        </span>
+        <span>
+            <isprint value="${Resource.msgf('label.create.account.case4', 'login', null, 1)}"/>
+        </span>
+    </div>
+</iscomment>
+    <isinclude template="account/components/accountConsents.isml" />
+
+    <div class=" form-group submit-section text-center mb-4 submit-tans-sec">
+    <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+    <button class="btn btn-primary btn-block js-createaccount-button g-button_base g-button_primary--black" name="${pdict.CurrentForms.profile.create.htmlName}">
+        ${Resource.msg('button.createaccount.registration', 'login', null)}
+    </button>
+    </div>
+    <input type="hidden" class="showlabel" value="${Resource.msg('label.create.account.show', 'login', null)}">
+    <input type="hidden" class="hidelabel" value="${Resource.msg('label.create.account.hide', 'login', null)}">
+</form>
+<isif condition="${pdict.isFacebookLoginEnabledInRegisterModal}">
+    <isinclude template="account/components/oauth" />
+</isif>
+<iscomment> NAVER SSO LOGIN </iscomment>
+<isif condition="${dw.system.Site.current.getCustomPreferenceValue('isNaverSSOEnabled')}">
+    <isset name="naverButtonImgURL" value="${dw.system.Site.current.getCustomPreferenceValue('naverRegisterBtnImageUrl').getAbsURL()}" scope="page" />
+    <isset name="naverButtonDestination" value="showRegisterModal" scope="page" />
+    <isinclude template="account/components/naverSSO.isml" />
+</isif>

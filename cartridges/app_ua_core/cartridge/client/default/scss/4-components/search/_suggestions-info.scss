@@ -1,0 +1,28 @@
+.b-suggestions_info {
+    &-item {
+        @include respond-to(mobile) {
+            &:first-child {
+                padding-top: rem-calc(4);
+            }
+        }
+    }
+
+    &-link {
+        @include respond-to(mobile) {
+            display: block;
+            padding: rem-calc(12) rem-calc(16);
+            font-size: rem-calc(12);
+            font-weight: $font-medium;
+            text-decoration: none;
+            color: $black;
+        }
+
+        @include respond-to(desktop) {
+            @include link(medium);
+
+            padding-top: rem-calc(8);
+            padding-bottom: rem-calc(8);
+            font-size: rem-calc(14);
+        }
+    }
+}

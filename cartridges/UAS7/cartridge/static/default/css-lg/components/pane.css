@@ -1,0 +1,171 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+.json-pane {
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+.json-pane-view {
+  display: block;
+  box-sizing: content-box;
+  overflow: auto;
+  background-color: white;
+  position: relative;
+  margin-bottom: 4px;
+  border: 1px solid #c1c1c1;
+  border-bottom: 3px solid #c1c1c1;
+}
+.json-pane-view > .json-viewer {
+  padding-left: 4px;
+  padding-top: 4px;
+}
+.json-controls {
+  height: 40px;
+  background-color: white;
+  margin-bottom: 4px;
+  border: 1px solid #c1c1c1;
+  border-bottom: 3px solid #c1c1c1;
+  box-sizing: content-box;
+}
+.json-controls .jv-button {
+  cursor: pointer;
+  float: left;
+  width: 30px;
+  height: 30px;
+  margin: 5px;
+}
+.json-controls .jv-button.full-size {
+  background: url('../../img/assets/buttons/full_size.png') center no-repeat;
+}
+.json-controls .jv-button.regular-size {
+  background: url('../../img/assets/buttons/regular_size.png') center no-repeat;
+}
+.json-controls .jv-button.jv-expand {
+  background: url('../../img/assets/buttons/expanded.png') center no-repeat;
+}
+.json-controls .jv-button.jv-collapse {
+  background: url('../../img/assets/buttons/collapsed.png') center no-repeat;
+}
+.json-controls .jv-button.copy-to-clipboard {
+  background: url('../../img/assets/buttons/copy_to_clipboard.png') center no-repeat;
+}
+.scroller {
+  position: absolute;
+  display: block;
+  z-index: 1;
+  box-sizing: content-box;
+  background-color: #5c5c5c;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -khtml-border-radius: 4px;
+  border-radius: 4px;
+}
+.scroller.vertical {
+  width: 2px;
+  height: 60px;
+  top: 0;
+  left: 2px;
+}
+.scroller.horizontal {
+  width: 60px;
+  height: 2px;
+  left: 0px;
+}
+.scroller.hide {
+  display: none;
+}
+.scroller.dim {
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+  filter: alpha(opacity=10);
+  opacity: .1;
+  -webkit-transition: opacity 0.3s ease-out;
+  -moz-transition: opacity 0.3s ease-out;
+  -o-transition: opacity 0.3s ease-out;
+  -ms-transition: opacity 0.3s ease-out;
+  transition: opacity 0.3s ease-out;
+}
+.json-breadcrumbs {
+  box-sizing: content-box;
+  display: block;
+  height: 20px;
+  background-color: white;
+  border: 1px solid #c1c1c1;
+  border-bottom: 3px solid #c1c1c1;
+  white-space: nowrap;
+}
+.json-breadcrumbs ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-family: 'Segoe UI', Arial;
+  font-size: 12px;
+  max-width: 100%;
+  height: 100%;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+.json-breadcrumbs ul span {
+  vertical-align: middle;
+}
+.json-breadcrumbs ul > .jv-breadcrumb {
+  display: inline-block;
+  max-width: 100px;
+  vertical-align: middle;
+  padding-left: 2px;
+  padding-right: 2px;
+  cursor: pointer;
+}
+.json-breadcrumbs ul > .jv-breadcrumb:after {
+  content: '»';
+  padding-left: 2px;
+}
+.json-breadcrumbs ul > .jv-breadcrumb.last {
+  color: #1ba1e2;
+  font-weight: bold;
+  cursor: default;
+}
+.json-breadcrumbs ul > .jv-breadcrumb.last:after {
+  content: '';
+  padding-left: 0;
+}
+.copy-pane {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-image: url('../..//img/assets/transparent_white.png');
+  z-index: 5;
+}
+.copy-pane p {
+  margin-left: auto;
+  margin-right: auto;
+}
+.copy-pane > div {
+  background-color: white;
+  border: 1px solid #c1c1c1;
+  border-bottom-width: 4px;
+  padding: 10px;
+  width: 70%;
+  max-width: 600px;
+  height: 40%;
+  min-height: 300px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 40px;
+}
+.copy-pane .copy-value {
+  display: block;
+  width: 96%;
+  height: 60%;
+  margin-right: auto;
+  margin-left: auto;
+  resize: none;
+  overflow: auto;
+}
+.copy-pane .copy-close {
+  display: block;
+  margin: 20px auto 10px auto;
+}

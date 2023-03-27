@@ -1,0 +1,22 @@
+<div class="g-return-modal-close">
+    <button type="button" class="g-return-modal-close_button close" data-dismiss="modal"
+        aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+</div>
+
+<div class="return-modal-top-section">
+    <img src="${URLUtils.staticURL('/images/ic-lg-black-alert.svg')}" width="48" height="48"
+        alt="${Resource.msg('returns.returnerror.img', 'refunds', null)}" class="iclg-blackAlert" />
+
+    <span class="return-modal-error-message">${Resource.msg('returns.submitreturn.errormsg', 'refunds', null)}</span>
+    <span class="customer-service-text">${Resource.msg('returns.submitreturn.contactus', 'refunds', null)}</span>
+</div>
+<div class="error-return-modal-buttons-wrapper">
+    <a class="order-details return-modal-chat-btn g-button_secondary--black g-button_base" href="<isif condition="
+        ${pdict.isRegisteredUser}">${URLUtils.url('Order-Details', 'orderID', pdict.orderNo)}<iselse>
+            ${URLUtils.url('Order-TrackOrder')}</isif>">
+            ${Resource.msg('returns.vieworderdetails.button', 'refunds', null)}
+    </a>
+    <button class="live-chat return-modal-btn btn btn-primary btn-block g-button_base g-button_primary--black">
+        ${Resource.msg('returns.livechatnow.button', 'refunds', null)}
+    </button>
+</div>

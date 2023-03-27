@@ -1,0 +1,93 @@
+.b-plp_header {
+    padding-top: spacing(md);
+    padding-bottom: 40px;
+
+    @include respond-to(desktop) {
+        margin-top: spacing(xs2);
+    }
+
+    @include respond-to(phones-portrait) {
+        padding-top: spacing(sm);
+        padding-bottom: spacing(sm);
+    }
+
+    &-cat-name {
+        @include grid-col(7, 10, $media: desktop);
+    }
+
+    &-row {
+        @include grid-row($media: desktop);
+        @include respond-to(desktop) {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+    }
+
+    &-search_title {
+        @include grid-col(12, $media: desktop);
+        @include font(main_med, 14px, 1.43);
+
+        margin: spacing(xs) 0;
+
+        @include respond-to(tablets-landscape) {
+            margin-top: spacing(xs2);
+        }
+
+        @include respond-to(mobile) {
+            margin-top: 0;
+        }
+    }
+
+    &-search {
+        @include grid-col(7, 10, $media: desktop);
+        @include font(main_bold, 32px, 1.25);
+
+        @include respond-to(mobile) {
+            margin-bottom: spacing(md);
+        }
+
+        @include respond-to(phones) {
+            font-size: 1.5rem;
+        }
+    }
+
+    &-sort {
+        @include grid-col(2, 10);
+        @include respond-to(mobile) {
+            display: none;
+        }
+        @include respond-to(desktop) {
+            max-width: 15% !important;
+        }
+    }
+
+    &-results_count {
+        @include grid-col(1, 10, $media: desktop);
+
+        @include respond-to(desktop) {
+            text-align: right;
+            max-width: 15% !important;
+        }
+    }
+
+    &-bread_crumbs {
+        @include grid-col(12, $media: desktop);
+        @include respond-to(desktop) {
+            padding-left: 0 !important;
+        }
+    }
+
+    &-category-name {
+        @include grid-col(7, 10, $media: desktop);
+    }
+
+    &-category_heading {
+        letter-spacing: rem-calc(1);
+        @include font(main_bold, rem-calc(32), rem-calc(40));
+        @include respond-to(mobile) {
+            @include font(main_bold, rem-calc(24), rem-calc(40));
+        }
+    }
+}

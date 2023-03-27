@@ -1,0 +1,63 @@
+.b-footer_nav {
+    color: $black;
+
+    &-header {
+        @include font(main_med, rem-calc(12));
+
+        text-transform: none;
+
+        @include respond-to(desktop) {
+            margin-bottom: rem-calc(15);
+        }
+
+        @include respond-to(mobile) {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding-left: rem-calc(16);
+
+            &::before {
+                margin: 0 rem-calc(16) 0 0;
+            }
+
+            &.m-service {
+                @include icon('phone', 'before', 16);
+            }
+
+            &.m-about {
+                @include icon('logo', 'before', 16);
+            }
+
+            &.m-socials {
+                @include icon('instagram', 'before', 16);
+            }
+        }
+    }
+
+    &-link {
+        @include link;
+
+        @include respond-to(mobile) {
+            text-decoration: none;
+        }
+
+        font-size: rem-calc(12);
+        color: $black;
+    }
+
+    &-content {
+        @include respond-to(mobile) {
+            padding-left: rem-calc(50);
+        }
+    }
+
+    &-item {
+        @include respond-to(mobile) {
+            padding-bottom: rem-calc(5);
+
+            &:not(:first-child) {
+                padding-top: rem-calc(5);
+            }
+        }
+    }
+}

@@ -1,0 +1,63 @@
+<form
+    action="${URLUtils.url('PaymentInstruments-UpdatePayment')}"
+    class="update-payment-form"
+    method="POST"
+    name="update-payment-form" data-cmp="paymentFormGeneric" ${pdict.paymentForm.attributes}>
+    
+    <div class="b-account_address-container">
+        <div class="b-account-address_book-default">
+            <div class="form-group g-checkbox b-account_save-default">
+                <input type="checkbox" class="g-checkbox-input form-control" id="makeDefaultPayment" name="${pdict.paymentForm.defaultCard.htmlName}"
+                <isprint value=${pdict.paymentForm.defaultCard.attributes} encoding="off"/> >
+                <label class="g-checkbox-label" for="makeDefaultPayment">
+                    ${Resource.msg('label.payment.checkbox.makedefault', 'payment', null)}
+                </label>
+            </div>
+            <div class="required-fields"><isprint value="${Resource.msgf('label.requiredfields','address',null)}" /></div>
+        </div>
+        <div class="b-account_form-row">
+            <div class="b-account_form-column">
+			    <!-- Name on Card -->
+			    <div class="form-group b-input_row
+			        <isif condition="${pdict.paymentForm.cardOwner.mandatory === true}">required</isif>">
+			        <label class="form-control-label b-input_row-label" for="cardOwner">
+			            <isprint value="${pdict.paymentForm.cardOwner.label}" encoding="htmlcontent" />
+			        </label>
+			        <input type="text" class="b-input_row-input form-control" id="cardOwner"
+			            <isprint value="${pdict.paymentForm.cardOwner.attributes}" encoding="off" />
+			            autocomplete="cc-name"
+			            data-missing-error="${Resource.msg('payment.card.ownermissingerror', 'forms', null)}">
+			        <div class="invalid-feedback"></div>
+			    </div>
+		    </div>
+		
+		    <input type= "hidden" name= "${pdict.paymentForm.expirationMonth.htmlName}" value= "">
+		    <input type= "hidden" name= "${pdict.paymentForm.expirationYear.htmlName}" value = "">
+		
+		    <div class="b-account_form-column">
+		        <div class="form-group b-input_row
+		            ${pdict.paymentForm.expirationdate.date.mandatory === true ? 'required' : ''}
+		            ${pdict.paymentForm.expirationdate.date.htmlName}">
+		            <label class="form-control-label b-input_row-label" for="expirationDate">${Resource.msg('label.input.creditcard.expirationdate','forms',null)}</label>
+		            <input type="tel" class="form-control expirationDate b-input_row-input" id="expirationDate"
+		                value="" placeholder="${Resource.msg('label.input.creditcard.expirationdateplaceholder','forms',null)}"
+		                data-mask="00/00"
+		                maxlength="5"
+		                data-missing-error="${Resource.msg('payment.card.datemissingerror', 'forms', null)}"
+		                data-pattern-mismatch="${Resource.msg('payment.card.datepatternerror', 'forms', null)}"
+		                <isprint value=${pdict.paymentForm.expirationdate.date.attributes} encoding="off"/> />
+		            <div class="invalid-feedback"></div>
+		        </div>
+		    </div>
+	    </div>
+	
+	    <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+	
+	    <!-- Save Buttons -->
+	    <div class="b-account_continue-buttons">
+	        <a class="btn btn-block btn-outline-primary account-cancel-button" href="javascript:void(0)">${Resource.msg('button.cancel','account',null)}</a>
+	        <button type="submit" name="save" id="updatePaymentButton" data-id= "" class="btn btn-save btn-block btn-primary g-button_base g-button_primary--black account-save-button account-save-payment-button" data-save="${Resource.msg('button.save','account',null)}" data-saved="${Resource.msg('button.saved','account',null)}">${Resource.msg('button.save','account',null)}</button>
+	    </div>
+    </div>
+
+</form>

@@ -1,0 +1,68 @@
+<iscontent compact="true" />
+
+<isset name="pam" value="${pdict.product.getAttributeModel()}" scope="page" />
+<isset name="vags" value="${pam.getVisibleAttributeGroups()}" scope="page"/>
+<isset name="showAttributes" value="${false}" scope="page"/>
+
+<isset name="shortDescription" value="${pdict.product.variant ? pdict.product.variationModel.master.shortDescription : pdict.product.shortDescription}" scope="page"/>
+<isset name="longDescription" value="${pdict.product.variant ? pdict.product.variationModel.master.longDescription : pdict.product.longDescription}" scope="page"/>
+<isset name="removeBullet" value="${pdict.product.variant ? pdict.product.variationModel.master.custom.removeBullet : pdict.product.custom.removeBullet}" scope="page"/>
+<isset name="ProductUtils" value="${require('*/cartridge/scripts/util/ProductUtils.ds')}" scope="page"/>
+<isset name="productFit" value="${ProductUtils.getProductFitDescription(pdict.product)}" scope="page" />
+
+<div style="text-align: left;">
+<div><img src="${pdict.s7BaseURL + Resource.msg('updatematerial.description_image_one', 'shoplinker', null)}"></div>
+<div>
+    <isloop items="${vags}" var="AttributeGroup" status="loopstatus">
+        <isif condition="${AttributeGroup.ID != 'mainAttributes'}">
+            <isset name="showAttributes" value="${true}" scope="page"/>
+        </isif>
+    </isloop>
+    <isset name="showDescription" value="${false}" scope="page" />
+    <isif condition="${!empty(shortDescription) && shortDescription.markup.length > 0}">
+        <div>
+            <isprint value="${shortDescription}" encoding="off"/>
+        </div>
+        <isset name="showDescription" value="${true}" scope="page" />
+    </isif>
+    <isif condition="${!empty(longDescription) && longDescription.markup.length > 0}">
+        <div>
+            <ul>
+                <isif condition="${!empty(productFit) && !empty(productFit.description)}">
+                    <li>
+                        <isif condition="${!empty(productFit.name)}"><strong><isprint value="${productFit.name}" encoding="off"/>:</strong> </isif>
+                        <isprint value="${productFit.description}" encoding="off"/>
+                    </li>
+                </isif>
+                
+                <iscomment>DISPLAY BULLETS AND REMOVE ANY IF NECESSARY</iscomment>
+                <isif condition="${removeBullet}">
+                    <isset name="productBullet" value="${longDescription.markup.split('\n')}" scope="page" />
+                    <isloop items=${productBullet} var="bullet">
+                        <isif condition="${removeBullet.indexOf(bullet) == -1}">
+                            <li><isprint value="${bullet}" encoding="off"/></li>
+                        </isif>
+                    </isloop>
+                    <iselse>
+                        <li><isprint value="${longDescription.markup.replace(/\n/g,"</li><li>")}" encoding="off"/></li> 
+                    </isif>
+                
+                <isif condition="${!empty(pdict.product.custom.legal)}">
+                    <li><isprint value="${pdict.product.custom.legal.replace(/\n/g,"</li><li>")}" encoding="off"/></li>
+                </isif>
+                <isif condition="${!empty(pdict.product.custom.legalRegion)}">
+                    <iscomment>Match '/ko-kr/materials-and-care.html' URL and make it to be absolute URL to UA Korean production</iscomment>
+                    <isset name="legalRegion" value="${pdict.product.custom.legalRegion.replace(/\n<a href=\"\/ko-kr.*a>/,"")}" scope="page" />
+                    <li><isprint value="${legalRegion.replace(/\n/g,"</li><li>")}" encoding="off"/></li>
+                </isif>
+            </ul>
+        </div>
+    </isif>
+</div>
+	<isloop items="${pdict.productImages}" var="image" status="loopstate">
+		<div><img src=${image.URL} style="width:1000px;"></div>
+    </isloop>
+<div><img src="${pdict.s7BaseURL + Resource.msg('updatematerial.description_image_two', 'shoplinker', null)}"></div>
+<div><img src="${pdict.s7BaseURL + Resource.msg('updatematerial.description_image_three', 'shoplinker', null)}"></div>
+<div><img src="${pdict.s7BaseURL + Resource.msg('updatematerial.description_image_four', 'shoplinker', null)}"></div>
+</div>

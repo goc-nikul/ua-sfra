@@ -1,0 +1,30 @@
+.b-swatches_text {
+    width: 100%;
+    display: flex;
+    overflow: hidden;
+
+    @include respond-to(desktop-large) {
+        padding: 0 spacing(xs2) / 2;
+    }
+
+    &-link {
+        @include button-to-link;
+        @include swatch-text;
+        @include swatch-text-type;
+
+        display: block;
+        margin: spacing(xs2) / 2;
+        font-weight: 900;
+        text-decoration: none;
+        color: $black;
+    }
+
+    &-value {
+        display: block;
+        width: 100%;
+        height: 100%;
+        line-height: rem-calc(20);
+        text-align: center;
+        background: none;
+    }
+}

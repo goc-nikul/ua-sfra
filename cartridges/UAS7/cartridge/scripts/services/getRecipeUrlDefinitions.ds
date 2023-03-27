@@ -1,0 +1,66 @@
+/**
+* getRecipeDefinition
+* -------------------
+* This script is used to retrieve the collection of url definitions for all active
+* recipe categories and view types.  The return-result will be an object that allows recipe urls
+* to be "looked-up" by category / view-type combination.
+* 
+* @output 	json : Object
+*
+*/
+
+// Initialize packages to import
+importPackage( dw.system );
+importPackage( dw.util );
+
+// Initialize the specific-helpers to import
+importScript( "UAS7:ProductImageHelper.ds" );
+
+// This function retrieves all active recipe category / view-type url definitions, and returns them in a JSON object.
+function execute( args : PipelineDictionary ) : void
+{
+
+	// Initialize the output object that will be serialized
+	var outputObj = {};		
+
+	// Initialize the recipe assignment logging debugger	
+	var logger = Logger.getLogger( "UAS7.RA" );	
+
+	try{
+
+		// Initialize the reference to the product Image Helper
+		var pih = new ProductImageHelper();
+	
+		// Retrieve the collection of active recipe url definitions
+		var recipeUrlDefinitions = pih.getActiveRecipeUrlDefinitions();
+
+		// Initialize the output object
+		outputObj["RESULT"] = true;
+		
+		// Include the source elements that were processed
+		outputObj["SOURCE"] = recipeUrlDefinitions;
+
+	} catch(e) {
+		
+		// If an error is caught, output it
+		trace(e);
+		
+		// Initialize the output object
+		outputObj["RESULT"] = false;
+		
+		// Include the error message that was caught
+		outputObj["ERRORMSG"] = e.message;		
+				
+	}
+
+	// Take the recipe categories array, and convert it to JSON
+	var jsonString : String = JSON.stringify(outputObj);		
+	
+	// Seed the argument variable with the JSON string
+	// This will get outputed via the /ajax/jsonOutput template.
+	args.json = jsonString;
+
+	// Continue processing the pipeline
+    return PIPELET_NEXT;
+   
+}

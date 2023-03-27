@@ -1,0 +1,72 @@
+.b-footer {
+    padding: rem-calc(55) 0;
+    background: $grey2;
+    font-size: rem-calc(10);
+
+    @include respond-to(phones) {
+        padding: rem-calc(22) 0;
+    }
+
+    &-container {
+        @include base-wrapper;
+    }
+
+    &-row {
+        @include grid-row(true, desktop);
+    }
+
+    &-info {
+        @include grid-col(4, $media: desktop);
+        @include grid-col(3, $media: desktop-large);
+
+        @include respond-to(desktop-large) {
+            @include grid-col-offset(1);
+        }
+    }
+
+    &-contacts {
+        @include grid-col(2, $media: desktop);
+
+        @include respond-to(desktop-large) {
+            @include grid-col-offset(1);
+        }
+    }
+
+    &-navigation {
+        @include grid-col(4, $media: desktop);
+        @include grid-col(3, $media: desktop-large);
+
+        @include respond-to(mobile) {
+            border-top: 1px solid $grey3;
+        }
+
+        .m-chat {
+            @include respond-to(desktop) {
+                @include hide(all);
+            }
+        }
+    }
+
+    &-customer {
+        @include grid-col(6, $media: desktop);
+    }
+
+    &-about {
+        @include grid-col(6, $media: desktop);
+    }
+
+    &-socials {
+        @include grid-col(2, $media: desktop);
+        @include grid-col(1, $media: desktop-large);
+
+        #collapseSocial {
+            .b-footer_nav-item {
+                margin-bottom: 20px;
+            }
+        }
+
+        .b-footer_nav-link {
+            vertical-align: top;
+        }
+    }
+}

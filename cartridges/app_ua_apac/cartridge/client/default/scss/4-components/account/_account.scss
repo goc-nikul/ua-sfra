@@ -1,0 +1,82 @@
+// Memberson
+.memberson-points-summary {
+    display: flex;
+    margin: 3px auto 20px;
+
+    @include respond-to(mobile) {
+        display: block;
+        padding: 0 1rem;
+    }
+
+    .memberson-points-section {
+        flex: 0 0 65%;
+
+        @include respond-to(mobile) {
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 60%;
+            @include respond-to(mobile) {
+                width: 100%;
+            }
+
+            th {
+                font-weight: 600;
+                font-size: 1.063rem;
+            }
+
+            .last-updated-date {
+                font-size: 11px;
+                color: #808080;
+                font-style: italic;
+            }
+        }
+    }
+
+    .memberson-text-section {
+        flex: 0 0 35%;
+
+        .app-text {
+            font-size: 16px;
+        }
+
+        .app-links {
+            display: flex;
+            margin-top: rem-calc(10);
+
+            @include respond-to(mobile) {
+                display: block;
+            }
+
+            img {
+                padding: 0;
+
+                @include respond-to(mobile) {
+                    height: auto;
+                    padding: 0;
+                    max-width: 11rem;
+                }
+            }
+
+            .apple-app img {
+                padding-right: rem-calc(10);
+            }
+        }
+    }
+}
+
+#consentPopUpModal .errorMsg {
+    color: $error-color;
+}
+
+.membersoneditprofile {
+    input:read-only {
+        color: rgb(170, 170, 170);
+        border: 1px solid #d0d0d0;
+    }
+
+    select:disabled {
+        color: rgb(170, 170, 170);
+    }
+}

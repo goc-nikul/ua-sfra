@@ -1,0 +1,54 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+
+<isinclude template="/components/modules" sf-toolkit="off" />
+
+<!DOCTYPE html>
+<html lang="${require('dw/util/Locale').getLocale(request.getLocale()).getLanguage()}" >
+    <head>
+        <isinclude template="/common/htmlHead" />
+        
+        <isif condition="${pdict.canonicalUrl}" >
+            <link rel="canonical" href="${pdict.canonicalUrl}"/>
+        </isif>
+        <isactivedatahead/>
+        <isinclude template="/components/schema" />
+    </head>
+    <body class="l-body">
+        <div id="bodyPage" class="l-body-page js-page" data-action="${pdict.action}" data-querystring="${pdict.queryString}">
+            <isset name="currentSite" value="${dw.system.Site.current}" scope="page"/>
+            <isset name="branchSDKKey" value="${'branchSDKKey' in currentSite.preferences.custom && currentSite.getCustomPreferenceValue('branchSDKKey') ? currentSite.getCustomPreferenceValue('branchSDKKey') : ''}" scope="page"/>
+            <div class="branch-journeys-top" data-branchkey="${branchSDKKey}"></div>
+
+            <isinclude template="/components/header/pageHeader" />
+
+            <isinclude template="/common/browsertoolscheck" />
+
+            <main class="l-body-page_main" role="main" id="maincontent">
+                <isreplace/>
+            </main>
+
+            <isinclude template="/components/footer/pageFooter" />
+        </div>
+        <div class="l-consent_banner">
+            <iscontentasset aid="cookie_hint" />
+            <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+             <!--[if lt IE 10]>
+                <isinclude sf-toolkit="off" template="/common/scripts" />
+            <![endif]-->
+            <iscomment>
+                hook for Marketing Cloud connector & other integration which need to inject
+                logic at the page end
+                IMPORTANT: Note that this hook will be called to cached as well as uncached pages
+                            which means you need to put privacy information into another remote include
+            </iscomment>
+            
+        </div>
+        <div class="error-messaging"></div>
+        <div class="modal-background"></div>
+        
+        <!--[if gt IE 9]><!-->
+            <isinclude sf-toolkit="off" template="/common/scripts" />
+        <!--<![endif]-->
+        <isinclude template="tealium/footer_include.isml"/>
+    </body>
+</html>

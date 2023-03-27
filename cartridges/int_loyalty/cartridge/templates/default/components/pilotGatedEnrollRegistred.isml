@@ -1,0 +1,25 @@
+<form id="gated-enrollment-form"
+    class="b-gated-enrollment_form"
+    action="${pdict.pageData.formActions.enrollRegistred}"
+    method="POST"
+    >
+    <isif condition="${pdict.queryString.indexOf('enrollRepeat=true') > -1}">
+        <div class="g-loyalty-enrolled-success_img">
+            <img
+                src="${URLUtils.staticURL('/images/loyalty-enrolled-success.jpg')}"
+                alt="${Resource.msg('loyalty.img.alt.success', 'common', null)}" />
+        </div>
+    </isif>
+
+    <div class="b-gated-enrollment_header_bold b-gated-enrollment_fixed-width">
+        <isprint value="${Resource.msg('loyalty.gated.win', 'loyalty', null)}" encoding="off" />
+    </div>
+    <div class="b-gated-enrollment_header b-gated-enrollment_header_extended b-gated-enrollment_fixed-width">
+        <isprint value="${Resource.msg('label.enroll.paragraph', 'loyalty', null)}" encoding="off" />
+    </div>
+    <button type="submit" class="btn btn-block g-button_primary--black g-button_base">${Resource.msg('button.locker','loyalty', null)}</button>
+    <div class="b-gated-enrollment_tq b-gated-enrollment_fixed-width">
+        <isprint value="${Resource.msg('loyalty.tq', 'loyalty', null)}" encoding="off" />
+    </div>
+    <input type="hidden" name="${pdict.pageData.csrf.tokenName}" value="${pdict.pageData.csrf.token}"/>
+</form>

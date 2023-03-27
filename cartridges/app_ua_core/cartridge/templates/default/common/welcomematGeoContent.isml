@@ -1,0 +1,35 @@
+<isif condition="${pdict.localURL}">
+    <div class="g-welcome-mat-modal-container geolocation-mat-modal">
+        <h2>${Resource.msg('welcomemat.nonglobalaccess.heading1', 'content', null)}</h2>
+        <p class="select-text">${Resource.msg('welcomemat.nonglobalaccess.heading2', 'content', null)}</p>
+        <ul>
+            <li class="flag">
+                <a title="${pdict.defaultCountrycode}" class="region-switch" href="${'#'}" data-locale="${pdict.locale}"
+                    data-dismiss="modal" data-action="close">
+                    <img alt="${pdict.defaultCountrycode}"
+                        title="${Resource.msg('field.shipping.address.country', 'address', null)}"
+                        src="https://underarmour.scene7.com/is/image/Underarmour/${pdict.defaultCountrycode.toLowerCase()}?fmt=png-alpha&wid=120"/>
+                    <span>
+                        <isprint value="${pdict.defaultCountryName}" encoding="off" /></span>
+                </a>
+
+            </li>
+
+            <li class="flag">
+                <a title="${pdict.geoLocationCountry}" class="dismiss-modal second-flag" href="${pdict.localURL}">
+                    <img alt="${pdict.geoLocationCountry}"
+                        title="${Resource.msg('field.shipping.address.country', 'address', null)}"
+                        src="https://underarmour.scene7.com/is/image/Underarmour/${pdict.geoLocationCountry.toLowerCase()}?fmt=png-alpha&wid=120"/>
+                    <span>
+                        <isprint value="${pdict.geoLocationCountryName}" encoding="off" /></span>
+                </a>
+
+            </li>
+            <div class="clear"></div>
+        </ul>
+        <p class="select-region"><a
+                href="${URLUtils.url('Page-CountriesList')}">${Resource.msg('global.countries.seeall', 'locale', null)}</a>
+        </p>
+    </div>
+</isif>
+<input type="hidden" value="${'#'}" id="default-country">

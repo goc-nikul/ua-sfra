@@ -1,0 +1,16 @@
+<isinclude template="/zipresources.isml" />
+<isscript>
+    var assets = require('*/cartridge/scripts/assets.js');
+    assets.addJs('https://static.zipmoney.com.au/checkout/checkout-v1.min.js');
+    assets.addJs('js/zippayments.js');
+    assets.addCss('css/zippayments.css');
+</isscript>
+<div class="tab-pane zip-payments-content apac-payments ${paymentOption.ID.toLowerCase() + '_tab_pane'}"
+    id="${paymentOption.ID.toLowerCase() + '_tab_pane'}" role="tabpanel" data-method-id="zippay">
+    <fieldset class="payment-form-fields">
+        <input type="hidden" class="form-control" name="${pdict.forms.billingForm.paymentMethod.htmlName}"
+            value="Zip" />
+        <isset name="zipForm" value="${pdict.zipForm}" scope="page" />
+        <isinclude template="checkout/billing/paymentOptions/zipPaymentsContent" />
+    </fieldset>
+</div>

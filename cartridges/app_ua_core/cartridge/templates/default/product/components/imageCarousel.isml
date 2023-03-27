@@ -1,0 +1,87 @@
+<div class="js-pdp-open-zoommodal">
+<isset name="slidesCount" value="${product.images['pdpMainDesktop'].length}" scope="page" />
+    <div
+        class="b-product_carousel b-product_carousel-pdp js-main-image-carousel js-carousel ${slidesCount > 5 ? 'pdpMainImage' : 'pdpMainFiveImage'}"
+        data-cmp="carousel"
+        data-carousel-type="pdpMainImage"
+        data-json-config='${JSON.stringify(require('*/cartridge/config/carousel').mainImage)}'>
+        <div class="b-product_carousel-wrapper js-swiper-wrapper swiper-wrapper">
+            <isset name="video360Material" value="${product.video360Material}" scope="page" />
+            <isif condition="${!empty(video360Material)}">
+                <div class='b-product_carousel-slide js-product_carousel-slide swiper-slide b-product-360-carousel-slide'>
+                   <isloop items="${video360Material}" var="video360URL">
+                    <div class="b-product-360_video" id="product-360-video--${video360URL.masterID_selectedColor}">
+                        <div class="b-product-360_video-player">
+                            <video poster="${video360URL.poster_url}" class="js-product-360-video" preload="metadata" autoplay loop muted playsinline>
+                                <source src="${video360URL.video_url_mp4}" type="video/mp4" >
+                            </video>
+                        </div>
+                    </div>
+                  </isloop>
+                </div>
+            </isif>
+            <isloop items="${product.images['pdpMainDesktop'] ? product.images['pdpMainDesktop'] : []}" var="image" status="loopStatus">
+                <isset name="modelSizeData" value="${null}" scope="page"/>
+                <isif condition="${loopStatus.first && typeof image.modelSpec !== 'undefined'}">
+                    <isset name="modelSizeData" value="${image.modelSpec.modelSize}" scope="page"/>
+                </isif>
+                <div class='b-product_carousel-slide js-product_carousel-slide swiper-slide' data-index="${image.index}" data-spec="${(image.modelSpec && image.modelSpec.showModelInfo === true && !empty(image.modelSpec.modelSize)) && (!empty(modelSizeData) && modelSizeData !== image.modelSpec.modelSize) ? 'notSame' : 'same'}">
+                    <iscomment> shop this outfits CTA </iscomment>
+                    <isif condition="${!isQuickView && loopStatus.first}">
+                        <div class="shop-this-outer <isif condition="${pdict.isShopThisOutfitEnabled && product.custom.enableShopTheLook}">show</isif>">
+                            <isinclude template="product/components/shopthisoutfitscta"/>
+                        </div>
+                    </isif>
+                    <img src="${image.url}" class="b-product_carousel-image ${loopStatus.first ? 'js-product_carousel-image' : ''}" title="${image.title}" alt="${image.alt} image number ${image.index}" itemprop="image" />
+                    <iscomment>Model Specification</iscomment>
+                    <isif condition="${!isQuickView}">
+                        <div class="model-specification">
+                            <isif condition="${loopStatus.first && typeof image.modelSpec !== 'undefined'}">
+                                <isset name="modelSize" value="${image.modelSpec.modelSize}" scope="page"/>
+                            <iselse>
+                                <iscomment>This section will only dispay if size is different from main image</iscomment>
+                                <isif condition="${image.modelSpec && image.modelSpec.showModelInfo === true && !empty(image.modelSpec.modelSize)}">
+                                    <isif condition="${modelSize && !empty(modelSize) && modelSize !== image.modelSpec.modelSize}">
+                                        <div class="b-model-specs-altImg">
+                                            <span>
+                                                <isprint value="${Resource.msgf('product.model.specflat','product',null, image.modelSpec.modelSize)}" encoding="off" />
+                                            </span>
+                                        </div>
+                                    </isif>
+                                </isif>
+                            </isif>
+                        </div>
+                    </isif>
+                </div>
+            </isloop>
+        </div>
+
+        <isif condition="${product.images['pdpMainDesktop'] && product.images['pdpMainDesktop'].length > 1}">
+            <isif condition="${!isQuickView}">
+            <div class="b-product_carousel-pagination swiper-pagination swiper-pagination-horizontal">
+                <isloop items="${product.images['pdpMainDesktop'] ? product.images['pdpMainDesktop'] : []}" var="image" status="loopStatus">
+                    <a href="${​'#index-' + image.index}" class="b-product_carousel-pagination-dot ${loopStatus.first ? 'b-product_carousel-pagination-active' : ''}"><span class="hide">index-${image.index}</span></a>
+                </isloop>
+            </div>
+            </isif>
+            <isif condition="${isQuickView}">
+                <div class="b-product_carousel-control m-next js-swiper-button-next"></div>
+                <div class="b-product_carousel-control m-prev js-swiper-button-prev"></div>
+            </isif>
+        </isif>
+    </div>
+</div>
+
+<isif condition="${!isQuickView}">
+    <isset name="zoomImageCount" value="${product.images['pdpZoomDesktop'] ? product.images['pdpZoomDesktop'].length : 0}" scope="page" />
+    <isif condition="${zoomImageCount > 0}">
+        <span class="zoomImageCount">
+            <i class="zoomImageCount-icon"></i>
+            ${Resource.msg('product.imagecount','product',null)} (<span class="zoom-image-count"><isprint value="${zoomImageCount.toFixed()}" encoding="off" /></span>)
+        </span>
+    </isif>
+</isif>
+<iscomment> shop this outfits CTA </iscomment>
+<div class="shop-this-outer-html hide">
+    <isinclude template="product/components/shopthisoutfitscta"/>
+</div>

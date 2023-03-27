@@ -1,0 +1,70 @@
+<isset name="addressCountry" value="${pdict.CurrentRequest.locale && pdict.CurrentRequest.locale != 'default' ? pdict.CurrentRequest.locale.split('_')[1] : 'US'}" scope="page" />
+<div class="shipping-address-option shipping-address-section-new" value="new"
+        data-first-name="" data-last-name="" data-business-name=""
+        data-address1="" data-address2=""
+        data-suburb="" data-city="" data-state="" data-state-code=""
+        data-country-code="${addressCountry}" data-postal-code=""
+        data-phone="">
+</div>
+<isif condition="${pdict.order.shipping[0].shippingAddress}">
+    <isloop items="${pdict.order.shipping}" var="aShippingModel">
+      <isif condition="${aShippingModel.UUID === shippingModel.UUID && aShippingModel.shippingAddress || !aShippingModel.selectedShippingMethod.storePickupEnabled}">
+        <div
+            class="multi-shipping shipping-address-option"
+            value="${aShippingModel.UUID}"
+            ${!shippingModel.matchingAddressId && aShippingModel.UUID === shippingModel.UUID ? 'selected="selected"' : '' }
+            data-first-name="${aShippingModel.shippingAddress.firstName||''}" data-last-name="${aShippingModel.shippingAddress.lastName||''}"
+            data-address1="${aShippingModel.shippingAddress.address1||''}" data-address2="${aShippingModel.shippingAddress.address2||''}"
+            data-city="${aShippingModel.shippingAddress.city||''}" data-state ="${aShippingModel.shippingAddress.stateCode||''}" data-state-code="${aShippingModel.shippingAddress.stateCode||''}"
+            data-country-code="${aShippingModel.shippingAddress.countryCode.value||''}" data-postal-code="${aShippingModel.shippingAddress.postalCode}"
+            data-phone="${aShippingModel.shippingAddress.phone}" data-is-gift="${aShippingModel.isGift}" data-gift-message="${aShippingModel.giftMessage}"
+        >
+        <isif condition="${aShippingModel.shippingAddress.firstName
+                    && aShippingModel.shippingAddress.lastName
+                    && aShippingModel.shippingAddress.address1
+                    && aShippingModel.shippingAddress.city
+                    && aShippingModel.shippingAddress.stateCode
+                    && aShippingModel.shippingAddress.postalCode}"
+        >
+            ${aShippingModel.shippingAddress.firstName || ''} ${aShippingModel.shippingAddress.lastName || ''}
+            ${aShippingModel.shippingAddress.address1 || ''}
+            ${aShippingModel.shippingAddress.address2 || ''}
+            ${aShippingModel.shippingAddress.cityLabel ? aShippingModel.shippingAddress.cityLabel : aShippingModel.shippingAddress.city || ''}${!aShippingModel.shippingAddress.cityLabel || ','}
+            ${aShippingModel.shippingAddress.stateCodeLabel ? aShippingModel.shippingAddress.stateCodeLabel : aShippingModel.shippingAddress.stateCode ||''}
+            ${!aShippingModel.shippingAddress.hideCityAndPostalCode ? aShippingModel.shippingAddress.postalCode :''}
+            ${!aShippingModel.selectedShippingMethod.displayName||'-'}
+            ${aShippingModel.selectedShippingMethod.displayName||''}
+            <iselse/>
+            ${Resource.msg('msg.new.address', 'checkout', null)}
+        </isif>
+        </div>
+       </isif>
+    </isloop>
+</isif>
+<isset name="preferredAddress" value="${pdict.customer.preferredAddress}" scope="page" />
+<isif condition="${pdict.customer.addresses && pdict.customer.addresses.length > 0}">
+    <isloop items="${pdict.customer.addresses}" var="address">
+        <isif condition="${address.countryCode.value === addressCountry}">
+	        <div class="shipping-address-section personal-address <isif condition="${(address && address.ID && shippingModel && shippingModel.matchingAddressId && shippingModel.matchingAddressId === address.ID) || (empty(shippingModel.matchingAddressId) && (!shippingModel.shippingAddress || empty(shippingModel.shippingAddress.countryCode)) && preferredAddress && preferredAddress.ID == address.ID && shippingModel.shippingAddress.isOfficeAddress !== true)}"> default-address</isif> <isif condition="${pdict.customer.addresses.length === 1}"> default-shipping-address</isif>">
+	            <div class="shipping-address-option" value="${'ab_'+address.ID}" data-addr-id="${address.ID}"
+	                    ${address.ID==shippingModel.matchingAddressId ? 'selected="selected"' : '' }
+	            data-first-name="${address.firstName||''}" data-last-name="${address.lastName||''}" data-business-name="${address.businessName||''}"
+	            data-address1="${address.address1||''}" data-address2="${address.address2||''}"
+	            data-suburb="${address.suburb||''}"  data-district="${address.district||''}" data-city="${address.city||''}" data-state-code="${address.stateCode||''}"  data-state="${address.stateCode||''}"
+	            data-country-code="${address.countryCode.value||''}" data-postal-code="${address.postalCode||''}"
+	            data-phone="${address.phone||''}" data-is-gift="${''}" data-gift-message="${''}" default-address="<isif condition="${preferredAddress && preferredAddress.ID == address.ID && shippingModel.shippingAddress.isOfficeAddress !== true}">true</isif>">
+	                <div>${address.firstName || ''} ${address.lastName || ''} ${address.businessName || ''}</div>
+	                <div>${address.address1 || ''}</div>
+	                <div>${address.address2 || ''}</div>
+	                <div><isif condition="${address.suburb}">${address.suburb + ','}</isif> <isif condition="${address.district}">${address.district + ','}</isif> <isif condition="${address.city && !address.hideCityAndPostalCode}"> ${address.cityLabel ? address.cityLabel + ',' : address.city + ','} </isif> ${address.stateCodeLabel ? address.stateCodeLabel : address.stateCode || ''} ${!address.hideCityAndPostalCode ? address.postalCode: ''}</div>
+	            </div>
+	            <a class="col-6 text-center btn-show-details" data-action-url="${URLUtils.https('CheckoutAddressServices-UpdateShippingAddress')}">${Resource.msg('action.edit.address', 'checkout', null)}</a>
+	            <a class="col-6 text-center button-delete-address ${(preferredAddress && preferredAddress.ID == address.ID) ? 'hide' : ''}">${Resource.msg('action.delete.address', 'checkout', null)}</a>
+	            <span class="icon"></span>
+	        </div>
+       </isif>
+    </isloop>
+</isif>
+<input type="hidden" class="editAddrURL" value="${URLUtils.https('CheckoutAddressServices-UpdateShippingAddress')}">
+<input type="hidden" class="deleteLabel" value="${Resource.msg('action.delete.address', 'checkout', null)}">
+<input type="hidden" class="editLabel" value="${Resource.msg('action.edit.address', 'checkout', null)}">

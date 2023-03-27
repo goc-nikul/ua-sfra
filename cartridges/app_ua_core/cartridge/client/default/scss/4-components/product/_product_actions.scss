@@ -1,0 +1,216 @@
+.b-product_actions {
+    display: flex;
+    justify-content: space-between;
+    padding-top: spacing(xs);
+    padding-right: rem-calc(3);
+    margin-right: rem-calc(3);
+
+    @include respond-to(desktop) {
+        &.b-paypalcta-disabled_outer {
+            padding-right: 0;
+            margin-right: 0;
+        }
+    }
+
+    @include respond-to(mobile) {
+        border-top: 1px solid $grey3;
+    }
+
+    &-inner {
+        display: flex;
+        justify-content: space-between;
+
+        @include respond-to(desktop) {
+            flex-basis: 80%;
+        }
+
+        @include respond-to(mobile) {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            padding: rem-calc(16);
+            background: $white;
+            background-clip: padding-box;
+            left: 0;
+            border-top: 1px solid $grey3;
+            flex-direction: row-reverse;
+            z-index: 10;
+
+            &.btn-align-mobile {
+                display: block;
+            }
+        }
+
+        @include respond-to(desktop) {
+            &.b-paypalcta-disabled {
+                .b-add_to_bag_container {
+                    max-width: 100%;
+                }
+            }
+        }
+    }
+
+    @include respond-to(desktop) {
+        &.prices-add-to-cart-actions {
+            padding-top: 1rem;
+        }
+    }
+
+    .paypal-cart-buttons-container {
+        padding-left: rem-calc(10);
+        flex-basis: 50%;
+        border-left: rem-calc(2) solid transparent;
+        border-right: rem-calc(5) solid transparent;
+        position: relative;
+        z-index: 1;
+
+        @include respond-to(mobile) {
+            padding-right: rem-calc(5);
+            padding-left: 0;
+        }
+
+        .paypal-button {
+            text-align: center;
+            overflow: hidden;
+            border: 1px solid $grey3;
+            border-radius: 4px;
+            min-width: rem-calc(100) !important;
+
+            .zoid-outlet {
+                transform: translate(-3px, 0);
+                margin: -1px 0;
+                width: 104% !important;
+                min-width: rem-calc(50) !important;
+            }
+        }
+
+        .paypal-cart-button {
+            @include respond-to(mobile) {
+                margin: 0;
+            }
+
+            &.disabled {
+                pointer-events: none;
+                cursor: default;
+                opacity: 0.5;
+            }
+        }
+    }
+
+    @include respond-to(desktop) {
+        border-top: 1px solid $grey3;
+    }
+
+    .b-quantity {
+        @include respond-to(mobile) {
+            padding-right: 0;
+            max-width: rem-calc(100);
+        }
+    }
+
+    .product-details {
+        @include respond-to(mobile) {
+            display: none;
+        }
+    }
+}
+
+.error-message-text {
+    &.specialChar {
+        color: $red;
+        font-size: 1rem;
+        margin: 0 0 7px;
+    }
+}
+
+.sticky-cta {
+    @include respond-to(mobile) {
+        display: none !important;
+    }
+
+    @include respond-to(desktop) {
+        justify-content: flex-end;
+        position: fixed;
+        min-height: auto;
+        top: -85px;
+        transition: top 0.364s ease;
+        right: 0;
+        margin-right: 0;
+        width: 100%;
+        background: $white;
+        border-bottom: 1px solid $grey3;
+        z-index: 100;
+
+        &.cta-expanded {
+            top: 106px;
+        }
+
+        .l-pdp-info {
+            max-width: 1024px;
+            margin-right: auto;
+            margin-left: auto;
+            box-sizing: border-box;
+
+            button {
+                width: 418px;
+                float: right;
+                margin-right: 15px;
+            }
+        }
+
+        .b-add_to_bag_container {
+            flex-grow: 0;
+            padding-right: rem-calc(32);
+        }
+
+        .b-product_actions {
+            position: relative;
+            border-top: 0;
+            padding: 0;
+            max-width: 1215px;
+            margin: 0 auto;
+
+            .product-details {
+                padding-left: 2rem;
+                white-space: nowrap;
+                box-sizing: border-box;
+                @include font(main_med, rem-calc(12), 1.67);
+
+                .b-name-header {
+                    display: inline;
+                    float: left;
+                    padding-top: 30px;
+                }
+
+                .b-price-header {
+                    margin: 30px 0 0 15px;
+                    color: $grey5;
+                    display: block;
+                    float: left;
+
+                    .b-price {
+                        margin: 0;
+                    }
+
+                    .b-price-value {
+                        font-size: rem-calc(12);
+                    }
+                }
+            }
+
+            button,
+            .b-loader {
+                width: 300px;
+                margin: 20px 0;
+                float: right;
+            }
+
+            .b-loader {
+                top: 0;
+                transform: none;
+                left: auto;
+                right: 0;
+            }
+        }
+    }
+}

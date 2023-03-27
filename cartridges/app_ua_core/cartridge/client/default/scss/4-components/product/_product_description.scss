@@ -1,0 +1,138 @@
+.b-product_description {
+    width: 100%;
+
+    &-main {
+        margin-bottom: spacing(sm);
+        padding-top: 1rem;
+        border-top: 1px solid #d0d0d0;
+        margin-top: 1rem;
+    }
+
+    &-tabs {
+        @include respond-to(mobile) {
+            display: none;
+        }
+    }
+
+    &-acc_heading {
+        padding: rem-calc(14);
+
+        &.collapsed {
+            border-bottom: 0;
+        }
+
+        @include respond-to(desktop) {
+            display: none;
+        }
+    }
+
+    &-title {
+        @include font(main_med, rem-calc(14), 1.43);
+
+        margin-bottom: spacing(xs);
+
+        @include respond-to(mobile) {
+            margin-top: spacing(sm);
+        }
+    }
+
+    &-content {
+        @include font(main, rem-calc(14), 1.43);
+    }
+
+    &-items {
+        @include font(main_med, rem-calc(14), 1.43);
+
+        @include respond-to(mobile) {
+            border-top: 1px solid $grey3;
+        }
+    }
+
+    .g-accordion--mobile {
+        .g-accordion-content {
+            @include respond-to(mobile) {
+                padding-right: 0;
+            }
+        }
+    }
+
+    .b-product_description-items {
+        @include respond-to(desktop) {
+            .g-tabs-pane {
+                display: none;
+
+                &.active {
+                    display: block;
+                }
+            }
+        }
+    }
+}
+
+.t-tabs {
+    &_data {
+        @include font(main, rem-calc(14), 1.43);
+
+        color: $grey5;
+        list-style: disc;
+        padding-left: rem-calc(30);
+    }
+
+    &_list {
+        list-style: disc;
+        color: $grey5;
+        margin-bottom: rem-calc(8);
+        padding-left: rem-calc(10);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        .t-bold_font {
+            font-weight: $font-bold;
+        }
+    }
+}
+
+.recommendations-section {
+    .b-tile-fav_defultButton,
+    .b-tile_badge-recently-viewed {
+        display: none;
+    }
+}
+
+.b-qualitrics-link {
+    padding: rem-calc(16) 0;
+
+    a {
+        font-size: rem-calc(12);
+        color: $grey5;
+        text-decoration: underline;
+    }
+}
+
+.g-qualtrics-modal {
+    &-content {
+        padding: 0;
+        height: 100%;
+    }
+
+    &-header {
+        margin: 0;
+
+        .g-modal-close {
+            top: rem-calc(48);
+            right: rem-calc(16);
+        }
+
+        .g-modal-close-button {
+            width: rem-calc(16);
+            height: rem-calc(16);
+
+            &::after,
+            &::before {
+                width: rem-calc(16);
+            }
+        }
+    }
+}

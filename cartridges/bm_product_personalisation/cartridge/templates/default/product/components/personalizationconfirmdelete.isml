@@ -1,0 +1,37 @@
+<iscontent compact="true"/>
+
+<isscript>
+    var productID;
+    try {
+        productID = dataPersonalization.productID || '';
+    } catch(e) {
+        productID = '';
+    }
+</isscript>
+
+<table border="0" cellpadding="4" cellspacing="0" width="100%" id="confirm-action" class="confirm_box w e s" style="display:none">
+<tbody><tr>
+<td class="error_icon e"><img src="/on/demandware.static/Sites-Site/-/default/v17a5fd14270e8ce7287f3ade42297b4b57a2c66b/images/confirmation.gif" width="16" height="15" alt="" border="0"></td>
+<td class="confirm" width="100%">
+	${Resource.msg('productpersonalization.confirmDeleteMessage', 'personalization', null)}
+</td>
+<td nowrap="nowrap">
+<table border="0" cellspacing="0" cellpadding="0">
+<tbody><tr>
+<td class="button">
+	<a name="delete" class="button not_disabled_loc" href="${URLUtils.url('ProductPersonalization-RemovePersonalization','productID', productID)}">
+		${Resource.msg('global.yes', 'locale', null)}
+	</a>
+</td><td>&nbsp;</td>
+<td class="button">
+	<a name="cancelDelete" class="button" >
+		${Resource.msg('global.cancel', 'locale', null)}
+	</a>
+</td>
+</tr>
+</tbody></table>
+</td>
+</tr>
+</tbody>
+</table>
+<br/>

@@ -1,0 +1,2108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs xmlns="http://www.demandware.com/xml/impex/jobs/2015-07-01">
+    <job job-id="Exchange Rate Update" priority="0">
+        <description>Updates ExchangeRate Custom Object with currency exchange rates</description>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Update Exchange Rate" type="custom.UpdateExchangeRate" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2018-12-12Z</date-from>
+                    <start-time>05:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Thursday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Import PriceBooks" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Download from Amazon S3" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>to download files from S3 (ecommstaging)</description>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_EMEA</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">.*xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_emea/out/pricebooks</parameter>
+                    <parameter name="TargetFolder">src/pricebooks</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="DeleteRemoteFiles">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-flow/>
+                    </on-exit>
+                </rules>
+            </step>
+            <step step-id="Import Pricebooks" type="ImportPriceBook" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">/pricebooks</parameter>
+                    <parameter name="FileNamePattern">.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">src/archive/pricebooks/EMEA</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2018-12-12Z</date-from>
+                    <start-time>05:00:00.000Z</start-time>
+                    <interval>1h</interval>
+                    <day-of-week>
+                        <weekday>Sunday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Import Inventory" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="EU - Download from Amazon S3" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>to download files from S3 (ecommstaging)</description>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_EMEA</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">.*zip</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_emea/out/eu_inventory</parameter>
+                    <parameter name="TargetFolder">src/inventory/in</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="DeleteRemoteFiles">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="UKIE - Download from Amazon S3" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>to download files from S3 (ecommstaging)</description>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_EMEA</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">.*zip</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_emea/out/ukie_inventory</parameter>
+                    <parameter name="TargetFolder">src/inventory/in</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="DeleteRemoteFiles">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Unarchive Data" type="custom.CSComponents.UnzipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="SourceFolder">src/inventory/in</parameter>
+                    <parameter name="FilePattern">.*zip</parameter>
+                    <parameter name="TargetFolder">src/inventory/out</parameter>
+                    <parameter name="RemoveArchivesAfterCompletion">true</parameter>
+                    <parameter name="UseArchiveNameAsFolder">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import Inventory" type="custom.CSComponents.ImportInventoryLists" enforce-restart="false">
+                <description>We are only importing inventory here and not archiving it. See the FileAction = Keep</description>
+                <parameters>
+                    <parameter name="SourceFolder">src/inventory/out</parameter>
+                    <parameter name="FilePattern">.*xml</parameter>
+                    <parameter name="FileAction">KEEP</parameter>
+                    <parameter name="ImportMode">MERGE</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="OnError">CONTINUE</parameter>
+                    <parameter name="ArchivePath">src/archive/inventory/EMEA</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Archive Inventory" type="custom.ZipFiles" enforce-restart="false">
+                <description>Separate step to archive inventory into zipfiles</description>
+                <parameters>
+                    <parameter name="filePattern">^.*xml</parameter>
+                    <parameter name="sourceFolder">src/inventory/out</parameter>
+                    <parameter name="targetFolder">src/archive/inventory/EMEA</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2018-12-12Z</date-from>
+                    <start-time>05:00:00.000Z</start-time>
+                    <interval>4h</interval>
+                    <day-of-week>
+                        <weekday>Sunday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+	<job job-id="CombinePDP" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="CombinePDP" type="custom.combinepdp" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="exportDirectory">src/temp/combinepdp</parameter>
+                    <parameter name="masterCatalogID">EMEACatalog</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import_Catalog_Master" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">temp/combinepdp</parameter>
+                    <parameter name="FileNamePattern">^.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">src/archive/combinepdp/EMEA</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="false">
+                <recurrence>
+                    <date-from>2019-12-18Z</date-from>
+                    <start-time>06:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Sunday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Import Catalog" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Download from Amazon S3" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>to download files from S3 (ecommstaging)</description>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_EMEA</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">.*zip</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_emea/out/catalogs</parameter>
+                    <parameter name="TargetFolder">src/catalog/in</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="DeleteRemoteFiles">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Unarchive data" type="custom.CSComponents.UnzipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="SourceFolder">src/catalog/in</parameter>
+                    <parameter name="FilePattern">.*zip</parameter>
+                    <parameter name="TargetFolder">src/catalog/out</parameter>
+                    <parameter name="RemoveArchivesAfterCompletion">true</parameter>
+                    <parameter name="UseArchiveNameAsFolder">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Catalogs" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">catalog/out</parameter>
+                    <parameter name="FileNamePattern">.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">OK</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">src/archive/catalog/EMEA</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="CombinePDP" type="IncludeStepsFromJob" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="JobID">CombinePDP</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2019-01-01Z</date-from>
+                    <start-time>05:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Sunday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Product Image and Categorization (UKIE &amp; EU)" priority="0">
+        <description>Automatically associates variant images to the master product and assign categories for products in the prep-category</description>
+        <parameters/>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="CheckPrepCategory" type="custom.checkPrepCategory" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">EMEACatalog</parameter>
+                    <parameter name="storefrontCatalogID">EMEACatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="Auto Video Assignment" type="custom.assignVideos" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">EMEACatalog</parameter>
+                    <parameter name="storefrontCatalogID">EMEACatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="AutoImageAssignment" type="custom.assignImages" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">EMEACatalog</parameter>
+                    <parameter name="storefrontCatalogID">EMEACatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="AssignSizePrefTokens" type="custom.AssignSizePrefTokens" enforce-restart="false">
+                <description>Create size preference token based on product custom attribute through job</description>
+                <parameters>
+                    <parameter name="masterCatalogID">EMEACatalog</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportImageVideoAssignment" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/imageAssociation</parameter>
+                    <parameter name="FileNamePattern">.*associations.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportSizePreferencesToken" type="ImportCatalog" enforce-restart="false">
+                <description>Import Size Preferences Token</description>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/sizePreferenceToken</parameter>
+                    <parameter name="FileNamePattern">.*tokenization.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/sizePreferenceToken</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="AutoCategorization" type="custom.autoCategorization" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">EMEACatalog</parameter>
+                    <parameter name="storefrontCatalogID">EMEACatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportCategorization" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/categoryAssociation</parameter>
+                    <parameter name="FileNamePattern">^catalog_category_associations.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="GenerateProductClassificationXML" type="custom.generateProductClassificationXML" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">EMEACatalog</parameter>
+                    <parameter name="storefrontCatalogID">EMEACatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="importClassification" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/productClassifications</parameter>
+                    <parameter name="FileNamePattern">^product_classifications.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="CleanupPrepCategory" type="custom.cleanupPrepCategory" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">EMEACatalog</parameter>
+                    <parameter name="storefrontCatalogID">EMEACatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportCleanPrepCategory" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/cleanupPrepCategory</parameter>
+                    <parameter name="FileNamePattern">^cleanup_prep_category.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Delete</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="true">
+                <mark-job-as-hanging/>
+            </on-running>
+        </rules>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2017-09-26Z</date-from>
+                    <start-time>21:45:00.000Z</start-time>
+                    <interval>24h</interval>
+                    <day-of-week>
+                        <weekday>Monday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="DataFeedWatch Export" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <flow>
+                <context site-id="EU"/>
+                <step step-id="DFW_EU1" type="custom.CustomFeeds-Process" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="feedConfigString">{     "en": {         "locales": ["de_DE"],         "feed": ["DataFeedWatch"],         "currency": ["EUR"]     },     "eurLocales": {         "locales": ["en_FR","en_DE","en_NL","en_AT","en_IT", "en_IE"],         "feed": ["DFWLocaleSpecific"],         "currency": ["EUR"]     } }</parameter>
+                    </parameters>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <stop-job/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="EU"/>
+                <step step-id="DFW_EU2" type="custom.CustomFeeds-Process" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="feedConfigString">{     "languages": {         "locales": [             "fr_FR"         ],         "feed": [             "DFWSecondary"         ],         "currency": [             "EUR"         ]     },     "eurLocales": {         "locales": [             "en_BE",             "en_PT"             ],         "feed": [             "DFWLocaleSpecific"         ],         "currency": [             "EUR"         ]     },     "no": {         "locales": [             "en_NO"         ],         "feed": [             "DFWLocaleSpecific"         ],         "currency": [             "NOK"         ]     },     "ch": {         "locales": [             "en_CH",             "de_CH",             "fr_CH",             "it_CH"         ],         "feed": [             "DFWLocaleSpecific"         ],         "currency": [             "CHF"         ]     }, "pl": {     "locales": [            "en_PL"     ],     "feed": [            "DFWLocaleSpecific"     ],     "currency": [            "PLN"        ]     } }</parameter>
+                    </parameters>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <stop-job/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="EU"/>
+                <step step-id="DFW_EU3" type="custom.CustomFeeds-Process" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="feedConfigString">{     "languages": {         "locales": ["nl_NL","it_IT"],         "feed": ["DFWSecondary"],         "currency": ["EUR"]     },     "eurLocales": {         "locales": ["en_ES","en_IT","fr_BE","de_PL"],         "feed": ["DFWLocaleSpecific"],         "currency": ["EUR"]     } }</parameter>
+                    </parameters>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <stop-job/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="EU"/>
+                <step step-id="DFW_EU4" type="custom.CustomFeeds-Process" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="feedConfigString">{     "languages": {         "locales": ["es_ES"],         "feed": ["DFWSecondary"],         "currency": ["EUR"]     },     "eurLocales": {         "locales": ["de_AT","nl_BE"],         "feed": ["DFWLocaleSpecific"],         "currency": ["EUR"]     },     "se": {         "locales": ["en_SE"],         "feed": ["DFWLocaleSpecific"],         "currency": ["SEK"]     },     "dk": {         "locales": ["en_DK"],         "feed": ["DFWLocaleSpecific"],         "currency": ["DKK"]     } }</parameter>
+                    </parameters>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <stop-job/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow>
+        </split>
+        <flow>
+            <context site-id="UKIE"/>
+            <step step-id="DFW_UKIE" type="custom.CustomFeeds-Process" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="feedConfigString">{     "en": {         "locales": [             "en_GB"         ],         "feed": [             "DataFeedWatchUKIE"         ],         "currency": [             "GBP"         ]     } }</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="StorefrontCatalog-Export" type="ExportCatalog" enforce-restart="false">
+                <description>Export the categories to DFW for the shop app</description>
+                <parameters>
+                    <parameter name="CatalogID">EMEACatalog_storefront</parameter>
+                    <parameter name="ExportCategories">true</parameter>
+                    <parameter name="ExportProducts">false</parameter>
+                    <parameter name="ExportCategoryAssignments">true</parameter>
+                    <parameter name="ExportProductOptions">true</parameter>
+                    <parameter name="ExportRecommendations">true</parameter>
+                    <parameter name="ExportVariationAttributes">true</parameter>
+                    <parameter name="ExportFile">/feeds/DFW/EMEA_CATALOG_FEEDEXPORT</parameter>
+                    <parameter name="OverwriteExportFile">true</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules>
+            <on-running runtime-threshold="300m" enabled="true">
+                <mark-job-as-hanging/>
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>intldev@underarmour.com</to>
+                </send-mail>
+            </on-running>
+            <on-exit status="OK,ERROR" enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>intldev@underarmour.com</to>
+                </send-mail>
+            </on-exit>
+        </rules>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2018-09-14Z</date-from>
+                    <start-time>20:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Sunday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Set Youth Tax Class (UK)" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="Generate XML Import File" type="custom.UpdateProductTaxClass" enforce-restart="false">
+                <description>Step creates import xml file with filtered products and new tax classes</description>
+                <parameters>
+                    <parameter name="runDeltaFeed">false</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import Tax Classes" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/taxclass</parameter>
+                    <parameter name="FileNamePattern">^youthCatalogTaxes_.*xml$</parameter>
+                    <parameter name="NoFilesFoundHandling">WARN</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">ERROR</parameter>
+                    <parameter name="AfterImportFileHandling">Delete</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-06-21Z</date-from>
+                    <start-time>02:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Talkoot Catalog Import" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Get Talkoot Data" type="ExecuteScriptModule" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ExecuteScriptModule.Module">int_talkoot/cartridge/scripts/jobs/GetCatalogData.js</parameter>
+                    <parameter name="ExecuteScriptModule.FunctionName">execute</parameter>
+                    <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                    <parameter name="ExecuteScriptModule.TimeoutInSeconds">60</parameter>
+                    <parameter name="FilePath">src/catalog/talkoot</parameter>
+                    <parameter name="CatalogID">EMEACatalog</parameter>
+                    <parameter name="TimeZone">-7</parameter>
+                    <parameter name="TimeOffset">2500</parameter>
+                    <parameter name="jobID">28</parameter>
+                </parameters>
+            </step>
+            <step step-id="CatalogImport" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">catalog/talkoot</parameter>
+                    <parameter name="FileNamePattern">^.*xml$</parameter>
+                    <parameter name="NoFilesFoundHandling">OK</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">ERROR</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">archive/Talkoot</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2020-04-17Z</date>
+                <time>08:17:23.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    <job job-id="Paazl-Commit-Order" priority="0">
+        <description>Commit/Save Orders into the Paazl system</description>
+        <parameters/>
+        <split sequential="false">
+            <flow>
+                <context site-id="EU"/>
+                <template-ref template-id="template_38"/>
+            </flow>
+            <flow>
+                <context site-id="UKIE"/>
+                <template-ref template-id="template_38"/>
+            </flow>
+            <flow-template template-id="template_38">
+                <step step-id="paazl-commit" type="custom.Paazl.CommitOrders" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="disabled">false</parameter>
+                    </parameters>
+                    <rules>
+                        <on-exit status="*,DISABLED,ERROR">
+                            <stop-job/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2019-04-26Z</date-from>
+                    <start-time>18:59:42.000Z</start-time>
+                    <interval>5m</interval>
+                    <day-of-week>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Sunday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="MAODOMOrderExport" priority="0">
+        <description>This job sends order data to OMS including not confirmed orders(pending payment or fraud check). The job takes order according to next criteria:
+                    1. Order export status is ready for export.
+                    2. Order status is not canceled or failed.
+                    3. Updates order custom attribute is empty
+                    The job makes "Create order" request for each order and set EXPORTED status if the call is successful.</description>
+        <parameters/>
+        <split sequential="false">
+            <flow>
+                <context site-id="EU"/>
+                <template-ref template-id="template_74"/>
+            </flow>
+            <flow>
+                <context site-id="UKIE"/>
+                <template-ref template-id="template_74"/>
+            </flow>
+            <flow-template template-id="template_74">
+                <step step-id="CreateOrder" type="custom.MAODOMOrderExport" enforce-restart="false">
+                    <description/>
+                    <parameters/>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+         <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2020-04-09Z</date-from>
+                    <start-time>07:50:55.000Z</start-time>
+                    <interval>10m</interval>
+                    <day-of-week>
+                        <weekday>Friday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Tuesday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+<job job-id="SDLTranslationJob" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_24">
+                <context site-id="EU"/>
+                <context site-id="UKIE"/>
+            </contexts>
+            <flow-template template-id="template_24">
+                <step step-id="CreateTMSProjectJob" type="custom.SDLCreateTMSProjectJob" enforce-restart="false">
+                    <description>This Job creates the projects to the TMS and then deletes the temp project records from the SFCC.</description>
+                    <parameters/>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <continue/>
+                        </on-exit>
+                    </rules>
+                </step>
+                <step step-id="CreateTranslationHistoryJob" type="custom.SDLCreateTranslationHistoryJob" enforce-restart="false">
+                    <description>This job syncs with the TMS server and creates the Translation History Records to the SFCC</description>
+                    <parameters/>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <continue/>
+                        </on-exit>
+                    </rules>
+                </step>
+                <step step-id="TMSSyncSchedulerJob" type="custom.SDLSyncSchedularJob" enforce-restart="false">
+                    <description>TMS Sync Scheduler Job will sync up the TMS data with SFCC.</description>
+                    <parameters/>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <continue/>
+                        </on-exit>
+                    </rules>
+                </step>
+                <step step-id="SDLManagedTranslationDownload" type="custom.SDLDownloadJob" enforce-restart="false">
+                    <description>This Job will download the translated content from TMS and import in SFCC.</description>
+                    <parameters/>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <continue/>
+                        </on-exit>
+                    </rules>
+                </step>
+                <step step-id="TMSCompleteSchedulerJob" type="custom.SDLCompleteJob" enforce-restart="false">
+                    <description>This job deletes all the translation completed jobs from the SFCC and updates the projects in TMS as COMPLETED</description>
+                    <parameters/>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <continue/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-01-11Z</date-from>
+                    <start-time>01:22:37.000Z</start-time>
+                    <interval>1h</interval>
+                    <day-of-week>
+                        <weekday>Monday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Download Order Status" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Download Order Status NON ZIP EU - SSH (DO NOT TOUCH)" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>Downloading files from Amazon S3</description>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_EMEA</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">^.*xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_emea/out/orderstatus</parameter>
+                    <parameter name="TargetFolder">src/feeds/orderstatus/eu</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="DeleteRemoteFiles">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="UnZip Order Status EU" type="custom.UnzipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="filePattern">^.*zip</parameter>
+                    <parameter name="sourceFolder">src/feeds/orderstatus/eu/zip</parameter>
+                    <parameter name="targetFolder">src/feeds/orderstatus/eu</parameter>
+                    <parameter name="deleteFile">KEEP_ON_SERVER</parameter>
+                </parameters>
+            </step>
+            <step step-id="Archive Order Status ZIP EU" type="custom.ZipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="filePattern">^.*zip</parameter>
+                    <parameter name="sourceFolder">src/feeds/orderstatus/eu/zip</parameter>
+                    <parameter name="targetFolder">src/archive/orderstatus/eu/zip</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-06-09Z</date-from>
+                    <start-time>08:28:44.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Saturday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Import Order Status - Shipment" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Move Order Files UKIE" type="custom.MoveOrderFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="sourceFolder">src/feeds/orderstatus/eu</parameter>
+                    <parameter name="filePattern">^.*ShipmentStatus*.*xml</parameter>
+                    <parameter name="orderPattern">DEVUKIE</parameter>
+                    <parameter name="targetFolder">src/feeds/orderstatus/ukie</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="Import Order Shipment EU" type="custom.OrderShipping" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="workingFolder">src/feeds/orderstatus/eu</parameter>
+                    <parameter name="filePattern">^.*ShipmentStatus*.*xml</parameter>
+                    <parameter name="sortDirection">ASCENDING</parameter>
+                    <parameter name="zipFiles">true</parameter>
+                    <parameter name="targetFolder">/src/archive/orderShipment/eu</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="UKIE"/>
+            <step step-id="Import Order Shipment UKIE" type="custom.OrderShipping" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="workingFolder">src/feeds/orderstatus/ukie</parameter>
+                    <parameter name="filePattern">^.*ShipmentStatus*.*xml</parameter>
+                    <parameter name="sortDirection">ASCENDING</parameter>
+                    <parameter name="zipFiles">true</parameter>
+                    <parameter name="targetFolder">/src/archive/orderShipment/ukie</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-06-09Z</date-from>
+                    <start-time>08:29:16.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Saturday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Bazaarvoice Inline Ratings Import" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="Download Rating Feed" type="custom.Bazaarvoice-Download" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Enabled">true</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="Import Ratings" type="custom.Bazaarvoice-Rating-Import" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Enabled">true</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="true">
+                <mark-job-as-hanging/>
+                <send-mail>
+                    <from>jobs@yourdomain.com</from>
+                    <to>jobadmin@yourdomain.com</to>
+                </send-mail>
+            </on-running>
+            <on-retry enabled="true">
+                <send-mail>
+                    <from>jobs@yourdomain.com</from>
+                    <to>jobadmin@yourdomain.com</to>
+                </send-mail>
+            </on-retry>
+            <on-exit status="ERROR" enabled="true">
+                <send-mail>
+                    <from>jobs@yourdomain.com</from>
+                    <to>jobadmin@yourdomain.com</to>
+                </send-mail>
+            </on-exit>
+        </rules>
+        <triggers>
+            <run-once enabled="true">
+                <date>2020-04-17Z</date>
+                <time>20:15:54.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    <job job-id="Bazaarvoice Product Feed Export" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_36">
+                <all-storefront-sites/>
+            </contexts>
+            <flow-template template-id="template_36">
+                <step step-id="Site Specific Feed" type="custom.Bazaarvoice-Product-Feed-Export" enforce-restart="true">
+                    <description/>
+                    <parameters>
+                        <parameter name="Enabled">true</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <split sequential="false">
+            <contexts template-ref="template_37">
+                <all-storefront-sites/>
+            </contexts>
+            <flow-template template-id="template_37">
+                <step step-id="Upload Product Feeds" type="custom.Bazaarvoice-Upload" enforce-restart="false">
+                    <description>Product Feed Upload</description>
+                    <parameters>
+                        <parameter name="Enabled">true</parameter>
+                        <parameter name="FeedType">Product</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-once enabled="true">
+                <date>2020-06-03Z</date>
+                <time>13:47:45.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    <job job-id="Adyen Process Notifications" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_48">
+                <context site-id="EU"/>
+                <context site-id="UKIE"/>
+            </contexts>
+            <flow-template template-id="template_48">
+                <step step-id="Process" type="ExecuteScriptModule" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="ExecuteScriptModule.Module">int_adyen_overlay/cartridge/scripts/job/notifications.js</parameter>
+                        <parameter name="ExecuteScriptModule.FunctionName">processNotifications</parameter>
+                        <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                        <parameter name="ExecuteScriptModule.TimeoutInSeconds">3600</parameter>
+                    </parameters>
+                </step>
+                <step step-id="Clean" type="ExecuteScriptModule" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="ExecuteScriptModule.Module">int_adyen_overlay/cartridge/scripts/job/notifications.js</parameter>
+                        <parameter name="ExecuteScriptModule.FunctionName">clearNotifications</parameter>
+                        <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                        <parameter name="ExecuteScriptModule.TimeoutInSeconds">3600</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-06-13Z</date-from>
+                    <start-time>14:49:21.000Z</start-time>
+                    <interval>2m</interval>
+                    <day-of-week>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Saturday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+	<job job-id="NewSitemap-GenerateCustomXMLs" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_30">
+                <context site-id="EU"/>
+                <context site-id="UKIE"/>
+            </contexts>
+            <flow-template template-id="template_30">
+                <step step-id="CleanUp Hreflang Sitemaps" type="custom.CleanUpHreflangSitemaps" enforce-restart="false">
+                    <description/>
+                    <parameters/>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <stop-job/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow-template>
+        </split>
+        <split sequential="false">
+            <contexts template-ref="template_31">
+                <context site-id="EU"/>
+                <context site-id="UKIE"/>
+            </contexts>
+            <flow-template template-id="template_31">
+                <step step-id="Download Hreflang Sitemaps" type="custom.DownloadHreflangSitemaps" enforce-restart="false">
+                    <description/>
+                    <parameters/>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <stop-job/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow-template>
+        </split>
+        <split sequential="false">
+            <contexts template-ref="template_32">
+                <context site-id="EU"/>
+                <context site-id="UKIE"/>
+            </contexts>
+            <flow-template template-id="template_32">
+                <step step-id="Generate Other Sitemaps" type="custom.GenerateOtherSitemaps" enforce-restart="false">
+                    <description/>
+                    <parameters/>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <stop-job/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow-template>
+        </split>
+        <split sequential="false">
+            <contexts template-ref="template_33">
+                <context site-id="EU"/>
+                <context site-id="UKIE"/>
+            </contexts>
+            <flow-template template-id="template_33">
+                <step step-id="Download Product Sitemaps" type="custom.DownloadProductSitemaps" enforce-restart="false">
+                    <description/>
+                    <parameters/>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <stop-job/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow-template>
+        </split>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="true">
+                <mark-job-as-hanging/>
+                <send-mail>
+                    <from>job-notifications@underarmour.com</from>
+                    <to>intldev@underarmour.com</to>
+                </send-mail>
+            </on-running>
+            <on-retry enabled="true">
+                <send-mail>
+                    <from>job-notifications@underarmour.com</from>
+                    <to>intldev@underarmour.com</to>
+                </send-mail>
+            </on-retry>
+            <on-exit status="ERROR" enabled="true">
+                <send-mail>
+                    <from>job-notifications@underarmour.com</from>
+                    <to>intldev@underarmour.com</to>
+                </send-mail>
+            </on-exit>
+        </rules>
+        <triggers>
+            <run-recurring enabled="false">
+                <recurrence>
+                    <date-from>2020-12-23Z</date-from>
+                    <start-time>22:36:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Saturday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Import Order Status - Refund" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Move Order Files UKIE" type="custom.MoveOrderFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="sourceFolder">src/feeds/orderstatus/eu</parameter>
+                    <parameter name="filePattern">^.*Returns*.*xml</parameter>
+                    <parameter name="orderPattern">DEVUKIE</parameter>
+                    <parameter name="targetFolder">src/feeds/orderstatus/ukie</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="Import Order Refund EU" type="custom.OrderRefund" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="workingFolder">src/feeds/orderstatus/eu/</parameter>
+                    <parameter name="filePattern">^.*Returns*.*xml</parameter>
+                    <parameter name="sortDirection">ASCENDING</parameter>
+                    <parameter name="zipFiles">true</parameter>
+                    <parameter name="targetFolder">/src/archive/orderRefund/eu</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="UKIE"/>
+            <step step-id="Import Order Refund UKIE" type="custom.OrderRefund" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="workingFolder">src/feeds/orderstatus/ukie</parameter>
+                    <parameter name="filePattern">^.*Returns*.*xml</parameter>
+                    <parameter name="sortDirection">ASCENDING</parameter>
+                    <parameter name="zipFiles">true</parameter>
+                    <parameter name="targetFolder">/src/archive/orderRefund/ukie</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="true">
+                <mark-job-as-hanging/>
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>Sachin.S@hcl.com, narasimharaju_pinne@hcl.com, mohammedtaher.jamboo@hcl.com,mamta.galande@hcl.com, mayank.ma@hcl.com, sarita.choudhary@hcl.com</to>
+                </send-mail>
+            </on-running>
+            <on-retry enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>Sachin.S@hcl.com, narasimharaju_pinne@hcl.com, mohammedtaher.jamboo@hcl.com,mamta.galande@hcl.com, mayank.ma@hcl.com, sarita.choudhary@hcl.com</to>
+                </send-mail>
+            </on-retry>
+            <on-exit status="OK,ERROR" enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>Sachin.S@hcl.com, narasimharaju_pinne@hcl.com, mohammedtaher.jamboo@hcl.com,mamta.galande@hcl.com, mayank.ma@hcl.com, sarita.choudhary@hcl.com</to>
+                </send-mail>
+            </on-exit>
+        </rules>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2019-12-10Z</date-from>
+                    <start-time>00:00:00.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Saturday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Automated Returns XML" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="Generate XML EU" type="custom.AutomatedReturnXML" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Action">AutomatedReturnXML-GenerateXML</parameter>
+                    <parameter name="Verbose">true</parameter>
+                </parameters>
+            </step>
+            <step step-id="Upload XML EU" type="custom.CSComponents.FtpUpload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_EMEA</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">^DEV.*Return.*xml</parameter>
+                    <parameter name="SourceFolder">src/feeds/returns</parameter>
+                    <parameter name="TargetFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_emea/in/returns</parameter>
+                    <parameter name="Recursive">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Zip XML EU" type="custom.ZipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="filePattern">^DEV.*Return.*xml</parameter>
+                    <parameter name="sourceFolder">src/feeds/returns</parameter>
+                    <parameter name="targetFolder">src/archive/returns</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">MULTIPLE_ARCHIVE_FILES</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="UKIE"/>
+            <step step-id="Generate XML UKIE" type="custom.AutomatedReturnXML" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Action">AutomatedReturnXML-GenerateXML</parameter>
+                    <parameter name="Verbose">true</parameter>
+                </parameters>
+            </step>
+            <step step-id="Upload XML UKIE" type="custom.CSComponents.FtpUpload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">SFTP-XML</parameter>
+                    <parameter name="FilePattern">^DEVUKIE.*Return.*xml</parameter>
+                    <parameter name="SourceFolder">src/feeds/returns</parameter>
+                    <parameter name="TargetFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_emea/in/returns</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Zip XML UKIE" type="custom.ZipFiles" enforce-restart="false">
+                <description/>
+				<parameters>
+                    <parameter name="filePattern">^DEVUKIE.*Return.*xml</parameter>
+                    <parameter name="sourceFolder">src/feeds/returns</parameter>
+                    <parameter name="targetFolder">src/archive/returns</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">MULTIPLE_ARCHIVE_FILES</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-06-10Z</date-from>
+                    <start-time>19:47:56.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Saturday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="sizeAutoCategorization" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_58">
+                <context site-id="EU"/>
+                <context site-id="UKIE"/>
+            </contexts>
+            <flow-template template-id="template_58">
+                <step step-id="CheckPrepCategory" type="custom.checkPrepCategory" enforce-restart="false">
+                    <description/>
+                    <parameters/>
+                </step>
+            </flow-template>
+        </split>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="AutoSize" type="custom.assignSize" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FootwearSizeVariation">sizevariation_EU</parameter>
+                    <parameter name="CatalogID">EMEACatalog</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import Catalog" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/sizeAssociation/eu</parameter>
+                    <parameter name="FileNamePattern">catalog_size_associations_eu.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">WARN</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">ERROR</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="UKIE"/>
+            <step step-id="AutoSize UKIE" type="custom.assignSize" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FootwearSizeVariation">sizevariation_UKIE</parameter>
+                    <parameter name="CatalogID">EMEACatalog</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import Catalog UKIE" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/sizeAssociation/ukie</parameter>
+                    <parameter name="FileNamePattern">catalog_size_associations_ukie.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">WARN</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">ERROR</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2021-05-25Z</date>
+                <time>13:06:04.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    <job job-id="Create External Profiles" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="Create External Profiles - EU" type="custom.createExternalProfiles" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="UKIE"/>
+            <step step-id="Create External Profiles - UKIE" type="custom.createExternalProfiles" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2021-06-07Z</date>
+                <time>09:00:48.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    <job job-id="Health Report" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ZipPreviousExecution" type="custom.ZipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="sourceFolder">src/feeds/inventoryHealth</parameter>
+                    <parameter name="targetFolder">src/archive/inventoryHealth</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <split sequential="false">
+            <flow>
+                <context site-id="EU"/>
+                <step step-id="HealthOnlineOnly_EU" type="custom.InventoryHealth" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="exportDirectory">src/feeds/inventoryHealth</parameter>
+                        <parameter name="fileName">HealthReport_OnlineOnly_IncludeZeros_</parameter>
+                        <parameter name="pricebookValue">Euro</parameter>
+                        <parameter name="productMode">ONLINE_ONLY</parameter>
+                        <parameter name="outputRow">SKU_LEVEL</parameter>
+                        <parameter name="includeZeroCounts">true</parameter>
+                    </parameters>
+                </step>
+ 			 </flow>
+            <flow>
+                <context site-id="UKIE"/>
+                <step step-id="HealthOnlineOnly_UKIE" type="custom.InventoryHealth" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="exportDirectory">src/feeds/inventoryHealth</parameter>
+                        <parameter name="fileName">HealthReport_OnlineOnly_IncludeZeros_</parameter>
+                        <parameter name="pricebookValue">GBP</parameter>
+                        <parameter name="productMode">ONLINE_ONLY</parameter>
+                        <parameter name="outputRow">SKU_LEVEL</parameter>
+                        <parameter name="includeZeroCounts">true</parameter>
+                    </parameters>
+                </step>
+            </flow>
+        </split>
+        <split sequential="false">
+            <flow>
+                <context site-id="EU"/>
+                <step step-id="HealthOnlineOnly_NoZeroCounts_EU" type="custom.InventoryHealth" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="exportDirectory">src/feeds/inventoryHealth</parameter>
+                        <parameter name="fileName">HealthReport_OnlineOnly_NoZeroCount_SKU_</parameter>
+                        <parameter name="pricebookValue">Euro</parameter>
+                        <parameter name="productMode">ONLINE_ONLY</parameter>
+                        <parameter name="outputRow">SKU_LEVEL</parameter>
+                        <parameter name="includeZeroCounts">false</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="UKIE"/>
+                <step step-id="HealthOnlineOnly_NoZeroCounts_UKIE" type="custom.InventoryHealth" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="exportDirectory">src/feeds/inventoryHealth</parameter>
+                        <parameter name="fileName">HealthReport_OnlineOnly_NoZeroCount_SKU_</parameter>
+                        <parameter name="pricebookValue">GBP</parameter>
+                        <parameter name="productMode">ONLINE_ONLY</parameter>
+                        <parameter name="outputRow">SKU_LEVEL</parameter>
+                        <parameter name="includeZeroCounts">false</parameter>
+                    </parameters>
+                </step>
+            </flow>
+        </split>
+        <split sequential="false">
+            <flow>
+                <context site-id="EU"/>
+                <step step-id="HealthALL_EU" type="custom.InventoryHealth" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="exportDirectory">src/feeds/inventoryHealth</parameter>
+                        <parameter name="fileName">HealthReport_ALL_SKU_IncludeZeros_</parameter>
+                        <parameter name="pricebookValue">Euro</parameter>
+                        <parameter name="productMode">ALL</parameter>
+                        <parameter name="outputRow">SKU_LEVEL</parameter>
+                        <parameter name="includeZeroCounts">true</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="UKIE"/>
+                <step step-id="HealthALL_UKIE" type="custom.InventoryHealth" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="exportDirectory">src/feeds/inventoryHealth</parameter>
+                        <parameter name="fileName">HealthReport_ALL_SKU_IncludeZeros_</parameter>
+                        <parameter name="pricebookValue">GBP</parameter>
+                        <parameter name="productMode">ALL</parameter>
+                        <parameter name="outputRow">SKU_LEVEL</parameter>
+                        <parameter name="includeZeroCounts">true</parameter>
+                    </parameters>
+                </step>
+            </flow>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-06-17Z</date-from>
+                    <start-time>11:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Generate_Outlet_Data" priority="0">
+        <description>Update product.custom.outletColors, product.custom.experienceType, and product.custom.isOutlet attributes and import, then add active styles from outlet categories based on outletColors data.
+11/16/2020:Ani:Job time moved to 10PM to accomodate changes to replication for 2020 Thanksgiving
+11/18/2020:Ani:Job time moved to 11:30 PM to accomodate changes to replication for 2020 Thanksgiving
+12/29/2020:AH: Changing frequency to every 6 hours to attempt to resolve false-positive issues from merch team</description>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_32">
+                <context site-id="EU"/>
+                <context site-id="UKIE"/>
+            </contexts>
+            <flow-template template-id="template_32">
+                <step step-id="GenerateOutletAttributesXML" type="custom.assignOutletStatus" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="storefrontCatalogID">EMEACatalog</parameter>
+                        <parameter name="updateUnorderableVariants">true</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportOutletAttributes" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/outletStatus</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">src/archive/outletStatus</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <split sequential="false">
+            <contexts template-ref="template_36">
+                <context site-id="EU"/>
+                <context site-id="UKIE"/>
+            </contexts>
+            <flow-template template-id="template_36">
+                <step step-id="GenerateOutletCategoriesXML" type="custom.cleanUpOutletCategories" enforce-restart="false">
+                    <description>Assign (or remove) outlet categories from style products</description>
+                    <parameters>
+                        <parameter name="storefrontCatalogID">EMEACatalog_storefront</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportOutletCategories" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/outletStatus</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">src/archive/outletStatus</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <split sequential="false">
+            <contexts template-ref="template_41">
+                <context site-id="EU"/>
+                <context site-id="UKIE"/>
+            </contexts>
+            <flow-template template-id="template_41">
+                <step step-id="Product Reindex" type="SearchReindex" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="Product related search indexes">true</parameter>
+                        <parameter name="Active data search index">false</parameter>
+                        <parameter name="Content search index">false</parameter>
+                        <parameter name="Indexer Type">Full Index Rebuild</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules>
+            <on-running runtime-threshold="120m" enabled="true">
+                <mark-job-as-hanging/>
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>SFCC_L4@underarmour.com</to>
+                    <cc>ppandey@liveareacx.com,dmaher@underarmour.com,schaki@underarmour.com,anirudha.gandhe@underarmour.com,lcarmona@underarmour.com</cc>
+                    <bcc>UA_APPS_SFRA@hcl.com</bcc>
+                </send-mail>
+            </on-running>
+            <on-retry enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>SFCC_L4@underarmour.com</to>
+                    <cc>dmaher@underarmour.com,schaki@underarmour.com,anirudha.gandhe@underarmour.com,lcarmona@underarmour.com</cc>
+                    <bcc>UA_APPS_SFRA@hcl.com</bcc>
+                </send-mail>
+            </on-retry>
+            <on-exit status="ERROR" enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>SFCC_L4@underarmour.com</to>
+                    <cc>dmaher@underarmour.com,schaki@underarmour.com,anirudha.gandhe@underarmour.com,lcarmona@underarmour.com</cc>
+                    <bcc>UA_APPS_SFRA@hcl.com</bcc>
+                </send-mail>
+            </on-exit>
+        </rules>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-03-14Z</date-from>
+                    <start-time>05:30:00.000Z</start-time>
+                    <interval>6h</interval>
+                    <day-of-week>
+                        <weekday>Thursday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Wednesday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="OrderConfirmationEmailTriggers" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_101">
+                <context site-id="EU"/>
+                <context site-id="UKIE"/>
+            </contexts>
+            <flow-template template-id="template_101">
+                <step step-id="OrderConfirmationEmailTriggers" type="custom.orderConfimationEmail" enforce-restart="false">
+                    <description>Trigger order confirmation email through this job</description>
+                    <parameters/>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-09-20Z</date-from>
+                    <start-time>15:20:16.000Z</start-time>
+                    <interval>1m</interval>
+                    <day-of-week>
+                        <weekday>Saturday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Thursday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="NewsLetterSignUp" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_115">
+                <context site-id="EU"/>
+                <context site-id="UKIE"/>
+            </contexts>
+            <flow-template template-id="template_115">
+                <step step-id="NewsLetterSignUp" type="ExecuteScriptModule" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="ExecuteScriptModule.Module">app_ua_core/cartridge/scripts/util/newsLetterJob.js</parameter>
+                        <parameter name="ExecuteScriptModule.FunctionName">execute</parameter>
+                        <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="false">
+                <recurrence>
+                    <date-from>2021-12-19Z</date-from>
+                    <start-time>00:00:00.000Z</start-time>
+                    <interval>1h</interval>
+                    <day-of-week>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Monday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="MCC-Resend-Email-Triggers" priority="0">
+        <description>Identify the failed shipment confirmation email messages and reprocess</description>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_26">
+                <context site-id="EU"/>
+                <context site-id="UKIE"/>
+            </contexts>
+            <flow-template template-id="template_26">
+                <step step-id="MCC-Resend-Email-Triggers" type="custom.ShippingEmailTriggerFailed" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="maxConsecutiveServiceErrorCount">5</parameter>
+                        <parameter name="maxResendAttempts">3</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2022-06-08Z</date>
+                <time>11:30:19.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
+    <job job-id="Sitemaps XMLs Import" priority="0">
+        <description>Job used to import the custom sitemaps XMLs from Google Cloud SFTP</description>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Download Sitemaps XMLs Files from SFTP" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>Download Sitemaps XMLs Files from SFTP</description>
+                <parameters>
+                    <parameter name="ServiceID">sitemaps_SFTP_service</parameter>
+                    <parameter name="FilePattern">^.*zip</parameter>
+                    <parameter name="SourceFolder">/home/seo_analytics/sitemaps/</parameter>
+                    <parameter name="TargetFolder">src/sitemaps/zip</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+            <step step-id="UnZip Sitemaps XMLs files" type="custom.UnzipFiles" enforce-restart="false">
+                <description>UnZip Sitemaps XMLs files</description>
+                <parameters>
+                    <parameter name="filePattern">^.*zip</parameter>
+                    <parameter name="sourceFolder">src/sitemaps/zip</parameter>
+                    <parameter name="targetFolder">src/sitemaps</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="Import Sitemaps XMLs EU" type="ExecuteScriptModule" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ExecuteScriptModule.Module">bc_jobs/cartridge/scripts/sitemaps/ImportSitemapsXML.js</parameter>
+                    <parameter name="ExecuteScriptModule.FunctionName">execute</parameter>
+                    <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                    <parameter name="ExecuteScriptModule.TimeoutInSeconds">3600</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <continue/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="UKIE"/>
+            <step step-id="Import Sitemaps XMLs UKIE" type="ExecuteScriptModule" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ExecuteScriptModule.Module">bc_jobs/cartridge/scripts/sitemaps/ImportSitemapsXML.js</parameter>
+                    <parameter name="ExecuteScriptModule.FunctionName">execute</parameter>
+                    <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                    <parameter name="ExecuteScriptModule.TimeoutInSeconds">3600</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <continue/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2022-08-24Z</date>
+                <time>10:51:42.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
+    <job job-id="Image Assignment Only" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="Check Prep Category" type="custom.checkPrepCategory" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">EMEACatalog</parameter>
+                    <parameter name="storefrontCatalogID">EMEACatalog_storefront</parameter>
+                    <parameter name="prepImageCategoryID">prep_image</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="NOPRODUCTS">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="Auto Video Assignment" type="custom.assignVideos" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">EMEACatalog</parameter>
+                    <parameter name="storefrontCatalogID">EMEACatalog_storefront</parameter>
+                    <parameter name="prepImageCategoryID">prep_image</parameter>
+                    <parameter name="directory">/src/feeds/imageAssociation/imageonlyjob/</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="Auto Image Assignment" type="custom.assignImages" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">EMEACatalog</parameter>
+                    <parameter name="storefrontCatalogID">EMEACatalog_storefront</parameter>
+                    <parameter name="prepImageCategoryID">prep_image</parameter>
+                    <parameter name="directory">/src/feeds/imageAssociation/imageonlyjob/</parameter>
+                    <parameter name="enableApparelSwatchImage">false</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import Image Video Assignment" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/imageAssociation/imageonlyjob</parameter>
+                    <parameter name="FileNamePattern">.*associations.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="Auto Look Assignment" type="custom.assignShopTheLook" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="IsQueryAllForSiteProducts">false</parameter>
+                    <parameter name="limitDOMServiceCall">15</parameter>
+                    <parameter name="shopTheLookthresholdDays">30</parameter>
+                    <parameter name="masterCatalogID">EMEACatalog</parameter>
+                    <parameter name="prepImageCategoryID">prep_image</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import Auto Look Assignment" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/shopTheLook</parameter>
+                    <parameter name="FileNamePattern">.*ShopTheLook.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">archive/autoLook</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="EU"/>
+            <step step-id="Cleanup Prep Category" type="custom.cleanupPrepCategory" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">EMEACatalog</parameter>
+                    <parameter name="storefrontCatalogID">EMEACatalog_storefront</parameter>
+                    <parameter name="prepImageCategoryID">prep_image</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import Clean Prep Category" type="ImportCatalog" enforce-restart="true">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/cleanupPrepCategory</parameter>
+                    <parameter name="FileNamePattern">^cleanup_prep_category.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Delete</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="false">
+                <mark-job-as-hanging/>
+            </on-running>
+        </rules>
+        <triggers>
+            <run-once enabled="false">
+                <date>2020-06-20Z</date>
+                <time>02:38:00.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    
+</jobs>

@@ -1,0 +1,14 @@
+<isinclude template="components/modules"/>
+<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableCOD')}"> 
+	<div class="tab-pane cod-payments-content apac-payments ${paymentOption.ID.toLowerCase() + '_tab_pane'}"
+	    id="${paymentOption.ID.toLowerCase() + '_tab_pane'}" role="tabpanel" data-method-id="cod">
+	    <fieldset class="payment-form-fields">
+	        <input type="hidden" class="form-control" name="${pdict.forms.billingForm.paymentMethod.htmlName}"
+	            value="COD" />
+	        <isinclude template="checkout/billing/paymentOptions/codPaymentsContent" />
+	        <span>
+            	<iscontentasset aid="cod-instruction-text" />
+        	</span>
+	    </fieldset>
+	</div>
+</isif>

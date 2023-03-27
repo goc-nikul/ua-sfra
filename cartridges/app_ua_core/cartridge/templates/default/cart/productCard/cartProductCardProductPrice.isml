@@ -1,0 +1,19 @@
+<div class="b-productcard_footer">
+    <isif condition="${!lineItem.isBonusProductLineItem}"/>
+        <div class="b-productcard_row">
+            <!--- quantity --->
+            <div class="b-productcard_item_quantity line-item-quantity">
+                <isinclude template="checkout/productCard/productCardQuantitySelector" />
+            </div>
+             
+         <isif condition="${lineItem.custom.isPreOrder && lineItem.custom.preOrderProductTileMessage}">
+            <div class="b-productcard_item-preorder">
+                 <p class="b-productcard_item-preorder-mask">${lineItem.custom.preOrderProductTileMessage}</p>
+            </div>
+        </isif>
+            <!--- extra slot for spacing reasons due to large remove button --->
+            <div class="b-productcard_remove_item remove-line-item-lg"></div>
+        </div>
+    </isif>
+</div>
+

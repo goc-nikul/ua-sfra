@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
+    <custom-type type-id="ProductImageAssignments">
+        <display-name xml:lang="x-default">ProductImageAssignments</display-name>
+        <description xml:lang="x-default">This custom object is used to archive product image assignment requests make to master product definitions using the Scene 7 Recipe Assignment Tool Set.</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <retention-days>90</retention-days>
+        <key-definition attribute-id="ASSIGNMENTID">
+            <display-name xml:lang="x-default">ASSIGNMENTID</display-name>
+            <description xml:lang="x-default">Describes the unique identifier for each product / image assignment record.</description>
+            <type>string</type>
+            <min-length>0</min-length>
+            <field-length>0</field-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="IMAGEASSIGNMENTJSON">
+                <display-name xml:lang="x-default">IMAGEASSIGNMENTJSON</display-name>
+                <description xml:lang="x-default">Describes the collection of image assignments applied to a given master product.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>0</field-length>
+                <field-height>10</field-height>
+            </attribute-definition>
+            <attribute-definition attribute-id="PRODUCTCODE">
+                <display-name xml:lang="x-default">PRODUCTCODE</display-name>
+                <description xml:lang="x-default">Describes the style or material code to which the collection of image assignments will be applied.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>7</min-length>
+                <field-length>11</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="SITEID">
+                <display-name xml:lang="x-default">SITEID</display-name>
+                <description xml:lang="x-default">Describes the site to which a given product / image assignment document is associated.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="USERNAME">
+                <display-name xml:lang="x-default">USERNAME</display-name>
+                <description xml:lang="x-default">Describes the name of the Business Manager user that performed the product / image assignment.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="ATTRIBUTES">
+                <display-name xml:lang="x-default">ATTRIBUTES</display-name>
+                <attribute attribute-id="ASSIGNMENTID"/>
+                <attribute attribute-id="SITEID"/>
+                <attribute attribute-id="PRODUCTCODE"/>
+                <attribute attribute-id="IMAGEASSIGNMENTJSON"/>
+                <attribute attribute-id="USERNAME"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="RecipeCategories">
+        <display-name xml:lang="x-default">RecipeCategories</display-name>
+        <description xml:lang="x-default">This custom object is used to define each of the Scene 7 recipe categories available to the current Demandware instance.</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="CATEGORYNAME">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="DESCRIPTION">
+                <display-name xml:lang="x-default">DESCRIPTION</display-name>
+                <description xml:lang="x-default">Provides a description / overview for a given recipe category and how it is used.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="SEQUENCE">
+                <display-name xml:lang="x-default">SEQUENCE</display-name>
+                <description xml:lang="x-default">Describes the order in which recipe categories are displayed.</description>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>0</field-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="ATTRIBUTES">
+                <display-name xml:lang="x-default">ATTRIBUTES</display-name>
+                <attribute attribute-id="CATEGORYNAME"/>
+                <attribute attribute-id="DESCRIPTION"/>
+                <attribute attribute-id="SEQUENCE"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="RecipeDefinitionAuditHistory">
+        <display-name xml:lang="x-default">RecipeDefinitionAuditHistory</display-name>
+        <description xml:lang="x-default">This custom object is used to audit changes made to a given Scene 7 recipe definition.</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <retention-days>90</retention-days>
+        <key-definition attribute-id="AUDITID">
+            <display-name xml:lang="x-default">AUDITID</display-name>
+            <description xml:lang="x-default">Describes the unique identifier for a given recipe definition history record.</description>
+            <type>string</type>
+            <min-length>0</min-length>
+            <field-length>0</field-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="CATEGORYNAME">
+                <display-name xml:lang="x-default">CATEGORYNAME</display-name>
+                <description xml:lang="x-default">Describes the name of the recipe category associated to a given recipe definition.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="DEF">
+                <display-name xml:lang="x-default">DEF</display-name>
+                <description xml:lang="x-default">Describes the key / value pairs that represent the recipe definition in JSON format.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>100</field-length>
+                <field-height>10</field-height>
+            </attribute-definition>
+            <attribute-definition attribute-id="ORIENTATION">
+                <display-name xml:lang="x-default">ORIENTATION</display-name>
+                <description xml:lang="x-default">Describes the JSON document that contains the Image Orientation preferences for a given recipe.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>100</field-length>
+                <field-height>10</field-height>
+            </attribute-definition>
+            <attribute-definition attribute-id="RECIPE">
+                <display-name xml:lang="x-default">RECIPE</display-name>
+                <description xml:lang="x-default">Represents the recipe-segment of the Scene 7 image url that can be applied to multiple product variant representations.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>250</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="RECIPEDEFINITIONID">
+                <display-name xml:lang="x-default">RECIPEDEFINITIONID</display-name>
+                <description xml:lang="x-default">Describes the primary key for a given recipeCategory / recipeViewType Scene 7 recipe definition.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>100</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="SAMPLEURL">
+                <display-name xml:lang="x-default">SAMPLEURL</display-name>
+                <description xml:lang="x-default">Describes the sample url that should render an example of a given recipe definition.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>250</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="SITEID">
+                <display-name xml:lang="x-default">SITEID</display-name>
+                <description xml:lang="x-default">Describes the site through which a given recipe definition change was made.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="USERNAME">
+                <display-name xml:lang="x-default">USERNAME</display-name>
+                <description xml:lang="x-default">Describes the user that made the recorded change to a recipe definition.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="VIEWTYPE">
+                <display-name xml:lang="x-default">VIEWTYPE</display-name>
+                <description xml:lang="x-default">Describes the recipe view type associated to a given recipe definition.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="ATTRIBUTES">
+                <display-name xml:lang="x-default">ATTRIBUTES</display-name>
+                <attribute attribute-id="AUDITID"/>
+                <attribute attribute-id="RECIPEDEFINITIONID"/>
+                <attribute attribute-id="CATEGORYNAME"/>
+                <attribute attribute-id="VIEWTYPE"/>
+                <attribute attribute-id="SITEID"/>
+                <attribute attribute-id="USERNAME"/>
+                <attribute attribute-id="ORIENTATION"/>
+                <attribute attribute-id="DEF"/>
+                <attribute attribute-id="RECIPE"/>
+                <attribute attribute-id="SAMPLEURL"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="RecipeDefinitions">
+        <display-name xml:lang="x-default">RecipeDefinitions</display-name>
+        <description xml:lang="x-default">This custom object is used to manage each of the individual Scene 7 recipe definitions for a given recipe category / view-type combination.</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="RECIPEDEFINITIONID">
+            <display-name xml:lang="x-default">RECIPEDEFINITIONID</display-name>
+            <description xml:lang="x-default">Describes the primary-key of a given recipe definition.</description>
+            <type>string</type>
+            <min-length>0</min-length>
+            <field-length>0</field-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="CATEGORYNAME">
+                <display-name xml:lang="x-default">CATEGORYNAME</display-name>
+                <description xml:lang="x-default">Describes the name of the recipe category associated to a given recipe definition.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="DEF">
+                <display-name xml:lang="x-default">DEF</display-name>
+                <description xml:lang="x-default">Describes the key / value pairs that represent the recipe definition in JSON format.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>100</field-length>
+                <field-height>10</field-height>
+            </attribute-definition>
+            <attribute-definition attribute-id="ORIENTATION">
+                <display-name xml:lang="x-default">ORIENTATION</display-name>
+                <description xml:lang="x-default">Describes the JSON document that contains the Image Orientation preferences for a given recipe.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>100</field-length>
+                <field-height>10</field-height>
+            </attribute-definition>
+            <attribute-definition attribute-id="RECIPE">
+                <display-name xml:lang="x-default">RECIPE</display-name>
+                <description xml:lang="x-default">Represents the recipe-segment of the Scene 7 image url that can be applied to multiple product variant representations.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>250</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="SAMPLEURL">
+                <display-name xml:lang="x-default">SAMPLEURL</display-name>
+                <description xml:lang="x-default">Describes the sample url that should render an example of a given recipe definition.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>250</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="USERNAME">
+                <display-name xml:lang="x-default">USERNAME</display-name>
+                <description xml:lang="x-default">Describes the user that last made a change to a given recipe definition.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="VIEWTYPE">
+                <display-name xml:lang="x-default">VIEWTYPE</display-name>
+                <description xml:lang="x-default">Describes the recipe view type associated to a given recipe definition.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="ATTRIBUTES">
+                <display-name xml:lang="x-default">ATTRIBUTES</display-name>
+                <attribute attribute-id="RECIPEDEFINITIONID"/>
+                <attribute attribute-id="CATEGORYNAME"/>
+                <attribute attribute-id="VIEWTYPE"/>
+                <attribute attribute-id="ORIENTATION"/>
+                <attribute attribute-id="DEF"/>
+                <attribute attribute-id="RECIPE"/>
+                <attribute attribute-id="SAMPLEURL"/>
+                <attribute attribute-id="USERNAME"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="RecipeViewTypes">
+        <display-name xml:lang="x-default">RecipeViewTypes</display-name>
+        <description xml:lang="x-default">This custom object will be used to store all initial recipe view-type definitions.  These definitions should mirror the catalog image-types for a given site.</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="VIEWTYPEID">
+            <display-name xml:lang="x-default">VIEWTYPEID</display-name>
+            <description xml:lang="x-default">The viewTypeID represents the external primary-key for a given view type.</description>
+            <type>string</type>
+            <min-length>0</min-length>
+            <field-length>0</field-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="ACTIVE">
+                <display-name xml:lang="x-default">ACTIVE</display-name>
+                <description xml:lang="x-default">Describes the active status for a given view-type record (true = active, false = in-active / not in use).</description>
+                <type>boolean</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="DESCRIPTION">
+                <display-name xml:lang="x-default">DESCRIPTION</display-name>
+                <description xml:lang="x-default">Provides a summary and purpose for a given view-type and recipe display template.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="DEVICE">
+                <display-name xml:lang="x-default">DEVICE</display-name>
+                <description xml:lang="x-default">Describes the device that a given view-type is designed to cater to (mobile, tablet, or desktop).</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>25</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="HEIGHT">
+                <display-name xml:lang="x-default">HEIGHT</display-name>
+                <description xml:lang="x-default">Describes the default height for a given image view-type.</description>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>4</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="IMAGEFORMAT">
+                <display-name xml:lang="x-default">IMAGEFORMAT</display-name>
+                <description xml:lang="x-default">Describes the default image-format for a given view-type (ex. png-alpha, jpg, etc).</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>4</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="IMAGEPREF">
+                <display-name xml:lang="x-default">IMAGEPREF</display-name>
+                <description xml:lang="x-default">Describes the image-preference for a given view-type (ex. model, product, lay-down, etc).</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>25</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="NAME">
+                <display-name xml:lang="x-default">NAME</display-name>
+                <description xml:lang="x-default">Describes the internal / merchant-facing name for a given image view-type.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="PAGE">
+                <display-name xml:lang="x-default">PAGE</display-name>
+                <description xml:lang="x-default">Describes the page that a given image view-type would be visible on (ex. product-grid, product-detail, home-page, etc).</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>25</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="SEQUENCE">
+                <display-name xml:lang="x-default">SEQUENCE</display-name>
+                <description xml:lang="x-default">Describes the order / sequence in which view-types should be displayed.</description>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>5</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="WIDTH">
+                <display-name xml:lang="x-default">WIDTH</display-name>
+                <description xml:lang="x-default">Describes the default width (in pixels) for a given view-type.</description>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>4</field-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="ATTRIBUTES">
+                <display-name xml:lang="x-default">ATTRIBUTES</display-name>
+                <attribute attribute-id="VIEWTYPEID"/>
+                <attribute attribute-id="NAME"/>
+                <attribute attribute-id="DESCRIPTION"/>
+                <attribute attribute-id="HEIGHT"/>
+                <attribute attribute-id="WIDTH"/>
+                <attribute attribute-id="IMAGEPREF"/>
+                <attribute attribute-id="IMAGEFORMAT"/>
+                <attribute attribute-id="PAGE"/>
+                <attribute attribute-id="DEVICE"/>
+                <attribute attribute-id="ACTIVE"/>
+                <attribute attribute-id="SEQUENCE"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+</metadata>

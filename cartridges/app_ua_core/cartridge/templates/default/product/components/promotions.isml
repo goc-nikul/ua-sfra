@@ -1,0 +1,67 @@
+<isif condition="${typeof product !== 'undefined'}">
+    <isset name="promotionCallOutMessage" value="${pdict.CallOutMessagepromotions}" scope="page" />
+    <isset name="promotioncalloutMsg" value="${promotionCallOutMessage ? promotionCallOutMessage.inclusionPromotions : null}" scope="page" />
+    <isif condition="${!empty(promotioncalloutMsg) && promotioncalloutMsg.length > 0}">
+        <isloop items="${promotioncalloutMsg}" var="promotioncalloutMsg">
+            <isif condition="${!empty(promotioncalloutMsg.calloutMsg)}">
+                <div class="b-promo-tooltip-content">
+                    <span class="hide-mobile">
+                        <span class="b-promo-tooltip-content-text">
+                            <isprint value="${promotioncalloutMsg.calloutMsg}" encoding="off" />
+                        </span>
+                        <isif condition="${!empty(promotioncalloutMsg.details)}">
+                            <span class="g-tooltip-icon g-tooltip bfx-remove-element">
+                                <span class="g-tooltip-text">
+                                    <isprint value="${promotioncalloutMsg.details}" encoding="off" />
+                                </span>
+                            </span>
+                        <iselseif condition="${empty(promotioncalloutMsg.details)}">
+                            <span class="g-tooltip-icon g-tooltip bfx-remove-element hide">
+                                <span class="g-tooltip-text">
+                                    <isprint value="${promotioncalloutMsg.details}" encoding="off" />
+                                </span>
+                            </span>
+                        </isif>
+                    </span>
+                    <span class="hide-desktop">
+                        <span class="b-promo-tooltip-content-text">
+                            <isprint value="${promotioncalloutMsg.calloutMsg}" encoding="off" />
+                        </span>
+                        <isif condition="${!empty(promotioncalloutMsg.details)}">
+                            <span class="g-tooltip-icon g-tooltip bfx-remove-element">
+                                <span class="g-tooltip-arrow"></span>
+                            </span>
+                            <span class="g-tooltip-text">
+                                <isprint value="${promotioncalloutMsg.details}" encoding="off" />
+                            </span>
+                        </isif>
+                    </span>
+                </div>
+            </isif>
+        </isloop>
+    </isif>
+
+    <isset name="NegativeCallOutMessage" value="${promotionCallOutMessage ? promotionCallOutMessage.exclusionPromotions : null}" scope="page" />
+    <isif condition="${!empty(NegativeCallOutMessage) && NegativeCallOutMessage.length > 0}">
+        <isloop items="${NegativeCallOutMessage}" var="exclusionID">
+            <isif condition="${!empty(exclusionID.custom.exclusionCalloutMsg)}">
+                <div class="b-promo-tooltip-content b-not-eligible">
+                    <span class="hide-mobile">
+                        <span class="b-promo-tooltip-content-text t-italic">
+                            <isprint value="${exclusionID.custom.exclusionCalloutMsg}" encoding="off" /><span class="u-negative-content">
+                                <isprint value="${exclusionID.ID}" />
+                            </span>
+                        </span>
+                    </span>
+                    <span class="hide-desktop">
+                        <span class="b-promo-tooltip-content-text t-italic">
+                            <isprint value="${exclusionID.custom.exclusionCalloutMsg}" encoding="off" /><span class="u-negative-content-mobile">
+                                <isprint value="${exclusionID.ID}" />
+                            </span>
+                        </span>
+                    </span>
+                </div>
+            </isif>
+        </isloop>
+    </isif>
+</isif>

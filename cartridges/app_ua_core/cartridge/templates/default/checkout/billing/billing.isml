@@ -1,0 +1,112 @@
+<isset name="isRadioPaymentExperienceEnabled" value="${require('*/cartridge/scripts/checkout/checkoutHelpers').isRadioPaymentExperienceEnabled()}" scope="page" />
+<div id="payment" class="card payment-form b-payment-info js-payment-form-info ${isRadioPaymentExperienceEnabled ? 'b-payment-new_design' : ''}">
+    <div class="card-header clearfix b-shipping-summary_header-line">
+        <h2 class="pull-left card-header-custom b-shipping-summary_header">${Resource.msg('heading.payment.method', 'checkout', null)}</h2>
+    </div>
+    <isset name="shipAsBill" value="${pdict.forms.billingForm.shippingAddressUseAsBillingAddress}" scope="page" />  
+    <isset name ="ShipToCollection"  value ="${pdict.isCommercialPickup}" scope="page" />
+	   <div class="js-vip-container ${pdict.vipPoints && (pdict.vipPoints.pointsApplied || pdict.vipPoints.partialPointsApplied) ? '' : 'hide' }">
+	       <isinclude template="checkout/vip/vipallotmentpoints" />
+	   </div>    
+	
+    <isif condition="${pdict.isKlarnaEnabled}">
+    	<div class="klarna-payment-error hide"><isprint value="${Resource.msg('klarna.payment.error','checkout',null)}" /></div>
+    </isif>
+    <iscomment>new site Preference to enable/disable the Gift-Card section</iscomment>
+    <isif condition="${'giftCardRedemptionEnabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.getCustomPreferenceValue('giftCardRedemptionEnabled')}">  
+        <isset name ="giftCardEnanbleStatus" value="${!ShipToCollection && pdict.eligiblePaymentMethods.giftCard && (!pdict.isVIP || (pdict.isVIP && dw.system.Site.current.getCustomPreferenceValue('enableGiftCardPaymentForVIP') && !(pdict.order.vipPoints && pdict.order.vipPoints.pointsApplied)))}" scope="page"/>
+        <div class="js-giftcard-container ${giftCardEnanbleStatus ? '' : 'hide'}">
+            <isinclude template="checkout/giftcard/giftcardForm" />
+        </div>
+    </isif>
+    <div class="card-body ${pdict.order.isVIPOrder && !pdict.order.vipPoints.partialPointsApplied ? 'hide' : ''}">
+        <form autocomplete="on" class="js-checkout-forms" method="POST" action="${URLUtils.url('CheckoutServices-SubmitPayment')}" data-addr-ID="" data-cmp="formGeneric"
+            data-address-mode="${!pdict.order.billing.billingAddress.address ? 'new' : 'edit'}"
+            <isprint value=${pdict.forms.billingForm.attributes} encoding="off" /> novalidate>
+
+
+           <div id="paymetricError" class="b-billing_paymetric-error">
+               <div class="b-billing_notvalidcard_errormessage js-paymetricError">
+                   <p>${Resource.msg('billingaddress.invalidcard.errormessage', 'checkout', null)}</p>
+               </div>
+           </div>
+            <!-------------------------------------------------------------------------->
+            <!-- Payment Options                                                      -->
+            <!-------------------------------------------------------------------------->
+            <fieldset>
+                <isinclude template="checkout/billing/paymentOptions" />
+            </fieldset>
+            <fieldset>
+                <div class="b-billing_firstline">
+                    <div class="b-billing_heading_line ${ShipToCollection ? 'display-required-text' : ''}">
+                        <div class="b-billing_heading"><isprint value="${Resource.msg('heading.billing.address', 'checkout', null)}" /></div>
+                    </div>
+                    <div class="make-ship-as-bill ${pdict.order.hasOnlyBopisItems ? 'bopis-ship-as-bill' : ''}" data-collection="${ShipToCollection}">
+                        <div class="form-group ${shipAsBill.htmlName}">
+                            <isif condition="${!pdict.order.hasOnlyBopisItems}">
+                                <div class="g-checkbox">
+                                    <input type="checkbox" class="b-billing-shippingAsBilling g-checkbox-input" type="checkbox" id="shippingAsBilling" name="${shipAsBill.htmlName}"
+                                    value="${shipAsBill.value}"
+                                    data-analytics-track="billing : billing_same_as_shipping"
+                                    <isif condition="${shipAsBill.value}">checked</isif> >
+                                    <label class="custom-control-label checkout-checkbox g-checkbox-label b-billing_shipAsBilllabel" for="shippingAsBilling">
+                                        ${Resource.msg('field.shipping.address.checkbox', 'checkout', null)}
+                                    </label>
+                                    <input type="hidden" id="qasBilling" value="${false}">
+                                </div>   
+                            </isif>
+                        </div>
+                    </div>
+               </div>
+            </fieldset>
+            <fieldset class="billing-address-block b-billing-address ${ShipToCollection ? 'display-billing-fields' : ''}">
+            <!-------------------------------------------------------------------------->
+            <!-- Billing Address                                                      -->
+            <!-------------------------------------------------------------------------->
+            <fieldset class="billing-address b-billing noBorder noMarginBottom">
+                <isinclude template="checkout/billing/billingAddress" />
+            </fieldset>
+            <!-------------------------------------------------------------------------->
+            <!-- Billing Address Selector                                             -->
+            <!-------------------------------------------------------------------------->
+            <fieldset class="address-selector-block">
+                <div class="form-group g-selectric-container" id="b-billing_custom-select">
+                    <label class="form-control-label hide" for="billingAddressSelector">
+                        ${Resource.msg('heading.billing.address', 'checkout', null)}
+                    </label>
+                    <input type="hidden" id="addressBlock">
+                    <div class="billing-address-container">
+                        <isinclude template="checkout/billing/addressSelector" />
+                    </div>
+                    <isinclude template="checkout/billing/removeDeleteAddressPopup" />
+                    <div class="invalid-feedback"></div>
+                    <div class="row">
+                        <a class="col-6 text-center btn-add-new g-button_secondary--black g-button_base">${Resource.msg('action.add.new', 'checkout', null)}</a>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset class="b-billing-privacy_links checkout-privacy-links-hide">
+                <div class="checkout-privacy-links">
+                    <span class="checkout-content-links"><iscontentasset aid="checkout-privacy-links" /></span>
+                    <span class="b-promo-tooltip-content">
+                        <span class="g-tooltip-icon g-tooltip">
+                            <span class="g-tooltip-arrow"></span>
+                        </span>
+                        <span class="g-tooltip-text">
+                            <isprint value="${Resource.msg('label.policy.tooltip.text', 'checkout', null)}"/>
+                        </span>
+                    </span>
+                </div>
+            </fieldset>
+            <iscomment>Setting the countries and corresponding states to the hidden field in json format</iscomment>
+            <input type="hidden" data-countryregion="${pdict.countryRegion}" class="countryRegion">
+            <input type="hidden" data-actionUrl="${URLUtils.url('CheckoutServices-ValidateBilling')}" id="validate-Billing-Form">
+            <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+            <input type="hidden" name="localizedNewAddressTitle" value="${Resource.msg('msg.new.address', 'checkout', null)}"/>
+            <input type="hidden" class="editAddrURL" value="${URLUtils.https('CheckoutAddressServices-UpdateShippingAddress')}">
+            <input type="hidden" class="deleteLabel" value="${Resource.msg('action.delete.address', 'checkout', null)}">
+            <input type="hidden" class="editLabel" value="${Resource.msg('action.edit.address', 'checkout', null)}">
+            </fieldset>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,177 @@
+
+importPackage( dw.system );
+importPackage(dw.object);
+importPackage(dw.util);
+importPackage(dw.catalog);
+importPackage(dw.content);
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "submitItem"));
+
+/**
+    Construct a PRODUCT custom object for translation as well as submit it to the Smartling FILE api
+    for inclusion into the translation workflow.
+
+    Handle all errors and update the custom object with error states and/or complete status.
+*/
+function submitProduct(submission : CustomObject, product : Product, submitter : String,  locale : String, fileUri : String) : Number
+{
+    try {
+        submission.custom['status'] = 'new';
+        submission.custom['submitted'] = new Date();
+        submission.custom['locale'] = locale;
+        submission.custom['itemId'] = product.ID;
+        submission.custom['fileUri'] = fileUri;
+        submission.custom['itemName'] = product.name;
+        submission.custom['itemType'] = 'product';
+        submission.custom['submitter'] = submitter;
+        submission.custom['progress'] = 0;
+        submission.custom['smLastModified'] = new Date(1000);
+
+        var source : String = '';
+        for each (var category : Category in product.categories) {
+            var categoryInfo =  new Array;
+            categoryInfo.push(category);
+            while (category.getParent()) {
+                category = category.getParent();
+                categoryInfo.push(category);
+            }
+            categoryInfo.reverse() ;
+            for each (var category : Category in categoryInfo) {
+                source = source + category.displayName + '/';
+            }
+            source = source + ' | ';
+        }
+        submission.custom['source'] = source !== '' ? source : 'No categories assigned';
+
+    } catch (e) {
+        LOGGER.errorException("Failed product submission - submissionId={0}, productId={1}, submitter={2}, locale={3}", submission.UUID, product.ID, submitter, locale, e);
+        return false;
+    }
+
+    return true;
+}
+
+/**
+    Construct a CONTENT custom object for translation as well as submit it to the Smartling FILE api
+    for inclusion into the translation workflow.
+
+    Handle all errors and update the custom object with error states and/or complete status.
+*/
+function submitContent(submission : CustomObject, content : Content, submitter : String,  locale : String) : Boolean
+{
+    try {
+        var coBrather : CustomObject = CustomObjectMgr.queryCustomObject("SMARTLING_SUBMISSION", "custom.itemId = '" + content.ID + "' AND custom.itemType = 'content'");
+        var fileUri: String;
+        if (coBrather != null) {
+            fileUri = coBrather.custom['fileUri'];
+        } else {
+            fileUri = cleansefileUri(content.name) + '_'+ content.ID + '_' + content.getUUID().substr(0, 3) + '.xml';
+        }
+
+        submission.custom['status'] = 'new';
+        submission.custom['submitted'] = new Date();
+        submission.custom['locale'] = locale;
+        submission.custom['itemId'] = content.ID;
+        submission.custom['itemName'] = content.name;
+        submission.custom['itemType'] = 'content';
+        submission.custom['submitter'] = submitter;
+        submission.custom['fileUri'] = fileUri;
+        submission.custom['smLastModified'] = new Date(1000);
+
+        var source : String = '';
+        for each (var folder : Folder in content.folders) {
+            source += folder.displayName + ' | ';
+        }
+
+        submission.custom['source'] = source !== '' ? source : 'No categories assigned';
+    } catch (e) {
+        LOGGER.errorException("Failed content submission - submissionId={0}, productId={1}, submitter={2}, locale={3}", submission.UUID, content.ID, submitter, locale, e);
+        return false;
+    }
+
+    return true;
+}
+
+/**
+    Construct a CATEGORY custom object for translation as well as submit it to the Smartling FILE api
+    for inclusion into the translation workflow.
+
+    Handle all errors and update the custom object with error states and/or complete status.
+*/
+function submitCategory(submission : CustomObject, category : Category, submitter : String,  locale : String) : Boolean
+{
+    try {
+        var coBrather : CustomObject = CustomObjectMgr.queryCustomObject("SMARTLING_SUBMISSION", "custom.itemId = '" + category.ID + "' AND custom.itemType = 'category'");
+        var fileUri: String;
+        if (coBrather != null) {
+            fileUri = coBrather.custom['fileUri'];
+        } else {
+            fileUri = cleansefileUri(category.displayName) + '_' + category.ID + '_' + category.getUUID().substr(0, 3) + '.xml';
+
+        }
+
+        submission.custom['status'] = 'new';
+        submission.custom['submitted'] = new Date();
+        submission.custom['locale'] = locale;
+        submission.custom['itemId'] = category.ID;
+        submission.custom['itemName'] = category.displayName;
+        submission.custom['itemType'] = 'category';
+        submission.custom['submitter'] = submitter;
+        submission.custom['fileUri'] = fileUri;
+        submission.custom['smLastModified'] = new Date(1000);
+
+        var source : String = '';
+        var categoryInfo =  new Array;
+        categoryInfo.push(category);
+
+        while (category.getParent()) {
+            category = category.getParent();
+            categoryInfo.push(category);
+        }
+
+        categoryInfo.reverse() ;
+
+        for each (var category : Category in categoryInfo) {
+            source = source + category.displayName + '/';
+        }
+
+        submission.custom['source'] = source !== '' ? source : 'No categories assigned';
+    } catch (e) {
+        LOGGER.errorException("Failed category submission - submissionId={0}, productId={1}, submitter={2}, locale={3}", submission.UUID, category.ID, submitter, locale, e);
+        return false;
+    }
+
+    return true;
+}
+
+/*
+    File name sanitation pattern
+*/
+function cleansefileUri (fileUri : String) : String
+{
+    var cleansedFileUri : String = "";
+
+    try{
+        var r = new RegExp("^[0-9a-zA-Z\_\.\\s]*$");
+        if (!r.test(fileUri)) {
+            var n = fileUri.length;
+            for (var i = 0; i < n; i++) {
+                if (!r.test(fileUri.charAt(i))) {
+                    cleansedFileUri += '_';
+                }
+                else{
+                    cleansedFileUri += fileUri.charAt(i);
+                }
+            }
+        }else{
+            cleansedFileUri = fileUri;
+        }
+
+    } catch (e) {
+        LOGGER.errorException("Cleanse file name failed for fileUri={0}", fileUri, e);
+        return false;
+    }
+
+    return cleansedFileUri;
+}

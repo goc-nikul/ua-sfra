@@ -1,0 +1,18 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+
+<div class="g-accordion-item g-tabs-pane tab-pane safetypay-content safetypay_payments ${pdict.selectedPaymentMethod == paymentOption.ID ? 'active' : ''}" id="safetypay-content" role="tabpanel">
+    <div class="b-payment-accordion-head g-accordion-header ${pdict.selectedPaymentMethod == paymentOption.ID ? '' : 'collapsed'} js-safetpay-payment" data-method-id="AURUS_SAFETYPAY" role="button" data-toggle="collapse" data-target="#acc-5" aria-expanded="true" aria-controls="acc-5">
+     <isprint value="${Resource.msg('heading.payment.safetypay', 'checkout', null)}" />
+    </div>
+    <div class="g-accordion-content collapse ${pdict.selectedPaymentMethod == paymentOption.ID ? 'show' : ''}" id="acc-5" data-parent="#g-accordion-parent">
+        <fieldset class="payment-form-fields">
+                <input type="hidden" class="form-control" name="${pdict.forms.billingForm.paymentMethod.htmlName}" value="AURUS_SAFETYPAY" />
+                <input type="hidden" id="aurusSafetyPaySessionID" value=""/>
+               <div id="safetyPayDiv" style="pointer-events: none;"></div>
+               <div>
+                    <iscontentasset aid="Safetypay-Payment-Description" />
+               </div>
+               <div id="safetyPayDiv_Bottom" style="display:none;"></div>
+        </fieldset>
+    </div>
+</div>  

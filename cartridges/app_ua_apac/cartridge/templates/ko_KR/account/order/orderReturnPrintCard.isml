@@ -1,0 +1,118 @@
+<isif condition="${pdict.printLabelGuestURL}">
+    <isset name="printLabelURL" value="${pdict.printLabelGuestURL}" scope="page" />
+<iselse>
+    <isset name="printLabelURL" value="${pdict.printLabelURL ? pdict.printLabelURL : URLUtils.url('Order-PrintLabel')}" scope="page" />
+</isif>
+<div class="order-return-print-main">
+    <div class="return-label--header-body b-print-label-leftsec kr-return-label-header-body">
+        <div class="return-label--head-column">
+            <div class="return-label--head-line">
+                <h2>${Resource.msg('returnsummary.almostdone.start','components',null)}</h2>
+                <h2><isprint value="${Resource.msg('returnsummary.followthis','components',null)}" encoding="off" /></h2>
+            </div>
+            <div class="return-label--head-line">
+                <div class="return-label--circle">
+                    1
+                </div>
+                <div class="return-label--instructions">
+                    <p class="return-label--instructions-label">
+                        ${Resource.msg('returnsummary.printandreturn.start','components',null)}
+                    </p>
+                </div>
+            </div>
+            <div class="return-label--head-line">
+                <div class="return-label--circle">
+                    2
+                </div>
+                <div class="return-label--instructions">
+                    <p class="return-label--instructions-label">
+                        ${Resource.msg('returnsummary.printorsavethis','components',null)}
+                    </p>
+                </div>
+            </div>
+            <div class="return-label--head-line">
+                <div class="return-label--circle">
+                    3
+                </div>
+                <div class="return-label--instructions">
+                    <p class="return-label--instructions-label">
+                        ${Resource.msg('returnsummary.includereturn','components',null)}
+                    </p>
+                </div>
+            </div>
+            <div class="return-label--head-line">
+                <div class="return-label--circle">
+                    4
+                </div>
+                <div class="return-label--instructions">
+                    <p class="return-label--instructions-label">
+                        ${Resource.msg('returnsummary.attachlabel','components',null)}
+                    </p>
+                </div>
+            </div>
+            <div class="return-label--head-line">
+                <div class="return-label--circle">
+                    5
+                </div>
+                <div class="return-label--instructions">
+                    <p class="return-label--instructions-label">
+                        ${Resource.msg('returnsummary.sendtous','components',null)}<br>${Resource.msg('returnsummary.sendtous2','components',null)}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+   <isif condition="${!pdict.isUACAPIActive}">
+    <div class="b-print-label-rightsec">
+        <div class="b-label-print-wrap">
+                <isif condition="${pdict.emailLabelGuestURL}">
+                    <isset name="emailLabelURL" value="${pdict.emailLabelGuestURL}" scope="page" />
+                <iselse>
+                    <isset name="emailLabelURL" value="${URLUtils.url('Order-EmailLabel')}" scope="page" />
+                </isif>
+                <div class="order-return-print">
+                    <button class="order-return-print-button g-button_base g-button_primary--black ${pdict.printLabelGuestURL ? 'guest-print-label' : ''}" data-orderId="${pdict.order.orderNo}" data-url="${printLabelURL}">${pdict.generateLabel ? pdict.generateLabel : Resource.msg('order.print.button','account',null)}</button>
+                </div>
+                <div class="order-return-email">
+                    <button class="order-return-email-button g-button_base g-button_primary--black">${Resource.msg('order.email.button','account',null)}</button>
+                    <form role="form" class="email-pop-up_signup-form" method="POST" action="${emailLabelURL}">
+                        <div class="email-pop-up_signup-container js-signup-container">
+                            <div class="order-return-email-container hide">
+                                <div class="form-group b-input_row">
+                                    <label class="b-input_row-label form-control-label" for="gcNumber">
+                                        ${Resource.msg('order.email.field','account',null)}
+                                     </label>
+                                    <input type="email" class="b-input_row-input form-control js-signup-email js-custom-input" required name="hpEmailSignUp" id="hpEmailSignUp"
+                                    data-analytics-location="return-print-card"
+                                    max-length="254"
+                                    data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
+                                    regexp="(^\d{5}(-\d{4})?$)|(^[abceghjklmnprstvxyABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Za-z]{1} *\d{1}[A-Za-z]{1}\d{1}$)"
+                                    pattern="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$"
+                                    pattern_mismatch="${Resource.msg('error.message.parse.email.profile.form', 'forms', null)}"
+                                    range_error="${Resource.msg('error.message.lessthan254', 'forms', null)}"
+                                    arialabel="${Resource.msg('placeholdertext.form.emailsignup', 'homePage', null)}"
+                                    value="${pdict.customerEmail || ''}">
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                                <input class="b-submit-email" type="submit" value="${Resource.msg('order.email.submit','account',null)}" class="order-return-email-submit ${pdict.emailLabelGuestURL ? 'guest-email-lablel' : ''}" data-orderId="${pdict.order.orderNo}" data-url="${emailLabelURL}" data-exchange="${pdict.isExchangeItems}">
+                            </div>
+                        </div>
+                   </form>
+                </div>
+            <div class="g-modal g-email-confirmation-modal" id="email-confirmation-modal" role="dialog" aria-modal="true">
+                <div class="g-modal-dialog g-email-confirmation-modal-dialog">
+                    <!-- Modal content-->
+                    <div class="g-modal-content g-email-confirmation-modal-content">
+                        <div class="g-modal-header g-email-confirmation-modal-header">
+                            <button type="button" class="g-modal-close" data-dismiss="modal" aria-label="Close">
+                            <div aria-hidden="true" class="g-modal-close g-modal-close-button"></div></button>
+                        </div>
+                        <div class="g-email-confirmation-modal-body"></div>
+                    </div>
+                </div>
+            </div>
+	   </div>
+    </div>
+  </isif>
+</div>
+<input type="hidden" class="analyticsProductClass" value="${pdict.exchangeTealiumItems}" />

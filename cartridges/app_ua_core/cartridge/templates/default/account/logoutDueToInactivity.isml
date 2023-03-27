@@ -1,0 +1,41 @@
+<isdecorate template="common/layout/page">
+<div class="b-inactivity-wrapper">
+    <div class="b-inactivity-messaging">
+        <div class="b-inactivity-text">
+            <div class="b-inactivity-text-alignment">
+                <div class="b-inactivity-header">
+                    <isprint value="${Resource.msg('inactivity.header.message','account',null)}"/> </br>
+                </div>
+                <div class="b-inactivity-secondary">
+                    <isprint value="${Resource.msg('inactivity.secondary.message','account',null)}"/>
+                </div>
+                <a href="${URLUtils.https('Home-Show')}">
+                    <button class="btn btn-save btn-block btn-primary g-button_base g-button_primary--black account-save-button">
+                        <isprint value="${Resource.msg('inactivity.returntoshopping.button','account',null)}"/>
+                    </button>
+                </a>
+            </div>
+        </div>
+        <div class="b-inactivity-image">
+            <isslot id="inactivity-image" description="image used on account inactivity page" context="global"/>
+        </div>
+    </div>
+    <div class="b-inactivity-recommendation">
+        <div class="b-error_page-bestsellers-products">
+            <iscomment>Best Sellers Products Carousel Starts </iscomment>
+            <div class="b-error_page-bestsellers-carousel">
+                <isslot id="logged-out-product-recommendations" description="Best Seller" context="global" />
+            </div>
+        </div>
+    </div>
+    <div class="b-inactivity-search">
+        <div class="b-search-header">
+            <isprint value="${Resource.msg('inactivity.header.search.prompt', 'account', null)}"/>
+        </div>
+        <isinclude template="components/header/search" />
+        <div class="b-search-prompt">        
+            <isprint value="${Resource.msg('inactivity.secondary.search.prompt', 'account', null)}"/>
+        </div>
+    </div>
+</div>
+</isdecorate>

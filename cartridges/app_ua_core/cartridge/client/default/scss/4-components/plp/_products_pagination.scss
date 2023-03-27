@@ -1,0 +1,41 @@
+.b-pagination {
+    @include grid-row;
+
+    @include respond-to(phones) {
+        margin-bottom: spacing(md);
+    }
+
+    &_outer {
+        display: flex;
+        flex-wrap: wrap;
+        background: $grey2;
+        margin: 0 auto;
+        padding: 0 rem-calc(10);
+        max-width: rem-calc(600);
+
+        @include respond-to(phones) {
+            max-width: rem-calc(320);
+        }
+    }
+
+    &_link {
+        padding: rem-calc(20);
+
+        a {
+            color: $black;
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+
+        &.selected {
+            a {
+                text-decoration: underline;
+                font-weight: $font-bold;
+            }
+        }
+    }
+}
+

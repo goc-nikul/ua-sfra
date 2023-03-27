@@ -1,0 +1,24 @@
+<div class="bonus-product-cart-main">
+   <div class="bonus-product-details">
+     <isloop items="${lineItem.bonusProducts}" var="productLineItem" status="loopState">
+        <div class="bonus-product-row">
+           <isif condition="${loopState.first}">
+             <div class="bonus-line-item-msg">${Resource.msg('text.lineitem.bonus.msg','cart',null)}:</div>
+           </isif>
+        </div>
+       <div class="b-cartlineitem_row bonus-line-item-row bfx-price-product">
+          <div class="b-cartlineitem_image line-item-image">
+            <img class="product-image" src="${productLineItem.images.cartFullDesktop[0].url}" alt="${productLineItem.images.cartFullDesktop[0].alt}" title="${productLineItem.images.cartFullDesktop[0].title}">
+          </div>
+          <isinclude template="cart/productCard/cartNestedBonusProductCard" />
+      </div>
+     </isloop>
+   </div>
+   <div class="bonus-product-button">
+     <isloop items="${lineItem.discountLineItems}" var="discountLineItem">
+       <div id="bonusProduct" class="card bonus-product-button" data-duuid="${discountLineItem.uuid}" data-pliuuid="${discountLineItem.pliuuid}" data-maxpids="${discountLineItem.maxpids}" data-pageStart="0" data-pageSize="0" data-url="${discountLineItem.url}" data-cmp="cartBonusProductModal">
+         <button class="btn btn-outline-primary">${discountLineItem.msg}</button>
+       </div>
+     </isloop>
+   </div>
+</div>

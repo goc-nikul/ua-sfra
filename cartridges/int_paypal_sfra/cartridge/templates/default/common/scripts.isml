@@ -1,0 +1,9 @@
+<script type="text/javascript" src="${URLUtils.staticURL('/js/main.js')}"></script>
+<isloop items="${ require('*/cartridge/scripts/assets.js').scripts }" var="script">
+    <script type="text/javascript" src="${script.src}"
+        <isif condition="${script.integrity != null}">integrity="${script.integrity}" crossorigin="anonymous"></isif>
+        >
+    </script>
+</isloop>
+
+<isinclude template="paypal/marketingSolutions"/>

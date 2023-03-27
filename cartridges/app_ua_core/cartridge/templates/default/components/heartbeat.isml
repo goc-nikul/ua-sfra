@@ -1,0 +1,26 @@
+<!--Heartbeat for IDM -->
+<isset name="idmEnabled" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('uaidmIsEnabled')}" scope="page"/>
+<isset name="redirectURL" value ="${URLUtils.abs('Account-LoggedOutDueToInactivity')}" scope="page"/>
+<isif condition="${idmEnabled}">    
+    <isset name="activeSession" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('uaidmActiveSession')}" scope="page"/>
+    <isscript>
+        var cookieHelpers = require('*/cartridge/scripts/helpers/cookieHelpers');
+        var idmID = cookieHelpers.read('UAExternalID');
+    </isscript>
+
+    <isif condition="${idmID !== undefined}">
+        <div id="redirectURL" data-url="${redirectURL}"></div>
+        <script>
+            var convertToMill = ${activeSession} * 1050; //Account for rounding
+            //By reloading the page, we will hook into the OnRequest.js
+            //module that forces a redirect to an inactivity page.
+            //This way, we don't have to maintain two separate URL redirects.
+            function redirectUser() {
+                var q = document.getElementById('redirectURL');
+                document.cookie = "UALogout=true; expires=" + convertToMill + "; path=/";
+                location.assign(q.dataset.url);
+            }
+            setTimeout(redirectUser, convertToMill);
+        </script>
+    </isif>    
+</isif>

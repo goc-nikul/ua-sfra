@@ -1,0 +1,30 @@
+<isdecorate template="common/layout/page">
+    <div class="w-container">
+        <iframe class="module-find-a-store x-ua-module-find-a-store" width="100%" id="locatoriframe" src="${pdict.brandifySrcURL}" data-urlmobile="${pdict.brandifyMobileURL}" data-urltablet="${pdict.brandifyTabletURL}" data-urldesktop="${pdict.brandifyDesktopURL}" data-country="${pdict.dataCountry}" data-postalcode="${pdict.dataPostalCode}"></iframe>
+    </div>
+
+<script type="text/javascript">
+	var iframe_id="locatoriframe"; // replace with id of the iframe to dynamically resize
+	var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+	var eventer = window[eventMethod];
+	var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+	eventer(messageEvent,function(e) {
+		if(e.data.indexOf("w2gi:iframeHeightUpdated") !== -1) {
+			var dimensions = e.data.split("//");
+			autoResize(dimensions[1], dimensions[2]);
+		}
+		if(e.data.indexOf("w2gi:scrollPage") !== -1) {
+			var offsets = document.getElementById(iframe_id).getBoundingClientRect();
+			var values = e.data.split("//");
+			var destination = values[1];
+			var offset = values[2];
+			window.scrollTo(0, destination + offsets.top);
+		}
+	},false);
+
+	function autoResize(newheight, newwidth){
+		document.getElementById(iframe_id).style.height= parseInt(newheight) + 0 + "px";
+	}
+</script>
+
+</isdecorate>

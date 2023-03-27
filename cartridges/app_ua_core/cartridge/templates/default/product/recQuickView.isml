@@ -1,0 +1,76 @@
+<isset name="productCopy" value="${pdict.product}" scope="page"/>
+<isset name="product" value="${pdict.product}" scope="page"/>
+<isset name="isBundle" value="${false}" scope="page"/>
+<isset name="isQuickView" value="${true}" scope="page"/>
+<isset name="isProductSet" value="${false}" scope="page" />
+<isset name="loopState" value="{count: 1}" scope="page" />
+<isset name="isRecommendation" value="${true}" scope="page" />
+<div class="g-modal-header g-quickview-modal-header recommendation-quickview-modal-header">
+    <button type="button" class="g-quickview-modal-close close" data-dismiss="modal">
+        <span class="sr-only">${Resource.msg('link.header.menu.close', 'common', null)}</span>
+    </button>
+</div>
+<div class="product-quickview product-${product.productType} col product-wrapper product-detail b-product-quickview product-recommendation-quickview"
+    data-pid="${product.id}"
+    data-cmp="productQuickView"
+>
+    <!-- Product Name and Number -->
+    <div class="b-product-quickview-info">
+        <!-- Prices -->
+        <div class="b-product-quickview-prices">
+            <isset name="price" value="${product.price}" scope="page" />
+            <isinclude template="product/components/pricing/main" />
+        </div>
+        <div class="b-product-quickview-detail-panel">
+            <!-- Attributes -->
+            <section class="b-product_attrs attributes">
+                <isinclude template="product/components/mainAttributes" />
+                <isloop items="${product.variationAttributes}" var="attr" status="attributeStatus">
+                    <isif condition="${attr.ID === 'color' || attr.id === 'color'}">
+                        <isnext/>
+                    </isif>
+                    <div data-attr="${attr.id}" class="b-product_attrs-item swatch row" data-error-label="${Resource.msg('error.message.required.' + attr.id,'product',null) ? Resource.msg('error.message.required.' + attr.id,'product',null) : Resource.msg('error.message.required.default','product',null)}">
+                        <isinclude template="product/components/variationAttribute" />
+                    </div>
+                </isloop>
+            </section>
+
+            <isif condition="${product.productType !== 'bundle'}">
+                <!-- Options -->
+                <isif condition="${product.options && product.options.length > 0}">
+                        <isinclude template="product/components/options" />
+                </isif>
+            </isif>
+        </div>
+
+        <div class="b-product-quickview-qty-button">
+            <!-- Quantity -->
+            <div class="b-product-quickview-qty hide">
+                <isset name="loopState" value="{count: 1}" scope="page" />
+                <isif condition="${(pdict.addToCartUrl || pdict.updateCartUrl) && (product.exclusive.value !== 'coming-soon' && product.exclusive.value !== 'out-of-stock')}">
+                    <isinclude template="product/components/quantity" />
+                </isif>
+            </div>
+
+            <div class="b-product-quickview-button">
+                <!-- Cart and [Optionally] Apple Pay -->
+                <isif condition="${pdict.addToCartUrl}">
+                    <isinclude template="product/components/addToCartQuickView" />
+                <iselse/>
+                    <isinclude template="product/components/updateProduct" />
+                </isif>
+            </div>
+            </div>
+
+            <div class="b-product-quickview-stock_Message hide"></div>
+    </div>
+
+    <!-- Availability -->
+    <div class="hide">
+        <div class="col-11 mx-auto availability global-availability" data-ready-to-order="${product.readyToOrder}" data-available="${product.available}">
+            <isinclude template="product/components/availability" />
+        </div>
+    </div>
+
+    <isset name="product" value="${productCopy}" scope="page"/>
+</div>

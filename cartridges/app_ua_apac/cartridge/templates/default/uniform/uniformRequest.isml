@@ -1,0 +1,146 @@
+<iscontent compact="true">
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/js/uniformRequest.js');
+        assets.addCss('/css/uniformRequest.css');
+    </isscript>
+    <div id="main" class="pt_uniform_inquiry">
+        <div id="primary" class="primary-content">
+            <div class="row heading-row">
+                <div class="te">
+                    <h1 class="cs-heading">
+                        ${Resource.msg("forms.uniformrequest.title", "forms", null)}
+                    </h1>
+                </div>
+            </div>
+            <div class="faq__wrapper clearfix row">
+                <div class="column-8">
+                    <div class="primary-content uni-width">
+                        <div class="uniform-result d-none">
+                            <p class="uniform-result-part">${Resource.msg('forms.uniformrequest.thank', 'forms', null)}</p>
+                            <p class="uniform-result-part">${Resource.msg('forms.uniformrequest.result', 'forms', null)}</p>
+                        </div>
+                        <div class="uniform-form-container">
+                            <form class="uniform-form" name="${pdict.groupinquiryForm.htmlName}"
+                                data-url="${pdict.inquirySubmit}">
+                                <div class="uniform-inputs">
+                                        <iscontentasset aid="uniform-request-personalinfo" />
+                                    <div class="inline-row">
+                                        <div class="form-group b-input_row
+                                            ${pdict.groupinquiryForm.personalinfo.groupname.mandatory === true ? 'required' : ''}
+                                            ${pdict.groupinquiryForm.personalinfo.groupname.htmlName}">
+                                            <label class="form-control-label b-input_row-label" for="groupname">
+                                                ${Resource.msg('forms.uniformrequest.groupname', 'forms', null)}
+                                            </label>
+                                            <input type="text" class="form-control b-input_row-input"
+                                                aria-describedby="FirstName" pattern="^[^%<>^$!@?={}()]+$" <isprint
+                                                value="${pdict.groupinquiryForm.personalinfo.groupname.attributes}"
+                                                encoding="off" />
+                                            data-pattern-mismatch="${Resource.msg('general.pattern.mismatch', 'common', null)}"
+                                            data-missing-error="${Resource.msg('forms.pleaseenter.name', 'forms', null)}"/>
+                                            <div class="invalid-feedback" id="FirstName"></div>
+                                        </div>
+
+                                        <div class="form-group b-input_row
+                                            ${pdict.groupinquiryForm.personalinfo.requestername.mandatory === true ? 'required' : ''}
+                                            ${pdict.groupinquiryForm.personalinfo.requestername.htmlName}">
+                                            <label class="form-control-label b-input_row-label" for="requestername">
+                                                ${Resource.msg('forms.uniformrequest.requestername', 'forms', null)}
+                                            </label>
+                                            <input type="text" class="form-control b-input_row-input"
+                                                aria-describedby="FirstName" pattern="^[^%<>^$!@?={}()]+$" <isprint
+                                                value="${pdict.groupinquiryForm.personalinfo.requestername.attributes}"
+                                                encoding="off" />
+                                            data-pattern-mismatch="${Resource.msg('general.pattern.mismatch', 'common', null)}"
+                                            data-missing-error="${Resource.msg('forms.pleaseenter.name', 'forms', null)}"/>
+                                            <div class="invalid-feedback" id="FirstName"></div>
+                                        </div>
+                                    </div>
+                                    <div class="inline-row">
+                                        <div class="form-group b-input_row
+                                            ${pdict.groupinquiryForm.personalinfo.requesterphone.mandatory === true ? 'required' : ''}
+                                            ${pdict.groupinquiryForm.personalinfo.requesterphone.htmlName}">
+                                            <label class="form-control-label b-input_row-label"
+                                                for="requesterphone">
+                                                ${Resource.msg('forms.uniformrequest.requesterphone', 'forms', null)}
+                                            </label>
+                                            <input type="text" class="form-control b-input_row-input"
+                                                aria-describedby="FirstName" <isprint
+                                                value="${pdict.groupinquiryForm.personalinfo.requesterphone.attributes}"
+                                                encoding="off" />
+                                            data-pattern-mismatch="${Resource.msg('general.pattern.mismatch', 'common', null)}"
+                                            data-missing-error="${Resource.msg('forms.pleaseenter.phone', 'forms', null)}"/>
+                                            <div class="invalid-feedback" id="FirstName"></div>
+                                        </div>
+
+                                        <div class="form-group b-input_row
+                                            ${pdict.groupinquiryForm.personalinfo.requesteremail.mandatory === true ? 'required' : ''}
+                                            ${pdict.groupinquiryForm.personalinfo.requesteremail.htmlName}">
+                                            <label class="form-control-label b-input_row-label"
+                                                for="requesteremail">
+                                                ${Resource.msg('forms.uniformrequest.requesteremail', 'forms', null)}
+                                            </label>
+                                            <input type="text" class="form-control b-input_row-input"
+                                                aria-describedby="FirstName" <isprint
+                                                value="${pdict.groupinquiryForm.personalinfo.requesteremail.attributes}"
+                                                encoding="off" />
+                                            data-pattern-mismatch="${Resource.msg('forms.pleaseenter.email.validation', 'forms', null)}"
+                                            data-missing-error="${Resource.msg('forms.pleaseenter.email', 'forms', null)}"/>
+                                            <div class="invalid-feedback" id="FirstName"></div>
+                                        </div>
+                                    </div>
+                                    <div class="inline-row">
+                                        <div class="form-group b-input_row
+                                            ${pdict.groupinquiryForm.personalinfo.location.mandatory === true ? 'required' : ''}
+                                            ${pdict.groupinquiryForm.personalinfo.location.htmlName}">
+                                            <label class="form-control-label b-input_row-label" for="location">
+                                                ${Resource.msg('forms.uniformrequest.location', 'forms', null)}
+                                            </label>
+                                            <input type="text" class="form-control b-input_row-input"
+                                                aria-describedby="FirstName" pattern="^[^%<>^$!@?={}()]+$" <isprint
+                                                value="${pdict.groupinquiryForm.personalinfo.location.attributes}"
+                                                encoding="off" />
+                                            data-pattern-mismatch="${Resource.msg('general.pattern.mismatch', 'common', null)}"
+                                            data-missing-error="${Resource.msg('forms.uniformrequest.error.locationempty', 'forms', null)}"/>
+                                            <div class="invalid-feedback" id="FirstName"></div>
+                                        </div>
+
+                                        <div class="form-group b-input_row
+                                            ${pdict.groupinquiryForm.personalinfo.quantity.mandatory === true ? 'required' : ''}
+                                            ${pdict.groupinquiryForm.personalinfo.quantity.htmlName}">
+                                            <label class="form-control-label b-input_row-label" for="quantity">
+                                                ${Resource.msg('forms.uniformrequest.quantity', 'forms', null)}
+                                            </label>
+                                            <input type="number" class="form-control b-input_row-input"
+                                                aria-describedby="FirstName" <isprint
+                                                value="${pdict.groupinquiryForm.personalinfo.quantity.attributes}"
+                                                encoding="off" />
+                                            data-pattern-mismatch="${Resource.msg('general.pattern.mismatch', 'common', null)}"
+                                            data-missing-error="${Resource.msg('forms.uniformrequest.error.quantityempty', 'forms', null)}"/>
+                                            <div class="invalid-feedback" id="FirstName"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="uniform-btn__wrapper">
+                                    <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+                                        <iscontentasset aid="uniform-submit-message" />
+                                    <button type="submit" name="submit"
+                                        class="g-button_base g-button_primary--black js-inquiry-submit-btn"
+                                        data-url="${URLUtils.url('UniformRequest-Submit')}">${Resource.msg("forms.uniformrequest.requestuniform", "forms", null)}</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="column-3">
+                    <div class="uniform-image">
+                        <iscontentasset aid="uniform-sales-catalog" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</isdecorate>

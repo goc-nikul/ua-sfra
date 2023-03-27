@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services xmlns="http://www.demandware.com/xml/impex/services/2014-09-26">
+    <service-credential service-credential-id="AurusPaySandboxSessionTokken">
+        <url>https://uatds42.auruspay.com/aurus-adsdk-web-service/auruspay/adsdk/sessiontoken</url>
+        <user-id/>
+        <password encrypted="true" encryption-type="common.export">YETsGA1aQJTVHiUASAtYHng3ZtLIbRG5vCXZ8qnp35Q=</password>
+        <custom-attributes>
+            <custom-attribute attribute-id="PP_API_IsProduction">false</custom-attribute>
+            <custom-attribute attribute-id="PP_API_UseCertificate">false</custom-attribute>
+        </custom-attributes>
+    </service-credential>
+
+    <service-credential service-credential-id="AuruspaySandboxAuth">
+        <url>https://uatds42.auruspay.com/aurus-adsdk-web-service/auruspay/adsdk/authtransaction</url>
+        <user-id/>
+        <password encrypted="true" encryption-type="common.export">wFsbuOV4xeHnRTqiK2U/jjNVbRBE2i094LmhVo6qduE=</password>
+        <custom-attributes>
+            <custom-attribute attribute-id="PP_API_IsProduction">false</custom-attribute>
+            <custom-attribute attribute-id="PP_API_UseCertificate">false</custom-attribute>
+        </custom-attributes>
+    </service-credential>
+
+    <service-credential service-credential-id="UACAPI.http.loyalty.credentials">
+        <url>https://api-oms.ecm-external.us.ua.dev/graphql</url>
+        <user-id/>
+        <password encrypted="true" encryption-type="common.export">X4eKTJkNuJ4wqBCQWPcQxiWNbqlsAgMrKaGN4UmhVyo=</password>
+        <custom-attributes>
+            <custom-attribute attribute-id="PP_API_IsProduction">false</custom-attribute>
+            <custom-attribute attribute-id="PP_API_UseCertificate">false</custom-attribute>
+        </custom-attributes>
+    </service-credential>
+
+	<service-credential service-credential-id="marketingcloud.loyalty">
+        <url>https://mcdh79rxm36750hgr4mw7g0f9br0.rest.marketingcloudapis.com/interaction/v1/events</url>
+        <user-id/>
+        <password/>
+        <custom-attributes>
+            <custom-attribute attribute-id="PP_API_IsProduction">false</custom-attribute>
+            <custom-attribute attribute-id="PP_API_UseCertificate">false</custom-attribute>
+        </custom-attributes>
+    </service-credential>
+
+    <service-credential service-credential-id="marketingcloud.loyalty.auth">
+        <url>https://mcdh79rxm36750hgr4mw7g0f9br0.auth.marketingcloudapis.com/v2/token</url>
+        <user-id>dk979zteoznohujm9rk21iv3</user-id>
+        <password encrypted="true" encryption-type="common.export">078howjJTSmNkMI/p3zdlGBWYDab2WaLo0iM+GOBwEeJjQufluGNnJak4RxZ33RYmPF/CXBRU+M54j+CjrFYLA==</password>
+        <custom-attributes>
+            <custom-attribute attribute-id="PP_API_IsProduction">false</custom-attribute>
+            <custom-attribute attribute-id="PP_API_UseCertificate">false</custom-attribute>
+        </custom-attributes>
+    </service-credential>
+
+    <service-credential service-credential-id="AuruspaySandboxBillerToken">
+        <url>https://uatds42.auruspay.com/aurus-adsdk-web-service/auruspay/adsdk/billertoken</url>
+        <user-id/>
+        <password encrypted="true" encryption-type="common.export">nQgulEcanZpz8QiXinyMmMRwCaXaBJ1krlgYLrDwWrc=</password>
+        <custom-attributes>
+            <custom-attribute attribute-id="PP_API_IsProduction">false</custom-attribute>
+            <custom-attribute attribute-id="PP_API_UseCertificate">false</custom-attribute>
+        </custom-attributes>
+    </service-credential>
+
+    <service-credential service-credential-id="AuruspaySandboxSession">
+        <url>https://uatds42.auruspay.com/aurus-adsdk-web-service/auruspay/adsdk/sessionId</url>
+        <user-id/>
+        <password encrypted="true" encryption-type="common.export">WDyxO60gUh91wbR6K6mK01gcX/LHSIF1zrz+OUIk2Fk=</password>
+        <custom-attributes>
+            <custom-attribute attribute-id="PP_API_IsProduction">false</custom-attribute>
+            <custom-attribute attribute-id="PP_API_UseCertificate">false</custom-attribute>
+        </custom-attributes>
+    </service-credential>
+
+    <service-profile service-profile-id="aurusPay.https.profile">
+        <timeout-millis>10000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service-profile service-profile-id="UACAPI.http.loyalty.profile">
+        <timeout-millis>50000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+	<service-profile service-profile-id="marketingcloud.loyalty">
+        <timeout-millis>50000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service service-id="aurusPay.https.getBillerToken">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>aurusPay-getBillerToken</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>aurusPay.https.profile</profile-id>
+        <credential-id>AuruspaySandboxBillerToken</credential-id>
+    </service>
+
+    <service service-id="aurusPay.https.getSession">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>aurusPay-getSession</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>aurusPay.https.profile</profile-id>
+        <credential-id>AuruspaySandboxSession</credential-id>
+    </service>
+
+    <service service-id="aurusPay.https.getSessionToken">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>aurusPay-getSessionToken</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>aurusPay.https.profile</profile-id>
+        <credential-id>AurusPaySandboxSessionTokken</credential-id>
+    </service>
+
+    <service service-id="UACAPI.http.loyalty">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>loyalty</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>UACAPI.http.loyalty.profile</profile-id>
+        <credential-id>UACAPI.http.loyalty.credentials</credential-id>
+    </service>
+
+	<service service-id="marketingcloud.loyalty">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>loyalty</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>marketingcloud.loyalty</profile-id>
+        <credential-id>marketingcloud.loyalty</credential-id>
+    </service>
+
+    <service service-id="marketingcloud.loyalty.auth">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>loyalty</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>marketingcloud.loyalty</profile-id>
+        <credential-id>marketingcloud.loyalty.auth</credential-id>
+    </service>
+
+    <service service-id="aurusPay.https.preAuth">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>aurusPay-preAuth</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>false</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>aurusPay.https.profile</profile-id>
+        <credential-id>AuruspaySandboxAuth</credential-id>
+    </service>
+
+</services>

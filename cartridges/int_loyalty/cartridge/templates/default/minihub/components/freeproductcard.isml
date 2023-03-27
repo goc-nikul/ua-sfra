@@ -1,0 +1,13 @@
+<div class="js-minihub-embed-pdp" data-quickview-url="${URLUtils.https('Product-ShowQuickView', 'pid', reward.productID)}"></div>
+<div class="g-reward-card_cta-wrapper" data-rewardid="${reward.rewardID}" data-productid="${reward.productID}" data-reward-flow-type="${reward.rewardFlowType}">
+    <button type="button" data-action-type="minihub:redeem" class="g-button_base g-button_primary--black g-reward-card_cta-redeem js-minihub-action">${Resource.msg('button.add.to.bag', 'loyalty', null)}</button>
+    <div class="g-reward-card_cta-wrapper_left g-reward-card_cta-remove">
+        <button type="button" class="g-button_base g-button_primary--white">
+            <img class="g-reward-card_cta-icon" src="${URLUtils.staticURL('/images/loyalty-icon-success.svg')}" alt="${Resource.msg('loyalty.icon.alt.redeem.success','loyalty', null)}" />
+            ${Resource.msg('button.added', 'loyalty', null)}
+        </button>
+    </div>
+    <div class="g-reward-card_cta-wrapper_right g-reward-card_cta-remove">
+        <button type="button" data-action-type="minihub:remove" class="g-button_base g-button_secondary--black js-minihub-action">${Resource.msg('button.remove', 'loyalty', null)}</button>
+    </div>
+</div>

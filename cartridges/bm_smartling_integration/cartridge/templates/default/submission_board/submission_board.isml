@@ -1,0 +1,358 @@
+<isdecorate template="application/MenuFrame">
+<iscontent type="text/html" charset="UTF-8" />
+<isinclude template="inc/Modules" />
+<isinclude template="application/style" />
+
+<h1>Submission Board</h1>
+
+<!-- Page Navigator -->
+<table border="0" cellspacing="0" cellpadding="0">
+    <tbody>
+        <tr>
+            <td class="breadcrumb">
+                <a class="breadcrumb" href="${URLUtils.url('ViewApplication-CompressMenuGroup', 'MenuGroupID', 'SiteMenu', 'OverviewPage', 'SiteNavigationBar-ShowSiteOverview')}">Site</a>
+                &nbsp>&nbsp
+                <a class="breadcrumb" href="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', 'smartling')}">Smartling</a>
+                &nbsp>&nbsp Submission Board
+            </td>
+        </tr>
+    </tbody>
+</table>
+<!-- EO Page Navigator -->
+
+<isif condition="${pdict.message != null && pdict.message != ''}">
+    <h3>${pdict.message}</h3>
+</isif>
+
+<isscript>
+var util = require("~/cartridge/scripts/util");
+</isscript>
+
+<br/><br/>
+Item Type:&nbsp
+<select id="itemType">
+    <option value="">all</option>
+    <option value="product">Product</option>
+    <option value="category">Category</option>
+    <option value="content">Content</option>
+</select>
+&nbsp&nbsp&nbsp&nbsp&nbsp
+Status: &nbsp
+<select id="status">
+    <option value="">all</option>
+    <option value="new">New</option>
+    <option value="in progress">In progress</option>
+    <option value="complete">Complete</option>
+    <option value="failed">Failed</option>
+</select>
+&nbsp&nbsp&nbsp&nbsp&nbsp
+Item Id/Name/Category: &nbsp
+<input id="search" style="margin-left: 10px" type="text" name="search_string"/>
+<button style="margin-left: 10px" class="button" type="button" onclick="ajaxSearch()">Search</button>
+
+<form action="${URLUtils.url('SubmissionBoard-BoardEvent')}" method="post" name="formMask">
+<button style="float: right; margin-left: 10px" class="button" type="submit" name="button" value="resend">Resend</button>
+<button style="float: right;" class="button" type="submit" name="download" value="true">Download</button>
+<br/><br/>
+<div id="table_body">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr id="table_header">
+        <td class="table_header w e s center"  width="40px"><a id="select" onclick="checkAll('uuid')">Select <br>All</a> <a id="clean" style="display: none;"onclick="unCheckAll('uuid')">Clean<br> All</a></td>
+        <td class="table_header e s" nowrap="nowrap">
+            <a id="itemIdSort"  onclick="ajaxSort('itemId', 'asc')">Item <br>ID</a>
+            <a id="itemId_asc"  onclick="ajaxSort('itemId', 'asc')" style="display: none">Item <br>ID (desc)</a>
+            <a id="itemId_desc" onclick="ajaxSort('itemId', 'desc')"  style="display: none">Item <br>ID (asc)</a>
+        </td>
+        <td class="table_header e s">
+            <a id="itemNameSort"  onclick="ajaxSort('itemName', 'asc')">Item <br>Name</a>
+            <a id="itemName_asc"  onclick="ajaxSort('itemName', 'asc')" style="display: none">Item <br>Name (desc)</a>
+            <a id="itemName_desc" onclick="ajaxSort('itemName', 'desc')"  style="display: none">Item <br>Name (asc)</a>
+        </td>
+        <td class="table_header e s" nowrap="nowrap">
+            <a id="itemTypeSort"  onclick="ajaxSort('itemType', 'asc')">Item <br>Type</a>
+            <a id="itemType_asc"  onclick="ajaxSort('itemType', 'asc')" style="display: none">Item <br>Type (desc)</a>
+            <a id="itemType_desc" onclick="ajaxSort('itemType', 'desc')"  style="display: none">Item <br>Type (asc)</a>
+            </td>
+        <td class="table_header e s">
+            <a id="localeSort"  onclick="ajaxSort('locale', 'asc')">Locale</a>
+            <a id="locale_asc"  onclick="ajaxSort('locale', 'asc')" style="display: none">Locale (desc)</a>
+            <a id="locale_desc" onclick="ajaxSort('locale', 'desc')"  style="display: none">Locale (asc)</a>
+        </td>
+        <td class="table_header e s" nowrap="nowrap">
+            <a id="timeSubmittedSort"  onclick="ajaxSort('submitted', 'asc')">Time <br>Submitted </a>
+            <a id="timeSubmitted_asc"  onclick="ajaxSort('submitted', 'asc')" style="display: none">Time <br>Submitted (desc)</a>
+            <a id="timeSubmitted_desc" onclick="ajaxSort('submitted', 'desc')"  style="display: none">Time <br>Submitted (asc)</a>
+        </td>
+        <td class="table_header e s" nowrap="nowrap">
+            <a id="timeAppliedSort"  onclick="ajaxSort('applied', 'asc')">Time <br>Applied </a>
+            <a id="timeApplied_asc"  onclick="ajaxSort('applied', 'asc')" style="display: none">Time <br>Applied (desc)</a>
+            <a id="timeApplied_desc" onclick="ajaxSort('applied', 'desc')"  style="display: none">Time<br> Applied (asc)</a>
+        </td>
+        <td class="table_header e s" nowrap="nowrap" width="70px">
+            <a id="statusSort"  onclick="ajaxSort('status', 'asc')">Status </a>
+            <a id="status_asc"  onclick="ajaxSort('status', 'asc')" style="display: none">Status (desc)</a>
+            <a id="status_desc" onclick="ajaxSort('status', 'desc')"  style="display: none">Status (asc)</a>
+        </td>
+        <td class="table_header e s" nowrap="nowrap" width="50px">
+            <a id="progressSort"  onclick="ajaxSort('progress', 'asc')">Progress </a>
+            <a id="progress_asc"  onclick="ajaxSort('progress', 'asc')" style="display: none">Progress (desc)</a>
+            <a id="progress_desc" onclick="ajaxSort('progress', 'desc')"  style="display: none">Progress (asc)</a>
+        </td>
+        <td class="table_header e s" nowrap="nowrap" width="50px">
+            <a id="wordsSubmittedSort"  onclick="ajaxSort('wordsSubmitted', 'asc')">Words <br> Submitted</a>
+            <a id="wordsSubmitted_asc"  onclick="ajaxSort('wordsSubmitted', 'asc')" style="display: none">Words <br> Submitted (desc)</a>
+            <a id="wordsSubmitted_desc" onclick="ajaxSort('wordsSubmitted', 'desc')"  style="display: none">Words <br> Submitted (asc)</a>
+        </td>
+        <td class="table_header e s">
+            <a id="submitterSort"  onclick="ajaxSort('submitter', 'asc')">Submitter</a>
+            <a id="submitter_asc"  onclick="ajaxSort('submitter', 'asc')" style="display: none">Submitter (desc)</a>
+            <a id="submitter_desc" onclick="ajaxSort('submitter', 'desc')"  style="display: none">Submitter (asc)</a>
+        </td>
+        <td class="table_header e s">
+            <a id="fileUriSort"  onclick="ajaxSort('fileUri', 'asc')">File <br>Uri</a>
+            <a id="fileUri_asc"  onclick="ajaxSort('fileUri', 'asc')" style="display: none">File <br>Uri (desc)</a>
+            <a id="fileUri_desc" onclick="ajaxSort('fileUri', 'desc')"  style="display: none">File <br>Uri (asc)</a>
+        </td>
+    </tr>
+    <isloop iterator="${pdict.submissions}" var="submission">
+        <tr data-row="true" name="${submission.getUUID()}">
+            <td class="table_detail w e s center"><input type="checkbox" name="uuid" value="${submission.getUUID()}" /></td>
+            <td class="table_detail e s" nowrap="nowrap">${submission.getCustom()['itemId']}</td>
+            <td class="table_detail e s">
+                <div class="tooltip">${submission.getCustom()['itemName']}
+                    <div class="tooltiptext">${submission.getCustom()['source']}</div>
+                </div>
+            </td>
+            <td class="table_detail e s" nowrap="nowrap">${submission.getCustom()['itemType']}</td>
+            <td class="table_detail e s">${util.getLocaleName(submission.getCustom()['locale'])}</td>
+            <td class="table_detail e s" nowrap="nowrap">
+                <div class="date">${submission.getCustom()['submitted']}</div>
+            </td>
+            <td class="table_detail e s" nowrap="nowrap">
+                <div class="date">${submission.getCustom()['applied']}</div>
+            </td>
+            <td class="table_detail e s" nowrap="nowrap">${submission.getCustom()['status']}</td>
+            <td class="table_detail e s" nowrap="nowrap" data-uuid="${submission.getUUID()}">${submission.getCustom()['progress']}</td>
+            <td class="table_detail e s" nowrap="nowrap">${empty(submission.getCustom()['wordsSubmitted']) ? "" : submission.getCustom()['wordsSubmitted']}</td>
+            <td class="table_detail e s">${submission.getCustom()['submitter']}</td>
+            <td class="table_detail e s">${submission.getCustom()['fileUri']}</td>
+        </tr>
+    </isloop>
+
+
+</table>
+
+<ul class="pagecursor" width="100%" border="0" cellspacing="1" cellpadding="1">
+    <li class="pagecursortxt top" align="left" width="100%" ></li>
+    <isloop status="i" begin="1" end="${pdict.totalPages}">
+        <isif condition="${i.index != (pdict.CurrentHttpParameterMap.pageNo.intValue ? pdict.CurrentHttpParameterMap.pageNo.intValue : 1)}">
+            <li class="pagecursortxt" align="right" width="1">
+                <a href="#" onclick="ajaxPage(${i.index})"><b>${(i.index).toString()}</b></a>
+            </li>
+            <iselse>
+            <li class="pagecursoritem" align="right" width="1">
+                <b>${(i.index).toString()}</b>
+            </li>
+        </isif>
+    </isloop>
+</ul>
+
+</div>
+</form>
+
+<script>
+    function ajaxSort(sortField, sortOrder)
+    {
+        var sortUrl = "${URLUtils.url('SubmissionBoard-getSubmissions')}";
+
+        setSortFieldHeader(sortField, sortOrder);
+
+        var tableHeader = jQuery("${'#table_header'}").html();
+
+        var parametersMap = getAllParametersFromUrl();
+        parametersMap.sortField = sortField;
+        parametersMap.sortOrder = sortOrder;
+
+        jQuery.ajax({
+          url: sortUrl,
+          data: parametersMap
+        }).done(function(response) {
+            var tableBody = jQuery("${'#table_body'}");
+            tableBody.empty();
+            tableBody.html(response);
+            jQuery("${'#table_header'}").html(tableHeader);
+
+            addOrUpdateUrlParam ('sortField', sortField);
+            addOrUpdateUrlParam ('sortOrder', sortOrder);
+        });
+    }
+
+    function ajaxSearch()
+    {
+        var searchUrl = "${URLUtils.url('SubmissionBoard-getSubmissions')}";
+        var searchPhraze = jQuery("${'#search'}").val();
+        var status = jQuery( "${'#status'} option:selected").val();
+        var itemType = jQuery( "${'#itemType'} option:selected").val();
+
+        var tableHeader = jQuery("${'#table_header'}").html();
+
+        var parametersMap = getAllParametersFromUrl();
+        parametersMap.searchPhraze = searchPhraze;
+        parametersMap.status = status;
+        parametersMap.itemType = itemType;
+
+        jQuery.ajax({
+          url: searchUrl,
+          data: parametersMap
+        }).done(function(response) {
+            var tableBody = jQuery("${'#table_body'}");
+            tableBody.empty();
+            tableBody.html(response);
+            jQuery("${'#table_header'}").html(tableHeader);
+
+            addOrUpdateUrlParam ('searchPhraze', searchPhraze);
+            addOrUpdateUrlParam ('status', status);
+            addOrUpdateUrlParam ('itemType', itemType);
+        });
+    }
+
+    function ajaxPage(pageNo)
+    {
+        var searchUrl = "${URLUtils.url('SubmissionBoard-getSubmissions')}";
+
+        var tableHeader = jQuery("${'#table_header'}").html();
+
+        var parametersMap = getAllParametersFromUrl();
+        parametersMap.pageNo = pageNo;
+
+        jQuery.ajax({
+            url: searchUrl,
+            data: parametersMap
+        }).done(function(response) {
+            var tableBody = jQuery("${'#table_body'}");
+            tableBody.empty();
+            tableBody.html(response);
+            jQuery("${'#table_header'}").html(tableHeader);
+
+            addOrUpdateUrlParam ('pageNo', pageNo);
+        });
+    }
+
+    function setSortFieldHeader(sortField, sortOrder) {
+        jQuery(document.getElementById(sortField+"Sort")).hide();
+
+        if (sortOrder == "asc") {
+            jQuery(document.getElementById(sortField + "_asc")).hide();
+            jQuery(document.getElementById(sortField + "_desc")).show()
+        } else {
+            jQuery(document.getElementById(sortField + "_desc")).hide();
+            jQuery(document.getElementById(sortField + "_asc")).show()
+        }
+    }
+
+    function getAllParametersFromUrl() {
+        var parametersMap = {};
+
+        ["searchPhraze","status", "itemType", "pageNo", "sortField", "sortOrder"].forEach(
+            function(paramName) {
+                var paramValue = getParameterFromUrl(paramName);
+                if (paramValue) {
+                    parametersMap[paramName] = paramValue;
+                }
+            }
+        );
+        return parametersMap;
+    }
+
+    function getParameterFromUrl(name) {
+        var url = window.location.href;
+        if (url.indexOf(name + "=") >= 0) {
+            var value = url.substring(url.indexOf(name));
+            value = value.substring(value.indexOf("=") + 1);
+            value = (value.indexOf("&") >= 0) ? value.substring(0, value.indexOf("&")) : value;
+
+            return decodeURIComponent(value);
+        }
+        return "";
+    }
+
+    function addOrUpdateUrlParam (param, value) {
+        var url = window.location.href;
+        var dashSuffix = "";
+
+        if (url.indexOf("${'#'}") >= 0) {
+            dashSuffix = url.substring(url.indexOf("${'#'}"));
+            url = url.substring(0, url.indexOf("${'#'}"));
+        }
+
+        if (url.indexOf(param + "=") >= 0) {
+            var prefix = url.substring(0, url.indexOf(param));
+            var suffix = url.substring(url.indexOf(param));
+            suffix = suffix.substring(suffix.indexOf("=") + 1);
+            suffix = (suffix.indexOf("&") >= 0) ? suffix.substring(suffix.indexOf("&")) : "";
+            url = prefix + param + "=" + value + suffix;
+        } else {
+            if (value) {
+                if (url.indexOf("?") < 0)
+                    url += "?" + param + "=" + value;
+                else
+                    url += "&" + param + "=" + value;
+            }
+        }
+        window.history.pushState("", "", url + dashSuffix);
+    }
+
+    function checkAll(name)
+    {
+        var checkbox = jQuery("[name='"+name+"']");
+        checkbox.each(function(index, value) {
+            jQuery(this).prop("checked", true);
+        });
+        jQuery(document.getElementById('select')).hide();
+        jQuery(document.getElementById('clean')).show();
+    }
+
+    function unCheckAll(name)
+    {
+        var checkbox = jQuery("[name='"+name+"']");
+        checkbox.each(function(index, value) {
+            jQuery(this).removeAttr('checked');
+        });
+        jQuery(document.getElementById('clean')).hide();
+        jQuery(document.getElementById('select')).show();
+    }
+
+    jQuery(document).ready(function() {
+        var parametersMap = getAllParametersFromUrl();
+
+        jQuery("${'#search'}").val(parametersMap.searchPhraze);
+        jQuery("${'#status'}").val(parametersMap.status);
+        jQuery("${'#itemType'}").val(parametersMap.itemType);
+
+        if(parametersMap.sortField)
+        setSortFieldHeader(parametersMap.sortField, parametersMap.sortOrder);
+
+        jQuery("${'#search'}").keydown(function (e){
+            if(e.keyCode == 13){
+                ajaxSearch();
+                return false;
+            }
+            return true;
+        });
+
+        var ajaxUrl = "${URLUtils.url('SubmissionBoard-CheckProgress')}";
+        var tr = jQuery("[data-row='true']");
+        tr.each(function(index, value) {
+            var uuid = jQuery(this).attr('name');
+            jQuery.ajax({
+              url: ajaxUrl + '?uuid=' + uuid
+            }).done(function(response) {
+                jQuery("[data-uuid='" + uuid + "']").text(response);
+            });
+        });
+    });
+
+</script>
+<isinclude template="application/script"/>
+
+</isdecorate>

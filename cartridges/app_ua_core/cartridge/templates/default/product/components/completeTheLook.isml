@@ -1,0 +1,42 @@
+<isif condition="${!empty(pdict.product)}"> 
+    <isset name="product" value="${pdict.product}" scope="page" />
+</isif>
+
+<isif condition="${product && product.custom.enableCompleteTheLook}">
+    <div class="b-product_completelook">
+         <isif condition="${!empty(product.custom.completeTheLookTitle)}">
+            <div class="t-title-3 t-align-center">
+               <isprint value="${product.custom.completeTheLookTitle}" encoding="off" />
+            </div>
+        </isif>
+        <isif condition="${!empty(product.custom.completeTheLookMainImageDesktop) && !empty(product.custom.completeTheLookMainImageMobile)}">
+            <div class="b-product_completelook-image">
+                <picture>
+                    <source media="(max-width: 799px)" srcset="${product.custom.completeTheLookMainImageMobile}" />
+                    <source media="(min-width: 800px)" srcset="${product.custom.completeTheLookMainImageDesktop}" />
+                    <img class="b-image_desktop lazyload" title='<isif condition="${!empty(product.custom.completeTheLookTitle)}"><isprint value="${product.custom.completeTheLookTitle}" encoding="off" /></isif>' alt='<isif condition="${!empty(product.custom.completeTheLookTitle)}"><isprint value="${product.custom.completeTheLookTitle}" encoding="off" /></isif> images' 
+                        src="${URLUtils.staticURL('/images/Tile_Skeleton_Loader.svg')}"
+                        data-src="${product.custom.completeTheLookMainImageDesktop}"/>
+                </picture>
+            </div>
+        </isif>
+        <isset name="completeTheLookProducts" value="${product.custom.completeTheLookProducts}" scope="page" />
+        <isif condition="${!empty(completeTheLookProducts)}">
+            <div class="b-product_completelook-grid">
+                <isloop items="${completeTheLookProducts}" var="completeTheLookProduct" status="loopState">
+                    <div class="b-products_grid" data-pid="${completeTheLookProduct}">
+                        <isinclude url="${URLUtils.url('Tile-Show', 'pid', completeTheLookProduct, 'pview', 'tile', 'ratings', false, 'swatches', false)}"/>
+                    </div>
+                </isloop>
+            </div>
+        </isif>
+        <isset name="completeTheLookProducts" value="${product.custom.completeTheLookProducts}" scope="page" />
+        <isif condition="${!empty(completeTheLookProducts)}">
+             <isloop items="${completeTheLookProducts}" var="completeTheLookProduct" status="loopState">
+                 <div class="b-products_grid b-product_gridmobile" data-pid="${completeTheLookProduct}">
+                     <isinclude url="${URLUtils.url('Tile-Show', 'pid', completeTheLookProduct, 'pview', 'tile', 'ratings', false, 'swatches', false)}"/>
+                 </div>
+             </isloop>
+        </isif>
+    </div>
+</isif>

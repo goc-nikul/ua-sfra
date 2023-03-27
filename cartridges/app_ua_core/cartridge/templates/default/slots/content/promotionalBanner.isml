@@ -1,0 +1,57 @@
+<isif condition="${slotcontent != null}">
+
+<isif condition="${slotcontent.slotID == "global-message-banner"}"><div class="b-global-message-banner__wrapper"></isif>
+	<div class="promo-banner__wrapper" data-assets="${slotcontent.content.length}">
+		<div class="promo-banner-slider">
+			<isloop items="${slotcontent.content}" var="contentAsset" status="loopState">
+				<isif condition="${loopState.index < 3}">
+					<div class="js-promo-header-banner promo-banner__slide-${loopState.index}" data-analytics-type="bm-header-text-link" 
+				    data-analytics-id="${contentAsset.ID}" data-analytics-variant="${slotcontent.slotID}">
+
+						<div class="promo-desktop-layout">
+							<isprint value="${contentAsset.custom.body}" encoding="off"/>	
+						</div>
+						
+							<div class="promo-mobile-layout">
+								<isif condition="${!empty(contentAsset.custom.promoMobileMessage)}">
+									<isprint value="${contentAsset.custom.promoMobileMessage}" encoding="off"/>
+								<iselse>
+									<isprint value="${contentAsset.custom.body}" encoding="off"/>
+								</isif>
+							</div>
+						
+					</div>
+				</isif>
+			</isloop>
+	
+		</div>
+
+
+		<isloop items="${slotcontent.content}" var="contentAsset" status="loopState">
+			<isif condition="${loopState.index < 3 && !empty(contentAsset.custom.headerPromoTooltipContent)}">
+
+				<div class="g-promo-combo-modal promo-banner__modal-${loopState.index}" tabindex="-1" role="dialog">
+					
+							<div class="b-navigation-close js-menu-close">
+								<button type="button" class="close g-modal-close_button" data-dismiss="modal" aria-label="Close">
+								</button>
+							</div>
+							<isif condition="${!empty(contentAsset.custom.headerPromoTooltipTitle)}">
+								<div class="g-combo-modal-header">
+									<isprint value="${contentAsset.custom.headerPromoTooltipTitle}" encoding="off"/>
+								</div>
+							</isif>
+							<div class="g-combo-modal-body">
+								<p>
+									<isprint value="${contentAsset.custom.headerPromoTooltipContent}" encoding="off"/>
+								</p>
+							</div>
+
+				</div>
+
+			</isif>
+		</isloop>
+
+	</div>
+	<isif condition="${slotcontent.slotID == "global-message-banner"}"></div></isif>
+</isif>

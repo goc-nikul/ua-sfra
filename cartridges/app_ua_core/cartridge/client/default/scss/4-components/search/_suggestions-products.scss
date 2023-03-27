@@ -1,0 +1,56 @@
+.b-suggestions_products {
+    &-list {
+        margin: 0 rem-calc(-12);
+        display: flex;
+
+        @include respond-to(tablets-landscape) {
+            margin: 0 (- spacing(xs2));
+        }
+
+        @include respond-to(mobile) {
+            padding-top: rem-calc(16);
+        }
+    }
+
+    &-item {
+        padding: 0 rem-calc(12);
+
+        @include respond-to(tablets-landscape) {
+            padding: 0 spacing(xs2);
+        }
+
+        @include respond-to(tablets) {
+            width: calc(100% / 3);
+        }
+
+        @include respond-to(desktop) {
+            width: 25%;
+        }
+
+        @include respond-to(phones) {
+            width: 50%;
+        }
+
+        @include respond-to(phones-portrait) {
+            width: 100%;
+        }
+
+        &:nth-child(n + 2) {
+            @include respond-to(phones-portrait) {
+                display: none;
+            }
+        }
+
+        &:nth-child(n + 3) {
+            @include respond-to(phones) {
+                display: none;
+            }
+        }
+
+        &:nth-child(n + 4) {
+            @include respond-to(mobile) {
+                display: none;
+            }
+        }
+    }
+}

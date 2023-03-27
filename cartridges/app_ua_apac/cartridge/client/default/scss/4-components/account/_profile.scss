@@ -1,0 +1,492 @@
+.b-account_form-row-email {
+    .b-account_form-column {
+        margin-right: 0;
+        margin-bottom: 0;
+        flex-basis: 30%;
+
+        @include respond-to(mobile) {
+            flex-basis: 50%;
+            margin-right: 0;
+            padding-right: 0;
+        }
+    }
+
+    .b-account_form-column:last-child {
+        margin-right: 0;
+    }
+
+    .b-account_form-column-domain-select {
+        display: flex;
+        flex-basis: 40%;
+        padding-right: rem-calc(24);
+
+        @include respond-to(mobile) {
+            flex-basis: 50%;
+            padding-right: 0;
+        }
+
+        > span {
+            line-height: normal;
+            padding: rem-calc(10) rem-calc(7) 0;
+        }
+
+        .space-btw-select-domain {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        select {
+            margin: 0;
+        }
+    }
+}
+
+.b-account_form-row-phone {
+    width: 100%;
+    flex-wrap: nowrap;
+    margin-bottom: rem-calc(24);
+
+    @include respond-to(mobile) {
+        margin-bottom: rem-calc(8);
+    }
+
+    .b-account_form-column {
+        margin-right: 0;
+        flex-basis: auto;
+
+        @include respond-to(mobile) {
+            flex-basis: auto;
+            padding-right: 0;
+        }
+    }
+
+    .b-account_form-column-phone-2 {
+        flex-basis: auto;
+    }
+
+    .b-account_form-column-phone-2-content {
+        flex-basis: auto;
+        display: flex;
+        align-items: center;
+        position: relative;
+    }
+}
+
+.b-account_form-row-phone__separator {
+    padding: 0 rem-calc(9) 0;
+    display: flex;
+    align-items: center;
+    max-height: rem-calc(42);
+
+    &::after {
+        background-color: $black;
+        display: block;
+        content: '';
+        height: rem-calc(2);
+        width: rem-calc(7);
+    }
+}
+
+.b-account_form-row-birth__separator {
+    padding: 0 rem-calc(9) 0;
+    display: flex;
+    align-items: center;
+    max-height: rem-calc(42);
+
+    &::after {
+        display: block;
+        content: '';
+        height: rem-calc(2);
+        width: rem-calc(7);
+    }
+}
+
+.registration.account-form {
+    .b-account_form-row-email {
+        margin-bottom: rem-calc(4);
+
+        .b-account_form-column-mobile:last-child {
+            margin-right: 0;
+            @include respond-to(mobile) {
+                flex-basis: 100%;
+                margin-top: rem-calc(15);
+            }
+        }
+
+        span.email-address-icon {
+            font-size: rem-calc(16);
+        }
+    }
+
+    .b-account_form-row-phone {
+        select {
+            margin: 0;
+        }
+
+        .b-account_form-column-mobile:last-child {
+            margin: 0;
+            @include respond-to(mobile) {
+                flex-basis: auto;
+            }
+        }
+    }
+}
+
+.b-account-edit-profile {
+    .g-checkbox-kr {
+        .g-checkbox-label {
+            display: block;
+            padding-top: 0;
+            text-align: left;
+        }
+    }
+
+    .b-account-profile__email-change,
+    .b-account-profile__password-change {
+        margin-bottom: rem-calc(24);
+    }
+}
+
+.b-account-profile__headwrap {
+    .b-account-profile-subhead {
+        @include respond-to(mobile) {
+            word-break: keep-all;
+        }
+    }
+}
+
+.b-account-profile,
+.b-account-address {
+    .b-account_form-row-email {
+        .b-account_form-column {
+            flex-basis: 13.25rem;
+
+            @include respond-to(mobile) {
+                flex-basis: 50%;
+                margin-right: 0;
+                padding-right: 0;
+            }
+        }
+
+        .b-account_form-column-domain-select {
+            flex-basis: 16.25rem;
+
+            @include respond-to(mobile) {
+                flex-basis: 50%;
+            }
+
+            > span {
+                padding: rem-calc(10) 0 0;
+                width: rem-calc(24);
+                flex-basis: rem-calc(24);
+                text-align: center;
+            }
+
+            .space-btw-select-domain {
+                width: auto;
+                margin-bottom: 0;
+                flex-basis: auto;
+            }
+        }
+
+        .b-account_form-column-mobile:last-child {
+            @include respond-to(mobile) {
+                flex-basis: 100%;
+                margin-top: rem-calc(10);
+            }
+        }
+    }
+
+    .b-account_form-row-phone,
+    .b-account_form-row-phone-address {
+        .b-account_form-column {
+            margin-right: 0;
+            flex-basis: auto;
+
+            @include respond-to(mobile) {
+                flex-basis: auto;
+            }
+        }
+
+        .b-account_form-column-phone-2 {
+            flex-basis: auto;
+
+            @include respond-to(mobile) {
+                flex-basis: auto;
+            }
+        }
+    }
+
+    &_form-row {
+        @include respond-to(mobile) {
+            margin-bottom: rem-calc(24);
+        }
+    }
+}
+
+.b-return-wrap,
+.edit-profile-form {
+    .drop-down-arrow {
+        @include icon('caret-down', 'before', 16, rem-calc(16));
+
+        position: relative;
+        flex-grow: 1;
+
+        &::before {
+            position: absolute;
+            top: rem-calc(22);
+            right: rem-calc(22);
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        select.pad {
+            -webkit-appearance: none;
+            padding-left: rem-calc(15);
+        }
+    }
+
+    .b-account_form-column-phone-2-content {
+        &::before,
+        &::after {
+            top: rem-calc(8);
+        }
+    }
+
+    .change-pass-kr {
+        display: flex;
+        justify-content: center;
+    }
+}
+
+.b-account_form-row-phone-address,
+.b-shipping_form-row-phone-address,
+.b-billing_form-row-phone-address,
+.b-contact_row-phone-address {
+    width: 100%;
+    flex-wrap: nowrap;
+    margin-bottom: 0;
+
+    .b-account_form-column,
+    .b-shipping_form-column,
+    .b-billing_form-column,
+    .b-contact_column {
+        margin-right: 0;
+        flex-basis: auto;
+
+        @include respond-to(mobile) {
+            flex-basis: auto;
+        }
+    }
+
+    .b-billing_form-column {
+        .b-input_row-label {
+            z-index: 4;
+        }
+    }
+
+    .b-account_form-column-phone-2,
+    .b-shipping_form-column-phone-2,
+    .b-billing_form-column-phone-2,
+    .b-contact_column-phone-2 {
+        flex-basis: auto;
+
+        @include respond-to(mobile) {
+            flex-basis: auto;
+        }
+    }
+}
+
+.b-billing_form-row-phone-address {
+    .billing-phone-width {
+        flex-basis: unset;
+    }
+}
+
+.b-checkout_main {
+    .b-billing_form-row-email-address,
+    .b-contact-row-email-address {
+        width: 100%;
+        flex-wrap: nowrap;
+        margin-bottom: rem-calc(20);
+
+        @include respond-to(mobile) {
+            margin-bottom: rem-calc(20);
+        }
+
+        .split_email_contact {
+            margin-bottom: rem-calc(0);
+        }
+
+        .fullEmail {
+            width: 100%;
+        }
+
+        .b-billing_form-row-email,
+        .b-contact-row-email {
+            width: 100%;
+            flex-wrap: nowrap;
+
+            @include respond-to(mobile) {
+                flex-wrap: wrap;
+            }
+
+            .b-billing_form-column,
+            .b-contact-column {
+                width: 100%;
+                margin: 0;
+                flex-basis: 40%;
+                position: relative;
+
+                .b-input_row-label {
+                    z-index: 4;
+                }
+
+                &.b-billing_form-column-mobile:first-child,
+                &.b-contact-column-mobile:first-child {
+                    @include respond-to(mobile) {
+                        flex-basis: 100%;
+                        margin-bottom: rem-calc(15);
+                    }
+                }
+            }
+
+            .b-billing_form-column-domain-select,
+            .b-contact-column-domain-select {
+                display: flex;
+                flex-basis: 50%;
+
+                span {
+                    padding: rem-calc(10) rem-calc(7) 0;
+                }
+
+                span.email-address-icon {
+                    font-size: rem-calc(16);
+                }
+
+                .space-btw-select-domain {
+                    width: 100%;
+                    margin-bottom: 0;
+                    margin-right: rem-calc(25);
+
+                    @include respond-to(mobile) {
+                        margin-right: 0;
+                    }
+
+                    label.b-input_row-label,
+                    label.form-control-label {
+                        &::before {
+                            content: ' ';
+                        }
+
+                        &::after {
+                            content: ' ';
+                        }
+                    }
+
+                    &.drop-down-arrow {
+                        @include icon('caret-down', 'before', 16, rem-calc(16));
+
+                        position: relative;
+                        flex-grow: 1;
+
+                        &::before {
+                            position: absolute;
+                            top: 1.375rem;
+                            right: 1.375rem;
+                            transform: translateY(-50%);
+                            pointer-events: none;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.b-account-profile__email-details {
+    .b-order-return-input {
+        padding-bottom: 0;
+
+        .b-account_form-row-email {
+            margin-bottom: 0;
+        }
+    }
+}
+
+.b-email-confirm {
+    margin-bottom: rem-calc(24);
+    @include respond-to(mobile) {
+        margin-bottom: rem-calc(8);
+    }
+}
+
+.b-account-address_book-container {
+    .emaillist-checkbox {
+        margin-bottom: rem-calc(12);
+    }
+
+    .addsmsto {
+        margin-bottom: rem-calc(28);
+        @include respond-to(mobile) {
+            margin-bottom: rem-calc(12);
+        }
+    }
+
+    .save-notice.editing {
+        width: 100%;
+        display: block;
+        margin-bottom: rem-calc(12);
+        font-size: rem-calc(12);
+
+        a.unsubscribe-link {
+            color: $black;
+        }
+    }
+
+    .email-disabled {
+        display: block;
+        color: $grey7;
+    }
+
+    .required-consents {
+        white-space: nowrap;
+        color: $red;
+        text-decoration: none;
+    }
+
+    .p-relative {
+        position: relative;
+    }
+}
+
+.b-contact-info {
+    .employee-discount-label {
+        margin-top: rem-calc(12);
+        line-height: rem-calc(16);
+        font-size: rem-calc(12);
+    }
+
+    .employee-discount-label_one {
+        line-height: rem-calc(16);
+        font-size: rem-calc(12);
+    }
+}
+
+.b-contact {
+    .b-contact-row-email-address,
+    .b-contact_row-phone-address {
+        .b-contact-row,
+        .b-contact_column {
+            .form-group {
+                .b-input_row-label::before {
+                    content: ' ';
+                }
+
+                input {
+                    color: $black;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,30 @@
+<input type="hidden" name="personalizationName" value="" data-weight="1" />
+<input type="hidden" name="personalizationNumber" value="" data-weight="2" />
+<input type="hidden" name="personalizationSponsors" value="" data-weight="4" />
+<isif condition="${typeof pdict.product !== 'undefined' && !empty(pdict.product)}">
+    <isset name="product" value="${pdict.product}" scope="page"/>
+</isif>
+<isset name="negativeWords" value="${JSON.stringify(product.personalizationNegativeWords)}" scope="page" />
+<isif condition="${!empty(negativeWords)}">
+    <script>window.negativeWords = <isprint value="${negativeWords}" encoding="off"/>;</script>  
+</isif>
+<div class="product-personalization ${product.isPersonalizationEligible ? '' : 'hide'}"
+    data-edit-personalization="${product.personalizationEditMessage}"
+    data-add-personalization="${product.personalizationAddMessage}">
+    <div class="personalize__action">
+        <button class="g-button_base g-button_tertiary personalize__action-btn btn" data-toggle="modal" datsa-target="#personalize-modal">
+            <isprint value="${Resource.msg('personalize.flag', 'personalize', null)}" />
+        </button>
+        <span class="personalize__tooltip tooltip b-promo-tooltip-content">
+            <span class="g-tooltip-icon g-tooltip">
+                   <span class="g-tooltip-arrow"></span>
+            </span>
+            <span class="personalize__tooltip-content tooltip-content g-tooltip-text" data-layout="small">
+                <isprint value="${Resource.msg('personalize.tooltip', 'personalize', null)}" encoding="off" />
+            </span>
+        </span>
+    </div>
+    <iscomment>Modal Begins</iscomment>
+    <isinclude template="product/personalizationModal" />
+    <isinclude template="product/renderjerseysvg" />
+</div>

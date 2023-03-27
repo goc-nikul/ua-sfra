@@ -1,0 +1,5 @@
+<li class="g-tabs-chip nav-item applepay-tab-wrapper applepay-tab ${pdict.eligiblePaymentMethods.applePay && !pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') ? '' : 'hide'}" role="tab" data-method-id="${paymentOption.ID}" data-isCancel = "${pdict.isApplePayCancel}">
+    <a class="g-tabs-link nav-link ${pdict.selectedPaymentMethod == paymentOption.ID ? 'active' : ''}" data-toggle="tab" href="#applepay-content" role="tab">
+        <isprint value="${Resource.msg('heading.payment.applePay', 'checkout', null)}" />
+    </a>
+</li>

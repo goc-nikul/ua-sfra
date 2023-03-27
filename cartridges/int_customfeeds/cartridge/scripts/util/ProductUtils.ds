@@ -1,0 +1,1894 @@
+importPackage( dw.system );
+importPackage( dw.catalog );
+importPackage( dw.campaign );
+importPackage( dw.util );
+importPackage( dw.value );
+importPackage( dw.web );
+importPackage( dw.object );
+
+function sanitize(inS : String) {
+	return inS;
+	return inS.replace(/\W/g,'');
+}
+
+function unsanitizeOR( anURL ) {
+	if(!empty(anURL)){
+		return anURL.toString().replace('%7c','|','g');	
+	}
+	return anURL;	
+}
+
+function stripHTMLTags(s) {
+	// Matches a full HTML tag with all the content in it
+	// e.g. </script><script>alert()</script>
+	return s.replace(/<([^>]+)>(.*)<([^>]+)>*/ig, '');
+}
+
+function ProductUtils(pdict : PipelineDictionary) {
+	var _product = Product = pdict.Product || null;
+	var _httpMap = dw.web.HttpParameterMap = pdict.CurrentHttpParameterMap;
+	var _variationModel = ProductVariationModel = empty(pdict.CurrentVariationModel) ? (_product==null?null:_product.variationModel) : pdict.CurrentVariationModel;
+	var _variantHierarchy = null;
+	 
+	var getSimpleProduct = function(item : Product) {		
+		var pm = item.isVariant() ? item.masterProduct : item;
+		var p = {
+			source: _httpMap.source.stringValue,
+			start: _httpMap.start.intValue,
+			cgid: _httpMap.cgid.stringValue,
+			srule: _httpMap.srule.stringValue,
+			name: item.name,
+			ID: item.ID,
+			productSet: item.productSet,
+			bundle: item.bundle,
+			bundled: item.bundled,
+			productSetProduct: item.productSetProduct,
+			master: item.isMaster(),
+			isOption: item.optionProduct,
+			variant: item.isVariant(),
+			masterID: pm.ID
+		};
+		var dct = pdict;
+		try {		
+			p.variations = getVariationAttributes(item);			
+			p.pricing = ProductUtils.getPricing(item);
+			p.images = {
+				"large": getImages(item, "large"),
+				"small": getImages(item, "small"),
+			}			
+			p.availability = ProductUtils.getAvailability(item, _httpMap.Quantity.stringValue);					
+			p.variants = ProductUtils.getVariants(item, _variationModel, _httpMap.Quantity.stringValue);								
+		}
+		catch (error) {
+			p.error = error;
+		}
+		return p;
+	};	
+	
+	var getVariantHierarchy = function() {
+		if (_product==null) { return null; }
+		var vh = {};
+		if (!_variantHierarchy) {
+			_variantHierarchy = ProductUtils.getVariantHierarchy(_product, _variationModel, _httpMap.Quantity.stringValue);
+		}
+		vh = _variantHierarchy;
+		return vh;
+	}
+	
+	var getVariantAvailability = function(current : String, selected : Array) {
+		var arr = [], att = null;
+				
+		var vh = getVariantHierarchy();
+		if (selected.length==0) {
+			for (att in vh.attributes) {
+				if (att.selected) {	break; }
+			}
+			arr.push(att.id+"-"+att.value);
+		}
+		else {
+			arr = selected;
+		}
+		if (current) {
+			arr.push(current);
+		}
+		var atts = vh.attributes;
+		var attribute = {};
+		for (var i=0,len=arr.length;i<len;i++){
+			attribute = atts[arr[i]];
+			if (!attribute) {
+				if (current) { arr.pop(); } 
+				 return false;
+			}
+			if (!attribute.attributes) { break; }
+			atts = attribute.attributes;
+		}
+		if (current) { arr.pop(); }		
+		return getAttributeAvailability(attribute);		
+	}	
+	
+	var getAttributeAvailability = function(attribute) {
+		var available = false;
+		if (attribute.attributes) {
+			for (a in attribute.attributes) {
+				var att = attribute.attributes[a];				
+				var available = getAttributeAvailability(att);
+				if (available) { break;}
+			}
+		}
+		else {
+			available = attribute.availability.availableForSale;			
+		}
+		return available;
+		
+	}	
+	
+	var getVariationAttributes = function(item) {
+		
+		var variations = { attributes: [] };
+		
+		if (!item.isVariant() && !item.isMaster()) {
+			return variations;
+		}		
+			
+		// get product variations	
+		var pvm :  ProductVariationModel = pdict.CurrentVariationModel ? pdict.CurrentVariationModel: item.variationModel;
+		var masterPvm :  ProductVariationModel = item.isVariant() ? item.masterProduct.variationModel : item.variationModel;
+		var attIterator = pvm.productVariationAttributes.iterator();
+		
+		while (attIterator.hasNext()) {
+			var v_att = attIterator.next();
+			var pva = 	{
+				id: v_att.getAttributeID(),
+				name: v_att.getDisplayName(),
+				vals: []
+			};
+			
+			var attValIterator = pvm.getAllValues(v_att).iterator();					
+			while (attValIterator.hasNext()) {
+				var v_attVal = attValIterator.next();
+				if (!masterPvm.hasOrderableVariants(v_att, v_attVal)) { continue; }
+				var pvaVal = {
+					id: v_attVal.ID,
+					val: v_attVal.displayValue ? v_attVal.displayValue: v_attVal.value
+				};
+				
+				if (pva.id == 'color') {
+					// get images for variation
+					pvaVal.images = {
+						"swatch": {},
+						"large": getImages(v_attVal,"large"),
+						"small": getImages(v_attVal,"small")
+					};
+					// get swatch image
+					var swatch = v_attVal.getImage('swatch');
+					if (!empty(swatch)) {
+						// TODO: See if this can be done via json serializer
+						pvaVal.images.swatch = {"url":swatch.getURL(),"alt":swatch.alt,"title":swatch.title};						
+					}										
+				}
+				// add the product variation attribute value
+				pva.vals.push(pvaVal); 
+				
+			} /* END pvm.getAllValues(v_att) */
+			
+			// add the product variation attribute
+			variations.attributes.push(pva);	
+		} /* END pvm.productVariationAttributes */
+		return variations;
+	};
+	
+	var getImages = function(o, viewtype) {
+		var imgs = o.getImages(viewtype);
+		var imgArray = [];
+		for (var i=0,len=imgs.length;i<len;i++) {
+			imgArray.push({"url":imgs[i].getURL().toString(),"alt":imgs[i].alt,"title":imgs[i].title});	
+		}
+		return imgArray;
+	}
+	
+	var appendObjectProperties = function(source, destination) {
+		for (var p in source) { destination[p] = source[p];	}	
+	};
+	
+	return {
+		getSimpleProduct : getSimpleProduct,
+		getImages : getImages,
+		getPricing : ProductUtils.getPricing,
+		getVariationAttributes : getVariationAttributes,
+		isVariantAvailable : getVariantAvailability
+	};	
+}
+
+ProductUtils.getAvailability = function(item : Product, quantity : Object) {
+	var qty = isNaN(quantity) ? 1 : (new Number(quantity)).toFixed();
+	/* product availability */
+	var avm : ProductAvailabilityModel = item.availabilityModel;
+	
+	var availability = {
+		status:avm.availabilityStatus,
+		statusQuantity:qty,
+		inStock:avm.inStock,
+		ats:empty(avm.inventoryRecord) ? 0 : avm.inventoryRecord.ATS.value.toFixed(),
+		inStockDate:empty(avm.inventoryRecord) || empty(avm.inventoryRecord.inStockDate) ? "" : avm.inventoryRecord.inStockDate.toDateString(),
+		availableForSale:avm.availability>0,		 		
+		levels : {}
+	};
+	
+	var avmLevels = ProductAvailabilityLevels = avm.getAvailabilityLevels((qty < 1) ? 1 : qty);
+	availability.isAvailable = avmLevels.notAvailable.value==0;
+	availability.inStockMsg = Resource.msgf('global.quantityinstock','locale',"", avmLevels.inStock.value.toFixed());
+	availability.preOrderMsg = Resource.msgf('global.quantitypreorder','locale',"", avmLevels.preorder.value.toFixed());
+	availability.backOrderMsg = Resource.msgf('global.quantitybackorder','locale',"", avmLevels.backorder.value.toFixed());
+	if (avm && avm.inventoryRecord && !empty(avm.inventoryRecord.inStockDate)) {
+		availability.inStockDateMsg = Resource.msgf('global.inStockDate','locale',"", avm.inventoryRecord.inStockDate.toDateString());
+	}
+	
+	availability.levels[dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_IN_STOCK] = avmLevels.inStock.value;
+	availability.levels[dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_PREORDER] = avmLevels.preorder.value;
+	availability.levels[dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_BACKORDER] = avmLevels.backorder.value;
+	availability.levels[dw.catalog.ProductAvailabilityModel.AVAILABILITY_STATUS_NOT_AVAILABLE] = avmLevels.notAvailable.value;
+	
+	return availability;	
+}
+
+ProductUtils.getProductJson = function(item : Product, args : PipelineDictionary) : String {
+	var pu = new ProductUtils(args);
+	var sp = pu.getSimpleProduct(item);
+	var json = JSON.stringify(sp); 
+	return json;
+}
+
+ProductUtils.getPricing = function(item : Product) : String {
+	/* product pricing 
+	*
+	* There is currently no way to check if the list pricebook is actually
+	* assigned to the site.  Therefore, we do a sanity check:  If the
+	* product has no price according to standard price lookup rules,
+	* then we know the list price book is not assigned to the site.
+	* (The converse is not true so this check is not perfect.)
+	* 
+	* Todo:  Improve this logic.
+	*/
+
+	var priceModel = item.getPriceModel();
+	var standardPrice = null;
+
+	if (!priceModel.getPrice().available) {
+		standardPrice = dw.value.Money.NOT_AVAILABLE;
+	} else if (('listPriceDefault' in dw.system.Site.current.preferences.custom) && !empty(dw.system.Site.current.preferences.custom.listPriceDefault)) {
+		standardPrice = priceModel.getPriceBookPrice(dw.system.Site.current.preferences.custom.listPriceDefault);
+	} else {
+		standardPrice = priceModel.getPriceBookPrice('list-prices');
+	}
+	
+	var salesPrice = priceModel.getPrice();	
+	var showStdPrice = standardPrice.available && salesPrice.available && standardPrice.compareTo(salesPrice) == 1;
+	var promoPrice = dw.value.Money.NOT_AVAILABLE;
+	var isPromoPrice = false;
+
+	var promos = PromotionMgr.activeCustomerPromotions.getProductPromotions(item);
+	if (!(empty(promos))) {	
+		var promo = promos[0];	
+		var promoClass = promo.getPromotionClass();
+		if (promoClass && promoClass.equals(Promotion.PROMOTION_CLASS_PRODUCT)) {
+			if (item.optionProduct) {
+				promoPrice = (pdict.CurrentOptionModel) ? 
+							 promo.getPromotionalPrice(item, pdict.CurrentOptionModel) :
+							 promo.getPromotionalPrice(item, item.getOptionModel());
+			}
+			else {
+				promoPrice = promo.getPromotionalPrice(item);
+			}
+		}
+		
+		if (promoPrice.available && salesPrice.compareTo(promoPrice) != 0) {
+			showStdPrice = isPromoPrice = true;
+			standardPrice = salesPrice;
+			salesPrice = promoPrice;	
+		}
+	}
+
+	var pricing = {
+		showStandardPrice : showStdPrice,
+		isPromoPrice : isPromoPrice,
+		standard : standardPrice.value,
+		formattedStandard : dw.util.StringUtils.formatMoney(standardPrice),
+		sale : salesPrice.value,
+		formattedSale : dw.util.StringUtils.formatMoney(salesPrice),		
+		salePriceMoney : salesPrice,
+		standardPriceMoney : standardPrice,
+		quantities : []
+	};
+	
+	var priceTable = priceModel.getPriceTable();
+	for (var qty in priceTable.getQuantities()) {		
+		pricing.quantities.push({unit:empty(qty.unit) ? "" : qty.unit, value:empty(qty.value) ? 0 : qty.value.toFixed()});
+	}	
+	
+	return 	pricing;
+}
+
+ProductUtils.getSimpleBonusProduct = function(item : Product, lineItem : dw.order.ProductLineItem) : String {
+	var p = {
+		name : item.name,
+		ID: item.ID,
+		qty : lineItem.quantityValue,
+		lineItemCtnrUUID : lineItem.lineItemCtnr.UUID,
+		variations : {attributes: []},
+		options : {attributes: []}
+	};
+	
+	// if product is variant or master, get selected  attribute definitions
+	if (item.isVariant() || item.isMaster()) {						
+		var attDefs = item.variationModel.getProductVariationAttributes();
+		for (var i=0,len=attDefs.length;i<len;i++) {
+			var attDef = attDefs[i]; 
+			var selectedValue = item.variationModel.getSelectedValue(attDef);
+			// push variation attributes to simple object 
+			p.variations.attributes.push({
+				displayID: attDef.ID, 
+				displayName: attDef.displayName, 
+				selectedDisplayValue: selectedValue.displayValue, 
+				selectedValue : selectedValue.value});			
+		}
+	}
+	
+	// if lineItem or optionProductLineItems is empty, return simple object
+	if (empty(lineItem) || empty(lineItem.optionProductLineItems)) {
+		return p;
+	}
+	
+	
+	// otherwise get option product line items
+	var optionLineItems = lineItem.optionProductLineItems;
+	for (var i=0, len=optionLineItems.length;i<len;i++) {
+		var optionLineItem = optionLineItems[i];
+		var option = item.optionModel.getOption(optionLineItem.optionID);
+		// push option attributes to simple object
+		p.options.attributes.push({
+			displayID: optionLineItem.optionID, 
+			htmlName: empty(option) ? "" : option.htmlName, 
+			selectedDisplayValue: optionLineItem.lineItemText, 
+			selectedValue : optionLineItem.optionValueID
+		});		
+	}
+	
+	// return simple object
+	return p;
+}
+
+ProductUtils.getBonusProductJson = function(item : Product, lineItem : dw.order.ProductLineItem) : String {
+	var o = { data : ProductUtils.getSimpleBonusProduct(item, lineItem) };
+	return JSON.stringify(o);
+}
+
+ProductUtils.getSelectedColor = function(product : Product, pvm : ProductVariationModel) {
+	if (product==null) { return null; }
+	var vm : ProductVariationModel = pvm==null ? product.variationModel : pvm;
+	var cvm : ProductVariationModel = product.isVariant() ? product.masterProduct.variationModel : product.variationModel;
+						
+	var selectedColor = null;				
+	var colorVA = vm.getProductVariationAttribute("color");	
+	if (colorVA==null) { return null; }
+						
+	var selectedColor = vm.getSelectedValue(colorVA);						
+	
+	if (!empty(selectedColor)) {		
+		return selectedColor;
+	}
+	else {
+		var variant = product;
+		if(!product.isVariant()) {
+			if(!empty(vm.defaultVariant)) {
+		 		variant = vm.defaultVariant;								 		
+		  	} else if(vm.variants.length > 0) {
+		  		variant = vm.variants[0];								  		
+		  	}			
+		}	
+		
+	 	var cv = vm.getVariationValue(variant, colorVA);
+	 	if (colorVA && cv && !cvm.hasOrderableVariants(colorVA, cv)) {
+	 		var found = false;
+			for (var i=0,il=vm.variants.length;i<il;i++) {
+				cv = cvm.getVariationValue(vm.variants[i], colorVA);
+				if (cvm.hasOrderableVariants(colorVA, cv)) {
+					found = true;
+					break;				
+				}
+			}
+	 	} 
+	 	return cv;
+	}
+}
+
+ProductUtils.getVariantForColor = function(prod : dw.catalog.Product, colorId : String)  {
+	var newProduct = prod;
+	var variants = prod.getVariants();	
+	
+	if(variants == null || variants.length == 0) {
+		return newProduct;		
+	}
+		
+	for each(var p in variants) {
+		if (p.onlineFlag) {
+			newProduct = p;
+			if(empty(colorId) || p.custom.color == colorId) {
+				break;
+			}
+		}
+	}
+	return newProduct;
+}
+
+ProductUtils.getVariantForColorAndSize = function(pvm : dw.catalog.ProductVariationModel, queryString : String)  {
+    var queryStringArray,
+        colorValue,
+        sizeValue;
+
+    if (queryString) {  
+        queryStringArray = queryString.split('&');  
+        for (var x = 0; x < queryStringArray.length; x++) {  
+            var parameter = queryStringArray[x];  
+            if (parameter.indexOf('color') != -1) {  
+                colorValue = parameter.split('=')[1];  
+            } else if(parameter.indexOf('size') != -1) {
+                sizeValue = parameter.split('=')[1];  
+            }
+        }  
+    }
+    
+    if (colorValue && sizeValue) {
+        var hm = new dw.util.HashMap();
+        hm.put('color', colorValue);
+        hm.put('size', sizeValue);
+        var filteredVariants = pvm.getMaster().getVariationModel().getVariants(hm);
+        if (filteredVariants.size() == 1) {
+            return filteredVariants[0];
+        } else {
+        	return pvm.getMaster();
+        }
+    }
+    
+    return pvm.getMaster();
+}
+
+ProductUtils.getSwatchColor = function(colorValue)  {
+	var htmlColor = colorValue.getImage("gridSwatch") && colorValue.getImage("gridSwatch").alt;
+	
+    if (empty(htmlColor)) htmlColor = "#fff"; //set default
+ 
+    return htmlColor;
+}
+
+ProductUtils.getQueryString = function(map: dw.web.HttpParameterMap, fields : Array) {
+	var parms = [];	
+	for (var i=0,il=fields.length;i<il;i++) {
+		var key = fields[i];
+		if (empty(key) || !map.isParameterSubmitted(key)) { continue;	}
+		
+		var parm : dw.web.HttpParameter = map.get(key);		
+		if(empty(parm) || parm.stringValue.length==0) { continue;	}
+				
+		// only get here if we have a match
+		parms.push(sanitize(key)+"="+sanitize(parm.stringValue));
+	}
+	var qs = parms.length==0 ? "" : parms.join("&"); 
+	return 	qs;
+}
+
+
+ProductUtils.getVariants = function(item : Product, pvm : ProductVariationModel, quantity : Object) {
+	var variants = {};
+	if (!item.isVariant() && !item.isMaster()) {
+		return variants;
+	}	
+	
+	for (var i=0,len=pvm.variants.length;i<len;i++) {
+		
+		var v : Variant = pvm.variants[i];
+		var variant = {
+			id : v.ID,
+			attributes : {},			
+			availability: ProductUtils.getAvailability(v, quantity),
+			pricing: ProductUtils.getPricing(v)
+		};
+		// attributes
+		var attKey = [];
+		for (var a=0,alen=pvm.productVariationAttributes.length;a<alen;a++) {		
+			var att = pvm.productVariationAttributes[a];			
+			var variationValue = pvm.getVariationValue(v, att);
+			if (empty(variationValue)) { continue; }
+			attKey.push(att.ID+"-"+variationValue.value);
+			variant.attributes[att.ID] = empty(variationValue.displayValue) ? variationValue.value : variationValue.displayValue;		 
+		}
+		
+		variants[attKey.join("|")]=variant;		
+	}
+	
+	return variants;
+}
+
+ProductUtils.getVariantHierarchy = function(item : Product, pvm : ProductVariationModel, quantity : Object) {
+	var variants = {};
+	if (!item.isVariant() && !item.isMaster()) { return variants; }
+		
+	for (var i=0,len=pvm.variants.length;i<len;i++) {
+		var v = pvm.variants[i];		
+		var target = variants;		
+		// attributes		
+		for (var a=0,alen=pvm.productVariationAttributes.length;a<alen;a++) {					
+			var att = pvm.productVariationAttributes[a];
+			var variationValue = pvm.getVariationValue(v, att);
+			if (empty(variationValue)) { continue; }
+			var key = att.ID+"-"+variationValue.value;
+			if (!("attributes" in target)) {
+				target.attributes = {};
+			}
+			if (!(key in target.attributes)) {				
+				target.attributes[key] = {
+					id:att.ID,
+					value:variationValue.value,
+					display:empty(variationValue.displayValue) ? variationValue.value : variationValue.displayValue,
+					selected:pvm.isSelectedAttributeValue(att, variationValue)					
+				};				
+			}
+			target = target.attributes[key];		 
+		}
+		target.productId = v.ID;
+		target.availability = ProductUtils.getAvailability(v, quantity);
+		target.pricing = ProductUtils.getPricing(v);
+	}
+	
+	return variants;
+};
+
+ProductUtils.getSelectedAttributes = function(pvm : ProductVariationModel) {
+	var atts = {},		
+		attDefs = pvm.getProductVariationAttributes();	
+	
+	for (i=0; i<attDefs.length;i++) {
+		var attribute = attDefs[i]; 
+		var selectedValue = pvm.getSelectedValue(attribute);		
+		atts[attribute.ID] = {			
+			displayName:attribute.displayName,
+			value:selectedValue?selectedValue.value:"",
+			displayValue:selectedValue?selectedValue.displayValue:""
+		};
+	}
+	return atts;
+};
+
+ProductUtils.getDefaultVariant = function(pvm : ProductVariationModel) {
+	var variant = pvm.selectedVariant;
+	if (!empty(variant)) { return variant; }
+	
+	var attDefs = pvm.getProductVariationAttributes();
+	var map : dw.util.HashMap = new dw.util.HashMap();	
+	
+	for (var i=0,len=attDefs.length;i<len;i++) {
+		var attribute = attDefs[i]; 
+		var selectedValue = pvm.getSelectedValue(attribute);
+		if (!empty(selectedValue) && selectedValue.displayValue.length>0) {
+			map.put(attribute.ID,selectedValue.ID);
+		}
+	}
+	
+	var variants = 	pvm.getVariants(map);
+	for (var i=0,len=variants.length;i<len;i++) {
+		var p : Variant = variants[i];
+		if (p.onlineFlag && p.availabilityModel.availability>0) {
+			return p;
+		}
+	}
+	return null;
+};
+
+ProductUtils.getSortedVariationValues = function(pvm : ProductVariationModel, va : ProductVariationAttribute) {
+	var JSONUtils = require("~/cartridge/scripts/util/JSONUtils");
+	var vaValues : Collection = pvm.getAllValues(va);
+	
+	// if not size, behave normally by returning vaValues
+ 	if(va.attributeID !== "size") {
+ 		return vaValues;
+ 	}
+ 	
+	var co : CustomObject = CustomObjectMgr.getCustomObject('SiteData', 'RefinementGroup_default');
+	if (empty(co) || empty(co.custom.data)) {
+		return vaValues;
+	}
+	
+	var sizeOrderConfig : Object = JSONUtils.getValue(co.custom.data, 'size');
+	var product : Product = !empty(pvm.selectedVariant) ? pvm.selectedVariant : pvm.master;
+	var division : String = !empty(product.custom.division) ? product.custom.division.toLowerCase() : '';
+	var silhouette : String = !empty(product.custom.silhouette) ? product.custom.silhouette.toLowerCase() : '';
+	
+	if (empty(division) || empty(silhouette)) {
+		return vaValues;
+	}
+	
+	// Delete possible whitespaces to use them as object's property names.
+	division = division.replace(/\s/g, '');
+	silhouette = silhouette.replace(/\s/g, '');
+	
+	if (empty(sizeOrderConfig[division]) || empty(sizeOrderConfig[division][silhouette])) {
+		// Return default values if size configuration is not present
+		return vaValues;
+	}
+	
+	var sizeOrder : Array = sizeOrderConfig[division][silhouette];
+	var sortedSizeAttributes : ArrayList = new ArrayList();
+	
+	for each (var size : String in sizeOrder) {
+		// Match size attributes with current size value and use matched attribute
+		for each (var sizeAttribute : ProductVariationAttributeValue in vaValues) {
+			if (sizeAttribute.value === size) {
+				sortedSizeAttributes.push(sizeAttribute);
+			}
+		}
+	}
+	// Return default values if no attributes were matched
+	return sortedSizeAttributes.length ? sortedSizeAttributes : vaValues;
+};
+
+ProductUtils.getProductInfo = function(productID : String) : Object {
+	
+	var product : dw.catalog.Product = (!empty(productID)) ? dw.catalog.ProductMgr.getProduct(productID) : null,
+		productInfo : Object = {};
+		
+	if (product) {
+		var masterProduct = (product.isVariant()) ? product.masterProduct : product;
+			
+		productInfo.productID = productID;
+		productInfo.productName =  masterProduct.getName();
+		
+		if (product.isMaster() && product.priceModel.isPriceRange()) {
+			productInfo.productPrice = dw.util.StringUtils.formatMoney(product.priceModel.minPrice)+' - '+dw.util.StringUtils.formatMoney(product.priceModel.maxPrice);
+		} else {
+			var variant = (product.isMaster()) ? ProductUtils.getDefaultVariant(masterProduct.getVariationModel()) : product,
+				pricing = ProductUtils.getPricing(variant);
+				
+			productInfo.productPrice = (pricing.formattedSale != 'N/A') ? pricing.formattedSale : '';
+			productInfo.productPrice += (pricing.formattedStandard != 'N/A') ? '<span>'+pricing.formattedStandard+'</span>' : '';
+
+		}
+	}
+	
+ 	return productInfo;
+		
+};
+
+/**
+ @description returnes price from specified price book, with fallback for Euro price book
+ @param {Object} product
+ @param {String} currencyCode used as a prefix for price book
+ @param {String} priceBookName price book name for getting price
+ @return {Number} requestedPrice product price or default NOT_AVAILABLE value
+*/
+ProductUtils.getPriceByPricebook = function( product : Product, currencyCode : String, priceBookName : String, locale : String ) : Number {
+	if( empty( product ) ) return;
+	
+	var requestedPrice : Number = Money.NOT_AVAILABLE,
+		priceModel : ProductPriceModel = product.getPriceModel(),
+		localeId : String = (!empty(locale)) ? locale : request.locale,
+		CountryHelper = require("~/cartridge/scripts/util/CountryHelper"),
+ 		countryObject	: Object = new CountryHelper('locale', localeId),
+ 		priceBooks : Array = countryObject.preferredPriceBook,
+ 		availableCurrency : ArrayList = new ArrayList(),
+ 		priceBookId : String = '';
+ 
+ 	if (!empty(priceBooks)) {
+ 	
+ 		availableCurrency.push(currencyCode);
+		if (currencyCode == 'EUR') availableCurrency.push('Euro');
+		
+		for (var i = 0; i < priceBooks.length; i++){
+			for (var j = 0; j < availableCurrency.length; j++) {
+				priceBookId = availableCurrency[j] + '-' + priceBookName;
+				if (priceBooks[i].indexOf(priceBookId) > -1) {
+					priceBookId = priceBooks[i]; 
+					break;	
+				}
+				priceBookId = '';
+			}
+			if (!empty(priceBookId)) break;
+		}
+		
+ 	} 
+ 	if(countryObject.hasOwnProperty('supplementalPriceBook') && countryObject.supplementalPriceBook === true){
+ 		JSONUtils = require("~/cartridge/scripts/util/JSONUtils");
+		var supplementalPriceBooksData = JSONUtils.getValue(dw.system.Site.getCurrent().getCustomPreferenceValue('supplementalPriceBooks'),localeId.slice(-2).toUpperCase());
+		if(supplementalPriceBooksData){
+			supplementalPriceBooksData = supplementalPriceBooksData[0].split("-");
+			priceBookId = supplementalPriceBooksData[0] + '-' + priceBookName ;
+		}
+ 	}
+ 	
+ 	if (empty(priceBookId)) {	
+ 		priceBookId = ((currencyCode == 'EUR') ? 'Euro' : currencyCode)  + '-' + priceBookName;
+ 	}
+ 	 	
+ 	if (!empty(priceBookId)) {
+ 		requestedPrice = priceModel.getPriceBookPrice(priceBookId);	 
+ 	}
+	
+	return requestedPrice;
+}
+
+/**
+ @description return the default variant 
+ @param {Object} Product variation model
+ @return {Object} ProductVariationAttributeValue
+*/
+ProductUtils.getDefaultVariant = function( pvm : ProductVariationModel ) : Variant {
+	var variant = null;
+	var showOOSItems = dw.system.Site.getCurrent().getCustomPreferenceValue('showOOSItems');
+	
+	if (!empty(pvm.defaultVariant) && (showOOSItems ? pvm.defaultVariant.isOnline() : (pvm.defaultVariant.availabilityModel.isOrderable() && pvm.defaultVariant.availabilityModel.getAvailability() > 0))) {
+		variant = pvm.defaultVariant;
+	} else if (pvm.variants.length > 0) {
+		for (var i = 0; i < pvm.variants.length; i++) {
+			// Do not check for available inventory for variant in case of showOOSItems is enabled
+			var variantAvailable = showOOSItems || (pvm.variants[i].availabilityModel.isOrderable() && pvm.variants[i].availabilityModel.getAvailability() > 0);
+			if (variantAvailable) {
+				variant = pvm.variants[i];
+				break;
+			}
+		}
+	}
+
+	return variant;
+}	
+
+/**
+ @description return the default variant color 
+ @param {Object} Product variation model
+ @param {Object} Product default variant
+ @return {Object} ProductVariationAttributeValue
+*/
+ProductUtils.getDefaultVariantColor = function( pvm : ProductVariationModel, selectedVariant : Variant  ) : ProductVariationAttributeValue {
+
+	var colorVarAttr : ProductVariationAttribute = pvm.getProductVariationAttribute('color'),
+		colorVV = null;
+									
+	    if (!empty(selectedVariant)) {
+			if (colorVarAttr != null && 'getVariationValue' in pvm && pvm.getVariationValue(selectedVariant, colorVarAttr) != null) {
+				colorVV = pvm.getVariationValue(selectedVariant, colorVarAttr);
+			}
+		}
+	return colorVV;
+}	
+
+/**
+ @description return the first online variant 
+ @param {Object} Product variation model
+ @return {Object} valiant
+*/
+ProductUtils.getFirstOnlineVariant = function(ProductVariationModel) {
+	var variants = ProductVariationModel.variants,
+		variant = null,
+		showOOSItems = dw.system.Site.getCurrent().getCustomPreferenceValue('showOOSItems');
+		
+	for (var i = 0; i < variants.length; i++) {
+		// Do not check for available inventory for variant in case of showOOSItems is enabled
+		var variantAvailable = showOOSItems ? variants[i].isOnline() : (variants[i].availabilityModel.isOrderable() && variants[i].availabilityModel.getAvailability() > 0);
+		if (variantAvailable && variants[i].getPriceModel().getPriceInfo()) {
+			variant = variants[i];
+			break;
+		}
+	}
+	return variant;
+}
+
+/**
+ @description return the first variant for product
+ @param {Object} Product variation model
+ @return {Object} valiant
+*/
+ProductUtils.getFirstVariant = function( pvm : ProductVariationModel, onlyWithSale : Boolean, predefinedColor) : Product {
+	
+	var colorVA : ProductVariationAttribute = pvm.getProductVariationAttribute("color"),
+		colorVV : ProductVariationAttributeValue = (!empty(colorVA)) ? pvm.getSelectedValue(colorVA) : null,	
+		colorMap : Map = new dw.util.HashMap(),
+		variant : Product = null,
+		variantSale : Product = null,
+		withSale : Boolean = !!onlyWithSale,
+		showOOSItems : Boolean = dw.system.Site.getCurrent().getCustomPreferenceValue('showOOSItems');
+		
+	if (empty(colorVV)) {
+		if (predefinedColor) {
+			colorVV = {
+			    'ID' : predefinedColor
+			};
+		} else {
+			var defVar = ProductUtils.getDefaultVariant(pvm);
+			if (!empty(defVar)) {
+				colorVV = ProductUtils.getDefaultVariantColor(pvm, defVar);	
+			}
+		}
+	}	
+		
+	if (!empty(colorVA) && !empty(colorVV)) {
+		colorMap.put(colorVA.ID, colorVV.ID);
+		var variants = pvm.getVariants(colorMap);
+		if (!empty(variants) && variants.length > 0) {
+			for (var i = 0; i < variants.length; i++) {
+				// Do not check for available inventory for variant in case of showOOSItems is enabled
+				var variantAvailable = showOOSItems || (variants[i].availabilityModel.isOrderable() && variants[i].availabilityModel.getAvailability() > 0);
+				
+				if (empty(variant) && variantAvailable && parseInt(variants[i].getPriceModel().getPrice(), 10) > 0) {
+					variant = variants[i];
+					if (!withSale) break;
+				}
+				
+				if (withSale && empty(variantSale) && variantAvailable) {	
+					var salePrice : Money = ProductUtils.getPriceByPricebook(variants[i], session.currency.currencyCode, 'sale'),
+						listPrice : Money = ProductUtils.getPriceByPricebook(variants[i], session.currency.currencyCode, 'list');
+					if (salePrice != null && salePrice != Money.NOT_AVAILABLE && salePrice.value > 0 && listPrice != null && listPrice != Money.NOT_AVAILABLE && listPrice.value > 0 && listPrice.value > salePrice.value) {
+						variantSale = variants[i];
+					}					
+				}
+				if (!empty(variant) && !empty(variantSale)) {
+					break;
+				}
+			}
+		}	
+	}		
+	
+	return variantSale || variant; 
+}
+
+/**
+ @description return true if child category is parent category or is its child
+ @param {String} childCategoryId
+ @param {String} parentCategorId
+ @return {Boolean} 
+*/
+ProductUtils.isCategoryChild = function( childCategoryId: String, parentCategorId : String ) : Boolean {
+	if (empty(childCategoryId) || empty(parentCategorId)) return false;
+	if (childCategoryId == parentCategorId) return true;
+	
+	var childCategory = CatalogMgr.getCategory(childCategoryId),
+		parentCategory = (!empty(childCategory)) ? childCategory.parent : null; 
+		
+	if (empty(parentCategory)) return false;	
+	
+	return ProductUtils.isCategoryChild(parentCategory.ID, parentCategorId);
+}
+
+/**
+ @description return object with price ranges
+ @param {Object} ProductVariationModel
+ @return priceRanges
+ 
+ */
+
+ProductUtils.getAllPriceRanges = function( product : Product) : Product {
+
+    var currencyCode : String = session.currency.currencyCode,
+    minListPrice : Money = new Money(0, currencyCode),
+    maxListPrice : Money = new Money(0, currencyCode),
+    minSalePrice : Money = new Money(0, currencyCode),
+    maxSalePrice : Money = new Money(0, currencyCode);
+
+    if (product.custom.giftCard == 'EGIFT_CARD') {
+        minListPrice = minSalePrice = new Money(dw.system.Site.getCurrent().getCustomPreferenceValue('eGiftCardAmountMin'), currencyCode);
+        maxListPrice = maxSalePrice = new Money(dw.system.Site.getCurrent().getCustomPreferenceValue('eGiftCardAmountMax'), currencyCode);
+    } else {
+        var priceBooks = ProductUtils.getPriceBooks();
+        var salePriceBookID = PriceBookMgr.getPriceBook(priceBooks.salePriceBookID);
+        var listPriceBookID = PriceBookMgr.getPriceBook(priceBooks.listPriceBookID);
+        var pid = product.variant ? product.variationModel.master.ID : product.ID;
+
+        var salePriceBookRangePrice = ProductUtils.getPriceBookRangePrice(salePriceBookID, currencyCode, pid);
+        minSalePrice = salePriceBookRangePrice.minPrice;
+        maxSalePrice = salePriceBookRangePrice.maxPrice;
+
+        var listPriceBookRangePrice = ProductUtils.getPriceBookRangePrice(listPriceBookID, currencyCode, pid);
+        minListPrice = listPriceBookRangePrice.minPrice;
+        maxListPrice = listPriceBookRangePrice.maxPrice;
+
+        PriceBookMgr.setApplicablePriceBooks();
+    }
+
+    return {
+		'minListPrice' : minListPrice,
+		'maxListPrice' : maxListPrice,
+		'minSalePrice' : minSalePrice,
+		'maxSalePrice' : maxSalePrice
+    };
+};
+
+/**
+ @description return object with price ranges
+ @param {String} priceBookID
+ @param {String} currencyCode
+ @param {String} pid
+ @return priceRanges
+ */
+ProductUtils.getPriceBookRangePrice = function( priceBookID : String, currencyCode: String, pid: String ) : Product {
+
+    var ProductSearchModel = require('dw/catalog/ProductSearchModel'),
+    PriceBookMgr = require('dw/catalog/PriceBookMgr'),
+    minPrice : Money = new Money(0, currencyCode),
+    maxPrice : Money = new Money(0, currencyCode),
+    product = ProductMgr.getProduct(pid),
+    searchModel = new ProductSearchModel();
+
+    if (!empty(product)) {
+	    PriceBookMgr.setApplicablePriceBooks(priceBookID);
+        searchModel.setSearchPhrase(pid);
+        searchModel.search();
+        var hit = searchModel.getProductSearchHit(product);
+        if (!empty(hit)) {
+	        minPrice = hit.getMinPrice();
+	        maxPrice = hit.getMaxPrice();
+        }
+    }
+
+    return {
+        'minPrice' : minPrice,
+        'maxPrice' : maxPrice
+    };
+};
+
+ProductUtils.getCategoryData = function(product : Product) : Object {
+	var categoryData : Object = {};
+	
+	if(product) {
+		var product = product.variant ? product.getMasterProduct() : product;
+		var primaryCategory : Category = product.getPrimaryCategory();
+		if(primaryCategory) {
+			categoryData['categoryUrl'] = require('~/cartridge/scripts/util/ViewHelpers').getCategoryUrl(primaryCategory);
+			categoryData['categoryName'] = primaryCategory.getDisplayName();
+			categoryData['shopText'] = Resource.msgf('product.shopall','product',null, primaryCategory.getDisplayName());
+		} else {
+			var allCategories : Collection = product.categories;
+			
+			if(allCategories.length) {
+				for each(let category in allCategories) {
+					if(category.online) {
+						categoryData['categoryUrl'] = require('~/cartridge/scripts/util/ViewHelpers').getCategoryUrl(category);
+						categoryData['categoryName'] = category.getDisplayName();
+						categoryData['shopText'] = Resource.msgf('product.shopall','product',null, category.getDisplayName());
+						break;
+					}
+				}
+			}else{
+				categoryData['categoryUrl'] = require('~/cartridge/scripts/util/URLUtilsHelper.ds').getHomepageURL(request.locale);
+				categoryData['shopText'] = Resource.msg('global.continueshopping','locale',null);
+			}
+		}
+	}
+	return categoryData;
+};
+
+ProductUtils.isBlockShoppingForLocale = function(product : Product) : Boolean {
+	var isBlockShoppingForLocale = false;
+		
+	if(product) {
+		if (product.isVariant()){
+			if ( !product.masterProduct.isOnline() ) {
+				isBlockShoppingForLocale = true;
+			} else {
+				isBlockShoppingForLocale = 'blockShoppingForLocale' in product.masterProduct.custom && product.masterProduct.custom.blockShoppingForLocale.value === 'Yes';
+			}
+		} else if (!product.isOnline()) {
+			isBlockShoppingForLocale = true;
+		} else {
+			isBlockShoppingForLocale = 'blockShoppingForLocale' in product.custom && product.custom.blockShoppingForLocale.value === 'Yes';
+		}
+	}
+	return isBlockShoppingForLocale;
+};
+
+/**
+ * @function
+ * @description Translates the fitguide gender string and tries to find the established [sizeguide-gender-silhouette] content asset
+ * @param {Object} Product
+ * @returns {Object} Content Asset 
+ */
+ProductUtils.getProductSizeChartAsset = function(product : Product) : Object {
+	var product = product.variant ? product.variationModel.master : product;
+    var fgGender = !empty(product.custom.gender) ? product.custom.gender.toLowerCase() : false,
+        fgSilhouette = !empty(product.custom.silhouette) ? product.custom.silhouette.toLowerCase() : false,
+        fgSubSilhouette = !empty(product.custom.subsilhouette) ? product.custom.subsilhouette.toLowerCase() : false,
+        fgAgegroup = !empty(product.custom.agegroup) ? product.custom.agegroup.toLowerCase() : false,
+        fgDivision = !empty(product.custom.division) ? product.custom.division.toLowerCase() : false,
+        fgCurrent = {};
+   
+	
+	// If we have a gender, get the translated version		
+	if(!empty(fgGender)){
+		// to help with translations
+		var gendertest : Object = {
+			'men'	: [
+				'mens','herren','heren','hommes','남성','erkek'
+			],
+			'women'	: [
+				'womens','damen','dames','femmes','여성','kadin'
+			],
+			'boys'	: [
+				'boys','jungen','jongens','garcons','niños'
+			],
+			'girls'	: [
+				'girls','madchen','meisjes','filles','niñas'
+			]
+		};
+		if (gendertest.men.indexOf(fgGender.toLowerCase()) != -1){
+			fgGender = 'men';
+		} else if (gendertest.women.indexOf(fgGender.toLowerCase()) != -1) {
+			fgGender = 'women';
+		} else if (gendertest.boys.indexOf(fgGender.toLowerCase()) != -1) {
+			fgGender = 'boys';
+		} else if (gendertest.girls.indexOf(fgGender.toLowerCase()) != -1) {
+			fgGender = 'girls';
+		}
+	}
+	
+	//  sizeChartSilhouettes
+	if (!empty(fgSilhouette)) {
+		var Site = require( "dw/system/Site" ),
+			JSONUtils = require("~/cartridge/scripts/util/JSONUtils"),
+			sizeChartSilhouettes = Site.getCurrent().getCustomPreferenceValue('sizeChartSilhouettes');
+
+		var HeadwearSilhouettes = JSONUtils.getValue(sizeChartSilhouettes, 'headwear').toString(),
+			splitHeadwearSilhouettes = HeadwearSilhouettes.split(','),
+			SocksSilhouettes = JSONUtils.getValue(sizeChartSilhouettes, 'socks').toString(),
+			splitSocksSilhouettes = SocksSilhouettes.split(','),
+			GlovesSilhouettes = JSONUtils.getValue(sizeChartSilhouettes, 'gloves').toString(),
+			splitGlovesSilhouettes = GlovesSilhouettes.split(','),
+			TopsSilhouettes = JSONUtils.getValue(sizeChartSilhouettes, 'tops').toString(),
+			splitTopsSilhouettes = TopsSilhouettes.split(','),
+			BottomsSilhouettes = JSONUtils.getValue(sizeChartSilhouettes, 'bottoms').toString(),
+			splitBottomsSilhouettes = BottomsSilhouettes.split(','),
+			BrasSilhouettes = JSONUtils.getValue(sizeChartSilhouettes, 'bras').toString(),
+			splitBrasSilhouettes = BrasSilhouettes.split(',');
+
+		if (HeadwearSilhouettes && (splitHeadwearSilhouettes.indexOf(fgSilhouette) != -1)) {
+			fgSilhouette = 'headwear';
+		}
+		if (SocksSilhouettes && (splitSocksSilhouettes.indexOf(fgSilhouette) != -1)) {
+			fgSilhouette = 'socks';
+		}
+		if (GlovesSilhouettes && (splitGlovesSilhouettes.indexOf(fgSilhouette) != -1)) {
+			fgSilhouette = 'gloves';
+		}
+		if (TopsSilhouettes && (splitTopsSilhouettes.indexOf(fgSilhouette) != -1)) {
+			fgSilhouette = 'tops';
+		}
+		if (BottomsSilhouettes && (splitBottomsSilhouettes.indexOf(fgSilhouette) != -1)) {
+			fgSilhouette = 'bottoms';
+		}
+		if (BrasSilhouettes && (splitBrasSilhouettes.indexOf(fgSilhouette) != -1)) {
+			fgSilhouette = 'bras';
+		}
+
+		if (fgSilhouette == 'bands' && fgSubSilhouette == 'headbands') {
+          	fgSilhouette = 'headwear';
+     	}
+		if (fgDivision == 'footwear') {
+          	fgSilhouette = 'footwear';
+      	}	
+      	if (fgSilhouette == 'underwear') {
+          	fgSilhouette = 'bottoms';
+      	}
+      	if (fgSilhouette == 'one piece') {
+      		fgSilhouette = 'tops';
+      	}
+      	if (fgSilhouette == 'bands' && fgSubSilhouette == 'headbands') {
+          		fgSilhouette = 'headwear';
+     	}
+     	if (fgSilhouette == 'outerwear') {
+     		if (fgSubSilhouette.indexOf('jackets','outerwear vests') != -1) {
+          		fgSilhouette = 'tops';
+      		} else if (fgSubSilhouette.indexOf('outerwear pants') != -1) {
+      			fgSilhouette = 'bottoms';
+      		}
+     	}
+     	if ((fgGender == 'unisex' || fgGender == 'adult_unisex' || fgGender == 'youth_unisex' ) && fgDivision == 'accessories' && fgSilhouette == 'inflatables') {
+            fgSilhouette = 'ball';
+     	}
+    }
+
+    /**
+     * Grabs fit guide asset and sets fit guide visiblity to true
+     */
+	if(!empty(fgGender) && !empty(fgSilhouette)){
+        // get the gender-fit content asset
+		var fgCurrent = dw.content.ContentMgr.getContent('sizechart-' + fgGender + '-' + fgSilhouette);
+	}
+	 // if asset have age in id name
+	if(!fgCurrent) {
+		fgCurrent = dw.content.ContentMgr.getContent('sizechart-' + fgAgegroup.split(" ").join("-") + '-' + fgGender + '-' + fgSilhouette);
+	}
+	return fgCurrent;
+};
+
+/**
+ * reads PDP attribute to decide weather to show the size chart or not (the killswitch)
+ */
+ProductUtils.hideSizeGuideLink = function(product : Product) : Boolean {
+	var hideLink = false;
+	if(product) {
+		if (product.isVariant()){
+			if ( !product.masterProduct.isOnline() ) {
+				hideLink = true;
+			} else {
+				hideLink = 'hideSizeChart' in product.masterProduct.custom && product.masterProduct.custom.hideSizeChart == true;
+			}
+		} else if (!product.isOnline()) {
+			hideLink = true;
+		} else {
+			hideLink = 'hideSizeChart' in product.custom && product.custom.hideSizeChart  == true;
+		}
+	}
+	return hideLink;
+};
+ 
+/**
+ * @function
+ * @description Check if master product has 1 size and retun size value
+ *              (if only one size is available it must be pre-selected)
+ * @param {Object} Product
+ *
+ * @returns {String} size value
+ */
+ProductUtils.getPreselectedSizeForMaster = function(product : Product) : String {
+    if (product.master) {
+        //check for one-size
+        var pvm = product.getVariationModel();
+        var sizeAttribute = pvm.getProductVariationAttribute('size');
+        var sizeValues = pvm.getAllValues(sizeAttribute);
+        var isOrderableSizeValues = [];
+        for (let i = 0; i < sizeValues.size(); i++) {
+            var sizeValue = sizeValues[i];
+            if  (pvm.hasOrderableVariants(sizeAttribute, sizeValue)) {
+                isOrderableSizeValues.push(sizeValue.ID);  
+            }
+        }              
+        if (isOrderableSizeValues.length == 1) {
+            return isOrderableSizeValues[0];
+        }
+    }  
+    return '';
+};
+ 
+/**
+ * @function
+ * @description get color for master (color alwasy must be pre-selected)
+ * @param {Object} Product
+ *
+ * @returns {String} color value
+ */
+ProductUtils.getColorForMaster = function(product : Product, httpParameterMap : HttpParameterMap) : String {   
+    var hpmColor = 'dwvar_' + product.ID + '_color', 
+        selectedColor = httpParameterMap.isParameterSubmitted(hpmColor) ? httpParameterMap.get(hpmColor).stringValue : '',
+        outletColors = !empty(product.custom.outletColors) ? product.custom.outletColors : '',
+        isOutlet = httpParameterMap.isOutlet.isSubmitted() ? httpParameterMap.isOutlet.booleanValue : false,
+	    isOutletProduct = outletColors.length > 0,
+        colorValsIter;
+
+    if (product && product.master){
+        if (httpParameterMap.isParameterSubmitted(hpmColor) && (!isOutlet || isOutlet && !isOutletProduct)){
+            return stripHTMLTags(httpParameterMap.get(hpmColor).stringValue);             
+        }
+        else {
+            //find color for master product if no exist
+            var pvm : ProductVariationModel = product.variationModel,
+            colorVarAttr : ProductVariationAttribute = pvm.getProductVariationAttribute('color'),
+            defVariant : Product = pvm.getDefaultVariant(),
+            defColor : ProductVariationAttributeValue = !empty(defVariant) ? pvm.getVariationValue(defVariant, colorVarAttr) : null;
+            // Do not check for available inventory for color in case of showOOSItems is enabled
+            var colorAvailable : Boolean = (!empty(defColor) && pvm.hasOrderableVariants(colorVarAttr, defColor));
+			
+			if (!empty(defColor) && colorAvailable && (!isOutlet || (isOutlet && !isOutletProduct) || (isOutlet && isOutletProduct && outletColors.indexOf(defColor) > -1))) {
+                return defColor.value;
+            } else {
+                var colorVals : Collection = pvm.getAllValues(colorVarAttr);
+                
+                //lets check if selectedColor is outlet color and has orderable variants
+                if(isOutlet && isOutletProduct && (outletColors.indexOf(selectedColor) !== -1)) {
+                    colorValsIter = colorVals.iterator();
+                    while(colorValsIter.hasNext()){
+                        let currentColor =  colorValsIter.next();
+                        if (currentColor.value === selectedColor && (pvm.hasOrderableVariants(colorVarAttr, currentColor) || (!product.getAvailabilityModel().inStock && product.searchableIfUnavailableFlag))) { 
+                            return selectedColor;
+                        }
+                    }
+                }
+
+                // loop through the colors and find first orderable
+                for ( var i in colorVals ) {
+                	// skip non-outlet colors when isOutlet param is set
+                	if(isOutlet && outletColors.indexOf(colorVals[i].value) == -1){ continue; }
+                	
+                	// Do not check for available inventory for color in case of showOOSItems is enabled
+                	var colorAvailable : Boolean = pvm.hasOrderableVariants(colorVarAttr, colorVals[i]);
+                    if (colorAvailable) {
+                        return colorVals[i].value;
+                    }
+                }
+            }
+        }
+    }  
+    return '';
+}; 
+
+/**
+ * @function
+ * @description get represented color from in stock variation for master
+ * @param {Object} Product
+ *
+ * @returns {Object} color ProductVariationAttribute
+ */
+ProductUtils.getRepresentInStockColorAttr = function(product, isOutlet) {
+    var hpmColor = 'dwvar_' + product.ID + '_color';
+    
+    if (product && product.master){
+            //find color for master product if no exist
+            var pvm : ProductVariationModel = product.variationModel,
+            colorVarAttr : ProductVariationAttribute = pvm.getProductVariationAttribute('color'),
+            defVariant : Product = pvm.getDefaultVariant(),
+            defColor : ProductVariationAttributeValue = !empty(defVariant) ? pvm.getVariationValue(defVariant, colorVarAttr) : null;
+            // Do not check for available inventory for color in case of showOOSItems is enabled
+            var colorAvailable : Boolean = (!empty(defColor) && pvm.hasOrderableVariants(colorVarAttr, defColor));
+            if ((!empty(defColor) && colorAvailable && !isOutlet) || (!empty(defColor) && colorAvailable && isOutlet && !empty(product.custom.outletColors) && product.custom.outletColors.indexOf(defColor.ID) > -1)) {
+                return defColor;
+            } else {
+                // loop through the colors and find first orderable
+                var colorVals : Collection = pvm.getAllValues(colorVarAttr);
+                
+                for ( var i in colorVals ) {
+                	// Do not check for available inventory for color in case of showOOSItems is enabled
+                	var colorAvailable : Boolean = pvm.hasOrderableVariants(colorVarAttr, colorVals[i]);
+                    if ((!isOutlet && colorAvailable) || (isOutlet && colorAvailable && !empty(product.custom.outletColors) && product.custom.outletColors.indexOf(colorVals[i].ID) > -1)) {
+                        return colorVals[i];
+                    }
+                }
+            }
+    }  
+    
+    return null;
+}; 
+
+ProductUtils.checkVariationsWithSameColor = function(product : Product){
+	var productColor = product.custom.colorgroup,
+		productMasterVariations = product.masterProduct.variants;
+	for( var i = 0; i < productMasterVariations.length; i++){
+		if(productMasterVariations[i].getAvailabilityModel().isInStock() && productMasterVariations[i].onlineFlag && productMasterVariations[i].custom.colorgroup == productColor){
+			return true;
+		}
+	}
+	return false;
+};
+
+/**
+ * @function
+ * @description returns edited URL for reverse apparel product image
+ * @param {String} thumbnailUrl - base thumbnail url to edit
+ * @param {String} productDivision - product division to check agains
+ * @return {String} thumbnailHoverUrl - transformed url for imgae of the back side of product   
+ */
+ProductUtils.getProductReverseImage = function( thumbnailUrl : String, productDivision : String ) : String {
+
+    var tempThumbnailHoverUrl = thumbnailUrl,
+        thumbnailHoverUrl = '';
+        
+    if(productDivision == "Apparel"){
+        if(tempThumbnailHoverUrl.indexOf('_FSF_Main}') > -1){
+            thumbnailHoverUrl = tempThumbnailHoverUrl.replace(/_FSF_Main}/i, '_BC}');
+        }
+        else if(tempThumbnailHoverUrl.indexOf('_FC_Main}') > -1){
+            thumbnailHoverUrl = tempThumbnailHoverUrl.replace(/_FC_Main}/i, '_BC}');
+        }
+        else if(tempThumbnailHoverUrl.indexOf('_BC_Main}') > -1){
+            thumbnailHoverUrl = tempThumbnailHoverUrl.replace(/_BC_Main}/i, '_FC}');
+        }
+        else if(tempThumbnailHoverUrl.indexOf('_SC_Main}') > -1){
+            thumbnailHoverUrl = tempThumbnailHoverUrl.replace(/_SC_Main}/i, '_BC}');
+        }
+        else if(tempThumbnailHoverUrl.indexOf('_HTF}') > -1){
+            thumbnailHoverUrl = tempThumbnailHoverUrl.replace(/_HTF}/i, '_HTB}');
+        }
+        else if(tempThumbnailHoverUrl.indexOf('_FCROP}') > -1){
+            thumbnailHoverUrl = tempThumbnailHoverUrl.replace(/_FCROP}/i, '_BCROP}');
+        }
+        else if(tempThumbnailHoverUrl.indexOf('_FC}') > -1){
+            thumbnailHoverUrl = tempThumbnailHoverUrl.replace(/_FC}/i, '_BC}');
+        }
+        else if(tempThumbnailHoverUrl.indexOf('_SC}') > -1){
+            thumbnailHoverUrl = tempThumbnailHoverUrl.replace(/_SC}/i, '_BC}');
+        } 
+        else if(tempThumbnailHoverUrl.indexOf('_HF}') > -1){
+            thumbnailHoverUrl = tempThumbnailHoverUrl.replace(/_HF}/i, '_HB}');
+        }
+        else if(tempThumbnailHoverUrl.indexOf('_LDF_SL}') > -1){
+            thumbnailHoverUrl = tempThumbnailHoverUrl.replace(/_LDF_SL}/i, '_LDB_SL}');
+        }
+        else if(tempThumbnailHoverUrl.indexOf('_SLF_SL}') > -1){
+            thumbnailHoverUrl = tempThumbnailHoverUrl.replace(/_SLF_SL}/i, '_SLB_SL}');
+        }
+        else if(tempThumbnailHoverUrl.indexOf('_SLB_SL}') > -1){
+            thumbnailHoverUrl = tempThumbnailHoverUrl.replace(/_SLB_SL}/i, '_SLF_SL}');
+        }
+        else if(tempThumbnailHoverUrl.indexOf('_LDB_SL}') > -1){
+            thumbnailHoverUrl = tempThumbnailHoverUrl.replace(/_LDB_SL}/i, '_LDF_SL}');
+        }
+        else if(tempThumbnailHoverUrl.indexOf('_LDF}') > -1){
+            thumbnailHoverUrl = tempThumbnailHoverUrl.replace(/_LDF}/i, '_LDB}');
+        }
+    }
+    return thumbnailHoverUrl;
+};
+
+/**
+ * @function
+ * @description order of items is reverse in case of mini cart display
+ * @param {dw.util.Collection} pliList
+ * @param {dw.util.Collection} productlineitem
+ * @returns {dw.util.Collection} tempList
+ */
+ProductUtils.showReverse = function(pliList, productlineitem) {
+	// order of items is reverse in case of mini cart display
+	pliList.reverse();
+
+	// remove the bonus item from the mini cart display
+	var reverseList = new dw.util.ArrayList();
+	
+	// add the recently touched/added product line item at the top of the list
+	if (productlineitem) {
+		reverseList.add(productlineitem);
+	}
+	
+	for (var ind in pliList) {
+		var li = pliList[ind];
+		
+		// skip recently touched/added item, its already added before the loop
+		if( empty(productlineitem) || (productlineitem && li.position != productlineitem.position)) {
+			reverseList.add(li);
+		}
+	}
+	
+	return reverseList;
+};
+
+/**
+* @description Get the first/default variant sales and list price values
+* @param {Product} product
+* @param {ProductVariationModel} currentVariationModel
+* @returns Object
+*/
+ProductUtils.getFirstVariantPrices = function(product, currentVariationModel) {
+    var prices = {},
+        variationModel = !empty(product) ? product.variationModel : null,
+        pvm  = !empty(currentVariationModel) ? currentVariationModel : variationModel;
+    
+    if (empty(pvm)) {
+    	return prices;
+    }
+    
+    var pvmDefaultVariant = pvm.getDefaultVariant(),
+    	defaultVariantOnlineAndAvailable = !empty(pvmDefaultVariant) && pvmDefaultVariant.isOnline() && this.getAvailability(pvmDefaultVariant, 1).inStock,
+        isOutlet = true,
+        colorValue = this.getColorForMaster(product, request.httpParameterMap),
+        sizeValue = this.getPreselectedSizeForMaster(product),
+        preselectedPDPVariant = this.getVariantByColorAndSizeAttrs(pvm, colorValue, sizeValue),
+        defaultVariant = !colorValue && defaultVariantOnlineAndAvailable ? pvmDefaultVariant : ((colorValue && sizeValue && preselectedPDPVariant && !preselectedPDPVariant.master) ? preselectedPDPVariant : this.getFirstVariant(pvm, isOutlet, colorValue)),
+        variantPriceList = this.getPriceByPricebook(defaultVariant, session.getCurrency().getCurrencyCode(), 'list'),
+        variantPriceSale = this.getPriceByPricebook(defaultVariant, session.getCurrency().getCurrencyCode(), 'sale'),
+        promotionalPrice = this.getProductPromoPrice(defaultVariant);
+
+
+    if (promotionalPrice) {
+    	variantPriceSale = promotionalPrice;
+        if (!(variantPriceList != Money.NOT_AVAILABLE && variantPriceList.value > 0 && variantPriceSale != Money.NOT_AVAILABLE && variantPriceSale.value > 0)){
+            variantPriceList = defaultVariant.priceModel.price;
+        } else if (variantPriceList == null || variantPriceList == Money.NOT_AVAILABLE || variantPriceList.value == 0){
+            if (variantPriceSale != null && variantPriceSale != Money.NOT_AVAILABLE && variantPriceSale.value > 0){
+                variantPriceList = variantPriceSale;
+            }
+        }
+        prices["sale"] = variantPriceSale.decimalValue.toString();
+        prices["list"] = variantPriceList.decimalValue.toString();
+    } else if (variantPriceSale == null || variantPriceSale.decimalValue == null) {
+    	if (variantPriceList == null || variantPriceList.decimalValue == null) {
+            let notAvailablePrice = dw.web.Resource.msg('pricing.noprice','product',null);
+            prices["sale"] = notAvailablePrice;
+            prices["list"] = notAvailablePrice;
+    	} else {
+            prices["sale"] = variantPriceList.decimalValue.toString();
+            prices["list"] = variantPriceList.decimalValue.toString();
+    	}
+    } else {
+        prices["sale"] = variantPriceSale.decimalValue.toString();
+        prices["list"] = variantPriceList.decimalValue.toString();
+    }
+
+    return prices;
+};
+
+/**
+* @function
+* @description Check variant promotions and returns object with product prices if promotions were applied
+* @param {Variant} checkedVariant
+* @returns Object
+*/
+ProductUtils.getProductPromoPrice = function(checkedVariant) {
+	if (!checkedVariant) {
+	   return null;
+	}
+    var promos = PromotionMgr.activeCustomerPromotions.getProductPromotions(checkedVariant),
+        promotionalPrice,
+        isPromoPrice = false,
+        salesPrice = checkedVariant.getPriceModel().getPrice(),
+        variantPriceList = this.getPriceByPricebook(checkedVariant, session.getCurrency().getCurrencyCode(), 'list'),
+        variantPriceSale = this.getPriceByPricebook(checkedVariant, session.getCurrency().getCurrencyCode(), 'sale');
+	
+    if (promos.length){
+        for (var i = 0; i < promos.length; i++) {
+            var promoApplied = !promos[i].isBasedOnCoupons();
+            if ( promos[i].getPromotionClass() != null && promos[i].getPromotionClass().equals(Promotion.PROMOTION_CLASS_PRODUCT) && promoApplied ) {
+                if(checkedVariant.optionProduct) {
+                    promotionalPrice = promos[i].getPromotionalPrice(checkedVariant, checkedVariant.getOptionModel());
+                } else {
+                    promotionalPrice = promos[i].getPromotionalPrice(checkedVariant);
+                }
+            }
+            break;
+        }
+    }
+    if (promotionalPrice && promotionalPrice.available && salesPrice.compareTo(promotionalPrice)){
+        return promotionalPrice;
+    }
+    return null;
+};
+
+/**
+ * @function
+ * @description Translates the fitguide gender string and tries to find the established [gender]-[fit] content asset
+ * @param {Object} Product
+ * @returns {Object} Content Asset 
+ */
+ProductUtils.getProductFitDescription = function(product : Product) : Object {
+
+    var fgGender : String = product.custom.gender,
+        fgFit : String = product.custom.fittype,
+        fgCurrent : Object = {};
+    
+	// If we have a gender, get the translated version
+	if(!empty(fgGender)){
+		// to help with translations
+		var gendertest : Object = {
+			'men'	: [
+				'mens','herren','heren','hommes','남성','erkek',
+				'boys','jungen','jongens','garcons',
+			],
+			'women'	: [
+				'womens','damen','dames','femmes','여성','kadin',
+				'girls','madchen','meisjes','filles',
+			]
+		};
+		if(gendertest.men.indexOf(fgGender.toLowerCase()) >= 0){
+			fgGender = 'men';
+		} else if (gendertest.women.indexOf(fgGender.toLowerCase()) >= 0) {
+			fgGender = 'women';
+		}
+	}
+    
+    /**
+     * Grabs fit guide asset and sets fit guide visiblity to true
+     */
+	if(!empty(fgGender) && (!empty(fgFit) || pdict.isSet) ){
+        // get the gender-fit content asset
+		var fgCurrent = dw.content.ContentMgr.getContent((fgGender + '-' + fgFit).toLowerCase());
+	}		
+	return fgCurrent;
+
+};
+
+/**
+ * @function
+ * @description Returnes Variant from ProductVariationModel basing on color and size values
+ * @param {Object} ProductVariationModel
+ * @param {String} ColorValue
+ * @param {String} SizeValue
+ * @returns {Object} Variant
+ */
+ProductUtils.getVariantByColorAndSizeAttrs = function(pvm, colorValue, sizeValue)  {
+    if (colorValue && sizeValue) {
+        var hm = new dw.util.HashMap();
+        hm.put('color', colorValue);
+        hm.put('size', sizeValue);
+        var filteredVariants = pvm.getVariants(hm);
+        if (filteredVariants.size() == 1) {
+            return filteredVariants[0];
+        }
+    }
+    return pvm.getMaster();
+};
+
+ProductUtils.getCurrentPersonalization = function(product){
+		var masterProductID,
+			productColor,
+			keyValue,
+			co = null,
+			coType;
+		if ( product.isMaster() ){
+			masterProductID = product.getID();
+			productColor = stripHTMLTags(request.httpParameterMap['dwvar_'+ masterProductID + '_color'].stringValue);
+		} else {
+			masterProductID = product.custom.style;
+    		productColor = product.custom.color;
+		}
+    	
+    	keyValue = masterProductID + "-" + productColor;
+   		coType = 'ProductPersonalization';
+    	
+        co = CustomObjectMgr.getCustomObject(coType, Site.getCurrent().getID() + '_' + keyValue);
+        if(!co) co = CustomObjectMgr.getCustomObject(coType, Site.getCurrent().getID() + '_' + masterProductID);
+    	return co.custom;
+};
+
+ProductUtils.isProductPersonalize = function(product, currentVariationModel){
+	let masterProductID = product.master ? product.ID : product.masterProduct.ID,
+    	co = null,
+    	query = 'custom.ID = {0} OR custom.ID LIKE {1}',
+    	optionID = 'personalizations',
+    	isProductHasOptionPersonalize = false,
+    	selectedColor,
+        personalizeOption;
+    	
+    if (currentVariationModel && !currentVariationModel.selectedVariants.empty){
+    	selectedColor = currentVariationModel.selectedVariants[0].custom.color;
+    }
+
+	let materialID =  masterProductID + '-' + (selectedColor || product.custom.color);
+    co = CustomObjectMgr.queryCustomObjects('ProductPersonalization', query, null, Site.getCurrent().getID() + '_' + masterProductID, Site.getCurrent().getID() + '_' + materialID).first();
+    
+    if (product.getOptionModel().getOption(optionID)) {
+        personalizeOption = product.getOptionModel().getOption(optionID);
+    } else if (!product.isMaster() && co && product.masterProduct.getOptionModel().getOption(optionID)) {
+        personalizeOption = product.masterProduct.getOptionModel().getOption(optionID);
+    }
+    
+    if ( personalizeOption && personalizeOption.getOptionValues().getLength() ) {
+    	isProductHasOptionPersonalize = true;
+    }
+    
+    if ( co && isProductHasOptionPersonalize ) return true;
+    return false;
+};
+
+/**
+* @function
+* @description Returnes Product(Variant) with existing images
+* @param {Object} Product
+* @param {Object} CurrentVariationModel
+* @returns {Object} Variant with images if not found any variant with images return param Product
+*/
+ 
+ProductUtils.getImageProduct = function(product, currentVariationModel) {
+       var productWithImg = product;
+       var variants;
+       var variant;
+       
+       if (product.master) {
+           if (currentVariationModel) {
+               productWithImg = currentVariationModel;
+           } else {
+               // if currentVariationModel not exist find first variation with img
+               variants = product.getVariants();
+               if (!empty(variants)) {
+                   for (var key in variants) {
+                       if (!empty(variants[key].getImage('pdpMainDesktop', 0))) {
+                           productWithImg = variants[key];
+                           break;
+                       }
+                   }
+               }
+           }
+       } else if(product.variant && !empty(product.getVariationModel())) {
+           productWithImg = product.getVariationModel();
+       }
+       
+       return productWithImg;
+};
+
+/**
+* @function
+* @description Returnes true if product is sold out
+* @param {Object} Product
+* @returns {Boolean} returns true if searchableIfUnavailableFlag true and product not available
+*/
+ProductUtils.checkSoldOutProduct = function(product) {
+	var masterProduct = (product.isVariant()) ? product.masterProduct : product;
+	var productAvailability = ProductUtils.getAvailability(masterProduct);
+	
+	if (masterProduct.searchableIfUnavailableFlag && productAvailability && !productAvailability.isAvailable) {
+		return true;
+	}
+	
+	return false;
+};
+
+/**
+* @function
+* @description Gets Product color by ID from ProductVariationModel variants
+* @param {Object} ProductVariationModel
+* @param {String} ProductID
+* @returns {String} 
+*/
+
+ProductUtils.getSliceColorByID = function(vm, id) {
+    let variants = vm.getVariants();
+    for (var i=0;i<variants.length;i++){
+        if(variants[i].ID == id) {
+            return variants[i].custom.color;
+        }
+    }
+    return null;
+};
+
+/**
+* @function
+* @description Checks if any variant in ProductVariationModel is orderable by specific color
+* @param {Object} ProductVariationModel
+* @param {String} Color
+* @returns {String} 
+*/
+
+ProductUtils.checkVariantOrderableByColor = function(vm, color) {
+    let variants = vm.getVariants();
+    for (var i=0;i<variants.length;i++){
+        if(variants[i].custom.color == color && variants[i].availabilityModel.orderable) {
+            return true;
+        }
+    }
+    return false;
+};
+
+/**
+* @function
+* @description Returns custom pricing object for ListVsSale(outlet) functionality
+* @param {Object} Product
+* @returns {Object} Custom pricing object
+*/
+ProductUtils.getOutletPricing = function (Product) {
+    let HashMap = require('dw/util/HashMap'),
+        isOutletColors = Product.custom.outletColors,
+        outletColors = isOutletColors.split(','),
+        allMoneyPrices = [],
+        standardPriceVal = 0,
+        saleLowest, saleHighest, showRangePrice, salesPrice, standardPrice;
+
+    outletColors.forEach(function(outletColor) {
+        let variantMap = new HashMap();
+
+        variantMap.put('color', outletColor);
+
+        let variants = Product.variationModel.getVariants(variantMap);
+
+        // Looking for outlet variants price range and maximum list price from outlet variants
+        for each (let variant in variants) {
+            if (variant.getAvailabilityModel().isOrderable()) {
+                let listPrice = ProductUtils.getPriceByPricebook(variant, session.currency.currencyCode, 'list');
+
+                if (listPrice.value > standardPriceVal) {
+                    standardPrice = listPrice;
+                    standardPriceVal = listPrice.value;
+                }
+                
+                let price = ProductUtils.getProductPromoPrice(variant) || variant.getPriceModel().price;
+                
+                let isPriceInMoneyPrices = allMoneyPrices.some(function(money) {
+                    return money.value === price.value;
+                });
+
+                if (!isPriceInMoneyPrices && price.isAvailable()) {
+                	// for one color, for all size variants should be one price, it is enough to take one price
+                    allMoneyPrices.push(price);
+                    break;
+                }
+
+            }
+        }
+    });
+
+
+    if (allMoneyPrices.length >= 2) {
+    	
+    	allMoneyPrices.sort(function(current, next) {
+            return current.decimalValue - next.decimalValue;
+        });
+
+        saleLowest = allMoneyPrices[0];
+        saleHighest = allMoneyPrices[allMoneyPrices.length - 1];
+       
+        showRangePrice = !empty(saleLowest) && !empty(saleHighest) && saleLowest.available && saleHighest.available && !saleLowest.equals(saleHighest);
+    } else if (allMoneyPrices.length === 1) {
+        showRangePrice = false;
+        salesPrice = allMoneyPrices[0];
+    }
+
+    showStandardPrice = !empty(standardPrice) && !empty(salesPrice) && standardPrice.available && salesPrice.available && !standardPrice.equals(salesPrice);
+
+    return {
+        'showStandardPrice': showStandardPrice,
+        'showRangePrice': showRangePrice,
+        'saleLowest': saleLowest,
+        'saleHighest': saleHighest,
+        'salesPrice': salesPrice,
+        'standardPrice': standardPrice
+    };
+};
+
+/**
+* @function
+* @description Returns custom pricing object for ListVsSale(premium) functionality
+* @param {Object} Product
+* @returns {Object} Custom pricing object
+*/
+ProductUtils.getPremiumPricing = function (Product, apiProduct) {
+    let HashMap = require('dw/util/HashMap'),
+        isOutletColors = Product.custom.outletColors,
+        outletColors = isOutletColors.split(','),
+        allMoneyPrices = [],
+        standardPriceVal = 0,
+        saleLowest, saleHighest, showRangePrice, salesPrice, standardPrice;
+
+	let pvm = Product.getVariationModel(),
+		pva = pvm.getProductVariationAttribute('color'),
+	    colors = pvm.getAllValues(pva);
+
+	for each(let color in colors){
+		if(isOutletColors.indexOf(color.ID) != -1) continue;
+        let variantMap = new HashMap();
+
+        variantMap.put('color', color.ID);
+
+        let variants = Product.variationModel.getVariants(variantMap);
+
+        // Looking for premium variants price range and maximum list price from premium variants
+        for each (let variant in variants) {
+            if (variant.getAvailabilityModel().isOrderable()) {
+                let listPrice = ProductUtils.getPriceByPricebook(variant, session.currency.currencyCode, 'list');
+
+                if (listPrice.value > standardPriceVal) {
+                    standardPrice = listPrice;
+                    standardPriceVal = listPrice.value;
+                }
+                
+                let price = ProductUtils.getProductPromoPrice(variant) || variant.getPriceModel().price;
+                
+                let isPriceInMoneyPrices = allMoneyPrices.some(function(money) {
+                    return money.value === price.value;
+                });
+
+                if (!isPriceInMoneyPrices && price.isAvailable()) {
+                	// for one color, for all size variants should be one price, it is enough to take one price
+                    allMoneyPrices.push(price);
+                    var giftCardValue = apiProduct.custom.giftCard.value ? apiProduct.custom.giftCard.value : '';
+                    if (giftCardValue !== 'GIFT_CARD') {
+						break;
+					}
+                }
+
+            }
+        }
+    }
+
+
+    if (allMoneyPrices.length >= 2) {
+    	
+    	allMoneyPrices.sort(function(current, next) {
+            return current.decimalValue - next.decimalValue;
+        });
+
+        saleLowest = allMoneyPrices[0];
+        saleHighest = allMoneyPrices[allMoneyPrices.length - 1];
+       
+        showRangePrice = !empty(saleLowest) && !empty(saleHighest) && saleLowest.available && saleHighest.available && !saleLowest.equals(saleHighest);
+    } else if (allMoneyPrices.length === 1) {
+        showRangePrice = false;
+        salesPrice = allMoneyPrices[0];
+    }
+
+    showStandardPrice = !empty(standardPrice) && !empty(salesPrice) && standardPrice.available && salesPrice.available && !standardPrice.equals(salesPrice);
+
+    return {
+        'showStandardPrice': showStandardPrice,
+        'showRangePrice': showRangePrice,
+        'saleLowest': saleLowest,
+        'saleHighest': saleHighest,
+        'salesPrice': salesPrice,
+        'standardPrice': standardPrice
+    };
+};
+
+/**
+* @function
+* @description Returns custom pricing object for productSet items analytics
+* @param {Object} product
+* @param {String} locale
+* @returns {Object} Custom pricing object
+*/
+ProductUtils.getProductSetItemPriceForAnalytics = function(product, locale) {
+    let price = {},
+        basePrice = ProductUtils.getPriceByPricebook(product, session.getCurrency().getCurrencyCode(), 'list', locale),
+        salePrice = ProductUtils.getPriceByPricebook(product, session.getCurrency().getCurrencyCode(), 'sale', locale),
+        promoPrice = ProductUtils.getProductPromoPrice(product),
+        promoPriceValue = promoPrice ? promoPrice.value : 0;
+
+    price.basePrice = !empty(basePrice) ? basePrice.value : 0;
+    price.clearance = !empty(salePrice) ? salePrice.value : 0;
+
+    if(price.clearance === 0) {
+        price.clearance = price.basePrice;
+    }
+
+    if(promoPriceValue === 0) {
+        promoPriceValue = price.basePrice;
+    }
+
+    if(!empty(promoPriceValue) && promoPriceValue !== 0 && promoPriceValue < price.clearance) {
+        price.clearance = promoPriceValue;
+    }
+
+    return price;
+}
+
+/**
+* @function
+* @description return the first variant for product on Grid page
+* @param  {Object} pvm
+* @param  {Object} variant
+*/
+ProductUtils.getFirstVariantForGrid = function(pvm) {
+    var variant	= pvm.defaultVariant;
+
+    if (empty(variant) || !(variant != null && variant.availabilityModel.isOrderable() && variant.availabilityModel.getAvailability() > 0)) {
+        var variants = pvm.getVariants();
+        if (!empty(variants) && variants.length > 0) {
+            for (var i = 0; i < variants.length; i++) {
+                if (variants[i] != null && variants[i].availabilityModel.isOrderable() && variants[i].availabilityModel.getAvailability() > 0) {
+                    variant = variants[i];
+                    break;
+                }
+            }
+        }
+    }
+
+    return variant;
+}
+
+/**
+* @param {string} currency currency code
+* @returns {Object} - Pricing based on experience type (outlet vs. premium pricing)
+*/
+ProductUtils.getPriceBooks = function() {
+	const Site = require('dw/system/Site');
+    var currencyCode = session.getCurrency().getCurrencyCode();
+
+	if (Site.current.ID === 'EU' || Site.current.ID === 'UKIE') {
+		var PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
+    	var countries = PreferencesUtil.getJsonValue('countriesJSON');
+		var countryObj = countries.find(function (country) {
+			return country.currencyCode === currencyCode;
+		});
+		// EUR currency pricebooks are named as Euro-list, Euro-sale, it is requirement from P360/FMS system
+		currencyCode = (currencyCode === 'EUR') ? 'Euro' : currencyCode;
+		return {
+        	listPriceBookID: countryObj ? countryObj.priceBooks[0] : currencyCode + '-list',
+        	salePriceBookID: countryObj ? countryObj.priceBooks[1] : currencyCode + '-sale'
+    	};
+	} else {
+		return {
+        	listPriceBookID: currencyCode + '-list',
+        	salePriceBookID: currencyCode + '-sale'
+    	};
+	}
+}
+
+if (typeof (exports) !== 'undefined') {
+    module.exports = ProductUtils;
+}

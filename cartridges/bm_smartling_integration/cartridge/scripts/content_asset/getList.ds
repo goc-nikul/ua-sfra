@@ -1,0 +1,78 @@
+/**
+*   @output localesList : dw.util.ArrayList List of locales to consider
+*   @output contents : dw.util.Iterator  Iterator of content slots to retreive custom object for.
+*   @output contentCount : Number Count of retrieved objects
+*
+*/
+importPackage( dw.system );
+importPackage( dw.content );
+importPackage( dw.object );
+importPackage( dw.util );
+importScript("helpFunctions.ds");
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "contentAsset.getList"));
+
+/**
+    Get list of stored content translation objects per locale
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        var smartlingConfigurationJson : JSON = getConfiguration();
+        var targetLocale : JSON = JSON .parse(smartlingConfigurationJson['target_locale']);
+
+        var list : ArrayList = new ArrayList;
+        for each (var locale : Object in targetLocale['target_locale']) {
+            var localeData : ArrayList =  new ArrayList;
+            localeData.addAt(0, locale['demandware']);
+            if (locale['demandware'] == "default") {
+                localeData.addAt(1, "default");
+            } else {
+                var language : CustomObject = CustomObjectMgr.queryCustomObject("SMARTLING_LOCALES", "custom.ID = '" + locale['demandware'] + "'");
+                localeData.addAt(1, language.getCustom()['name']);
+            }
+            list.push(localeData);
+        }
+
+        pdict.localesList =  list;
+
+          var library: Library = ContentMgr.getSiteLibrary();
+          var folder : Folder = library.getRoot();
+          var subFolders : Collection = folder.getSubFolders();
+          var contents : Collection =  new ArrayList ();
+        if (!subFolders.isEmpty()) {
+            contents.addAll(getContentFromSubFolders(subFolders));
+        }
+        contents.addAll(folder.getContent());
+
+        pdict.contents = contents.iterator();
+        pdict.contentCount = contents.size();
+    } catch (e) {
+        LOGGER.errorException("contentAsset.getList execution failed", e);
+        return PIPELET_ERROR;
+    }
+
+    return PIPELET_NEXT;
+}
+
+/**
+    Get content recursively from subfolders
+*/
+function getContentFromSubFolders(folders : Collection) : Collection
+{
+    try {
+        var contents : Collection =  new ArrayList ();
+        for each (var folder : Folder in folders) {
+            var subFolders : Collection = folder.getSubFolders();
+            if (!subFolders.isEmpty()) {
+                contents.addAll(getContentFromSubFolders(subFolders));
+            }
+            contents.addAll(folder.getContent());
+        }
+        return contents;
+    } catch (e) {
+        LOGGER.errorException("Failed geting content from subfolders", e);
+        throw new Error(e);
+    }
+}

@@ -1,0 +1,38 @@
+var Collection = require('dw/util/Collection');
+/**
+* Demandware Script File
+* Given a basket, remove all non-ShopRunner items. Must be a transactional node to save the Basket changes.
+*
+*
+*   @input Basket : dw.order.Basket
+*
+*/
+importPackage( dw.order );
+
+function execute(args) {
+	removeItems(args.Basket);
+	return PIPELET_NEXT;
+}
+
+function removeItems(basket) {
+	var productLineItems = basket.getAllProductLineItems();
+	var status = '';
+	var thisProduct ;
+	for ( var index in productLineItems ) 
+	{
+		var thisProductLi = productLineItems[index];
+		if(thisProductLi.product != null)
+		{
+			if (!('sr_eligible' in thisProductLi.product.custom) || thisProductLi.product.custom.sr_eligible.value == 'false') 
+			{
+				basket.removeProductLineItem(thisProductLi);
+			}
+		}
+	}
+	return;
+}
+
+module.exports = {
+    execute: execute,
+	removeItems: removeItems
+};

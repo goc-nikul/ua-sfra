@@ -1,0 +1,6 @@
+<iscontent type="text/javascript" charset="UTF-8" compact="true"/>
+<isset name="ResourceHelper" value="${require('~/cartridge/scripts/resourceHelper.js')}" scope="page" />
+
+(function(){
+     window.Resources = <isprint value="${JSON.stringify(ResourceHelper.getResources())}" encoding="on"/>;
+}())

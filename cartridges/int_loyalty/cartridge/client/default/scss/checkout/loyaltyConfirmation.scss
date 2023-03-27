@@ -1,0 +1,180 @@
+@import '~org/1-settings/all';
+@import '../components/g-loyalty-earn';
+@import '../components/g-loyalty-points';
+
+.b-order-confirmation {
+    &_card-header {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: center;
+        align-content: center;
+        gap: rem-calc(20) 0;
+
+        @include respond-to(desktop) {
+            gap: 0 rem-calc(30);
+        }
+
+        &_left,
+        &_right {
+            width: 100%;
+
+            @include respond-to(desktop) {
+                width: calc(50% - 0.938rem);
+            }
+        }
+
+        &_left {
+            @include respond-to(mobile) {
+                display: none;
+            }
+        }
+    }
+
+    &_account {
+        &.border-hide {
+            border: 0;
+
+            @include respond-to(mobile) {
+                padding: 0;
+            }
+        }
+
+        @include respond-to(mobile) {
+            padding: 0;
+
+            .order-thank-you-email-msg {
+                padding: 0 1.5rem;
+            }
+        }
+    }
+
+    &_body {
+        @include respond-to(mobile) {
+            padding: 1.5rem;
+        }
+    }
+
+    @include respond-to(mobile) {
+        .b-input_loyalty-pass_order {
+            order: 1;
+        }
+
+        .b-input_loyalty-confirm_order {
+            order: 2;
+        }
+
+        .b-loyalty-checkbox-group {
+            order: 3;
+        }
+
+        .b-input_loyalty-btn_order {
+            order: 4;
+        }
+
+        .b-loyalty-privacy {
+            order: 5;
+            margin: rem-calc(20) 0 0;
+        }
+    }
+
+    .order-thank-you-email-msg {
+        width: 100%;
+    }
+
+    .b-loyalty-checkbox-group {
+        @include respond-to(desktop) {
+            margin: rem-calc(15) 0 0;
+            flex-basis: 60%;
+        }
+
+        .checkbox-loyalty {
+            .g-checkbox-label {
+                display: inline-block;
+
+                &::after {
+                    top: rem-calc(5);
+                }
+
+                &::before {
+                    top: rem-calc(13);
+                }
+            }
+        }
+
+        .custom-checkbox {
+            margin: 0 0 rem-calc(20);
+
+            @include respond-to(desktop) {
+                margin: 0 0 rem-calc(10);
+            }
+        }
+    }
+
+    .b-loyalty-privacy {
+        margin: rem-calc(15) 0 0;
+        text-align: center;
+        color: $black;
+
+        @include font(main, rem-calc(11), rem-calc(16));
+        @include respond-to(desktop) {
+            flex-basis: 28%;
+            position: absolute;
+            max-width: rem-calc(207);
+            width: 100%;
+            right: 0;
+            top: rem-calc(48);
+        }
+    }
+
+    .btn-show-loyalty {
+        display: none;
+        white-space: nowrap;
+    }
+
+    .js-loyalty-enable-toggle {
+        .btn-show-loyalty {
+            display: block;
+        }
+
+        .btn-show-base {
+            display: none;
+        }
+
+        @include respond-to(desktop) {
+            .b-input_row {
+                flex-basis: 32%;
+            }
+
+            .b-order-confirmation_body button {
+                flex-basis: 28%;
+            }
+
+            .b-loyalty-privacy {
+                @include respond-to(desktop) {
+                    flex-basis: 31%;
+                }
+            }
+        }
+    }
+
+    .b-rewards-banner {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+
+        img {
+            width: 100%;
+        }
+
+        @include respond-to(desktop) {
+            justify-content: flex-end;
+            width: auto;
+
+            img {
+                width: auto;
+            }
+        }
+    }
+}

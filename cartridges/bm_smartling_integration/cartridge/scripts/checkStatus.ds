@@ -1,0 +1,96 @@
+/**
+*   @output uuids : dw.util.ArrayList
+*/
+importPackage( dw.system );
+importPackage( dw.object );
+importPackage( dw.util );
+importScript( "dao/submission.ds");
+importScript( "service/submissionService.ds");
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "checkStatus"));
+/**
+   Check the status of custom objects against the Smartling File API.  Record completed string counts into custom object.
+*/
+function execute( pdict : PipelineDictionary ) : Number {
+    LOGGER.info("Check status is called");
+    var uuids: ArrayList = new ArrayList();
+    var submissionsIterator: SeekableIterator = null;
+    try {
+        submissionsIterator = getAllActiveSubmissionsSortedByFileName();
+        uuids.addAll(getUuidsForOutdatedSubmisisons(submissionsIterator));
+
+        pdict.uuids = uuids;
+        if (!uuids.empty)
+        {
+            LOGGER.info('Going to call download for uuids = "{0}"', uuids.join());
+        }
+   } catch (e) {
+      LOGGER.errorException("checkStatus execution failed", e);
+      return PIPELET_ERROR;
+   } finally {
+           if(submissionsIterator!= null){
+              submissionsIterator.close();
+           }
+   }
+   return PIPELET_NEXT;
+}
+
+/**
+    Prepare list of submissions to check their status
+*/
+function getUuidsForOutdatedSubmisisons(submissionsIterator: SeekableIterator): Collection {
+    var result: Collection = new ArrayList();
+
+    var groupped: List = new ArrayList();
+    var processedFileUri: String = "";
+
+    while(submissionsIterator.hasNext()) {
+        var submission: CustomObject = submissionsIterator.next();
+        var submissionFileUri: String = submission.custom['fileUri'];
+        if (submissionFileUri!= null) {
+            if (!submissionFileUri.equals(processedFileUri) && !groupped.isEmpty()) {
+                var extractedUuids = extractUuidsFromGrouppedSubmissions(groupped);
+                result.addAll(extractedUuids);
+                groupped = new ArrayList();
+            }
+            groupped.add(submission);
+            processedFileUri = submissionFileUri;
+        }
+    }
+    if(!groupped.isEmpty()){
+        var extractedUuids = extractUuidsFromGrouppedSubmissions(groupped);
+        result.addAll(extractedUuids);
+    }
+    return result;
+}
+
+/**
+    Find completed submissions and return their UUID
+*/
+function extractUuidsFromGrouppedSubmissions(submissions: List):List {
+    try {
+        var filteredOutdatedSubmissionsWithSameFileUri = filterOutdatedSubmissionsWithSameFileUri(submissions);
+        var submissionsToDownload: List = filterSubmissionsWithFullProgressWithSameFileUri(filteredOutdatedSubmissionsWithSameFileUri);
+        if (submissionsToDownload.size() > 0) {
+            LOGGER.info("Going to download submissions {0}", submissionsToString(submissionsToDownload));
+        }
+        return mapCustomObjectToUuids(submissionsToDownload);
+    } catch (e) {
+        LOGGER.errorException("checkStatus Got error during processing grouped submissions {0}", submissionsToString(submissions), e);
+        return new ArrayList();
+    }
+}
+
+/**
+    Get list of UUID
+*/
+function mapCustomObjectToUuids(customObjects: Collection): Collection {
+    var result: Collection = new ArrayList();
+
+    for each (var customObject : CustomObject in customObjects) {
+        result.add(customObject.getUUID());
+    }
+
+    return result;
+}

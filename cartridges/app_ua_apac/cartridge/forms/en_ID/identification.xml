@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+ <field formid="identificationType" label="forms.identificationType" type="string" mandatory="true" binding="custom.identificationType" missing-error="forms.address.id.missing" value-error="forms.address.field.invalid">
+       <options>
+              <option optionid="" label="forms.select" value=""/>
+              <option optionid="1" label="id.local" value="Local Tax ID(NPWP)" />
+              <option optionid="2" label="id.card" value="Identification Card ID (KTP)" />
+              <option optionid="3" label="id.passport" value="Passport Number" />
+       </options>
+    </field>
+  <field formid="identificationValue" label="forms.identificationValue" type="string" mandatory="true" regexp="^(?!-)[a-zA-Z0-9\p{L}\p{Nd}\s.-]*$" parse-error="forms.address.field.emojifree" binding="custom.identificationValue" max-length="20" missing-error="forms.address.text.missing" range-error="forms.address.field.invalid" />
+</form>

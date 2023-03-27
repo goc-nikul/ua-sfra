@@ -1,0 +1,1478 @@
+var Status = require('dw/system/Status');
+/**
+ *  Name: payrunnerAPI.ds
+ *  Purpose: Implements Payrunner API methods.
+ *
+ *
+ *  @input Basket : dw.order.Basket -The basket to build
+ *  @input APIMethod : String;
+ *  @input Firstname : String;
+ *  @input Lastname : String;
+ *  @input Email : String;
+ *  @input Phone : String;
+ *  @input Cart : String;
+ *  @input SRCheckoutId : String;
+ *  @input SRPromoStatus : String;
+ *  @input NewGCPaymentInstrument : Object;
+ *  @input CouponStatus : dw.system.Status;
+ *  @input CouponCode : String;
+ *  @input GiftCertificateStatus: dw.system.Status;
+ *  @input EnteredGC : String;
+ *  @output JSONPRCart : String;
+ *  @output CreditCardPayment : Object;
+ *  @output BillingObj : Object;
+ *  @output ShippingObj : Object;
+ *
+ */
+importPackage(dw.system);
+importPackage(dw.order);
+importPackage(dw.util);
+importPackage(dw.value);
+importPackage(dw.net);
+importPackage(dw.web);
+importPackage(dw.crypto);
+importPackage(dw.catalog);
+importPackage(dw.campaign);
+
+importScript("util/srProductUtils.ds");
+importScript("util/srErrorUtils.ds");
+
+var ExpressCheckoutUtil = require("~/cartridge/scripts/payrunner/ExpressCheckoutUtil");
+var SRRequestValidator = ExpressCheckoutUtil.SRRequestValidator;
+
+var SRStatusCode = require("~/cartridge/scripts/util/srGlobals").SRStatusCode;
+var SRPaymentService = require("~/cartridge/scripts/payrunner/SRPaymentService");
+
+var srLogger = Logger.getLogger('ShopRunner', 'ShopRunner');
+
+
+/******************************************************
+ * function name: execute
+ *
+ * Main entry point into script block. It handles the shoprunner api
+ * methods.
+ *
+ * input parameters:
+ *
+ *  Basket : dw.order.Basket                        - The DW basket
+ *  APIMethod : String;                             - The Shoprunner API method (e.g., startPRCheckout)
+ *  Firstname : String;                             - ship-to first name
+ *  Lastname : String;                              - ship-to last name
+ *  Email : String;                                 - ship-to last name
+ *  Phone : String;                                 - ship-to phone
+ *  Cart : String;                                  - cart returned from shoprunner API call
+ *  SRCheckoutId                                    - Unique ID passed in by Payruunner
+ *  SRPromoStatus : String                          - Status value of the promo that is possibly being applied. 0 = applied, else not.
+ *  NewGCPaymentInstrument : Object;                - Represents gift card payment used in payrunner popup
+ *
+ *  Output:
+ *
+ *  JSONPRCart : String;                            - jSON to be returned
+ *  CreditCardPayment : Object;                     - Object containing credit card payment info
+ *
+ ******************************************************/
+
+function execute(args) {
+	var result = getMethods(args);
+	if (result.status.status === Status.ERROR) {
+		return PIPELET_ERROR;
+	}
+	args.JSONPRCart = result.JSONPRCart;
+	args.CreditCardPayment = result.CreditCardPayment
+	args.ShippingObj = result.ShippingObj;
+	args.BillingObj = result.BillingObj;
+	return PIPELET_NEXT;
+}
+
+function getMethods(args) {
+	var apiMethod = args.APIMethod; // Shoprunner API Method
+	var dwBasket = args.Basket; // basket that was constusted within dw
+	var cartFromSR = args.Cart; // cart the exists on ShopRunner
+	var srFirstname = args.Firstname; // first name from ShopRunner cart
+	var srLastname = args.Lastname; // last name from ShopRunner cart
+	var srPhone = args.Phone; // Phone from ShopRunner cart
+	var srEmail = args.Email; // email address from ShopRunner cart
+	var srCheckoutId = args.SRCheckoutId; // Provided by ShopRunner and is a unique identifier for PayRunner
+	var srPromoStatus = args.SRPromoStatus; // Status value of the promo that is possibly being applied. 0 = applied, else not.
+	var dwCreditCardPayment; //
+	var newGCPaymentInstrument = args.NewGCPaymentInstrument; // Represents gift card payment used in payrunner popup
+	var srPayment;
+	var couponStatus = args.CouponStatus; // Added in order to get Error Codes Status
+	var couponCode = args.CouponCode; // added to get the code that is typed by the customer
+	var gcStatus = args.GiftCertificateStatus; // added to get the Status for inserted GC
+	var gcCode = args.EnteredGC; // added to verify if the Gift Card was allready applied
+	var status;
+
+	var responseJSON = {}; // Response JSON from various ShopRunner/ExpressCheckout API -Methods.
+	try {
+		switch (apiMethod) {
+			case ExpressCheckoutUtil.API_GET_CART:
+				responseJSON = getUpdatePRCart(dwBasket, '{}', srFirstname, srLastname, srPhone, srPromoStatus, couponStatus, couponCode);
+				break;
+
+			case ExpressCheckoutUtil.API_START_CHECKOUT:
+				responseJSON = getUpdatePRCart(dwBasket, cartFromSR, srFirstname, srLastname, srPhone, srPromoStatus, couponStatus, couponCode);
+				break;
+
+			case ExpressCheckoutUtil.API_ABANDON_CART:
+				responseJSON = getAbandonPRCartJSON(dwBasket);
+				break;
+
+			case ExpressCheckoutUtil.API_APPLY_GIFT_CARD:
+				responseJSON = getApplyPRGiftCard(dwBasket, cartFromSR, newGCPaymentInstrument, gcStatus, gcCode);
+				break;
+
+			case ExpressCheckoutUtil.API_UPDATE_CART:
+				responseJSON = getUpdatePRCart(dwBasket, cartFromSR, srFirstname, srLastname, srPhone, srPromoStatus, couponStatus, couponCode);
+				break;
+
+			case ExpressCheckoutUtil.API_PROCESS_CHECKOUT:
+			case ExpressCheckoutUtil.API_REVIEW_ORDER:
+				var cartJSONFromSR: Object = JSON.parse(cartFromSR);
+				var responseJSON = getPRCart(dwBasket);
+
+				var validatorMsg = SRRequestValidator.validateAddress(cartJSONFromSR.shippingAddress);
+				if (validatorMsg.status == false) {
+					responseJSON.status = SRStatusCode.INVALID_SHIPPING_ADDRESS;
+					responseJSON.message = validatorMsg.message;
+					break;
+				}
+
+				// if splitShip then set the same address for the ineligible shipment
+				setupIneligibleShipment(dwBasket);
+
+				// Set products object
+				var products: Object = getProducts(dwBasket);
+				srPayment = SRPaymentService.getSRPayment(srCheckoutId);
+				if (srPayment.status != 0) {
+					responseJSON.status = srPayment.status;
+					responseJSON.message = srPayment.message;
+					break;
+				}
+
+				// Set billing object
+				var billing: Object = setBillingObject(srPayment);
+
+				assignShippingAddress(dwBasket, cartJSONFromSR.shippingAddress, srFirstname, srLastname, srPhone);
+				// Set shipping object
+				var shipping: Object = setShippingObject(dwBasket.getDefaultShipment().getShippingAddress());
+
+				break;
+		}
+	} catch (e) {
+		var ex = e;
+		responseJSON = getPRCart(dwBasket);
+		// catch the error for Internal Server Error and display a personalized message in the modal window
+		if (e instanceof InternalError) {
+			responseJSON.status = 10;
+			responseJSON.message = Resource.msg('shoprunner.error_10', 'shoprunner', '');
+		}
+		// catch the error IOError and display a personalized message in the modal window
+		else if (e instanceof IOError) {
+			responseJSON.status = 42;
+			responseJSON.message = Resource.msg('shoprunner.error_42', 'shoprunner', '');
+		} else if (e instanceof Fault) {
+			responseJSON.status = 111;
+			responseJSON.message = e.faultString + " --  " + e.faultDetail;
+			srLogger.error("Fault Actor " + e.faultActor + " caused fault [code: '" + e.faultCode +
+				"'] == Error ==> (" + e.faultString + " == Details ==> " + e.faultDetail + ")");
+		}
+		srLogger.error('ShopRunner: payrunnerAPI general error: ' + e.message);
+		status = new Status(Status.ERROR)
+		return PIPELET_ERROR;
+	}
+	return {
+		status: status,
+		JSONPRCart: ExpressCheckoutUtil.applyScriptOK(apiMethod, responseJSON),
+		CreditCardPayment: srPayment,
+		ShippingObj: shipping,
+		BillingObj: billing
+
+	}
+}
+
+
+/******************************************************
+ * function: getAbandonPRCartJSON
+ *
+ * implements shoprunner api method abandonPRCart
+ *
+ ******************************************************/
+function getAbandonPRCartJSON(dwBasket: Basket) {
+	var gcPaymentInstrs: Collection = dwBasket.getGiftCertificatePaymentInstruments();
+	for each(var PaymentInstrument in gcPaymentInstrs) {
+			dwBasket.removePaymentInstrument(PaymentInstrument);
+		}
+		// Create New Empty Shipment Address
+	dwBasket.defaultShipment.createShippingAddress();
+	dwBasket.createBillingAddress();
+	dwBasket.customerEmail = null;
+	return {
+		status: SRStatusCode.OK
+	};
+}
+
+/******************************************************
+ * function: getApplyPRGiftCard
+ *
+ * implements shoprunner api method getApplyPRGiftCard
+ *
+ ******************************************************/
+function getApplyPRGiftCard(dwBasket: Basket, srCart, NewGCPaymentInstrument: PaymentInstrument, gcStatus,
+	gcCode) {
+	// @NOTE
+	// Currently waiting for PayRunner to update the popup for:
+	// 1) Gift Card Number field allows for alphas
+	// 2) Gift Card Pin Number is hidden/disabled
+	// At this point, the code below is pseudocode, but should be pretty close
+
+	var jsonObject: Object = {};
+	if (gcStatus.code == 'AllreadyApp') {
+		jsonObject.status = 40;
+	} else {
+		var payTransAmount: Number = 0;
+		if (!empty(NewGCPaymentInstrument) && NewGCPaymentInstrument.paymentMethod == 'GIFT_CERTIFICATE') {
+			payTransAmount = calculateGCBalance(dwBasket.getGiftCertificatePaymentInstruments());
+		}
+
+		// get the total gift cards balance
+		var gcPaymentInstruments: Collection = dwBasket.getGiftCertificatePaymentInstruments();
+		var gcTotalBalance: Number = 0;
+		var gcPreviousBalance: Number = 0;
+		if (!gcPaymentInstruments.isEmpty()) {
+			for each(var instrument: OrderPaymentInstrument in gcPaymentInstruments) {
+				if (instrument.paymentMethod == 'GIFT_CERTIFICATE') {
+					gcTotalBalance += instrument.getPaymentTransaction().getAmount().getValue();
+					if (instrument.getGiftCertificateCode() != NewGCPaymentInstrument.getGiftCertificateCode()) {
+						gcPreviousBalance += instrument.getPaymentTransaction().getAmount().getValue();
+					}
+				}
+			}
+		}
+
+		var balance: Number = Number(dwBasket.getAdjustedMerchandizeTotalGrossPrice()) < 0 ? 0 : Number(dwBasket.getAdjustedMerchandizeTotalGrossPrice());
+
+		jsonObject.newOrderBalance = (balance.toFixed(2) - gcTotalBalance.toFixed(2)).toFixed(2);
+		// check if the newOrderBalance is 0 because the result should be 0.0
+		jsonObject.newOrderBalance = jsonObject.newOrderBalance == '0' ? '0.0' : jsonObject.newOrderBalance;
+		jsonObject.gcBalance = 0;
+		jsonObject.status = 0;
+		// check if the gift certificate has an error
+		if (!empty(NewGCPaymentInstrument)) {
+			var gc: GiftCertificate = GiftCertificateMgr.getGiftCertificateByCode(NewGCPaymentInstrument.getGiftCertificateCode());
+			var gcBalance: Number = gc.getBalance().getValue();
+			var diffBalance: Number = balance - gcPreviousBalance;
+			// check if the gc value is higher then orderSubtotal
+			jsonObject.gcBalance = (gcBalance < balance && diffBalance > 0) ? gcBalance.toFixed(2) : diffBalance.toFixed(
+				2);
+		}
+		var response = errorCodeGc(jsonObject, gcStatus, gcCode, dwBasket);
+		if (!empty(gcStatus)) {
+			jsonObject.status = response;
+		}
+	}
+	return jsonObject;
+}
+
+/******************************************************
+ * function getPRCart
+ *
+ * implements the shoprunner API called getPRCart.
+ *
+ * input parameters:
+ *
+ * dwBasket     - demandware basket
+ * cartFromSR   - shoprunner basket
+ * srFirstname  - shoprunner first name
+ * srLastname   - shoprunner last name
+ * srPhone      - shoprunner last name
+ *
+ * output:  JSON object
+ *
+ *
+ ******************************************************/
+function getPRCart(dwBasket) {
+	var srCart: Object = {};
+
+	var cartId = dwBasket.getUUID();
+	var products: Object = getProducts(dwBasket);
+
+	srCart.cartId = cartId;
+
+	srCart.products = products;
+	srCart.shippingGroups = getShipping(dwBasket);
+
+	// add any promotion present in basket
+	var promotions = getPromotions(dwBasket);
+	if (promotions != null) {
+		srCart.promotions = promotions;
+	}
+
+	getCartTotals(dwBasket, srCart);
+
+	var jsonObject: Object = {};
+	jsonObject.cart = srCart;
+	// status for this method will be set in SetupPlaceOrderRedirect.ds for pdp
+	// and SetupConfirmationRedirect.ds for cart
+
+	// set up a status Number
+	var status: Number = 0;
+	var check: Object = checkBlockOption(status, dwBasket.getAllProductLineItems());
+	if (check.exit) {
+		setSRErrorLogger(check.statusCode, arguments.callee.name.toString());
+		status = check.statusCode;
+	}
+	jsonObject.status = status;
+	return jsonObject;
+}
+
+/******************************************************
+ * function getUpdatePRCart
+ *
+ * implements the shoprunner API called updatePRCart.
+ *
+ * input parameters:
+ *
+ * dwBasket     - demandware basket
+ * srBasket - shoprunner basket
+ *
+ * output:  JSON object
+ *
+ *
+ ******************************************************/
+
+function getUpdatePRCart(dwBasket: Basket, srBasket, srFirstname, srLastname, srPhone, srPromoStatus, couponStatus: dw.system.Status,
+	couponCode: String) {
+	var cartJSONFromSR: Object = JSON.parse(srBasket);
+	assignShippingAddress(dwBasket, cartJSONFromSR.shippingAddress, srFirstname, srLastname, srPhone);
+	var selectedShipMeth: String = getSelectedShipMeth(cartJSONFromSR);
+
+	var srCart: Object = {};
+
+	var cartId = dwBasket.getUUID();
+	var products: Object = getProducts(dwBasket);
+
+	srCart.cartId = cartId;
+
+	srCart.products = products;
+	srCart.shippingGroups = getShipping(dwBasket, selectedShipMeth);
+
+	// add any promotion present in basket
+	var promotions = getPromotions(dwBasket);
+	if (promotions != null) {
+		srCart.promotions = promotions;
+	}
+
+	// set giftCards object (1)
+	var giftCards: Array = setGiftCard(dwBasket.getGiftCertificatePaymentInstruments());
+	if (giftCards.length > 0) {
+		srCart.giftCards = giftCards;
+	}
+	getCartTotals(dwBasket, srCart);
+
+	var jsonObject: Object = {};
+	jsonObject.cart = srCart;
+
+	// call the error Code Function
+	var response = errorCodePromo(dwBasket, jsonObject, true, couponStatus, couponCode, srBasket);
+	if (typeof response === 'object') {
+		jsonObject.status = response.status;
+		if (!empty(response.redirectUrl)) {
+			jsonObject.redirectURL = response.redirectUrl;
+		}
+		if (response.promoInvalidation == true) {
+			jsonObject.cart.message = response.message;
+		}
+	} else {
+		jsonObject.status = response;
+	}
+	return jsonObject;
+}
+
+/******************************************************
+ * function getSelectedShipMeth
+ *
+ * Searches the shoprunner cart json object, passed in
+ * as a string, for the selected shipping method
+ *
+ * input parameters:
+ *
+ * srBasket - shoprunner basket
+ *
+ * output: string representing the selected ship meth
+ *
+ *
+ ******************************************************/
+
+function getSelectedShipMeth(srBasketJSON) {
+	var selectedShipMeth: String = '';
+	for each(var shippingGroup in srBasketJSON.shippingGroups) {
+		for each(var shipMeth in shippingGroup.shipping) {
+			if (shipMeth.selected) {
+				selectedShipMeth = shipMeth.method;
+				break;
+			}
+		}
+	}
+
+	return selectedShipMeth;
+}
+
+/******************************************************
+ * function getSelectedShipMethPrice
+ *
+ * Searches the shoprunner cart json object, passed in
+ * as a string, for the selected shipping method price
+ *
+ * input parameters:
+ *
+ * srBasket - shoprunner basket
+ *
+ * output: string representing the selected ship meth price
+ *
+ *
+ ******************************************************/
+function getSelectedShipMethPrice(srBasket) {
+	var selectedShipMethPrice: String = '0.00';
+	//var srBasketJSON : Object = JSON.parse( srBasket );
+	for each(var shippingGroup in srBasket.shippingGroups) {
+		for each(var shipMeth in shippingGroup.shipping) {
+			if (shipMeth.selected) {
+				selectedShipMethPrice = shipMeth.shipPrice.toString();
+				break;
+			}
+		}
+	}
+
+	return selectedShipMethPrice;
+}
+
+/******************************************************
+ * function getImplicitPromoCount
+ *
+ * Searches the demandware basket object for the number
+ * of implicity promos that have been applied. This will
+ * be used to determine if we need to add those promos
+ * to the payrunner response object to be displayed in
+ * the payrunner popup
+ *
+ * input parameters:
+ *
+ * dwBasket - demandware basket
+ *
+ * output: Number representing the number of implicit
+ *         promos
+ *
+ ******************************************************/
+function getImplicitPromoCount(dwBasket) {
+	var promoCount: Number = 1;
+	return promoCount;
+}
+
+/******************************************************
+ * function getPromotions
+ *
+ * Searches the demandware basket object for any applied
+ * coupon codes.
+ *
+ * input parameters:
+ *
+ * dwBasket - demandware basket
+ *
+ * output: array containing promotions to be used for
+ *         payrunner json
+ ******************************************************/
+function getPromotions(dwBasket: Basket) {
+	// Create promotions object for any coupons
+	var promotions: Array = [];
+
+	// priceAdjustments IDs from coupons
+	var couponPriceAdjustment: Array = [];
+	// priceAdjustments IDs from basket
+	var basketPriceAdjustmentsUUID: Array = [];
+
+	// collect promotions for each price adjustment going within all coupon codes
+	var couponsIterator: Iterator = dwBasket.getCouponLineItems().iterator();
+	if (!empty(couponsIterator)) {
+		while (couponsIterator.hasNext()) {
+			// this will loop through all the coupons applied
+			var couponLineItem: CouponLineItem = couponsIterator.next();
+			var priceAdjustmentsIterator = couponLineItem.getPriceAdjustments().iterator();
+			while (priceAdjustmentsIterator.hasNext()) {
+				var priceAdjustment: PriceAdjustment = priceAdjustmentsIterator.next();
+				// check if the promotion applied has product Class
+				// the coupons that will be applied for products
+				// will not be displayed in cart object
+				if (priceAdjustment.getPromotion().getPromotionClass() != Promotion.PROMOTION_CLASS_PRODUCT) {
+					var promotion: Object = {};
+					couponPriceAdjustment.push(priceAdjustment.getUUID());
+					// check if the calloutMsg is not empty in order to get his length
+					if (!empty(priceAdjustment.getPromotion().calloutMsg)) {
+						// HTML sanitization for callOut message divtags
+						var callOut: String = priceAdjustment.getPromotion().calloutMsg.source.replace(/(<([^>]+)>)/ig, '').replace(
+							/\r?\n|\r/g, '');
+						promotion.code = (callOut.length > 20) ? priceAdjustment.getPromotionID() : callOut;
+					} else {
+						promotion.code = priceAdjustment.getPromotionID();
+					}
+
+					// set promotion value
+					var promoValue: String = (priceAdjustment.getPrice().getDecimalValue() != null) ? priceAdjustment.getPrice()
+						.getDecimalValue().toString().replace('-', '') : '';
+
+					promotion.type = 'discount';
+					promotion.value = promoValue;
+					promotion.message = Resource.msg('shoprunner.promoapplied', 'shoprunner', null);
+					promotion.status = 0;
+					// add this promotion to promo list
+					if (couponLineItem.isApplied()) {
+						promotions.push(promotion);
+					}
+				}
+			}
+		}
+	}
+
+
+	// collect promotion on cart level
+	var priceAdjustments: Iterator = dwBasket.getPriceAdjustments().iterator();
+	if (!empty(priceAdjustments)) {
+		while (priceAdjustments.hasNext()) {
+			// if in coupon line items
+			var basketAdjustment: PriceAdjustment = priceAdjustments.next();
+			basketPriceAdjustmentsUUID.push(basketAdjustment.getUUID());
+
+			var duplicate: Boolean = false;
+			if (couponPriceAdjustment.indexOf(basketAdjustment.getUUID()) > -1) {
+				duplicate = true;
+			}
+			if (!duplicate) {
+				var promotion: Object = {};
+				// check if the callOut from basketAdjustment is not empty
+				if (!empty(basketAdjustment.getPromotion().calloutMsg)) {
+					// HTML sanitization for callOut message divtags
+					var callOut: String = basketAdjustment.getPromotion().calloutMsg.source.replace(/(<([^>]+)>)/ig, '').replace(
+						/\r?\n|\r/g, '');
+					// check the length for calloutMsg
+					promotion.code = (callOut.length > 20) ? basketAdjustment.getPromotionID() : callOut;
+				} else {
+					promotion.code = basketAdjustment.getPromotionID();
+				}
+				promotion.type = 'discount';
+				promotion.value = (basketAdjustment.getPrice().getDecimalValue() != null) ? basketAdjustment.getPrice().getDecimalValue()
+					.toString().replace('-', '') : '';
+				promotion.message = Resource.msg('shoprunner.promoapplied', 'shoprunner', null);
+				promotion.status = 0;
+				// add this promotion to promo list
+				promotions.push(promotion);
+			}
+		} // end while
+	}
+
+	// collect the shippingDiscount
+	// check totalShipmentPrice
+	var shippingExclDiscounts: Money = dwBasket.shippingTotalPrice;
+	// check the actualShipmentsPrice
+	var shippingInclDiscounts: Money = dwBasket.getAdjustedShippingTotalPrice();
+	// take the discount
+	var shippingDiscount: Money = shippingExclDiscounts.subtract(shippingInclDiscounts);
+	if (!empty(shippingDiscount) && shippingDiscount.value > 0.0) {
+		var promotion: Object = {};
+		promotion.code = Resource.msg('ordersummary.ordershippingdiscount', 'components', null);
+		promotion.type = 'discount';
+		promotion.value = (shippingDiscount.getDecimalValue() != null) ? shippingDiscount.getDecimalValue().toString()
+			.replace('-', '') : '';
+		promotion.message = Resource.msg('shoprunner.promoapplied', 'shoprunner', null);
+		promotion.status = 0;
+		promotions.push(promotion);
+	}
+
+	if (promotions.length > 0) {
+		return promotions;
+	}
+	return null;
+}
+
+/******************************************************
+ * function getStartPRCheckoutJSON
+ *
+ * implements the shoprunner API called startPRCheckout.
+ *
+ * input parameters:
+ *
+ * dwBasket     - demandware basket
+ * cartFromSR   - shoprunner basket
+ * srFirstname  - shoprunner first name
+ * srLastname   - shoprunner last name
+ * srPhone      - shoprunner last name
+ *
+ * output: string representing a JSON object
+ *
+ ******************************************************/
+function getStartPRCheckoutJSON(dwBasket: Basket, cartFromSR, srFirstname, srLastname, srPhone, srCheckoutId) {
+	var srCart: Object = {}; // cart object for use in JSON
+	srCart.shippingAddress = JSON.parse(cartFromSR).shippingAddress; // Shipping address from shoprunner
+	assignShippingAddress(dwBasket, srCart.shippingAddress, srFirstname, srLastname, srPhone);
+	var cartId = dwBasket.getUUID();
+	var products: Object = getProducts(dwBasket);
+	srCart.cartId = cartId;
+	srCart.products = products;
+	srCart.shippingGroups = getShipping(dwBasket);
+
+	// add any promotion present in basket
+	var promotions = getPromotions(dwBasket);
+	if (promotions != null) {
+		srCart.promotions = promotions;
+	}
+
+	// set giftCards object (2)
+	var giftCards: Array = setGiftCard(dwBasket.getGiftCertificatePaymentInstruments());
+	if (giftCards.length > 0) {
+		srCart.giftCards = giftCards;
+	}
+
+	getCartTotals(dwBasket, srCart);
+
+	// make json from cart object
+	var jsonObject: Object = {};
+	// set the status for 'block' option
+	jsonObject.cart = srCart;
+	jsonObject.SRCheckoutId = srCheckoutId;
+
+	// call errorCodeProduct to apply status
+	var response = errorCodeProduct(jsonObject, dwBasket);
+	if (typeof response === 'object') {
+		jsonObject.status = response.status;
+		jsonObject.cart.message = response.message;
+	} else {
+		jsonObject.status = response;
+	}
+	return jsonObject;
+}
+
+
+/******************************************************
+* function assignShippingAddress
+*
+* Takes the ship-to address from shoprunner and
+*  adds the address fields to the dw ship-to
+*
+* input :
+*
+* dwOrderAddress    - dw shipping address
+* srShippingAddress - shoprunner shipping address
+* srFirstname       - shoprunner first name
+* srLastname        - shoprunner last name
+* srPhone           - shoprunner phone
+
+*
+* output : dwOrderAddress       - dw shipment order address object
+*
+******************************************************/
+function assignShippingAddress(dwBasket, srShippingAddress, srFirstName, srLastName, srPhone) {
+	// No Shipping address found dont perform any thing.
+	if (!SRRequestValidator.validateAddress(srShippingAddress).status) {
+		return;
+	}
+	var dwOrderAddress = dwBasket.defaultShipment.createShippingAddress(); // dw shipping address
+	dwOrderAddress.firstName = srFirstName;
+	dwOrderAddress.lastName = srLastName;
+	dwOrderAddress.address1 = srShippingAddress.address1;
+	dwOrderAddress.address2 = srShippingAddress.address2;
+	dwOrderAddress.city = srShippingAddress.city;
+	dwOrderAddress.stateCode = srShippingAddress.state;
+	dwOrderAddress.postalCode = srShippingAddress.zip;
+	dwOrderAddress.countryCode = srShippingAddress.country;
+	dwOrderAddress.phone = srPhone;
+}
+
+
+/******************************************************
+ * function: getProducts
+ *
+ * returns the product object that will be contained in the
+ * shoprunner cart object
+ *
+ * * dwBasket       - demandware basket
+ * * srBasket       - shoprunner basket
+ *
+ ******************************************************/
+function getProducts(dwBasket: Basket) {
+	var products: Array = [];
+	var message: String = '';
+	var shippingGroup: String = '1';
+	var shippingGroups: Array = [];
+	var basketLineItems: Collection = dwBasket.allProductLineItems;
+	var basketItems: Iterator = basketLineItems.iterator();
+
+	while (basketItems.hasNext()) {
+		var productLineItem: ProductLineItem = basketItems.next();
+		var product: Product = productLineItem.getProduct();
+		var sr_eligible = 'false';
+		if (!empty(product)) {
+			sr_eligible = product.getCustom().sr_eligible.value;
+		} else {
+			// We should only end up here in the case of a Product Option that has a parent
+			// In that case, we need to grab the eligibility of the parent product
+			var parentProduct: Product = productLineItem.parent.getProduct();
+			if (!empty(parentProduct)) {
+				sr_eligible = parentProduct.getCustom().sr_eligible.value;
+			}
+		}
+
+		var item: Object = {};
+		if (!empty(product)) {
+			item.sku = product.ID;
+			item.skuName = product.name.replace(/[^a-zA-Z0-9 ]/g, '');
+			item.skuDescription = !empty(product.getShortDescription()) ? product.getShortDescription().source.replace(
+				/[^a-zA-Z0-9 ]/g, '') : '';
+		} else {
+			item.sku = productLineItem.productID;
+			item.skuName = productLineItem.productName.replace(/[^a-zA-Z0-9 ]/g, '');
+			item.skuDescription = '';
+		}
+
+		if (sr_eligible == 'true') {
+			item.isSREligible = true;
+			item.shippingGroup = 1;
+		} else {
+			item.isSREligible = false;
+			item.shippingGroup = 2;
+		}
+
+		item.skuQty = productLineItem.getQuantity().value;
+		var promotions = [];
+		var productLevelPromotions = productLineItem.getPriceAdjustments();
+		if (productLevelPromotions) {
+			var promoIterator = productLevelPromotions.iterator();
+			while (promoIterator.hasNext()) {
+				var priceAdjustment = promoIterator.next();
+				var promotion = {};
+				var couponLineItem = priceAdjustment ? priceAdjustment.getCouponLineItem() : null;
+				var promotionObject = priceAdjustment.getPromotion();
+				if (!promotionObject || promotionObject.getPromotionClass() != Promotion.PROMOTION_CLASS_PRODUCT) {
+					continue;
+					//Ignore all other promotions
+				}
+				if (!empty(promotionObject.calloutMsg)) {
+					// HTML sanitization for callOut message divtags
+					var callOut: String = priceAdjustment.getPromotion().calloutMsg.source.replace(/(<([^>]+)>)/ig, '').replace(
+						/\r?\n|\r/g, '');
+					promotion.code = (callOut.length > 20) ? priceAdjustment.getPromotionID() : callOut;
+				} else {
+					promotion.code = priceAdjustment.getPromotionID();
+				}
+				// set promotion value
+				var promoValue: String = (priceAdjustment.getPrice().getDecimalValue() != null) ? priceAdjustment.getPrice()
+					.getDecimalValue().toString().replace('-', '') : '';
+
+				promotion.type = 'discount';
+				promotion.value = promoValue;
+				promotion.message = Resource.msg('shoprunner.promoapplied', 'shoprunner', null);
+				promotion.status = 0;
+				if (couponLineItem && couponLineItem.isApplied()) {
+					promotions.push(promotion);
+				}
+			}
+		}
+		item.promotions = promotions;
+
+		item.shipping = [];
+		//item.shipping = getShippingByProduct(productLineItem);
+
+		// set the message
+		if (!empty(message)) {
+			item.message = message;
+		}
+
+		// @NOTE - jfriend 022813
+		// In order to take price adjustments into account, we are manually determining
+		// the adjusted unit price by grabbing the adjusted price and dividing it by quantity
+		// because there is no adjustedUnitPrice property or method in the DW API.
+		// Previously using:  item.unitPrice = productLineItem.getBasePrice().value;
+
+		var adjustedUnitPrice = productLineItem.getAdjustedPrice().value / productLineItem.getQuantity().value;
+
+		var pricing: Object = {};
+		if (product != null) {
+			pricing = SRProductUtils.getPricing(product);
+			//check if product promotion is applied
+			if (pricing.sale != pricing.standard) {
+				item.originalUnitPrice = pricing.standard;
+				item.finalUnitPrice = pricing.sale < pricing.standard ? pricing.sale : pricing.standard;
+			} else if (productLineItem.adjustedNetPrice.value == 0) {
+				// if is bonus product
+				item.originalUnitPrice = pricing.standard;
+				item.finalUnitPrice = productLineItem.adjustedNetPrice.value.toFixed(2);
+			} else {
+				item.originalUnitPrice = (pricing.sale < pricing.standard) ? pricing.sale : pricing.standard;
+				item.finalUnitPrice = adjustedUnitPrice; //(pricing.sale < pricing.standard) ? pricing.sale : pricing.standard;
+			}
+			// add an extra condition to check if the productLineItem is bonus
+			if (productLineItem.isBonusProductLineItem()) {
+				item.originalUnitPrice = pricing.standard;
+				item.finalUnitPrice = '0.00';
+			}
+
+		} else if (productLineItem.optionProductLineItem) {
+			// Adding a condition for all Optional Products like Warrenty.
+			if (productLineItem.netPrice.value != productLineItem.adjustedNetPrice.value) {
+				item.originalUnitPrice = productLineItem.adjustedGrossPrice.value;
+			}
+			item.finalUnitPrice = adjustedUnitPrice;
+		} else {
+			item.finalUnitPrice = adjustedUnitPrice.toFixed(2);
+		}
+
+		// call getGiftWrap function if implemented
+		// item.giftWrap = getGiftWrap(productLineItem);
+
+		// add the adornments
+		item.adornments = getAdornments(productLineItem);
+
+		item.smallImageUrl = '';
+		item.largeImageUrl = '';
+		if(item.finalUnitPrice) {
+			item.finalUnitPrice = parseFloat(Number(item.finalUnitPrice).toFixed(2));
+		}
+		if(item.originalUnitPrice) {
+			item.originalUnitPrice = parseFloat(Number(item.originalUnitPrice).toFixed(2));
+		}
+
+		if (!empty(product)) {
+			if (product.getImage('small', 0) != null) {
+				item.smallImageUrl = product.getImage('small', 0).getAbsURL().toString();
+			}
+			if (product.getImage('large', 0) != null) {
+				item.largeImageUrl = product.getImage('large', 0).getAbsURL().toString();
+			}
+		}
+		products.push(item);
+	}
+
+	return products;
+}
+
+/******************************************************
+ * function: getShipping
+ *
+ * returns the shipping groups object that will be contained in the
+ * shoprunner cart object. The shipping groups contain the shipping
+ * details for every possible ship method.
+ *
+ * dwBasket         - demandware basket
+ * selectedShipMeth - string representing the selected ship meth id
+ *                    (this is only passed on updatePRCart calls)
+ *
+ ******************************************************/
+function getShipping(dwBasket: Basket, selectedShipMeth) {
+	// get basket items, used for calculating ship price within ship meth loop
+	var basketLineItems: Collection = dwBasket.allProductLineItems;
+	var basketItems: Iterator = basketLineItems.iterator();
+
+	// @NOTE - jfriend 022813
+	// Originally this was setup to grab all ship meths, instead of applicable only
+	// That doesn't seem to make sense, so I changed it. I'm leaving this note in case
+	// this ends up causing issues down the road.
+
+	// get all shipping methods
+	//var shippingMethods : HashMap = ShippingMgr.getAllShippingMethods();
+
+	// get applicable shipping methods
+	var shippingMethods: Collection = ShippingMgr.getShipmentShippingModel(dwBasket.defaultShipment).getApplicableShippingMethods();
+
+	// create var to hold shipping methods split into groups based on ShopRunner/Payrunner API
+	var shippingInfo: Array = [];
+
+	// create vars to hold each shipping group and its data
+	var shippingSR: Array = [];
+	var shippingDW: Array = [];
+
+	var currencyCode: String = Site.getCurrent().getDefaultCurrency();
+	var totalPriceValSR: Number = 0;
+	var totalPriceValDW: Number = 0;
+
+	// if downgrade or splitShip is activated then ground will be the only shipping method sent
+	var isOnlyGround: boolean = Site.getCurrent().getCustomPreferenceValue('sr_mixedorder').value.value === 'downgrade' ?
+		true : false;
+
+	// check mixed eligibility option
+	var blockFlag: Boolean = isBlockOption();
+	var counter: Number = 0;
+	while (basketItems.hasNext()) {
+		var productLineItem: ProductLineItem = basketItems.next();
+		var sr_eligible: String = 'false';
+		if (!empty(productLineItem.getProduct())) {
+			counter++;
+			if (counter == 1) {
+				currencyCode = productLineItem.getPrice().getCurrencyCode();
+			}
+			sr_eligible = blockFlag ? 'false' : productLineItem.getProduct().getCustom().sr_eligible.value;
+			if (sr_eligible == true || sr_eligible == 'true') {
+				totalPriceValSR += productLineItem.getPrice().getValue();
+			} else {
+				totalPriceValDW += productLineItem.getPrice().getValue();
+			}
+		}
+	}
+
+	// check if we can reduce the shipping methods to 'Ground' shipping only
+	var isOnlyGroundAllowed: Boolean = false;
+	if (isOnlyGround) {
+		// setup iterator for shipping method loop
+		var shippingMethodsSeekable: Iterator = shippingMethods.iterator();
+		while (shippingMethodsSeekable.hasNext()) {
+			// set loop item as shipping method
+			var shippingMethod: ShippingMethod = shippingMethodsSeekable.next();
+			if (shippingMethod.displayName.toString().equals('Ground')) {
+				isOnlyGroundAllowed = true;
+				break;
+			}
+		}
+	}
+	// setup iterator for shipping method loop
+	var shippingMethodsIterator: Iterator = shippingMethods.iterator();
+	// loop on shipping methods
+	while (shippingMethodsIterator.hasNext()) {
+		// Set loop item as shipping method
+		var shippingMethod: ShippingMethod = shippingMethodsIterator.next();
+
+		if (shippingMethod.getID() == 'shoprunner') {
+			var shippingObj: Object = {};
+			shippingObj.shippingDisplay = shippingMethod.description;
+			shippingObj.method = shippingMethod.displayName;
+			shippingObj.shipPrice = ShippingMgr.getShippingCost(shippingMethod, new Money(totalPriceValSR,
+				currencyCode)).value;
+
+			if (!empty(selectedShipMeth) && shippingMethod.getDisplayName().equals(selectedShipMeth)) {
+				shippingObj.selected = true;
+			} else {
+				shippingObj.selected = false;
+			}
+
+			// Add ship meth item to SR array, there should only be this one
+			shippingSR.push(shippingObj);
+		} else {
+			var shippingObj: Object = {};
+			shippingObj.shippingDisplay = shippingMethod.displayName + ' - ' + shippingMethod.description;
+			shippingObj.method = shippingMethod.displayName;
+			shippingObj.shipPrice = ShippingMgr.getShippingCost(shippingMethod, new Money(totalPriceValDW,
+				currencyCode)).value;
+
+			if (!empty(selectedShipMeth) && shippingMethod.getDisplayName().equals(selectedShipMeth)) {
+				shippingObj.selected = true;
+			} else if (empty(selectedShipMeth)) {
+				if (shippingMethod.getDisplayName().equals('Ground')) {
+					shippingObj.selected = true;
+				} else {
+					shippingObj.selected = false;
+				}
+			}
+
+			// Add ship method item to DW array, there should be many
+			if (isOnlyGround && isOnlyGroundAllowed) {
+				// Ground Shipping should be selected by default.
+				if (shippingMethod.getDisplayName().equals('Ground')) {
+					shippingObj.selected = true;
+					shippingDW.push(shippingObj);
+				}
+			} else {
+				shippingDW.push(shippingObj);
+			}
+		}
+	}
+
+	var shippingGroup1: Object = {};
+	shippingGroup1.shippingGroup = 1;
+	shippingGroup1.shipping = shippingSR;
+
+	var shippingGroup2: Object = {};
+	shippingGroup2.shippingGroup = 2;
+	shippingGroup2.shipping = shippingDW;
+
+	shippingInfo[0] = shippingGroup1;
+	shippingInfo[1] = shippingGroup2;
+
+	return shippingInfo;
+}
+
+/******************************************************
+ * function: getShippingByProduct
+ *
+ * returns the shipping cost for a product for each shipping method
+ *
+ *  ProductLineItem     - Product that needs shipping calculated
+ *
+ *  returns a shpping object that contains the cost to ship
+ * the given product for each shipping method.
+ *
+ ******************************************************/
+function getShippingByProduct(ProductLineItem) {
+	var shippingMethods: Collection = ShippingMgr.getAllShippingMethods();
+	var shipping: Array = [];
+	var shippingMethodsIterator: Iterator = shippingMethods.iterator();
+
+	while (shippingMethodsIterator.hasNext()) {
+		var shippingMethod: ShippingMethod = shippingMethodsIterator.next();
+		var itemShipping: Object = {};
+
+		itemShipping.shippingDisplay = shippingMethod.description;
+		itemShipping.method = shippingMethod.displayName;
+		itemShipping.shipPrice = ShippingMgr.getShippingCost(shippingMethod, ProductLineItem.getPrice()).value;
+		itemShipping.selected = 'false';
+
+		shipping.push(itemShipping);
+	}
+
+	return shipping;
+}
+
+
+/******************************************************
+ * function:  getCartTotals
+ *
+ * dwBasket     - demandware basket
+ * srCart       - shoprunner cart
+ *
+ ******************************************************/
+function getCartTotals(dwBasket: Basket, srCart) {
+	srCart.orderShipping = (dwBasket.getShippingTotalNetPrice().getDecimalValue() != null) ? dwBasket.getShippingTotalNetPrice()
+		.getDecimalValue().toString() : '';
+	srCart.orderTax = (dwBasket.getTotalTax().getDecimalValue() != null) ? dwBasket.getTotalTax().getDecimalValue()
+		.toString() : '';
+	// calculate orderSubTotal as only product-level price adjustments are applied
+	// then add the the gift certficate total net or gross price
+	srCart.orderSubTotal = dwBasket.getAdjustedMerchandizeTotalPrice(false).add(dwBasket.getGiftCertificateTotalPrice())
+		.value.toFixed(2);
+
+	// in order to calculate the exact amount that needs to be payed,
+	// the new orderTotal calculation formula is the correct approach
+	var orderTotal: Number;
+	var totalGrossPrice = dwBasket.getTotalGrossPrice().value;
+	if (totalGrossPrice) {
+		orderTotal = Number(totalGrossPrice);
+	} else {
+		orderTotal = Number(dwBasket.getAdjustedMerchandizeTotalPrice()) + Number(dwBasket.getGiftCertificateTotalPrice());
+	}
+
+	if (!empty(dwBasket.getGiftCertificatePaymentInstruments())) {
+		var giftCertificatesTotalValue: Number = calculateGCBalance(dwBasket.getGiftCertificatePaymentInstruments());
+		//orderTotal = orderTotal - giftCertificatesTotalValue;
+		//orderTotal = orderTotal < 0 ? 0 : orderTotal;
+		// set SR Cart gcBalance
+		srCart.gcBalance = giftCertificatesTotalValue.toFixed(2).toString();
+		// calculate the orderTotal different if a giftCertificate has been applied
+		// orderTotal minus giftCertificateValue
+		srCart.orderTotal = (orderTotal.toFixed(2) - giftCertificatesTotalValue.toFixed(2)).toFixed(2).toString();
+	} else {
+		srCart.orderTotal = orderTotal.toString();
+	}
+}
+
+/******************************************************
+ * function: assignBillingAddress
+ *
+ * implements assign billing address from ShopRunner to DW Basket
+ *
+ * billingAddress - contains billing address from shoprunner
+ * dwBasket - demandware basket
+ *
+ ******************************************************/
+function assignBillingAddress(dwBasket: Basket, srBillingAddress) {
+	var dwBillingAddress: OrderAddress = dwBasket.getBillingAddress();
+
+	dwBillingAddress.setAddress1(srBillingAddress.BillingAddress1);
+	dwBillingAddress.setFirstName(srBillingAddress.firstName);
+	dwBillingAddress.setLastName(srBillingAddress.lastName);
+	dwBillingAddress.setCity(srBillingAddress.BillingCity);
+	dwBillingAddress.setStateCode(srBillingAddress.BillingState);
+	dwBillingAddress.setPostalCode(srBillingAddress.BillingZip);
+	dwBillingAddress.setPhone(srBillingAddress.phone);
+	dwBillingAddress.setCountryCode(srBillingAddress.BillingCountry);
+}
+
+
+/******************************************************
+ * function: setShippingObject
+ *
+ *  set the shipping object returned by processPROrder
+ *
+ * input : the shipping address
+ * output : the shipping object
+ *
+ ******************************************************/
+function setShippingObject(shippingAddressObj) {
+	var shipping: Object = {};
+	if (shippingAddressObj != null) {
+		shipping.shippingAddress1 = shippingAddressObj.address1;
+		shipping.shippingfirstName = shippingAddressObj.firstName;
+		shipping.shippinglastName = shippingAddressObj.lastName;
+		shipping.shippingCity = shippingAddressObj.city;
+		shipping.shippingStateCode = shippingAddressObj.stateCode;
+		shipping.shippingPostalCode = shippingAddressObj.postalCode;
+		shipping.shippingPhone = shippingAddressObj.phone;
+		shipping.shippingCountryCode = shippingAddressObj.countryCode;
+	}
+	return shipping;
+}
+
+/******************************************************
+ * function: setBillingObject
+ *
+ *  set the billing object returned by processPROrder
+ *
+ * input : srPayment
+ * output : the shipping object
+ *
+ ******************************************************/
+function setBillingObject(srPayment) {
+	var billing: Object = {};
+	if (srPayment != null) {
+		billing.billingAddress1 = srPayment.BillingAddress1;
+		billing.billingfirstName = srPayment.firstName;
+		billing.billinglastName = srPayment.lastName;
+		billing.billingCity = srPayment.BillingCity;
+		billing.billingStateCode = srPayment.BillingState;
+		billing.billingPostalCode = srPayment.BillingZip;
+		billing.billingPhone = srPayment.phone;
+		billing.billingCountryCode = srPayment.BillingCountry;
+		billing.billingEmail = srPayment.email;
+	}
+
+	return billing;
+}
+
+/******************************************************
+ * function: getCreditCard
+ *
+ *  gets the credit card info from ShopRunner data
+ *
+ * input
+ *
+ * srPaymentInfo - payment information from ShopRunner
+ *
+ ******************************************************/
+function getCreditCard(srPaymentInfo) {
+	var CREDIT_CARD: String = 'Credit Card';
+	var creditCardPayment: Object = {};
+
+	creditCardPayment.CCHolderName = srPaymentInfo.CCHolderName;
+	creditCardPayment.CCMonth = new Number(srPaymentInfo.CCMonth);
+	creditCardPayment.CCYear = new Number(srPaymentInfo.CCYear);
+	creditCardPayment.creditCard = PaymentMgr.getPaymentCard(srPaymentInfo.creditCard.toString());
+	creditCardPayment.creditCard = PaymentMgr.getPaymentCard(getCreditCardType(StringUtils.rtrim(srPaymentInfo.creditCard)));
+	creditCardPayment.CCNumber = srPaymentInfo.CCNumber.toString();
+
+	return creditCardPayment;
+}
+
+/******************************************************
+ * function: assignPaymentInfo
+ *
+ * assigns billing
+ * billingAddress - contains billing address from shoprunner
+ * dwBasket - demandware basket
+ *
+ ******************************************************/
+function assignPaymentInfo(srPaymentInfo, dwBasket, paymentProcessor, dwCreditCardPayment, paymentInstr) {
+	var CREDIT_CARD: String = 'Credit Card';
+	var creditCardPayment: Object = {};
+	var payment: OrderPaymentInstrument;
+
+	payment = dwBasket.createPaymentInstrument(CREDIT_CARD, dwBasket.getTotalGrossPrice());
+	payment.getPaymentTransaction().setPaymentProcessor(paymentProcessor);
+	payment.creditCardHolder = srPaymentInfo.CCHolderName;
+	payment.creditCardNumber = srPaymentInfo.CCNumber;
+	payment.creditCardExpirationYear = srPaymentInfo.CCYear;
+	payment.creditCardExpirationMonth = srPaymentInfo.CCMonth;
+	payment.creditCardType = srPaymentInfo.creditCard;
+
+	return payment;
+}
+
+function getCreditCardType(srCreditCardName) {
+	var dwCreditCardName: String = '';
+	switch (srCreditCardName) {
+		case 'Visa':
+			dwCreditCardName = 'Visa';
+			break;
+
+		case 'MasterCard':
+			dwCreditCardName = 'MasterCard';
+			break;
+
+		case 'Discover':
+			dwCreditCardName = "Discover";
+			break;
+
+		case 'Amex':
+			dwCreditCardName = 'Amex';
+			break;
+	}
+
+	return dwCreditCardName;
+}
+
+
+/******************************************************
+ * function: getAdornments
+ *
+ * include the adornments details for each product
+ ******************************************************/
+function getAdornments(pli: ProductLineItem) {
+	var adornments: Array = [];
+	var product: Product = pli.getProduct();
+	var currencySymbol: String = dw.util.Currency.getCurrency(dw.system.Site.getCurrent().getDefaultCurrency()).getSymbol();
+
+	if (product != null && !product.isBundled()) {
+		// add quantity
+		adornments.push({
+			key: Resource.msg('shoprunner.quantity', 'shoprunner', ''),
+			value: pli.getQuantity().value,
+			style: 'null'
+		});
+
+		var isVariant: Boolean = product.isVariant();
+		if (isVariant) {
+			var attrName: String = '';
+			var selectedVal: String = '';
+			var pvmAttr: ProductVariationAttribute;
+			var pvm: ProductVariationModel = pli.getProduct().getVariationModel();
+			var allVars: Collection = pvm.getProductVariationAttributes();
+			var allVarValues: Collection;
+			var attrVal: Object = {};
+			// loop in all attributes
+			for each(pvmAttr in allVars) {
+				//get the attribute ID.
+				attrName = pvmAttr.getDisplayName();
+				//get all values.
+				allVarValues = pvm.getAllValues(pvmAttr);
+				// find in all values the value that matches with the selected one
+				for each(attrVal in allVarValues) {
+						if (attrVal.ID == pvm.selectedVariant.custom[pvmAttr.attributeID]) {
+							selectedVal = attrVal.getDisplayValue();
+						}
+					}
+					// add variation attributes
+				adornments.push({
+					key: attrName,
+					value: selectedVal,
+					style: 'null'
+				});
+			}
+		}
+
+		if (pli.getPriceAdjustments().getLength() > 0 && !empty(pli.getPriceAdjustments())) {
+			// set the price for adornment
+			adornments.push({
+				key: Resource.msg('shoprunner.price', 'shoprunner', ''),
+				value: (currencySymbol + pli.getPrice().getDecimalValue().toString()),
+				style: 'null'
+			});
+
+			for each(var priceAdjustment: PriceAdjustment in pli.getPriceAdjustments()) {
+				adornments.push({
+					key: priceAdjustment.getPromotionID(),
+					value: (currencySymbol + priceAdjustment.getPriceValue().toFixed(2).replace('-', '')),
+					style: 'itemLevelPromotion'
+				});
+			}
+
+			// set the final price
+			adornments.push({
+				key: Resource.msg('shoprunner.yourPrice', 'shoprunner', ''),
+				value: (currencySymbol + pli.getAdjustedPrice().getDecimalValue().toString()),
+				style: 'finalPrice'
+			});
+		}
+
+		// check if the product has no promo and no price Adjustments
+		var adornmentsPrice;
+		var adornmentsPriceFlag: Number = 0;
+		for each(adornmentsPrice in adornments) {
+				if (adornmentsPrice.key == Resource.msg('shoprunner.price', 'shoprunner', '')) {
+					adornmentsPriceFlag += 1;
+				}
+			}
+			// check if flag has been modified
+		if (adornmentsPriceFlag == 0) {
+			adornments.push({
+				key: Resource.msg('shoprunner.price', 'shoprunner', ''),
+				value: (currencySymbol + pli.getPrice().getDecimalValue().toString()),
+				style: 'null'
+			});
+		}
+
+		// check if it is back-orderable
+		var availabilityModel: ProductAvailabilityModel = product.getAvailabilityModel();
+		if (availabilityModel != null) {
+			var inventoryRecord: ProductInventoryRecord = availabilityModel.getInventoryRecord();
+			if (inventoryRecord != null) {
+				var isBackorderable: Boolean = inventoryRecord.isBackorderable();
+				if (isBackorderable) {
+					adornments.push({
+						key: '',
+						value: Resource.msg('shoprunner.backorder', 'shoprunner', ''),
+						style: 'noKeyValue'
+					});
+				}
+			}
+		}
+	}
+
+	// set the adornments for product Options
+	if (pli.isOptionProductLineItem()) {
+		adornments.push({
+			key: Resource.msg('shoprunner.price', 'shoprunner', ''),
+			value: (currencySymbol + pli.getPrice().getDecimalValue().toString()),
+			style: 'null'
+		});
+
+		// check if optionProduct has priceAdjustments
+		if (!empty(pli.getPriceAdjustments())) {
+			for each(var priceAdjustment: PriceAdjustment in pli.getPriceAdjustments()) {
+				adornments.push({
+					key: priceAdjustment.getPromotionID(),
+					value: (currencySymbol + priceAdjustment.getPriceValue().toFixed(2).replace('-', '')),
+					style: 'itemLevelPromotion'
+				});
+			}
+
+			if (pli.getPrice() > pli.getAdjustedPrice()) {
+				adornments.push({
+					key: Resource.msg('shoprunner.yourPrice', 'shoprunner', ''),
+					value: (currencySymbol + pli.getAdjustedPrice().getDecimalValue().toString()),
+					style: 'finalPrice'
+				});
+			}
+		}
+	}
+
+	return adornments;
+}
+
+
+/******************************************************
+ * function: getGiftWrap
+ *
+ * implement custom gift wrap details
+ * in order to populate GiftWrap Object
+ ******************************************************/
+function getGiftWrap(pli: ProductLineItem) {
+	if (pli.isGift()) {
+		var giftWrap: Object = {};
+		giftWrap.code = '';
+		giftWrap.message = pli.getGiftMessage();
+		giftWrap.price = 0;
+		return giftWrap;
+	}
+	return null;
+}
+
+
+/******************************************************
+ * function: isBlockOption
+ *
+ * check if Mixed Order Preference selected option
+ * is 'block' or 'downgrade'
+ ******************************************************/
+function isBlockOption(): Boolean {
+	var block: Boolean = Site.getCurrent().getCustomPreferenceValue('sr_mixedorder').value == 'block' || Site.getCurrent()
+		.getCustomPreferenceValue('sr_mixedorder').value == 'downgrade';
+	return block;
+}
+
+
+/******************************************************
+ * function: setupIneligibleShipment
+ *
+ * adds shipping address to the ineligible shipment
+ * if Mixed Order Preference selected option
+ * is 'splitShip'
+ ******************************************************/
+function setupIneligibleShipment(dwBasket: Basket): void {
+	// if Mixed Order Preference is NOT set to "splitShip" then exit.
+	if (Site.getCurrent().getCustomPreferenceValue('sr_mixedorder').value !== 'splitShip') {
+		return;
+	}
+
+	var shipments: Collection = dwBasket.getShipments();
+	var shippingAddress: OrderAddress;
+	var dwShipments: Array = [];
+	for each(var shipment: Shipment in shipments) {
+		if (shipment.getShippingMethodID() == 'shoprunner') {
+			shippingAddress = shipment.getShippingAddress();
+		} else {
+			dwShipments.push(shipment);
+		}
+	}
+
+	if (dwShipments.length > 0 && shippingAddress != null) {
+		for each(var shipment: Shipment in dwShipments) {
+			// create an empty address in the current shipment
+			shipment.createShippingAddress();
+
+			// copy the address from the ShopRunner shipment into current shipment
+			var address: OrderAddress = shipment.getShippingAddress();
+			address.setAddress1(shippingAddress.getAddress1());
+			address.setAddress2(shippingAddress.getAddress2());
+			address.setCity(shippingAddress.getCity());
+			address.setCompanyName(shippingAddress.getCompanyName());
+			address.setCountryCode(shippingAddress.getCountryCode().value);
+			address.setFirstName(shippingAddress.getFirstName());
+			address.setLastName(shippingAddress.getLastName());
+			address.setJobTitle(shippingAddress.getJobTitle());
+			address.setPhone(shippingAddress.getPhone());
+			address.setPostalCode(shippingAddress.getPostalCode());
+			address.setPostBox(shippingAddress.getPostBox());
+			address.setSalutation(shippingAddress.getSalutation());
+			address.setSecondName(shippingAddress.getSecondName());
+			address.setStateCode(shippingAddress.getStateCode());
+			address.setSuffix(shippingAddress.getSuffix());
+			address.setSuite(shippingAddress.getSuite());
+			address.setTitle(shippingAddress.getTitle());
+		}
+	}
+}
+
+/******************************************************
+ * function: setGiftCards
+ *
+ * configure SR GiftCard Object
+ * as a variable of Cart Object
+ ******************************************************/
+function setGiftCard(gcPaymentInstruments: Collection): Array {
+	var giftCards: Array = [];
+	if (!gcPaymentInstruments.isEmpty()) {
+		for each(var instrument: OrderPaymentInstrument in gcPaymentInstruments) {
+			var giftCard: Object = {};
+			giftCard.number = instrument.maskedGiftCertificateCode;
+			giftCard.gcBalance = instrument.getPaymentTransaction().getAmount().getDecimalValue().toString();
+			giftCards.push(giftCard);
+		}
+	}
+
+	return giftCards;
+}
+
+/******************************************************
+ * function: calculateGCBalance
+ *
+ * calculates SR Cart gcBalance
+ * as a variable of Cart Object
+ ******************************************************/
+function calculateGCBalance(gcPaymentInstruments: Collection): Number {
+	var giftCertificatesTotalValue: Number = 0;
+	if (!gcPaymentInstruments.isEmpty()) {
+		for each(var instrument: OrderPaymentInstrument in gcPaymentInstruments) {
+			giftCertificatesTotalValue += Number(instrument.getPaymentTransaction().getAmount().getValue());
+		}
+	}
+
+	return giftCertificatesTotalValue;
+}
+
+module.exports = {
+    execute: execute,
+	getMethods: getMethods
+};

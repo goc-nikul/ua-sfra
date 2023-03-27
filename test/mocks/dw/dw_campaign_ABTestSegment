@@ -1,0 +1,23 @@
+'use strict';
+
+const ABTest = require('./dw_campaign_ABTest');
+
+class ABTestSegment {
+    constructor() {
+        this.ID = 'test';
+        this.controlSegment = false;
+        this.ABTest = new ABTest()
+    }
+
+    isControlSegment() {
+        return this.controlSegment
+    }
+    getABTest() {
+        return this.ABTest
+    }
+    getID() {
+        return this.ID
+    }
+}
+
+module.exports = ABTestSegment;

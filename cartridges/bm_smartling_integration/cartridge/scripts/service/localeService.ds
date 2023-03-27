@@ -1,0 +1,40 @@
+importPackage( dw.system );
+
+var smartlingConfig = require('/bm_smartling_integration/cartridge/scripts/dao/configuration.ds');
+importScript( "/utils/ExceptionLog.ds" );
+
+var SMARTLING_LOCALE = "smartling";
+var CLIENT_LOCALE = "demandware";
+
+/**
+    Get smartling locale by demandware locale
+*/
+function getSmartlingLocale(clientLocale) {
+    return getTargetLocaleBySourceLocale(SMARTLING_LOCALE, CLIENT_LOCALE, clientLocale);
+}
+
+/**
+    Get demandware locale by smartling locale
+*/
+function getClientLocale(smartlingLocale) {
+    return getTargetLocaleBySourceLocale(CLIENT_LOCALE, SMARTLING_LOCALE, smartlingLocale);
+}
+
+/**
+    Get target locale by source locale
+*/
+function getTargetLocaleBySourceLocale(targetLocale, sourceLocale, localeValue) {
+    var localeMapping = smartlingConfig.getLocaleMapping();
+    for each (var locale in localeMapping) {
+        if (locale[sourceLocale].equals(localeValue)) {
+              return locale[targetLocale];
+        }
+    }
+    // TODO : Raise exception
+    return "";
+}
+
+if (typeof (exports) !== 'undefined') {
+    exports.getSmartlingLocale = getSmartlingLocale;
+    exports.getClientLocale = getClientLocale;
+}

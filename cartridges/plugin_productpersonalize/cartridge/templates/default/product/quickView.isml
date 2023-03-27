@@ -1,0 +1,214 @@
+<isset name="productCopy" value="${pdict.product}" scope="page"/>
+<isset name="product" value="${pdict.product}" scope="page"/>
+<isset name="isBundle" value="${false}" scope="page"/>
+<isset name="isQuickView" value="${true}" scope="page"/>
+<isset name="isProductSet" value="${false}" scope="page" />
+<isset name="loopState" value="{count: 1}" scope="page" />
+<div class="g-modal-header g-quickview-modal-header">
+    <h2 class="g-modal-title g-quickview-modal-title quickview-title">${Resource.msg('link.header.login','account',null)}</h2>
+    <button type="button" class="g-quickview-modal-close close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+</div>
+
+<div class="product-quickview product-${product.productType} col product-wrapper product-detail b-product-quickview ${pdict.isPersonalizationEnabled && product.isPersonalizationEligible ? 'cart-product-personalization' : ''}"
+    data-pid="${product.id}"
+    data-cmp="productQuickView"
+    data-mpid="${pdict.masterProduct ? pdict.masterProduct : ''}"
+>
+    <isif condition="${pdict.isPersonalizationEnabled && product.isPersonalizationEligible}">
+        <div class="g-tabs--desktop">
+            <ul class="g-tabs-chips nav nav-tabs">
+                <li class="g-tabs-chip nav-item" role="tablist">
+                    <a role="tab" class="g-tabs-link nav-link active" href="#tab-1" data-toggle="tab" aria-controls="tab-1" aria-selected="true">
+                        ${Resource.msg('personalize.modal.overview', 'personalize', null)}
+                    </a>
+                </li>
+                <li class="g-tabs-chip nav-item personalize__action-btn personalize__action-btn" role="tablist">
+                    <a role="tab" class="g-tabs-link nav-link" href="#tab-2" data-toggle="tab" aria-controls="tab-2" aria-selected="false">
+                        ${Resource.msg('personalize.modal.personalize', 'personalize', null)}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </isif>
+    <!-- Product Images Carousel -->
+    <div id="tab-1" class="b-product-quickview-content active">
+        <div class="b-product-quickview-images">
+            <isif condition="${product.productTileUpperLeftFlameIconBadge && product.productTileUpperLeftFlameIconBadge.value}">
+                <div class="l-tile-badge_top_left b-flameIcon">
+                    <span class="b-flameIcon-sec">
+                        <img class="img-flameIcon" alt="${Resource.msg('badge.flameIcon.text','common',null)}" src="${URLUtils.staticURL('/images/iconimages/flame.png')}">
+                        <span class="flameIcon-text">${product.productTileUpperLeftFlameIconBadge.displayValue}</span>
+                    </span>
+                </div>
+            <iselseif condition="${product.productTileUpperLeftBadge && product.productTileUpperLeftBadge.value}">
+                <div class="l-tile-badge_top_left">${product.productTileUpperLeftBadge.displayValue}</div>
+            </iselseif>
+            </isif>
+            <isif condition="${pdict.itemContent}">
+                <div class="l-tile-badge_bottom_left">
+                    <isprint value="${pdict.badgesMarkup}" encoding="off" />
+                </div>
+            </isif>
+            <isinclude template="product/components/imageCarousel" />
+        </div>
+
+        <!-- Product Name and Number -->
+        <div class="b-product-quickview-info">
+            <div class="b-product-quickview-heading">
+                <h1 class="product-name">${product.productName}</h1>
+            </div>
+
+            <isif condition="${pdict.bvDisplay && pdict.bvDisplay.qvType}">
+                <isif condition="${pdict.bvDisplay.qvType.equals('pdpsummary')}">
+                    <isinclude template="product/components/productRating" />
+                <iselseif condition="${pdict.bvDisplay.qvType.equals('inlineratings')}" />
+                    <isinclude template="product/components/ratings" />
+                </isif>
+            </isif>
+                
+            <!-- Product Number -->
+            <div class="b-product-quickview-number-modelName">
+                <isif condition="${product.custom.modelName}">
+                    <span class="b-product-quickview-modalName">
+                        <span><isprint value="${product.custom.modelName}" encoding="off" /></span>
+                    </span>
+                </isif>
+                <isif condition="${product.custom.style}">
+                    <span class="b-product-quickview-number">
+                        <isinclude template="product/components/productNumber" />
+                    </span>
+                </isif>
+
+                <!-- Applicable Promotions -->
+                <div class="b-product-quickview-promotions">
+                    <isinclude template="product/components/promotions" />
+                </div>
+            </div>
+
+            <div class="b-product-quickview-detail-panel">
+                <!-- Attributes -->
+                <section class="attributes b-product_attrs">
+                    <isinclude template="product/components/mainAttributes" />
+                    <isloop items="${product.variationAttributes}" var="attr" status="attributeStatus">
+                        <div class="b-product_qvattrs-item swatch row" data-attr="${attr.id}" data-error-label="${Resource.msg('error.message.required.' + attr.id,'product',null) ? Resource.msg('error.message.required.' + attr.id,'product',null) : Resource.msg('error.message.required.default','product',null)}">
+                            <isinclude template="product/components/variationAttribute" />
+
+                            <iscomment><isif condition="${attributeStatus.last}">
+                                <!-- Quantity Drop Down Menu -->
+                                <div class="attribute quantity col-4 d-sm-none">
+                                    <isif condition="${pdict.addToCartUrl || pdict.updateCartUrl && product.exclusive.value !== 'coming-soon' && product.exclusive.value !== 'out-of-stock'}">
+                                        <isinclude template="product/components/quantity" />
+                                    </isif>
+                                </div>
+                            </isif></iscomment>
+                        </div>
+                    </isloop>
+
+                    <iscomment><div class="d-sm-none row availability align-self-end " data-ready-to-order="${product.readyToOrder}" data-available="${product.available}">
+                        <isinclude template="product/components/availability" />
+                    </div></iscomment>
+
+                </section>
+
+                <isif condition="${product.productType !== 'bundle'}">
+                    <!-- Options -->
+                    <isif condition="${product.options && product.options.length > 0}">
+                            <isinclude template="product/components/options" />
+                    </isif>
+                </isif>
+            </div>
+
+            <!-- Prices -->
+            <div class="b-product-quickview-prices">
+                <isset name="price" value="${product.price}" scope="page" />
+                <isinclude template="product/components/pricing/main" />
+            </div>
+            <!-- Atome Marketing Message AtomeEnabled-->
+            <isif condition="${'atomeEnabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.atomeEnabled && dw.system.Site.current.preferences.custom.atomeContentOnPDP}">
+                <!-- Atome Marketing Message AtomeEnabled-->
+                <div class="atome-marketing">
+                    <isinclude template="atome/marketing/atomePayInstallmentPdp" />
+                </div>
+            </isif>
+
+            <div class="b-product-quickview-qty-button">
+                <!-- Quantity -->
+                <div class="b-product-quickview-qty">
+                    <isset name="loopState" value="{count: 1}" scope="page" />
+                    <isif condition="${(pdict.addToCartUrl || pdict.updateCartUrl) && (product.exclusive.value !== 'coming-soon' && product.exclusive.value !== 'out-of-stock')}">
+                        <isinclude template="product/components/quantity" />
+                    </isif>
+                </div>
+
+                <div class="b-product-quickview-button">
+                    <!-- Cart and [Optionally] Apple Pay -->
+                    <isif condition="${pdict.addToCartUrl}">
+                        <isinclude template="product/components/addToCartGlobal" />
+                    <iselse>
+                        <isinclude template="product/components/updateProduct" />
+                    </isif>
+                </div>
+            </div>
+
+                <div class="b-product-quickview-stock_Message hide"></div>
+        </div>
+
+        <isif condition="${product.productType === 'bundle'}">
+            <isinclude template="product/components/bundleItems" />
+
+            <!-- Quantity Drop Down Menu -->
+            <div class="row d-sm-none">
+                <div class="quantity col-10 mx-auto">
+                    <isinclude template="product/components/quantity" />
+                </div>
+            </div>
+
+            <!-- Availability -->
+            <div class="row d-sm-none">
+                <div class="col-11 mx-auto availability" data-ready-to-order="${product.readyToOrder}" data-available="${product.available}">
+                    <isinclude template="product/components/availability" />
+                </div>
+            </div>
+        </isif>
+
+        <isset name="product" value="${productCopy}" scope="page"/>
+    </div>
+    <isif condition="${pdict.isPersonalizationEnabled && product.isPersonalizationEligible}">
+        <div id="tab-2" class="Product-personalise-content">
+            <input type="hidden" name="personalizationName" value="${pdict.personalizationName || ''}" data-weight="1" />
+            <input type="hidden" name="personalizationNumber" value="${pdict.personalizationNumber || ''}" data-weight="2" />
+            <input type="hidden" name="personalizationSponsors" value="${pdict.personalizationSponsors ? 'Yes' : 'No'}" data-weight="4" />
+            <isinclude template="product/personalizationDetails" />
+        </div>
+    </isif>
+</div>
+
+<iscomment><div class="modal-footer row align-items-end">
+    <isset name="loopState" value="{count: 1}" scope="page" />
+
+    <div class="hidden-xs-down col availability align-self-end global-availability" data-ready-to-order="${product.readyToOrder}" data-available="${product.available}">
+        <div class="row">
+            <isinclude template="product/components/availability" />
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="row align-items-end">
+            <!-- Quantity -->
+            <div class="hidden-xs-down col-4">
+                <isif condition="${(pdict.addToCartUrl || pdict.updateCartUrl) && (product.exclusive.value !== 'coming-soon' && product.exclusive.value !== 'out-of-stock')}">
+                    <isinclude template="product/components/quantity" />
+                </isif>
+            </div>
+
+            <div class="col-8 mx-auto">
+                <!-- Cart and [Optionally] Apple Pay -->
+                <isif condition="${pdict.addToCartUrl}">
+                    <isinclude template="product/components/addToCartGlobal" />
+                <iselse>
+                    <isinclude template="product/components/updateProduct" />
+                </isif>
+            </div>
+        </div>
+    </div>
+</div></iscomment>

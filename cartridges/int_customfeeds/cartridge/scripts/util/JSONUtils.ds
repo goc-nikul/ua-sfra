@@ -1,0 +1,112 @@
+module.exports = {
+	
+	/**
+	 * Genereal wrapper for JSON.parse(...) with error catching
+	 * @param {String} stringified The string object representation to parse
+	 * @result {Object}
+	 */
+	parse : function (stringified : String, defaultObject : Object) : Object {
+		var parsed : Object = {};
+		
+		if (empty(stringified)) return defaultObject;
+		
+		try {
+			parsed = JSON.parse(stringified);
+		} catch (e) {
+			var err = e;
+			dw.system.Logger.debug("JSONUtils.ds: JSON object parse failed");
+			return defaultObject;
+		}
+		
+		return parsed;
+	},
+	
+	/**
+	 * Getting the property value of the given object
+	 * according to passed string key
+	 * @param object {Object}
+	 * @param string {String}
+	 * @return {Object}
+	 */
+	getValueByString : function(object : Object, string : String) : Object {
+		string = string.replace(/\[(\w+)\]/g, ".$1");
+		string = string.replace(/^\./, '');
+		var parts = string.split(".");
+		
+		while (parts.length) {
+			var nested = parts.shift();
+			if (nested in object) {
+				object = object[nested];
+			} else {
+				return;
+			}
+		}
+		
+		return object;
+	},
+	
+	/**
+	 * Get value from JSON by key. 
+	 * @return {Object}
+	 */
+	getValue : function (stringified : String, key : String) : Object {
+		if (empty(key) || empty(stringified)) {
+			return null;
+		}
+		var value : Object = this._parseJSON(stringified, key);
+		return value; 
+	},
+	
+	/**
+	 * Trying to obtain JSON object from a value, defined by a key. 
+	 * @return {Object}
+	 */
+	_parseJSON : function(stringified : String, key : String) : Object {
+		var valueObject : Object = this.parse(stringified),
+			fields : Array = key.split("."),
+			attributeId : String = fields[0];
+		
+		if (fields.length > 0 && !empty(valueObject)) {
+			for (var i = 0; i < fields.length; i++) {
+				if (fields[i] in valueObject) {
+					valueObject = valueObject[fields[i]];
+				} else {
+					return null;
+				}
+			}
+		}
+		return valueObject;
+	},
+	
+	searchJSON : function(obj : Object, key : String, val : String) : Object {
+    var objects = [];
+    for (var i in obj) {
+        if (!obj.hasOwnProperty(i)) continue;
+        if (typeof obj[i] == 'object') {
+            objects = objects.concat(this.searchJSON(obj[i], key, val));    
+        } else 
+        //if key matches and value matches or if key matches and value is not passed (eliminating the case where key matches but passed value does not)
+        if (i == key && obj[i] == val || i == key && val == '') { //
+            objects.push(obj);
+        } else if (obj[i] == val && key == ''){
+            //only add if the object is not already in the array
+            if (objects.lastIndexOf(obj) == -1){
+                objects.push(obj);
+            }
+        }
+    }
+        return objects;
+    },
+    /**
+     * Used in rendering ld+json for removing special character from markup text
+     */
+    escapeSpecialChars : function(str) {
+        return str.replace(/[^\w\s.]/gi, '')
+                  .replace(/\r?\n|\r/g, '. ')
+                  .replace('. .','. ')
+                  .replace(/\\n/g, "")
+                  .replace(/(['"&\r\t\b\f])/g, '\$1')
+                  .replace('/&amp;', ' ')
+                  .replace(/;/g, '');
+    }
+};

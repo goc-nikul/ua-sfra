@@ -1,0 +1,752 @@
+<isdecorate template="application/MenuFrame">
+<iscontent type="text/html" charset="UTF-8" />
+<isinclude template="inc/Modules" />
+
+<table border="0" cellspacing="0" cellpadding="0">
+    <tbody>
+        <tr>
+            <td class="breadcrumb">
+                <a class="breadcrumb" href="${URLUtils.url('ViewApplication-CompressMenuGroup', 'MenuGroupID', 'SiteMenu', 'OverviewPage', 'SiteNavigationBar-ShowSiteOverview')}">Site</a>
+                &nbsp>&nbsp
+                <a class="breadcrumb" href="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', 'site-prefs', 'itemType', 'Site')}">Site Preferences</a>
+                &nbsp>&nbsp Smartling Configuration
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<h1>Smartling Configuration</h1>
+
+<form name="CustomPreferenceForm" action="${URLUtils.url('configuration-Save')}" onsubmit="return submitForm(this)" method="post">
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tbody>
+        <tr>
+            <td colspan="2"><img src="/on/demandware.static/Sites-Site/-/default/v1425977280365/images/space.gif" width="1" height="3" alt="" border="0"></td>
+        </tr>
+        <tr>
+            <td class="table_header w e n right">Preference Name</td>
+            <td class="table_header e n" nowrap="nowrap"> Value</td>
+        </tr>
+        <tr>
+            <td class="w e n top">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="fielditem2" align="right" nowrap="nowrap">
+                                <span data-dw-attruuid="bcWCkiaagJl9aaaadjvbY4tQcQ" data-dw-tooltip="SitePreferences.smartling_project_id" class="tooltipstered">Project ID</span>:
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td class="e n" width="100%">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="table_detail">
+                                <input type="text" name="project_id" maxlength="4000" value="" size="50" class="inputfield_en">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="w e n top">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                    <tr>
+                        <td class="fielditem2" align="right" nowrap="nowrap">
+                            <span data-dw-attruuid="bcb9giaagJnggaaadj6k24tQcQ" data-dw-tooltip="SitePreferences.smartling_user_identifier" class="tooltipstered">User Identifier</span>:
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td class="e n" width="100%">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                    <tr>
+                        <td class="table_detail">
+                            <input type="text" name="user_identifier" maxlength="4000" value="" size="50" class="inputfield_en">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="w e n top">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="fielditem2" align="right" nowrap="nowrap">
+                                <span data-dw-attruuid="bcb9giaagJnggaaadj6k24tQcQ" data-dw-tooltip="SitePreferences.smartling_user_secret" class="tooltipstered">User Secret</span>:
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td class="e n" width="100%">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="table_detail">
+                                <input type="text" name="user_secret" maxlength="4000" value="" size="50" class="inputfield_en">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="w e n top" />
+            <td class="e n top" colspan="1">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                    <tr>
+                        <td class="fielditem2" align="left" nowrap="nowrap">
+                            <button type="button" onclick="checkConnection()" name="checkConnectionButton" class="button">Test Connection</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="w e n top">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="fielditem2" align="right" nowrap="nowrap">
+                                <span data-dw-attruuid="bc6ZsiaagJ9nQaaadjMjk4tQcX" data-dw-tooltip="SitePreferences.smartling_retrieval_type" class="tooltipstered">Retrieval type</span>:
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td class="e n" width="100%">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="table_detail">
+                                <select name="retrival_type" class="inputfield_en">
+                                    <option value="published">Published &nbsp;  (default) </option>
+                                    <option value="pending">Pending</option>
+                                    <option value="pseudo">Pseudo</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="w e n top">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="fielditem2" align="right" nowrap="nowrap">
+                                <span data-dw-attruuid="bcJ7AiaagJNzAaaadjE1a4tQc7" data-dw-tooltip="SitePreferences.smartling_source_locale" class="tooltipstered">Source locale</span>:
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td class="e n" width="100%">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="table_detail">
+                                <select id="source_locale_select" name="source_locale" class="inputfield_en">
+                                    <isloop items="${pdict.localesList}" var="locale">
+                                        <option value="${locale.localeId}" ${locale.selected ? "selected" : ""} ${locale.disabled ? "disabled" : ""}>
+                                            ${locale.localeName}
+                                            <isif condition="${locale.disabled}">(disabled for site, choose another)</isif>
+                                        </option>
+                                    </isloop>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="w e n  top">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="fielditem2" align="right" nowrap="nowrap">
+                                <span  class="tooltipstered">Auto authorize content</span>:
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td class="e n " width="100%">
+                <input type="checkbox" name="auto_authorize_content" value="true">
+            </td>
+        </tr>
+        <tr>
+            <td class="w e n top">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="fielditem2" align="right" nowrap="nowrap">
+                                <span class="tooltipstered">API time out</span>:
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td class="e n" width="100%">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="table_detail">
+                                <input type="text" name="time_out" maxlength="4000" value="" size="50" class="inputfield_en">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="w e n  top">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="fielditem2" align="right" nowrap="nowrap">
+                                <span class="tooltipstered">Target locales</span>:
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td class="e n " width="100%">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td style="width: 200px">
+                                <a onclick="checkAll('target_locale_demandware')">Check All</a>&nbsp/&nbsp<a onclick="unCheckAll('target_locale_demandware')">Uncheck All</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <isloop items="${pdict.localesList}" var="locale">
+                            <isif condition="${!locale.disabled}" >
+                                <tr style="margin-bottom: 5px">
+                                    <td style="width:200px">
+                                        <input type="checkbox" name="target_locale_demandware" data-value="${locale.localeId}" value="true">${locale.localeName}
+                                    </td>
+                                    <td>
+                                        <input type="text" name="target_locale_smartling" data-smartling-value="${locale.localeId}" value="" style="width: 80px">
+                                    </td>
+                                </tr>
+                            </isif>
+                        </isloop>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="w e n  top">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="fielditem2" align="right" nowrap="nowrap">
+                                <span class="tooltipstered">Content attributes</span>:
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td class="e n " width="100%">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td style="width: 200px">
+                                <a onclick="checkAll('content_attribute')">Check All</a>&nbsp/&nbsp<a onclick="unCheckAll('content_attribute')">Uncheck All</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="content_attribute" data-content-id="name" data-custom="false" data-type="string" value="true">Name
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="content_attribute" data-content-id="description" data-custom="false" data-type="string" value="true">Description
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="content_attribute" data-content-id="pageURL" data-custom="false" data-type="string" value="true">Page URL
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="content_attribute" data-content-id="pageDescription" data-custom="false" data-type="string" value="true">Page Description
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="content_attribute" data-content-id="pageTitle" data-custom="false" data-type="string" value="true">Page Title
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="content_attribute" data-content-id="pageKeywords" data-custom="false" data-type="string" value="true">Page Keywords
+                            </td>
+                        </tr>
+                        <isloop items="${pdict.attributes['Content']}" var="attribute">
+                            <tr style="margin-bottom: 5px">
+                                <td style="width:200px">
+                                    <input type="checkbox" name="content_attribute" data-content-id="${attribute['attribute-id']}" data-custom="true" data-type="${attribute['type']}" value="true">${attribute['display-name']}
+                                </td>
+                            </tr>
+                        </isloop>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="w e n  top">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="fielditem2" align="right" nowrap="nowrap">
+                                <span class="tooltipstered">Category attributes</span>:
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td class="e n " width="100%">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td style="width: 200px">
+                                <a onclick="checkAll('category_attribute')">Check All</a>&nbsp/&nbsp<a onclick="unCheckAll('category_attribute')">Uncheck All</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="category_attribute" data-category-id="displayName" data-custom="false" data-type="string" value="true">Name
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="category_attribute" data-category-id="description" data-custom="false" data-type="string" value="true">Description
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="category_attribute" data-category-id="pageURL" data-custom="false" data-type="string" value="true">Page URL
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="category_attribute" data-category-id="pageDescription" data-custom="false" data-type="string" value="true">Page Description
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="category_attribute" data-category-id="pageTitle" data-custom="false" data-type="string" value="true">Page Title
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="category_attribute" data-category-id="pageKeywords" data-custom="false" data-type="string" value="true">Page Keywords
+                            </td>
+                        </tr>
+                        <isloop items="${pdict.attributes['Category']}" var="attribute">
+                            <tr style="margin-bottom: 5px">
+                                <td style="width:200px">
+                                    <input type="checkbox" name="category_attribute" data-category-id="${attribute['attribute-id']}" data-custom="true" data-type="${attribute['type']}" value="true">${attribute['display-name']}
+                                </td>
+                            </tr>
+                        </isloop>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="w e n  top">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="fielditem2" align="right" nowrap="nowrap">
+                                <span class="tooltipstered">Product attributes</span>:
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td class="e n " width="100%">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td style="width: 200px">
+                                <a onclick="checkAll('product_attribute')">Check All</a>&nbsp/&nbsp<a onclick="unCheckAll('product_attribute')">Uncheck All</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="product_attribute" data-product-id="name" data-custom="false" data-type="string" value="true">Name
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="product_attribute" data-product-id="shortDescription" data-custom="false" data-type="html" value="true">Description
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="product_attribute" data-product-id="longDescription" data-custom="false" data-type="html" value="true">Product Details
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="product_attribute" data-product-id="pageURL" data-custom="false" data-type="string" value="true">Page URL
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="product_attribute" data-product-id="pageDescription" data-custom="false" data-type="string" value="true">Page Description
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="product_attribute" data-product-id="pageTitle" data-custom="false" data-type="string" value="true">Page Title
+                            </td>
+                        </tr>
+                        <tr style="margin-bottom: 5px">
+                            <td style="width:200px">
+                                <input type="checkbox" name="product_attribute" data-product-id="pageKeywords" data-custom="false" data-type="string" value="true">Page Keywords
+                            </td>
+                        </tr>
+                        <isloop items="${pdict.attributes['Product']}" var="attribute">
+                            <tr style="margin-bottom: 5px">
+                                <td style="width:200px">
+                                    <input type="checkbox" name="product_attribute" data-product-id="${attribute['attribute-id']}" data-custom="true" data-type="${attribute['type']}" value="true">${attribute['display-name']}
+                                </td>
+                            </tr>
+                        </isloop>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="w e n  top">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="fielditem2" align="right" nowrap="nowrap">
+                                <span class="tooltipstered">Additional catalogs</span>:
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td class="e n" width="100%">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="table_detail">
+                                <input type="text" name="catalog_ids" maxlength="4000" value="" size="50" class="inputfield_en">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="w e n  top">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="fielditem2" align="right" nowrap="nowrap">
+                                <span class="tooltipstered">Content library type</span>:
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td class="e n" width="100%">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="table_detail">
+                                <select name="library_type" class="inputfield_en">
+                                    <option value="private">Private &nbsp;  (default) </option>
+                                    <option value="shared">Shared</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td class="w e n  top">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="fielditem2" align="right" nowrap="nowrap">
+                                <span class="tooltipstered">Callback token salt</span>:
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td class="e n" width="100%">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tbody>
+                        <tr>
+                            <td class="table_detail">
+                                <input type="text" name="token_salt" maxlength="4000" value="" size="50" class="inputfield_en">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </tbody>
+    </table>
+
+    <input type="hidden" name="target_locale" id="target_locale_json" value="">
+    <input type="hidden" name="product_attribute_json" id="product_attribute_json" value="">
+    <input type="hidden" name="content_attribute_json" id="content_attribute_json" value="">
+    <input type="hidden" name="category_attribute_json" id="category_attribute_json" value="">
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody>
+            <tr>
+                <td class="aldi" align="right">
+                    <table border="0" cellspacing="4" cellpadding="0">
+                        <tbody>
+                            <tr>
+                                <td class="button">
+                                    <button type="submit" name="update" class="button">Apply</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="bottombuttons">
+        <tbody>
+            <tr>
+                <td>
+                    <button type="button" onclick="window.history.back()" name="back" class="button">&lt;&lt; Back</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</form>
+<input id='smartling_configuration' type="hidden" value="${pdict.smartlingConfiguration}">
+<script type="text/javascript">
+function checkAll(name)
+{
+    var checkbox = jQuery("[name='"+name+"']");
+    checkbox.each(function(index, value) {
+        jQuery(this).prop("checked", true);
+    });
+}
+
+function unCheckAll(name)
+{
+    var checkbox = jQuery("[name='"+name+"']");
+    checkbox.each(function(index, value) {
+        jQuery(this).removeAttr('checked');
+    });
+}
+
+function checkConnection()
+{
+    if (validateSmartlingCredentials())
+    {
+        alert("Connection successful!");
+    }
+}
+
+function validateSmartlingCredentials()
+{
+    if (jQuery("[name='project_id']").val() == '' || jQuery("[name='user_identifier']").val() == '' || jQuery("[name='user_secret']").val() == '') {
+        alert("Fields 'Project id', 'User identifier' and 'User Secret' can not be empty");
+        return false;
+    }
+    var projectId = jQuery("[name='project_id']").val();
+
+    if (projectId.length != 9 ) {
+        alert("Field 'Project id' must contain 9 characters");
+        return false;
+    }
+
+    var projectIdRegExp = new RegExp("[a-z0-9]{9}");
+    if (!projectIdRegExp.test(projectId)) {
+        alert("Project ID must contain only lowercase alphanumeric characters.");
+        return false;
+    }
+
+    var userIdentifier = jQuery("[name='user_identifier']").val();
+    var userSecret = jQuery("[name='user_secret']").val();
+
+    var ajaxUrl = "${URLUtils.url('configuration-CheckConnection')}";
+    var result;
+    jQuery.ajax({
+        url: ajaxUrl + '?userIdentifier=' + userIdentifier + (userSecret.indexOf("*****") < 0 ? '&userSecret=' + userSecret : ''),
+        async: false
+    }).done(function() {
+        result = true;
+    }).fail(function(response) {
+        alert("Connection to Smartling failed: " + response.responseText);
+        result = false;
+    });
+
+    return result;
+}
+
+function submitForm (form) {
+    validateSmartlingCredentials();
+
+    if (jQuery("#source_locale_select option:selected").attr("disabled") === "disabled") {
+        alert("Previously selected source locale " + jQuery("#source_locale_select option:selected").attr("value") + " is disabled for site, please select another locale");
+        return false;
+    }
+
+    var flagChecked = false;
+    var targetLocaleCheckbox = jQuery("[name='target_locale_demandware']");
+    var target_locale = '{"target_locale": [';
+    targetLocaleCheckbox.each(function(index, value) {
+        if(jQuery(this).prop( "checked" )) {
+            var input = jQuery(document).find("[data-smartling-value='"+ jQuery(this).data('value')+"']");
+            target_locale = target_locale + '{ "demandware":"' + jQuery(this).data('value') + '" , "smartling":"' + input.val() + '" },';
+            flagChecked = true;
+        }
+    });
+
+    if (flagChecked) {
+        target_locale = target_locale.slice(0,-1);
+    } else {
+        alert("'Target locales' must be chosen");
+        return false;
+    }
+    target_locale = target_locale + ']}';
+    document.getElementById('target_locale_json').value = target_locale;
+    //----------------------------------------------------
+    var productAttrCheckbox = jQuery("[name='product_attribute']");
+    var product_attribute = '{"product_attribute": [';
+    productAttrCheckbox.each(function(index, value) {
+        if(jQuery(this).prop( "checked" )) {
+            product_attribute = product_attribute + '{ "id":"' + jQuery(this).data('product-id') + '" , "type":"' + jQuery(this).data('type') + '" , "custom":"' + jQuery(this).data('custom') + '" },';
+        }
+    });
+
+    var sliceChar = product_attribute.charAt(product_attribute.length -1);
+    if(sliceChar != '['){
+        product_attribute = product_attribute.slice(0,-1);
+    }
+    product_attribute = product_attribute + ']}';
+    jQuery("[name='product_attribute_json']").val(product_attribute);
+    //----------------------------------------------------
+    var contentAttrCheckbox = jQuery("[name='content_attribute']");
+    var content_attribute = '{"content_attribute": [';
+    contentAttrCheckbox.each(function(index, value) {
+        if(jQuery(this).prop( "checked" )) {
+            content_attribute = content_attribute + '{ "id":"' + jQuery(this).data('content-id') + '" , "type":"' + jQuery(this).data('type') + '" , "custom":"' + jQuery(this).data('custom') + '" },';
+        }
+    });
+
+    var sliceChar = content_attribute.charAt(content_attribute.length -1);
+    if(sliceChar != '['){
+        content_attribute = content_attribute.slice(0,-1);
+    }
+    content_attribute = content_attribute + ']}';
+    jQuery("[name='content_attribute_json']").val(content_attribute);
+    //----------------------------------------------------
+    var categoryAttrCheckbox = jQuery("[name='category_attribute']");
+    var category_attribute = '{"category_attribute": [';
+    categoryAttrCheckbox.each(function(index, value) {
+        if(jQuery(this).prop( "checked" )) {
+            category_attribute = category_attribute + '{ "id":"' + jQuery(this).data('category-id') + '" , "type":"' + jQuery(this).data('type') + '" , "custom":"' + jQuery(this).data('custom') + '" },';
+        }
+    });
+    var sliceChar = category_attribute.charAt(category_attribute.length -1);
+    if(sliceChar != '['){
+        category_attribute = category_attribute.slice(0,-1);
+    }
+    category_attribute = category_attribute + ']}';
+    jQuery("[name='category_attribute_json']").val(category_attribute);
+}
+
+jQuery(document).ready(function () {
+    var smartlingConfiguration = document.getElementById('smartling_configuration').value;
+    smartlingConfigurationJson = JSON.parse(smartlingConfiguration)
+    if (smartlingConfigurationJson.time_out) {
+        jQuery("[name='time_out']").val(unescape(smartlingConfigurationJson.time_out));
+    }
+    if (smartlingConfigurationJson.project_id) {
+        jQuery("[name='project_id']").val(unescape(smartlingConfigurationJson.project_id));
+    }
+    if (smartlingConfigurationJson.user_identifier) {
+        jQuery("[name='user_identifier']").val(unescape(smartlingConfigurationJson.user_identifier));
+    }
+    if (smartlingConfigurationJson.user_secret) {
+        jQuery("[name='user_secret']").val(unescape(smartlingConfigurationJson.user_secret));
+    }
+    jQuery("[name='retrival_type'] option[value='"+ unescape(smartlingConfigurationJson.retrival_type) +"']").attr('selected', 'selected');
+    jQuery("[name='source_locale'] option[value='"+ unescape(smartlingConfigurationJson.source_locale) +"']").attr('selected', 'selected');
+    if (smartlingConfigurationJson.auto_authorize_content) {
+        jQuery("[name='auto_authorize_content']").attr('checked', 'checked')
+    }
+    targetLocale = JSON.parse(unescape(smartlingConfigurationJson.target_locale));
+    jQuery.each(targetLocale.target_locale, function() {
+        jQuery(document).find("[data-value='"+ this.demandware+"']").attr('checked', 'checked');
+        jQuery(document).find("[data-smartling-value='"+ this.demandware+"']").val(this.smartling);
+    });
+
+    product_attribute_json = JSON.parse(unescape(smartlingConfigurationJson.product_attribute_json));
+    jQuery.each(product_attribute_json.product_attribute, function() {
+        jQuery(document).find("[data-product-id='"+ this.id+"']").attr('checked', 'checked');
+    });
+
+    content_attribute_json = JSON.parse(unescape(smartlingConfigurationJson.content_attribute_json));
+    jQuery.each(content_attribute_json.content_attribute, function() {
+        jQuery(document).find("[data-content-id='"+ this.id+"']").attr('checked', 'checked');
+    });
+
+    category_attribute_json = JSON.parse(unescape(smartlingConfigurationJson.category_attribute_json));
+    jQuery.each(category_attribute_json.category_attribute, function() {
+        jQuery(document).find("[data-category-id='"+ this.id+"']").attr('checked', 'checked');
+    });
+    if (smartlingConfigurationJson.catalog_ids) {
+        jQuery("[name='catalog_ids']").val(unescape(smartlingConfigurationJson.catalog_ids));
+    }
+    jQuery("[name='library_type'] option[value='"+ unescape(smartlingConfigurationJson.library_type) +"']").attr('selected', 'selected');
+    jQuery("[name='token_salt']").val(unescape(smartlingConfigurationJson.token_salt));
+});
+
+</script>
+</isdecorate>

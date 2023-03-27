@@ -1,0 +1,45 @@
+<isif condition="${pdict.order.billing.billingAddress.address !== null}">
+    <isset name="address" value="${pdict.order.billing.billingAddress.address}" scope="page"/>
+<iselse>
+    <isset name="address" value="{}" scope="page"/>
+</isif>
+
+<div class="b-payment-summary_details">
+    <!--- Payment information --->
+    <div class="b-payment-summary_row">
+		<div class="summary-details b-payment-summary_options">
+		    <isinclude template="checkout/billing/paymentOptions/paymentOptionsSummary" />
+		</div>
+		
+		<div class="summary-details billing b-payment-summary_billing summary-billing-section ${pdict.order.isVIPOrder && pdict.order.vipPoints && pdict.order.vipPoints.pointsApplied ? 'hide' : ''}">
+		     <isinclude template="checkout/addressSummary" />
+		     <iscomment><span class="order-summary-email">${pdict.order.orderEmail}</span>
+			<br/>
+			<isif condition="${pdict.order.billing.billingAddress.address !== null}">
+		    	<span class="order-summary-phone">${pdict.order.billing.billingAddress.address.phone}</span>
+		    	<iselse>
+		    	<span class="order-summary-phone"></span>
+			</isif></iscomment>
+		</div>  
+		<isset name="paymentMethod" value="${!empty(pdict.order.billing.payment.selectedPaymentInstruments) ? pdict.order.billing.payment.selectedPaymentInstruments[0].paymentMethod : null}" scope="page" />
+		<isif condition="${paymentMethod === 'KLARNA_PAYMENTS'}">
+		    <div class="b-payment-summary_klarna">
+                <div class="heading"><isprint value="${Resource.msg('klarna.order.confirmation.heading','checkout',null)}" /></div>
+                <div class="description"><isprint value="${Resource.msg('klarna.order.confirmation.description','checkout',null)}" /></div>
+            </div>
+		</isif>
+	</div>
+	<isif condition="${pdict.order.billing.billingAddress.address == null}">
+		 <div class="b-payment-summary_row b-payment-summary_gift">
+		   <div>
+		       
+		   </div>
+		 </div>
+	</isif>
+</div>
+
+<iscomment> ### Custom Adyen cartridge start ### </iscomment>
+<isif condition="${typeof pdict.selectedPaymentMethod !== 'undefined' && pdict.selectedPaymentMethod === 'AdyenComponent'}">
+	<isinclude template="adyenActionModal" />
+</isif>
+<iscomment> ### Custom Adyen cartridge end ### </iscomment>

@@ -1,0 +1,295 @@
+	<iscontent compact="true">
+    <!--- Load any custom fonts for the UI Display --->
+    <link href="https://fonts.googleapis.com/css?family=PT+Sans:400,700" rel="stylesheet" type="text/css">
+
+    <!--- Load bootstrap CSS //--->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/components/bootstrap-select.min.css')}">    
+    
+    <!--- Load component css //--->
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/components/animate.css')}">
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/components/jquery.bxslider.css')}">
+    
+    <!--- Load custom css //--->
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/UAS7CNI.css')}">
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/DWBM.css')}">
+
+    <!--- Load core jquery library javascript off of CDNs //--->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/jquery.object.overlay.js')}"></script>
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/jquery.lazyload.min.js')}"></script>
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/jquery.bxslider.min.js')}"></script>    
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/jquery.zclip.js')}"></script>
+    
+    <script type="text/javascript">
+        var $j = jQuery.noConflict();
+    </script>
+    
+    <!--- Load the latest version of bootstrap off of CDNs //--->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/bootstrap-select.min.js')}"></script>    
+    
+    <!--- Load the utility Libraries //--->
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/lib/string.min.js')}"></script>    
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/lib/lo-dash.js')}"></script>
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/lib/tracer.js')}"></script>
+    
+    <!--- Load the Scene 7 JSONP Response Library //--->
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/lib/s7jsonResponse.js')}"></script>    
+    
+    <script>
+
+        // Initialize the UA Namespace
+        var UA = {};
+
+    </script>
+
+    <div class="col-lg-12 col-md-12 col-sm-4">
+
+        <div class="dw-table-title">Check Scene 7 for New Images</div>
+
+        <p class="dw-instructional-text"> Please paste a collection of <b>UA Product Codess</b> that will be used to query the status of images for each product code directly referenced or inferred by a parent style.</p>
+        <p class="dw-instructional-text"> Once product-codes have been specified, clicking on the <b>GO</b> button will launch the check for new Scene 7 product material images and display the results.</p>
+
+    </div>
+
+    <div>&nbsp;</div>
+
+    <div id="product-image-grid" class="col-lg-12 col-md-12 col-sm-4 container-fluid pt-sans">
+
+        <div class="panel panel-default">
+
+            <div class="panel-heading panel-heading-height">
+
+                <div class="preview-material-image-form col-lg-4 col-md-6">
+
+                    <h5 class="heading-label">Product Codes &nbsp; </h5>
+
+                    <div class="input-group product-image-field">
+
+                        <input type="text" class="form-control" id="style-list">
+
+	                    <span class="input-group-btn">
+	                        <button class="btn btn-image-submit btn-default" type="button">Go!</button>
+							<img style="visibility: hidden" class="loading-data-icon" src="${URLUtils.httpsStatic('/img/assets/no-image/ajax-loader.gif')}">                        
+	                    </span>
+					
+                    </div>
+
+                </div>
+
+				<div class="filter-actions">
+				
+				  <div class="clipboard-icon-container">
+				  
+						<a href="#" id="clipboard-url" title="Click to copy these styles to your clipboard.">
+						  <span class="glyphicon glyphicon-download-alt"></span>
+						</a>
+				  					  
+				  </div>				
+				
+                    <h5 class="heading-label">Show: &nbsp; </h5>
+                    
+					 <select disabled data-live-search="true" class="selectpicker show-menu-arrow show-tick" title="Filter Materials By..." data-size="20">
+						<optgroup label="Activity Filters">					 
+						     <option value="show-all-materials">Show All Materials</option>					 
+						     <option value="show-unconfigured-materials">Un-Merchandised Materials</option>
+						     <option value="show-materials-with-new-images">Materials with New Images</option>					     
+						     <option value="show-materials-with-image-differences">Materials with Images Differences</option>
+						     <option value="show-materials-no-images">Materials with No Images</option>
+						</optgroup>
+						<optgroup class="materials-select-group" label="Filter by Style / Material">	
+						</optgroup>											     
+					  </select>
+					  					  					  
+				</div>
+
+            </div>
+
+			<div class="alert-pane-container">
+
+			    <!--- Render feedback to users via alerts at the top of the page //--->
+				<div id="alert-pane" class="alert alert-warning alert-dismissible fade in hide" role="alert">
+					<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>			
+					<span class="alert-content"><b>Whoops!</b> &nbsp;Please enter at least one style or material.</span>
+				</div>
+
+			</div>  
+
+		    <!--- Workspace Content Area Where Report Results Will be Displayed //--->
+            <div id="panel-workspace" class="panel-body main-panel-body"></div>
+
+		    <!--- Workspace Content Template Used to Render Style / Material Updates //--->
+            <div id="panel-workspace-template" class="panel-body main-panel-body hide  col-lg-12 col-md-12">
+
+				<div class="product-container-template" data-merchandised="false" data-no-images="true" data-image-differences="false" data-new-images="false">
+				
+					<h2 class="product-title"><a href="#" class="product-title-link"></a></h2>
+				
+					<div class="product-content-container">
+				
+						<div class="center-container">
+
+							<div class="content-container dw-content col-lg-6 ">
+						
+						        <div class="image-listing dw-image-listing col-lg-6 col-md-6">
+	
+						            <div class="panel panel-default list-panel">
+	
+						                <div class="panel-heading">
+	
+						                    <h3 class="panel-title">
+						                        Product Assets
+						                    </h3>
+	
+						                </div>
+	
+						                <ul class="list-group demandware-images">
+						                </ul>
+	
+						            </div>
+	
+						        </div>
+
+								<div class="image-container dw-image-container col-lg-5 col-md-5">
+								
+									<!-- <img class="loading-image" src="${URLUtils.httpsStatic('/img/assets/no-image/ajax-loader.gif')}" data-rendered="false" > //-->
+									<a class="modal-carousel-link" href="#"><img class="lazy product-image" data-rendered="false" ></a>
+									<span class="image-filename dw-image-filename"></span>
+									
+								</div>
+														
+							</div>
+
+							<div class="content-container s7-content col-lg-6">																	
+							
+						        <div class="image-listing s7-image-listing col-lg-12 col-md-12">
+	
+						            <div class="panel panel-danger list-panel">
+	
+						                <div class="panel-heading">
+	
+						                    <h3 class="panel-title">
+						                        Scene 7 Assets
+						                    </h3>
+	
+						                </div>
+	
+						                <ul class="list-group scene7-images">
+							                <a href="#" class="no-images-found list-group-item panel-danger">No assets found.</a>
+						                </ul>
+	
+						            </div>
+	
+						        </div>
+
+								<div style="display: none" class="image-container s7-image-container col-lg-5 col-md-5 s7-content-container">
+								
+									<a class="s7-modal-carousel-link" data-product-code="" href="#"><img class="s7-image" data-rendered="false" src="${URLUtils.httpsStatic('/img/assets/no-image/ajax-loader.gif')}" title="N/A"></a>
+									<span style="display:none" class="image-filename s7-image-filename">N/A</span>
+									
+								</div>	
+														
+							</div>
+
+						</div>
+
+					</div>
+			
+				</div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+	<!--- Renders the carousel overlay //--->
+	<div class="modal fade" id="detail-image-view" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title pt-sans bold-label"><span class="modal-title-prefix"></span> Assets for <span class="product-code-label"></span></h4>
+                </div>				
+				<div class="modal-body pt-sans">
+					<div class="carousel-container" style="visibility: hidden">					
+						<ul class="carousel">    							    							    							    							    							    							    							    						    
+						</ul>
+					</div>
+				</div> 			
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->  	
+	
+	<!--- Initializes the carousel template //--->
+	<div id="carousel-item-template" style="display:none">
+	    <li class="carousel-item">
+		    <img class="carousel-asset" src="${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}"  />
+			<div class="carousel-asset-label"></div>
+	    </li>		
+	</div>
+	
+	<!--- Load any utility scripts that drive the display //--->
+	<script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/UA.URL.js')}"></script>
+	<script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/UA.S7.js')}"></script>
+	
+	<!--- Load any scripts used to drive UI display or business logic //--->
+	<script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/UA.S7CNI.js')}"></script>
+	
+	<script>
+	
+	     // Initialize the core constants for the application
+	     var constants = {
+	
+	    	// Capture any error messages
+			messages : {
+				
+				// This message is displayed when a user does not enter at least one (1) valid style or material
+				"ENTER_A_STYLE_ERROR" : "<b>Whoops!</b> &nbsp; Please enter at least one style ( ex. 1246699 ) or material ( ex. 1246699-019 ).",
+			
+				// This message is displayed when the server fails to retrieve at least one (1) valid material
+				"COULD_NOT_RETRIEVE_MATERIALS" : "<b>We Have a Problem!</b> &nbsp; No materials were found matching your criteria.  Please check your entries and try again. ", 
+
+				// This message is displayed when the user filters and no-results are returned
+				"NO_RESULTS_MESSAGE" : "<b>Sorry!</b> &nbsp; Your filter selection yielded no results.  Please try another filter. " 
+								
+			},	    		 
+	    		 
+			// Set the default viewType for rendering assets
+			defaultViewType : "pdpMainDesktop",
+			
+	     	// Enable https image display
+	     	enableHttpsImageDisplay : true,
+	     	
+	     	// Default the maximum number of product codes to process
+			maximumProductCodes : 20,        	
+			     	
+        	// Include the demandware-path to the clipboard module
+			zeroClipboardPath : "${URLUtils.httpsStatic('/swf/ZeroClipboard.swf')}",			
+			
+			// Include the Ajax url paths
+			ajaxGetProductImageDefinitionsUrl : "${URLUtils.https('UAS7-getProductImageDefinitions')}",
+			recipeAssignmentUrl : "${URLUtils.https('CustomMenuActions-RecipeAssignerShow')}",
+			
+			// Include the image unavailable icon
+			imageUnavailableIconUrl : "${URLUtils.httpsStatic('/img/assets/no-image/image-unavailable-icon.jpg')}",
+			lazyLoadingImageUrl : "${URLUtils.httpsStatic('/img/assets/no-image/ua-logo.gif')}",
+			
+			// Default the recipe suffix to use for Scene 7 images without recipes
+			recipeSuffix : "?hei=580&wid=635"
+			
+	     };
+	
+	     // Init all domReady script elements:
+	     jQuery(document).ready(function () {
+	     	
+			// Initialize the UI display class
+			UA.S7CNI.init(constants);
+			        
+			// Initialize the S7 Library class
+			UA.S7.init();
+
+	     });
+		     
+	 </script>

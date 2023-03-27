@@ -1,0 +1,14 @@
+<iscontent compact="true">
+<isinclude template="/components/modules" sf-toolkit="off" />
+<iscomment>
+    View terms if product is exempt	
+</iscomment>
+<isif condition="${pdict.showEmployeeTerms =='true'}">
+    <section class="employee-terms-conditions">
+		<p><isprint value="${Resource.msg('product.exemptproduct','product', null)}" encoding="off"/></p>
+		<button type="button" data-cmp="termsAndConditionsModal" class="btn-modal-dialog" href="javascript:;">
+			<isprint value="${Resource.msg('field.checkbox.employee.termsandconditions','checkout', null)}" encoding="off"/>
+		</button>
+				<iscontentasset aid="employee-terms-conditions"/>
+	</section>
+</isif>

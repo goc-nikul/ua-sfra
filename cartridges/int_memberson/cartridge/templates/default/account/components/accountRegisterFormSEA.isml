@@ -1,0 +1,219 @@
+<form
+    action="${pdict.createAccountUrl}"
+    class="b-return-wrap registration account-form"
+    method="POST"
+    data-cmp="formGeneric"
+    name="${pdict.profileForm.htmlName}"
+    data-membersonurl="${pdict.checkMembersonUrl || ''}"
+    data-membersonenabled="${pdict.membersonEnabled || false}">
+    <div class="b-account_form-column">
+        <div class="form-group b-input_row">
+            <label class="form-control-label b-input_row-label" for="firstName">
+                <isprint value="${pdict.profileForm.customer.firstname.label}" encoding="htmlcontent" />
+            </label>
+            <input type="text" class="form-control b-input_row-input order-return-form-input" id="firstName"
+            data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
+            data-pattern-mismatch="${Resource.msg('general.pattern.mismatch','common',null)}"
+            <isif condition="${pdict.membersonEnabled}"> pattern="${Resource.msg('input.validate.firstName','forms',null)}"</isif>
+                <isprint value="${pdict.profileForm.customer.firstname.attributes}" encoding="off" />>
+            <div class="invalid-feedback"><isprint value="${(typeof(pdict.profileFieldsError.firstName) !== 'undefined' && !empty(pdict.profileFieldsError.firstName) && !empty(pdict.firstName)) ?  pdict.profileFieldsError.firstName : ''}"/></div>
+        </div>
+    </div>
+    <div class="b-account_form-column">
+        <div class="form-group b-input_row">
+            <label class="form-control-label b-input_row-label" for="lastName">
+                <isprint value="${pdict.profileForm.customer.lastname.label}" encoding="htmlcontent" />
+            </label>
+            <input type="text" class="form-control b-input_row-input order-return-form-input" id="lastName"
+            data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
+            data-pattern-mismatch="${Resource.msg('general.pattern.mismatch','common',null)}"
+            <isif condition="${pdict.membersonEnabled}"> pattern="${Resource.msg('input.validate.lastName','forms',null)}"</isif>
+                <isprint value="${pdict.profileForm.customer.lastname.attributes}" encoding="off" />>
+            <div class="invalid-feedback"><isprint value="${(typeof(pdict.profileFieldsError.lastName) !== 'undefined' && !empty(pdict.profileFieldsError.lastName) && !empty(pdict.lastName)) ?  pdict.profileFieldsError.lastName : ''}"/></div>
+        </div>
+    </div>
+
+    <div class="b-account_form-column b-account_form-column-mobile dialing-code b-order-return-input">
+        <div class="form-group b-gender">
+            <label class="form-control-label b-gender-label" for="countryDialingCode">
+                <isprint value="${pdict.profileForm.customer.countryDialingCode.label}" encoding="off" />
+            </label>
+            <select class="form-control b-gender-select order-return-form-input" id="countryDialingCode" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" required
+                <isprint value="${pdict.profileForm.customer.countryDialingCode.attributes}" encoding="off" />>
+                <isloop items=${pdict.profileForm.customer.countryDialingCode.options} var="countryDialingCode">
+                    <option id="${countryDialingCode.id}" value="${countryDialingCode.htmlValue}" <isif condition="${pdict.currentCountryDialingCode === countryDialingCode.htmlValue}">selected</isif>>${countryDialingCode.label || ' '}</option>
+                </isloop>
+            </select>
+             <div class="invalid-feedback"></div>
+        </div>
+    </div>
+    <div class="b-account_form-column register-mobile-number">
+        <div class="form-group b-input_row">
+            <label class="form-control-label b-input_row-label" for="phone">
+                <isprint value="${Resource.msg('field.customer.phone.number.apac', 'forms', null)}" />
+            </label>
+            <input type="text" data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid.apac','forms',null)}" data-missing-error="${Resource.msg('error.message.required', 'forms', null)}" data-error="${Resource.msg('error.message.phonenumber.lesserlength','forms',null)}" class="form-control b-input_row-input validatePhoneField js-custom-input order-return-form-input" id="phone"
+                required max-length="20" <isif condition="${pdict.membersonEnabled}"> pattern="${Resource.msg('input.validate.phoneNumber','forms',null)}"</isif>
+                <isprint value="${pdict.profileForm.customer.phone.attributes}" encoding="off" />>
+            <div class="invalid-feedback"></div>
+            <div class="phone-number-format">${Resource.msg('field.customer.phone.number.format', 'forms', null)}</div>
+        </div>
+    </div>
+    <div class="form-group b-order-return-input b-input_row
+        <isif condition="${!!pdict.profileForm.customer.email.mandatory === true}">required</isif>">
+        <label class="b-input_row-label form-control-label" for="registration-form-email">
+        <isprint value=${pdict.profileForm.customer.email.label} encoding="off" />
+        </label>
+        <input
+            type="text"
+            class="form-control order-return-form-input b-input_row-input js-custom-input js-email-field"
+            id="registration-form-email"
+            data-missing-error="${Resource.msg('error.card.info.missing.email', 'forms', null)}"
+            data-pattern-mismatch="${Resource.msg('error.message.parse.email.profile.form','forms',null)}"
+            data-range-error="${Resource.msg('error.message.50orless','forms',null)}"
+            aria-describedby="form-email-error"
+            value="" required
+            <isprint value=${pdict.profileForm.customer.email.attributes} encoding="off" />>
+            <div class="memberson-underarmour-employee d-none" data-eligible-loyalty="${true}">
+                ${Resource.msg('memberson.msg.noteligibleformemberson', 'membersonGlobal', null)}
+            </div>
+            <div class="invalid-feedback" id="form-email-error"></div>
+        <div class="b-registration-error hide">
+            <span class="b-registration-error-span" data-analytics-track="error-span">${Resource.msg('error.message.user.already.exist', 'forms', null)}</span>
+            <a class="b-registration-error-link js-login" data-analytics-track="error-link" href="${URLUtils.https('Login-Show')}" role="button"
+            aria-label="${Resource.msg('label.header.loginbutton', 'account', null)}">
+            ${Resource.msg('error.message.user.already.exist.link', 'forms', null)}
+        </a>
+        </div>
+        <div class="b-memberson-error hide">
+        </div>
+    </div>
+    <div class="form-group b-order-return-input b-input_row
+        <isif condition="${!!pdict.profileForm.login.password.mandatory === true}">required</isif>">
+        <span class="password-display"><div class="js-password-ToggleDisplay">${Resource.msg('label.create.account.show', 'login', null)}</div></span>
+        <label class="b-input_row-label form-control-label" for="registration-form-password">
+        <isprint value=${pdict.profileForm.login.creatPassword.label} encoding="off" />
+        </label>
+        <input
+            type="password"
+            class="form-control order-return-form-input b-input_row-input js-custom-input js-password-field"
+            id="registration-form-password"
+            data-missing-error="${Resource.msg('error.card.info.missing.password', 'login', null)}"
+            data-range-error="${Resource.msg('error.message.8_255characters','forms',null)}"
+            aria-describedby="form-password-error"
+            pattern="${pdict.passwordRules.regex}"
+            data-can-contains-email="${dw.system.Site.current.getCustomPreferenceValue('allowEmailInPassword') === false ? false : true}"
+            data-contains-email-error="${Resource.msg('password.contains.email.error','account',null)}"
+            value="" required
+            autocomplete="off"
+            <isprint value=${pdict.profileForm.login.password.attributes} encoding="off" />>
+        <div class="input-feedback" id="form-password-rules"><isprint value="${pdict.passwordRules.errorMsg}" encoding="off" /></div>
+        <div class="invalid-feedback-email"></div>
+    </div>
+    
+    <div class="b-account_form-row b-account_form-row-three clear">
+        <div class="b-account_form-column b-account_form-column-mobile">
+            <div class="form-group b-month">
+                <label class="form-control-label b-month-label"  for="birthMonth">
+                    <isprint value="${pdict.profileForm.customer.birthMonth.label}" encoding="htmlcontent" />
+                </label>
+                <select class="form-control b-month-select order-return-form-input" id="birthMonth" <isif condition="${pdict.membersonEnabled}"> data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" required</isif>
+                    <isprint value="${pdict.profileForm.customer.birthMonth.attributes}" encoding="off" />>
+                    <isloop items=${pdict.profileForm.customer.birthMonth.options} var="birthMonth">
+                        <option id="${birthMonth.id}" value="${birthMonth.htmlValue}" <isif condition="${birthMonth.selected}">selected</isif>>${birthMonth.label || ' '}</option>
+                    </isloop>
+                </select>
+                <div class="invalid-feedback" id="form-email-error"></div>
+            </div>
+        </div>
+    <isif condition="${pdict.membersonEnabled}">
+        <div class="b-account_form-column b-account_form-column-mobile">
+            <div class="form-group b-year">
+                <label class="form-control-label b-year-label" for="birthYear">
+                    <isprint value="${pdict.profileForm.customer.birthYear.label}" encoding="htmlcontent" />
+                </label>
+                <select class="form-control b-year-select order-return-form-input" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" id="birthYear" required
+                    <isprint value="${pdict.profileForm.customer.birthYear.attributes}" encoding="off" />>
+                    <isloop items=${pdict.profileForm.customer.birthYear.options} var="birthYear">
+                        <option id="${birthYear.id}" value="${birthYear.htmlValue}" <isif condition="${birthYear.selected}">selected</isif>>${birthYear.label || ' '}</option>
+                    </isloop>
+                </select>
+                <div class="invalid-feedback"></div>
+            </div>
+        </div>
+    <iselse/>
+        <div class="b-account_form-column b-account_form-column-mobile">
+            <div class="form-group b-day">
+                <label class="form-control-label b-day-label" for="birthDay">
+                    <isprint value="${pdict.profileForm.customer.birthDay.label}" encoding="htmlcontent" />
+                </label>
+                <select class="form-control b-day-select order-return-form-input" id="birthDay"
+                    <isprint value="${pdict.profileForm.customer.birthDay.attributes}" encoding="off" />>
+                    <isloop items=${pdict.profileForm.customer.birthDay.options} var="birthDay">
+                        <option id="${birthDay.id}" value="${birthDay.htmlValue}" <isif condition="${birthDay.selected}">selected</isif>>${birthDay.label || ' '}</option>
+                    </isloop>
+                </select>
+            </div>
+        </div>
+    </isif>
+
+        <div class="b-account_form-column b-account_form-column-mobile">
+            <div class="form-group b-gender">
+                <label class="form-control-label b-gender-label" for="gender">
+                    <isprint value="${pdict.profileForm.customer.gender.label}" encoding="htmlcontent" />
+                </label>
+                <select class="form-control b-gender-select order-return-form-input" id="gender"
+                    <isprint value="${pdict.profileForm.customer.gender.attributes}" encoding="off" />>
+                    <isloop items=${pdict.profileForm.customer.gender.options} var="gender">
+                        <option id="${gender.id}" value="${gender.htmlValue}" <isif condition="${gender.selected}">selected</isif>>${gender.label || ' '}</option>
+                    </isloop>
+                </select>
+            </div>
+        </div>
+    </div>
+
+<iscomment> 
+    <div>
+        <span>
+            <isprint value="${Resource.msgf('label.create.account.case1', 'login', null, 8)}"/>
+        </span>
+        <span>
+            <isprint value="${Resource.msgf('label.create.account.case2', 'login', null, 1)}"/>
+        </span>
+        <span>
+            <isprint value="${Resource.msgf('label.create.account.case3', 'login', null, 1)}"/>
+        </span>
+        <span>
+            <isprint value="${Resource.msgf('label.create.account.case4', 'login', null, 1)}"/>
+        </span>
+    </div>
+</iscomment>
+
+    <div class="form-group g-checkbox">
+        <input
+            type="checkbox"
+            class="g-checkbox-input" id="add-to-email-list" <isif condition="${dw.system.Site.current.getCustomPreferenceValue('defaultEmailOptIn')}">checked</isif> 
+            <isprint value=${pdict.profileForm.customer.addtoemaillist.attributes} encoding="off" />
+        >
+        <isif condition="${pdict.smsOptInEnabled}">
+            <label class="g-checkbox-label" for="add-to-email-list">${Resource.msg('field.checkbox.signup.SEAShipping','checkout',null)}</label>
+        <iselse/>
+        <label class="g-checkbox-label" for="add-to-email-list">
+            <isprint value="${pdict.profileForm.customer.addtoemaillist.label}" encoding="htmlcontent" />
+        </label>
+        </isif>
+    </div>
+
+
+    <div class=" form-group submit-section text-center mb-4 submit-tans-sec">
+    <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+    <button class="btn btn-primary btn-block js-createaccount-button g-button_base g-button_primary--black" name="${pdict.CurrentForms.profile.create.htmlName}">
+        ${Resource.msg('button.createaccount.registration', 'login', null)}
+    </button>
+    </div>
+    <input type="hidden" class="showlabel" value="${Resource.msg('label.create.account.show', 'login', null)}">
+    <input type="hidden" class="hidelabel" value="${Resource.msg('label.create.account.hide', 'login', null)}">
+</form>
+<isif condition="${pdict.isFacebookLoginEnabledInRegisterModal}">
+    <isinclude template="account/components/oauth" />
+</isif>

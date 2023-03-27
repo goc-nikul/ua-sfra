@@ -1,0 +1,383 @@
+/**
+* Should be merged into URLUtilsHelper after refactoring
+*/
+
+importPackage( dw.web );
+importPackage( dw.system );
+importPackage( dw.catalog );
+
+var URLUtilsHelper = function() {
+	
+	var self = this; 
+	
+ 	/**
+	 * Making relative URL
+	 * @param {Object} type - URL object 
+	 */
+ 	this.makeRelative = function (UrlObject) {
+		var url = UrlObject && UrlObject.toString();
+		if (url && url.length !== 0) {
+		     url = url.replace(/^.*?\/\//,""); //Remove Protocol
+		     url = url.replace(/^.*?\//,"/"); //Remove Domain
+		};
+		return url;
+	};
+	
+	/**
+	 * Retrieve relative URL
+	 * @param {String} type - url
+	 */	
+	this.getRelativeURL = function(url : String) : String{
+		var regexp : RegExp = /(.*:)\/\/([0-9a-z\-.]+)(:[0-9]+)?(.*)/;
+		return regexp.exec(url)[4];
+	};
+	 
+	/**
+	 * Retrieve alternative URL
+	 * @param {Object} type - pdict
+	 */	
+	this.getAlternateUrl = function(pdict : PipelineDictionary) : String {
+	 	return self.getCurrentUrl(pdict);	
+	};
+	
+	/**
+	 * Retrieve home page URL
+	 * @param {String} type - locale id 
+	 */
+	 this.getHomepageURL = function(localeId : String) : String {
+ 		
+		var locale : String = localeId.toLowerCase().replace("_", "-"),
+	  		homeURL : String = URLUtils.httpsHome().toString().replace(/(https:\/\/[A-Za-z0-9\.\-]+)\/[A-Za-z0-9\/\.\-_]+/g, "$1") + "/" +  locale + "/";
+	  		
+		return homeURL;
+ 	};
+	
+	/**
+	 * Retrieve home page URL
+	 * @param {String} type - locale id 
+	 */
+	this.getHostForLocale = function(localeId : String) : String {
+		var CountryHelper = require("~/cartridge/scripts/util/CountryHelper"),
+	 		countryObject	: Object = new CountryHelper('locale', localeId);
+	 		
+	 	return (!empty(countryObject) && 'hostName' in countryObject && !empty(countryObject.hostName)) ? countryObject.hostName+'\/'+self.getLocaleCodeByLocaleID(localeId) : '';	
+	}	
+	
+	/**
+	 * Prepare URL for locale
+	 * @param {Object} type - url
+	 * @param {String} type - locale id 
+	 * @param {Boolean} type - use Cross sites data
+	 */	
+	this.prepareURLForLocale = function(url : String, localeId : String, useCrossData : Boolean) : String {
+	 	var CountryHelper = require("~/cartridge/scripts/util/CountryHelper"),
+	 		countryObject	: Object = new CountryHelper('locale', localeId, useCrossData),		
+	 		protocol		: String = url.indexOf('https') != -1 ? 'https' : 'http',
+	 		regExp 			: RegExp = new RegExp('http(s)*:\/\/([^\/])+([\/s\/'+Site.getCurrent().getID()+'])*', 'g');
+
+        if (!empty(countryObject) && 'hostName' in countryObject && !empty(countryObject.hostName)) {
+            var locale = localeId ? localeId.toLowerCase().replace('_', '-') : null;
+            var urlComponent = locale && url.indexOf('/' + locale + '/') === -1 ? (protocol + ':\/\/' + countryObject.hostName + '\/' + locale + '\/') : (protocol + ':\/\/' + countryObject.hostName + '\/');
+            url = url.replace(regExp, urlComponent);
+        }
+
+        return url;
+	};
+	
+	/**
+	 * Replace locale in URL
+	 * @param {Object} type - url
+	 * @param {String} type - prev locale id 
+	 * @param {String} type - new locale id
+	 * @param {Boolean} type - use Cross sites data
+	 */	
+	this.replaceURLForLocale = function(url : String, oldLocaleId : String, newLocaleId : String, useCrossData : Boolean) : String {
+	 	var newURL : String = self.prepareURLForLocale(url, newLocaleId, useCrossData);
+		return newURL.replace('\/'+self.getLocaleCodeByLocaleID(oldLocaleId)+'\/', '\/'+self.getLocaleCodeByLocaleID(newLocaleId)+'\/');	
+	};
+	
+	/**
+	 * Retrieve product URL by product
+	 * @param {Object} type - product
+	 */
+	this.getProductLink = function(currentProduct : Product) : URL {
+		var master : Product = currentProduct.isVariant() ? currentProduct.masterProduct : currentProduct,
+			color : String = currentProduct.custom.color,
+			size : String = currentProduct.custom.size,
+			link : URL = URLUtils.http('Product-Show', 'pid', master.ID);
+			
+		if(!empty(color)){
+			link.append('dwvar_'+master.ID+'_color',color);
+		}
+		if(!empty(size)){
+			link.append('dwvar_'+master.ID+'_size',size);
+		}	
+		
+		//productUrl = masterProduct.variationModel.url('Product-Show', colorVarAttr, colorV.value);
+		
+		return link;
+	};
+	
+	/**
+	 * Retrieve product URL by product
+	 * @param {Object} type - product
+	 */
+	this.getProductLinkByLocale = function(currentProduct : Product, localeId : String) : URL {
+		var master : Product = currentProduct.isVariant() ? currentProduct.masterProduct : currentProduct,
+			color : String = currentProduct.custom.color,
+			size : String = currentProduct.custom.size,
+			link : URL = !empty(localeId) ? URLUtils.http(new URLAction('Product-Show', Site.getCurrent().getID(), localeId), new URLParameter('pid', master.ID)) : URLUtils.http('Product-Show', 'pid', master.ID);
+			
+		if(master.isMaster() && !empty(color)){
+			link.append('dwvar_'+master.ID+'_color',color);
+		}
+		if(master.isMaster() && !empty(size)){
+			link.append('dwvar_'+master.ID+'_size',size);
+		}	
+
+		return link;
+	};
+
+	/**
+	 * Retrieve category localized URL by category id
+	 * @param {String} type - category id
+	 * @param {String} type - locale id
+	 */
+	this.getCategoryLinkByLocale = function(categoryID : String, localeId : String) : URL {
+		var link = URLUtils.http(URLAction('Search-Show', Site.getCurrent().getID(), localeId), URLParameter('cgid', categoryID));
+		link = this.prepareURLForLocale(link.toString(), localeId);
+		
+		return link;
+	};
+	
+	// Should be remove
+	this.getProductLinkWithParameters = function(currentProduct : Product, variantColor : String) : URL {
+		
+		var master : Product = currentProduct.isVariant() ? currentProduct.masterProduct : currentProduct,
+			color  : String  = !empty(variantColor) ? variantColor : currentProduct.custom.color,
+			link   : URL     = URLUtils.http('Product-Show', 'pid', master.ID);
+			
+		if (!empty(color)) {
+			link.append('dwvar_'+master.ID+'_color',color);
+		}
+		
+		return link.toString();
+	};
+	
+	/**
+	 * Retrieve current URL
+	 * @param {Object} type - pdict
+	 */	
+	this.getCurrentUrl = function(pdict : PipelineDictionary) : String {
+		
+		var currentPipeline : Array = pdict.CurrentRequest.httpPath.match(/\/(\w+\-\w+)(?:\/[\d\w]+)?$/i) || new Array("", ""),
+			chpm : CurrentHttpParameterMap = pdict.CurrentHttpParameterMap,
+			url : URL;
+			
+		if (currentPipeline[1] == "Home-Show" || currentPipeline[1] == "Default-Start" || currentPipeline[1] == "") {
+			url = self.getHomepageURL(pdict.CurrentRequest.locale);
+		} else if (currentPipeline[1] == "Search-Show") {
+			if (chpm.cgid.isSubmitted() && chpm.cgid.value != '') {
+	      		url = URLUtils.http('Search-Show','cgid', chpm.cgid.value);
+			}	
+	      	if (chpm.fdid.isSubmitted() && chpm.fdid.value != '') {
+	      		url = URLUtils.http('Search-Show','fdid', chpm.fdid.value);	
+	      	}
+	      	if (chpm.q.isSubmitted() && chpm.q.value != '') {
+	      		url = URLUtils.http('Search-Show','q', chpm.q.value);	
+	      	}
+		} else if (currentPipeline[1] == "Product-Show" || currentPipeline[1] == "Product-ShowInCategory") {
+			if (!empty(pdict.Product)) {
+				var master = pdict.Product.isVariant() ? pdict.Product.masterProduct : pdict.Product;
+				 url = URLUtils.http('Product-Show','pid', master.ID);
+			}	
+		} else if (currentPipeline[1] == "Page-Show") {
+			if (chpm.cid.isSubmitted() && chpm.cid.value != '') {
+				url = URLUtils.http('Page-Show','cid', chpm.cid.value);
+			}
+	  	} else if (currentPipeline[1] == "RedirectURL-Start" 
+	  				&& (new RegExp("/"+pdict.CurrentRequest.locale.replace("_","-")+"/?","gi").test(pdict.CurrentRequest.httpHeaders['x-is-path_info']))){
+	  		url = self.getHomepageURL(pdict.CurrentRequest.locale);
+		} else {
+	  		url = URLUtils.http(currentPipeline[1]);
+	  	}
+	  	return !empty(url) ? url.toString() : "";
+	};
+	
+	/**
+	 * Retrieve locale language by locale id
+	 * @param {String} type - locale id
+	 */	
+	this.getLocaleLangByLocaleID = function(localeID : String) : String {
+	 	if (localeID.split("_").length == 2) {
+	 		return localeID.split("_")[0].toLowerCase() + "-" + localeID.split("_")[1].toLowerCase();
+	 	} else if (localeID.split("_").length == 1) {
+	 		return localeID.split("_")[0].toLowerCase();
+	 	}
+	};
+	
+	/**
+	 * Retrieve locale code by locale id
+	 * @param {String} type - locale id
+	 */	 
+	this.getLocaleCodeByLocaleID = function(localeID : String) : String {
+	 	var predefineLocales = {
+	 		"default" : "en"
+	 	};
+	 	
+	 	if (localeID in predefineLocales){
+	 		return predefineLocales[localeID];
+	 	}
+	 	
+	 	return localeID.replace("_","-").toLowerCase();
+	};
+	
+	/**
+	 * Finish URL for request and another lang
+	 * @param {Object} type - request
+	 * @param {String} type - new URL path (lang)
+	 */	 
+	this.finishURL = function(request, urlPath) : String {
+		var newURL : String = request.https ? 'https://' : 'http://';
+		newURL += request.host;
+		newURL += urlPath;
+		!empty(request.httpHeaders['x-is-query_string']) && (newURL += "?" + request.httpHeaders['x-is-query_string']);
+		
+		if (newURL.lastIndexOf('/') !== newURL.length-1) {
+			newURL = newURL+'/';
+		}
+		return newURL;
+	};
+	
+	/**
+	 * Check if some locale is available for current domain 
+	 * @param {String} type - locale
+	 */	 
+	this.isDomainLocaleRelate = function(domain, localeId) : Boolean {
+		var CountryHelper = require("~/cartridge/scripts/util/CountryHelper"),
+	 		countryObject : Object = new CountryHelper('locale', localeId);
+
+	 	if (!empty(countryObject) && 'hostName' in countryObject && countryObject.hostName &&  countryObject.hostName === domain) {
+			return true;
+	 	}
+	 	return false;
+	};
+	
+	/**
+	 * Get default (first) locale for current domain 
+	 */	 
+	this.getDefaultLocale = function() : String {
+		var CountryHelper = require("~/cartridge/scripts/util/CountryHelper"),
+	 		countryObject : Object = new CountryHelper(),
+	 		locales : Array = (!empty(countryObject) && 'locales' in countryObject && !empty(countryObject.locales)) ? countryObject.locales : [];
+	 		
+	 	return (locales.length > 0) ? locales[0] : '';	
+	};
+	
+	/**
+	 * Get language from locale 
+	 * @param {String} type - locale
+	 */	 
+	this.getRequestLang = function(localeID) : String {
+		return localeID.substring(0, 2).toLowerCase();
+	};
+	
+	/**
+	 * Get available domains by language
+	 * @param {String} type - lang
+	 */	 
+	this.getAvailableDomainsForLang = function(lang) : Object {
+		var CountryHelper = require("~/cartridge/scripts/util/CountryHelper"),
+	 		countryObject : Object = new CountryHelper(),
+	 		countryMappingObj : Object = (!empty(countryObject) && 'countryMappingObj' in countryObject && !empty(countryObject.countryMappingObj)) ? countryObject.countryMappingObj : {},
+	 		domains : Object = {};
+
+	 	if (!empty(countryMappingObj)) {
+	 		for (let i = 0; i < countryMappingObj.length; i++) {
+	 			let cm = countryMappingObj[i];
+	 			if (!empty(cm) && 'locales' in cm) {
+	 				for (let j = 0; j < cm.locales.length; j++) {
+	 					if (cm.locales[j].indexOf(lang+'_') === 0) {
+	 						if (!domains[cm.hostname]) {
+	 							domains[cm.hostname] = cm.locales[j];
+	 							break;
+	 					    }
+	 				    }
+	 			    }
+	 		    }	 			
+	 		}
+	 	}		
+
+		// If the domains not available for the current locale then return the domains available for current domain
+		if (Object.keys(domains).length === 0) {
+			domains[countryObject.hostName] = countryObject.locales[0];
+		}
+		return domains;	
+	};
+	
+	/**
+	 * Get available domains by locale
+	 * @param {String} type - locale
+	 */	 
+	this.getAvailableDomainsForLocale = function(localeid) : Object {
+		var CountryHelper = require("~/cartridge/scripts/util/CountryHelper"),
+	 		countryObject : Object = new CountryHelper('locale', localeid),
+	 		domains : Object = {};
+	 		
+		if (!empty(countryObject) && 'locales' in countryObject && countryObject.locales) {
+			for (let j = 0; j < countryObject.locales.length; j++) {
+				if (countryObject.locales[j] == localeid) {
+					domains[countryObject.hostName] = countryObject.locales[j];
+	 						break;
+	 					}
+	 				}
+	 			}
+	 			
+			
+		return domains;	
+	};
+	
+	/**
+	 * Get available domains by locale
+	 * @param {String} type - locale
+	 */	 
+	this.getLocalePath = function(path) : String {
+		var regexp : RegExp = new RegExp('\/[A-Za-z\-\_]+\/','gi'),
+			regexpdw : RegExp = new RegExp('\/Sites\-[A-Za-z\-\_]+\-Site\/','gi'),
+			regexp2 : RegExp = new RegExp('\/','g'),
+			pathMatchArray : Array = path.match(regexp),
+			pathMatchdw : Array = path.match(regexpdw) || new Array();
+		var localePath : String = (pathMatchdw.length > 0) ? '' : ((pathMatchArray && pathMatchArray.length > 0) ? pathMatchArray[0].replace(regexp2, "") : path.replace(regexp2, ""));
+		
+		if (!empty(localePath)) {	
+			// redo path to Locale
+			localePath = localePath.split('-');
+			if (localePath.length == 2) {
+				localePath = localePath[0].toLowerCase() + "_" + localePath[1].toUpperCase();	
+			} else if (localePath.length == 1) {
+				localePath = localePath[0].toLowerCase();
+			} else {
+				localePath = '';
+			}
+		}		 
+		
+		return localePath;
+	};
+
+	/**
+	 * Escape string from scripts
+	 * @param {String} unsafe - any string to escape
+	 */	 
+	this.escapeHtml = function(unsafe) {
+		var safe = unsafe
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#039;")
+		.replace(/script/ig, '');
+		return safe;
+ 	};
+
+};
+
+module.exports = new URLUtilsHelper();

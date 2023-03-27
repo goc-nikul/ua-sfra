@@ -1,0 +1,21 @@
+<isdecorate template="checkout/cart/pt_cart">
+<isinclude template="util/modules"/>
+
+<iscomment>
+A message should be displayed that says something similar to this:
+"To receive free ShopRunner shipping you must remove ineligible items from your cart. Keeping all
+items in your cart will log you out of ShopRunner. Eligible items are indicated in your cart."
+There should also be linked text under this which says
+"Why are some items not ShopRunner eligible?"
+Below this messaging, the user should have the option of selecting two buttons, one should say "Keep
+all items and sign out", the other should say "Remove ineligible items from cart"
+</iscomment>
+
+<p><isprint value="${Resource.msg('shoprunner.message_ineligibleCart','shoprunner',null)}" /></p>
+
+<form action="${URLUtils.httpsContinue()}" method="post" id="${pdict.CurrentForms.ineligiblecart.htmlName}">
+	<button type="submit" value="keepitems" name="${pdict.CurrentForms.ineligiblecart.keepitems.htmlName}"><span>${Resource.msg('shoprunner.keepitems','shoprunner',null)}</span></button>
+	<button type="submit" value="removeitems" name="${pdict.CurrentForms.ineligiblecart.removeitems.htmlName}"><span>${Resource.msg('shoprunner.removeitems','shoprunner',null)}</span></button>
+</form>
+
+</isdecorate>

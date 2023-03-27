@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs xmlns="http://www.demandware.com/xml/impex/jobs/2015-07-01">
+
+    <job job-id="OrderConfirmationEmailTriggers" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="CA"/>
+            <step step-id="OrderConfirmationEmailTriggers" type="custom.orderConfimationEmail" enforce-restart="false">
+                <description>Trigger order confirmation email through this job</description>
+                <parameters/>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="MX"/>
+            <step step-id="OrderConfirmationEmailTriggers-MX" type="custom.orderConfimationEmail" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2020-08-23Z</date-from>
+                    <start-time>14:03:32.000Z</start-time>
+                    <interval>1m</interval>
+                    <day-of-week>
+                        <weekday>Monday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="Process on hold orders MX" priority="0">
+        <description>Process orders with 'on hold' custom status</description>
+        <parameters/>
+        <flow>
+            <context site-id="MX"/>
+            <step step-id="ProcessFraudOrders" type="custom.AccertifyProcessFraudOrders" enforce-restart="false">
+                <description>Process orders with AccertifyRecCode Error</description>
+                <parameters/>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="MX"/>
+            <step step-id="Process" type="custom.accertifyProcess" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+            <step step-id="Clear" type="custom.accertifyClear" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2020-04-09Z</date-from>
+                    <start-time>07:49:36.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Friday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Thursday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="Automated Returns XML" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="MX"/>
+            <step step-id="Generate XML MX" type="custom.AutomatedReturnXML" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Action">AutomatedReturnXML-GenerateXML</parameter>
+                    <parameter name="Verbose">true</parameter>
+                </parameters>
+            </step>
+            <step step-id="Upload XML MX" type="custom.CSComponents.FtpUpload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_NA</parameter>
+                    <parameter name="KeyAlias">na04-ecomm-staging</parameter>
+                    <parameter name="FilePattern">^MX_DEV.*Return.*xml</parameter>
+                    <parameter name="SourceFolder">src/feeds/returns</parameter>
+                    <parameter name="TargetFolder">/ua-ecm-sftp/ecommstaging/ftpdemandware_na/in/returns</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Zip XML MX" type="custom.ZipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="filePattern">^MX_DEV.*Return.*xml</parameter>
+                    <parameter name="sourceFolder">src/feeds/returns</parameter>
+                    <parameter name="targetFolder">src/archive/returns</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-06-10Z</date-from>
+                    <start-time>19:47:56.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Sunday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="Adyen Process Notifications" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_48">
+                <context site-id="MX"/>
+            </contexts>
+            <flow-template template-id="template_48">
+                <step step-id="Process" type="ExecuteScriptModule" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="ExecuteScriptModule.Module">int_adyen_overlay/cartridge/scripts/job/notifications.js</parameter>
+                        <parameter name="ExecuteScriptModule.FunctionName">processNotifications</parameter>
+                        <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                        <parameter name="ExecuteScriptModule.TimeoutInSeconds">3600</parameter>
+                    </parameters>
+                </step>
+                <step step-id="Clean" type="ExecuteScriptModule" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="ExecuteScriptModule.Module">int_adyen_overlay/cartridge/scripts/job/notifications.js</parameter>
+                        <parameter name="ExecuteScriptModule.FunctionName">clearNotifications</parameter>
+                        <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                        <parameter name="ExecuteScriptModule.TimeoutInSeconds">3600</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-06-13Z</date-from>
+                    <start-time>14:49:21.000Z</start-time>
+                    <interval>2m</interval>
+                    <day-of-week>
+                        <weekday>Monday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Thursday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="Order - Cancel Unpaid Orders MX" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="MX"/>
+            <step step-id="Cancel Unpaid Orders" type="ExecuteScriptModule" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ExecuteScriptModule.Module">bc_jobs/cartridge/scripts/order/cancelUnpaidOrders.js</parameter>
+                    <parameter name="ExecuteScriptModule.FunctionName">execute</parameter>
+                    <parameter name="ExecuteScriptModule.Transactional">true</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2017-09-22Z</date-from>
+                    <start-time>16:37:26.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Saturday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Sunday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="Order Export - MX" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="MX"/>
+            <step step-id="ExportOrders-MX" type="custom.CSComponents.ExportOrders" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="TargetFolder">src/export/orders</parameter>
+                    <parameter name="Filename">export_orders</parameter>
+                    <parameter name="Query">exportStatus = 2 AND status != 8 AND status != 0 AND status != 6</parameter>
+                    <parameter name="UpdateExportStatus">true</parameter>
+                    <parameter name="OverwriteExportFile">true</parameter>
+                    <parameter name="addTimestampToFileName">true</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Archive Orders - MX" type="custom.ZipFiles" enforce-restart="true">
+                <description/>
+                <parameters>
+                    <parameter name="filePattern">^.*export_orders_MX.*xml</parameter>
+                    <parameter name="sourceFolder">src/export/orders</parameter>
+                    <parameter name="targetFolder">src/archive/order/mx</parameter>
+                    <parameter name="deleteFile">KEEP_ON_SERVER</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-flow/>
+                    </on-exit>
+                </rules>
+            </step>
+            <step step-id="Upload Orders - MX - Amazon S3" type="custom.CSComponents.FtpUpload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_NA_MX</parameter>
+                    <parameter name="KeyAlias">na04-ecomm-staging</parameter>
+                    <parameter name="FilePattern">^.*export_orders_MX.*xml</parameter>
+                    <parameter name="SourceFolder">src/export/orders</parameter>
+                    <parameter name="TargetFolder">/ua-ecm-sftp/ecommstaging/ftpdemandware_na/in/orders</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-09-27Z</date-from>
+                    <start-time>10:12:15.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Thursday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Wednesday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="CancelAbandonedOrders MX" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_214">
+                <context site-id="MX"/>
+            </contexts>
+            <flow-template template-id="template_214">
+                <step step-id="Cancel Abandoned Orders" type="ExecuteScriptModule" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="ExecuteScriptModule.Module">bc_jobs/cartridge/scripts/order/cancelAbandonedOrders.js</parameter>
+                        <parameter name="ExecuteScriptModule.FunctionName">execute</parameter>
+                        <parameter name="ExecuteScriptModule.Transactional">true</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-09-27Z</date-from>
+                    <start-time>10:12:15.000Z</start-time>
+                    <interval>6h</interval>
+                    <day-of-week>
+                        <weekday>Thursday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Wednesday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="Import Order Status" priority="0">
+        <description>Import Order Status</description>
+        <parameters/>
+        <flow>
+            <context site-id="MX"/>
+            <step step-id="Import Order Confirmation" type="custom.OrderAcknowledgement" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="workingFolder">src/feeds/orderstatus/mx</parameter>
+                    <parameter name="filePattern">^.*OrderConfirmation.*xml</parameter>
+                    <parameter name="sortDirection">ASCENDING</parameter>
+                    <parameter name="zipFiles">true</parameter>
+                    <parameter name="targetFolder">/src/archive/orderstatus/mx</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2019-12-10Z</date-from>
+                    <start-time>00:00:00.000Z</start-time>
+                    <interval>5m</interval>
+                    <day-of-week>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="Download Order Status" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Download Order Status NON ZIP MX - SSH (DO NOT TOUCH)" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_NA_MX</parameter>
+                    <parameter name="KeyAlias">na04-ecomm-staging</parameter>
+                    <parameter name="FilePattern">^.*xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/ftpdemandware_na/out/orderstatus_mx</parameter>
+                    <parameter name="TargetFolder">src/feeds/orderstatus/mx</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="DeleteRemoteFiles">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-06-09Z</date-from>
+                    <start-time>08:28:44.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Sunday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="Import Order Status - Refund" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="MX"/>
+            <step step-id="Import Order Refund MX" type="custom.OrderRefund" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="workingFolder">src/feeds/orderstatus/mx</parameter>
+                    <parameter name="filePattern">^.*RefundConfirmation.*xml</parameter>
+                    <parameter name="sortDirection">ASCENDING</parameter>
+                    <parameter name="zipFiles">true</parameter>
+                    <parameter name="targetFolder">/src/archive/orderRefund/mx</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="true">
+                <mark-job-as-hanging/>
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>Sachin.S@hcl.com, narasimharaju_pinne@hcl.com, mohammedtaher.jamboo@hcl.com,mamta.galande@hcl.com, mayank.ma@hcl.com, sarita.choudhary@hcl.com</to>
+                </send-mail>
+            </on-running>
+            <on-retry enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>Sachin.S@hcl.com, narasimharaju_pinne@hcl.com, mohammedtaher.jamboo@hcl.com,mamta.galande@hcl.com, mayank.ma@hcl.com, sarita.choudhary@hcl.com</to>
+                </send-mail>
+            </on-retry>
+            <on-exit status="OK,ERROR" enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>Sachin.S@hcl.com, narasimharaju_pinne@hcl.com, mohammedtaher.jamboo@hcl.com,mamta.galande@hcl.com, mayank.ma@hcl.com, sarita.choudhary@hcl.com</to>
+                </send-mail>
+            </on-exit>
+        </rules>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2019-12-10Z</date-from>
+                    <start-time>00:00:00.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Sunday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="Import Order Status - Shipment" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="MX"/>
+            <step step-id="Import Order Shipment MX" type="custom.OrderShipping" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="workingFolder">src/feeds/orderstatus/mx</parameter>
+                    <parameter name="filePattern">^.*ShippingConfirmation.*.xml</parameter>
+                    <parameter name="sortDirection">ASCENDING</parameter>
+                    <parameter name="zipFiles">true</parameter>
+                    <parameter name="targetFolder">/src/archive/orderShipment/mx</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-06-09Z</date-from>
+                    <start-time>08:29:16.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Sunday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+</jobs>

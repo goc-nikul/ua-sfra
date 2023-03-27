@@ -1,0 +1,74 @@
+<isdecorate template="application/MenuFrame">
+	<isinclude template="inc/Modules" />
+	<!-- Page Navigator -->
+	<ISBreadcrumb name1="${Resource.msg('productpersonalization.breadcrumb1', 'personalization', null)}"
+		url1="${URLUtils.url('ViewApplication-SelectSite').toString()}"
+		name2="${Resource.msg('productpersonalization.breadcrumb2', 'personalization', null)}"
+		url2="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', 'prod-cat', 'itemType', 'Site')}"
+		name3="${Resource.msg('productpersonalization.title', 'personalization', null)}" />
+	<!-- EO Page Navigator -->
+
+	<table width="100%" cellspacing="0" cellpadding="0" border="0">
+		<tbody>
+			<tr>
+				<td class="table_title">${Resource.msg('productpersonalization.title', 'personalization', null)}
+				</td>
+			</tr>
+			<tr>
+				<td class="w s e">
+					<!-- <img width="1" height="2" src="${URLUtils.staticURL('/images/spacer.gif')}" /> -->
+				</td>
+			</tr>
+			<tr>
+				<td class="table_title_description">
+					<p>${Resource.msg('productpersonalization.titledescription', 'personalization', null)}</p>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<isinclude template="product/components/personalizationconfirmdelete" />
+
+	<table cellspacing="0" cellpadding="4" width="100%" class="infobox w e s" id="infobox-personalization">
+		<tbody>
+			<tr>
+				<td class="infobox_title_search" colspan="4" nowrap="nowrap">
+					${Resource.msg('productpersonalization.searchTitle', 'personalization', null)}</td>
+			</tr>
+			<tr>
+				<td colspan="4" width="100%">
+					<table border="0" cellpadding="0" cellspacing="0">
+						<tbody>
+							<tr>
+								<td class="infobox_item" style="padding: 0 4px 0 4px;" nowrap="nowrap">
+									${Resource.msg('productpersonalization.stylematerial', 'personalization', null)}:
+								</td>
+								<td nowrap="nowrap">
+									<input type="text" name="search_materialOrStyle" value="" maxlength="255" size="35"
+										class="inputfield_en perm_not_disabled"/>
+									<button name="findPersonalization"
+										data-handler-link="${URLUtils.url('ProductPersonalization-GetProducts')}"
+										class="button">${Resource.msg('global.find', 'locale', null)}</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<table width="100%" border="0" cellspacing="0" cellpadding="0" id="data-personalization">
+		<tbody>
+			<tr>
+				<td>
+					<isinclude template="product/components/personalizationtable" />
+					<isinclude template="product/components/personalizationactionbuttons" />
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<isinclude template="product/components/personalizationscripts" />
+
+</isdecorate>

@@ -1,0 +1,38 @@
+<isscript>
+        let appid , loggingEnabled, sdkEndPoint, isIdmEnabled;
+        appid = dw.system.Site.current.getCustomPreferenceValue('facebookAppID');
+        autoLogAppEvents = dw.system.Site.current.getCustomPreferenceValue('facebookAutoLogAppEvents');
+        sdkEndPoint = dw.system.Site.current.getCustomPreferenceValue('facebookSdkEndpoint');
+        isIdmEnabled = dw.system.Site.current.getCustomPreferenceValue('uaidmIsEnabled');
+        var executeController = 'Login-OAuthLogin';
+        if (isIdmEnabled) {
+            executeController = 'Login-SocialLogin';
+        }
+</isscript>
+<isif condition="${typeof pdict.oAuthReentryEndpoint !=='undefined' && pdict.oAuthReentryEndpoint == 3}">
+    <isset name="facebookBtnName" value="${Resource.msg('button.createaccount.registration.fb', 'login', null)}" scope="page"/>
+<iselse>
+    <isset name="facebookBtnName" value="${Resource.msg('button.text.oauth.facebook', 'login', null)}" scope="page"/>
+</isif>
+<form action="" class="login-oauth" method="post" name="login-oauth-form">
+    <div class="login-oauth-form-group form-group">
+        <a href="${URLUtils.https(executeController, 'oauthProvider', 'facebook', 'oauthLoginTargetEndPoint', pdict.oAuthReentryEndpoint)}" class="btn btn-block g-button_facebook g-button_base b-checkout-login_button oauth-facebook"
+           role="button" aria-pressed="true" data-error-msg="${Resource.msg('error.message.facebook.authFail', 'login', null)}">
+                <i class="fa fa-facebook-official" aria-hidden="true"></i>
+                ${facebookBtnName}
+        </a>
+    </div>
+</form>
+
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId            : '${appid}',
+      autoLogAppEvents : ${autoLogAppEvents},
+      xfbml            : true,
+      version          : 'v7.0'
+    });
+  };
+</script>
+<script async defer src="${sdkEndPoint}"></script>
+

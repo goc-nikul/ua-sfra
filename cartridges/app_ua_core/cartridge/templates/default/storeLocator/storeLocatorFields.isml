@@ -1,0 +1,32 @@
+<div class="card-body store-locator-container">
+    <isif condition="${pdict.showMap === 'true'}">
+    </isif>
+    <${pdict.isForm === 'true' ? 'form' : 'div'} action="${pdict.stores.actionUrl}" class="store-locator" method="get" name="storelocator">
+        <div class="b-storelocator-formgroup">
+            <div class="b-outer-mobilesearch">
+                <div class="b-storelocator-formelements required b-store-zipcode b-input_row js-form-group">
+                    <label class="b-input_row-label form-control-label" for="store-postal-code">${Resource.msg('field.zip.postal.code','storeLocator',null)}</label>
+                    <input autofocus type="text" class="form-control b-input_row-input" id="store-postal-code" name="postalCode" value="${pdict.postalCode || ''}" 
+                    autocomplete="nofill" 
+                    data-missing-error="${Resource.msg('store.zipcode.missingerror', 'storeLocator', null)}"
+                    data-pattern-mismatch="${Resource.msg('store.zipcode.error', 'storeLocator', null)}"
+                    >
+                    <div class="invalid-feedback"></div>
+                </div>
+                <div class=" b-storelocator-formelements b-store-radius b-input_row">
+                    <isinclude template="storeLocator/storeLocatorRadius" />
+                </div>
+                <div class="b-storelocator-formelements b-store-searchbutton">
+                    <button class="btn btn-primary g-button_base g-button_primary--black btn-storelocator-search" type="${pdict.isForm === 'true' ? 'submit' : 'button'}">
+                        ${Resource.msg('button.find.stores','storeLocator',null)}
+                    </button>
+                </div>
+                <div class="b-storelocator-formelements b-usemylocation">
+                    <button type="submit" class="g-button_base btn btn-outline-primary detect-location" data-action="${pdict.stores.actionUrl}" aria-label="${Resource.msg('button.use.my.location','storeLocator',null)}">
+                        <img src="${URLUtils.staticURL('/images/location.svg')}">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </${pdict.isForm === 'true' ? 'form' : 'div'}>
+</div>

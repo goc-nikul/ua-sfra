@@ -1,0 +1,27 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<div class="shipping-section b-shipping-section">
+    <div class="single-shipping">
+        <isset name="shippingModel" value="${pdict.order.shipping[0]}" scope="page" />
+        <isset name="shipmentLoopState" value="${null}" scope="page" />
+        <isset name="lineItem" value="${null}" scope="page" />
+        <div class="card" data-shipment-uuid="${shippingModel.UUID}">
+            <div class="card-header b-shipping-card-header ${pdict.shipToCollectionPoint || pdict.isCommercialPickup ||  pdict.isHALbasket ? 'hide' : ''}">
+                <h2 class="card-header-custom">${Resource.msg('heading.checkout.shipping', 'checkout', null)}</h2>
+                <isif condition="${'hasBopisItems' in pdict.order && pdict.order.hasBopisItems}">
+                    <span class="free-shipping-msg">
+                        <img src="${URLUtils.staticURL('/images/truck-xl.svg')}" alt="" title="Select A Pickup Store">
+                        <span> ${Resource.msg('checkout.freeshipping', 'checkout', null)} </span>
+                    </span>
+                </isif>
+            </div>
+            <input type="hidden" id="qasShipping" value="${false}">
+            <input type="hidden" id="geoLocationDetails" value="">
+            <div class="shipping-error"></div>
+
+            <isinclude template="checkout/shipping/shipmentCard" />
+        </div>
+    </div>
+
+    <isinclude template="account/addressVerification/component" />
+    <isinclude template="checkout/shipping/removeDeleteAddressPopup" />
+</div>

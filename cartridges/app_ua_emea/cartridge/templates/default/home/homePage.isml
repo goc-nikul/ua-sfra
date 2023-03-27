@@ -1,0 +1,21 @@
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/js/productTile.js');
+    </isscript>
+    <input type="hidden" name="showLogin" value="${pdict.showLogin}"/>
+    <input type="hidden" name="showRegisterModal" value="${pdict.showRegisterModal}"/>
+    <input type="hidden" name="initializeRegisterForm" value="${false}"/>
+    <input type="hidden" name="showPasswordReset" value="${pdict.showPasswordReset}"/>
+       <isinclude template="coremedia/modules.isml"/>
+    <isset name="pageId" value="${CMUtil.pageId(pdict)}" scope="page"/>
+
+    <section class="l-home_page">
+        <div class="l-home_page-slot">
+            <islcinclude pageId="${pageId}" placement="primary" prefetch="true" />
+        </div>
+        <div class="l-home_page-slot">
+            <isslot id="home-slot-1" description="Commerce Cloud Slot home-slot-1" context="global" />
+        </div>
+    </section>
+</isdecorate>

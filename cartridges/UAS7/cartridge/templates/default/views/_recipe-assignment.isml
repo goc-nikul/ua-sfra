@@ -1,0 +1,582 @@
+	<iscontent compact="true">
+    <!--- Load bootstrap CSS //--->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/components/bootstrap-select.min.css')}">
+        
+    <!--- Load component css //--->
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/components/animate.css')}">
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/components/jquery.bxslider.css')}">
+    
+    <!--- Load custom css //--->
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/UAS7RA.css')}">
+    <link rel="stylesheet" href="${URLUtils.httpsStatic('/css-lg/DWBM.css')}">
+
+    <!--- Load any custom fonts for the UI Display --->
+    <link href="https://fonts.googleapis.com/css?family=PT+Sans:400,700" rel="stylesheet" type="text/css">
+
+    <!--- Load core jquery library javascript off of CDNs --->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>  
+    
+    <script type="text/javascript">
+        var $j = jQuery.noConflict();
+    </script>
+    
+    <!--- Load the latest version of bootstrap off of CDNs --->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+    <!--- Load bootstrap js component libraries //--->
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/bootstrap-select.min.js')}"></script>
+    
+    <!--- Load jquery js component libraries //--->
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/jquery.object.overlay.js')}"></script>    
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/jquery.lazyload.min.js')}"></script>  
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/components/jquery.bxslider.min.js')}"></script>
+        
+    <!--- Load the utility library //--->
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/lib/string.min.js')}"></script>      
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/lib/lo-dash.js')}"></script>
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/lib/tracer.js')}"></script>
+    
+    <!--- Load the Scene 7 JSONP Response Library //--->
+    <script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/lib/s7jsonResponse.js')}"></script>    
+            
+    <script>
+
+        // Initialize the UA Namespace
+        var UA = {};
+
+    </script>
+
+    <div class="col-lg-12 col-md-12 col-sm-4">
+
+        <div class="dw-table-title">Scene 7 Recipe Assignments</div>
+
+        <p class="dw-instructional-text"> Please specify the <b>product style</b> or <b>material</b> that you would like to merchandise.  Once a product code has been specified, the <b>GO</b> button will load the configured images for the style / material in the display.</p>
+        <p class="dw-instructional-text"> Once the product images are loaded in the display below, please use the UI controls to manage images and specify their recipe category.  The <b>SAVE</b> button will save your changes to Business Manager.</p>
+
+    </div>
+
+    <div>&nbsp;</div>
+
+    <div id="product-image-grid" class="col-lg-12 col-md-12 col-sm-4 container-fluid pt-sans">
+
+        <div class="panel panel-default">
+
+            <div class="panel-heading panel-heading-height">
+
+                <div class="preview-material-image-form col-lg-4 col-md-6">
+
+                    <h5 class="heading-label">Product Code &nbsp; </h5>
+
+                    <div class="input-group product-image-field">
+
+                        <input type="text" class="form-control" id="style-list" maxlength="11">
+
+	                    <span class="input-group-btn">
+	                        <button class="btn btn-image-submit btn-default" type="button">Go!</button>
+							<img style="visibility: hidden" class="loading-data-icon" src="${URLUtils.httpsStatic('/img/assets/no-image/ajax-loader.gif')}">                        
+	                    </span>
+					
+                    </div>
+
+                </div>
+
+				<div class="filter-actions col-lg-4 col-md-6">
+				
+					<div class="select-filter-container">
+						<h5 class="heading-label">Show Images: &nbsp; </h5>
+						<select disabled class="selectpicker" title='Filter By...'></select>
+					</div>
+					  
+				</div>
+
+            </div>
+
+			<div class="alert-pane-container">
+
+			    <!--- Render feedback to users via alerts at the top of the page //--->
+				<div id="alert-pane" class="alert alert-warning alert-dismissible fade in hide" role="alert">
+					<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>			
+					<span class="alert-content"><b>Whoops!</b> &nbsp;Please enter one style or material.</span>
+				</div>
+
+			</div>  
+
+		    <!--- Workspace Content Area Where Report Results Will be Displayed //--->
+            <div id="panel-workspace" class="panel-body main-panel-body">
+            
+			</div>
+			
+		</div>
+						
+    </div>
+    
+    <div id="workspace-templates" style="display: none">  
+    
+    	<div id="producttitle-template-container">
+    	
+			<div class="panel-title-bar">
+			
+				<h4 class="carousel-title">
+					<span style="display:none" class="edit-icon-label glyphicon glyphicon-edit"></span><span class="productcode-label"></span>&nbsp;(<span class="productcode-image-count"></span>)
+				</h4>
+
+                <div class="carousel-controls-bar">
+
+                    <button style="display: none" type="button" class="btn btn-default btn-global-clear">
+                        <span class="glyphicon glyphicon-remove-sign"></span> Clear
+                    </button>
+
+                    <button type="button" class="btn btn-default btn-global-reset">
+                        <span class="glyphicon glyphicon-refresh"></span> Reset 
+                    </button>
+
+                    <button style="display: none" type="button" class="btn btn-default btn-global-save">
+                        <span class="glyphicon glyphicon-save"></span> Save 
+                    </button>	
+
+                    <button type="button" class="btn btn-default btn-global-save-all">
+                        <span class="glyphicon glyphicon-import"></span> Save All
+                    </button>
+
+                    <button type="button" class="btn btn-default btn-global-export carousel-button-enabled">
+                        <span class="glyphicon glyphicon-export"></span> Export
+                    </button>
+						
+                    <button type="button" class="btn btn-default btn-view-assets carousel-button-enabled">
+                        <span class="glyphicon glyphicon-picture"></span> Browse S7 Assets 
+                    </button>	
+
+                </div>	
+							
+			</div>   	    	
+    		
+    	</div>
+    
+		<div id="carousel-template-container"  class="view-type-carousel">
+			
+			<div class="carousel-container">
+				
+				<div class="carousel-title-bar">
+				
+					<h4 class="carousel-title">
+						<span class="view-type-label">View Type</span>&nbsp;(<span class="image-count">0</span>)
+					</h4>
+
+	                <div class="carousel-controls-bar">
+	
+	                    <button style="display: none" type="button" class="btn btn-default btn-clear">
+	                        <span class="glyphicon glyphicon-remove-sign"></span> Clear
+	                    </button>
+	
+	                    <button type="button" class="btn btn-default btn-reset btn-viewtype-reset">
+	                        <span class="glyphicon glyphicon-refresh"></span> Reset
+	                    </button>	
+
+                        <select style="display:none" disabled class="viewtypepicker show-menu-arrow show-tick" multiple data-selected-text-format="count>2" data-header="Select Your Target View-Types." title="Copy These Assets To..."></select>
+
+	                    <button type="button" class="btn btn-default btn-copy-assets disabled">
+	                        Go
+	                    </button>	
+
+	                </div>	
+								
+				</div>
+									
+				<ul class="carousel">
+				    <li class="carousel-item item0">
+					    <div class="carousel-item-container">
+							<div class="recipe-category" style="display:none"></div>
+					    	<a href="#" class="remove-icon hover-elements" style="display:none" title="Remove this Image"><span class="glyphicon glyphicon-remove-sign remove-icon-treatment"></span></a>
+					    	<a href="#" class="info-icon hover-elements" style="display:none" title="View Image Details"><span class="glyphicon glyphicon-info-sign info-icon-treatment"></span></a>
+						    <a href="#" class="manage-image"><img class="ua-placeholder" src="${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}"  /></a>
+					    	<a href="#" data-direction="left" class="move-icon left-icon hover-elements" style="display:none" title="Move Left"><span class="glyphicon glyphicon-circle-arrow-left move-icon-treatment"></span></a>
+					    	<a href="#" data-direction="right" class="move-icon right-icon hover-elements" style="display:none" title="Move Right"><span class="glyphicon glyphicon-circle-arrow-right move-icon-treatment"></span></a>
+							<div class="image-filename" style="display:none"></div>
+							<a href="#" class="manage-image manage-treatment hover-elements" style="display:none"><div class="hover-treatment"></div></a>
+					    </div>
+				    </li>
+				    <li class="carousel-item item1">
+					    <div class="carousel-item-container">
+							<div class="recipe-category" style="display:none"></div>
+					    	<a href="#" class="remove-icon hover-elements" style="display:none" title="Remove this Image"><span class="glyphicon glyphicon-remove-sign remove-icon-treatment"></span></a>
+					    	<a href="#" class="info-icon hover-elements" style="display:none" title="View Image Details"><span class="glyphicon glyphicon-info-sign info-icon-treatment"></span></a>
+						    <a href="#" class="manage-image"><img class="ua-placeholder" src="${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}"  /></a>
+					    	<a href="#" data-direction="left" class="move-icon left-icon hover-elements" style="display:none" title="Move Left"><span class="glyphicon glyphicon-circle-arrow-left move-icon-treatment"></span></a>
+					    	<a href="#" data-direction="right" class="move-icon right-icon hover-elements" style="display:none" title="Move Right"><span class="glyphicon glyphicon-circle-arrow-right move-icon-treatment"></span></a>
+							<div class="image-filename" style="display:none"></div>
+							<a href="#" class="manage-image manage-treatment hover-elements" style="display:none"><div class="hover-treatment"></div></a>
+					    </div>
+				    </li>
+				    <li class="carousel-item item2">
+					    <div class="carousel-item-container">
+							<div class="recipe-category" style="display:none"></div>
+					    	<a href="#" class="remove-icon hover-elements" style="display:none" title="Remove this Image"><span class="glyphicon glyphicon-remove-sign remove-icon-treatment"></span></a>
+					    	<a href="#" class="info-icon hover-elements" style="display:none" title="View Image Details"><span class="glyphicon glyphicon-info-sign info-icon-treatment"></span></a>
+						    <a href="#" class="manage-image"><img class="ua-placeholder" src="${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}"  /></a>
+					    	<a href="#" data-direction="left" class="move-icon left-icon hover-elements" style="display:none" title="Move Left"><span class="glyphicon glyphicon-circle-arrow-left move-icon-treatment"></span></a>
+					    	<a href="#" data-direction="right" class="move-icon right-icon hover-elements" style="display:none" title="Move Right"><span class="glyphicon glyphicon-circle-arrow-right move-icon-treatment"></span></a>
+							<div class="image-filename" style="display:none"></div>
+							<a href="#" class="manage-image manage-treatment hover-elements" style="display:none"><div class="hover-treatment"></div></a>
+					    </div>
+				    </li>
+				    <li class="carousel-item item3">
+					    <div class="carousel-item-container">
+							<div class="recipe-category" style="display:none"></div>
+					    	<a href="#" class="remove-icon hover-elements" style="display:none" title="Remove this Image"><span class="glyphicon glyphicon-remove-sign remove-icon-treatment"></span></a>
+					    	<a href="#" class="info-icon hover-elements" style="display:none" title="View Image Details"><span class="glyphicon glyphicon-info-sign info-icon-treatment"></span></a>
+						    <a href="#" class="manage-image"><img class="ua-placeholder" src="${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}"  /></a>
+					    	<a href="#" data-direction="left" class="move-icon left-icon hover-elements" style="display:none" title="Move Left"><span class="glyphicon glyphicon-circle-arrow-left move-icon-treatment"></span></a>
+					    	<a href="#" data-direction="right" class="move-icon right-icon hover-elements" style="display:none" title="Move Right"><span class="glyphicon glyphicon-circle-arrow-right move-icon-treatment"></span></a>
+							<div class="image-filename" style="display:none"></div>
+							<a href="#" class="manage-image manage-treatment hover-elements" style="display:none"><div class="hover-treatment"></div></a>
+					    </div>
+				    </li>
+				    <li class="carousel-item item4">
+					    <div class="carousel-item-container">
+							<div class="recipe-category" style="display:none"></div>
+					    	<a href="#" class="remove-icon hover-elements" style="display:none" title="Remove this Image"><span class="glyphicon glyphicon-remove-sign remove-icon-treatment"></span></a>
+					    	<a href="#" class="info-icon hover-elements" style="display:none" title="View Image Details"><span class="glyphicon glyphicon-info-sign info-icon-treatment"></span></a>
+						    <a href="#" class="manage-image"><img class="ua-placeholder" src="${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}"  /></a>
+					    	<a href="#" data-direction="left" class="move-icon left-icon hover-elements" style="display:none" title="Move Left"><span class="glyphicon glyphicon-circle-arrow-left move-icon-treatment"></span></a>
+					    	<a href="#" data-direction="right" class="move-icon right-icon hover-elements" style="display:none" title="Move Right"><span class="glyphicon glyphicon-circle-arrow-right move-icon-treatment"></span></a>
+							<div class="image-filename" style="display:none"></div>
+							<a href="#" class="manage-image manage-treatment hover-elements" style="display:none"><div class="hover-treatment"></div></a>
+					    </div>
+				    </li>
+				    <li class="carousel-item item5">
+					    <div class="carousel-item-container">
+							<div class="recipe-category" style="display:none"></div>
+					    	<a href="#" class="remove-icon hover-elements" style="display:none" title="Remove this Image"><span class="glyphicon glyphicon-remove-sign remove-icon-treatment"></span></a>
+					    	<a href="#" class="info-icon hover-elements" style="display:none" title="View Image Details"><span class="glyphicon glyphicon-info-sign info-icon-treatment"></span></a>
+						    <a href="#" class="manage-image"><img class="ua-placeholder" src="${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}"  /></a>
+					    	<a href="#" data-direction="left" class="move-icon left-icon hover-elements" style="display:none" title="Move Left"><span class="glyphicon glyphicon-circle-arrow-left move-icon-treatment"></span></a>
+					    	<a href="#" data-direction="right" class="move-icon right-icon hover-elements" style="display:none" title="Move Right"><span class="glyphicon glyphicon-circle-arrow-right move-icon-treatment"></span></a>
+							<div class="image-filename" style="display:none"></div>
+							<a href="#" class="manage-image manage-treatment hover-elements" style="display:none"><div class="hover-treatment"></div></a>
+					    </div>
+				    </li>
+				    <li class="carousel-item item6">
+					    <div class="carousel-item-container">
+							<div class="recipe-category" style="display:none"></div>
+					    	<a href="#" class="remove-icon hover-elements" style="display:none" title="Remove this Image"><span class="glyphicon glyphicon-remove-sign remove-icon-treatment"></span></a>
+					    	<a href="#" class="info-icon hover-elements" style="display:none" title="View Image Details"><span class="glyphicon glyphicon-info-sign info-icon-treatment"></span></a>
+						    <a href="#" class="manage-image"><img class="ua-placeholder" src="${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}"  /></a>
+					    	<a href="#" data-direction="left" class="move-icon left-icon hover-elements" style="display:none" title="Move Left"><span class="glyphicon glyphicon-circle-arrow-left move-icon-treatment"></span></a>
+					    	<a href="#" data-direction="right" class="move-icon right-icon hover-elements" style="display:none" title="Move Right"><span class="glyphicon glyphicon-circle-arrow-right move-icon-treatment"></span></a>
+							<div class="image-filename" style="display:none"></div>
+							<a href="#" class="manage-image manage-treatment hover-elements" style="display:none"><div class="hover-treatment"></div></a>
+					    </div>
+				    </li>
+				    <li class="carousel-item item7">
+					    <div class="carousel-item-container">
+							<div class="recipe-category" style="display:none"></div>
+					    	<a href="#" class="remove-icon hover-elements" style="display:none" title="Remove this Image"><span class="glyphicon glyphicon-remove-sign remove-icon-treatment"></span></a>
+					    	<a href="#" class="info-icon hover-elements" style="display:none" title="View Image Details"><span class="glyphicon glyphicon-info-sign info-icon-treatment"></span></a>
+						    <a href="#" class="manage-image"><img class="ua-placeholder" src="${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}"  /></a>
+					    	<a href="#" data-direction="left" class="move-icon left-icon hover-elements" style="display:none" title="Move Left"><span class="glyphicon glyphicon-circle-arrow-left move-icon-treatment"></span></a>
+					    	<a href="#" data-direction="right" class="move-icon right-icon hover-elements" style="display:none" title="Move Right"><span class="glyphicon glyphicon-circle-arrow-right move-icon-treatment"></span></a>
+							<div class="image-filename" style="display:none"></div>
+							<a href="#" class="manage-image manage-treatment hover-elements" style="display:none"><div class="hover-treatment"></div></a>
+					    </div>
+				    </li>
+				    <li class="carousel-item item8">
+					    <div class="carousel-item-container">
+							<div class="recipe-category" style="display:none"></div>
+					    	<a href="#" class="remove-icon hover-elements" style="display:none" title="Remove this Image"><span class="glyphicon glyphicon-remove-sign remove-icon-treatment"></span></a>
+					    	<a href="#" class="info-icon hover-elements" style="display:none" title="View Image Details"><span class="glyphicon glyphicon-info-sign info-icon-treatment"></span></a>
+						    <a href="#" class="manage-image"><img class="ua-placeholder" src="${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}"  /></a>
+					    	<a href="#" data-direction="left" class="move-icon left-icon hover-elements" style="display:none" title="Move Left"><span class="glyphicon glyphicon-circle-arrow-left move-icon-treatment"></span></a>
+					    	<a href="#" data-direction="right" class="move-icon right-icon hover-elements" style="display:none" title="Move Right"><span class="glyphicon glyphicon-circle-arrow-right move-icon-treatment"></span></a>
+							<div class="image-filename" style="display:none"></div>
+							<a href="#" class="manage-image manage-treatment hover-elements" style="display:none"><div class="hover-treatment"></div></a>
+					    </div>
+				    </li>
+				    <li class="carousel-item item9">
+					    <div class="carousel-item-container">
+							<div class="recipe-category" style="display:none"></div>
+					    	<a href="#" class="remove-icon hover-elements" style="display:none" title="Remove this Image"><span class="glyphicon glyphicon-remove-sign remove-icon-treatment"></span></a>
+					    	<a href="#" class="info-icon hover-elements" style="display:none" title="View Image Details"><span class="glyphicon glyphicon-info-sign info-icon-treatment"></span></a>
+						    <a href="#" class="manage-image"><img class="ua-placeholder" src="${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}"  /></a>
+					    	<a href="#" data-direction="left" class="move-icon left-icon hover-elements" style="display:none" title="Move Left"><span class="glyphicon glyphicon-circle-arrow-left move-icon-treatment"></span></a>
+					    	<a href="#" data-direction="right" class="move-icon right-icon hover-elements" style="display:none" title="Move Right"><span class="glyphicon glyphicon-circle-arrow-right move-icon-treatment"></span></a>
+							<div class="image-filename" style="display:none"></div>
+							<a href="#" class="manage-image manage-treatment hover-elements" style="display:none"><div class="hover-treatment"></div></a>
+					    </div>
+				    </li>
+				    <li class="carousel-item item10">
+					    <div class="carousel-item-container">
+							<div class="recipe-category" style="display:none"></div>
+					    	<a href="#" class="remove-icon hover-elements" style="display:none" title="Remove this Image"><span class="glyphicon glyphicon-remove-sign remove-icon-treatment"></span></a>
+					    	<a href="#" class="info-icon hover-elements" style="display:none" title="View Image Details"><span class="glyphicon glyphicon-info-sign info-icon-treatment"></span></a>
+						    <a href="#" class="manage-image"><img class="ua-placeholder" src="${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}"  /></a>
+					    	<a href="#" data-direction="left" class="move-icon left-icon hover-elements" style="display:none" title="Move Left"><span class="glyphicon glyphicon-circle-arrow-left move-icon-treatment"></span></a>
+					    	<a href="#" data-direction="right" class="move-icon right-icon hover-elements" style="display:none" title="Move Right"><span class="glyphicon glyphicon-circle-arrow-right move-icon-treatment"></span></a>
+							<div class="image-filename" style="display:none"></div>
+							<a href="#" class="manage-image manage-treatment hover-elements" style="display:none"><div class="hover-treatment"></div></a>
+					    </div>
+				    </li>
+				    <li class="carousel-item item11">
+					    <div class="carousel-item-container">
+							<div class="recipe-category" style="display:none"></div>
+					    	<a href="#" class="remove-icon hover-elements" style="display:none" title="Remove this Image"><span class="glyphicon glyphicon-remove-sign remove-icon-treatment"></span></a>
+					    	<a href="#" class="info-icon hover-elements" style="display:none" title="View Image Details"><span class="glyphicon glyphicon-info-sign info-icon-treatment"></span></a>
+						    <a href="#" class="manage-image"><img class="ua-placeholder" src="${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}"  /></a>
+					    	<a href="#" data-direction="left" class="move-icon left-icon hover-elements" style="display:none" title="Move Left"><span class="glyphicon glyphicon-circle-arrow-left move-icon-treatment"></span></a>
+					    	<a href="#" data-direction="right" class="move-icon right-icon hover-elements" style="display:none" title="Move Right"><span class="glyphicon glyphicon-circle-arrow-right move-icon-treatment"></span></a>
+							<div class="image-filename" style="display:none"></div>
+							<a href="#" class="manage-image manage-treatment hover-elements" style="display:none"><div class="hover-treatment"></div></a>
+					    </div>
+				    </li>					    							    				    
+				</ul>            
+
+			</div>
+	        			       		
+		</div>   
+		
+	</div> 
+
+    <!--- Modal Dialogs to Convey Status //--->
+    <div class="modal fade" id="unsaved-changes-global-reset-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title pt-sans bold-label">Are You Sure You Want to Reset this Material?</h4>
+                </div>
+                <div class="modal-body pt-sans modal-body-padding">
+                    <img class="question-mark" src="${URLUtils.httpsStatic('/img/assets/stop.png')}" title="What would you like to do?">
+                    <p>You have made changes to the current material that are un-saved.  Please use the buttons below to either return to the Recipe Assignment Tool and maintain these changes, or discard your changes and re-load the view-type assets that are configured in Demandware for this material.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger btn-discard-global-changes" data-dismiss="modal">Yes, Reset this Material</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    
+    <!--- Modal Dialogs to Convey Status //--->
+    <div class="modal fade" id="unsaved-changes-reset-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title pt-sans bold-label">Are You Sure You Want to Reset this View-Type?</h4>
+                </div>
+                <div class="modal-body pt-sans modal-body-padding">
+                    <img class="question-mark" src="${URLUtils.httpsStatic('/img/assets/stop.png')}" title="What would you like to do?">
+                    <p>You have made changes to the current view-type that are un-saved.  Please use the buttons below to either return to the Recipe Assignment Tool and maintain these changes, or discard your changes and re-load the view-type assets that are configured in Demandware.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger btn-discard-changes" data-dismiss="modal">Yes, Reset this View Type</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->    
+    
+    <div class="modal fade" id="unsaved-changes-advance-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title pt-sans bold-label">You Have Unsaved Changes for the Current Style</h4>
+                </div>
+                <div class="modal-body pt-sans modal-body-padding">
+                    <img class="question-mark" src="${URLUtils.httpsStatic('/img/assets/stop.png')}" title="What would you like to do?">
+                    <p>You have made changes to the current style's image definitions that are un-saved.  Please use the buttons below to either return to the Recipe Assigment Tool and manage these changes, or discard your changes and load the image definitions for the product code specified.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-reset-product-code" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger btn-discard-advance-changes" data-dismiss="modal">Yes, Load the New Style</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->    
+
+	<!--- Modal Dialog to Display Image / Recipe Treatment //--->
+	<div class="modal fade" id="detail-image-view" role="dialog">
+		<div class="modal-dialog detail-dialog-width">
+			<div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title pt-sans bold-label">Product / Material Image Details</h4>
+                </div>		
+                	
+				<div class="modal-body modal-body-height pt-sans">
+					
+					<div class="original-container">
+				
+						<div class="thumb-container">
+							<img class="original-image" src="">
+							<div class="image-filename"></div>
+						</div>
+						
+						<div class="details-container">
+						
+	                   		<h4 class="bold-label">View Type</h4>						
+							<div class="detail-view-type"></div>									
+					
+	                   		<h4 class="bold-label">Recipe Category</h4>
+							<div class="detail-recipe-category">
+	
+								<select class="recipecategoryfilter" title='Select a Recipe Category...'></select>									
+							
+							</div>
+						
+							<div class="detail-instructions">
+								Please use the "recipe category" list above
+								to preview different recipe categories against this 
+								image.  To apply this change to the current
+								view-type, please select the "apply" button.
+							
+							</div>						
+															
+						</div>
+	
+					</div>
+	
+					<div class="detail-container">
+					
+						<img class="detail-image" src="">
+						
+					</div>	
+									
+				</div>	
+				
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>                
+                    <button type="button" class="btn btn-default btn-reset-recipe-category">Reset Recipe Category</button>
+                    <button type="button" class="btn btn-primary btn-success btn-apply-recipe-category" data-dismiss="modal">Apply This Recipe Category</button>
+                </div>
+				
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->  
+
+	<!--- Modal Dialog to Display Available S7 Assets //--->
+	<div class="modal fade" id="s7-asset-selector" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+                <div class="modal-header">
+					<div class="material-asset-filter pt-sans">					
+						<h5 class="heading-label">Show Images: &nbsp; </h5>
+						<select disabled class="assetfilter" title='Filter By...'></select>
+					</div>
+					
+                    <h4 class="modal-title asset-browser-editable-title pt-sans bold-label">Please Select an Image from Scene 7</h4>
+                    <h4 class="modal-title asset-browser-readonly-title pt-sans bold-label">Scene 7 Image Browser</h4>
+                     	                  
+                </div>			
+				<div class="modal-body pt-sans">
+					<div class="s7-carousel-container" style="visibility: hidden">					
+						<ul class="s7-carousel">			    						    
+						</ul>
+					</div>
+				</div> 
+                <div class="modal-footer">
+                    
+					<div class="recipe-category-filter pt-sans">					
+						<h5 class="heading-label">Recipe Category: &nbsp; </h5>
+						<select disabled class="recipecategoryfilter" title='Select a Recipe Category ...'></select>
+					</div>
+	
+                	<div class="footer-button-container">
+	                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	                    <button type="button" class="btn btn-primary btn-success btn-select-image" data-dismiss="modal">Select this Asset</button>
+                	</div>
+                	
+                </div>				
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	
+	<!--  This element represents the template for s7 carousel items -->
+	<ul class="s7-carousel-items-template" style="display:none">
+	    <li class="s7-carousel-item">
+		    <div class="s7-carousel-item-container">
+			    <a href="#" class="select-image"><img class="s7-asset s7-placeholder" src="${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}"  /></a>
+				<div class="image-filename" style="display:none"></div>
+				<a href="#" class="select-image hover-elements" style="display:none"><div class="hover-treatment"></div></a>									
+		    </div>	
+		    <div class="s7-carousel-item-container bottom-asset">
+			    <a href="#" class="select-image"><img class="s7-asset s7-placeholder" src="${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}"  /></a>
+				<div class="image-filename" style="display:none"></div>
+				<a href="#" class="select-image hover-elements" style="display:none"><div class="hover-treatment"></div></a>									
+		    </div>						    
+	    </li>	
+	</ul>
+	
+	<!--- Load any utility scripts that drive the display //--->
+	<script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/UA.URL.js')}"></script>
+	<script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/UA.S7.js')}"></script>
+	
+	<!--- Load any scripts used to drive UI display or business logic //--->
+	<script type="text/javascript" src="${URLUtils.httpsStatic('/js-lg/UA.S7RA.js')}"></script>
+	
+	<script>
+	
+	     // Initialize the core constants for the application
+	     var constants = {
+	 
+	    	// Capture any error messages
+			messages : {
+				
+				// This message is displayed when a user does not enter at least one (1) valid style or material
+				"ENTER_A_STYLE_ERROR" : "<b>Whoops!</b> &nbsp; Please enter either one style ( ex. 1246699 ) or material ( ex. 1246699-019 ).",
+			
+				// This message is displayed when the server fails to retrieve at least one (1) valid material
+				"COULD_NOT_RETRIEVE_MATERIALS" : "<b>We Have a Problem!</b> &nbsp; No style or material was found matching your request.  Please check your entries and try again. ",
+			
+				// This message is displayed when an image assignment was successfully saved
+				"SUCCESSFUL_SAVE" : "<b>Congraulations!</b> &nbsp; Your image assignments were successfully saved, and have been queued for processing. ",
+
+				// This message is displayed when an image assignment was successfully exported
+				"SUCCESSFUL_EXPORT" : "<b>You Got It!</b> &nbsp; Your image assignments were successfully exported, and can be downloaded from the WEBDAV ImpEx folder. ",				
+				
+				// This message is displayed when the client receives a failure / response from the server
+				"UNKNOWN_ERROR" : "<b>We Have a Problem!</b> &nbsp; An unknown error was experienced while processing your changes.  Please check the Demandware log files for details. "
+
+			},	    		 
+	    		 
+			// Set the default viewType for rendering assets
+			defaultViewType : "pdpMainDesktop",
+			
+			// Default the default view type used to render carousel items
+			defaultCarouselViewType : "standardProductCarousel",
+			
+			// Set the default recipe category (used when no recipe category is found in an imageUrl)
+			defaultRecipeCategory : "standard-10pad",
+			
+	     	// Enable https image display
+	     	enableHttpsImageDisplay : true,
+
+			// Include the Ajax url paths
+			ajaxGetRecipeCategoriesUrl : "${URLUtils.https('UAS7-getRecipeCategories')}",
+			ajaxGetViewTypesUrl : "${URLUtils.https('UAS7-getViewTypes')}",
+			ajaxGetRecipeUrlDefinitionUrl : "${URLUtils.https('UAS7-getRecipeUrlDefinitions')}",
+			ajaxGetProductImageDefinitionsUrl : "${URLUtils.https('UAS7-getProductImageDefinitions')}",			
+			ajaxSaveProductImageAssignmentsUrl : "${URLUtils.https('UAS7-saveProductImageAssignments')}",
+			
+			// Include the image unavailable icon
+			imageUnavailableIconUrl : "${URLUtils.httpsStatic('/img/assets/no-image/image-unavailable-icon.jpg')}",
+			carouselPlaceholderImageUrl : "${URLUtils.httpsStatic('/img/assets/no-image/ua-logo-carousel-faded.gif')}",
+			
+			// Default the recipe suffix to use for Scene 7 images without recipes
+			recipeSuffix : "?hei=580&wid=635"
+			
+	     };
+	
+	     // Init all domReady script elements:
+	     jQuery(document).ready(function () {
+	     	
+			// Initialize the UI display class
+			UA.S7RA.init(constants);
+			        
+			// Initialize the S7 Library class
+			UA.S7.init();				
+			
+	     });
+		     
+	 </script>

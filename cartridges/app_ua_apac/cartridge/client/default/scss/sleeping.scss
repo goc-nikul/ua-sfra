@@ -1,0 +1,110 @@
+@import '~org/1-settings/all';
+// rem-calc(25) rem-calc(20);
+#sleepingInfoMain {
+    width: 60%;
+    margin: rem-calc(100) auto;
+    @include respond-to(mobile) {
+        width: 90%;
+    }
+
+    .sleepingInfoButtons {
+        display: flex;
+        @include respond-to(mobile) {
+            display: block;
+        }
+
+        .activateLink,
+        .deactivateLink {
+            flex: 0 0 50%;
+        }
+
+        .activateLink {
+            @include respond-to(mobile) {
+                text-align: center;
+                margin-bottom: rem-calc(16);
+            }
+
+            form {
+                max-width: 60%;
+                @include respond-to(mobile) {
+                    max-width: 70%;
+                    margin: 0 auto;
+                }
+
+                .sleepingPasswordField {
+                    margin-bottom: rem-calc(16);
+
+                    .js-sleeping-show-password {
+                        margin: 0;
+                        top: 0;
+                        right: 0;
+                        padding: rem-calc(12) rem-calc(10);
+                        z-index: 99;
+                        border: 0;
+                        font-size: 100%;
+                        vertical-align: baseline;
+                    }
+                }
+
+                .b-invalid-cred {
+                    padding: 0;
+                    margin-bottom: rem-calc(20);
+                }
+            }
+
+            button {
+                max-width: rem-calc(212);
+            }
+        }
+
+        .deactivateLink {
+            position: relative;
+            @include respond-to(mobile) {
+                max-width: 100%;
+                text-align: center;
+                margin: 0 auto;
+            }
+
+            .leave-deactivate-button {
+                position: relative;
+                text-decoration: none;
+                color: #000;
+                top: 35%;
+                right: 0;
+                @include respond-to(mobile) {
+                    position: unset;
+                }
+
+                &-btnCross {
+                    @include closeIcon(right, rem-calc(16));
+
+                    width: rem-calc(6);
+                    position: relative;
+                    padding-left: 20px;
+                    left: 87%;
+                    top: rem-calc(15);
+
+                    @include respond-to(mobile) {
+                        left: 0;
+                    }
+
+                    &::before,
+                    &::after {
+                        top: rem-calc(9);
+                        right: rem-calc(30);
+                        position: absolute;
+
+                        @include respond-to(mobile) {
+                            right: rem-calc(27);
+                        }
+                    }
+                }
+            }
+
+            .naver-top-close {
+                top: 74%;
+                padding-left: 20px;
+            }
+        }
+    }
+}

@@ -1,0 +1,47 @@
+.b-login-register {
+    &_screen {
+        width: 100%;
+        max-width: rem-calc(448);
+        margin: rem-calc(56) auto rem-calc(48);
+        padding: 0 rem-calc(16);
+
+        @include respond-to(mobile) {
+            max-width: 100%;
+            margin: rem-calc(24) auto rem-calc(42);
+        }
+
+        .register-container {
+            .g-password-modal-close {
+                display: none;
+            }
+        }
+
+        .b-return-wrap {
+            &.registration.account-form {
+                .register-mobile-number {
+                    @include respond-to(desktop) {
+                        width: 70%;
+                    }
+                }
+            }
+
+            .password-display {
+                font-size: rem-calc(12);
+            }
+
+            .form-group {
+                input {
+                    cursor: auto;
+                }
+            }
+        }
+
+        .b-info-container {
+            @include font(main, rem-calc(12), 1.67);
+
+            .register-policy {
+                margin-top: rem-calc(12);
+            }
+        }
+    }
+}

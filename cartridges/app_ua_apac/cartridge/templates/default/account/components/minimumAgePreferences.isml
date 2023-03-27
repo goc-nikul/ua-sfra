@@ -1,0 +1,9 @@
+<script>
+window.sitePreferences = {};
+<isif condition="${!empty(pdict.minimumAgeRestriction)}">
+    window.sitePreferences.minimumAgeRestriction = <isprint value="${pdict.minimumAgeRestriction}" encoding="off"/>;
+</isif>
+<isif condition="${!empty(pdict.isKRCustomCheckoutEnabled)}">
+    window.sitePreferences.isKRCustomCheckoutEnabled = <isprint value="${pdict.isKRCustomCheckoutEnabled}" encoding="off"/>;
+</isif>
+</script>

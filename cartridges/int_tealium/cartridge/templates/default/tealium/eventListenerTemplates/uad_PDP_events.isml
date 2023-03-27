@@ -1,0 +1,113 @@
+<script>
+  window.UADatalayer.prototype.onDependenciesReady(function PDPEvents() {
+    var body = $('body');
+    function pathParseStyle(url) {
+      return url.split('.')[0].split('/').pop().split('-').pop();
+    }
+    $('body').on('click', '.bucket--complete-the-look a, .b-product_completelook-grid a', function () {
+      var $ele = $(this);
+      safetyFirst(function completeTheLookListener(){
+        uaDatalayer.applyNextPageData({
+          page_finding_method: 'Complete the Look',
+          page_finding_method_style: pathParseStyle($ele.attr('href'))
+        });
+      });
+    });
+    $('body').on('click', '[data-mboxid] a, .js-recommendation-wrapper a', function () {
+      var $ele = $(this);
+      safetyFirst(function recZoneListener(){
+        var style = $ele.parent().find('[data-analytics-style]')
+          .attr('data-analytics-style') || pathParseStyle($ele.attr('href'));
+        uaDatalayer.applyNextPageData({
+          page_finding_method: 'Rec Zone',
+          page_finding_method_style: style
+        });
+      });
+    });
+    function pdpTabEvents(pdpSellingTools) {
+      safetyFirst(function pdpDNA() {
+        var pageData = uaDatalayer.getPageData()
+        uaDatalayer.action('productSellingTool', {
+          pdp_selling_tool: pdpSellingTools,
+          prev_page_name: pageData.prev_page_name,
+          products: [{
+            product_style: pageData.products[0].product_style
+          }]
+        });
+      });
+    }
+    $('body').on('click', '[data-analytics-track="product-dna"]', function () {
+    	pdpTabEvents('Product DNA');
+    });
+    $('body').on('click', '[data-analytics-track="product-spec"]', function () {
+        pdpTabEvents('Product Specs');
+    });
+    $('body').on('click', '[data-analytics-track="product-fit-care"]', function () {
+        pdpTabEvents('Product Fit & Care');
+    });
+    $('body').on('product:hasElevatedContent', function () {
+      var pageData = uaDatalayer.getPageData() || {};
+      if (pageData.page_type === 'product-detail') {
+        var $elevated_pdp_elements = $('[data-analytics^="{"');
+        var isElevatedPDP = false;
+        if ($elevated_pdp_elements.length) {
+          $elevated_pdp_elements.each(function () {
+            try {
+              var a = $(this).attr('data-analytics');
+              var parsedJSON = JSON.parse(a);
+              var item = parsedJSON["data-placement"] || '';
+              if (!isElevatedPDP && item.indexOf("pdp-") === 0) {
+                isElevatedPDP = true;
+                return false;
+              }
+            } catch (e) {}
+          });
+          if (isElevatedPDP) {
+            uaDatalayer.applyPageData({ pdp_elevated_content: true });
+            uaDatalayer.applyNextPageData({ pdp_elevated_content: true });
+          }
+        }   
+      }
+    });
+    $('body').on('click', '[data-analytics-track="shop-this-outfit"], .js-shop-this-outfit', function () {
+      var pageProduct = uaDatalayer.getPageData().products[0].product_style;
+      uaDatalayer.action('modalOpened', {
+        complete_look: true,
+        products: [{
+          product_style: pageProduct
+        }]
+      });
+    });
+    body.on('click', '.js-swatch-link', function () {
+      var product = uaDatalayer.getPageData().products[0];
+      var size = $('.b-product_attribute.m-size .js-size-select.selected').data("attr-value");
+      var newColor = $(this).data("attr-value");
+      product.product_sku = product.product_style + '-' + newColor + '-' + size;
+      product.product_color = product.product_style + '-' + newColor;
+      uaDatalayer.action('genericLink', {
+        products: [product]
+      });
+    });
+    body.on('click', '.js-size-select', function () {
+      if ($(this).closest('.b-product_attribute').hasClass('m-length')) {
+        return;
+      }
+      var product = uaDatalayer.getPageData().products[0];
+      var color = $('.js-swatch-link.m-active').data("attr-value");
+      var newSize = $(this).data("attr-value");
+      product.product_sku = product.product_style + '-' + color + '-' +  newSize;
+      uaDatalayer.action('genericLink', {
+        products: [product]
+      });
+    });
+    $('body').on('click', '.return-title.g-accordion-header', function () {
+        var product = uaDatalayer.getPageData().products[0];
+        var accordionState = $(this).closest('.g-accordion-header').hasClass('collapsed') ? 'open' : 'closed';
+
+        uaDatalayer.action('genericLink', {
+            products: [product],
+            accordion: { name: 'Returns and Exchanges', state: accordionState }
+        });
+    });
+  });
+</script>

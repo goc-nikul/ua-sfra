@@ -1,0 +1,80 @@
+importPackage( dw.web );
+
+/**
+ *	Helper provides methods to manage timezones of site.
+ *
+ * Usage:
+ * 		var TimezoneHelper = require("./TimezoneHelper");
+ *		- OR -
+ *		var TimezoneHelper = require("app_ua_core/cartridge/scripts/util/TimezoneHelper");
+ *
+ *		var timezoneHelper = new TimezoneHelper();
+ *		var siteTime = timezoneHelper.getSiteTime(new Date());
+ */
+ var TimezoneHelper = function(){};
+
+TimezoneHelper.prototype = {
+
+	// get current site time
+	getCurrentSiteTime : function () : Date {
+		var currentSiteTime = new Date();
+		currentSiteTime.setTime(currentSiteTime.valueOf() + dw.system.Site.getCurrent().timezoneOffset);
+		return currentSiteTime;
+	},
+
+	convertSiteTimeToUTC : function (siteTime) : Date {
+		if (empty(siteTime) || !(siteTime instanceof Date)) {
+			return;
+		}
+
+		siteTime.setTime(siteTime.valueOf() - dw.system.Site.getCurrent().timezoneOffset);
+		return siteTime;
+	},
+
+	//convert UTC time to Site time
+	convertUtcToSiteTime : function (utcTime : Date) : Date {
+		var siteTime = new Date();
+		if (empty(utcTime)) {
+			return;
+		}
+		try {
+			utcTime = new Date(utcTime);
+		} catch (e) {
+			Logger.error("TimezoneHelper.ds error. Can not parse string to date. Format "+utcTime+" is invalide. Error: " + e);
+			return;
+		}
+		siteTime.setTime(utcTime.valueOf() + dw.system.Site.getCurrent().timezoneOffset);
+		return siteTime;
+	},
+	// change time from UTC time zone to site time zone
+	getSiteTime : function (gmtTime : Date) {
+		if ( empty(gmtTime) ) {
+			gmtTime = new Date();
+		} else {
+			gmtTime = new Date(gmtTime);
+		}
+		gmtTime.setTime(gmtTime.valueOf() + dw.system.Site.getCurrent().timezoneOffset);
+		return gmtTime;
+	},
+	// changes time from setted UTC time (00 h, 00 m, 00 s) to site time
+	getSiteTimeFromUTC : function ( time : Date ) {
+		time = new Date(time);
+		time.setHours(0,0,0,0);//.setTime(time.valueOf() - dw.system.Site.getCurrent().timezoneOffset);
+		time.setTime(time.valueOf() - dw.system.Site.getCurrent().timezoneOffset);
+		return time;
+	},
+	// get Date in format mm/dd/yyyy
+	getShortDateString : function ( time : Date, dateSeparator : String) {
+		time = new Date(time);
+		dateSeparator = dateSeparator || "/";
+		return ( (time.getMonth() + 1) + dateSeparator + time.getDate() + dateSeparator +  time.getFullYear() );
+	},
+	// get Date in format mm/dd/yyyy
+	getTimeString : function ( time : Date, timeSeparator : String) {
+		time = new Date(time);
+		timeSeparator = timeSeparator || ":";
+		return ( time.getHours() + timeSeparator + time.getMinutes() + timeSeparator +  time.getSeconds() );
+	}
+}
+
+module.exports = TimezoneHelper;

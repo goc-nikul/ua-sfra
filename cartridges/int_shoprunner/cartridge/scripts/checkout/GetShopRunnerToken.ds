@@ -1,0 +1,24 @@
+/**
+* Demandware Script File
+* Check session.custom.srtoken and cookies[sr_token] and returns ShopRunner Token
+*
+*   @output SRToken : String
+*
+*/
+importScript( "checkout/Utils.ds" ); 
+
+function execute(args) {
+    var srtoken = getSRToken(); 
+    args.SRToken = srtoken;
+    return PIPELET_NEXT;
+}
+
+function getToken() {
+    var srtoken = getSRToken();
+    return srtoken;
+}
+
+module.exports = {
+    execute: execute,
+	getToken: getToken,
+};

@@ -1,0 +1,60 @@
+<!--- TEMPLATENAME: emailSubscribePopUp.isml --->
+<isinclude template="/components/modules" sf-toolkit="off" />
+
+<div class="g-modal g-email-pop-modal" id="emailPopUpModal" role="dialog" aria-labelledby="emailPopUpModal" data-excluded-urls="${ dw.system.Site.getCurrent().getCustomPreferenceValue('emailSignupExcludedUrls') || ''}">
+    <div class="g-modal-dialog g-email-pop-modal-dialog" role="document">
+        <div class="g-modal-content g-email-pop-modal-content">
+            <div class="g-modal-header g-email-pop-modal-header">
+                <button class="accessible-element sr-only"></button>
+                <button type="button" class="g-modal-close" data-dismiss="modal" aria-label="Close"><div aria-hidden="true" class="g-email-pop-modal-close g-modal-close-button"></div></button>
+            </div>
+            <div class="g-modal-body g-email-pop-modal-body">
+                <div class="email-pop-main-content">
+                    <div class="email-pop-content-asset">
+                        <div class="email-pop-heading">
+                            <iscontentasset aid="email-subscription-pop-up" />
+                        </div>
+                    </div>
+                    <div class="email-pop-form">
+                        <form role="form" class="email-pop-up_signup-form email-signup-merkle-code" method="POST" action="${URLUtils.url('Newsletter-Subscribe')}" data-cmp="signUp" data-emailsource="emailSignupModel">
+                        <div class="email-pop-up_signup-success-container js-email-success-header hide">
+                                <div
+                                	class="b-logo-image"
+                                    title="${Resource.msg('email.icon.signup', 'common', null)}">
+
+                                    <h2 class="js-first-subscrption hide">${Resource.msg('subscribe.email.success.heading', 'homePage', null)}</h2>
+                                    <h2 class="js-subscribed-user hide">${Resource.msg('subscribe.email.alreadySubscribed.heading', 'homePage', null)}</h2>
+                                </div>
+                            </div>
+                            <div class="email-pop-up_signup-container js-signup-container">
+                                <div class="form-group b-input_row">
+	                                <input type="text" class="b-input_row-input form-control js-signup-email js-custom-input" required name="hpEmailSignUp" id="hpEmailSignUp"
+                                  data-analytics-location="new-visitor-modal"
+	                                max-length="254"
+	                                data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
+                                    pattern_mismatch="${Resource.msg('error.message.parse.email.signup.form', 'forms', null)}"
+                                    data-invalid-characters="${Resource.msg('error.message.parse.email.invalid.characters', 'forms', null)}"
+                                    range_error="${Resource.msg('error.message.lessthan254', 'forms', null)}"
+	                                arialabel="${Resource.msg('placeholdertext.form.emailsignup', 'homePage', null)}"
+	                                data-entered=""
+	                                onkeyup="this.setAttribute('data-entered', this.value);">
+	                                <label class="form-control-label b-input_row-label email-pop-up-label" for="hpEmailSignUp">
+                                        ${Resource.msg('placeholdertext.modal.emailsignup', 'homePage', null)}
+                                    </label>
+	                                <div class="invalid-feedback"></div>
+	                            </div>
+                                <button type="submit" class="email-pop-up_signup-button js-signup-submit g-button_base g-button_primary--black">${Resource.msg('button.form.emailsignup', 'homePage', null)}</button>
+                                <div class="email-pop-heading-mobile">
+                                    <iscontentasset aid="email-subscription-pop-up-mobile" />
+                                </div>
+                            </div>
+                            <div class="b-continue_shop-button hide">
+                                <button type="button" class="g-modal-close g-button_base g-button_primary--black" data-dismiss="modal" aria-label="Close">${Resource.msg('button.emailsignup.continueshopping', 'homePage', null)}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

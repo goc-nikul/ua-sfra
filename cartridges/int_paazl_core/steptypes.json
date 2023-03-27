@@ -1,0 +1,46 @@
+{
+    "step-types": {
+        "script-module-step": [
+            {
+                "@type-id": "custom.Paazl.CommitOrders",
+                "module": "int_paazl_core/cartridge/scripts/jobs/CommitOrderJob.js",
+                "function": "process",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "disabled",
+                            "@description": "Indicates if this step should be skipped.",
+                            "@type": "boolean",
+                            "@required": false,
+                            "default-value": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "exportDays",
+                            "description": "Order export days",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "DISABLED",
+                            "description": "This step was disabled."
+                        },
+                        {
+                            "@code": "ERROR",
+                            "description": "Processing failed."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Order Successfully committed in Paazl system."
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

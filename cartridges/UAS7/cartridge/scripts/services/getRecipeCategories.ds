@@ -1,0 +1,52 @@
+/**
+* getRecipeCategories
+* -------------------
+* This script is used to retrieve each of the recipe categories defined in the "RecipeCategories" custom
+* object, and return the collection of categories in a JSON document that can be consumed by the client.
+* This script is used to seed the Scene 7 Recipe Manager with the collection of recipe categories supported
+* by the current installation.
+* 
+* @output json : Object
+*
+*/
+
+// Initialize packages to import
+importPackage( dw.system );
+importPackage( dw.util );
+
+// Initialize the specific-helpers to import
+importScript( "UAS7:ProductImageHelper.ds" );
+
+// This function retrieves all of the recipeCategories, and returns them in a JSON document consumable by the client page
+function execute( args : PipelineDictionary ) : void
+{
+
+	// Initialize local varibales
+	var outputArray, pih;
+	
+	// Initialize the reference to the product Image Helper
+	var pih = new ProductImageHelper();		
+
+	try{
+		
+		// Retrieve the recipe categories as configured in Business Manager
+		outputArray = pih.getRecipeCategories();
+		
+	} catch(e) {
+		
+		// If an error is caught, output it
+		trace(e);
+		
+	}
+	
+	// Take the recipe categories array, and convert it to JSON
+	var jsonString : String = JSON.stringify(outputArray);
+	
+	// Seed the argument variable with the JSON string
+	// This will get outputed via the /ajax/jsonOutput template.
+	args.json = jsonString;	
+
+	// Continue processing the pipeline
+    return PIPELET_NEXT;
+    
+}

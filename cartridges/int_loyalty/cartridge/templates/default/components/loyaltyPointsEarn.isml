@@ -1,0 +1,38 @@
+<div class="g-loyalty-earn">
+    <div class="g-loyalty-earn_content-wrapper">
+        <picture>
+            <source
+                class="g-loyalty-earn_bg-img"
+                srcset="${URLUtils.staticURL('/images/loyalty-guest-scored-desktop.jpg')}"
+                media="(min-width: 1024px)"
+            />
+            <img
+                class="g-loyalty-earn_bg-img"
+                src="${URLUtils.staticURL('/images/loyalty-guest-scored-mobile.jpg')}"
+                alt="${Resource.msg('loyalty.alt.rewards.banner.guest', 'loyalty', null)}"
+            />
+        </picture>
+        <div class="g-loyalty-earn_content-wrapper_absolute">
+            <div class="g-loyalty-earn_logo">
+                <img class="b-logo-image"
+                    src="${URLUtils.staticURL('/images/logo-rewards-confirmation-white.svg')}"
+                    alt="${Resource.msg('global.rewards.logo', 'common', null)}" />
+            </div>
+            <div class="g-loyalty-earn_header">
+                ${Resource.msg('loyalty.earn.scored', 'loyalty', null)}
+            </div>
+            <div class="g-loyalty-points g-loyalty-points_styled">
+                ${Resource.msgf('loyalty.points.styled', 'loyalty', null, 'pageData' in pdict && 'estimationPoints' in pdict.pageData ? pdict.pageData.estimationPoints : pdict.order.estimatedLoyaltyPoints)}
+            </div>
+            <div class="g-loyalty-earn_legal">
+                <isprint value="${pdict.pageData.loyaltyPointsDescription}" encoding="off" />
+                <div class="g-tooltip g-loyalty-earn_tooltip">
+                    <span class="g-tooltip-text m-large m-large-loyalty-right"> ${Resource.msg('loyalty.earn.count.explain', 'loyalty', null)}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="g-loyalty-earn_cta">
+        <a href="${pdict.pageData.rewardsLockerURL}" class="btn btn-primary btn-block g-button_base g-button_primary--black">${Resource.msg('loyalty.earn.cta', 'loyalty', null)}</a>
+    </div>
+</div>

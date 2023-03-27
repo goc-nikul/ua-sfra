@@ -1,0 +1,33 @@
+<div class="sdlCampaignTableContainer">
+    <label class="tableHeading">
+        ${Resource.msg('msg.sdl.campaign.select', 'SDLTranslation', null)}
+        <sup>${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}</sup>
+    </label>
+    <table id="sdlCampaignTable" class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th class="sdlHidingSort"><input type="checkbox" id="sdlCampaignCheckAll" /></th>
+                <th>${Resource.msg('msg.sdl.product.id', 'SDLTranslation', null)}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <isloop items="${pdict.SitePromotions}" var="campaigns" >
+                <tr id="${campaigns.ID}">
+                    <td>
+                        <input
+                        type="checkbox"
+                        class="campaignsID"
+                        id="pr_${campaigns.ID.replace(/[^1-9a-zA-Z]/g, '_')}"
+                        data-originalcampaignID="${campaigns.ID}"
+                        data-campaignID="${campaigns.ID.replace(/[^1-9a-zA-Z]/g, '_')}"
+                        data-campaignName="${escape(campaigns.ID)}"
+                        onclick="sdlCampaignMatrix('pr_${campaigns.ID.replace(/[^1-9a-zA-Z]/g, '_')}','${escape(campaigns.ID)}', '${campaigns.ID.replace(/[^1-9a-zA-Z]/g, '_')}', '${escape(campaigns.ID)}')" />
+                    </td>
+                    <td class="sdlCampaignID" data-campaingnid="${campaigns.ID.replace(/[^1-9a-zA-Z]/g, '_')}">
+                        <isif condition="${campaigns.ID !== null}" >${campaigns.ID}</isif>
+                    </td>
+                </tr>
+            </isloop>
+        </tbody>
+    </table>
+</div>

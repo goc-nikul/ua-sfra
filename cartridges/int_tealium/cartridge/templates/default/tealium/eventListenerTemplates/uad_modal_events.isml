@@ -1,0 +1,219 @@
+<script>
+  window.UADatalayer.prototype.onDependenciesReady(function bindModalEvents() {
+    function actionModal(name) {
+      var pdpSellingModals = ['product: size chart', 'product: showMoreFired', 'product: gallery zoom', 'pdp: qualtrics'];
+      if (pdpSellingModals.indexOf(name) > -1) {
+        var pageProduct = uaDatalayer.getPageData().products[0].product_style;
+        uaDatalayer.action('modalOpened', {
+          site_modal: name,
+          products: [{
+            product_style: pageProduct
+          }]
+        });
+      } else if (name === 'trustarc') {
+          var pageName = uaDatalayer.getPageData().page_name;
+          uaDatalayer.action('modalOpened', {
+            site_modal: name,
+            internal_campaign_module : 'banner',
+            prev_page_name : pageName,
+            internal_campaign_asset_name : 'privacy info banner',
+            internal_campaign_link : 'trustarc Modal'
+          });
+      } else if (name === 'login' || name === 'register') {
+          const sessionId = uaDatalayer.getPageData().dwsid;
+          uaDatalayer.action('modalOpened', {
+            site_modal: name,
+            dwsid: sessionId
+          });
+      } else {
+          uaDatalayer.action('modalOpened', {
+            site_modal: name
+          });
+        }
+    }
+    // Site Modals
+    var body = $('body');
+    var newVisitorModalFired = false;
+    var newVistorModalName = 'new-visitor-modal';
+    $('body').on('modalShown', function (jqEv, data) {
+      var name = data && data.name;
+      var errorName = data && data.errorName;
+      var errorMessage = data && data.errorMessage;
+      if (name && errorName && errorMessage) {
+          uaDatalayer.action('modalOpened', {
+              site_modal: name,
+              error_name: errorName,
+              error_message: errorMessage
+          });
+      } else if (name) {
+        actionModal(name);
+        if (name === newVistorModalName) {
+          newVisitorModalFired = true;
+        }
+      }
+    });
+    // new-visitor modal fires before load sometimes
+    if (!newVisitorModalFired) {
+      var newVistorModalVisible = $('[data-analytics-location="' + newVistorModalName + '"]').is(':visible');
+      if (newVistorModalVisible) {
+        actionModal(newVistorModalName);
+      }
+    }
+    // Trustarc Implied Consent Banner Tracking
+    if ($('.l-consent_banner').is(':visible')) {
+        actionModal('privacy info banner');
+      }
+    $('body').on('click', '[data-analytics-track="data-qualtrics"]', function () {
+        actionModal('pdp: qualtrics');
+      });
+    $('body').on('click', '[data-analytics-track="data-privacy"]', function () {
+        var pageName = uaDatalayer.getPageData().page_name;
+        uaDatalayer.action('genericLink', {
+          internal_campaign_module : 'banner',
+          prev_page_name : 'home',
+          internal_campaign_asset_name : 'privacy info banner',
+          internal_campaign_link : $(this).attr('href')
+        });
+      });
+     // Trustarc Expressed Consent Modal Tracking
+    if (window.truste && window.truste.eu && window.truste.eu.addEventListener) {
+      if ($(window.truste.eu.iframe).is(':visible')) {
+        actionModal('trustarc');
+      }
+      window.truste.eu.addEventListener(function (eventName) {
+        if (eventName === 'open') {
+          actionModal('trustarc');
+        }
+      });
+    }
+    var pageData = uaDatalayer.getPageData() || {};
+    if (pageData.page_type === 'product-detail') {
+      $('body').on('product:showMoreFired', function (jqEv, data) {
+        var name = data && data.name;
+        actionModal(name);
+        var type = data && data.type || 'unknown';
+        uaDatalayer.action('modalOpened', {
+          pdp_selling_tool: 'Detail: show more ' + type
+        });
+      });
+    }
+    $('body').on('bopis:storepicker', function (jqEv,data) {
+      safetyFirst(function storeSearch() {
+        var stores = data.storeObj.stores;
+        var dist = data.storeObj.radius && (data.storeObj.radius).toString();
+        if (stores.length) {
+        var minDist = Math.min.apply(null, stores.map(function (store) {
+          return store.distance && (store.distance).split(' ')[0];
+        }));
+          
+        var nearestStoreID = stores.filter(store => {
+          return store.distance && (store.distance).split(' ')[0] == minDist 
+        })[0].ID;
+          
+        var storesID = '';
+          
+        stores.forEach(function (store) {
+          storesID = storesID + ':' + store.ID; 
+        });
+          
+        storesID = storesID.substring(1);
+          
+        var results = dist + 'mi>' + storesID;
+        }
+        if (!data.storeObj.searchKey.postalCode) {
+            uaDatalayer.action('modalOpened', {
+                site_modal: 'bopis:select a store'
+              }); 
+        } else if (data.storeObj.searchKey.postalCode && stores.length === 0) {
+            uaDatalayer.action('modalOpened', {
+                site_modal: 'bopis:select a store',
+                bopis: {
+                    'search': {
+                      number_of_results: '0',
+                      zip_code: data.storeObj.searchKey.postalCode,
+                      distance: dist,
+                      bopis_message: 'There are no stores with store pick up within ' + dist + ' miles of ' + data.storeObj.searchKey.postalCode + ', try expanding the distance.'
+                    }
+                  }
+              })
+        } else {
+        uaDatalayer.action('modalOpened', {
+          site_modal: 'bopis:select a store',
+          bopis: {
+            'search': {
+              number_of_results: stores.length ? (stores.length).toString() : '0',
+              zip_code: stores.length ? data.storeObj.searchKey.postalCode : undefined,
+              store_id: stores.length ? nearestStoreID : undefined,
+              distance: dist,
+              results: stores.length ? results : undefined
+            }
+          }
+        });
+      }
+      });
+    });
+    $('body').on('bopis:storepicker:continue', function (jqEv,data) {
+        uaDatalayer.action('modalOpened', {
+            site_modal: 'bopis:select a store',
+            store_id: data.storeId
+        });
+    });
+    $('body').on('loyalty:pilot:zipcode', function (jqEv,data) {
+        uaDatalayer.action('genericLink', {
+            loyalty : {
+              loyalty : true,
+              action : 'zip_code',
+              zip : data.zipCode
+          }
+        });
+    });
+    $('body').on('click', '[data-analytics-track="loyalty-waitlist"]', function () {
+      uaDatalayer.action('genericLink', {
+        loyalty : {
+          loyalty : true,
+          action : 'waitlist'
+        }
+      });
+    });
+    $('body').on('loyalty:enroll', function (jqEv,data) {
+        uaDatalayer.action(data.type, {
+            loyalty : {
+              loyalty : data.loyalty,
+              action : data.action,
+              member : data.member,
+              points_earned: data.points_earned
+          }
+        });
+    });
+    $('body').on('click', '[data-analytics-track="loyalty-learn-more"]', function () {
+      uaDatalayer.action('genericLink', {
+        loyalty : {
+          loyalty : true,
+          action : 'learn_more'
+        }
+      });
+    });
+    body.on('click', '.js-swatch-link', function () {
+      var product = uaDatalayer.getPageData().products[0];
+      var size = $('.b-product_attribute.m-size .js-size-select.selected').data("attr-value");
+      var newColor = $(this).data("attr-value");
+      product.product_sku = product.product_style + '-' + newColor + '-' + size;
+      product.product_color = product.product_style + '-' + newColor;
+      uaDatalayer.action('genericLink', {
+        products: [product]
+      });
+    });
+    body.on('click', '.js-size-select', function () {
+      if ($(this).closest('.b-product_attribute').hasClass('m-length')) {
+        return;
+      }
+      var product = uaDatalayer.getPageData().products[0];
+      var color = $('.js-swatch-link.m-active').data("attr-value");
+      var newSize = $(this).data("attr-value");
+      product.product_sku = product.product_style + '-' + color + '-' +  newSize;
+      uaDatalayer.action('genericLink', {
+        products: [product]
+      });
+    });
+  });
+</script>

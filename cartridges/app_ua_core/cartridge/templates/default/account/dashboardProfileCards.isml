@@ -1,0 +1,18 @@
+<div class="b-account-dashboard_profile">
+    <!---Profile--->
+    <isset name="activities" value="${pdict.activities}" scope="page"/>
+    <isinclude template="account/profileCard"/>
+</div>
+
+<div class="b-account-dashboard_history">
+    <!-- Order History Dashboard -->
+    <isset name="order" value="${pdict.account.orderHistory}" scope="page"/>
+    <isinclude template="account/order/orderHistoryDashboard"/>
+</div>
+<div class="b-account-dashboard_recommended js-dash-slot-1">
+    <isslot id="my-account-dashboard-recommendations" context="global" description="Recommendations on User Dashboard" context-object="${pdict.account.orderHistory.map(o => o.orderItems).reduce((a, il) => a.concat(il), [])}"/>
+</div>
+
+<div class="b-account-dashboard_recommended js-dash-slot-2">
+    <isslot id="my-account-product-recommendations" context="global" description="Recommendations powered by Adobe Test and Target"/>
+</div>

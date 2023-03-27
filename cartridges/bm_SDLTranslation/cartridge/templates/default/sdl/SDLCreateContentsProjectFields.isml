@@ -1,0 +1,48 @@
+<div class="row sdlContentAssetLibrary">
+    <div class="form-group col-md-6">
+        <label>
+            ${Resource.msg('msg.sdl.select.library', 'SDLTranslation', null)}
+            <sup>${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}</sup>
+            <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="${Resource.msg('msg.sdl.select.library.tooltip','SDLTranslation',null)}"></span>
+        </label>
+        <select class="form-control" id="sdlSiteLibrary" name="sdlProjSiteLibrary" required>
+            <isloop items="${pdict.SiteLibraries}" var="SiteLibrarie" status="sam">
+                <option value="${SiteLibrarie}">
+                    ${SiteLibrarie}
+                </option>
+            </isloop>
+        </select>
+    </div>
+</div>
+<div class="sdlContentAssetTableContainer">
+    <label class="tableHeading">
+        ${Resource.msg('msg.sdl.content.select', 'SDLTranslation', null)}
+        <sup>${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}</sup>
+    </label>
+    <table id="sdlContentAssetTable" class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th class="sdlHidingSort"><input type="checkbox" id="sdlContentCheckAll" /></th>
+                <th>${Resource.msg('msg.sdl.product.id', 'SDLTranslation', null)}</th>
+                <th>${Resource.msg('msg.sdl.product.name', 'SDLTranslation', null)}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <isloop items="${pdict.ContentAssetArray}" var="casset" status="sam">
+                <tr id="${casset.ID}">
+                    <td>
+                        <input
+                        type="checkbox"
+                        class="contentAssetID"
+                        id="ca_${casset.ID.replace(/[^1-9a-zA-Z]/g, '_')}"
+                        data-contentAssetID="${casset.ID.replace(/[^1-9a-zA-Z]/g, '_')}"  data-originalcontentAssetID="${casset.ID}"
+                        data-contentAssetName="${escape(casset.name)}"
+                        onclick="sdlContentAssetMatrix('ca_${casset.ID.replace(/[^1-9a-zA-Z]/g, '_')}','${escape(casset.name)}', '${casset.ID.replace(/[^1-9a-zA-Z]/g, '_')}', '${casset.ID}')" />
+                    </td>
+                    <td class="sdlContentAssetID"><isif condition="${casset.ID !== null}" >${casset.ID}</isif></td>
+                    <td><isif condition="${casset.name !== null}" >${casset.name}</isif></td>
+                </tr>
+            </isloop>
+        </tbody>
+    </table>
+</div>

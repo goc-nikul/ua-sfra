@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shipping xmlns="http://www.demandware.com/xml/impex/shipping/2007-03-31">
+    <shipping-method method-id="paazl_SEK" default="true">
+        <display-name xml:lang="x-default">PickUp Shipping</display-name>
+        <description xml:lang="x-default">PickUp Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <currency>SEK</currency>
+    </shipping-method>
+
+    <shipping-method method-id="paazl_DKK" default="true">
+        <display-name xml:lang="x-default">PickUp Shipping</display-name>
+        <description xml:lang="x-default">PickUp Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <currency>DKK</currency>
+    </shipping-method>
+
+    <shipping-method method-id="paazl_EUR" default="true">
+        <display-name xml:lang="x-default">PickUp Shipping</display-name>
+        <description xml:lang="x-default">PickUp Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <currency>EUR</currency>
+    </shipping-method>
+
+    <shipping-method method-id="paazl_NOK" default="true">
+        <display-name xml:lang="x-default">PickUp Shipping</display-name>
+        <description xml:lang="x-default">PickUp Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <currency>NOK</currency>
+    </shipping-method>
+
+    <shipping-method method-id="paazl_CHF" default="true">
+        <display-name xml:lang="x-default">PickUp Shipping</display-name>
+        <description xml:lang="x-default">PickUp Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <currency>CHF</currency>
+    </shipping-method>
+
+    <shipping-method method-id="paazl_PLN" default="true">
+        <display-name xml:lang="x-default">PickUp Shipping</display-name>
+        <description xml:lang="x-default">PickUp Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <currency>PLN</currency>
+    </shipping-method>
+
+    <shipping-method method-id="DK-free-shipping" default="false">
+        <display-name xml:lang="x-default">DK Employee Free Shipping</display-name>
+        <description xml:lang="x-default">DK Employee Free Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.countryCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>DK</string>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+            <excluded-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>Kanonbådsvej 12B</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.city</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>København</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.postalCode</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>1437</string>
+                    </condition>
+                </condition-group>
+            </excluded-addresses>
+        </excluded-addresses>
+        <currency>DKK</currency>
+    </shipping-method>
+
+    <shipping-method method-id="FR-free-shipping" default="false">
+        <display-name xml:lang="de">Gratisversand für Mitarbeiter</display-name>
+        <display-name xml:lang="x-default">Livraison gratuite pour employés</display-name>
+        <display-name xml:lang="en">Employee Free Shipping</display-name>
+        <display-name xml:lang="fr">Livraison gratuite pour employés</display-name>
+        <display-name xml:lang="fr-FR">Livraison gratuite pour employés</display-name>
+        <display-name xml:lang="nl">Gratis verzending voor medewerkers</display-name>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.countryCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>FR</string>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+            <excluded-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>43 rue Beaubourg</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.city</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>Paris</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.postalCode</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>75003</string>
+                    </condition>
+                </condition-group>
+            </excluded-addresses>
+        </excluded-addresses>
+    </shipping-method>
+
+    <shipping-method method-id="GBR~UPS-STD-1" default="false">
+        <display-name xml:lang="x-default">UPS standard shipping</display-name>
+        <description xml:lang="de-PL">1-2 Days</description>
+        <description xml:lang="x-default">3 - 5 days</description>
+        <online-flag>false</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.countryCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>GB</string>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <currency>GBP</currency>
+    </shipping-method>
+
+    <shipping-method method-id="DE-free-shipping" default="false">
+        <display-name xml:lang="de">Gratisversand für Mitarbeiter</display-name>
+        <display-name xml:lang="de-DE">Gratisversand für Mitarbeiter</display-name>
+        <display-name xml:lang="x-default">Gratisversand für Mitarbeiter</display-name>
+        <display-name xml:lang="en">Employee Free Shipping</display-name>
+        <display-name xml:lang="fr">Livraison gratuite pour employés</display-name>
+        <display-name xml:lang="nl">Gratis verzending voor medewerkers</display-name>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.countryCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>DE</string>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+            <excluded-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>Isarwinkel 4</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.city</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>München</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.postalCode</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>81379</string>
+                    </condition>
+                </condition-group>
+            </excluded-addresses>
+        </excluded-addresses>
+    </shipping-method>
+
+    <shipping-method method-id="NL-free-shipping" default="false">
+        <display-name xml:lang="de">Gratisversand für Mitarbeiter</display-name>
+        <display-name xml:lang="x-default">Gratis verzending voor medewerkers</display-name>
+        <display-name xml:lang="en">Employee Free Shipping</display-name>
+        <display-name xml:lang="fr">Livraison gratuite pour employés</display-name>
+        <display-name xml:lang="nl">Gratis verzending voor medewerkers</display-name>
+        <display-name xml:lang="nl-NL">Gratis verzending voor medewerkers</display-name>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.countryCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>NL</string>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+            <excluded-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>Olympisch Stadion 8</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.city</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>Amsterdam</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.postalCode</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>1076 DE</string>
+                    </condition>
+                </condition-group>
+            </excluded-addresses>
+        </excluded-addresses>
+    </shipping-method>
+
+    <shipping-method method-id="NO-free-shipping" default="false">
+        <display-name xml:lang="x-default">Gratis frakt for ansatte</display-name>
+        <description xml:lang="x-default">Gratis frakt for ansatte</description>
+        <online-flag>true</online-flag>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.countryCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>NO</string>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <currency>NOK</currency>
+    </shipping-method>
+
+    <shipping-method method-id="CH-free-shipping" default="false">
+        <display-name xml:lang="x-default">Gratisversand für Mitarbeiter</display-name>
+        <description xml:lang="x-default">Gratisversand für Mitarbeiter</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.countryCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>CH</string>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <currency>CHF</currency>
+    </shipping-method>
+
+</shipping>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
+    <custom-type type-id="SalesChannelFeedConfig">
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="id">
+            <display-name xml:lang="x-default">ID</display-name>
+            <description xml:lang="x-default">The ID of the feed</description>
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="assignedSites">
+                <type>set-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="configuration">
+                <display-name xml:lang="x-default">Configuration</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="exportCategoryId">
+                <display-name xml:lang="x-default">Export Category ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="feedContext">
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">Catalog</display>
+                        <value>Catalog</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="fileEncoding">
+                <display-name xml:lang="x-default">File encoding</display-name>
+                <description xml:lang="x-default">default is UTF-8</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="fileName">
+                <display-name xml:lang="x-default">File name</display-name>
+                <description xml:lang="x-default">The file to export to, the following placeholders are allowed:
+                    {{timestamp format="yyyMMdd"}}</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="folderName">
+                <display-name xml:lang="x-default">Folder name</display-name>
+                <description xml:lang="x-default">The folder to export to, should always start with 'IMPEX/'</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="googleShoppingCategories">
+                <display-name xml:lang="x-default">googleShoppingCategories</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="includeNoPriceProducts">
+                <display-name xml:lang="x-default">Include Products Without Prices</display-name>
+                <description xml:lang="x-default">Only applies in the catalog context</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="includeOfflineProducts">
+                <display-name xml:lang="x-default">Include Offline Products</display-name>
+                <description xml:lang="x-default">Only applies in the catalog context</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="includeOutOfStockProducts">
+                <display-name xml:lang="x-default">Include Out Of Stock Products</display-name>
+                <description xml:lang="x-default">Only applies in the catalog context</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="includeSearchableIfUnavailableProducts">
+                <display-name xml:lang="x-default">Include Searchable if Unavailable Products</display-name>
+                <description xml:lang="x-default">Only applies in the catalog context</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="socialCategory">
+                <display-name xml:lang="x-default">socialCategory</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="type">
+                <display-name xml:lang="x-default">Type</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">CSV</display>
+                        <value>CSV</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">XML</display>
+                        <value>XML</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="Attributes">
+                <display-name xml:lang="de-DE">Attributes</display-name>
+                <display-name xml:lang="x-default">Attributes</display-name>
+                <attribute attribute-id="id"/>
+                <attribute attribute-id="type"/>
+                <attribute attribute-id="configuration"/>
+                <attribute attribute-id="folderName"/>
+                <attribute attribute-id="fileName"/>
+                <attribute attribute-id="fileEncoding"/>
+                <attribute attribute-id="assignedSites"/>
+                <attribute attribute-id="feedContext"/>
+                <attribute attribute-id="includeSearchableIfUnavailableProducts"/>
+                <attribute attribute-id="includeNoPriceProducts"/>
+                <attribute attribute-id="includeOutOfStockProducts"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="includeOfflineProducts"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="googleShoppingCategories"/>
+                <attribute attribute-id="socialCategory"/>
+                <attribute attribute-id="exportCategoryId"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+</metadata>

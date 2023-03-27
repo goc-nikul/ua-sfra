@@ -1,0 +1,73 @@
+/**
+*   @input uuid : String
+*   @input itemId : String
+*   @input locale : String
+*   @output type : String
+*   @output path : String
+*   @output submissionUUID : String
+*/
+
+importPackage( dw.system );
+importPackage( dw.object );
+importPackage( dw.net );
+importPackage( dw.util );
+importPackage( dw.crypto );
+importScript( "downloads.ds" );
+var submissionDao = require ('/bm_smartling_integration/cartridge/scripts/dao/submission.ds');
+var ExceptionLog = require ('/bm_smartling_integration/cartridge/scripts/utils/ExceptionLog.ds').ExceptionLog;
+var smartlingFileApi = require("/bm_smartling_integration/cartridge/scripts/file_api/smartlingFileApi");
+var localeService = require("/bm_smartling_integration/cartridge/scripts/service/localeService.ds");
+
+var LOGGER = new ExceptionLog(Logger.getLogger("smartling", "submissionBoard.download"));
+var version = require("~/cartridge/scripts/version");
+/**
+    Check the smartling file API for all completed translations (via querying custom objects) and download any completed files.
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    LOGGER.info("Download flow is called");
+
+    try {
+
+        var submission : CustomObject;
+        if (pdict.uuid != null) {
+            submission = submissionDao.getSubmissionByUUID(pdict.uuid);
+        } else {
+            submission = submissionDao.getSubmissionByItemIdAndLocale(pdict.itemId, pdict.locale);
+        }
+
+        if (empty(submission)) {
+            throw "Submission is not found";
+        }
+
+        pdict.submissionUUID = submission.UUID;
+        try {
+            var fileText = smartlingFileApi.getFile(submission.custom['fileUri'], localeService.getSmartlingLocale(submission.custom['locale']));
+            var itemType = submission.custom['itemType'];
+
+            switch (itemType) {
+                case 'product' :
+                    downloadProduct(fileText, submission, submission.custom['itemId'], submission.custom['locale']);
+                    break;
+                case 'content' :
+                    downloadContent(fileText, submission, submission.custom['itemId'], submission.custom['locale']);
+                    break;
+                case 'category' :
+                    downloadCategory(fileText, submission, submission.custom['itemId'], submission.custom['locale']);
+                    break;
+            }
+            pdict.type = itemType;
+            pdict.path = '/smartling/' + itemType + '/download/' + itemType + '_' + submission.custom['itemId'] + '_' + submission.custom['locale'] + '.xml';
+
+        } catch (e) {
+            LOGGER.errorException("submissionBoard.download execution failed, uuid={0}, itemId={1}, locale={2}", pdict.uuid, pdict.itemId, pdict.locale, e);
+            throw "download submission failed"
+        }
+    } catch (e) {
+        LOGGER.errorException("submissionBoard.download execution failed, uuid={0}, itemId={1}, locale={2}", pdict.uuid, pdict.itemId, pdict.locale, e);
+        return PIPELET_ERROR;
+    }
+
+    LOGGER.debug('Successfully downloaded path="{0}"', pdict.path);
+    return PIPELET_NEXT;
+}

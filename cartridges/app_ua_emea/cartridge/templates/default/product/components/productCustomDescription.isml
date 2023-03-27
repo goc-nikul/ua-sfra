@@ -1,0 +1,100 @@
+<isif condition="${!empty(pdict.product)}">
+    <isset name="product" value="${pdict.product}" scope="page"/>
+</isif>
+<div class="b-product_description">
+    <isif condition="${product && product.custom.whatsItDo}">
+        <div class="b-product_description-main">
+            <div class="b-product_description-title">
+                <iscomment>${Resource.msg('label.description', 'product', null)}</iscomment>
+                <isprint value="${Resource.msg('label.whatsItDo', 'product', null)}"/>
+            </div>
+
+            <iscomment><isinclude template="product/components/description"/></iscomment>
+            <div class="b-product_description-content">
+                <isprint value="${product.custom.whatsItDo}" encoding="off"/>
+            </div>
+
+        </div>
+    </isif>
+    <isif condition="${product.custom.dna || product.custom.specs || product.custom.fitCare}">
+        <div class="g-tabs--desktop">
+            <ul class="b-product_description-tabs g-tabs-chips nav nav-tabs" role="tablist">
+                <isif condition="${product.custom.dna}">
+                    <li class="g-tabs-chip nav-item">
+                        <a role="tab" class="g-tabs-link nav-link active" href="#tab-1" data-toggle="tab" data-analytics-track="product-dna" aria-controls="tab-1" aria-selected="true">
+                            ${Resource.msg('label.dna', 'product', null)}
+                        </a>
+                    </li>
+                </isif>
+
+                <isif condition="${product.custom.specs}">
+                    <li class="g-tabs-chip nav-item">
+                        <a role="tab" class="g-tabs-link nav-link" href="#tab-2" data-toggle="tab" data-analytics-track="product-spec" aria-controls="tab-2" aria-selected="false">
+                            ${Resource.msg('label.specs', 'product', null)}
+                        </a>
+                    </li>
+                </isif>
+
+                <isif condition="${product.custom.fitCare || product.custom.fittype}">
+                    <li class="g-tabs-chip nav-item">
+                        <a role="tab" class="g-tabs-link nav-link" href="#tab-3" data-toggle="tab" data-analytics-track="product-fit-care" aria-controls="tab-3" aria-selected="false">
+                            ${Resource.msg('label.fitCare', 'product', null)}
+                        </a>
+                    </li>
+                </isif>
+            </ul>
+        </div>
+        <div class="b-product_description-items g-accordion--mobile g-tabs-content">
+            <isif condition="${product.custom.dna}">
+                <div id="tab-1" class="g-accordion-item g-tabs-pane tab-pane show active" role="tabpanel" aria-labelledby="acc-1">
+                    <div class="b-product_description-acc_heading g-accordion-header" role="button" data-toggle="collapse" data-analytics-track="product-dna" data-target="#acc-1" aria-expanded="true" aria-controls="acc-1">
+                        ${Resource.msg('label.dna', 'product', null)}
+                    </div>
+
+                    <div class="g-accordion-content collapse show" id="acc-1">
+                        <ul class="t-tabs_data">
+                            <isloop items="${product.custom.dna}" var="prodDNA">
+                                <li class="t-tabs_list"><isprint value="${prodDNA}"/></li>
+                            </isloop>
+                        </ul>
+                    </div>
+                </div>
+            </isif>
+
+            <isif condition="${product.custom.specs}">
+                <div id="tab-2" class="g-accordion-item g-tabs-pane tab-pane" role="tabpanel" aria-labelledby="acc-2">
+                    <div class="b-product_description-acc_heading g-accordion-header collapsed" role="button" data-toggle="collapse" data-analytics-track="product-spec" data-target="#acc-2" aria-expanded="false" aria-controls="acc-2">
+                        ${Resource.msg('label.specs', 'product', null)}
+                    </div>
+
+                    <div class="g-accordion-content collapse" id="acc-2">
+                        <ul class="t-tabs_data">
+                            <isloop items="${product.custom.specs}" var="prodSpec">
+                                <li class="t-tabs_list"><isprint value="${prodSpec}"/></li>
+                            </isloop>
+                        </ul>
+                    </div>
+                </div>
+            </isif>
+
+            <isif condition="${product.custom.fitCare || product.custom.fittype}">
+                <div id="tab-3" class="g-accordion-item g-tabs-pane tab-pane" role="tabpanel" aria-labelledby="acc-3">
+                    <div class="b-product_description-acc_heading g-accordion-header collapsed" role="button" data-toggle="collapse" data-analytics-track="product-fit-care" data-target="#acc-3" aria-expanded="false" aria-controls="acc-3">
+                        ${Resource.msg('label.fitCare', 'product', null)}
+                    </div>
+
+                    <div class="g-accordion-content collapse" id="acc-3">
+                        <ul class="t-tabs_data">
+                            <isif condition="${product.custom.fittype}">
+                                <li class="t-tabs_list"><span class="t-bold_font"><isprint value="${Resource.msg('product.fittype.' + product.custom.fittype.toLowerCase().replace(/\s/g, ''), 'product', null).indexOf('product.fittype.') !== 0 ? Resource.msg('product.fittype.' + product.custom.fittype.toLowerCase().replace(/\s/g, ''), 'product', null) : product.custom.fittype}" />&nbsp;</span><isprint value="${Resource.msg('fittype.description.' + product.custom.fittype.toLowerCase(), 'product', null).indexOf('fittype.description.') !== 0 ? Resource.msg('fittype.description.' + product.custom.fittype.toLowerCase(), 'product', null) : ''}"/></li>
+                            </isif>
+                            <isloop items="${product.custom.fitCare}" var="prodFitCare">
+                                <li class="t-tabs_list"><isprint value="${prodFitCare}"/></li>
+                            </isloop>
+                        </ul>
+                    </div>
+                </div>
+            </isif>
+        </div>
+    </isif>
+</div>

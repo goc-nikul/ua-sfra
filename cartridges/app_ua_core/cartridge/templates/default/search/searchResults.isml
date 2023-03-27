@@ -1,0 +1,40 @@
+<isdecorate template="common/layout/page">
+	<iscache hour="2" varyby="price_promotion" if="${pdict.apiProductSearch && !pdict.apiProductSearch.isPersonalizedSort()}"/>
+	<isinclude template="/components/modules" />
+
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets');
+        assets.addJs('/js/search.js');
+        if(pdict.bvScout) {
+     	    assets.addJs(pdict.bvScout);
+        }
+    </isscript>
+
+    <iscomment> This is slot definition for correct context="category" slots assignment in BM
+        <isslot id="menu-category-banner" description="Slot of category for the main menu" context="category" context-object="${pdict.category}" />
+    </iscomment>
+
+    <div class="l-plp">
+        <isinclude template="search/refinements/mobHeaderCategories" />
+
+        <isinclude template="search/searchResultsNoDecorator" />
+
+        <div class="b-back_to_top" data-cmp="backToTop">
+            <button class="b-back_to_top-button js-back_to_top-button" title="${Resource.msg('button.back_to_top', 'common', null)}" aria-label="${Resource.msg('button.back_to_top', 'common', null)}">
+            </button>
+        </div>
+    </div>
+    <isif condition="${!empty(pdict.pageURLs)}"> 
+        <div class="page-url">
+            <isloop items="${pdict.pageURLs}" var="pageURL" status="loopstate">
+                <ul class="page-urls">
+                    <li class="page-url-item">
+                        <a class="page-link page-${loopstate.count}" href="${pageURL}">
+                        </a>
+                    </li>
+                </ul>
+            </isloop>
+        </div>
+    </isif>
+    
+</isdecorate>

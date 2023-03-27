@@ -1,0 +1,44 @@
+<iscontent compact="true">
+
+<isset name="dataPersonalization" value="${pdict.personalizationData}" scope="page"/>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" id="data-elements">
+	<tbody>	    	
+		<isif condition="${!empty(dataPersonalization)}">
+			<isinclude template="product/components/personalizationheaderrow" />
+				<isloop items="${dataPersonalization}" var="element" status="loopstate">
+				<tr>
+					<td class="table_detail w e s middle center"><input type="radio" name="SelectedProductUUID" value=""></td>
+					<td class="table_detail middle e s" nowrap="nowrap">
+						<a href="${URLUtils.url('ProductPersonalization-EditPage', 
+												'productID', element.ID, 
+												'jerseyStyle', element.jerseyStyle, 
+												'frontImage', element.frontImage,
+												'backImage', element.backImage,
+												'enableSponsors', element.enableSponsors,
+												'frontImageSponsors', element.frontImageSponsors,
+												'backImageSponsors', element.backImageSponsors,
+												'nameLocation', element.nameLocation,
+												'personalizationInfo', element.personalizationInfo,
+												'nopersonalizationsOption', element.nopersonalizationsOption,
+												'nameOption', element.nameOption,
+											    'numberOption', element.numberOption,
+											    'namenumberOption', element.namenumberOption,
+											    'sponsorsOption', element.sponsorsOption,
+											    'namesponsorsOption', element.namesponsorsOption,
+											    'numbersponsorsOption', element.numbersponsorsOption,
+											    'namenumbersponsorsOption', element.namenumbersponsorsOption,
+											    'defaultOption' , element.defaultOption)}" class="id_material">${element.ID.replace(/.*_/,'')}</a>
+					</td>
+		            <td class="table_detail middle e s jerseyStyleValue" nowrap="nowrap">${element.jerseyStyle}</td>
+					<td class="table_detail middle e s frontImageValue" nowrap="nowrap">${element.frontImage}</td>
+		            <td class="table_detail middle e s backImageValue" nowrap="nowrap">${element.backImage}</td>
+					<td class="table_detail middle e s enableSponsorsValue" nowrap="nowrap">${element.enableSponsors}</td>
+		            <td class="table_detail middle e s frontImageSponsorsValue">${element.frontImageSponsors}</td>
+		            <td class="table_detail middle e s backImageSponsorsValue">${element.backImageSponsors}</td>
+		            <td class="table_detail middle e s nameLocationValue">${element.nameLocation}</td>
+		        </tr>	
+			</isloop>		  
+		</isif>
+	</tbody>
+</table>

@@ -1,0 +1,112 @@
+<isinclude template="components/modules" />
+<isset name="minimumAgeRestriction" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('minimumAgeRestriction')}" scope="page" />
+
+<isif condition="${empty(pdict.customer.profile)}" >
+    <div class="form-group g-checkbox">
+        <input type="checkbox" class="g-checkbox-input" id="select-all-checkout">
+        <label class="g-checkbox-label" for="select-all-checkout">
+            <isprint value="${Resource.msgf('profile.selectall', 'forms', null)}" encoding="off" />
+        </label>
+    </div>
+    <div class="form-group g-checkbox">
+        <input type="checkbox" class="g-checkbox-input form-control" id="add-to-email-list-ci" <isif
+            condition="${dw.system.Site.current.getCustomPreferenceValue('defaultEmailOptIn')}">checked</isif>
+        <isprint value=${primaryContact.addtoemaillist.attributes} encoding="off" />
+        >
+        <label class="g-checkbox-label" for="add-to-email-list-ci">
+            <isprint value="${Resource.msgf('description.checkbox.emailsignup.profile', 'forms', null)}" encoding="off" />
+        </label>
+        <div class="d-none" id="js-user-not-subscribed-content">
+            <div class="g-modal-header g-login-modal-header">
+                <div class="g-password-modal-close">
+                    <button type="button" class="g-password-modal-close_button close" data-dismiss="modal"
+                        aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+                </div>
+            </div>
+            <iscontentasset aid="consent-user-not-subscribed-email" />
+        </div>
+    </div>
+    <div class="form-group g-checkbox">
+        <input type="checkbox" class="g-checkbox-input form-control" id="agreetopolicy-ci"
+            <isif condition="${empty(pdict.customer.profile)}" >required</isif>
+            data-missing-error="${Resource.msg('error.message.agetermserror', 'forms', null)}" <isprint
+            value=${primaryContact.agreetopolicy.attributes} encoding="off" />
+        >
+        <label class="g-checkbox-label" for="agreetopolicy-ci">
+            <isprint value="${Resource.msgf('profile.agreetopolicy', 'forms', null, minimumAgeRestriction)}"
+                encoding="off" />
+        </label>
+        <div class="d-none" id="js-agree-to-policy-content">
+            <div class="g-modal-header g-login-modal-header">
+                <div class="g-password-modal-close">
+                    <button type="button" class="g-password-modal-close_button close" data-dismiss="modal"
+                        aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+                </div>
+            </div>
+            <iscontentasset aid="consents-term-and-condition" />
+        </div>
+        <div class="invalid-feedback">
+        </div>
+    </div>
+    <div class="form-group g-checkbox">
+        <input type="checkbox" class="g-checkbox-input form-control" id="agreetodatatransfer-ci"
+            <isif condition="${empty(pdict.customer.profile)}" >required</isif>
+            data-missing-error="${Resource.msg('error.message.datapolicyerror', 'forms', null)}" <isprint
+            value=${primaryContact.agreetodatatransfer.attributes} encoding="off" />
+        >
+        <label class="g-checkbox-label" for="agreetodatatransfer-ci">
+            <isprint value="${Resource.msgf('profile.agreetodatatransfer', 'forms', null)}" encoding="off" />
+        </label>
+        <div class="d-none" id="js-agree-to-datatransfer-content">
+            <div class="g-modal-header g-login-modal-header">
+                <div class="g-password-modal-close hello">
+                    <button type="button" class="g-password-modal-close_button close" data-dismiss="modal"
+                        aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+                </div>
+            </div>
+            <iscontentasset aid="consent-overseas-data-transfer-policy" />
+        </div>
+        <div class="invalid-feedback">
+        </div>
+    </div>
+
+    <div class="form-group g-checkbox">
+        <input type="checkbox" class="g-checkbox-input form-control" id="agreetoOrderData-ci" required
+            data-missing-error="${Resource.msg('error.message.agreetoOrderData', 'forms', null)}" <isprint
+            value="${primaryContact.agreetodatatransfer.attributes}" encoding="off" />
+        >
+        <label class="g-checkbox-label" for="agreetoOrderData-ci">
+            <isprint value="${Resource.msgf('profile.agreetoOrderData', 'forms', null)}" encoding="off" />
+        </label>
+        <div class="d-none" id="js-agree-to-datatransfer-content">
+            <div class="g-modal-header g-login-modal-header">
+                <div class="g-password-modal-close hello">
+                    <button type="button" class="g-password-modal-close_button close" data-dismiss="modal"
+                        aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+                </div>
+            </div>
+            <iscontentasset aid="consent-overseas-data-transfer-policy" />
+        </div>
+        <div class="invalid-feedback"></div>
+    </div>
+</isif>
+
+<isif condition="${!empty(pdict.customer.profile) && !pdict.customer.customerData.smsOptIn}" >
+    <div class="form-group g-checkbox">
+        <input type="checkbox" class="g-checkbox-input form-control" id="addsmsto-list-ci" <isprint
+            value=${primaryContact.smsOptIn.attributes} encoding="off" />
+        >
+        <label class="g-checkbox-label" for="addsmsto-list-ci">
+            <isprint value="${Resource.msgf('profile.addsmstolist', 'forms', null)}" encoding="off" />
+        </label>
+        <div class="d-none" id="js-smsOptIn-content">
+            <div class="g-modal-header g-login-modal-header">
+                <div class="g-password-modal-close">
+                    <button type="button" class="g-password-modal-close_button close" data-dismiss="modal"
+                        aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+                </div>
+            </div>
+            <iscontentasset aid="consent-smsOptIn" />
+        </div>
+    </div>
+</isif>

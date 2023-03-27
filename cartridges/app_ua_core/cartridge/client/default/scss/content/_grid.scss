@@ -1,0 +1,82 @@
+.row {
+    margin-right: auto;
+    margin-left: auto;
+    max-width: rem-calc(1600);
+    padding-left: 0;
+    padding-right: 0;
+
+    &::before,
+    &::after {
+        display: table;
+        content: " ";
+    }
+
+    &::after {
+        clear: both;
+    }
+
+    .row {
+        margin-right: 0;
+        margin-left: 0;
+        max-width: none;
+        padding-right: 0;
+        padding-left: 0;
+    }
+}
+
+table {
+    width: 100%;
+
+    th {
+        text-align: left;
+        font-weight: $font-regular;
+    }
+}
+
+@include respond-to(no-phones) {
+    .column-3,
+    .column-4,
+    .column-6,
+    .column-8 {
+        display: block;
+        float: left;
+        min-height: rem-calc(1);
+        position: relative;
+        margin-left: 1.142%;
+    }
+
+    .column-3 {
+        width: 24.142%;
+    }
+
+    .row .column-3:first-child {
+        margin-left: 0;
+    }
+
+    .column-4 {
+        width: 31.333%;
+    }
+
+    .column-6 {
+        width: 49.428%;
+    }
+
+    .column-8 {
+        width: 65.88%;
+    }
+}
+
+@include respond-to(phones) {
+    .hidden-mobile {
+        display: none !important;
+    }
+}
+
+@include respond-to(phones) {
+    .pt_account,
+    .pt_customer-service,
+    .pt_error,
+    .pt_order-confirmation #main > .row {
+        padding: 0 rem-calc(10);
+    }
+}

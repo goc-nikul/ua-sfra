@@ -1,0 +1,131 @@
+<isif condition="${typeof orderConfirmationPage === 'undefined'}">
+    <isset name="orderConfirmationPage" value="${false}"  scope="page"/>
+</isif>
+
+<div class="b-header_minicart-product-item bfx-minicart-product${loopstate.count % 3 === 0 ? ' print-break-section' : ''} ${typeof lineItem !=='undefined' && !empty(lineItem.availabilityError) && !lineItem.isPartiallyAvailable ? 'b-header_minicart_outofstock' : ''}" data-product-line-item="${typeof lineItem !=='undefined' ? lineItem.UUID : null}">
+    <isif condition="${lineItem.productType === 'bundle'}">
+        <div class="b-header_minicart-item-header">
+            <isif condition=${miniCart}>
+                <isinclude template="checkout/productCard/productCardProductNameAndRemove" />
+            <iselse>
+                <isinclude template="checkout/productCard/productCardProductName" />
+            </isif>
+        </div>
+        <div class="bundle-includes">${Resource.msg('msg.bundle.includes','cart',null)}</div>
+        <!--- individual bundled line items --->
+        <isinclude template="cart/productCard/cartProductCardBundledItems" />
+    <iselse/>
+        <isif condition="${(pdict.order && !pdict.order.orderStatus) || miniCart}">
+            <isinclude template="cart/productCard/cartProductCardAvailability" />
+        </isif>
+        <div class="b-header_minicart-item-details b-header_minicart-item-row">
+            <div class="b-header_minicart-item-image">
+                    <isif condition="${lineItem.isGift}">
+                        <isset name="productURL" value="" scope="page" />
+                    <iselse>
+                        <isset name="productURL" value="${URLUtils.url('Product-Show','pid',lineItem.id)}" scope="page" />
+                    </isif>
+                    <isif condition=${miniCart || orderConfirmationPage }>
+                        <a href="${productURL}" <isif condition="${orderConfirmationPage}"> target="_blank" </isif>>
+                    </isif>
+                        <img src="${typeof lineItem.images.cartFullDesktop[0] !== 'undefined' ? lineItem.images.cartFullDesktop[0].url : null}" class="" title="${typeof lineItem.images.cartFullDesktop[0] !=='undefined' ? lineItem.images.cartFullDesktop[0].title :null}" alt="${typeof lineItem.images.cartFullDesktop[0] !== 'undefined' ? lineItem.images.cartFullDesktop[0].alt : null} image number ${typeof lineItem.images.cartFullDesktop[0] !== 'undefined' ? lineItem.images.cartFullDesktop[0].index :null}" itemprop="image" />
+                    <isif condition=${miniCart || orderConfirmationPage }>
+                        </a>
+                    </isif>
+            </div>
+            <div class="b-header_minicart-item-attributes">
+                <div class="b-header_minicart-item-header">
+                    <isinclude template="checkout/productCard/productCardProductName" />
+                </div>
+
+                <isif condition="${lineItem.custom.style}">
+                    <div class="b-header_minicart-product-number">
+                        <isinclude template="checkout/productCard/productCardProductNumber" />
+                    </div>
+                </isif>
+                <isif condition="${!empty(lineItem.custom.giftCard) && lineItem.custom.giftCard == 'EGIFT_CARD'}">
+                     <p class="t-lineitem_attributes"><span><isprint value="${Resource.msg('giftcard.details.recipient', 'cart', null) + ': '}"/></span><span><isprint value="${lineItem.custom.gcRecipientName}"/></span></p>
+                     <p class="t-lineitem_attributes"><span><isprint value="${Resource.msg('giftcard.details.email', 'cart', null) + ': '}"/><span><isprint value="${lineItem.custom.gcRecipientEmail}"/></span></p>
+                     <p class="t-lineitem_attributes"><span><isprint value="${Resource.msg('giftcard.details.from', 'cart', null) + ': '}"/><span><isprint value="${lineItem.custom.gcFrom}"/></span></p>
+                     <p class="t-lineitem_attributes"><span><isprint value="${Resource.msg('giftcard.details.delivery', 'cart', null) + ': '}"/><span><isprint value="${lineItem.custom.gcDeliveryDate}" formatter="MM/dd/yyyy" timezone="utc"/></span></p>
+                <iselse/>
+                    <isloop items="${lineItem.variationAttributes}" var="attribute">
+                        <isif condition="${attribute.attributeId == 'color'}">
+                            <isset name="productHelpers" value="${require('*/cartridge/scripts/helpers/productHelpers')}" scope="page"/>
+                            <isset name="fixProductColorNames" value="${productHelpers.fixProductColorNames(lineItem.custom.colorway)}" scope="page"/>
+                            <p class="b-header_minicart-item-attribute">${attribute.displayName}: <isif condition="${lineItem.custom.colorway}"> <span>${fixProductColorNames}</span></isif> - <isprint value="${lineItem.custom.color}"/></p>
+                        <iselse>
+                            <p class="b-header_minicart-item-attribute">${attribute.displayName}: ${attribute.displayValue}</p>
+                        </isif>
+                    </isloop>
+
+                    <div class="b-header_minicart-item-options">
+                        <isloop items="${lineItem.options}" var="option">
+                            <div class="b-header_minicart-item-option">${option.displayName}</div>
+                        </isloop>
+                    </div>
+
+                    <!--- quantity --->
+                    <div class="b-header_minicart-item-quantity">
+                        <isinclude template="checkout/productCard/productCardQuantityDisplay" />
+                    </div>
+                    <isif condition="${lineItem.custom.isPreOrder && lineItem.custom.preOrderProductTileMessage}">
+                        <div class="b-header_minicart-preorder-mask">
+                             <p>${lineItem.custom.preOrderProductTileMessage}</p>
+                        </div>
+                    </isif>
+                    <isif condition="${(pdict.order && !pdict.order.orderStatus) || miniCart}">
+                        <isinclude template="cart/productCard/cartProductCardAvailabilityMessage" />
+                    </isif>
+
+                    <isif condition="${lineItem.productType === 'bundle' && ((pdict.order && !pdict.order.orderStatus) || miniCart)}">
+                        <div class="b-header_minicart-item-availability">
+                            <isinclude template="cart/productCard/cartProductCardAvailability" />
+                        </div>
+                    </isif>
+                </isif>
+                <isif condition=${!miniCart}>
+                    <!--- line item total price --->
+                    <div class="b-header_minicart-total-price">
+                        <div class="b-header_minicart-item-total-${typeof lineItem !== 'undefined' ? lineItem.UUID : null} item-total-${typeof lineItem !== 'undefined' ? lineItem.UUID : null}">
+                            <isinclude template="checkout/productCard/productCardProductOrderSummaryTotalPrice" />
+                        </div>
+                    </div>
+                </isif>
+            </div>
+        </div>
+        <isinclude template="checkout/productCard/productCardProductDiscountMessage" />
+    </isif>
+
+    <div class="b-header_minicart-item-promo b-promo-line-item item-${typeof lineItem !=='undefined' ? lineItem.UUID :null}">
+        <isinclude template="checkout/productCard/productCardProductPromotions" />
+    </div>
+
+    <div class="b-header_minicart-item-list b-bag_summary">
+        <!--- item price --->
+        <isif condition=${miniCart}>
+            <isif condition="${!lineItem.isBonusProductLineItem}">
+                <div class="b-header_minicart-remove-item">
+                    <button type="button" class="remove-btn remove-product-item btn btn-light" data-toggle="modal"
+                            data-cmp="removeProductModal"
+                            data-pid="${lineItem.id}"
+                            data-product-style="${lineItem.custom.style}"
+                            data-name="${lineItem.productName}"
+                            data-action="${pdict.actionUrls.removeProductLineItemUrl}"
+                            data-uuid="${typeof lineItem !=='undefined' ? lineItem.UUID : null}"
+                            aria-label="${Resource.msgf('text.remove.line.item','cart', null, lineItem.productName)}">
+                        <span aria-hidden="true">${Resource.msg('text.remove.product.line.item', 'cart', null)}</span>
+                    </button>
+                </div>
+            </isif>
+        </isif>
+        <!--- line item total price --->
+        <isif condition=${miniCart}>
+            <div class="b-header_minicart-total-price">
+                <div class="b-header_minicart-item-total-${typeof lineItem !=='undefined' ? lineItem.UUID : null} item-total-${typeof lineItem !=='undefined' ? lineItem.UUID : null}">
+                    <isinclude template="checkout/productCard/productCardProductTotalPriceNew" />
+                </div>
+            </div>
+        </isif>
+    </div>
+</div>

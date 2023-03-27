@@ -1,0 +1,65 @@
+<isinclude template="/components/modules" />
+
+<isset name="slotConfigurationJSON" value="${require('~/cartridge/scripts/utils/JsonUtils').parse(slotcontent.custom.JSONData)}" scope="page" />
+<isset name="showSwatches" value="${empty(slotConfigurationJSON.swatches) ? false : slotConfigurationJSON.swatches}" scope="page"/>
+<isset name="showRatings" value="${empty(slotConfigurationJSON.ratings) ? true: slotConfigurationJSON.ratings}" scope="page"/>
+<isset name="quickview" value="${!empty(slotConfigurationJSON.quickview) ? slotConfigurationJSON.quickview : false}" scope="page" />
+<isset name="enableAvailablePerLocale" value="${'enableAvailablePerLocale' in (dw.system.Site.current.preferences.custom) && dw.system.Site.current.getCustomPreferenceValue('enableAvailablePerLocale')}"  scope="page"/>
+<isif condition="${slotcontent.custom.slotTitle || slotcontent.custom.viewAllLink}">
+    <div class="g-carousel-heading">
+        <isif condition="${slotcontent.custom.slotTitle}">
+            <span class="g-carousel-title">
+                <isprint value="${slotcontent.custom.slotTitle}" />
+            </span>
+        </isif>
+        <isif condition="${slotcontent.custom.viewAllLink}">
+            <a href="${slotcontent.custom.viewAllLink}" class="g-carousel-link">
+                ${Resource.msg('global.viewall', 'common', null)}
+            </a>
+        </isif>
+    </div>
+</isif>
+<div class="g-carousel js-recommendation-wrapper g-einstein-recommendations recommendations-section">
+    <div class="product-listing recommended-products js-carousel swiper-container"
+        data-cmp="carousel"
+        <isif condition="${slotConfigurationJSON.carouselConfiguration}">
+            data-json-config="${JSON.stringify(slotConfigurationJSON.carouselConfiguration)}"
+        </isif>
+    >
+         <div class="g-carousel-wrapper swiper-wrapper js-swiper-wrapper ${slotcontent.content.length > 1 ? 'm-more-one' : ''}">
+            <isloop items="${slotcontent.content}" var="product" status="loopState">
+            	<isif condition="${(enableAvailablePerLocale && product.custom.availableForLocale.value !== 'No') || !enableAvailablePerLocale}">
+                    <div class="g-carousel-slide swiper-slide">
+                        <isobject object="${product}" view="recommendation">
+                            <isinclude url="${URLUtils.url('Tile-Show', 'pid', product.ID, 'swatches', showSwatches, 'ratings', showRatings, 'source', 'recommendation', 'quickview', quickview)}" />
+                        </isobject>
+                    </div>
+                </isif>
+            </isloop>
+        </div>
+        <div class="g-carousel-control m-next js-swiper-button js-swiper-button-next"></div>
+        <div class="g-carousel-control m-prev js-swiper-button js-swiper-button-prev"></div>
+    </div>
+</div>
+<script>
+    // need to reinit einstein carousel component on load
+    // because it's possible this markup is injected after component initialization normally takes place
+    if (typeof triggerComponentInitEvent === 'function') {
+            triggerComponentInitEvent();
+    } else {
+        var triggerComponentInitEvent = function() {
+            const event = new Event('components:init');
+            document.body.dispatchEvent(event);
+            setTimeout(function() {
+                const carouselReinitEvent = new Event('carousel:reinit');
+                document.body.dispatchEvent(carouselReinitEvent);
+            }, 5000);
+        };
+
+        if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement.doScroll)) {
+            triggerComponentInitEvent();
+        } else {
+            document.addEventListener("DOMContentLoaded", triggerComponentInitEvent);
+        }
+    }
+</script>

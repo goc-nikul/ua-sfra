@@ -1,0 +1,20 @@
+<div class="card">
+    <div class="card-header clearfix">
+        <div class="card-left">
+            <isif condition="${activities && (activities.length > 0)}">
+                <span class="activities-note">${Resource.msg('sub.heading.account.activities', 'account', null)}</span>
+                <ul class="activities-list">
+                    <isloop items="${activities}" var="activity">
+                        <li><isprint value="${activity}" encoding="htmlcontent"/></li>
+                    </isloop>
+                </ul>
+            <iselse>
+                <span class="empty-activities-note">${Resource.msg('label.empty.activities.a', 'account', null)}</span>
+                <span class="empty-activities-note">${Resource.msg('label.empty.activities.b', 'account', null)}</span>
+            </isif>
+        </div>
+        <div class="card-right">
+            <a href="${URLUtils.url('Account-EditProfile')}" class="b-account-address_book-new btn-add-new g-button_secondary--black g-button_base" aria-label="${Resource.msg('label.profile.edit','account',null)}">${Resource.msg('link.edit','account',null)}</a>
+        </div>
+    </div>
+</div>

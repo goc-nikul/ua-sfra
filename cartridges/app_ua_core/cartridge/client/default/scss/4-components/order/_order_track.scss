@@ -1,0 +1,255 @@
+.b-order_track {
+    .alert-danger {
+        margin-bottom: rem-calc(32);
+        color: $red;
+    }
+
+    &-details {
+        @include push-to-center(952px);
+
+        padding-top: rem-calc(24);
+        border-top: 1px solid $grey3;
+        margin: {
+            bottom: rem-calc(64);
+        }
+
+        &.js-select-reason {
+            padding-top: rem-calc(0);
+
+            .b-selectitems-returns {
+                padding-top: rem-calc(0) !important;
+
+                .b-order-col-rightsec {
+                    display: none;
+                }
+
+                .order-items {
+                    display: flex;
+                    justify-content: space-between;
+                    flex-basis: 100% !important;
+                    @include respond-to(mobile) {
+                        flex-wrap: wrap;
+                    }
+
+                    .b-select-returnreason {
+                        flex-basis: 70%;
+                        @include respond-to(mobile) {
+                            flex-basis: 100%;
+                        }
+
+                        .exchange-item-shipped-container {
+                            float: left;
+                            width: 100%;
+
+                            .exchange-item-shipped-header {
+                                border-top: 1px solid $grey3;
+                                padding-top: rem-calc(32);
+                                @include font(main_bold, rem-calc(16), 1.67);
+                                @include respond-to(mobile) {
+                                    @include font(main_med, rem-calc(12), 1.67);
+                                }
+                            }
+
+                            .exchange-item-shipped-body {
+                                margin-top: rem-calc(10);
+
+                                span {
+                                    float: left;
+                                    width: 100%;
+                                    @include font(main, rem-calc(12), 1.67);
+                                }
+                            }
+
+                            .exchange-item-shipped-footer {
+                                float: left;
+                                margin-top: rem-calc(16);
+                                @include font(main, rem-calc(12), 1.67);
+
+                                color: $grey5;
+                                @include respond-to(mobile) {
+                                    margin-bottom: rem-calc(16);
+                                }
+                            }
+                        }
+
+                        .js-order-return-items {
+                            &:nth-child(1) {
+                                .b-order-col-left {
+                                    border-top: inherit !important;
+                                }
+                            }
+                        }
+                    }
+
+                    .b-order-col-rightsec {
+                        display: block;
+                        padding-top: rem-calc(32);
+                    }
+                }
+            }
+        }
+        @include respond-to(mobile) {
+            margin: {
+                top: rem-calc(0);
+                bottom: rem-calc(0);
+            }
+
+            &:nth-child(1) {
+                border-top: inherit;
+                padding-top: inherit;
+            }
+        }
+
+        .b-order-item {
+            border-bottom: 0;
+            padding: 0;
+        }
+
+        .b-order-details-pageHeading {
+            @include font(main_bold, rem-calc(24), 1.33);
+
+            margin-bottom: rem-calc(24);
+
+            @include respond-to(mobile) {
+                @include font(main_bold, rem-calc(16), 1.67);
+            }
+        }
+    }
+
+    &-container {
+        @include push-to-center(1200px);
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0 rem-calc(16);
+        margin: {
+            top: rem-calc(57);
+            bottom: rem-calc(64);
+        }
+
+        .orderreturn-img {
+            position: relative;
+            bottom: rem-calc(48);
+        }
+        @include respond-to(mobile) {
+            position: relative;
+            flex-wrap: wrap;
+            margin: {
+                top: rem-calc(40);
+                bottom: rem-calc(40);
+            }
+        }
+
+        &.b-mao-maintenance {
+            align-items: flex-start;
+
+            @include respond-to(mobile) {
+                margin-top: 0;
+                margin-bottom: 0;
+            }
+
+            .b-order_track-left {
+                @include respond-to(desktop) {
+                    max-width: rem-calc(700);
+                    padding-right: rem-calc(80);
+                }
+            }
+        }
+    }
+
+    &-left {
+        max-width: rem-calc(448);
+        flex: 1 1 65%;
+        position: relative;
+
+        @include respond-to(mobile) {
+            max-width: 100%;
+            flex: 1 1 100%;
+        }
+
+        .b-loader {
+            position: absolute;
+        }
+
+        .b-return-wrap {
+            position: relative;
+            bottom: rem-calc(65);
+            @include respond-to(mobile) {
+                padding-top: 0;
+                bottom: rem-calc(27);
+            }
+        }
+    }
+
+    &-right {
+        @include respond-to(mobile) {
+            display: none;
+        }
+    }
+
+    &-content_available {
+        flex-basis: auto;
+        padding-left: rem-calc(60);
+
+        @include respond-to(mobile) {
+            padding-left: 0;
+            margin-top: rem-calc(40);
+        }
+    }
+
+    &-header {
+        @include font(main_bold, rem-calc(32), 1.25);
+
+        letter-spacing: 1px;
+        margin-bottom: rem-calc(24);
+        text-transform: capitalize;
+
+        @include respond-to(mobile) {
+            @include font(main, rem-calc(16), 1.5);
+
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: rem-calc(8);
+        }
+    }
+
+    &-header-text {
+        @include font(main, rem-calc(14), 1.43);
+
+        margin-bottom: rem-calc(32);
+
+        @include respond-to(mobile) {
+            @include font(main, rem-calc(12), 1.67);
+        }
+    }
+
+    &-row {
+        margin-bottom: rem-calc(32);
+
+        @include respond-to(mobile) {
+            margin-bottom: rem-calc(24);
+        }
+    }
+
+    &-button {
+        max-width: 100%;
+    }
+
+    &-link {
+        text-align: center;
+        margin-top: rem-calc(24);
+
+        a {
+            @include font(main, rem-calc(12), 1.67);
+
+            font-weight: 600;
+            color: $grey5;
+            text-decoration: none;
+
+            @include respond-to(mobile) {
+                text-decoration: underline;
+            }
+        }
+    }
+}

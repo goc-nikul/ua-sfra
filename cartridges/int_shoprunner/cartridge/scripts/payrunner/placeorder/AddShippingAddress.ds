@@ -1,0 +1,55 @@
+var Status = require('dw/system/Status');
+
+/**
+ * Creates a shipping address for the given shipment and copies
+ * the address details stored in the given address form to the
+ * created shipment address.
+ *
+ * @input Shipment : dw.order.Shipment The shipment to create the address for.
+ * @input ShippingObj : Object The shipment to create the address for.
+ * 
+ */
+
+function execute(args) {
+	var shipment = pdict.Shipment;
+	var shipmentObj = pdict.ShippingObj;
+	var result = addAddress(shipment, shipmentObj);
+	if (result.status === Status.OK) {
+		return PIPELET_NEXT;
+	} else {
+		return PIPELET_ERROR;
+	}
+}
+
+function addAddress(shipment, shipmentObj) {
+	var status;
+	try {		
+		var shippingAddress = shipment.shippingAddress;
+		
+		// if the shipment has no shipping address yet, create one
+		if( shippingAddress == null ) 
+		{
+			shippingAddress = shipment.createShippingAddress();	
+		}		
+		shippingAddress.setFirstName( shipmentObj.shippingfirstName );
+		shippingAddress.setLastName( shipmentObj.shippinglastName );
+		shippingAddress.setAddress1( shipmentObj.shippingAddress1 );
+		shippingAddress.setCity( shipmentObj.shippingCity );
+		shippingAddress.setPostalCode( shipmentObj.shippingPostalCode );
+		shippingAddress.setStateCode( shipmentObj.shippingStateCode );
+		shippingAddress.setCountryCode( shipmentObj.shippingCountryCode );
+		shippingAddress.setPhone( shipmentObj.shippingPhone );		
+	} 
+	catch ( e ) 
+	{
+		Logger.getLogger('ShopRunner', 'ShopRunner').error('ShopRunner: Shipping address cannot be validated. ' + e.message);
+		status = new Status(Status.ERROR);
+
+	}
+	status = new Status(Status.OK);
+}
+
+module.exports = {
+    execute: execute,
+	addEmail: addEmail
+};

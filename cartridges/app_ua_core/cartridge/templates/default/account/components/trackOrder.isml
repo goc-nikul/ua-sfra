@@ -1,0 +1,17 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isdecorate template="common/layout/page">
+    <isinclude template="/components/modules" sf-toolkit="off" />
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/js/account.js');
+    </isscript>
+    <div class="b-order_track">
+        <div class="b-order_track-container">
+            <div class="b-order_track-left${pdict.contentAvailable ? '' : ' t-align-center'}">
+                <isinclude template="account/components/trackOrderForm"/>
+            </div>
+            <div class="b-order_track-right${pdict.contentAvailable ? ' b-order_track-content_available' : ''}">
+                <iscontentasset aid="guest-track-order-image" />
+            </div>
+        </div>
+</isdecorate>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+
+    <!--  postal code -->
+    <field formid="postalCode"
+        label="pilot.label.input.zipcode"
+        type="string"
+        regexp="(^\d{5}$|^\d{5}-\d{4}$)"
+        mandatory="true"
+        min-length="5"
+        max-length="10"
+        binding="postalCode"
+        range-error="error.message.between5and10"
+        missing-error="address.zipcode.missing"
+        parse-error="error.message.parse.zip"/>
+</form>

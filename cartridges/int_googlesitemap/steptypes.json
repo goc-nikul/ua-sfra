@@ -1,0 +1,114 @@
+{
+   "step-types": {
+       "script-module-step": [
+           {
+               "@type-id": "custom.DownloadHreflangSitemaps",
+               "@support-parallel-execution": "false",
+               "@support-site-context": "true",
+               "@support-organization-context": "true",
+               "description": "Download Hreflang Sitemap",
+               "module": "int_googlesitemap/cartridge/scripts/sitemap/DownloadHreflangSitemap.js",
+               "function": "downloadSitemaps",
+               "transactional":"false",
+               "parameters": {},
+               "status-codes": {
+                   "status": [
+                       {
+                           "@code":"ERROR",
+                           "description":"Used when an error occurred."
+                       },
+                       {
+                           "@code":"OK",
+                           "description":"Used when everything went well."
+                       },
+                       {
+                           "@code":"WARN",
+                           "description":"Used when small, but acceptable problems occurred."
+                       }
+                   ]
+               }
+           },
+           {
+            "@type-id": "custom.CleanUpHreflangSitemaps",
+            "@support-parallel-execution": "false",
+            "@support-site-context": "true",
+            "@support-organization-context": "true",
+            "description": "CleanUp Hreflang Sitemaps",
+            "module": "int_googlesitemap/cartridge/scripts/sitemap/DownloadHreflangSitemap.js",
+            "function": "cleanUpSitemaps",
+            "transactional":"false",
+            "parameters": {},
+            "status-codes": {
+                "status": [
+                    {
+                        "@code":"ERROR",
+                        "description":"Used when an error occurred."
+                    },
+                    {
+                        "@code":"OK",
+                        "description":"Used when everything went well."
+                    },
+                    {
+                        "@code":"WARN",
+                        "description":"Used when small, but acceptable problems occurred."
+                    }
+                ]
+            }
+        },
+        {
+            "@type-id": "custom.GenerateOtherSitemaps",
+            "@support-parallel-execution": "false",
+            "@support-site-context": "true",
+            "@support-organization-context": "true",
+            "description": "CleanUp Hreflang Sitemaps",
+            "module": "int_googlesitemap/cartridge/scripts/customcatalogs/OthersXML.js",
+            "function": "generateOtherSitemaps",
+            "transactional":"false",
+            "parameters": {},
+            "status-codes": {
+                "status": [
+                    {
+                        "@code":"ERROR",
+                        "description":"Used when an error occurred."
+                    },
+                    {
+                        "@code":"OK",
+                        "description":"Used when everything went well."
+                    },
+                    {
+                        "@code":"WARN",
+                        "description":"Used when small, but acceptable problems occurred."
+                    }
+                ]
+            }
+        },
+        {
+            "@type-id": "custom.DownloadProductSitemaps",
+            "@support-parallel-execution": "false",
+            "@support-site-context": "true",
+            "@support-organization-context": "true",
+            "description": "CleanUp Hreflang Sitemaps",
+            "module": "int_googlesitemap/cartridge/scripts/customcatalogs/productXMLs.js",
+            "function": "execute",
+            "transactional":"false",
+            "parameters": {},
+            "status-codes": {
+                "status": [
+                    {
+                        "@code":"ERROR",
+                        "description":"Used when an error occurred."
+                    },
+                    {
+                        "@code":"OK",
+                        "description":"Used when everything went well."
+                    },
+                    {
+                        "@code":"WARN",
+                        "description":"Used when small, but acceptable problems occurred."
+                    }
+                ]
+            }
+        }
+       ]
+   }
+}

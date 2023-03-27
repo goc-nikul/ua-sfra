@@ -1,0 +1,51 @@
+/**
+*   @input productIds : String
+*   @output allProduct : dw.util.Iterator
+*   @output countProduct : Number
+*   @output localesList : dw.util.ArrayList
+*
+*/
+importPackage( dw.system );
+importPackage( dw.catalog );
+importPackage( dw.object );
+importPackage( dw.util );
+importScript("helpFunctions.ds");
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "searchProductsByIds"));
+
+/**
+    Search products by IDs
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+   try {
+       pdict.localesList = getTargetLocalesList();
+
+       var products : List = new ArrayList;
+
+       if (pdict.productIds !== null) {
+           var ids : Array = pdict.productIds.split(new RegExp("(,|;|\\s)+", "m"));
+
+           for each (var id : String in ids)
+           {
+               if(id != '\n')
+               {
+                   var product : Product = ProductMgr.getProduct(id);
+                   if (product != null)
+                   {
+                       products.add(product);
+                   }
+               }
+           }
+       }
+
+       pdict.allProduct = new dw.util.ArrayList(products).iterator();
+       pdict.countProduct = products.size();
+
+   } catch (e) {
+        LOGGER.errorException('searchProductsByIds execution failed, productIds="{0}"', pdict.productIds, e);
+        return PIPELET_ERROR;
+   }
+   return PIPELET_NEXT;
+}

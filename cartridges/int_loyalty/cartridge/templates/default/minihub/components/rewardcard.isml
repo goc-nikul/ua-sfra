@@ -1,0 +1,53 @@
+<isset name="checkRewardRedeemed" value="${require('*/cartridge/scripts/helpers/loyaltyHelper').checkRewardRedeemed}" scope="page"/>
+<div class="g-reward-card ${checkRewardRedeemed(reward, pdict.minihub.redeemedRewards) ? 'active' : ''} ${reward.rewardFlowType === pdict.minihub.flowTypes.FREE_PRODUCT ? 'b-free-product-card' : ''}" data-points-cost="${reward.points}">
+    <div class="g-reward-card_img">
+        <isif condition="${reward.imageUrl}">
+            <img src="${reward.imageUrl}" alt="${Resource.msg('img.alt.reward.card', 'loyalty', null)}" />
+        <iselse>
+            <img src="${URLUtils.staticURL('/images/minihub/reward-card-placeholder.jpg')}" alt="${Resource.msg('img.alt.reward.card', 'loyalty', null)}" />
+        </isif>
+    </div>
+    <div class="g-reward-card_main">
+        <div class="g-reward-card_type">
+            <isprint value="${reward.subTitle1}" encoding="off" />
+        </div>
+        <div class="g-reward-card_desc">
+            <div class="g-reward-card_desc_left">
+                <div class="g-reward-card_desc-amount">
+                    <isprint value="${reward.title}" encoding="off" />
+                </div>
+                <div class="g-reward-card_desc-legend">
+                    <isprint value="${reward.subTitle2}" encoding="off" />
+                </div>
+            </div>
+            <div class="g-reward-card_desc_right">
+                <div class="g-reward-card_desc-points">
+                    ${Resource.msgf('loyalty.points.short', 'loyalty', null, reward.points)}
+                </div>
+            </div>
+        </div>
+    </div>
+    <isif condition="${reward.rewardFlowType === pdict.minihub.flowTypes.FREE_PRODUCT}">
+        <div class="b-free-product-card_product-wrapper">
+            <isinclude template="minihub/components/freeproductcard" />
+        </div>
+        <div class="b-free-product-card_info-loading">
+            <p>${Resource.msg('loyalty.freeproduct.loading.info', 'minihub', null)}</p>
+        </div>
+    </isif>
+
+    <isif condition="${reward.rewardFlowType !== pdict.minihub.flowTypes.FREE_PRODUCT}">
+        <div class="g-reward-card_cta-wrapper" data-rewardid="${reward.rewardID}" data-productid="${reward.productID}" data-reward-flow-type="${reward.rewardFlowType}">
+            <button type="button" data-action-type="minihub:redeem" class="g-button_base g-button_primary--white g-reward-card_cta-redeem js-minihub-action">${Resource.msg('button.apply.to.bag', 'loyalty', null)}</button>
+            <div class="g-reward-card_cta-wrapper_left g-reward-card_cta-remove">
+                <button type="button" class="g-button_base g-button_primary--white">
+                    <img class="g-reward-card_cta-icon" src="${URLUtils.staticURL('/images/loyalty-icon-success.svg')}" alt="${Resource.msg('loyalty.icon.alt.redeem.success','loyalty', null)}" />
+                    ${Resource.msg('button.added', 'loyalty', null)}
+                </button>
+            </div>
+            <div class="g-reward-card_cta-wrapper_right g-reward-card_cta-remove">
+                <button type="button" data-action-type="minihub:remove" class="g-button_base g-button_secondary--white js-minihub-action">${Resource.msg('button.remove', 'loyalty', null)}</button>
+            </div>
+        </div>
+    </isif>
+</div>

@@ -1,0 +1,14 @@
+
+<div class="b-account-left_nav">
+    <div class="b-account-dashboard"><a href="${URLUtils.url('Account-Show')}" class="">${Resource.msg('page.heading.dashboard','account',null)}</a></div>
+    <div class="b-account-history"><a href="${URLUtils.url('Order-History')}" class="">${Resource.msg('label.orderhistory','account',null)}</a></div>
+    <div class="b-account-profile"><a href="${URLUtils.url('Account-EditProfile')}" class="">${Resource.msg('label.profile','account',null)}</a></div>
+    <div class="b-account-payment"><a href="${URLUtils.url('PaymentInstruments-List')}" class="">${Resource.msg('label.payment.methods','account',null)}</a></div>
+    <div class="b-account-address"><a href="${URLUtils.url('Address-List')}" class="">${Resource.msg('label.address','account',null)}</a></div>
+    <isif condition="${!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR')}">
+        <div class="b-account-wishlist"><a href="${URLUtils.url('Wishlist-Show')}" class="">${Resource.msg('label.whishlist','account',null)}</a></div>
+    </isif>
+    <isif condition=${!empty(pdict.loyaltyUrl)}>
+        <div class="b-account-locker"><a href="${pdict.loyaltyUrl}" class="">${Resource.msg('label.ua-rewards', 'account', null)}</a></div>
+    </isif>
+</div>

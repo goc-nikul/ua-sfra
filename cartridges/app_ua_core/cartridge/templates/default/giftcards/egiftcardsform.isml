@@ -1,0 +1,154 @@
+<iscontent compact="true">
+
+<iscomment><isset name="GiftCardsHelper" value="${require('underarmour_na_storefront/cartridge/scripts/lib/GiftCardsHelper')}" scope="page"/>
+<isset name="eGiftCardAmount" value="${GiftCardsHelper.eGiftCardAmount()}" scope="page"/>
+<isset name="currentSymbol" value="${session.getCurrency().symbol}" scope="page"/>
+<isset name="amountErrorMsg" value="${Resource.msgf('giftcards.amount.error','giftcards',null, currentSymbol + eGiftCardAmount.min, currentSymbol + eGiftCardAmount.max)}" scope="page"/></iscomment>
+
+<form
+    action="${(typeof(isQuickView) != 'undefined' && isQuickView == true)? pdict.updateCartUrl : pdict.addToCartUrl}"
+    class="e-giftcard"
+    method="POST"
+    name="${pdict.eGiftCardsForm.htmlName}" data-cmp="formGeneric">
+	<div class="form-group b-egiftcard-name 
+	    <isif condition="${!!pdict.eGiftCardsForm.egiftcard.gcRecipientName.mandatory === true}">required</isif>">
+	    <div class="b-input_row">
+	    <label class="form-control-label b-input_row-label" for="registration-form-password">
+	        <isprint value="${pdict.eGiftCardsForm.egiftcard.gcRecipientName.label}" encoding="htmlcontent" />
+	    </label>
+	    <input
+	        type="text"
+	        name="gcRecipientName"
+	        class="form-control b-input_row-input"
+	        id="gc-recipient-name"
+	        aria-describedby="form-password-error"
+	        autocomplete="off"
+	        <isprint value=${pdict.eGiftCardsForm.egiftcard.gcRecipientName.attributes} encoding="off" />>
+	    <div class="invalid-feedback" id="form-password-error"></div>
+	    </div>
+	</div>
+	<div class="form-group b-egiftcard-email
+	    <isif condition="${!!pdict.eGiftCardsForm.egiftcard.gcRecipientEmail.mandatory === true}">required</isif>">
+	    <div class="b-input_row">
+	    <label class="form-control-label b-input_row-label" for="registration-form-password">
+	        <isprint value="${pdict.eGiftCardsForm.egiftcard.gcRecipientEmail.label}" encoding="htmlcontent" />
+	    </label>
+	    <input
+	        type="text"
+	        name="gcRecipientEmail"
+	        class="form-control b-input_row-input"
+	        id="gc-recipient-email"
+	        aria-describedby="form-password-error"
+	        autocomplete="off"
+	        <isprint value=${pdict.eGiftCardsForm.egiftcard.gcRecipientEmail.attributes} encoding="off" />>
+	    <div class="invalid-feedback" id="form-password-error"></div>
+	    </div>
+	</div>
+	<div class="form-group b-egiftcard-from
+	    <isif condition="${!!pdict.eGiftCardsForm.egiftcard.gcFrom.mandatory === true}">required</isif>">
+	    <div class="b-input_row">
+	    <label class="form-control-label b-input_row-label" for="registration-form-password">
+	        <isprint value="${pdict.eGiftCardsForm.egiftcard.gcFrom.label}" encoding="htmlcontent" />
+	    </label>
+	    <input
+	        type="input"
+	        name="gcFrom"
+	        class="form-control b-input_row-input"
+	        id="gc-from"
+	        aria-describedby="form-password-error"
+	        autocomplete="off"
+	        <isprint value=${pdict.eGiftCardsForm.egiftcard.gcFrom.attributes} encoding="off" />>
+	    <div class="invalid-feedback" id="form-password-error"></div>
+	    </div>
+	</div>
+	<div class="b-giftcards-amount-outer">
+		<div class="form-group b-egiftcard-amount required
+		    <isif condition="${!!pdict.eGiftCardsForm.egiftcard.gcAmount.mandatory === true}">required</isif>">
+		    <div class="b-input_row">
+		    <label class="form-control-label b-input_row-label" for="registration-form-password">
+		        <isprint value="${pdict.eGiftCardsForm.egiftcard.gcAmount.label}" encoding="htmlcontent" />
+		    </label>
+		    <span class="dollarSymbol">$</span>
+		    <input
+		        type="text"
+		        name="gcAmount"
+		        class="form-control b-input_row-input js-giftcard-amount js-giftcard-amount-date"
+		        id="gc-amount"
+		        aria-describedby="form-password-error"
+		        autocomplete="off"
+		        data-min-amount="${pdict.eGiftCardMinAmount}"
+		        data-max-amount="${pdict.eGiftCardMaxAmount}"
+		        data-decimal-error= "${Resource.msg('giftcard.decimal.error', 'giftcards', null)}"
+		        pattern="^[0-9]+(\.[0-9]{1,2})?$"
+		        data-pattern-mismatch="${Resource.msg('giftcard.amount.pattern.mismatch', 'giftcards', null)}"
+		        data-valid-error= "${Resource.msg('giftcard.amount.range', 'giftcards', null)}"
+		        <isprint value=${pdict.eGiftCardsForm.egiftcard.gcAmount.attributes} encoding="off" />>
+		    <div class="invalid-feedback" id="form-password-error"></div>
+		    </div>
+		</div>
+		<div class="form-group b-egiftcard-deliverydate required 
+		    <isif condition="${!!pdict.eGiftCardsForm.egiftcard.gcDeliveryDate.mandatory === true}">required</isif>">
+		    <div class="b-input_row">
+		    <label class="form-control-label b-input_row-label" for="registration-form-password">
+		        <isprint value="${pdict.eGiftCardsForm.egiftcard.gcDeliveryDate.label}" encoding="htmlcontent" />
+		    </label>
+		    <input
+		        type="date"
+		        name="gcDeliveryDate"
+		        class="form-control b-input_row-input js-deliverydate js-giftcard-amount-date"
+		        id="gc-delivery-date"
+		        aria-describedby="form-password-error"
+		        autocomplete="off"
+		        data-delivery-within="${pdict.eGiftCardDeliveryTimeLine}"
+		        data-valid-error= "${Resource.msg('giftcard.date.error', 'giftcards', null)}"
+		        data-max-dateerror= "${Resource.msgf('giftcard.date.range', 'giftcards', null, pdict.eGiftCardDeliveryTimeLine)}"
+		        <isprint value=${pdict.eGiftCardsForm.egiftcard.gcDeliveryDate.attributes} encoding="off" />>
+		        <input
+                type="hidden"
+                id="gc-delivery-withindate"
+                class="js-within-date"
+                value="">
+                <isif condition="${pdict.lineItemDate}"> 
+                    <input type="hidden" class="line-item-date" value="${new Date(pdict.lineItemDate)}">
+               </isif>
+		    <div class="invalid-feedback" id="form-password-error"></div>
+		    </div>
+		</div>
+	</div>
+	<div class="form-group
+        <isif condition="${!!pdict.eGiftCardsForm.egiftcard.gcMessage.mandatory === true}">required</isif>">
+        <div class="b-input_row">
+        <label class="form-control-label b-input_row-label" for="registration-form-password">
+            <isprint value="${pdict.eGiftCardsForm.egiftcard.gcMessage.label}" encoding="htmlcontent" />
+        </label>
+        <input
+            type="text"
+            name="gcMessage"
+            class="form-control b-input_row-input"
+            id="gc-message"
+            aria-describedby="form-password-error"
+            autocomplete="off"
+            <isprint value=${pdict.eGiftCardsForm.egiftcard.gcMessage.attributes} encoding="off" />>
+        <div class="invalid-feedback" id="form-password-error"></div>
+        </div>
+    </div>
+
+    <p class="error-message-text specialChar"></p>
+    <input type="hidden" class="added-tocart-confirmation-modal-url" value="${URLUtils.url('Cart-cartAddedConfirmationModal')}">
+
+    <isif condition="${typeof(isQuickView) != 'undefined' && isQuickView == true}">
+        <div class="cart-and-ipay">
+	        <input type="hidden" class="update-cart-url" value="${pdict.updateCartUrl}"
+	           data-selected-quantity="${pdict.selectedQuantity}" data-uuid="${pdict.uuid}">
+		    <button type="submit" class="js-egiftcard-update js-update-cart-product-global g-button_base g-button_primary--black b-egiftcard-button">
+		        ${Resource.msg('button.update', 'common', null)}
+		    </button>
+	    </div>
+    <iselse/>
+        <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+        <input type="hidden" class="add-to-cart-url" value="${pdict.addToCartUrl}">
+        <button type="submit" ${pdict.isVIP ? 'disabled' : ''} class="btn btn-block js-egiftcard-add-to-cart g-button_base g-button_tertiary b-egiftcard-button">
+            ${Resource.msg('button.addtocart', 'common', null)}
+        </button>
+    </isif>
+</form>

@@ -1,0 +1,73 @@
+///	Map with media queries strings
+///	@group Responsive
+///	@type Map
+$break-points: (
+    iphonex: 'only screen and (device-width : 375px) and (device-height : 812px) and (-webkit-device-pixel-ratio : 3)',
+    iphonexr: 'only screen and (min-device-width : 414px) and (max-device-height : 896px) and (-webkit-device-pixel-ratio : 2)',
+    iphonex-landscape: 'only screen and (device-height : 375px) and (device-width : 812px)',
+    iphonesse: 'only screen and (min-device-width : 375px) and (max-device-width : 667px)',
+    iphonesseplus: 'only screen and (min-device-width : 414px) and (max-device-width : 736px)',
+    iphonef: 'only screen and (min-device-width : 320px) and (max-device-width : 568px)',
+    iphonexmax: 'only screen and (min-device-width : 414px) and (max-device-height : 896px) and (-webkit-device-pixel-ratio : 3)',
+    ipadPro-portrait: 'only screen and (min-device-width: 1024px) and (max-device-width: 1366px) and (orientation: portrait) and (-webkit-min-device-pixel-ratio: 1.5)',
+    ipadProtzoe-portrait: 'only screen and (min-width: 834px) and (max-width: 1194px)',
+    samsung-galaxysf: 'only screen and (min-device-width: 360px) and (max-device-width: 640px) and (-webkit-device-pixel-ratio: 3)',
+    samsung-galaxysn: 'only screen and (min-device-width: 360px) and (max-device-width: 740px) and (-webkit-device-pixel-ratio: 4)',
+    samsung-galaxyst: 'only screen and (min-device-width: 360px) and (max-device-width: 800px)',
+    IEBrowser: 'screen and (-ms-high-contrast: active), (-ms-high-contrast: none)',
+    phones-portrait: 'screen and (max-width: 479px)',
+    phones-landscape: 'screen and (min-width: 480px) and (max-width: 767px)',
+    phones: 'screen and (max-width: 767px)',
+    phones-small: 'screen and (max-device-width: 375px) and (max-device-height : 667px) , (max-device-height : 420px) , (max-height : 420px)',
+    no-phones: 'screen and (min-width: 768px)',
+    tablets: 'screen and (min-width: 768px) and (max-width: 1023px)',
+    tablets-landscape: 'screen and (min-width: 1024px) and (max-width: 1439px)',
+    mobile: 'screen and (max-width: 1023px)',
+    desktop: 'screen and (min-width: 1024px)',
+    desktop-small: 'screen and (min-width: 812px) and (max-width: 1023px)',
+    desktop-large: 'screen and (min-width: 1440px)',
+    tablet-landscape: 'screen and (max-width: 1024px)',
+    hoverable: '(hover: hover)',
+    touch-only: '(hover: none)',
+    print: 'print',
+);
+
+/// This is a super useful mixin for media queries
+/// in $break-points map you have to define media queries for each viewport you need
+/// then in code you can use it like:
+///	@example
+///   @include respond-to(phones);
+///   @include respond-to(phones-portrait tablets);
+///   @include respond-to(tablets desktop);
+///   @include respond-to(phones tablets);
+///
+/// content Styles for a specific break-point
+/// @require {Map} $break-points
+/// @author V.Ulanov
+/// @group Responsive
+
+@mixin respond-to($media, $operator: or) {
+    $__query: null;
+
+    @each $type in $media {
+        @if map-has-key($break-points, $type) {
+            @if ($operator == or) {
+                $__query: append($__query, unquote(map-get($break-points, $type)), comma);
+            } @else if ($operator == and) {
+                @if ($_query == null) {
+                    $__query: '';
+                } @else {
+                    $__query: str-insert($__query, ' and', str-length($__query) +1);
+                }
+
+                $__query: str-insert($__query, unquote(map-get($break-points, $type)), str-length($__query) +1);
+            }
+        } @else {
+            @warn $type;
+        }
+    }
+
+    @media #{$__query} {
+        @content;
+    }
+}

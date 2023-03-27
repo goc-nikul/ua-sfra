@@ -1,0 +1,41 @@
+<div class="g-selectric-container form-group ${((pdict.formfield && pdict.formfield.mandatory) || pdict.mandatory) ? 'required' : ''}">
+    <isif condition="${pdict.formfield}">
+        <select data-cmp="customSelect" data-cmp-id="selectric" class="js-input_field input-select ${pdict.fieldclass}"
+            id="${pdict.formfield.dynamicname ? pdict.formfield.dynamicHtmlName : pdict.formfield.htmlName}"
+            name="${pdict.formfield.dynamicname ? pdict.formfield.dynamicHtmlName : pdict.formfield.htmlName}" <isprint
+            value="${pdict.formfield.attributes}" encoding="off" />
+        >
+            <isset name="optionList" value="${pdict.formfield.options}" scope="page" />
+            <isloop items="${optionList}" var="option">
+                <option class="select-option" label="${option.label}" value="${option.value}"
+                    <isif condition="${option.selected || pdict.formfield.value === option.value}">
+                        selected="selected"
+                    </isif>
+                >${option.label}</option>
+            </isloop>
+        </select>
+        <label class="g-selectric-label form-control-label js-input-label"
+            for="${pdict.formfield.dynamicname ? pdict.formfield.dynamicHtmlName : pdict.formfield.htmlName}">
+            <isprint value="${pdict.formfield.label}" encoding="htmlcontent" />
+        </label>
+    <iselse/>
+        <select data-cmp="customSelect" data-cmp-id="selectric" class="js-input_field input-select ${pdict.fieldclass}"
+            id="${pdict.id || pdict.name}" name="${pdict.name || pdict.id}" <isprint value="${pdict.attributes}"
+            encoding="off" />
+        >
+            <isloop items="${pdict.optionlist}" var="option">
+                <option class="select-option ${option.id ? option.id.replace(/\s/g,'') : ''}" label="${option.displayName}" value="${option.url}"
+                    <isif condition="${pdict.ruleid && pdict.ruleid.replace(/-/g, '').toLowerCase() === option.id.replace(/-/g, '')}">
+                        selected="selected"
+                    </isif>
+                    <isif condition="${option.id}">
+                        data-id="${option.id.replace(/\s/g,'')}"
+                    </isif>
+                    >${option.displayName}</option>
+            </isloop>
+        </select>
+        <label class="g-selectric-label form-control-label js-input-label ${pdict.labelclass}" for="${pdict.name || pdict.id}">
+            <isprint value="${pdict.label}" encoding="htmlcontent" />
+        </label>
+    </isif>
+</div>

@@ -1,0 +1,152 @@
+<!--- TEMPLATENAME: pickupNotifications.isml --->
+<div class="instore-pick-up-instructions">
+    <div class="instructions-heading">
+        <isprint value="${Resource.msg('heading.pickup.instructions', 'checkout', null)}" />
+    </div>
+    <div class="pickup-instuctions">
+        <span class="pickup-instuction-one pickup-instuction-content">
+            <img alt="pickup-one" src="${URLUtils.staticURL('/images/pickup-mail.svg')}">
+            <span><isprint value="${Resource.msg('pickup.instruction.one', 'checkout', null)}" /></span>
+        </span>
+        <span class="pickup-instuction-two pickup-instuction-content">
+            <img alt="pickup-two" src="${URLUtils.staticURL('/images/identification-card.svg')}">
+            <span><isprint value="${Resource.msg('pickup.instruction.two', 'checkout', null)}" /></span>
+        </span>
+        <span class="pickup-instuction-three pickup-instuction-content">
+            <img alt="pickup-three" src="${URLUtils.staticURL('/images/store-pickup.svg')}">
+            <span><isprint value="${Resource.msg('pickup.instruction.three', 'checkout', null)}" /></span>
+        </span>
+    </div>
+</div>
+<div class="pickup-notifications">
+    <div class="notification-head">
+        <isprint value="${Resource.msg('pickup.notification.head', 'checkout', null)}" />
+    </div>
+    <div class="pickup-primary-contact">
+        <div class="pickup-primary-head">
+            <isprint value="${Resource.msg('pickup.primary.contact', 'checkout', null)}" />
+        </div>
+        <div class="primary-info">
+            <isprint value="${Resource.msg('pickup.primary.info', 'checkout', null)}" />
+        </div>
+        <div class="pickup-primary-body">
+            <isset name="primaryContact" value="${pdict.forms.shippingForm.primaryContact}" scope="page" />
+            <isset name="secondaryContact" value="${pdict.forms.shippingForm.secondaryContact}" scope="page" />
+            <fieldset class="b-shipping shipping-pickup-notification js-primary-pickup">
+				<div class="b-shipping_form-row">
+				    <div class="b-shipping_form-column">
+				        <div class="form-group b-input_row js-form-group
+				            ${primaryContact.personFirstName.mandatory === true ? 'required' : ''}
+				            ${primaryContact.personFirstName.htmlName}">
+				            <label class="form-control-label b-input_row-label" for="primaryFirstName_${lineItemUUID}"  >
+				                ${Resource.msg('field.shipping.address.first.name','address',null)}
+				            </label>
+				            <input type="text" class="form-control shippingFirstName b-input_row-input js-input_row-input" id="primaryFirstName_${lineItemUUID}"
+				                value="${shippingModel.primaryFirstName||''}" <isprint value="${primaryContact.personFirstName.attributes}" encoding="off"/>>
+				            <div class="invalid-feedback" id="primaryContactFirstName"><isprint value="${primaryContact.personFirstName.error}" ></div>
+				        </div>
+				    </div>
+				    <div class="b-shipping_form-column">
+				        <div class="form-group b-input_row js-form-group
+				            ${primaryContact.personLastName.mandatory === true ? 'required' : ''}
+				            ${primaryContact.personLastName.htmlName}">
+				            <label class="form-control-label b-input_row-label" for="primaryLastName_${lineItemUUID}">
+				                ${Resource.msg('field.shipping.address.last.name','address',null)}
+				            </label>
+				            <input type="text" class="form-control primaryLastName b-input_row-input js-input_row-input" id="primaryLastName_${lineItemUUID}" aria-describedby="primaryLastName"
+				                value="${shippingModel.lastName||''}" <isprint value="${primaryContact.personLastName.attributes}" encoding="off"/>>
+				            <div class="invalid-feedback" id="primaryContactLastName"><isprint value="${ typeof primaryContact.personLastName !== 'undefined' ? primaryContact.personLastName.error : ''}" ></div>
+				        </div>
+				    </div>  
+				</div>
+                <div class="b-shipping_form-row">
+                    <div class="b-shipping_form-column">
+                        <div class="form-group b-input_row js-form-group
+                            ${primaryContact.personEmail.mandatory === true ? 'required' : ''}
+                            ${primaryContact.personEmail.htmlName}">
+                             <label class="form-control-label b-input_row-label" for="primayEmail_${lineItemUUID}">${Resource.msg('field.customer.email','checkout',null)}</label>
+                             <input type="text" class="form-control email b-input_row-input js-input_row-input" id="primayEmail_${lineItemUUID}"
+                                 value="${(shippingModel.personEmail) || (pdict.customer && pdict.customer.profile && pdict.customer.profile.email) || pdict.order.orderEmail || ''}" <isprint value=${primaryContact.personEmail.attributes} encoding="off"/>>
+                             <div class="invalid-feedback" id="emailInvalidMessage"></div>
+                         </div>
+                     </div>
+                     <div class="b-shipping_form-column">
+                         <div class="form-group b-input_row js-form-group
+                             ${primaryContact.personPhone.mandatory === true ? 'required' : ''}
+                             ${primaryContact.personPhone.htmlName}">
+                             <label class="form-control-label b-input_row-label" for="primaryPhone_${lineItemUUID}">${Resource.msg('field.customer.phone.number','checkout',null)}</label>   
+                             <input type="text" class="form-control phone b-input_row-input js-input_row-input" id="primaryPhone_${lineItemUUID}"
+                                   data-missing-error="${Resource.msg('or.phone.error.required', 'forms', null)}"
+                                   value="${shippingModel.personPhone||''}" <isprint value=${primaryContact.personPhone.attributes} encoding="off"/>>
+                             <div class="invalid-feedback" id="phoneInvalidMessage"></div>
+                         </div>
+                     </div>
+	            </div>
+            </fieldset>
+            <fieldset class="b-shipping someone-else-may-pickup">
+                <div class="custom-control custom-checkbox">
+                    <div class="g-checkbox">
+                        <input class="custom-control-input g-checkbox-input js-pickup" type="checkbox" id="someoneElseMaypickUp_${lineItemUUID}"
+                            <isprint value="${secondaryContact.someOneMayPickup.attributes}" encoding="off" />
+                        >
+                        <label for="someoneElseMaypickUp_${lineItemUUID}" class="custom-control-label checkout-checkbox g-checkbox-label">
+                            ${Resource.msg('check.secondaryContact', 'forms', null)}
+                        </label>
+                    </div>
+                </div>
+                <div class="pickup-id">${Resource.msg('pickup.alternative.person.id', 'checkout', null)}</div>
+            </fieldset>
+            <fieldset class="b-shipping shipping-pickup-notification js-shipping-pickup js-secondary-pickup hide">
+                <div class="b-shipping_form-row">
+                    <div class="b-shipping_form-column">
+                        <div class="form-group b-input_row js-form-group
+                            ${secondaryContact.personFirstName.mandatory === true ? 'required' : ''}
+                            ${secondaryContact.personFirstName.htmlName}">
+                            <label class="form-control-label b-input_row-label" for="secondaryFirstName_${lineItemUUID}"  >
+                                ${Resource.msg('field.shipping.address.first.name','address',null)}
+                            </label>
+                            <input type="text" class="form-control shippingFirstName b-input_row-input js-input_row-input" id="secondaryFirstName_${lineItemUUID}"
+                                value="${shippingModel.secondaryFirstName||''}" <isprint value="${secondaryContact.personFirstName.attributes}" encoding="off"/>>
+                            <div class="invalid-feedback" id="secondaryContactFirstName"><isprint value="${secondaryContact.personFirstName.error}" ></div>
+                        </div>
+                    </div>
+                    <div class="b-shipping_form-column">
+                        <div class="form-group b-input_row js-form-group
+                            ${secondaryContact.personLastName.mandatory === true ? 'required' : ''}
+                            ${secondaryContact.personLastName.htmlName}">
+                            <label class="form-control-label b-input_row-label" for="secondaryLastName_${lineItemUUID}">
+                                ${Resource.msg('field.shipping.address.last.name','address',null)}
+                            </label>
+                            <input type="text" class="form-control secondaryLastName b-input_row-input js-input_row-input" id="secondaryLastName_${lineItemUUID}" aria-describedby="secondaryLastName"
+                                value="${shippingModel.lastName||''}" <isprint value="${secondaryContact.personLastName.attributes}" encoding="off"/>>
+                            <div class="invalid-feedback" id="secondaryContactLastName"><isprint value="${secondaryContact.personLastName.error}" ></div>
+                        </div>
+                    </div>  
+                </div>
+                <div class="b-shipping_form-row">
+                    <div class="b-shipping_form-column">
+                        <div class="form-group b-input_row js-form-group
+                            ${secondaryContact.personEmail.mandatory === true ? 'required' : ''}
+                            ${secondaryContact.personEmail.htmlName}">
+                             <label class="form-control-label b-input_row-label" for="primayEmail_${lineItemUUID}">${Resource.msg('field.customer.email','checkout',null)}</label>
+                             <input type="text" class="form-control email b-input_row-input js-input_row-input" id="primayEmail_${lineItemUUID}"
+                                 value="${shippingModel.personEmail||''}" <isprint value=${secondaryContact.personEmail.attributes} encoding="off"/>>
+                             <div class="invalid-feedback" id="emailInvalidMessage"></div>
+                         </div>
+                     </div>
+                     <div class="b-shipping_form-column">
+                         <div class="form-group b-input_row js-form-group
+                             ${secondaryContact.personPhone.mandatory === true ? 'required' : ''}
+                             ${secondaryContact.personPhone.htmlName}">
+                             <label class="form-control-label b-input_row-label" for="secondaryPhone_${lineItemUUID}">${Resource.msg('field.customer.phone.number','checkout',null)}</label>   
+                             <input type="text" class="form-control phone b-input_row-input js-input_row-input" id="secondaryPhone_${lineItemUUID}"
+                                 data-missing-error="${Resource.msg('or.phone.error.required', 'forms', null)}"
+                                 value="${shippingModel.personPhone||''}" <isprint value=${secondaryContact.personPhone.attributes} encoding="off"/>>
+                             <div class="invalid-feedback" id="phoneInvalidMessage"></div>
+                         </div>
+                     </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>

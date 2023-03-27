@@ -1,0 +1,303 @@
+/**
+ * Demandware Script File
+ * This Script file will extract all the shipments that have been made with SR
+ *
+ */
+importPackage(dw.system);
+importPackage(dw.util);
+importPackage(dw.catalog);
+importPackage(dw.io);
+importPackage(dw.net);
+importPackage(dw.web);
+importPackage(dw.value);
+importPackage(dw.object);
+importPackage(dw.order);
+
+var FeedUtil = require("~/cartridge/scripts/feeds/FeedUtil");
+
+function execute(args: PipelineDictionary): Number {
+
+	var partnerCode: String = Site.getCurrent().getCustomPreferenceValue('sr_retailerID');
+
+	//Later when AliPay Enabled pick it up from Preference
+	var alipayEnabled = false;
+
+	var srLogger: Log = Logger.getLogger('ShopRunner', 'ShopRunner');
+
+	// check if the shipment sFTP feed is enabled
+	var srFtp: Boolean = FeedUtil.checkFeedSwitchByType('daily');
+
+	if (empty(partnerCode)) {
+		srLogger.error('Shipment Feed script: Partner code is empty.');
+		return PIPELET_ERROR;
+	}
+	var exportFeed: Array = [];
+	var orders: SeekableIterator;
+	var savedOrders: ArrayList = new ArrayList();
+
+	try {
+		orders = OrderMgr.queryOrders(
+			"(custom.sr_exported_shipment = {0} OR custom.sr_exported_shipment = {1}) AND custom.sr_token != {0}",
+			"custom.sr_token asc", null, false, null);
+
+		var count = orders.getCount();
+		while (orders.hasNext()) {
+			var currentOrder: Order = orders.next();
+			// if the shipments for this order have been exported then skip
+			if (empty(currentOrder.getCustom()['sr_token']) ||
+				currentOrder.getCustom()['sr_exported_shipment'] == true) {
+				continue;
+			}
+			var shipments: Collection = currentOrder.getShipments();
+			var shipmentNumberIncrement: Number = 1;
+			var srShipments: Number = 0;
+			for each(var shipment: Shipment in shipments) {
+					// if this is not a shoprunner shipment, skip it
+					if (shipment.shippingMethodID == null) {
+						continue;
+					}
+
+					srShipments++; // used to know that this order can be added to savedOrders
+					var exportItem: Object = {};
+					//get RetailerOrderNumber
+					exportItem['RetailerOrderNumber'] = currentOrder.orderNo;
+					//get carrierCode
+					var carrier: String = '';
+					if (!empty(shipment.getCustom()['carrier'])) {
+						carrier = shipment.getCustom()['carrier'];
+					}
+					if (!empty(carrier)) {
+						exportItem['carrier'] = carrier.toString().toUpperCase();
+					}
+
+					// get TrackingNumber
+					if (!empty(shipment.trackingNumber)) {
+						exportItem['TrackingNumber'] = shipment.trackingNumber;
+					}
+
+					// get SrEligibleItems // SKU & quantity
+					var prSKU: Array = [];
+
+					var allEligibleCount: Number = 0;
+					var srEligibleCount: Number = 0;
+					for each(var tempProduct: ProductLineItem in shipment.productLineItems) {
+						allEligibleCount += tempProduct.getQuantity().getValue();
+						var tempPrSKU = {
+							SKU: tempProduct.product.ID,
+							quantity: tempProduct.quantity.value
+						};
+
+						prSKU.push(tempPrSKU);
+						if (tempProduct.product.custom.sr_eligible.value == 'true') {
+							// srEligibleCount will be the sum of quantities for each eligibleProductLineItem
+							srEligibleCount += tempProduct.getQuantity().getValue();
+						}
+					}
+
+					// Add shipments with 1 or more eligible SR items skip others
+					if (srEligibleCount === 0 ) {
+						continue;
+					}
+
+					exportItem['SKU'] = prSKU;
+					// get NumberOfItems
+					exportItem['NumberOfItems'] = parseFloat(allEligibleCount);
+					// get NumberOfSRItems
+					exportItem['NumberOfSRItems'] = parseFloat(srEligibleCount);
+
+					// get TotalNumberOfShipments
+					exportItem['TotalNumberOfShipments'] = parseFloat(shipment.shippingLineItems.getLength());
+
+					// get ShipmentNo
+					exportItem['ShipmentNumber'] = shipmentNumberIncrement;
+
+					// get ShipmentWeight
+					var shipmentWeight: String;
+					if (!empty(shipment.getCustom()['weight'])) {
+						shipmentWeight = shipment.getCustom()['weight'];
+					} else {
+						shipmentWeight = " ";
+					}
+
+					exportItem['ShipmentWeight'] = shipmentWeight;
+
+					//get Length / Width / Heigth dimensions
+					var shipmentDimensions: Object = {};
+					if (!empty(shipment.getCustom()['length'])) {
+						shipmentDimensions.Length = parseFloat(shipment.getCustom()['length']);
+					}
+					if (!empty(shipment.getCustom()['width'])) {
+						shipmentDimensions.Width = parseFloat(shipment.getCustom()['width']);
+					}
+					if (!empty(shipment.getCustom()['height'])) {
+						shipmentDimensions.Height = parseFloat(shipment.getCustom()['height']);
+					}
+
+					exportItem['ShipmentDimensions'] = shipmentDimensions;
+
+					var notes: Array = [];
+					notes = currentOrder.notes.size();
+					while (!currentOrder.notes.isEmpty()) {
+						notes.push(currentOrder.notes.pop());
+					}
+					if (!empty(notes)) {
+						exportItem['RetailerNotes'] = notes;
+					}
+
+					exportFeed.push(exportItem);
+					shipmentNumberIncrement++;
+
+				} // end for each shipment
+				//save order with SR shipments
+			if (srShipments > 0) {
+				savedOrders.push(currentOrder);
+			}
+		} // end while
+		orders.close();
+
+		// Writing in XML file
+		var shipmentFile: File = FeedUtil.createShipmentFeedFile();
+		var fileWriter: FileWriter = new FileWriter(shipmentFile, false);
+		var xsw: XMLStreamWriter = new XMLIndentingStreamWriter(fileWriter);
+
+		xsw.writeStartDocument('UTF-8', '1.0');
+		xsw.writeStartElement("Shipments");
+		xsw.writeStartElement("Partner");
+		xsw.writeCharacters(partnerCode);
+		xsw.writeEndElement(); // End Partner
+		var shipmentXml;
+		for each(shipmentXml in exportFeed) {
+			var shipmentDimensions = shipmentXml.ShipmentDimensions;
+			var LengthAttr = (typeof shipmentDimensions.Length !== "undefined") ? shipmentDimensions.Length : " ";
+			var HeightAttr = (typeof shipmentDimensions.Height !== "undefined") ? shipmentDimensions.Height : " ";
+			var WidthAttr = (typeof shipmentDimensions.Width !== "undefined") ? shipmentDimensions.Width : " ";
+			xsw.writeStartElement("Shipment");
+			xsw.writeStartElement("RetailerOrderNumber");
+			if (shipmentXml.RetailerOrderNumber != null) {
+				xsw.writeCharacters(shipmentXml.RetailerOrderNumber);
+			} else {
+				xsw.writeCharacters(" ");
+			}
+			xsw.writeEndElement(); //End RetailerOrderNumber
+			xsw.writeStartElement("CarrierCode");
+			if (!empty(shipmentXml.carrier)) {
+				xsw.writeCharacters(shipmentXml.carrier);
+			} else {
+				xsw.writeCharacters("NO_CARRIER_CODE");
+			}
+			xsw.writeEndElement(); //End CarrierCode
+			xsw.writeStartElement("TrackingNumber");
+			if (!empty(shipmentXml.TrackingNumber)) {
+				xsw.writeCharacters(shipmentXml.TrackingNumber);
+			} else {
+				xsw.writeCharacters("NO_TRACKING_CODE");
+			}
+			xsw.writeEndElement(); //End TrackingNumber
+			xsw.writeStartElement("NumberOfItems");
+			if (shipmentXml.NumberOfItems != null) {
+				xsw.writeCharacters(shipmentXml.NumberOfItems);
+			} else {
+				xsw.writeCharacters(" ");
+			}
+			xsw.writeEndElement(); //End NumberOfItems
+			xsw.writeStartElement("NumberOfSRItems");
+			if (shipmentXml.NumberOfSRItems != null) {
+				xsw.writeCharacters(shipmentXml.NumberOfSRItems);
+			} else {
+				xsw.writeCharacters(" ");
+			}
+			xsw.writeEndElement(); //End NumberOfSRitems
+			//xsw.writeStartElement("RetailerReferenceNumber");
+			//if (shipmentXml.ShipmentNumber != null) {
+			//	xsw.writeCharacters(shipmentXml.ShipmentNumber);
+			//} else {
+			//	xsw.writeCharacters(" ");
+			//}
+			//xsw.writeEndElement(); //End ShipmentNumber
+			if (alipayEnabled) {
+				doAliPayFeedInfo(xsw, shipmentXml)
+			}
+			xsw.writeEndElement(); //End Shipment
+		}
+
+		xsw.writeEndElement(); //End Shipments
+		xsw.writeEndDocument();
+		xsw.close();
+		fileWriter.close();
+
+		var sendStatus : Boolean = require('~/cartridge/scripts/feeds/srFTP').ftpToSR(shipmentFile, Site.getCurrent());
+		if (sendStatus) {
+			// if there are shipments that need there export status changed
+			if (savedOrders.size() > 0) {
+				for each(var order in savedOrders) {
+					var dOrder: Order = OrderMgr.getOrder(order.orderNo);
+					dOrder.getCustom()['sr_exported_shipment'] = true;
+				}
+				return PIPELET_NEXT;
+			} else {
+				return PIPELET_NEXT;
+			}
+		} else {
+			srLogger.error('Shipment Feed script: The feed could not be sent to SFTP.');
+			return PIPELET_ERROR;
+		}
+	} catch (e) {
+		srLogger.error('General catch error on Shipment Feed script: {0} ', e.response);
+		return PIPELET_ERROR;
+	}
+}
+
+function doAliPayFeedInfo(xsw, shipmentXml) {
+	xsw.writeStartElement("TotalNumberOfShipments");
+	if (shipmentXml.TotalNumberOfShipments != null) {
+		xsw.writeCharacters(shipmentXml.TotalNumberOfShipments);
+	} else {
+		xsw.writeCharacters(" ");
+	}
+	xsw.writeEndElement(); //End TotalNumberOShipments	
+	if (shipmentXml.ShipmentWeight !== " ") {
+		xsw.writeStartElement("ShipmentWeight");
+		if (shipmentXml.ShipmentWeight !== null) {
+			xsw.writeCharacters(shipmentXml.ShipmentWeight);
+		} else {
+			xsw.writeCharacters(" ");
+		}
+		xsw.writeEndElement(); //End Shipment Weight
+	}
+
+	// check if one of the attr is available
+	if ((LengthAttr !== " ") || (WidthAttr !== " ") || (HeightAttr !== " ")) {
+		xsw.writeStartElement("ShipmentDimensions");
+		xsw.writeStartElement("Length");
+		xsw.writeCharacters(LengthAttr);
+		xsw.writeEndElement(); //End Length
+		xsw.writeStartElement("Width");
+		xsw.writeCharacters(WidthAttr);
+		xsw.writeEndElement(); //End Width
+		xsw.writeStartElement("Height");
+		xsw.writeCharacters(HeightAttr);
+		xsw.writeEndElement(); //End Height
+		xsw.writeEndElement(); //End ShipmentDimensions
+	}
+	var shipmentSKU = shipmentXml.SKU;
+	if (shipmentSKU.length > 0) {
+		for each(var shipmentSKUElem in shipmentSKU) {
+			var productSKU = (typeof shipmentSKUElem.SKU !== "undefined") ? shipmentSKUElem.SKU : " ";
+			var productQuantity = (typeof shipmentSKUElem.quantity !== "undefined") ? shipmentSKUElem.quantity :
+				" ";
+
+			xsw.writeStartElement("Item");
+			xsw.writeStartElement("SKU");
+			xsw.writeCharacters(productSKU);
+			xsw.writeEndElement(); // End SKU
+			xsw.writeStartElement("Quantity");
+			xsw.writeCharacters(productQuantity);
+			xsw.writeEndElement(); // End Quantity
+			xsw.writeEndElement(); // End Item
+		}
+	}
+}
+
+module.exports = {
+	execute: execute
+};

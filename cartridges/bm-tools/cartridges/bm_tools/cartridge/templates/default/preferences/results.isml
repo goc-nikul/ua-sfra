@@ -1,0 +1,168 @@
+<isdecorate template="application/MenuFrame">
+    <iscontent type="text/html" charset="UTF-8">
+    <isinclude template="inc/Modules">
+    <!-- Page Navigator -->
+    <isset name="TOP_URL" value="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', pdict.CurrentHttpParameterMap.CurrentMenuItemId)}" scope="PAGE">
+    <ISBreadcrumb name1="${pdict.CurrentHttpParameterMap.mainmenuname.stringValue}" url1="${TOP_URL.toString()}" name2="${pdict.title}">
+    <!-- EO Page Navigator -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/design-system/2.11.6/styles/salesforce-lightning-design-system.min.css">
+
+    <style>
+        ${'#'}bm_content_column {
+            background-color: white;
+        }
+    </style>
+
+    <hr />
+    <h3 class="slds-text-heading_medium">${pdict.title}</h3>
+    <br />
+
+    <article class="slds-card">
+        <div class="slds-card__body slds-card__body_inner">
+            <div class="slds-vertical-tabs">
+                <ul class="slds-vertical-tabs__nav nav nav-tabs"  id="nav-tab" role="tablist" aria-orientation="vertical">
+                    <li class="slds-vertical-tabs__nav-item slds-is-active" title="Site Preferences" role="presentation">
+                        <a class="slds-vertical-tabs__link nav-item nav-link active" href="javascript:void(0)" role="tab" tabindex="0" aria-selected="true" aria-controls="nav-site-preferences" id="nav-site-preferences__nav">
+                            <span class="slds-vertical-tabs__left-icon">
+                                <span class="slds-icon_container slds-icon-standard-all" title="Description of icon when needed">
+                                    <svg class="slds-icon slds-icon_small" aria-hidden="true">
+                                        <use xlink:href="${URLUtils.staticURL('icons/standard-sprite/svg/symbols.svg#all')}"></use>
+                                    </svg>
+                                </span>
+                            </span>
+                            <span class="slds-truncate" title="Site Preferences">Site Preferences</span>
+                        </a>
+                    </li>
+                    <li class="slds-vertical-tabs__nav-item" title="Global Preferences" role="presentation">
+                        <a class="slds-vertical-tabs__link nav-item nav-link" href="javascript:void(0)" role="tab" tabindex="-1" aria-selected="false" aria-controls="nav-global-preferences" id="nav-global-preferences__nav">
+                            <span class="slds-vertical-tabs__left-icon">
+                                <span class="slds-icon_container slds-icon-standard-apex" title="Description of icon when needed">
+                                    <svg class="slds-icon slds-icon_small" aria-hidden="true">
+                                        <use xlink:href="${URLUtils.staticURL('icons/standard-sprite/svg/symbols.svg#apex')}"></use>
+                                    </svg>
+                                </span>
+                            </span>
+                            <span class="slds-truncate" title="Global Preferences">Global Preferences</span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="nav-tabContent" style="width: 100%;">
+                    <div class="slds-vertical-tabs__content slds-show tab-pane fade show active" id="nav-site-preferences" role="tabpanel" aria-labelledby="nav-global-preferences__nav">
+                        <div>
+                            <div class="slds-m-bottom_small">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label slds-assistive-text" for="filter-id">Filter navigation items</label>
+                                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_left">
+                                        <input type="search" aria-controls="tree-id-site-preferences" placeholder="Quick Find" class="slds-input tree-filter" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-tree_container" style="max-width: 100% !important;">
+                                <ul aria-labelledby="treeheading" class="slds-tree" id="tree-id-site-preferences" role="tree">
+                                    <isloop items="${pdict.sitePreferencesGroups}" var="group" status="loopstatus">
+                                        <li class="treeitemgroup" aria-expanded="false" aria-label="${group.displayName}" aria-level="1" role="treeitem" tabindex="${loopstatus.index}">
+                                            <div class="slds-tree__item">
+                                                <button class="slds-button slds-button_icon slds-m-right_x-small" aria-hidden="true" tabindex="-1" title="Expand ${group.displayName}">
+                                                    <svg class="slds-button__icon slds-button__icon_small" aria-hidden="true">
+                                                        <use xlink:href="${URLUtils.staticURL('icons/utility-sprite/svg/symbols.svg#chevronright')}"></use>
+                                                    </svg>
+                                                    <span class="slds-assistive-text">Expand ${group.displayName}</span>
+                                                </button>
+                                                <span class="slds-has-flexi-truncate">
+                                                    <span class="slds-tree__item-label slds-truncate" title="${group.displayName}">
+                                                        ${group.displayName || group.id} (<isprint value="${group.attributes.length}" formatter="#" />)
+                                                        <isif condition="${!empty(group.bm_link)}"> - <a href="${group.bm_link}" target="_blank">Edit preferences</a></isif>
+                                                    </span>
+                                                    <isif condition="${!empty(group.description)}">
+                                                        <span class="slds-tree__item-meta slds-truncate" title="${group.description}">
+                                                            <span class="slds-assistive-text">:</span>${group.description}
+                                                        </span>
+                                                    </isif>
+                                                </span>
+                                            </div>
+                                            <ul role="group" class="subtreeitems">
+                                                <isloop items="${group.attributes}" var="attribute">
+                                                    <li aria-level="2" role="treeitem" class="treeitem">
+                                                        <div class="slds-tree__item">
+                                                            <button class="slds-button slds-button_icon slds-m-right_x-small slds-is-disabled" aria-hidden="true" tabindex="-1" title="Expand Tree Item">
+                                                                <svg class="slds-button__icon slds-button__icon_small" aria-hidden="true">
+                                                                    <use xlink:href="${URLUtils.staticURL('icons/utility-sprite/svg/symbols.svg#chevronright')}"></use>
+                                                                </svg>
+                                                                <span class="slds-assistive-text">Expand Tree Item</span>
+                                                            </button>
+                                                            <span class="slds-has-flexi-truncate">
+                                                            <span class="slds-tree__item-label slds-truncate"><isprint value="${attribute.displayName}" /> (<isprint value="${attribute.id}" />)</span>
+                                                            </span>
+                                                        </div>
+                                                    </li>
+                                                </isloop>
+                                            </ul>
+                                        </li>
+                                    </isloop>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-vertical-tabs__content slds-hide tab-pane fade" id="nav-global-preferences" role="tabpanel" aria-labelledby="nav-global-preferences__nav">
+                        <div>
+                            <div class="slds-m-bottom_small">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label slds-assistive-text" for="filter-id">Filter navigation items</label>
+                                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_left">
+                                        <input type="search" aria-controls="tree-id-global-preferences" placeholder="Quick Find" class="slds-input tree-filter" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-tree_container" style="max-width: 100% !important;">
+                                <ul aria-labelledby="treeheading" class="slds-tree" id="tree-id-global-preferences" role="tree">
+                                    <isloop items="${pdict.globalPreferencesGroups}" var="group" status="loopstatus">
+                                        <li class="treeitemgroup" aria-expanded="false" aria-label="${group.displayName}" aria-level="1" role="treeitem" tabindex="${loopstatus.index}">
+                                            <div class="slds-tree__item">
+                                                <button class="slds-button slds-button_icon slds-m-right_x-small" aria-hidden="true" tabindex="-1" title="Expand ${group.displayName}">
+                                                    <svg class="slds-button__icon slds-button__icon_small" aria-hidden="true">
+                                                        <use xlink:href="${URLUtils.staticURL('icons/utility-sprite/svg/symbols.svg#chevronright')}"></use>
+                                                    </svg>
+                                                    <span class="slds-assistive-text">Expand ${group.displayName}</span>
+                                                </button>
+                                                <span class="slds-has-flexi-truncate">
+                                                    <span class="slds-tree__item-label slds-truncate" title="${group.displayName}">
+                                                        ${group.displayName || group.id} (<isprint value="${group.attributes.length}" formatter="#" />)
+                                                        <isif condition="${!empty(group.bm_link)}"> - <a href="${group.bm_link}" target="_blank">Edit preferences</a></isif>
+                                                    </span>
+                                                    <isif condition="${!empty(group.description)}">
+                                                        <span class="slds-tree__item-meta slds-truncate" title="${group.description}">
+                                                            <span class="slds-assistive-text">:</span>${group.description}
+                                                        </span>
+                                                    </isif>
+                                                </span>
+                                            </div>
+                                            <ul role="group" class="subtreeitems">
+                                                <isloop items="${group.attributes}" var="attribute">
+                                                    <li aria-level="2" role="treeitem" class="treeitem">
+                                                        <div class="slds-tree__item">
+                                                            <button class="slds-button slds-button_icon slds-m-right_x-small slds-is-disabled" aria-hidden="true" tabindex="-1" title="Expand Tree Item">
+                                                                <svg class="slds-button__icon slds-button__icon_small" aria-hidden="true">
+                                                                    <use xlink:href="${URLUtils.staticURL('icons/utility-sprite/svg/symbols.svg#chevronright')}"></use>
+                                                                </svg>
+                                                                <span class="slds-assistive-text">Expand Tree Item</span>
+                                                            </button>
+                                                            <span class="slds-has-flexi-truncate">
+                                                            <span class="slds-tree__item-label slds-truncate"><isprint value="${attribute.displayName}" /> (<isprint value="${attribute.id}" />)</span>
+                                                            </span>
+                                                        </div>
+                                                    </li>
+                                                </isloop>
+                                            </ul>
+                                        </li>
+                                    </isloop>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <script src="${URLUtils.staticURL('/js/preferences.finder.js')}"></script>
+</isdecorate>

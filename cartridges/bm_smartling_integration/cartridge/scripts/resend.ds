@@ -1,0 +1,30 @@
+/**
+*   @input itemId : String itemid to process
+*   @input languages : dw.util.ArrayList  language array to consider
+*   @input type : String  type of asset (content/product/category)
+*   @input submitter : String
+*/
+importPackage( dw.system );
+importPackage( dw.catalog );
+importPackage( dw.object );
+importPackage( dw.util );
+importScript( "helpFunctions.ds" );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "resend"));
+
+/**
+    Call resend for passed in itemId, language and type (category/product/content)
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        LOGGER.info('Resending submission: type={0}, itemId={1}, languages={2}, submitter={3}', pdict.type, pdict.itemId, pdict.languages, pdict.submitter);
+        resend(pdict.itemId, pdict.languages, pdict.submitter, pdict.type);
+    } catch (e) {
+        LOGGER.errorException('resend execution failed for parameters itemId={0}, languages="{1}", submitter="{2}", type="{3}"', pdict.itemId, pdict.languages, pdict.submitter, pdict.type, e);
+        return PIPELET_ERROR;
+    }
+
+    return PIPELET_NEXT;
+}

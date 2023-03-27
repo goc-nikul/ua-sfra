@@ -1,0 +1,25 @@
+<div class="modal g-modal mhmodal" id="minihubmodal" data-toggle="modal" role="dialog">
+    <div class="modal-dialog mhmodal_vcenter g-modal-dialog">
+        <div class="modal-content g-modal-content">
+            <div class="g-modal-close">
+                <div class="close g-modal-close-button" data-dismiss="modal" aria-label="Close"></div>
+            </div>
+            <div class="modal-body g-modal-body">
+                <div class="mhmodal__points">
+                    <isprint value="${Resource.msgf('mhmodal.points.remaining', 'minihub', null, pdict.minihub.loyaltyPoints)}" encoding="off" />
+                </div>
+                <div class="mhmodal__header">
+                    ${Resource.msg('mhmodal.available.rewards', 'minihub', null)}
+                </div>
+                <div class="mhmodal__body-content js-mhmodal__body-content" data-redeem-action="${pdict.minihub.actions.redeem}" data-remove-action="${pdict.minihub.actions.remove}" data-oos-msg="${pdict.minihub.oosMsg}">
+                    <isloop items="${pdict.minihub.availableRewards}" var="reward">
+                        <isinclude template="minihub/components/rewardcard" />
+                    </isloop>
+                </div>
+            </div>
+            <div class="modal-footer g-modal-footer">
+                <button class="g-button_base g-button_primary--black btn btn-outline-primary" data-dismiss="modal">${Resource.msg('btn.mhmodal.done','minihub', null)}</button>
+            </div>
+        </div>
+    </div>
+</div>

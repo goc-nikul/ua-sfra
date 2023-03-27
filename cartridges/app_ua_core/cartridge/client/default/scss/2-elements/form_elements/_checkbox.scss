@@ -1,0 +1,50 @@
+/* md
+
+# Checkbox
+
+You must save the presented sequence of elements
+
+```html
+    <form>
+        <div class="g-checkbox">
+            <input class="g-checkbox-input" type="checkbox" id="checkbox-1">
+            <label class="g-checkbox-label" for="checkbox-1"><span>By signing up</span></label>
+        </div>
+    </form>
+```
+
+## Default
+
+```html_example
+    <div style="padding: 15px 0; display: flex; justify-content: space-around">
+        <form>
+            <div class="g-checkbox">
+                <input class="g-checkbox-input" type="checkbox" id="checkbox-1">
+                <label class="g-checkbox-label" for="checkbox-1"><span>By signing up, you agree to our Privacy.</span></label>
+            </div>
+        </form>
+    </div>
+```
+
+## Error checkbox
+
+```html_example
+    <div style="padding: 15px 0; display: flex; justify-content: space-around">
+        <form>
+            <div class="g-checkbox">
+                <input class="g-checkbox-input m-error" type="checkbox" id="checkbox-2" required>
+                <label class="g-checkbox-label" for="checkbox-2"><span>By signing up, you agree to our Privacy.</span></label>
+            </div>
+            <div class="g-checkbox-error_message">Please accept Privacy and Cookie Policies before subscription</div>
+        </form>
+    </div>
+```
+*/
+
+.g-checkbox {
+    @include checkbox;
+}
+
+.g-checkbox-error_message {
+    @include error_message;
+}

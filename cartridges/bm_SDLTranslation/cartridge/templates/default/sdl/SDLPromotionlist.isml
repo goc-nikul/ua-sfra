@@ -1,0 +1,44 @@
+<iscontent type="text/html" charset="UTF-8"/>
+<isinclude template="inc/Modules"/>
+
+
+<isset name="decoratorTemplate" value="application/MenuFrame" scope="page" />
+
+<isdecorate template="${decoratorTemplate}">
+
+    <isinclude template="sdl/common/SDLCommonInclude" sf-toolkit="on" />
+
+    <div class="sdlNav">
+        <isinclude template="sdl/SDLNavigation"/>
+    </div>
+
+    <div class="sdlBody">
+        <div class="container-fluid sdlContainer">
+            <div class="panel panel-success">
+                <div class="panel-heading text-center">
+                    <div class="title">${Resource.msg('msg.sdl.category.header', 'SDLTranslation', null)}</div>
+                    <div class="subTitle">${Resource.msg('msg.sdl.promotion.select.header.select', 'SDLTranslation', null)}</div>
+                </div>
+                <div class="panel-body">
+                    <isbreadcrumb name1="${Resource.msg('breadcrumb.title.merchantTools', 'SDLTranslation', null)}" url1="${merchantToolsURL}" name2="${Resource.msg('breadcrumb.title.SDL', 'SDLTranslation', null)}" url2="${SDLURL}" name3="${Resource.msg('breadcrumb.title.SDL.promotion', 'SDLTranslation', null)}"/>
+                    <form id="sdlPromotionForm" method="post" action="${URLUtils.url('SDLTranslation-SendPromotionsProjectForTMS')}">
+
+                        <isinclude template="sdl/SDLProjectOptions"/>
+
+                        <isinclude template="sdl/SDLCreatePromotionsProjectFields"/>
+
+                        <div id="sdlTranslationMetrix" class="sdlTranslationMetrix" ></div>
+
+                        <input type="hidden" id="sdlTableType" value="sitePromotion"/>
+                        <div class="row">
+                            <div class="col-sm-12 text-center"><input id="submitPromotionProject" type="button" class="btn btn-success" value="Create Project" /></div>
+                        </div>
+
+                        <div class="col-sm-12 text-center hide alert alert-danger project-error"></div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</isdecorate>

@@ -1,0 +1,48 @@
+<isif condition="${pdict.isPLP && pdict.productSearch.isCategorySearch}">
+    <div class="b-refinements_category">
+        <ul class="b-refinements_category-list">
+            <li class="b-refinements_category-item">
+                <isset name="headerCategoryID" value="${pdict.CategoryObject && pdict.CategoryObject.headerCategory ? pdict.CategoryObject.headerCategory.ID : ''}" scope="page" />
+                <isset name="headerCategoryName" value="${pdict.CategoryObject && pdict.CategoryObject.headerCategory ? pdict.CategoryObject.headerCategory.getDisplayName() : ''}" scope="page" />
+                <a href="${URLUtils.url('Search-Show', 'cgid', headerCategoryID)}"
+                    data-analytics-plp-filter-value="${headerCategoryName}"
+                    class="b-refinements_category-link m-top_level m-selected">
+                    ${headerCategoryName}
+                </a>
+                <isif condition="${!pdict.isHideSubCategoriesInCategoryMenu}">
+                    <div class="b-refinements_category-children">
+                        <ul class="b-refinements_category-content">
+                            <isif condition="${!empty(pdict.CategoryObject)}">
+                                <isset name="currentSite" value="${dw.system.Site.current}" scope="page"/>
+                                <isset name="categoryLocaleCheckEnabled" value="${currentSite.getCustomPreferenceValue('isCategoryLocaleCheckEnabled')}" scope="page"/>
+                                <isloop items="${pdict.CategoryObject.CategoryItems}" var="secondLevelcategory" status="status">
+                                    <isif condition="${!empty(categoryLocaleCheckEnabled)}">
+                                        <isif condition="${(!(secondLevelcategory.custom.hidefromLeftNavigationRefinement.valueOf() && secondLevelcategory.custom.hidefromLeftNavigationRefinement.valueOf().toString() === 'true')) && secondLevelcategory.isOnline() && secondLevelcategory.getDisplayName() !== null && secondLevelcategory.custom.isCategoryOnline.valueOf() === 'true'}">
+                                                <li class="b-refinements_category-item">
+                                                <a href="${URLUtils.url('Search-Show', 'cgid', secondLevelcategory.ID)}"
+                                                    data-analytics-plp-filter-value="${secondLevelcategory.getDisplayName()}"
+                                                    class="b-refinements_category-link ${category.ID == secondLevelcategory.ID ? 'm-selected' : ''}">
+                                                    ${secondLevelcategory.getDisplayName()}
+                                                </a>
+                                            </li>
+                                        </isif>
+                                    <iselse/>
+                                        <isif condition="${(!(secondLevelcategory.custom.hidefromLeftNavigationRefinement.valueOf().toString() === 'true')) && secondLevelcategory.isOnline() && secondLevelcategory.getDisplayName() !== null}">
+                                                <li class="b-refinements_category-item">
+                                                <a href="${URLUtils.url('Search-Show', 'cgid', secondLevelcategory.ID)}"
+                                                    data-analytics-plp-filter-value="${secondLevelcategory.getDisplayName()}"
+                                                    class="b-refinements_category-link ${category.ID == secondLevelcategory.ID ? 'm-selected' : ''}">
+                                                    ${secondLevelcategory.getDisplayName()}
+                                                </a>
+                                            </li>
+                                        </isif>
+                                    </isif>
+                                </isloop>
+                            </isif>
+                        </ul>
+                    </div>
+                </isif>
+            </li>
+        </ul>
+    </div>
+</isif>

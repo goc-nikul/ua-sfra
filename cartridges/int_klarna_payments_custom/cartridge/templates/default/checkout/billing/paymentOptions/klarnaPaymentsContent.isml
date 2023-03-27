@@ -1,0 +1,50 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+
+<isif condition="${session.privacy.KlarnaPaymentMethods && pdict.eligiblePaymentMethods && pdict.eligiblePaymentMethods.klarna}">
+    <isset name="countryCode" value="${require('*/cartridge/scripts/util/countries').getCurrent({CurrentRequest: pdict.CurrentRequest}).countryCode}" scope="page" />
+    <isset name="klarnaPaymentMethodID" value="${require('*/cartridge/scripts/util/klarnaHelper').getPaymentMethod()}" scope="page" />
+    <isset name="KlarnaPaymentNotAvailable" value="${Resource.msg('error.klarna.notavailable', 'klarnapayments', null)}" scope="page" />
+    <isif condition="${!empty(dw.system.Site.getCurrent().getCustomPreferenceValue('kpNotAvailableMessage'))}">
+        <isset name="kpNotAvailableJSON" value="${JSON.parse(dw.system.Site.getCurrent().getCustomPreferenceValue('kpNotAvailableMessage'))}" scope="page" />
+        <isif condition="${kpNotAvailableJSON.hasOwnProperty(countryCode)}">
+            <isset name="KlarnaPaymentNotAvailable" value="${kpNotAvailableJSON[countryCode.toString()]}" scope="page" />
+        <iselse/>
+            <isset name="KlarnaPaymentNotAvailable" value="${kpNotAvailableJSON.default}" scope="page" />
+        </isif>
+    </isif>
+    <isset name="klarnaThresholdPreference" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('klarnaMinimumThreshold')}" scope="page" />
+    <isset name="klarnaMinimumThreshold" value="${klarnaThresholdPreference ? klarnaThresholdPreference * 100 : 1000}" scope="page" />
+    <isset name="klarnaMaxPreference" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('klarnaMaximumThreshold')}" scope="page" />
+    <isset name="klarnaMaximumThreshold" value="${klarnaMaxPreference ? klarnaMaxPreference * 100 : 100000}" scope="page" />
+
+    <isloop items="${JSON.parse(session.privacy.KlarnaPaymentMethods)}" var="klarnaPaymentMethod">
+        <div class="g-accordion-item g-tabs-pane tab-pane klarna_payments-content klarna_payments_${klarnaPaymentMethod.identifier} ${pdict.selectedPaymentMethod == paymentOption.ID ? 'active' : ''}" id="${'klarna_payments_' + klarnaPaymentMethod.identifier}" role="tabpanel">
+            <div class="b-payment-accordion-head g-accordion-header ${pdict.selectedPaymentMethod == paymentOption.ID ? '' : 'collapsed'} js-klarna-payment ${pdict.order.totals && pdict.order.totals.klarnaTotal && (pdict.order.totals.klarnaTotal < klarnaMinimumThreshold || pdict.order.totals.klarnaTotal > klarnaMaximumThreshold) ? 'hide' : ''}" data-method-id="klarna_${klarnaPaymentMethod.identifier}" role="button" data-toggle="collapse" data-target="#acc-5" aria-expanded="true" aria-controls="acc-5">
+                <isprint value="${Resource.msg('klarna.payment.tab','checkout',null)}" />
+            </div>
+            <div class="klarna-payment-tooltip ${pdict.order.totals && pdict.order.totals.klarnaTotal && (pdict.order.totals.klarnaTotal >= klarnaMinimumThreshold && pdict.order.totals.klarnaTotal <= klarnaMaximumThreshold) ? 'hide' : ''}">
+                <span class="g-tooltip-icon g-tooltip"></span>
+                <span class="g-tooltip-text">
+                    <span class="payment-error hide">${Resource.msg('klarna.payment.error','checkout',null)}</span>
+                    <span class="threshold-error ${pdict.order.totals && pdict.order.totals.klarnaTotal && (pdict.order.totals.klarnaTotal >= klarnaMinimumThreshold && pdict.order.totals.klarnaTotal <= klarnaMaximumThreshold) ? 'hide' : ''}">
+                          <span class="klarnaMinimumThreshold-content ${pdict.order.totals.klarnaTotal < klarnaMinimumThreshold ? '' : 'hide'}">${Resource.msg('klarna.payment.minimum.threshold.error','checkout',null)}</span>
+                          <span class="klarnaMaximumThreshold-content ${pdict.order.totals.klarnaTotal > klarnaMaximumThreshold ? '' : 'hide'}">${Resource.msg('klarna.payment.maximum.threshold.error','checkout',null)}</span>
+                    </span>
+                </span>
+            </div>
+            <div class="g-accordion-content collapse ${pdict.selectedPaymentMethod == paymentOption.ID ? 'show' : ''}" id="acc-5" data-parent="#g-accordion-parent">
+                <fieldset class="payment-form-fields">
+                    <input type="hidden" class="form-control" name="isKlarna" value="true" disabled="disabled" />
+                    <input type="hidden" class="form-control" name="${pdict.forms.billingForm.paymentMethod.htmlName}" value="${klarnaPaymentMethodID}" disabled="disabled" />
+                    <input type="hidden" class="form-control" name="${pdict.klarnaForm ? pdict.klarnaForm.paymentCategory.htmlName : ''}" value="${klarnaPaymentMethod.identifier}" disabled="disabled" />
+
+                    <div id="${'klarna_payments_' + klarnaPaymentMethod.identifier + '_container'}" style="text-align: center;"></div>
+                    <isif condition="${empty(pdict.order.klarnaSessionId)}">
+                        <div class="klarna_payments_error" style="text-align: center; font-weight: bold; color: red;"><isprint value="${KlarnaPaymentNotAvailable}"/></div>
+                    </isif>
+                </fieldset>
+            </div>
+        </div>
+    </isloop>
+
+</isif>

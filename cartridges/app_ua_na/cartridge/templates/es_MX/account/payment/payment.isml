@@ -1,0 +1,121 @@
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/js/paymentInstruments.js');
+        assets.addJs('/js/account.js');
+    </isscript>
+    <div class="b-account b-account-payment">
+        <isinclude template="account/payment/deletePaymentModal"/>
+        <div class="b-account-container b-account-container-top">
+            <div class="b-account-left"></div>
+            <div class="b-account-right b-account-payment_book">
+                <div class="b-account-payment_book-pageHeading js-account-page-heading">
+                    <div class="heading-addresses">${Resource.msg('page.heading.payments','payment',null)}<span class="account-icon"></span></div>
+                </div>
+            </div>
+        </div>
+        <div class="b-account-container b-account-container-bottom">
+            <div class="b-account-left js-account-left">
+                <isinclude template="account/leftNavLinks"/>
+            </div>
+            <div class="b-account-right b-account-payment_book">
+                <div class="address-right-container">
+				    <isif condition="${pdict.vipCustomerData}">
+				        <div class="b-account_vip-header">
+				            <div class="b-account-address_book-heading">
+				                <isif condition="${pdict.vipCustomerData.availableBalance > 0}">
+				                    <h1 class="heading-addresses sub-heading-edit-profile">${Resource.msg('sub.heading.vip.points','account',null)}</h1>
+				                <iselse>
+				                    <h1 class="heading-addresses sub-heading-edit-profile">${Resource.msg('sub.heading.discount.summary','account',null)}</h1>
+				                </isif>
+				            </div>
+				            <div class="b-account-address_book-updated">
+				                    <div class="last-updated"><isprint value="${Resource.msgf('label.lastupdated','address',null, pdict.lastUpdated)}" /></div>
+				            </div>
+				            <isif condition="${pdict.vipCustomerData.availableBalance > 0}">
+	                            <div class="b-account_vip-balance">
+	                               <isprint value="${Resource.msg('sub.heading.vip.subhead','account',null)}" />
+	                               <isprint value="${pdict.vipCustomerData.availableBalance}" /> 
+	                            </div>
+				            </isif>
+				            <isif condition="${pdict.vipCustomerData.promoDescription}">
+				               <p class="b-account_vip-promotional-message">
+				                   <isprint value="${pdict.vipCustomerData.promoDescription}" />
+				               </p>
+				            </isif>
+				        </div>
+				    </isif>
+				    <isif condition="${pdict.paymentInstruments.length > 0}">
+	                    <div class="js-content-hidden">
+	                        <div class="b-account-payment_book-heading">
+	                            <h1 class="heading-addresses">${Resource.msg('label.payment.methods','payment',null)}</h1>
+	                        </div>
+	                        <div class="b-account-address_book-updated">
+	                            <div class="last-updated"><isprint value="${Resource.msgf('label.lastupdated','address',null, pdict.lastUpdated)}" /> </div>
+	                            <span class="required-fields"><isprint value="${Resource.msgf('label.requiredfields','address',null)}" /></span>
+	                        </div>
+	                    </div>
+	                </isif>
+                    <div class="no-payment">
+                        <isif condition="${!(pdict.paymentInstruments.length > 0)}">
+			                <div class="b-account-payment_book-heading b-account-payment_book-noaddress">
+			                    <h3>${Resource.msg('msg.no.saved.payments','payment',null)}</h3>
+			                </div>
+			             </isif>
+			        </div>
+			        <div class="b-account-payment_book-container">
+                        <isloop items="${pdict.paymentInstruments}" var="paymentInstrument">
+                            <div class="b-account-payment_book-section js-payment_book-section<isif condition="${paymentInstrument.defaultPaymentCard}"> default-card</isif>">
+					            <div class="b-account-payment_book-option js-payment_book-option" id="uuid-${paymentInstrument.UUID}"
+					                data-make-default-url="${URLUtils.url('PaymentInstruments-MakeDefaultCard')}"
+					                data-id="${paymentInstrument.UUID}"
+                                    data-card="${paymentInstrument.maskedCreditCardNumber}"
+                                    data-cardname="${paymentInstrument.creditCardHolder}"
+                                    data-expirationdate_date="${paymentInstrument.creditCardExpirationMonth}/${paymentInstrument.creditCardExpirationYear.toString().length > 2 ? paymentInstrument.creditCardExpirationYear.toString().substr(2, 4) : paymentInstrument.creditCardExpirationYear.toString()}">
+	                                <div class="bold-child"><isprint value="${paymentInstrument.creditCardType}" /> <isprint value="${paymentInstrument.maskedCreditCardNumber}" /></div>
+	                                <div><isprint value="${paymentInstrument.creditCardHolder}"/></div>
+									<div><isprint value="${Resource.msg('label.payment.ending','account',null)}" /> <isprint value="${paymentInstrument.creditCardExpirationMonth}" />/<isprint value="${paymentInstrument.creditCardExpirationYear.toString().length > 2 ? paymentInstrument.creditCardExpirationYear.toString().substr(2, 4) : paymentInstrument.creditCardExpirationYear.toString()}" /></div>
+					            </div>
+					            <div class="edit-remove-button">
+						            <button
+		                                type="button"
+		                                class="edit-btn edit-payment d-none"
+		                                data-id="${paymentInstrument.UUID}"
+		                                <isprint value="${paymentInstrument.defaultPaymentCard ? 'data-default="true"' : 'data-default="false"' }" encoding="off" />
+		                                aria-label="${Resource.msg('label.payment.editpayment','payment',null)}"> ${Resource.msg('label.payment.editpayment','payment',null)}
+		                            </button>
+						            <button type="button" class="remove-payment adjust-space" data-toggle="modal"
+			                            data-id="${paymentInstrument.UUID}"
+			                            data-card="${paymentInstrument.maskedCreditCardNumber}"
+			                            data-url="${pdict.actionUrl}"
+			                            aria-label="${Resource.msg('label.payment.deletepayment','payment',null)}">
+			                            <isprint value="${Resource.msg('label.addressbook.removeaddress','address',null)}" />
+			                        </button>
+		                        </div>
+		                        <span class="icon"></span>
+				            </div>
+				        </isloop>
+				        <isif condition="${pdict.paymentInstruments.length > 0}">
+				            <div class="viewMore hide">${Resource.msg('label.view.more','address',null)}</div>
+                            <div class="viewLess hide">${Resource.msg('label.view.less','address',null)}</div>
+                        </isif>
+			        </div>
+
+			        <div class="b-account-payment_book-containerNew">
+                    <!--<div class="col">
+                            <a href="${URLUtils.url('PaymentInstruments-AddPayment')}" class="btn-add-new b-account-payment_book-new btn btn-save btn-block btn-primary g-button_secondary--black g-button_base disabled" aria-label="${Resource.msg('label.payment.addnewpayment','payment',null)}">${Resource.msg('button.addnew','payment',null)}</a>
+                        </div>-->
+                        <iscomment>Include update payment form to Edit the Payment </iscomment>
+	                    <div class="payment-form-container hide">
+	                        <div class="add-edit-payment">
+	                            <span class="add-payment">${Resource.msg('heading.addpayment','payment',null)}</span>
+	                            <span class="edit-payment hide">${Resource.msg('heading.editpayment','payment',null)}</span>
+	                        </div>
+	                        <isinclude template="account/payment/updatePaymentForm"/>
+	                    </div>
+			        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</isdecorate>

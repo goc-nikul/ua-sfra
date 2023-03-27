@@ -1,0 +1,115 @@
+<!--- Subtotal --->
+<div class="order-summary_items subtotal-item">
+    <span class="order-summary_itemsattr">
+        <span class="order-receipt-label">${Resource.msg('label.order.subtotal','confirmation', null)} <span class="number-of-items-summary order-summary_noitems">(<isprint value="${order.itemCount.toFixed()}" encoding="off" />)</span>:</span>
+    </span>
+    <span class="order-summary_itemsvalue">
+        <span class="sub-total">${order.subTotal}</span>
+    </span>
+</div>
+
+<!-- Employee Discount -->
+<isif condition="${customer.authenticated && customer.profile.custom.isEmployee && pdict.totals.totalEmployeeDiscount != null}">
+    <div class="order-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.totalEmployeeDiscount.value === 0}">hide-order-discount</isif>">
+        <span class="order-summary_itemsattr">            
+            <span>${Resource.msg('employee.order.discount', 'common', null)}:</span>
+        </span>
+        <span class="order-summary_itemsvalue">
+            <span class="text-right bfx-price order-discount-total"> - ${pdict.totals.totalEmployeeDiscount.formatted}</span>
+        </span>
+    </div>
+</isif>
+
+<!--- Sales Tax --->
+<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableGrossTaxmessage')}">
+	<isif condition="${order.taxTotal}">
+	    <div class="order-summary_items sales-tax-item">
+	        <span class="order-summary_itemsattr">
+	            <span class="order-receipt-label">${pdict.order.vatIncluded ? Resource.msg('label.vat.included','cart', null) : Resource.msg('label.order.taxes','confirmation', null)}:</span>
+	        </span>
+	        <span class="order-summary_itemsvalue">
+	            <span class="text-right tax-total">${order.taxTotal}</span>
+	        </span>
+	    </div>
+	</isif>
+</isif>
+
+<!--- Shipping Cost --->
+<isif condition="${!pdict.rmaDetailsPage && order && !order.isCommercialPickup}">
+    <isif condition="${order.bopisItemscount > 0}">
+        <div class="order-summary_items shipping-item">
+            <span class="order-summary_itemsattr">
+                <span>${Resource.msg('order.bopis.pick.up', 'account', null)}:
+                    <span class="shipping-pickup">(
+                        <isif condition="${order.bopisItemscount === 1}">
+                            <isprint value="${Resource.msgf('label.number.item.in.cart','cart', null,order.bopisItemscount)}" encoding="off" />
+                        <iselse>
+                            <isprint value="${Resource.msgf('label.number.items.in.cart','cart', null,order.bopisItemscount)}" encoding="off" />
+                       </isif>
+                    )</span>
+                </span>
+            </span>
+            <span class="order-summary_itemsvalue">
+                <span class="text-right shipping-total-cost">${Resource.msg('label.free.shipping', 'cart', null)}</span>
+            </span>
+        </div>
+    </isif>
+    <isif condition="${!order.bopisItemsOnly}">
+        <div class="order-summary_items shipping-item">
+            <span class="order-summary_itemsattr">
+                <span class="order-receipt-label">${Resource.msg('label.order.shipping.cost','confirmation', null)}: 
+                    <isif condition="${order.bopisItemscount > 0}">
+                        <span class="shipping-method">(
+                            <isif condition="${(order.orderItems.length - order.bopisItemscount) === 1}">
+                                <isprint value="${Resource.msgf('label.number.item.in.cart','cart', null, (order.orderItems.length - order.bopisItemscount))}" encoding="off" />
+                            <iselse>
+                                <isprint value="${Resource.msgf('label.number.items.in.cart','cart', null, (order.orderItems.length - order.bopisItemscount))}" encoding="off" />
+                            </isif>)
+                        </span>
+                    <iselseif condition="${order.shippingMethod}"/>
+                        <span class="shipping-method">(<isprint value="${order.shippingMethod}" encoding="off" />)</span>
+                    </isif>
+                </span>
+            </span>
+            <span class="order-summary_itemsvalue">
+                <isif condition="${order.shippingTotal === 0}">
+                    <span class="text-right shipping-total-cost">${Resource.msg('label.free.shipping', 'cart', null)}</span>
+                <iselse>
+                    <span class="text-right shipping-total-cost">${order.shippingTotal}</span>
+                </isif>
+            </span>
+        </div>
+    </isif>
+</isif>
+<isif condition="${order.isCommercialPickup}">
+	<div class="order-summary_items shipping-item">
+	    <span class="order-summary_itemsattr">
+	        <span class="order-receipt-label">${Resource.msgf('label.pickup','confirmation', null, order.itemCount.toFixed())}</span>
+	    </span>
+	    <span class="order-summary_itemsvalue">
+	        <isif condition="${order.shippingTotalWithoutCurrency === 0}">
+	            <span class="text-right shipping-total-cost">${Resource.msg('label.free.shipping', 'cart', null)}</span>
+	        <iselse>
+	            <span class="text-right shipping-total-cost">${order.shippingTotal}</span>
+	        </isif>
+	    </span>
+	</div>
+</isif>
+<!--- Grand Total --->
+<div class="order-summary_items grand-total-element">
+    <span class="order-summary_itemsattr">
+        <isif condition="${pdict.rmaDetailsPage}">
+            <span class="order-receipt-label">${Resource.msg('label.refund.total','confirmation', null)} <span class="number-of-items-summary order-summary_noitems">(<isprint value="${order.itemCount.toFixed()}" encoding="off" />):</span>
+        <iselse>
+            <span class="order-receipt-label">${Resource.msg('label.order.grand.total','confirmation', null)} <span class="number-of-items-summary order-summary_noitems">(<isprint value="${order.itemCount.toFixed()}" encoding="off" />):</span>
+        </isif>
+    </span>
+    <span class="order-summary_itemsvalue">
+        <span class="text-right grand-total grand-total-sum">${order.orderTotal}</span>
+    </span>
+</div>
+<isif condition="${pdict.isKlarnaOrder}">
+   <span class="order-klarna-message">
+       <isprint value="${Resource.msg('label.klarna.refund','checkout', null)}" />
+   </span>
+</isif>

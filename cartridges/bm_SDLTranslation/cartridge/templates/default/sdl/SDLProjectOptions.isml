@@ -1,0 +1,64 @@
+<div class="form-group">
+    <label>
+        ${Resource.msg('msg.sdl.project.name', 'SDLTranslation', null)}
+        <sup>${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}</sup>
+        <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="${Resource.msg('msg.sdl.project.name.tooltip','SDLTranslation',null)}">
+        </span>
+    </label>
+    <input
+        id="sdlProjTitle"
+        name="sdlProjTitleName"
+        class="form-control"
+        type="text"
+        maxlength="50"
+        title="${Resource.msg('msg.sdl.project.name.title','SDLTranslation',null)}"
+        required />
+</div>
+<div class="form-group">
+    <label>${Resource.msg('msg.sdl.project.description', 'SDLTranslation', null)}</label>
+    <textarea id="sdlProjDesc" class="form-control" rows="5"></textarea>
+</div>
+
+<div class="row">
+    <div class="col-md-12 project-description">
+        <div class="form-group col-md-6">
+            <label>
+                ${Resource.msg('msg.sdl.project.options', 'SDLTranslation', null)}
+                <sup>${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}</sup>
+            </label>
+            <select class="form-control" id="sdlProjOption" name="sdlProjOptionName" required>
+                <isloop items="${pdict.ProjectOption}" var="productt" status="sam">
+                    <option value="${JSON.stringify(productt)}">
+                        ${productt.Name}
+                    </option>
+                </isloop>
+            </select>
+        </div>
+    </div>
+</div>
+<div id="sdlDueDateContainer" class="row sdlDueDateContainer">
+    <div class="col-md-12 project-due-date">
+        <div class="form-group col-md-6" >
+            <label>
+                ${Resource.msg('msg.sdl.project.due.date', 'SDLTranslation', null)}
+                <sup>${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}</sup>
+            </label>
+            <div class="input-group">
+                <input class="form-control sdlDatePicker" id="sdlProjDueDateID" name="sdlProjDueDateName" type="text" required="required" />
+                <label for="sdlProjDueDateID" class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="sdlMetaDataContainer" class="dynamic-field row"></div>
+<div id="sdlLanguagePairContainer" class="dynamic-field"></div>
+<div id="sdlLanguagePairTargetContainer" class="dynamic-field"></div>
+
+<input type="hidden" id="sdlProjName" value="${Resource.msg('error.sdl.requiredProjName.label','SDLTranslation',null)}" />
+<input type="hidden" id="sdlProjTargetLang" value="${Resource.msg('error.sdl.requiredProjTargetLang.label','SDLTranslation',null)}" />
+<input type="hidden" id="sdlSendTransSuccess" value="${Resource.msg('msg.sdl.sendTransSuccess.label','SDLTranslation',null)}" />
+<input type="hidden" id="sdlServerError" value="${Resource.msg('error.sdl.translation.serverError.label','SDLTranslation',null)}" />
+<input type="hidden" id="sdlDeleteConfirm" value="${Resource.msg('warning.sdl.translation.deleteConfirm.label','SDLTranslation',null)}" />
+
+<input type="hidden" id="sdlManageProjectURL" value="${URLUtils.url('SDLTranslation-AllProjects')}" />

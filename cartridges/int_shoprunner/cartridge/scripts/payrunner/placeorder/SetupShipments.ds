@@ -1,0 +1,427 @@
+var ArrayList = require('dw/util/ArrayList');
+var Collection = require('dw/util/Collection');
+var HashMap = require('dw/util/HashMap');
+var Status = require('dw/system/Status');
+/**
+* Demandware Script File
+* To define input and output parameters, create entries of the form:
+/**
+*	This script creates new ProductLineItems and Shipments from 
+*	SR Express Checkout address selections with help of a data structure
+*	(address and product relations through HashMaps).
+*
+*   @input Basket : dw.order.Basket The current basket object.
+*	@input BasketSR : String String representing the current ShopRunner basket
+*   @input ShippingObj : Object The shipment to create the address for.
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+importPackage( dw.web );
+importPackage( dw.catalog );
+importScript( "checkout/Utils.ds" );
+
+function execute (args) {
+	var dwBasket = args.Basket;
+   	var srRawBasket = args.BasketSR;
+	var shipmentObj = args.ShippingObj;
+	var result = setShipment(dwBasket, srRawBasket, shipmentObj);
+	if (result.status === Status.OK) {
+		return PIPELET_NEXT;
+	} else {
+		return PIPELET_ERROR;
+	}
+}
+
+function setShipment(dwBasket, srRawBasket, shipmentObj) {
+   var srBasket = JSON.parse( srRawBasket );
+   var defaultShippingSet = false;
+   var isShippingMethodSelected = false;
+   var status;
+  	// check if the basket is empty
+   if (!empty(srBasket))
+   {
+	  	var shippingGroups = srBasket.shippingGroups;
+	  	//Check if shpping method selected if modal window. If not then we should skip shipments setup step.
+	  	for each (var shippingGroup in shippingGroups) {
+	  		var shipping = shippingGroup.shipping;
+	  		for each (var shippingEntry in shipping) {
+	  			if (shippingEntry.selected == true) {
+	  				isShippingMethodSelected = true;
+	  				break;
+	  			}
+	  		}
+	  	}
+    }
+  	//Check if shpping method selected if modal window. If not then we should skip shipments setup step.
+  	if (!isShippingMethodSelected) {
+		status = new Status(Status.OK);
+		return status;
+  	}
+  	
+   try
+   {
+	   // built QuantityLineItems
+	   var qliList = new ArrayList();
+	   if(dwBasket != null)
+	   {
+	   	  var plitems = dwBasket.getProductLineItems();
+	   	  for each (var pli : ProductLineItem in plitems)
+	   	  { 
+	   	  	   var qlitem = {};
+	   	  	   // declare the arrays where will be store the productOptionValue and productOptionID 
+	   	  	   var productOptionValue = [];
+	   	  	   var productOptionID = [];
+	   	  	   // also declare a counter to count how many options that product have
+	   	  	   var productCount = 0;
+	   	  	   qlitem.address = srBasket.address;
+	   	  	   qlitem.pid = pli.getProductID();
+	   	  	   if (!empty(pli.getOptionProductLineItems()))
+			   { 
+					for each (var option : ProductLineItem in pli.getOptionProductLineItems()) 
+		   			{
+		   				// assign for each option that the product have a specific values into each array
+		   				// increment the index position in arrays
+		   				productOptionValue[productCount] = option.getOptionValueID();
+		   				productOptionID[productCount] = option.getOptionID();
+		   				productCount++;
+		   			}
+			   }
+	   	  	   qlitem.oid = (!empty(productOptionID)) ? productOptionID : productOptionID[0] = 'na';
+	   	  	   qlitem.oivd = (!empty(productOptionValue)) ? productOptionValue : productOptionValue[0] = 'na';
+	   	  	   qlitem.qty = pli.getQuantity();
+	   	  	   qlitem.bonus = pli.isBonusProductLineItem();
+	   	  	   qliList.add1(qlitem);
+	   	  }
+	   }
+	   
+	   /**
+		*	Build new data structure through HashMaps from address-products-relations (stored in QuantityLineItems ArrayList)
+		*	to build the new ProductLineItems in dependency to their addresses and quantities
+		*
+		*	address relation:	+===============+=================+		
+		*						|	Key			|	Value		  |
+		*						+===============+=================+
+		*						|	address1	|	products1	--|------->	product relation 1:	+===============+===============+
+		*						+---------------+-----------------+  							|	Key			|	Value		|
+		*						|	address2	|	products2	--|--->	product relation 2		+===============+===============+
+		*						+---------------+-----------------+								|	productID1	|	quantity1	|
+		*						|	...			|	...			  |								+---------------+---------------+
+		*																						|	productID2	|	quantity2	|
+		*																						+---------------+---------------+
+		*																						|	...			|	...			|
+		*/
+		
+	   var shipmentRelations = mapShipMethodByByProduct( srBasket );
+	   var addressRelations = new HashMap();	
+	   var productRelations = new HashMap();	
+	   
+	   for each (var qli  in qliList)
+	   { 
+			var selectedAddress = qli.address;
+			var productID = qli.pid;
+			var productOptionID = qli.oid;
+			var productOptionValue = qli.oivd; 
+			var quantity = qli.qty.value;
+			
+			if (productOptionID != 'na')
+			{
+				// get the length of productOptionID array in order to see how many options the product have
+				var productOptions = productOptionID.length;
+				// assign to product the values for productOptions
+				productID += '.';
+				for (var i = 0; i < productOptions; i++)
+				{
+					// check if is the last option in order not to concatenate with '.' symbol
+					if (i == productOptions - 1)
+					{
+						productID += productOptionID[i] + ':' + productOptionValue[i]; 	
+					}
+					else 
+					{
+						productID += productOptionID[i] + ':' + productOptionValue[i] + '.';
+					}
+				}
+			}
+			else 
+			{
+				productID = productID + '.' + productOptionID;
+			}
+
+			if (selectedAddress == null)
+			{
+				status = new Status(Status.ERROR);
+				return status;
+			}
+			
+			if (addressRelations.containsKey(selectedAddress))
+			{
+				productRelations = addressRelations.get(selectedAddress);
+				if (!qli.bonus)
+				{
+					if (productRelations.containsKey(productID))
+					{
+						quantity = productRelations.get(productID);
+						productRelations.put(productID, quantity + 1);
+					} 
+					else 
+					{
+						productRelations.put(productID, quantity);
+					}
+				}
+			} 
+			else 
+			{
+				if (!qli.bonus)
+				{
+					productRelations.put(productID, quantity);
+					addressRelations.put(selectedAddress, productRelations);
+				}
+			}
+		}
+		
+		//Remove all ProductLineItems and Shipments to create new ones
+		for each (var pli : ProductLineItem in dwBasket.getProductLineItems())
+		{
+			if(empty(pli.custom.fromStoreId))
+			{
+				dwBasket.removeProductLineItem(pli);
+			}
+		}
+		for each (var shipment : Shipment in dwBasket.getShipments())
+		{
+			//if the shipment is for a gift certificate or the default shipment, it will not be removed from the cart
+			if (!shipment.isDefault() && !(shipment.getGiftCertificateLineItems().length > 0) && shipment.custom.shipmentType != 'instore')
+			{
+				dwBasket.removeShipment(shipment);
+			}
+		}
+		
+		// Build new ProductLineItems and Shipments with the new created data structure
+		var shippmentSet = shipmentRelations.entrySet();
+
+		for each (var shippmentItem in shippmentSet)
+		{
+			var productList = shippmentItem.value;
+			var shipment = null;
+			var orderAddress = null;
+			if (!defaultShippingSet)
+			{
+				shipment = dwBasket.getDefaultShipment();
+				defaultShippingSet = true;
+			} 
+			else 
+			{
+				shipment = dwBasket.createShipment(UUIDUtils.createUUID());
+			}
+			
+			
+			// set shipping method
+			var medthodid = shippmentItem.key;
+			//var productObj : Product = ProductMgr.getProduct(pid);
+			var	shippingMethods = ShippingMgr.getShipmentShippingModel(shipment).getApplicableShippingMethods();
+			if (shippingMethods.length > 0) 
+			{
+				// Set the shipment shipping method to the passed one.
+				var shippingMethodsIter = shippingMethods.iterator();
+				while (shippingMethodsIter.hasNext())
+				{
+					var method = shippingMethodsIter.next();
+					if (method.getID() == medthodid)
+					{
+						shipment.setShippingMethod(method);
+						break;
+					}
+				}
+			} 
+			
+			var productRelations = addressRelations.get(srBasket.address);
+			var products = productRelations.keySet();
+	    	var product_ID = '';
+	    	var optionID = '';
+	
+			for each (var product in products)
+			{
+	      		var splitarray = product.split('.');
+	      		product_ID = splitarray[0];
+	      		optionID = splitarray[1];
+	      		// create the productLineItem
+	      		if (productList.contains(product_ID))
+		        {
+	            	var pli = dwBasket.createProductLineItem(product_ID, shipment);
+					pli.setQuantityValue(productRelations.get(product));
+		        
+		      		// check if product has no option Products
+		      		if (optionID != 'na')
+		            {
+		            	// check how many product options they are
+		            	var splitCount = 0;
+		            	while (splitarray[splitCount])
+		            	{
+		            		splitCount++;
+		            	}
+		        		// declare a variable where will be the productOption and value
+		        		var productSplitedOptionValue = [];
+		        		// get the productOptionModel and get the list of option that 
+		        		// the product line items have
+		        		var productOptionModel = pli.product.getOptionModel();
+		        		var productOptionModel = pli.product.getOptionModel();
+		        		var productOptions = productOptionModel.getOptions();
+		        		var productOptionsiter = productOptions.iterator();
+		        		var pliOptionArrayList = new ArrayList(productOptions);
+		        		// loop throw each option and get his ID
+		        		for (var i = 1; i <= splitCount - 1; i++)
+		        		{
+		        			// split each option to get value
+		        			var productOptionID = '';
+		        			productOptionID = splitarray[i].split(':');
+		        			productSplitedOptionValue.push(productOptionID[1]);
+		        		}
+		        		// declare a counter to take the productOptionID
+		        		var counterOption = 0;
+		        		for each (var productOption : ProductOption in pliOptionArrayList)
+		        		{
+			            	var options = productOptionModel.getOptionValues(productOption).iterator();
+			          		while(options.hasNext())
+			          		{
+			          			var optionValue = options.next();  	      
+			          			// if the option id equals the selection option id, set the selected option    
+			          			if (optionValue.getID() == productSplitedOptionValue[counterOption])
+			          			{	            
+			            			var pliOptionProdcuts = new ArrayList(pli.optionProductLineItems);	            
+			              			pliOptionProdcuts[counterOption].updateOptionValue(optionValue);
+			              			break;
+			          			}
+			        		}
+			        		// increment the value of counterOption to get to the next Value for the next Option Product.
+			        		counterOption++;
+		        		}	
+		            }
+		        }	      		
+			}
+		}	
+   }
+   catch (e)
+   {
+  	   Logger.getLogger('ShopRunner', 'ShopRunner').error('ShopRunner : Split Multishipping, Merge Quantitiies Error. ' + e.toString());
+       status = new Status(Status.ERROR);
+	   return status;
+   }
+
+   status = new Status(Status.OK);
+   return status;
+}
+
+function mapShipMethodByByProduct(srBasket) {
+	var selectedproducts = srBasket.products;
+	var prodShipmentMap : HashMap = new HashMap();
+	var selectedShipMeth : String = '';
+	
+	for each (var product in selectedproducts) 
+	{
+		var productObj : Product = ProductMgr.getProduct(product.sku);
+		if(productObj != null && productObj.isProduct())
+		{
+			var	shippingMethods = ShippingMgr.getProductShippingModel(productObj).getApplicableShippingMethods();
+			// check if the basket is empty
+			if(!empty(srBasket))
+			{
+				for each (var shippingGroup in srBasket.shippingGroups) 
+			    {
+			    	if(product.shippingGroup == shippingGroup.shippingGroup)
+			    	{
+			    		var selectedshippingmethods = shippingGroup.shipping;
+			    		if(selectedshippingmethods.length > 0)
+			    		{
+			    			for each (var shipMeth in selectedshippingmethods) 
+							{
+								if(shipMeth.selected) 
+								{	
+									if (shippingMethods.length > 0) 
+									{
+										// Set the shipment shipping method to the passed one.
+										var shippingMethodsIter : Iterator = shippingMethods.iterator();
+										while (shippingMethodsIter.hasNext())
+										{
+											var method : ShippingMethod = shippingMethodsIter.next();
+											if(!method.displayName.equals(shipMeth.method) && shipMeth.method != 'shoprunner') 
+											{
+												continue;
+											}
+											// set this shipping method
+											selectedShipMeth = method.getID();
+											prodShipmentMap.put(product.sku, selectedShipMeth); 
+											break;
+										}
+									} 
+									break;
+	
+								//Check is method shoprunner.	
+								} else if (shipMeth.method == "ShopRunner, 2-Day Shipping - FREE") {
+									selectedShipMeth = 'shoprunner';	
+									prodShipmentMap.put(product.sku, selectedShipMeth); 
+									break;
+								}
+							}
+			    		}
+						else
+						{
+							selectedShipMeth = 'shoprunner';	
+							prodShipmentMap.put(product.sku, selectedShipMeth); 
+							break;
+						}	
+			    	}
+			    }		       
+			}
+		}				
+	}
+	
+	// re-arange to shipping - products association
+	var shipProdsMap : HashMap = new HashMap();
+	var prodSet : Set = prodShipmentMap.entrySet();
+	var prodSetIter : Iterator = prodSet.iterator();
+	while (prodSetIter.hasNext())
+	{
+		var prodMap = prodSetIter.next();
+		var pid : ArrayList = new ArrayList();
+		if(shipProdsMap.containsKey(prodMap.value))
+		{
+			pid = shipProdsMap.get(prodMap.value);
+		}
+		pid.push(prodMap.key);
+		shipProdsMap.put(prodMap.value, pid);
+	}
+	
+	return shipProdsMap;
+}
+
+function getSelectedShipMethod(srBasket) : String
+{
+	var selectedShipMeth : String = '';
+	// check if the basket is empty
+	if (!empty(srBasket))
+	{
+		for each (var shippingGroup in srBasket.shippingGroups) 
+		{
+			for each (var shipMeth in shippingGroup.shipping) 
+			{
+				if(shipMeth.selected) 
+				{
+					selectedShipMeth = shipMeth.method;
+					break;	 
+				}  
+			}	
+		}
+	}
+	if (empty(selectedShipMeth)) 
+	{
+		selectedShipMeth = 'shoprunner';	
+	}
+	
+	return selectedShipMeth;
+}
+
+module.exports = {
+    execute: execute,
+	setShipment: setShipment
+};

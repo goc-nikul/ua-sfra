@@ -1,0 +1,40 @@
+{
+    "step-types": {
+      "script-module-step": [
+       {
+          "@type-id": "custom.assignLoyaltyExclusiveFlag",
+          "description": "Sets isLoyaltyExclusive to false if this attribute is empty.",
+          "module": "int_loyalty/cartridge/scripts/jobs/AssignLoyaltyExclusiveFlag.js",
+          "function": "execute",
+          "transactional": "false",
+          "timeout-in-seconds": "900",
+          "parameters": {
+            "parameter": [
+              {
+                "@name": "CatalogsList",
+                "description": "List of SF Catalogs to process",
+                "@type": "string",
+                "@required": "true"
+              }
+            ]
+          },
+          "status-codes": {
+            "status": [
+              {
+                  "@code": "ERROR",
+                  "description": "Used when an error occurred."
+              },
+              {
+                  "@code": "OK",
+                  "description": "Used when everything went well."
+              },
+              {
+                  "@code": "WARN",
+                  "description": "Used when small, but acceptable problems occurred."
+              }
+            ]
+          }
+        }
+      ]
+    }
+}

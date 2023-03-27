@@ -1,0 +1,96 @@
+<div class="b-product_description">
+
+    <isset name="paypalCalculatedCost" value="${dw.value.Money(price.value, price.currency)}" scope="page"/>
+    <isinclude template="paypalCreditFinancingOptions/lowerCostPerMonthBanner"/>
+
+    <div class="b-product_description-main">
+        <div class="b-product_description-title">
+            ${Resource.msg('label.description', 'product', null)}
+        </div>
+
+        <isinclude template="product/components/description" />
+    </div>
+
+    <div class="g-tabs--desktop">
+        <ul class="b-product_description-tabs g-tabs-chips nav nav-tabs" role="tablist">
+            <li class="g-tabs-chip nav-item" role="presentation">
+                <a
+                    role="tab"
+                    class="g-tabs-link nav-link active"
+                    data-toggle="tab"
+                    href="#tab-1"
+                    aria-controls="tab-1"
+                    aria-selected="true"
+                >
+                    ${Resource.msg('label.description', 'product', null)}
+                </a>
+            </li>
+
+            <li class="g-tabs-chip nav-item" role="presentation">
+                <a
+                    role="tab"
+                    class="g-tabs-link nav-link"
+                    data-toggle="tab"
+                    href="#tab-2"
+                    aria-controls="tab-2"
+                    aria-selected="false"
+                >
+                    ${Resource.msg('label.details', 'product', null)}
+                </a>
+            </li>
+        </ul>
+
+        <div class="b-product_description-items g-accordion--mobile g-tabs-content">
+            <div
+                id="tab-1"
+                class="g-accordion-item g-tabs-pane tab-pane show active"
+                role="tabpanel"
+                aria-labelledby="acc-1"
+            >
+                <div
+                    class="b-product_description-acc_heading g-accordion-header"
+                    role="button"
+                    data-toggle="collapse"
+                    data-target="#acc-1"
+                    aria-expanded="true"
+                    aria-controls="acc-1"
+                >
+                    ${Resource.msg('label.description', 'product', null)}
+                </div>
+
+                <div
+                    class="g-accordion-content collapse show"
+                    id="acc-1"
+                >
+                    <isinclude template="product/components/description" />
+                </div>
+            </div>
+
+            <div
+                id="tab-2"
+                class="g-accordion-item g-tabs-pane tab-pane"
+                role="tabpanel"
+                aria-labelledby="acc-2"
+            >
+                <div
+                    class="b-product_description-acc_heading g-accordion-header collapsed"
+                    role="button"
+                    data-toggle="collapse"
+                    data-target="#acc-2"
+                    aria-expanded="false"
+                    aria-controls="acc-2"
+                >
+                    ${Resource.msg('label.details', 'product', null)}
+                </div>
+
+                <div
+                    class="g-accordion-content collapse"
+                    id="acc-2"
+                >
+                    <isinclude template="product/components/details" />
+                </div>
+                <isinclude template="paypal/assets/paypalcreditbanner"/>
+            </div>
+        </div>
+    </div>
+</div>

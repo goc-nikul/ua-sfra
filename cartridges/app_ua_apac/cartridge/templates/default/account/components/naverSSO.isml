@@ -1,0 +1,19 @@
+<isscript>
+    var UUIDUtils = require('dw/util/UUIDUtils');
+    var uniqueString = UUIDUtils.createUUID();
+    var isIdmEnabled = dw.system.Site.current.getCustomPreferenceValue('uaidmIsEnabled');
+    var naverAuthUrl = dw.system.Site.current.getCustomPreferenceValue('naverAuthUrl');
+    var executeController = 'Login-OAuthReentryNaver';
+    if (isIdmEnabled) {
+        executeController = 'Login-SocialLogin';
+    }
+    var callbackUrl = URLUtils.https(executeController, 'oauthProvider', 'naver');
+    var clientId = dw.system.Site.current.getCustomPreferenceValue('naverSSOClientID');
+    var apiURL = naverAuthUrl + clientId +"&redirect_uri="+ callbackUrl +"&state="+ uniqueString;
+    session.custom.naverRedirectURL = pdict.naverRedirectURL;
+    session.custom.redirectDestination = naverButtonDestination;
+</isscript>
+<isinclude template="/components/modules" sf-toolkit="off" />
+
+<iscontentasset aid="login-sso-top-message" />
+<a class="naverBtn" href="${apiURL}" role="button"><img height="50px" src="${naverButtonImgURL}" alt="NaverSSO" /></a>

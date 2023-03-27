@@ -1,0 +1,148 @@
+.g-reward-card {
+    position: relative;
+    border: rem-calc(1) solid $grey11;
+    border-radius: rem-calc(2);
+    margin: 0 0 rem-calc(30);
+    width: 100%;
+    background-color: $black;
+    box-shadow: 0 rem-calc(4) rem-calc(8) rgba(0, 0, 0, 0.24);
+
+    &:last-child {
+        margin: 0;
+    }
+
+    &_hide {
+        height: 0;
+        visibility: hidden;
+        position: absolute;
+        margin: 0;
+        z-index: -1;
+    }
+
+    .b-free-product-card_product-wrapper {
+        display: none;
+    }
+
+    &.loaded {
+        .b-free-product-card_info-loading {
+            display: none;
+        }
+
+        .b-free-product-card_product-wrapper {
+            display: block;
+        }
+    }
+
+    &_main {
+        padding: rem-calc(15) rem-calc(14) 0;
+    }
+
+    &_desc {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-between;
+        align-items: center;
+        margin: 0 0 rem-calc(17);
+
+        &_left {
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        &-amount {
+            color: $white;
+            margin: 0 0 rem-calc(2);
+            @include font(main_semi_bold, rem-calc(16), rem-calc(16));
+        }
+
+        &-legend {
+            color: $grey4;
+            @include font(main_semi_bold, rem-calc(10), rem-calc(12));
+        }
+
+        &-points {
+            color: $white;
+            background-color: $red;
+            border: rem-calc(1) solid $red;
+            box-sizing: border-box;
+            padding: rem-calc(10) rem-calc(20);
+            border-radius: rem-calc(4);
+            @include font(main_bold, rem-calc(10), rem-calc(14));
+        }
+    }
+
+    &_img {
+        img {
+            display: block;
+            width: 100%;
+        }
+    }
+
+    &_cta-icon {
+        display: inline-block;
+        margin: 0 rem-calc(10) 0 0;
+    }
+
+    &_cta-remove {
+        display: none;
+
+        .g-button_secondary--white {
+            border: 0;
+            margin: 0 rem-calc(20) 0 0;
+            font-weight: $font-semi-bold;
+        }
+    }
+
+    .g-reward-card_cta-redeem {
+        font-weight: $font-semi-bold;
+    }
+
+    &.active {
+        .g-reward-card_cta-redeem {
+            display: none;
+        }
+
+        .g-reward-card_cta-remove {
+            display: block;
+        }
+    }
+
+    &_free-prod {
+        background-color: $white;
+        padding: 0 rem-calc(14);
+    }
+
+    &_cta-wrapper {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 rem-calc(14) rem-calc(15);
+
+        .g-button_base {
+            width: auto;
+            min-width: auto;
+        }
+    }
+
+    &_type {
+        position: relative;
+        display: inline-block;
+        color: $white;
+        text-transform: uppercase;
+        margin: 0 0 rem-calc(5);
+        @include font(main_bold, rem-calc(10), rem-calc(16));
+
+        &::before {
+            position: absolute;
+            content: "";
+            bottom: 0;
+            left: 0;
+            background-color: $red;
+            height: rem-calc(2);
+            width: 90%;
+        }
+    }
+}

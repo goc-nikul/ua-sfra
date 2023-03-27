@@ -1,0 +1,44 @@
+/**
+* Finds a shoprunner shipment based off the shipment ID and removes it from the basket, saving it
+* for future use
+*
+* 	@input Basket : dw.order.Basket -The basket to pull the shipment from
+*   @output SrOrderItems : Array -Add needed info for placing the new order 
+*
+*/
+
+function execute (args) {
+	var basket = args.Basket;
+	var srOrderItems = pullShipment(basket);
+	args.SrOrderItems = srOrderItems;
+	return PIPELET_NEXT;
+}
+
+function pullShipment(basket) {
+
+   	// get the values from the dictionary
+	var srShipment = null;
+	var srOrderItems = new Array();
+	var orderItem = null;
+
+	// need to find the right shipment
+	srShipment = basket.getShipment("ShopRunner #1");
+	
+	// Save the line items and quantites in an array
+	for (var index in srShipment.productLineItems) {
+		orderItem = new Object();
+		orderItem.productID = srShipment.productLineItems[index].productID;
+		orderItem.quantity = srShipment.productLineItems[index].quantity;
+		srOrderItems[index] = orderItem;
+	}
+	
+	// remove the shipment		
+	basket.removeShipment(srShipment);
+		
+	return srOrderItems
+}
+
+module.exports = {
+    execute: execute,
+	pullShipment: pullShipment
+};

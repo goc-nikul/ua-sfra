@@ -1,0 +1,9 @@
+<li class="b-refinements_attributes-item m-checkbox b-show_more-item ${cutoffThreshold === loopstate.index ? 'm-break' : ''}">
+    <a href="${refinementValue.pageUrl}" data-href="${refinementValue.url}"
+            onclick="$(this).hasClass('m-selected')?$(this).removeClass('m-selected'):$(this).addClass('m-selected')"
+            data-analytics-plp-filter-value="${refinementValue.displayValue}"
+            title="${Resource.msgf(refinementValue.selected ? 'label.refinement.selected.title' : 'label.refinement.title', 'search', null, refinement.displayName ? refinement.displayName.toLowerCase() : '', refinementValue.displayValue)}"
+            class="b-refinements_attributes-checkbox <isif condition="${refinementValue.selected && refinementValue.selectable}">m-selected</isif>">
+        ${refinementValue.displayValue}
+    </a>
+</li>

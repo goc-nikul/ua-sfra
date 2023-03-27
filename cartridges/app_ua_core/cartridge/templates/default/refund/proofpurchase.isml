@@ -1,0 +1,28 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+<a class="backbtn" data-href="${URLUtils.url('Order-GuestReturns')}" data-template="returnretails"><span>${Resource.msg('returns.refunds.backbtn','refunds',null)}</span></a>
+<div class="proof-purchase-div b-return-wrap">
+	<h2>${Resource.msg('returns.refunds.underaarmourstorereturns','refunds',null)}</h2>
+	<p>${Resource.msg('returns.refunds.refunddescription','refunds',null)}</p>
+	<isset name="purchaseLocationForm" value="${pdict.returnRetailForm}" scope="page"/>
+	<div class=" required form-group b-input_row b-order-return-input b-return-trns">
+	<div class="b-tooltip-section">
+	<span class="g-tooltip">
+      <p></p>
+    <span class="g-tooltip-text">${Resource.msg('returns.trans.tooltip1','refunds',null)}
+            <div>${Resource.msg('returns.trans.tooltip2','refunds',null)}</div>
+   </span>
+    </span>
+    </div>
+        <label class="b-input_row-label form-control-label">${Resource.msg('returns.refunds.returntransaction','refunds',null)}</label>
+		<input type="text" data-missing-error="${Resource.msg('or.transaction.error.required', 'forms', null)}"
+        class="order-return-form-input form-control" id="transaction" name="transactionno" value="" required
+        <isprint value="${purchaseLocationForm.transaction.attributes}" encoding="off">/>
+        <div class="invalid-feedback"></div>
+    </div>
+		<div class=" form-group submit-section text-center mb-4 submit-tans-sec">
+			<button class="btn btn-primary btn-block submit-shipping g-button_base g-button_primary--black continueReturn" data-template="returnreasons" data-href="${URLUtils.url('Order-ProofOfPurchase')}" name="submit" type="submit">
+				${Resource.msg('returns.refunds.continue','refunds',null)}</br>
+			</button>
+		</div>
+</div>
+<input type="hidden" id="template" name="template" value="">

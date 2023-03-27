@@ -1,0 +1,13 @@
+<div class="paypal-button-display js-paypal-button hide">
+    <div class="button btn btn-primary btn-block g-button_base g-button_primary--black"><isprint value="${Resource.msg('button.paypal', 'checkout', null)}" encoding="off" /></div>
+    <isset name="disableNewPayPal" value="${false}" scope="page" />
+    <isif condition="${pdict.order.billing.payment && pdict.order.billing.payment.isAlreadyPaidFromPayPal}">
+        <isset name="disableNewPayPal" value="${true}" scope="page" />
+    </isif>
+    <input type="hidden" class="is-already-paid-from-paypal" value="${disableNewPayPal}">
+    <div class="button-content js-payment-paypal-new ${disableNewPayPal ? 'hide' : ''}">
+        <div style="display:${!pdict.paypal.isNeedHideContinueButton ? 'none' : 'block'}">
+            <div id="paypalDiv_Bottom" class="paypal-checkout-button js_paypal_button_on_billing_form" data-paypal-config="${JSON.stringify(pdict.paypal.buttonConfig)}"></div>
+        </div>
+    </div> 
+</div>

@@ -1,0 +1,566 @@
+// Styling for PDP personlization Modal
+
+.product-personalization {
+    .personalize__action,
+    .personalize__form-action {
+        padding: rem-calc(25) 0;
+
+        .personalize__action-btn,
+        .personalize-continue-btn {
+            max-width: 90%;
+            border-color: $black;
+            background-color: $black;
+            align-items: flex-end;
+
+            @include respond-to(mobile) {
+                max-width: 85%;
+            }
+        }
+
+        .personalize-continue-btn {
+            max-width: 60%;
+        }
+
+        .personalize-cancel-btn {
+            margin-left: rem-calc(30);
+            color: $grey5;
+            text-decoration: none;
+        }
+
+        .personalize__tooltip {
+            margin-left: rem-calc(20);
+
+            .personalize__tooltip-content {
+                left: calc(100% - 85px);
+                top: calc(100% + 15px);
+
+                @include respond-to(desktop) {
+                    &::after {
+                        content: none;
+                    }
+                }
+            }
+
+            @include respond-to(mobile) {
+                display: inline;
+            }
+        }
+    }
+}
+
+.product-options {
+    display: none !important;
+}
+
+.b-pdp-personalize-modal {
+    .g-modal-dialog {
+        max-width: rem-calc(800);
+        top: rem-calc(120);
+
+        @include respond-to(mobile) {
+            top: 0;
+        }
+
+        .g-modal-content {
+            padding: rem-calc(30);
+            max-height: rem-calc(500);
+            min-height: rem-calc(100);
+            overflow-y: auto;
+
+            @include respond-to(mobile) {
+                display: block;
+                max-height: none;
+                overflow: auto;
+            }
+
+            .g-login-modal-header {
+                padding: 0;
+            }
+
+            .personalize-modal-body {
+                display: flex;
+                margin-top: rem-calc(20);
+
+                @include respond-to(mobile) {
+                    display: block;
+                }
+
+                .personalize-container {
+                    display: flex;
+                }
+
+                .personalize__carousel {
+                    flex-basis: 57%;
+                    max-width: rem-calc(415);
+
+                    @include respond-to(mobile) {
+                        width: 100%;
+                    }
+                }
+
+                .personalize__modal-details {
+                    flex-basis: 43%;
+                    padding-left: rem-calc(20);
+
+                    @include respond-to(mobile) {
+                        width: 100%;
+                        padding-left: 0;
+                    }
+
+                    h2 {
+                        font-size: rem-calc(24);
+                        text-transform: none;
+                        margin: rem-calc(20) 0;
+                        font-weight: $font-medium;
+                    }
+
+                    .personalize__form-row {
+                        margin-bottom: 0;
+
+                        input {
+                            cursor: auto;
+                        }
+
+                        .personalize-name-msg,
+                        .personalize-number-msg {
+                            color: $grey5;
+                        }
+                    }
+
+                    .personalize__form {
+                        .invalid-feedback {
+                            padding: 0;
+
+                            &::before {
+                                content: none;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.personalize__modal-details {
+    .personalize__form-row {
+        input.b-quantity-select {
+            cursor: auto;
+        }
+
+        #personalizationSponsorsInput,
+        label.sponsors-label {
+            cursor: pointer;
+        }
+    }
+}
+
+.g-tabs-chips.nav.nav-tabs {
+    li {
+        a {
+            @include respond-to(mobile) {
+                text-decoration: none;
+            }
+        }
+    }
+}
+
+.personalize__carousel {
+    .b-product_carousel-wrapper,
+    .b-personalize_carousel-wrapper {
+        .personalize__jersey {
+            display: flex;
+            position: absolute;
+            flex-direction: column-reverse;
+            left: 50%;
+            top: 23%;
+
+            @include respond-to(mobile) {
+                top: 21%;
+            }
+
+            .personalize__jersey-number {
+                text-align: center;
+                display: block;
+
+                svg {
+                    display: inline-block;
+                    width: 1em;
+                    height: 2em;
+
+                    &:last-child {
+                        margin-left: rem-calc(2);
+                    }
+                }
+
+                .number-1 {
+                    width: rem-calc(32);
+                }
+            }
+
+            .personalize__jersey-name {
+                font-size: rem-calc(20);
+                width: 100%;
+                text-align: center;
+                color: #c52a29;
+                text-transform: uppercase;
+                margin-bottom: rem-calc(5);
+            }
+        }
+    }
+}
+
+.b-header_minicart-product-item {
+    .b-personalization-content {
+        padding-top: rem-calc(5);
+        font-size: rem-calc(11);
+        color: $grey5;
+    }
+}
+
+.product-summary-block {
+    .b-personalization-content {
+        font-size: rem-calc(12);
+
+        @include respond-to(desktop) {
+            padding-top: rem-calc(22);
+        }
+
+        .without-text {
+            display: none;
+        }
+    }
+}
+
+.b-order-confirmation_right {
+    .product-summary-block {
+        .b-personalization-content {
+            font-size: rem-calc(12);
+            padding-top: 0;
+            margin-top: rem-calc(15);
+        }
+    }
+}
+
+.personalize-modal {
+    @include respond-to(desktop) {
+        overflow: hidden !important;
+    }
+}
+
+.product-quickview {
+    .b-product-quickview-content {
+        .product-option {
+            display: none !important;
+        }
+    }
+}
+
+// styles for edit Cart-personalization product
+.product-quickview {
+    .b-product-quickview-content {
+        display: flex;
+
+        @include respond-to(mobile) {
+            display: block;
+        }
+    }
+}
+
+.cart-product-personalization {
+    .b-product-quickview-content {
+        display: none;
+
+        &.active {
+            display: flex;
+
+            @include respond-to(mobile) {
+                display: block;
+                margin-top: rem-calc(35);
+            }
+        }
+    }
+
+    .Product-personalise-content {
+        display: none;
+
+        &.active {
+            display: block !important;
+            width: 100%;
+
+            @include respond-to(mobile) {
+                display: block;
+                margin-top: rem-calc(35);
+            }
+        }
+
+        .personalize-container {
+            display: flex;
+
+            @include respond-to(mobile) {
+                display: block;
+            }
+
+            .personalize__carousel {
+                flex-basis: 50%;
+                max-width: rem-calc(392);
+                max-height: rem-calc(416);
+            }
+
+            .personalize__modal-details {
+                flex-basis: 50%;
+                margin-top: rem-calc(40);
+                margin-left: rem-calc(40);
+
+                .personalize__form-row {
+                    margin-bottom: 0;
+                }
+
+                @include respond-to(mobile) {
+                    margin: 0;
+                }
+
+                h2 {
+                    font-size: rem-calc(24);
+                    text-transform: none;
+                    margin-bottom: rem-calc(25);
+                    font-weight: $font-medium;
+                }
+
+                .personalize__form-action {
+                    padding: rem-calc(25) 0;
+
+                    .cart-personalize-continue-btn {
+                        max-width: 60%;
+                        border-color: $black;
+                        background-color: $black;
+                        align-items: flex-end;
+                    }
+
+                    .personalize-cancel-btn {
+                        margin-left: rem-calc(30);
+                        color: $grey5;
+                        text-decoration: none;
+                    }
+                }
+            }
+        }
+    }
+
+    .g-tabs--desktop {
+        position: absolute;
+        right: 24%;
+
+        @include respond-to(mobile) {
+            left: rem-calc(18);
+            top: rem-calc(55);
+        }
+
+        .nav-tabs {
+            display: flex;
+
+            .g-tabs-link {
+                background-color: $grey2;
+                border: 1px solid $grey2;
+                color: $black;
+                padding: rem-calc(8) rem-calc(20) rem-calc(5);
+                margin: 0 1px 0 0;
+                text-transform: uppercase;
+                cursor: pointer;
+                font-size: rem-calc(12);
+
+                &.active {
+                    border-bottom-color: $white;
+                    background-color: $white;
+                    cursor: default;
+
+                    &::before {
+                        border-bottom: none;
+                    }
+                }
+            }
+        }
+    }
+
+    .b-product-quickview-info {
+        margin-top: rem-calc(40);
+
+        @include respond-to(mobile) {
+            margin-top: 0;
+        }
+    }
+}
+
+.sponsors-label {
+    margin-left: rem-calc(10);
+}
+
+#personalizationSponsorsInput {
+    vertical-align: middle;
+}
+
+.b-cart-content {
+    .b-productcard_total_price {
+        span {
+            @include respond-to(mobile) {
+                display: block;
+                margin-right: rem-calc(20);
+            }
+        }
+    }
+}
+
+.b-personalize_carousel-wrapper {
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    box-sizing: content-box;
+    transition-property: transform;
+}
+
+.personalize__modal.style-0 .personalize__jersey-name {
+    text-shadow: -1px -1px 0 $white, 1px -1px 0 $white, -1px 1px 0 $white, 1px 1px 0 $white;
+}
+
+.personalize__modal.style-1 .personalize__jersey-name {
+    color: $white !important;
+    text-shadow: -2px -2px 0 $black, 0 -2px 0 $black, 2px -2px 0 $black, 2px 0 0 $black, 2px 2px 0 $black, 0 2px 0 $black, -2px 2px 0 $black, -2px 0 0 $black !important;
+}
+
+.personalize__modal.style-2 .personalize__jersey-name,
+.personalize__modal.style-7 .personalize__jersey-name {
+    color: $white !important;
+}
+
+.personalize__modal.style-3 .personalize__jersey-name,
+.personalize__modal.style-8 .personalize__jersey-name {
+    color: $black !important;
+}
+
+.personalize__modal.style-4 .personalize__jersey-name,
+.personalize__modal.style-5 .personalize__jersey-name {
+    color: $white !important;
+    text-shadow: -2px -2px 0 #522a38, 0 -2px 0 #522a38, 2px -2px 0 #522a38, 2px 0 0 #522a38, 2px 2px 0 #522a38, 0 2px 0 #522a38, -2px 2px 0 #522a38, -2px 0 0 #522a38 !important;
+}
+
+.personalize__modal.style-6 .personalize__jersey-name {
+    color: #002c17 !important;
+    text-shadow: -1px -1px 0 $white, 1px -1px 0 $white, -1px 1px 0 $white, 1px 1px 0 $white;
+}
+
+.personalize__modal.style-9 .personalize__jersey-name {
+    color: #898730 !important;
+}
+
+.personalize__modal.style-10 .personalize__jersey-name,
+.personalize__modal.style-19 .personalize__jersey-name,
+.personalize__modal.style-25 .personalize__jersey-name {
+    color: $black !important;
+}
+
+.personalize__modal.style-11 .personalize__jersey-name {
+    color: $black !important;
+    text-shadow: -2px -2px 0 $white, 0 -2px 0 $white, 2px -2px 0 $white, 2px 0 0 $white, 2px 2px 0 $white, 0 2px 0 $white, -2px 2px 0 $white, -2px 0 0 $white !important;
+}
+
+.personalize__modal.style-12 .personalize__jersey-name {
+    color: #00529c !important;
+}
+
+.personalize__modal.style-13 .personalize__jersey-name {
+    color: #00529c !important;
+    text-shadow: -2px -2px 0 $white, 0 -2px 0 $white, 2px -2px 0 $white, 2px 0 0 $white, 2px 2px 0 $white, 0 2px 0 $white, -2px 2px 0 $white, -2px 0 0 $white !important;
+}
+
+.personalize__modal.style-14 .personalize__jersey-name,
+.personalize__modal.style-20 .personalize__jersey-name,
+.personalize__modal.style-24 .personalize__jersey-name {
+    color: $white !important;
+}
+
+.personalize__modal.style-15 .personalize__jersey-name {
+    color: $white !important;
+    text-shadow: -2px -2px 0 $black, 0 -2px 0 $black, 2px -2px 0 $black, 2px 0 0 $black, 2px 2px 0 $black, 0 2px 0 $black, -2px 2px 0 $black, -2px 0 0 $black !important;
+}
+
+.personalize__modal.style-16 .personalize__jersey-name {
+    color: #bf2036 !important;
+}
+
+.personalize__modal.style-17 .personalize__jersey-name {
+    color: #bf2036 !important;
+    text-shadow: -2px -2px 0 $white, 0 -2px 0 $white, 2px -2px 0 $white, 2px 0 0 $white, 2px 2px 0 $white, 0 2px 0 $white, -2px 2px 0 $white, -2px 0 0 $white !important;
+}
+
+.personalize__modal.style-18 .personalize__jersey-name {
+    color: #efdf00 !important;
+}
+
+.personalize__modal.style-22 .personalize__jersey-name {
+    color: $white !important;
+    text-shadow: -2px -2px 0 #522a38, 2px -2px 0 #522a38, -2px 2px 0 #522a38, 2px 2px 0 #522a38;
+}
+
+.personalize__modal.style-23 .personalize__jersey-name {
+    color: #002c17 !important;
+    text-shadow: -1px -1px 0 $white, 1px -1px 0 $white, -1px 1px 0 $white, 1px 1px 0 $white;
+}
+
+.personalize__modal.style-26 .personalize__jersey-name {
+    color: #bfb200 !important;
+}
+
+.personalize__modal.style-21 .personalize__jersey-name {
+    color: #ffd700 !important;
+}
+
+.personalize__modal.style-27 .personalize__jersey-name {
+    color: #00263a !important;
+}
+
+.personalize__modal.style-28 .personalize__jersey-name {
+    color: #6cace4 !important;
+    text-shadow: -1px -1px 0 $white, 1px -1px 0 $white, -1px 1px 0 $white, 1px 1px 0 $white;
+}
+
+.personalize__modal.style-29 .personalize__jersey-name {
+    color: #00a3e0 !important;
+    text-shadow: -1px -1px 0 $white, 1px -1px 0 $white, -1px 1px 0 $white, 1px 1px 0 $white;
+}
+
+.personalize__modal.style-30 .personalize__jersey-name {
+    color: $white !important;
+    text-shadow: -1px -1px 0 #798492, 1px -1px 0 #798492, -1px 1px 0 #798492, 1px 1px 0 #798492;
+}
+
+.bfx-price-product {
+    .cart-product-personalization {
+        .g-tabs--desktop {
+            right: 17%;
+
+            @include respond-to(mobile) {
+                right: 0;
+            }
+        }
+    }
+}
+
+.b-product_carousel-wrapper .l-tile-badge_top_left {
+    font-weight: $font-regular;
+    font-size: rem-calc(12);
+    line-height: 1.6;
+    position: absolute;
+    display: block;
+    cursor: default;
+    top: rem-calc(16);
+    text-align: center;
+    left: rem-calc(16);
+    padding: rem-calc(6) 0;
+    min-width: rem-calc(88);
+    min-height: rem-calc(32);
+    border-radius: 0.25rem;
+    background: $white;
+    z-index: 2;
+}

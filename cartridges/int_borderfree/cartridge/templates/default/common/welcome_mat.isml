@@ -1,0 +1,36 @@
+<isscript>
+  let apiKey , env , mode, brand, hostname;
+  apiKey = dw.system.Site.current.getCustomPreferenceValue('bfxApiKey');
+  env = dw.system.Site.current.getCustomPreferenceValue('bfxEnv');
+  mode = dw.system.Site.current.getCustomPreferenceValue('bfxMode');
+  brand= dw.system.Site.current.getCustomPreferenceValue('bfxBrand');
+  hostname= dw.system.Site.current.getCustomPreferenceValue('bfxHostname');
+  logLevel= dw.system.Site.current.getCustomPreferenceValue('bfxLogLevel');
+</isscript>
+
+
+<script id="bfx-snippet">
+  window.bfxJsLoaded=0;
+  <iscomment>Borderfree Supplied Embed Snippet</iscomment>
+  ;(function(e,n,o,t,a){function c(n){e[t]._apiKey=n.key;e[t]._env=n.env;e[t]._logLevel=n.logLevel;
+  e[t]._mode=n.mode;e[t]._brand=n.brand;e[t]._cookieFlag=n.cookieFlag}e[t]=c;e[t].l=1*new Date;var i,l;
+  i=n.createElement(o);l=n.getElementsByTagName(o)[0];i.async=1;i.src=a;l.parentNode.insertBefore(i,l);
+  })(window,document,"script","bfx","${hostname}/v1/dist/bfx.js");
+  bfx({key:'${apiKey}', env:'${env}', mode:'${mode}', brand:'${brand}', logLevel:'${logLevel}'});
+  <iscomment>End Borderfree Supplied Embed Snippet</iscomment>
+  if(!window.bfxJsLoaded) {
+    window.bfxJsLoaded=1;
+    window.addEventListener('load', function loadBfx() {
+      const canDelayPaths = [
+        '/en-us/',
+        '/en-us/home',
+      ]
+
+        window.addEventListener('bfx-contextChooser-loadEnd',function _bfxOnLoadEnd() {
+          $('#bodyPage').addClass('bfx-enabled');
+          $('#bfx-cc-wrapper').hide();
+          $('#bfx-cc-wrapper').appendTo('.borderfree-content');
+        }, false);
+    })
+  }
+</script>

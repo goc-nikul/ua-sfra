@@ -1,0 +1,503 @@
+/**
+ * This script provides utility functions shared across other checkout scripts.
+ * Reused script components for checkout should be contained here, while this
+ * script is imported into the requiring script.
+ *
+ * Modified from the original Demandware script to add PO Box detection 
+ */
+importPackage( dw.customer );
+importPackage( dw.order );
+importPackage( dw.system );
+importPackage( dw.util );
+importPackage( dw.value );
+importPackage( dw.web );
+
+/**
+ * Calculates the amount to be payed by a non-gift certificate payment instrument based 
+ * on the given basket. The method subtracts the amount of all redeemed gift certificates 
+ * from the order total and returns this value.
+ */
+function calculateNonGiftCertificateAmount( basket : Basket ) 
+{
+	// the total redemption amount of all gift certificate payment instruments in the basket
+	var giftCertTotal : Money = new Money( 0.0, basket.currencyCode );
+
+	// get the list of all gift certificate payment instruments 
+	var gcPaymentInstrs : Collection = basket.getGiftCertificatePaymentInstruments();
+	var iter : Iterator = gcPaymentInstrs.iterator();
+	var orderPI : OrderPaymentInstrument = null;
+
+	// sum the total redemption amount
+	while( iter.hasNext() )
+	{
+		orderPI = iter.next();
+		giftCertTotal = giftCertTotal.add( orderPI.getPaymentTransaction().getAmount() );
+	}
+
+	// get the order total
+	var orderTotal : Money = basket.totalGrossPrice;
+
+	// calculate the amount to charge for the payment instrument
+	// this is the remaining open order total which has to be paid
+	var amountOpen : Money = orderTotal.subtract( giftCertTotal );
+
+	// return the open amount
+	return amountOpen;
+}
+
+/**
+ * Determines a unique shipment ID for shipments in the given basket
+ * and the given base ID. The function appends a counter to the base ID
+ * and checks the existence of the resulting ID. If the resulting ID is
+ * unique this ID is returned, if not the counter is incremented and
+ * checked again.
+ */
+function determineUniqueShipmentID( basket : Basket, baseID : String )
+{
+	var counter : Number = 1;
+	var shipment : Shipment = null;
+	var candidateID : String = baseID + "" + counter;
+	while( shipment == null )
+	{
+		shipment = basket.getShipment(candidateID);
+		if( shipment != null )
+		{
+			// this ID is already taken, increment the counter 
+			// and try the next one
+			counter++;
+			candidateID = baseID + "" + counter;
+			shipment = null;
+		}
+		else
+		{
+			return candidateID;
+		}
+	}
+	
+	// should never go here
+	return null;
+}
+
+/**
+ * Transient representation of a shipping address.
+ */
+function ShippingAddress()
+{
+	var UUID : String = null;
+
+	var ID 			: String = null;
+	var firstName 	: String = null;
+	var lastName 	: String = null;
+	var address1 	: String = null;
+	var address2 	: String = null;
+	var city 		: String = null;
+	var postalCode 	: String = null;
+	var stateCode 	: String = null;
+	var countryCode : String = null;
+	var phone 		: String = null;
+
+	/**
+	 * The UUID of the reference address. It is set when the attributes
+	 * are copied from a given customer or order address and is used
+	 * to preselect addresses on a per product line item base.
+	 */
+	var referenceAddressUUID : String = null;
+
+	/**
+	 * Copies the attributes of this address to the given order address.
+	 */ 
+	this.copyTo = function( toAddress : OrderAddress )
+	{
+		toAddress.setFirstName( this.firstName );
+		toAddress.setLastName( this.lastName );
+		toAddress.setAddress1( this.address1 );
+		toAddress.setAddress2( this.address2 );
+		toAddress.setCity( this.city );
+		toAddress.setPostalCode( this.postalCode );
+		toAddress.setStateCode( this.stateCode );
+		toAddress.setCountryCode( this.countryCode );
+		toAddress.setPhone( this.phone );
+	}
+
+	/**
+	 * Copies the attributes from the given customer address or
+	 * order address to this address. The function supports both
+	 * copying from CustomerAddress as well as from OrderAddress.
+	 */
+	this.copyFrom = function( fromAddress : CustomerAddress )
+	{
+		// if we copy from a customer address, we set the address ID
+		if( fromAddress instanceof CustomerAddress )
+		{
+			this.ID = fromAddress.ID;
+		}
+		
+		this.firstName = fromAddress.firstName;
+		this.lastName = fromAddress.lastName;
+		this.address1 = fromAddress.address1;
+		this.address2 = fromAddress.address2;
+		this.city = fromAddress.city;
+		this.postalCode = fromAddress.postalCode;
+		this.stateCode = fromAddress.stateCode;
+		this.countryCode = fromAddress.countryCode;
+		this.phone = fromAddress.phone;
+	}
+}
+
+/**
+ * Creates a new transient shipping address in the session dictionary.
+ */
+function createShippingAddress( referenceAddress : CustomerAddress )
+{
+	// create a new in memory address and set the UUID
+	var address : Object = new ShippingAddress();
+	address.UUID = UUIDUtils.createUUID();
+
+	// get all addresses from session dictionary
+	var addresses : Collection = session.custom.shippingAddresses;
+
+	// create an empty array, if no collection was found in session dictionary
+	if( addresses == null )
+	{
+		addresses = new ArrayList();
+		session.custom.shippingAddresses = addresses;
+	}
+
+	// add the address to the collection
+	addresses.add( address );
+
+	// copy the attribute of the reference address to the transient address
+	
+
+	return address;
+}
+
+/**
+ * Finds a transient shipping address in the session dictionary
+ * and returns the found address.
+ */
+function findShippingAddress( uuid : String )
+{
+	// check if uuid is set
+	if( empty(uuid) )
+	{
+		return null;
+	}
+
+	// get all addresses from session dictionary
+	var addresses : Collection = session.custom.shippingAddresses;
+
+	// check if there are addresses at all
+	if( addresses == null || addresses.size() == 0 )
+	{
+		return null;
+	}
+
+	// find the address
+	for(var i=0; i<addresses.size(); i++)
+	{
+		if( uuid.equals(addresses[i].UUID) )
+		{
+			return addresses[i];
+		}	
+	}
+
+	return null;
+}
+
+/**
+ * Removes a transient shipping address from the session dictionary.
+ */
+function removeShippingAddress( shippingAddress : Object )
+{
+	// check if shippingAddress is set
+	if( empty(shippingAddress) )
+	{
+		return;
+	}
+
+	// get all addresses from session dictionary
+	var addresses : Collection = session.custom.shippingAddresses;
+
+	// check if there are addresses at all
+	if( addresses == null || addresses.size() == 0 )
+	{
+		return;
+	}
+
+	// remove the object from the collection
+	addresses.remove( shippingAddress );
+
+	return;
+}
+
+/**
+ * Check a string for any variation of P.O. Box
+ */
+function isPOBox( address : String ) : Boolean
+{
+    var reGroups = ["^ *((#\\d+)",
+                    "((box|bin)[-. \\/\\\\]?\\d+)",
+                    "(.*p[ \\.]? ?(o|0)[-. \\/\\\\]? *-?((box|bin)|b|(#|num)?\\d+))",
+                    "(p(ost)? *(o(ff(ice)?)?)? *((box|bin)|b)? *\\d+)",
+                    "(p *-?\\/?(o)? *-?box)",
+                    "post office box",
+                    "(((box|bin)|b) *(number|num|#)? *\\d+)$",
+                    "(\\d+ *(box|post box|post office box)$)",
+                    "((num|number|#) *\\d+)$)"
+
+    ].join("|");
+    var poExpression : RegExp = new RegExp(reGroups, "i"); 	
+		
+	if (!empty(address) && address.match(poExpression) )
+	{
+		return true;
+    }
+    else {
+    	return false;
+    }
+}	
+
+function isCityAPOFPO( city : String ) : Boolean
+{
+	if (city.equalsIgnoreCase("apo") || city.equalsIgnoreCase("fpo") )
+	{
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+function getSRToken() : String
+{
+	var srtoken : String = session.custom.srtoken;
+	if (empty(srtoken)) 
+    { 
+    	var cookies : Cookies = request.getHttpCookies();
+	    for (var i = 0; i < cookies.cookieCount; i++)
+	    {
+	    	var cookie : Cookie = cookies[i];
+	    	if (cookie.name == 'sr_token')
+	    	{
+	    	   srtoken = cookie.value;	
+	    	   break;
+	    	}
+	 	}
+    }
+    
+    return srtoken;
+}
+
+function setSRSignOut()
+{
+	var cookies : Cookies = request.getHttpCookies();
+  	for (var i = 0; i < cookies.cookieCount; i++)
+    {
+    	var cookie : Cookie = cookies[i];
+    	// reset sr_token cookie
+    	if (cookie.name == 'sr_token')
+    	{
+    	   cookie.setMaxAge(0); 
+		   cookie.setPath('/');
+           cookie.setSecure(false);
+           response.addHttpCookie(cookie);
+    	   break;
+    	}
+    }
+  	// reset srtoken session
+  	session.custom.srtoken = null;
+  	
+  	// reset order related session
+  	session.custom.orderNo = null;
+  	session.custom.firstOrderNo = null;
+}
+
+/*
+ * There are three conditions that need to be simultaneously true in order to apply this:
+ * IF {Cart Status = Mixed && User = SignedIntoSR && (Mixed Order Preference = SplitShip OR Mixed Order Preference = Downgrade)}
+ * THEN Ground Shipping = FREE
+ * This should only apply for Ground Shipping method (not 2Day express or any other) 
+ * and should not take into account the shipping surcharge, which will feature separately with its associated cost.
+**/
+function setShippingGroundFreeSession(status : String, signin : Boolean)
+{
+	// initiate freeCase object
+	var freeCase : Object = new Object();
+	// (a) check if it is a mixed cart 
+	freeCase.mixedcart = status == 'MIXED' ? true : false;
+	// (b) check if the user is sign in to SR account
+	if (signin == null || empty(signin))
+	{
+		signin = empty(session.custom.srtoken) ? false : true;
+	}
+	freeCase.srsignin = signin;
+	// (c) check if Mixed Order Preference = SplitShip OR Mixed Order Preference = Downgrade
+	var srMixedorder : String = Site.getCurrent().getCustomPreferenceValue('sr_mixedorder').value.value;
+	freeCase.mixedorder = (srMixedorder === 'splitShip' || srMixedorder === 'downgrade') ? true : false;
+	// set 'srgroundfree' custom session
+	if (freeCase.mixedcart && freeCase.srsignin && freeCase.mixedorder)
+	{
+		session.custom.srgroundfree = 'true';
+	}
+	else
+	{
+		session.custom.srgroundfree = 'false';
+	}
+}
+
+
+/*
+ * Set the value of order.custom.sr_token
+ * @Deprecated - not used 
+**/
+function saveSROrderToken(order : Order, srtoken : String)
+{
+	var setToken : Boolean = false;
+	if (order != null && !empty(srtoken))
+	{
+		var shipments : Collection = order.getShipments();
+		if (!shipments.isEmpty())
+		{
+			var shipmentItems : Iterator = shipments.iterator();
+			while (shipmentItems.hasNext()) 
+			{
+				var shipment : Shipment = shipmentItems.next();
+				var shipmentMethod : ShippingMethod = shipment.getShippingMethod();
+				if (shipmentMethod.getID() == 'shoprunner')
+				{
+					setToken = true;
+					break;
+				}
+			}
+		}
+		if (setToken)
+		{
+		   order.custom.sr_token = srtoken;
+		}
+	}
+}
+
+/*
+ * Set the default shipping method after signing out of ShopRunner account
+**/
+function setDefaultShippingMedhod(basket : Basket, status : String) 
+{
+	try
+	{ 
+		if (basket != null)
+		{
+			var token : String = getSRToken();
+		   	var signin : Boolean = empty(token) ? false : true;
+			
+			// if the user signs out of ShopRunnner or has a mixed cart reset the shipping method to the default one
+			var defaultShipment : Shipment = basket.getDefaultShipment();
+			var	shippingMethods : Collection = ShippingMgr.getShipmentShippingModel(defaultShipment).getApplicableShippingMethods();
+			var shippingMethods : HashMap = ShippingMgr.getAllShippingMethods(); 
+			var defaultShipmentMethodId = defaultShipment.getShippingMethodID();
+			if ((defaultShipmentMethodId == 'shoprunner' && !signin) || 
+				(defaultShipmentMethodId == 'shoprunner' && status == 'MIXED' && signin) || 
+				(defaultShipmentMethodId != 'shoprunner' && status == 'MIXED' && signin))
+			{
+				// check again if the default method is not Shoprunner
+				// and if the cart is mixed and the session has srToken
+				if (defaultShipmentMethodId != 'shoprunner' && status == 'MIXED' && signin)
+				{
+					// set default Shipment the method that has been selected in modal window
+					basket.getDefaultShipment().setShippingMethod(defaultShipment.getShippingMethod());
+					var basketShipments : Collection = basket.getShipments();
+					// create an array where will be stored the shipments that are not default
+					var shipmentsArray : Array = [];
+					// loop through each shipment in basket shipments and 
+					// check everyone shipment to find the default shipment
+					for each (var shipment : Shipment in basketShipments)
+					{
+						if (!shipment.isDefault()) 
+						{
+							// if a shipments is not default then declare a Collection
+							// where will store the productLineItems for that shipment
+							var shipmentProducts : Collection = shipment.getProductLineItems();
+							
+							for each (var product : ProductLineItem in shipmentProducts)
+							{
+								// move the product line item to the default Shipment
+								product.setShipment(basket.getDefaultShipment());	
+							}
+							// put the shipment that is not default into shipmentArray
+							shipmentsArray.push(shipment);
+						}
+					}
+					// loop through all the shipments that are not default 
+					// and remove them 1 by 1		
+					for each (var shipmentRemoved : Shipment in shipmentsArray)
+					{
+						basket.removeShipment(shipmentRemoved);
+					}
+				}
+				else
+				{
+					var applyMethod : ShippingMethod; 
+					if (shippingMethods.length > 0) 
+					{
+						var shippingMethodsSeeker : Iterator = shippingMethods.iterator();
+						var applyDefault : Boolean = false;		   
+						while (shippingMethodsSeeker.hasNext())
+						{
+							var method : ShippingMethod = shippingMethodsSeeker.next();
+							if (method.isDefaultMethod() && method.isOnline())
+							{
+								applyDefault = true;
+								break;
+							}
+						}	
+						var shippingMethodsIter : Iterator = shippingMethods.iterator();
+						while (shippingMethodsIter.hasNext())
+						{
+							var method : ShippingMethod = shippingMethodsIter.next();
+							applyMethod = method;
+							// exclude the shipming method '005', instore shipming method
+							if (!applyDefault && method.getID() != '005')
+							{
+								break;
+							}
+							else if (applyDefault && method.isDefaultMethod() && method.isOnline())
+							{
+								break;
+							}
+						}
+					}
+					// apply the default selected method
+					basket.getDefaultShipment().setShippingMethod(applyMethod);
+				}
+			}
+			else if (defaultShipmentMethodId != 'shoprunner' && status == 'ALL_SR' && signin)
+			{
+				if (shippingMethods.length > 0) 
+				{
+					var shippingMethodsIter : Iterator = shippingMethods.iterator(); 
+					while (shippingMethodsIter.hasNext())
+					{
+						var method : ShippingMethod = shippingMethodsIter.next();
+						var id = method.ID;
+						if (id == 'shoprunner' && status == 'ALL_SR')
+						{
+							var defaultShipment : Shipment = basket.getDefaultShipment(); 
+							if (defaultShipment != null)
+							{
+								defaultShipment.setShippingMethod(method);
+								break;
+							}
+						}	
+					}
+				}
+			}
+		}
+	}
+	catch (e) 
+	{
+		var error = e;
+		Logger.getLogger('ShopRunner', 'ShopRunner').error('ShopRunner Utils.ds: setDefaultShippingMedhod general error: ' + e.message);
+		return PIPELET_ERROR;
+	}
+	
+}

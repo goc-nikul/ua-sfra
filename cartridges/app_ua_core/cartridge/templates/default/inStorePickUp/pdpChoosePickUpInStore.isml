@@ -1,0 +1,47 @@
+ <div class="shipping-head-outer b-choose-ship-pickup">
+    <ul class="b-shipping-head-inner">
+            <li class="b-ship-pickup-option">
+                <div class="b-select-ship-online">
+                    <img src="${URLUtils.staticURL('/images/store.svg')}" alt="${Resource.msg('button.choose.store', 'storeLocator', null)}" title="${Resource.msg('title.hero.choosestore', 'storeLocator', null)}">
+                    <div class="b-select-ship-online-content" data-outofstock="${Resource.msg('button.choose.ship.outstock','storeLocator',null)}" data-instock="${Resource.msg('button.choose.ship.instock','storeLocator',null)}">
+                        <div class="b-select-ship-online-heading">${Resource.msg('button.choose.ship','storeLocator',null)}</div>
+                        <div class="b-select-ship-online-store">${Resource.msg('button.choose.ship.instock','storeLocator',null)}</div>
+                    </div>
+                </div>
+            </li>
+            <li class="b-ship-pickup-option">
+                <div class="b-store-choose-link bfx-remove-element js-instorepickup" data-modal-close-text="${Resource.msg('label.modal.close.text','instorePickup',null)}" data-selectstore="${Resource.msg('button.choose.store','storeLocator',null)}" data-outofstock="${Resource.msg('button.choose.pickup.outofstock','storeLocator',null)}" data-instock="${Resource.msg('button.choose.pickup.instock','storeLocator',null)}">
+                    <isif condition="${pdict.pickUpInStore.enabled}">
+                        <span class="b-store-choose-content select-store">
+                            <div class="b-store-choose-content-top b-store-choose-content-select" data-bopisshipmenturl="${URLUtils.url('Stores-UpdateBopisShipments')}">
+                                <img src="${URLUtils.staticURL('/images/store.svg')}" alt="${Resource.msg('button.choose.store', 'storeLocator', null)}" title="${Resource.msg('title.hero.choosestore', 'storeLocator', null)}">
+                                <div class="b-store-choose-content-left">
+                                    <div class="b-store-heading">${Resource.msg('label.item.pdp.heading','product',null)}</div>
+                                    <isif condition="${pdict.pickUpInStore.quickViewEnable == 'true'}">
+                                        <div class="b-choose-store no-store"> ${Resource.msg('cart.no.store.selected', 'storeLocator', null)}</div>
+                                    <iselse>
+                                        <a href="${pdict.pickUpInStore.actionUrl}" class="btn btn-block btn-get-in-store-inventory btn-outline-primary" data-action-url="${pdict.pickUpInStore.actionUrl}" data-ats-action-url="${pdict.pickUpInStore ? pdict.pickUpInStore.atsActionUrl : ''}">
+                                            <div class="b-choose-store">${Resource.msg('button.choose.store','storeLocator',null)}</div>
+                                        </a>
+                                    </isif>
+                                </div>
+                            </div>
+                        </span>
+                        <iscomment> Setting the Pick up in store URL to get the geoLocation latitude & longitude</iscomment>
+                        <isset name="cookieHelper" value="${require('*/cartridge/scripts/helpers/cookieHelpers')}" scope="page" />
+                        <isset name="selectedStoreCookie" value="${(cookieHelper.read('preSelectedStore'))}" scope="page" />
+                        <isif condition="${selectedStoreCookie}">
+                            <isset name="selectedStoreCookie" value="${JSON.parse(selectedStoreCookie)}" scope="page" />
+                        </isif>
+                        <isif condition="${!selectedStoreCookie}">
+                            <input type="hidden" name="geolocation-url" value="${URLUtils.https('StoreLocator-selectStoreByCoordinates','quickViewEnable', pdict.pickUpInStore.quickViewEnable)}" />
+                        <iselseif condition="${(selectedStoreCookie && !selectedStoreCookie.ID) && (pdict.CurrentCustomer && pdict.CurrentCustomer.addressBook && pdict.CurrentCustomer.addressBook.getPreferredAddress())}" >
+                            <input type="hidden" name="geolocation-url" value="${URLUtils.https('StoreLocator-selectStoreByCoordinates','quickViewEnable', pdict.pickUpInStore.quickViewEnable)}" />
+                        </isif>
+                    </isif>
+                </div>
+            </li>
+    </ul>
+ </div>
+
+

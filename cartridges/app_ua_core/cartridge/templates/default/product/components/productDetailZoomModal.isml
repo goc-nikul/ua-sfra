@@ -1,0 +1,29 @@
+<div class="pdp-modal-zoom g-modal g-modal-zoom" id="productZoomModal" tabindex="-1" role="dialog" aria-labelledby="productZoomModal">
+    <div class="g-modal-dialog g-productZoom-modal-dialog" role="document">
+        <div class="g-modal-content g-productZoom-modal-content">
+            <div class="g-modal-body g-productZoom-modal-body">
+                <div
+                    class="b-product_carousel">
+                    <div class="b-product_carousel-wrapper">
+                        <isloop items="${product.images['pdpZoomDesktop'] ? product.images['pdpZoomDesktop'] : []}" var="image" status="loopStatus">
+                            <div class='b-product_carousel-slide' data-index="${image.index}" id="index-${image.index}">
+                                <img data-src="${image.url}" class="b-product_carousel-image lazyload" title="${image.title}" alt="${image.alt} image number ${image.index}" itemprop="image" />
+                            </div>
+                        </isloop>
+                    </div>
+                    <isif condition="${product.images['pdpZoomDesktop'] && product.images['pdpZoomDesktop'].length > 1}">
+                        <div class="b-product_carousel-pagination">
+                            <isloop items="${product.images['pdpZoomDesktop'] ? product.images['pdpZoomDesktop'] : []}" var="image" status="loopStatus">
+                                <a href="${​'#index-' + image.index}" class="b-product_carousel-pagination-dot ${loopStatus.first ? 'b-product_carousel-pagination-active' : ''}"><span class="hide">index-${image.index}</span></a>
+                            </isloop>
+                        </div>
+                    </isif>
+                </div>
+            </div>
+            <div class="g-modal-footer g-productZoom-modal-footer">
+                <button type="button" class="js-productZoom-modal-hide"><div class="g-modal-close-button"></div></button>
+            </div>
+        </div>
+    </div>
+</div>
+

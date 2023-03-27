@@ -1,0 +1,253 @@
+<isdecorate template="common/layout/page">
+    <isscript>
+    var ContentMgr = require('dw/content/ContentMgr');
+    var folder = ContentMgr.getFolder('sizechart-assets');
+        
+    var genderArray = new Array(['men',Resource.msg('gender.Mens', 'translations', 'Men')],
+                                ['women',Resource.msg('gender.Womens', 'translations', 'Women')],
+                                ['boys',Resource.msg('gender.Boys', 'translations', 'Boys')],
+                                ['girls',Resource.msg('gender.Girls', 'translations', 'Girls')]
+                                );
+    var silhoArray  = new Array(['tops', Resource.msg('silhouette.Tops', 'translations', 'Tops')],
+                                ['bottoms', Resource.msg('silhouette.Bottoms', 'translations', 'Bottoms')],
+                                ['footwear', Resource.msg('silhouette.Footwear', 'translations', 'Footwear')],
+                                ['headwear', Resource.msg('silhouette.Headwear', 'translations', 'Headwear')],
+                                ['gloves', Resource.msg('silhouette.Gloves', 'translations', 'Gloves')],
+                                ['socks', Resource.msg('silhouette.Socks', 'translations', 'Socks')],
+                                ['bras', Resource.msg('silhouette.Bras', 'translations', 'Bras')]
+                                );
+    var navStyles = '',
+        navSetGen = '',
+        navSetSil = '',
+        d_param = '',
+        paramGender = pdict.gender,
+        paramSilhouette = pdict.silhouette;
+
+//check for URL parameters:
+    if (!empty(paramGender) && !empty(paramSilhouette)) {
+        var sizechart = ContentMgr.getContent('sizechart-' + paramGender +"-"+ paramSilhouette);
+    } 
+    if (!empty(sizechart)) {
+        navStyles = 'sf-page__display-panel2 sf-page__display-panel3';
+        navSetGen = 'class=is-set';
+        navSetSil = 'is-active';
+        d_param = 'data-param=true';
+    }
+
+      var assets = require('*/cartridge/scripts/assets.js');
+      assets.addJs('/js/sizeGuide.js');
+    </isscript>
+    <iscomment>  <isinclude template="util/modules"/></iscomment>
+        <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+        <symbol id="sf-icon-tops" viewBox="0 0 100 100" stroke-width="0">
+            <path d="M51.836,2.402c5.524,0,9.841,1.416,11.328,2.265c1.486,0.85,14.018,7.363,15.929,7.93
+    s4.849,2.426,6.159,4.885c1.699,3.186,2.301,7.362,2.371,10.619c0.071,3.257,0.319,10.337,2.302,14.301
+    c-0.566,1.77-3.575,5.398-13.239,5.61c-0.186-3.637-0.991-3.486-0.991-3.486c-0.142,6.726-2.301,13.362-2.301,18.672
+    c0,4.459,0.956,6.956,0.956,11.629c0,2.189-0.566,7.858-0.566,7.858c1.203,3.965,1.345,8.92,1.557,12.105
+    c-2.465,1.96-11.709,2.581-23.397,2.663c-10.38,0.073-12.88,0.922-25.663-2.805c-0.722-0.211-1.204-1.557-0.283-2.548
+    c-0.496-2.476,0.479-2.099,0.283-5.169c-0.279-4.369,0.566-9.416,0.566-11.965c0-2.548,0.001-17.638-0.293-21.81
+    c-0.12-1.701-1.021-7.782-1.021-7.782L9.076,38.72c0,0,3.637-10.618,4.956-13.734c0.779-1.84,0.298-5.985,3.059-9.524
+    c2.762-3.54,5.933-4.139,8.057-4.705s11.61-5.168,15.15-6.584C43.836,2.756,47.093,2.402,51.836,2.402z"/>
+        </symbol>
+        <symbol id="sf-icon-bottoms" viewBox="0 0 100 100" stroke-width="0">
+            <path d="M25.857,3.267c7.977-2.355,18.695,0.688,27.11,0.892c1.792,0.043,21.402,0,22.829,0.179
+    c1.428,0.179,1.604,0,1.962,0.535c0.491,1.711-1.259,1.128,0,3.566c0.245,0.476-0.925,1.732-0.357,2.854
+    c0.357,0.535,0.181,1.636,0.357,2.141c3.408,9.734,5.658,29.984,5.708,39.238c0.009,1.605-0.357,16.229-0.357,19.976
+    c0,3.745,0.267,7.314,0.357,8.383c0.271,3.204,0.728,7.551,0.892,8.203c0.178,0.714,0.535,2.854-0.714,4.103
+    c-1.248,1.249-5.707,3.373-9.81,3.39C67.417,96.75,62,96.083,56,92.622c-4.303-2.482-4.534-2.351-4.816-5.887
+    c-0.178-0.892,0.066-8.985-0.892-17.121c-0.885-7.519-0.892-4.638-1.248-3.032c-0.357,1.604-4.102,18.727-5.529,22.65
+    c-1.427,3.925-4.103,8.562-11.414,8.562c-7.312,0-7.669-0.357-9.453-0.714c-1.783-0.356-6.6-2.318-7.134-2.676
+    c-0.536-0.356-1.07-1.605-0.893-2.318c0.179-0.714,0.227-1.288,0.356-2.319c0.209-1.638,1.106-8.268,0.536-12.483
+    c-0.167-1.237,0.356-7.492,0.892-9.989s1.07-4.638,0.892-5.706c-0.179-1.072-0.297-7.839,1.07-12.664
+    c0.179-1.604,1.248-8.56,1.604-10.7c0.357-2.319,2.764-23.741,4.46-25.327c-0.174-1.775,0.709-4.232,0.535-5.351
+    C24.375,3.75,26.25,6,25.857,3.267z"`/>
+        </symbol>
+        <symbol id="sf-icon-footwear" viewBox="0 0 100 100" stroke-width="0">
+            <path d="M98.871,57.119c0-1.061-0.394-3.07-1.342-3.463c-0.949-0.393-3.797-1.424-5.25-1.814
+    c-3.322-0.192-4.148-1.433-7.008-1.48c-0.477-0.021-0.007-0.552-0.843-0.747c-0.837-0.195-0.972,0.215-1.419,0.215
+    c-0.445,0-0.418-0.642-1.033-0.697c-0.614-0.056-0.588,0.11-1.173,0c-0.585-0.112-0.614-0.67-1.229-0.782
+    c-0.611-0.111-0.92,0.223-0.92,0.223l-1.006-0.754l-2.594-0.502c-3.938-0.502-6.869-3.098-6.869-3.098l-1.297-0.203
+    c0,0,0.053-0.92-0.547-1.138c-0.837-0.252-1.424,0.42-1.424,0.42c-1.255-0.337-4.271-1.257-4.271-1.257s0.037-1.272-1.004-1.928
+    c-1.357-0.741-2.596,0.503-2.596,0.503s-2.179-0.586-3.352-1.005c0,0-0.25-1.34-1.256-2.01c-1.004-0.671-2.901,0.178-2.901,0.178
+    L48,36.849l-0.585-1.004l-1.173-0.502c0,0-0.671-0.837-1.927-2.512c-1.256-1.676-12.286-5.362-12.286-5.362
+    c-3.125,2.178-4.075,5.641-3.963,8.089c-1.675,2.06-6.867,4.641-10.554,2.8c-3.686-1.843-7.473-7.353-9.548-5.528
+    c-0.612,0.537-0.736,1.289-1.47,2.32c-0.56,0.781-0.05,1.823-0.552,2.326c-0.502,0.503-0.602,1.217-0.658,2.222
+    c-1.562,3.572-2.68,8.989-2.68,10.999c0,2.012-0.07,1.518,0.393,3.518c-0.968,1.863-1.173,5.918-1.173,5.918
+    s-0.563,0.697-0.56,1.232C1.32,62.702,1.6,64.211,1.6,64.211c-0.672,1.172,1.731,5.139,7.537,5.695C35.833,69,44,68.5,53.42,70.243
+    l0.615-0.837l0.725,0.166l0.67,1.117l3.35,0.164l0.505-0.277l0.446,0.557h3.516c0,0,1.283-1.004,1.731-1.004s0.95,0.337,0.95,0.337
+    l0.223,0.669h7.984l1.678-1.396l0.668,0.446l1.678-0.224c0,0,0.391,0.616,1.508,0.616c1.115,0,1.729-0.335,1.898-0.894
+    c0,0,0.67,0.277,1.229,0.277c0.557,0,1.451-0.446,1.451-0.446c0.615-0.197,0.838-0.947,0.838-0.947l2.959-1.006
+    c0,0,0.035,0.381,0.837,0.111c4.381-1.467,7.539-4.637,7.817-4.97c0.279-0.335-0.168-0.558,0.057-0.896
+    c0.223-0.334,0.669-0.111,0.948-0.5c0.279-0.393,0.167-1.117,0.394-1.564c0.223-0.444,0.836-0.893,0.781-1.34
+    C98.816,57.959,98.871,58.178,98.871,57.119z M42.304,34.337c-0.558-0.225-2.971-1.65-3.294-2.066c-0.753-0.969-1.452-0.95-2.4-0.95
+    c-0.951,0-3.184-1.284-3.853-2.736l0.503-0.28c0,0,2.176,1.117,4.828,2.401c2.655,1.284,5.334,2.849,5.334,2.849L42.304,34.337z"/>
+        </symbol>
+        <symbol id="sf-icon-headwear" viewBox="0 0 100 100" stroke-width="0">
+            <path d="M2.532,68.898c-0.65-2.493,2.187-4.51,4.51-5.604l17.925-8.517c1.64-11.343,7.496-23.19,12.552-27.837
+    c5.057-4.646,13.257-9.02,25.557-8.063c0,0,0.41-2.05,3.279-1.777c2.871,0.273,3.008,1.367,3.008,2.187c0,0,1.503-0.273,3.963,1.503
+    s13.94,7.081,18.86,15.158c4.92,8.076,7.79,14.637,2.05,33.36c0,0,0.547,1.503,0,2.187c-0.546,0.683-0.547,1.366-2.87,0.82
+    c0,0,0.138-0.684-2.732-0.82c-2.87-0.137-13.395-2.324-16.128-2.05c0,0-16.23,11.718-26.514,11.754
+    c-11.07,0.038-23.644-12.984-28.837-13.804c0,0-4.381,2.701-7.243,3.417C7.451,71.426,3.351,72.042,2.532,68.898z"/>
+        </symbol>
+        <symbol id="sf-icon-gloves" viewBox="0 0 100 100" stroke-width="0">
+            <path d="M74.738,29.914c-0.156-3.373-9.968-13.8-11.194-15.027c-1.227-1.227-3.682-2.301-5.827-4.139
+    C55.57,8.906,51.43,4.307,50.05,3.541c-1.38-0.768-5.472-1.356-6.441-1.841c-1.977-0.991-3.066-1.228-5.367-1.075
+    c-2.3,0.154-3.986,0.768-4.14,2.301C33.947,4.458,35.785,7.87,35.942,8.6c0.454,2.119,1.073,1.687,1.073,5.674
+    c0,3.986,0.613,11.347,0.613,11.347c-1.687-1.228-3.985-4.754-4.292-6.9c-0.308-2.146-2.147-4.447-3.724-4.447
+    c-1.575,0-3.945,0.46-4.404,5.061c-0.458,4.6,1.381,8.433,1.994,12.573c0.614,4.14,0.388,9.553,1.075,16.868
+    c0.551,5.878,2.498,9.449,3.258,14.049c0.759,4.601,1.793,4.083,1.925,6.386c0.133,2.296-0.583,2.259-0.74,5.635
+    c-0.158,3.372,2.149,3.221,1.076,4.751c-1.072,1.536,0,2.454,0,2.454s-2.175,2.394-2.146,4.294c1.374,1.361-0.242,0.912,5.779,6.325
+    c8.353,7.792,22.665,6.399,23.585,6.018c0.921-0.383,1.917-1.532,2.147-2.224c0.229-0.688,0.144-1.897-0.306-2.378
+    c0-0.918,0.765-0.61,1.073-1.3c0.307-0.693-0.22-1.985,0.075-2.608c1.635-3.46,1.639-12.976,1.68-13.876l0.066-0.162l0.632-0.068
+    l2.49-3.277l-2.721-2.667c0,0,0-1.354-0.028-2.558c0,0,0.444-0.183,0.641-0.242c-0.151-3.525,3.838-13.874,4.371-16.328
+    c0.538-2.453,2.685-8.971,2.915-12.728C74.276,34.515,74.891,33.288,74.738,29.914z"/>
+        </symbol>
+        <symbol id="sf-icon-socks" viewBox="0 0 100 100" stroke-width="0">
+            <path d="M39.51,19.236c-4.134,0-9.173,8.525-13.048,9.56c-3.876,1.032-7.973,1.135-10.32,0.775
+    c-3.052-0.469-4.65-5.075-8.284-6.849c0,0-0.06,2.97-0.679,4.876c-0.533,1.648-1.84,1.938-1.986,5.571c0,0-1.695,4.312-2.471,6.638
+    c-0.774,2.325-2.083,5.427-1.696,9.156c0.388,3.73,2.568,5.572,5.039,6.878c2.471,1.309,6.734,1.842,10.318,2.857
+    c3.586,1.02,14.195,4.119,18.312,6.348s7.946,5.281,9.786,6.977c1.841,1.697,5.378,4.361,7.654,4.941
+    c1.527,0.391,19.973,1.643,41.955-0.049c1.889-0.145,4.939-0.678,4.311-3.633c-0.63-2.955-3.206-4.568-5.618-5.281
+    c-4.264-1.258-6.152-1.453-10.465-2.762c-4.312-1.307-11.772-4.506-18.119-10.994c-6.347-6.494-9.423-9.33-12.448-12.597
+    c-4.265-4.603-9.303-10.416-9.787-11.725c0.193-0.727-1.018-3.681-1.55-5.329C39.881,22.95,39.123,20.802,39.51,19.236z"/>
+        </symbol>
+        <symbol id="sf-icon-bras" viewBox="0 0 100 100" stroke-width="0">
+            <path d="M96.917,56.334c-1.166-0.666-6.334-3-10-7.417S82.5,37.25,82.167,29.083s1-10.583,0.917-15.917
+    c0,0-8.667-5.917-10.334-5.75C70.969,7.594,68.875,9.5,67,11.375c-2.654,2.654-3.424,2.896-5.709,5.833
+    c-1.244,1.599-3.833,6.458-10.541,7.167c-2.333-0.305-6.085-2.556-9.335-4.973c-1.744-1.297-4.457-4.61-8.081-8.069
+    c-1.055-1.006-3.55-3.719-5.292-3.939c-1.542,0-8.208,2.606-9.458,4.356c0,1.25,0.667,8.167,0.167,15.25s-3.667,16.5-6.333,20.667
+    c-2.667,4.167-6.333,5.5-8.167,6.417s-1.333,1.583-1.333,1.583c3.25,13.834,2.675,28.459,2.75,31.751
+    c0.083,3.667,1.25,3.916,3.333,3.75c8.274-0.659,35-1.584,47.584-0.75C77.137,91.779,92.417,91.5,92.417,91.5s0.984-1.2,1.083-2.166
+    c0.212-2.072,0.417-6.251,0.667-10.834s0-6-0.084-8.833s0.5-3.333,0.5-4.75S97,60.084,97.667,59S98.083,57,96.917,56.334z
+     M42.667,42.916C33,37.25,28.083,27.833,28.25,18.416C33.917,23.75,44.333,30.666,42.667,42.916z M58.917,41.833
+    c-0.75-12.143,10.959-21.486,15-24.333C72.417,29.666,64.334,41.333,58.917,41.833z"/>
+        </symbol>
+        <symbol id="icon-chevron-left" viewBox="0 0 50 100">
+            <polyline points="41,80.4 10.6,50.1 10.6,50.1 41,19.6"></polyline>
+        </symbol>
+    </svg>
+    
+    
+    <iscomment>Page Title</iscomment>
+    <h1 class="sf-guide__header"><isprint value="${folder.displayName}" encoding="off"/></h1>
+   <div class="sf-page__wrapper">
+      <div class="sf-page__container clearfix <isif condition="${!empty(paramGender)}">sf-page__display-panel2</isif> ${navStyles} ${d_param}">
+      <div class="sf-page__select">
+         <ul class="sf-page__gen">
+            <li>
+               <h2><span class="tops">${Resource.msg('fitguide.selectcategory', 'pagecomponents', 'Select a category:')}</span></h2>
+            </li>
+            <isloop items="${genderArray}" var="elem">
+               <li>
+                  <isscript>
+                     var categoryCid = 'sizecharts-'+ elem[0];
+                     var sizeChartCategoryId = "sizechart-" + elem[0] + "-" + silhoArray[0][0];
+                     var classisset = (!empty(sizechart) && elem[0] == paramGender || elem[0] == paramGender) ? 'class=is-set' : '';
+                     var sizeChartCategoryUrl= URLUtils.https('Page-Show','cid', categoryCid);
+                     if (!empty(paramGender) && !empty(paramSilhouette) && !empty(sizeChartCategoryId)) {
+                         sizeChartCategoryUrl = URLUtils.https('Page-Show','cid', sizeChartCategoryId);
+                     }
+                  </isscript>
+                   <a data-gen="${elem[0]}" href="${sizeChartCategoryUrl}" ${classisset}><span>${elem[1]}</span></a>
+               </li>
+            </isloop>
+         </ul>
+      </div>
+      <div class="mobile-gender-select">
+         <ul>
+            <li class="sf-page__backbutton">
+                <isloop items="${genderArray}" var="elem">
+                   <isif condition ="${elem[0] === paramGender}">
+                       <a class="sf-page__selection-link" href="${URLUtils.https('SizeCharts-ShowSizeChart')}">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="icon__angle">
+                               <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-chevron-left"></use>
+                           </svg>
+                           <span>${elem[1]}</span>
+                        </a>
+                  </isif>
+               </isloop>
+            </li>
+            <li class="sf-page__mobile-subcategory">
+               <h2><span>${Resource.msg('fitguide.selectsubcategory', 'pagecomponents', 'Select a sub-category:')}</span></h2>
+            </li>
+         </ul>
+         <ul class="sf-page__submenu">
+            <isloop items="${silhoArray}" var="silh">
+               <isscript>
+                  var svgString = 'xlink:href=#sf-icon-' + silh[0];
+                  var classisactive = (!empty(sizechart) && silh[0] == paramSilhouette) ? 'class=is-active' : '';
+                  var subcategoryId  = 'sizechart-' + paramGender +"-"+ silh[0];
+               </isscript>
+               <li data-silho="${silh[0]}" 
+	               <isif condition="${silh[0] == 'bras' && !pdict.isShowBras}">style="display:none;"</isif>
+	                ${classisactive} >
+	               <a class="a_stylesize" data-gen="${silh[0]}" href="${URLUtils.https('Page-Show','cid', subcategoryId)}">
+		               <svg xmlns="http://www.w3.org/2000/svg" class="icon__silhouette"><use xmlns:xlink="http://www.w3.org/1999/xlink" data-svg="svg" ${svgString}></use></svg>
+		               <span>${silh[1]}</span>
+	               </a>
+	           </li>
+            </isloop>
+         </ul>
+      </div>
+      <div class="sf-page__content">
+         <ul class="sf-page__backbutton">
+            <li>
+               <isloop items="${genderArray}" var="elem">
+                   <isif condition ="${elem[0] === paramGender}">
+                       <a class="sf-page__selection-link" href="${URLUtils.https('Page-Show','cid','sizecharts-'+elem[0])}">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="icon__angle">
+                               <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-chevron-left"></use>
+                           </svg>
+                           <span>${elem[1]}</span>
+                       </a>
+                  </isif>
+               </isloop>
+            </li>
+         </ul>
+         <ul class="sf-page__silho">
+            <div class=" g-carousel">
+               <div class="js-carousel swiper-container" data-cmp="carousel"
+               data-json-config='${JSON.stringify(require('*/cartridge/config/carousel').sizeCategoryImg)}'>
+               <div class="g-carousel-wrapper swiper-wrapper js-swiper-wrapper">
+                  <isloop items="${silhoArray}" var="sil">
+                     <isscript>
+                        var svgString = 'xlink:href=#sf-icon-' + sil[0];
+                        var subcategoryId  = 'sizechart-' + paramGender + "-" + sil[0];
+                        var activeClass = subcategoryId == pdict.sizechartSubCategoryId ? "swiper-slide-activated swiper-slide-active" : "";
+                     </isscript>
+                     <div class="g-carousel-slide swiper-slide ${activeClass}"
+                     style="
+                         <isif condition="${sil[0] == 'bras' && !pdict.isShowBras}">display:none;</isif>"
+                     > 
+                        <li data-silho="${sil[0]}">
+                            <a href="${URLUtils.https('Page-Show','cid', subcategoryId)}">
+                               <svg xmlns="http://www.w3.org/2000/svg" class="icon__silhouette"><use xmlns:xlink="http://www.w3.org/1999/xlink" ${svgString}></use></svg>
+                               <span class="${activeClass}">${sil[1]}</span>
+                            </a>
+                        </li>
+                     </div>
+                  </isloop>
+               </div>
+            </div>
+      </div>
+      </ul>
+      <div class="sf-page__result">
+         <div class="sf-page__sizecharts-container">
+              <isif condition="${!empty(pdict.standaloneSizeChart)}">
+                  <div class="sf-page__sizechart" data-chart="${!empty(pdict.standaloneSizeChart) ? pdict.standaloneSizeChart : ''}" style="display:block">
+                      <isinclude template="components/footer/sizeChartDetails"/>
+                 </div>
+              <iselseif condition="${!empty(paramGender) && !empty(paramSilhouette) && empty(pdict.standaloneSizeChart) }" >
+                 <h4 class="sf-page__error"><isprint value="${Resource.msg('generalerror.erroroccured', 'common', null)}" /></h4>      
+             </isif>
+         </div>
+         <div class="infinite-scroll__load">
+            <span></span>
+            <span></span>
+            <span></span>
+         </div>
+      </div>
+   </div>
+   </div>
+   </div>
+</isdecorate>

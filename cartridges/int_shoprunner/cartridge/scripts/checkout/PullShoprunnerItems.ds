@@ -1,0 +1,108 @@
+var ArrayList = require('dw/util/ArrayList');
+var Collection = require('dw/util/Collection');
+var ShippingMgr = require('dw/order/ShippingMgr');
+
+/**
+* Put all ShopRunner items in a seperate shipment and assign the shoprunner
+* shipping method to the shipment. If there is an address assigned to the defualt
+* shipment, check against address restrictions, then copy that to the ShopRunner shipment as well or error out
+*
+* This script assumes:
+* ShopRunner is enabled
+* we have a mixed cart with only the one default shipment
+* The customer is logged in to their shoprunner account
+* The site is setup to split mixed shoprunner orders into two orders
+*
+* 	@input Basket : dw.order.Basket The basket to create shipments for
+*
+*/
+importScript("checkout/Utils.ds");
+
+function execute (args) {
+	pullItems(args.Basket);
+	return PIPELET_NEXT;
+}
+
+function pullItems(basket) {
+	// get the values from the dictionary
+	var productLIs = basket.getAllProductLineItems();
+	var orderAddressb= null;
+	// create our new ShopRunner reserved shipment
+	var srShipment = null;
+	
+	srShipment = basket.getShipment("ShopRunner #1");
+	
+	if (empty(srShipment)) {
+		// generate a unique ID and create the shipment
+		srShipment = basket.createShipment( "ShopRunner #1" );
+	}	
+	
+	for (index in productLIs) {
+		if (!empty(productLIs[index].product) && 
+			'sr_eligible' in productLIs[index].product.custom && 
+			productLIs[index].product.custom.sr_eligible.value == "true") {
+			// copy the line item to the new shipment
+			productLIs[index].setShipment(srShipment);
+		}
+	}
+	
+		
+	// Retrieve the list of applicable shipping methods for the given shipment and address.
+	var shippingModel = ShippingMgr.getShipmentShippingModel(srShipment);
+	var ret = new ArrayList();
+	
+	// Grab the address from the main shipment, and if present, make sure it isn't a PO Box
+	var mainAddress = basket.getDefaultShipment().getShippingAddress();
+	
+	// Construct an address that can be used in getApplicableShippingMethods
+	var addressObj = new Object();
+	if (empty(mainAddress)) {
+		addressObj.countryCode = "US";
+		addressObj.stateCode = "NY";
+		addressObj.postalCode = null;
+		addressObj.city = null;
+	}
+	else {
+		addressObj.countryCode = mainAddress.countryCode.value;
+		addressObj.stateCode = mainAddress.stateCode;
+		addressObj.postalCode = mainAddress.postalCode;
+		addressObj.city = mainAddress.city;
+	}
+	ret = shippingModel.getApplicableShippingMethods(addressObj);
+	
+	var shoprunnerMethod = null;
+	for (index in ret){ 
+		if (ret[index].ID == "shoprunner") {
+			shoprunnerMethod = ret[index]; 
+		}
+	}
+	
+	if (!empty(shoprunnerMethod)) {
+		srShipment.setShippingMethod(shoprunnerMethod);//send in a shipping method
+	}
+	if (!empty(mainAddress)) {
+		orderAddress = srShipment.createShippingAddress();
+		orderAddress.setAddress1(mainAddress.getAddress1());
+		orderAddress.setAddress2(mainAddress.getAddress2());
+		orderAddress.setCity(mainAddress.getCity());
+		orderAddress.setCompanyName(mainAddress.getCompanyName());
+		orderAddress.setCountryCode(mainAddress.getCountryCode());
+		orderAddress.setFirstName(mainAddress.getFirstName());
+		orderAddress.setJobTitle(mainAddress.getJobTitle());
+		orderAddress.setLastName(mainAddress.getLastName());
+		orderAddress.setPhone(mainAddress.getPhone());
+		orderAddress.setPostalCode(mainAddress.getPostalCode());
+		orderAddress.setPostBox(mainAddress.getPostBox());
+		orderAddress.setSalutation(mainAddress.getSalutation());
+		orderAddress.setSecondName(mainAddress.getSecondName());
+		orderAddress.setStateCode(mainAddress.getStateCode());
+		orderAddress.setSuffix(mainAddress.getSuffix());
+		orderAddress.setSuite(mainAddress.getSuite());
+		orderAddress.setTitle(mainAddress.getTitle());
+	}
+}
+
+module.exports = {
+    execute: execute,
+	pullItems: pullItems
+};

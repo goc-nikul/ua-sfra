@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+
+    <field formid="addressId" label="label.input.addressid" type="string" mandatory="true"
+           max-length="20" missing-error="error.message.required" range-error="error.message.lessthan20"/>
+    <field formid="firstName" label="label.input.firstname.profile" type="string" mandatory="true" binding="firstName" regexp="^(?!-)[a-zA-Z0-9\p{L}\p{Nd}\s.-]*$"
+           max-length="50" missing-error="address.firstname.missing" range-error="error.message.lessthan50"/>
+    <field formid="lastName" label="label.input.lastname.profile" type="string" mandatory="true" binding="lastName" max-length="50" regexp="^(?!-)[a-zA-Z0-9\p{L}\p{Nd}\s.-]*$"
+           missing-error="address.lastname.missing" range-error="error.message.lessthan50"/>
+    <field formid="address1" label="label.input.profile.address1" type="string" mandatory="true" binding="address1" max-length="30"
+           missing-error="address.address1.missing" range-error="error.message.lessthan30"/>
+    <field formid="exteriorNumber" label="forms.exteriorNumber" type="string" mandatory="true" binding="exteriorNumber" 
+    		max-length="5" missing-error="forms.addresserror" range-error="forms.address.field.invalid" />
+    <field formid="interiorNumber" label="forms.interiorNumber" type="string" mandatory="false" binding="interiorNumber" 
+	       max-length="8" missing-error="forms.addresserror" range-error="forms.address.field.invalid" />
+    <field formid="additionalInformation" label="forms.additionalInformation" type="string" mandatory="false" binding="additionalInformation" 
+		max-length="50" missing-error="forms.addresserror" range-error="forms.address.field.invalid" />
+    <field formid="colony" label="forms.colony" type="string" mandatory="true" binding="colony" 
+		max-length="50" missing-error="forms.addresserror" range-error="forms.address.field.invalid" />
+    <field formid="dependentLocality" label="forms.dependentLocality" type="string" mandatory="true" binding="dependentLocality" 
+		max-length="50" missing-error="forms.addresserror" range-error="forms.address.field.invalid" />
+    <field formid="city" label="label.input.city" type="string" mandatory="true" binding="city" min-length="2"
+           max-length="50" missing-error="address.city.missing" range-error="error.message.between2and50"/>
+
+    <!--  postal code -->
+    <field formid="postalCode" label="label.input.zipcode" type="string" mandatory="true" min-length="5" max-length="5"
+           binding="postalCode"
+           regexp="([0-9]{5})"
+           range-error="error.message.between5and10"
+           missing-error="address.zipcode.missing"
+           parse-error="error.message.parse.zip"/>
+
+    
+    <!-- use set of supported countries -->
+    <field formid="country" label="label.input.country" type="string" default-value="US" mandatory="true" binding="countryCode" missing-error="address.country.missing">
+        <options optionid-binding="custom.ID" value-binding="custom.ID" label-binding="custom.displayName"/>
+    </field>
+
+    <!-- use global state list -->
+    <include formid="states" name="states" missing-error="address.state.missing" parse-error="error.message.required" value-error="error.message.required"/>
+
+    <field formid="setAsDefault" type="boolean" mandatory="false"/>
+    <field formid="setAsDefaultBilling" type="boolean" mandatory="false"/>
+    
+    <!-- phone is mandatory for addresses -->
+    <field formid="phone" label="label.input.phonenumber" description="address.phone.example" type="string" mandatory="false"
+           binding="phone" min-length="10" max-length="15"
+           missing-error="address.phone.missing"
+           range-error="error.message.between10and20"
+           parse-error="error.message.parse.phone"/>
+    <field formid="saveToAccount" type="boolean" mandatory="false" checked="true"/>
+
+    <!-- Maxico RFC fields -->
+    <include formid="rfc" name="rfc"/>
+
+    <!-- actions provided by the edit shipping address dialog -->
+    <action formid="apply" valid-form="true"/>
+    <action formid="remove" valid-form="false"/>
+</form>

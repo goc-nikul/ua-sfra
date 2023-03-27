@@ -1,0 +1,9 @@
+<isset name="orderConfirmationPage" value="${true}" scope="page" />
+<isset name="isLoyaltyEnabled" value="${'isLoyaltyEnable' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.isLoyaltyEnable}" scope="page" />
+<isinclude template="checkout/orderProductSummary" />
+
+<div class="card checkout-order-total-summary">
+    <div class="card-body order-total-summary">
+        <isinclude template="checkout/orderTotalSummary" />
+    </div>
+</div>

@@ -1,0 +1,68 @@
+@mixin input-radio($el: 'wrapper', $input_class: '-input', $label_class: '-label') {
+    @if ($el == 'wrapper') {
+        line-height: 0;
+
+        &:hover &#{$label_class} {
+            opacity: 0.75;
+        }
+
+        &#{$label_class} {
+            @include t-text-3;
+
+            position: relative;
+            padding-left: rem-calc(32);
+            cursor: pointer;
+
+            &::after,
+            &::before {
+                content: '';
+                position: absolute;
+            }
+
+            &::after {
+                top: 0;
+                left: 0;
+                z-index: 1;
+                width: rem-calc(16);
+                height: rem-calc(16);
+                border: 1px solid $black;
+                border-radius: 50%;
+            }
+
+            &::before {
+                top: rem-calc(3);
+                left: rem-calc(3);
+                display: none;
+                width: rem-calc(10);
+                height: rem-calc(10);
+                border-radius: 50%;
+                background-color: $black;
+            }
+        }
+
+        &#{$input_class}:focus ~ &#{$label_class}::after {
+            .m-acc-on & {
+                box-shadow: 0 0 3px 3px $focus-color !important;
+            }
+        }
+
+        &#{$input_class}:checked ~ &#{$label_class} {
+            pointer-events: none;
+
+            &::before {
+                display: block;
+            }
+        }
+
+        &#{$input_class}:invalid ~ &#{$label_class},
+        &#{$input_class}.m-error ~ &#{$label_class} {
+            &::after {
+                border-color: $error-color;
+            }
+        }
+    }
+
+    &#{$input_class} {
+        @include hide(visually);
+    }
+}

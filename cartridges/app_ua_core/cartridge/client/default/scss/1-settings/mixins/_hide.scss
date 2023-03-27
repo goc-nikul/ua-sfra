@@ -1,0 +1,45 @@
+///	This mixin is especially useful for hidding text
+///	or visually hide needed elements
+///
+/// Here is a list of parameters you can use:
+///	* all - simple ```display: none```, just for collection
+///	* invisible - simple ```visibility: hidden```, just for collection
+///	* text - helps to hide text without loosing visibility for parsers
+///	* visually - like for text but for the whole element
+///
+///	@param {String} $type - Pass one of the predefined keywords
+///	@group styling
+
+@mixin hide($type, $important: important) {
+
+    $__important: if($important == important, '!important', '');
+
+    @if $type == all {
+        display: none unquote(#{$__important});
+    }
+
+    @if $type == invisible {
+        visibility: hidden unquote(#{$__important});
+    }
+
+    @if $type == text {
+        background-color: transparent unquote(#{$__important});
+        font-size: 0 unquote(#{$__important});
+        line-height: 0 unquote(#{$__important});
+        letter-spacing: 0 unquote(#{$__important});
+        text-shadow: none unquote(#{$__important});
+        color: transparent unquote(#{$__important});
+    }
+
+    @if $type == visually {
+        position: absolute unquote(#{$__important});
+        top: 0 unquote(#{$__important});
+        left: 0 unquote(#{$__important});
+        max-width: 1px unquote(#{$__important});
+        max-height: 1px unquote(#{$__important});
+        padding: 0 unquote(#{$__important});
+        border: 0 unquote(#{$__important});
+        overflow: hidden unquote(#{$__important});
+        clip: rect(1px, 1px, 1px, 1px) unquote(#{$__important});
+    }
+}

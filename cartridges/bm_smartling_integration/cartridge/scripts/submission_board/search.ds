@@ -1,0 +1,32 @@
+/**
+*   @input searchPhraze : String
+*   @input ascDesc : String
+*   @input sortField : String
+*   @output coList : dw.util.SeekableIterator
+*
+*/
+importPackage( dw.system );
+importPackage( dw.object );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "submissionBoard.search"));
+
+/**
+    Search submissions based on phrase
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        var sort : String = "custom.itemId asc";
+        if (pdict.sortField != null ) {
+            sort = "custom." + pdict.sortField + " " + pdict.ascDesc;
+        }
+
+        pdict.coList = CustomObjectMgr.queryCustomObjects('SMARTLING_SUBMISSION', "custom.itemId ILIKE {0} OR custom.itemName ILIKE {0} OR custom.source ILIKE {0}", sort, "*" + pdict.searchPhraze + "*");
+    } catch (e) {
+        LOGGER.errorException('submissionBoard.search failed, searchPhraze="{0}", ascDesc={1}, sortField={2}', pdict.searchPhraze, pdict.ascDesc, pdict.sortField, e);
+        return PIPELET_ERROR;
+    }
+
+   return PIPELET_NEXT;
+}

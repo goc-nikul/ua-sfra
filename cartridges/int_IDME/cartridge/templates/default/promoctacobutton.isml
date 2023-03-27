@@ -1,0 +1,13 @@
+<isif condition="${true}">
+	<isif condition="${!session.custom.idmeVerified}">
+		<button class="checkout-idme__init-button button-cta cta-style2 button-full-width" data-action="show-idme-promo-form">${Resource.msg('idme.show.promo.form.button','idme',null)}</button>
+		<iscomment>
+			<script type="text/javascript">
+				$('button[data-action="show-idme-promo-form"]').on('click', function(e){
+					$("div[id='idme-promo-form']").show();
+					$(e.currentTarget).hide();
+				});
+			</script>
+		</iscomment>	
+	</isif>
+</isif>

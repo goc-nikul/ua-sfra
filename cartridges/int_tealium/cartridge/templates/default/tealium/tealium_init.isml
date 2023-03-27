@@ -1,0 +1,235 @@
+<script type="text/javascript">
+    window.UADatalayer = window.UADatalayer || function (){};
+    window.UADatalayer.prototype.dependenciesReadyQueue = [];
+    window.UADatalayer.prototype.jqueryLoaded = false; // !!window.$;
+    window.UADatalayer.prototype.utagLoaded = !!window.utag;
+    window.UADatalayer.prototype.dependenciesReady = function dependenciesReady() {
+        return window.UADatalayer.prototype.jqueryLoaded && window.UADatalayer.prototype.utagLoaded;
+    }
+    window.UADatalayer.prototype.fireDependenciesReadyQueue = function fireDependenciesReadyQueue(){
+        if (!window.UADatalayer.prototype.dependenciesReady()) {
+            return;
+        }
+        var queue = window.UADatalayer.prototype.dependenciesReadyQueue;
+        window.UADatalayer.prototype.dependenciesReadyQueue = [];
+        queue.forEach(function (callback) { callback(); });
+    };
+    window.UADatalayer.prototype.onDependenciesReady = function onDependenciesReady(callback){
+      if (window.UADatalayer.prototype.dependenciesReady()) {
+          callback();
+      } else {
+          window.UADatalayer.prototype.dependenciesReadyQueue.push(callback);
+      }
+    }
+    window.UADatalayer.prototype.safetyFirst = function safetyFirst(func){
+      try {
+        func();
+      } catch(ex) {
+        window.console && window.console.warn && window.console.warn('UADatalayer:', ex);
+      }
+    }
+    window.UADatalayer.prototype.serverPageData = window.UADatalayer.prototype.serverPageData || {};
+    uaDatalayer.applyPageData({});
+    window.UADatalayer.prototype.getPageDataOverridesFromPath = function getPageDataOverridesFromPath(locale, locationPathname) {
+      var pageData = window.uaDatalayer.getPageData() || {};
+      var pageType = pageData.page_type;
+      var pageName = pageData.page_name;
+      var overrides = {};
+
+      if (locationPathname === '/') {
+        overrides.site_section = 'Home';
+        overrides.page_type = 'content';
+        overrides.page_name = 'home';
+        overrides.page_category = 'home';
+        return overrides;
+      }
+      if (pageName === 'home' || ['checkout', 'cart', 'order-receipt', 'account', '404', 'product-detail', 'my-account'].indexOf(pageType) > -1) {
+          return {};
+      }
+      var cleanPaths = locationPathname.split('/').filter(function(part) {
+          // remove locale and empty spaces
+          return [locale, ''].indexOf(part) === -1;
+      });
+      var path0 = cleanPaths[0];
+
+
+      if (path0 === 'p' || path0 === 'search') {
+          // product and search page is handled server-side
+          return overrides;
+      }
+
+      if (path0 === 'c') {
+          overrides.site_section = 'Product Refinement';
+          overrides.page_type = 'product-listing';
+          cleanPaths.shift();
+      }
+      else if (path0 === 'd') {
+          overrides.site_section = 'Department';
+          overrides.page_type = 'content';
+          cleanPaths.shift();
+      }
+      else if (path0 === 't') {
+          overrides.site_section = 'Category Landing Page';
+          overrides.page_type = 'content';
+          cleanPaths.shift();
+      }
+      else if (path0 === 's') {
+          overrides.site_section = 'Customer Service';
+          overrides.page_type = 'content';
+          cleanPaths.shift();
+      }
+
+        overrides.page_name = cleanPaths.join('|');
+        overrides.page_category = cleanPaths[0];
+        overrides.page_subcategory1 = cleanPaths[1];
+        overrides.page_subcategory2 = cleanPaths[2];
+        overrides.page_subcategory3 = cleanPaths[3];
+        overrides.page_subcategory4 = cleanPaths[4];
+        return overrides;
+    }
+    window.UADatalayer.prototype.gridContentData = function gridContentData() {
+      var styles = $('[data-analytics-style]').map(function (){
+        return $(this).attr('data-analytics-style');
+      }).toArray();
+      return {
+        grid_stack_count: '0',
+        grid_visible_count: styles.length.toString(),
+        grid_total_count: ($('[data-analytics-plp-count]').attr('data-analytics-plp-count') || 0).toString(),
+        grid_has_loadmore: 'no',
+        grid_single_ingrid: $('[class*=single-in-grid]').length.toString(),
+        grid_double_ingrid: $('[class*=double-in-grid]').length.toString(),
+        grid_triple_ingrid: $('[class*=triple-in-grid]').length.toString(),
+        grid_video_count: '0',
+        grid_has_guidedselling: 'no',
+        grid_sort_order: $('[data-analytics-plp-sort-default]').attr('data-analytics-plp-sort-default'),
+        products: styles.map(function (style, idx) {
+          return {
+            product_style: style,
+            product_grid_position: '0:' + idx
+          }
+        })
+      }
+    }
+    window.UADatalayer.prototype.safetyFirst(function pageNameCategoriesOverride(){
+        var serverLocale = window.UADatalayer.prototype.serverPageData.locale;
+        var overrides = window.UADatalayer.prototype.getPageDataOverridesFromPath(serverLocale, document.location.pathname);
+        window.uaDatalayer.applyPageData(overrides);
+    });
+
+    (function pageFindingMethod(){
+        var pageData = window.uaDatalayer.getPageData() || {};
+        var prevPage = (window.UADatalayer.internalData || {}).prevPage;
+        if (prevPage && prevPage.page_name === 'my-account|favorites' && pageData.page_type === 'product-detail') {
+          window.uaDatalayer.applyPageData({
+            page_finding_method: 'Favorites'
+          });
+        } else if (document.location.search.toLowerCase().indexOf('iid=ugc') > -1) {
+          window.uaDatalayer.applyPageData({
+            page_finding_method: 'UGC'
+          });
+        }
+    })();
+    window.UADatalayer.prototype.navigationPageValues = function navigationPageValues(){
+        try{
+            var pageData = window.uaDatalayer.getPageData();
+            var uadNavigated = JSON.parse(sessionStorage.getItem('uadNavigated'));
+            var isMobile = window.innerWidth < 1024;
+            var searchCount =  pageData.search_results_count && parseInt(pageData.search_results_count, 10) || 0;
+            var location = isMobile ? 'mobilenav' : 'header';
+            if (uadNavigated && uadNavigated.suggestedSearch && uadNavigated.suggestedSearch.method) {
+                var method = uadNavigated.suggestedSearch.method;
+                var term = uadNavigated.suggestedSearch.term;
+                sessionStorage.removeItem('uadNavigated');
+                switch(true) {
+                    case pageData.page_type === 'product-detail':
+                        window.uaDatalayer.applyPageData({
+                            page_finding_method: 'Search',
+                            search_term: term,
+                            search_method: method,
+                            search_location: location,
+                            search_type: 'Redirect',
+                            search_results_count: '1'
+                        });
+                        break;
+                    case pageData.page_type === 'product-listing':
+                        var gridCount = pageData.grid_total_count && parseInt(pageData.grid_total_count, 10) || 0;
+                        window.uaDatalayer.applyPageData({
+                            page_finding_method: 'Search',
+                            search_term: term,
+                            search_method: method,
+                            search_location: location,
+                            search_type: gridCount ? 'Regular' : 'Null',
+                            search_results_count: pageData.grid_total_count
+                        });
+                        break;
+                    case pageData.page_type === 'search':
+                        // Recent Searches
+                        window.uaDatalayer.applyPageData({
+                            page_finding_method: 'Search',
+                            search_term: term,
+                            search_method: method,
+                            search_location: location,
+                            search_type: searchCount ? 'Regular' : 'Null'
+                        });
+                        break;
+                    default: break;
+                }
+            } else if (pageData.page_type === 'search') {
+                // Normal Input Search
+                window.uaDatalayer.applyPageData({
+                    search_type: searchCount ? 'Regular' : 'Null',
+                    search_location: location
+                });
+            }
+        } catch(ex) {}
+    };
+    (function(a,b,c,d){
+        var account = '${dw.system.Site.current.preferences.custom.tealium_account}';
+        var profile = '${dw.system.Site.current.preferences.custom.tealium_profile}';
+        var env = '${dw.system.Site.current.preferences.custom.tealium_env}';
+        a='//tags.tiqcdn.com/utag/' + account + '/' + profile + '/' + env + '/utag.js';
+        b=document;c='script';d=b.createElement(c);d.src=a;d.type='text/java'+c;d.async=1;
+        a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a);
+        d.addEventListener('load', function () {
+            window.UADatalayer.prototype.utagLoaded = true;
+            window.UADatalayer.prototype.fireDependenciesReadyQueue();
+        });
+    })();
+</script>
+<script>
+  document.getElementById('main-js').addEventListener('load', function () {
+      window.UADatalayer.prototype.jqueryLoaded = true;
+      window.UADatalayer.prototype.fireDependenciesReadyQueue();
+  });
+  window.UADatalayer.prototype.fireDependenciesReadyQueue();
+  window.UADatalayer.prototype.onDependenciesReady(function bindTealiumPageView(){
+      var isGridPage = ['search', 'product-listing'].indexOf(uaDatalayer.getPageData().page_type) > -1;
+      if(isGridPage) {
+        uaDatalayer.applyPageData(
+          window.UADatalayer.prototype.gridContentData()
+        );
+      }
+      window.UADatalayer.prototype.navigationPageValues();
+      var content_asset_elements = $('[data-analytics^="{"');
+      if (content_asset_elements.length) {
+          var contentAssets = $('[data-analytics^="{"').map(function (){
+              var a = $(this).attr('data-analytics');
+              try {
+                  return {
+                      content_asset_name: JSON.parse(a)['data-asset-id']
+                  }
+              } catch(e){}
+          })
+          .toArray()
+          .filter(function (v){
+              return !!v.content_asset_name;
+          });
+          uaDatalayer.applyPageData({
+              content_assets: contentAssets
+          });
+      }
+      // must fire before any other actions
+      uaDatalayer.action('pageView', {});
+  });
+</script>
+<isinclude template="tealium/uad_eventListeners" />

@@ -1,0 +1,74 @@
+<isif condition="${dw.system.Site.current.getCustomPreferenceValue('extole')}">
+    <div class="b-header_utility-item b-extole_refer_link">
+        <span id="extole_zone_global_header"></span>
+    </div>
+</isif>
+<div class="b-header_utility-item b-header_account bfx-remove-element">
+    <isif condition="${empty(pdict.name)}">
+        <a class="b-header_account-link js-register" href="${URLUtils.https('Login-CreateAccountModal', 'showregistermodal', true)}" data-href="${URLUtils.https('Login-CreateAccountModal')}" role="button"
+            aria-label="${Resource.msg('label.header.registerbutton', 'account', null)}">
+            ${Resource.msg('link.header.register', 'account', null)}
+        </a>
+        <span>|</span>
+        <a class="b-header_account-link js-login" href="${URLUtils.https('Account-Show')}" data-href="${URLUtils.https('Login-Show')}" role="button"
+            aria-label="${Resource.msg('label.header.loginbutton', 'account', null)}">
+            ${Resource.msg('link.header.login', 'account', null)}
+        </a>
+    <iselse/>
+        <div class="b-header_utility-subitem headerItemAccount">
+            <button class="b-header_utility-toggle collapsed" aria-label="${Resource.msg('link.header.myaccount', 'account', null)}"
+                data-toggle="collapse" data-target="#myAccount" aria-expanded="false" aria-controls="myAccount">
+                ${Resource.msgf('header.myaccount.welcome', 'account', null, pdict.name)}
+            </button>
+            <div class="b-header_utility-container collapse" id="myAccount">
+                <ul class="b-header_utility-menu" aria-label="${Resource.msg('label.profile.myaccountlink', 'account', null)}">
+                    <li class="b-header_utility-subitem">
+                        <span class="b-header_utility-link m-link-medium b-accountdropdown_heading" 
+                            aria-label="${Resource.msg('header.account.myaccount', 'account', null)}">
+                            ${Resource.msg('header.account.myaccount', 'account', null)}
+                        </span>
+                    </li>
+                    <li class="b-header_utility-subitem">
+                        <a class="b-header_utility-link m-link-medium" href="${URLUtils.https('Account-Show')}" tabindex="0">
+                            ${Resource.msg('page.heading.dashboard','account',null)}
+                        </a>
+                    </li>
+                    <li class="b-header_utility-subitem">
+                        <a class="b-header_utility-link m-link-medium" href="${URLUtils.https('Order-History')}"  tabindex="0">
+                            ${Resource.msg('label.orderhistory','account',null)}
+                        </a>
+                    </li>
+                    <li class="b-header_utility-subitem">
+                        <a class="b-header_utility-link m-link-medium" href="${URLUtils.https('Account-EditProfile')}" tabindex="0">
+                            ${Resource.msg('label.profile','account',null)}
+                        </a>
+                    </li>
+                    <isif condition="${session.custom.currentCountry !== 'TH' && session.custom.currentCountry !== 'KR'}">
+	                    <li class="b-header_utility-subitem">
+	                        <a class="b-header_utility-link m-link-medium" href="${URLUtils.https('PaymentInstruments-List')}"  tabindex="0">
+	                            ${Resource.msg('label.payment.methods','account',null)}
+	                        </a>
+	                    </li>
+                    </isif>
+                    <li class="b-header_utility-subitem">
+                        <a class="b-header_utility-link m-link-medium" href="${URLUtils.https('Address-List')}" tabindex="0">
+                            ${Resource.msg('label.address','account',null)}
+                        </a>
+                    </li>
+                    <isif condition="${!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR')}">
+                        <li class="b-header_utility-subitem">
+                            <a class="b-header_utility-link m-link-medium" href="${URLUtils.https('Wishlist-Show')}" tabindex="0">
+                                ${Resource.msg('label.whishlist','account',null)}
+                            </a>
+                    	</li>
+                    </isif>
+                    <li class="b-header_utility-subitem">
+                        <a class="b-header_utility-link m-link-medium" href="${URLUtils.url('Login-Logout')}" tabindex="0">
+                            ${Resource.msg('link.header.logout', 'account', null)}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </isif>
+</div>

@@ -1,0 +1,74 @@
+.mhbanner {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: rem-calc(10);
+    background: url('../../images/minihub/rewards-banner.jpg') center / cover no-repeat;
+
+    @include respond-to(desktop) {
+        flex-flow: row nowrap;
+        padding: rem-calc(20) rem-calc(30);
+        background: url('../../images/minihub/rewards-banner-desktop.jpg') center / cover no-repeat;
+    }
+
+    &__logo {
+        @include respond-to(mobile) {
+            width: 100%;
+        }
+    }
+
+    &__points {
+        position: relative;
+        font-family: $font-base;
+        text-transform: uppercase;
+        color: $white;
+        font-stretch: condensed;
+        margin: 0 0 0 rem-calc(10);
+        padding: rem-calc(20) rem-calc(30);
+        @include font(main, rem-calc(36), rem-calc(24));
+
+        @include respond-to(desktop) {
+            margin: auto;
+        }
+
+        &::after,
+        &::before {
+            display: block;
+            content: "";
+            position: absolute;
+            width: rem-calc(26);
+            height: rem-calc(30);
+        }
+
+        &::before {
+            background: url('../../images/minihub/rewards-bracket-left.svg') center / cover no-repeat;
+            left: 0;
+            bottom: 0;
+        }
+
+        &::after {
+            background: url('../../images/minihub/rewards-bracket-right.svg') center / cover no-repeat;
+            right: 0;
+            top: 0;
+        }
+    }
+
+    &__entry-cta {
+        margin: 0 rem-calc(10) 0 0;
+
+        @include respond-to(desktop) {
+            margin: 0;
+        }
+    }
+
+    &__cta {
+        width: 100%;
+        max-width: rem-calc(100);
+
+        @include respond-to(desktop) {
+            width: rem-calc(120);
+            max-width: rem-calc(160);
+        }
+    }
+}

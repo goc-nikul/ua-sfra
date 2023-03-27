@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
+
+    <type-extension type-id="SitePreferences">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="S7IntegrationCatalogImportMode">
+                <display-name xml:lang="x-default">S7 Integration: Default Product Catalog Import Mode</display-name>
+                <description xml:lang="x-default">This preference describes the default import mode applied to all product / image assignment documents processed (should be "update").</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>25</field-length>
+                <default-value>Update</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="S7IntegrationDefaultCatalog">
+                <display-name xml:lang="x-default">S7 Integration: Default Catalog</display-name>
+                <description xml:lang="x-default">This configuration value describes the default catalog-id that will be used to process the importing of product / image assignment definitions.</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+                <default-value>EUCatalog</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="S7IntegrationDeleteProcessedFiles">
+                <display-name xml:lang="x-default">S7 Integration: Delete Processed Files</display-name>
+                <description xml:lang="x-default">This site preference is used to manage whether or not queued / processed catalog import files should be deleted from the source IMPEX directory (true = delete the file, false = leave the file).  Please note that this preference does not alter control whether or not a processed file is archived (all processed files are archived in the _process directory).</description>
+                <type>boolean</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="S7IntegrationImpExDefaultFolder">
+                <display-name xml:lang="x-default">S7 Integration: Default Import / Export Folder</display-name>
+                <description xml:lang="x-default">This preference is used to define the location / path of the ImpEx folder used to store product / image assignment *.xml files to process.</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+                <default-value>/image-assignments/</default-value>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="S7 Integration Settings">
+                <display-name xml:lang="x-default">Scene 7 Integration / Configuration Settings</display-name>
+                <description xml:lang="x-default">Used to define the configuration settings for the Demandware BM / Scene 7 Integration.</description>
+                <attribute attribute-id="S7IntegrationDefaultCatalog"/>
+                <attribute attribute-id="S7IntegrationImpExDefaultFolder"/>
+                <attribute attribute-id="S7IntegrationCatalogImportMode"/>
+                <attribute attribute-id="S7IntegrationDeleteProcessedFiles"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
+
+</metadata>

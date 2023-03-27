@@ -1,0 +1,17 @@
+<div class="g-modal g-coupon-modal" id="deleteBillingAddressModal" tabindex="-1" role="dialog" aria-labelledby="deleteBillingAddressModal" data-addr-ID="">
+    <div class="g-modal-dialog g-coupon-modal-dialog" role="document">
+        <div class="g-modal-content g-coupon-modal-content">
+            <div class="g-modal-body g-coupon-modal-body delete-coupon-confirmation-body">
+                ${Resource.msg('msg.remove.address.confirmation.modal','checkout',null)}
+            </div>
+            <div class="g-modal-footer g-coupon-modal-footer">
+                <button type="button" class="g-button_base g-button_secondary--black btn btn-outline-primary" data-dismiss="modal">${Resource.msg('button.coupon.cancel','cart',null)}</button>
+                <button type="button" class="g-button_base g-button_primary--black btn-delete-address"
+                        data-dismiss="modal"
+                        data-action-url="${URLUtils.https('CheckoutAddressServices-DeleteShippingAddress')}">
+                    ${Resource.msg('button.remove.address','checkout',null)}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

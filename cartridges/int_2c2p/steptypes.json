@@ -1,0 +1,54 @@
+{
+    "step-types": {
+        "script-module-step": [
+            {
+                "@type-id": "custom.CSComponents.2C2PTransactionCheck",
+                "description": "Check 2c2p transaction status",
+                "module": "int_2c2p/cartridge/scripts/jobs/2C2PTransactionCheck.js",
+                "function": "execute",
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when an error occurred."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when everything went well."
+                        },
+                        {
+                            "@code": "WARN",
+                            "description": "Used when small, but acceptable problems occurred."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.Refund2c2Payment",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "module": "int_2c2p/cartridge/scripts/jobs/ProcessRefunds",
+                "description": "Refund2c2Payment",
+                "function": "execute",
+                "transactional": "false",
+                "timeout-in-seconds": "3600",
+                "parameters": {
+                    "parameter": []
+                }
+            },
+            {
+                "@type-id": "custom.checkCancelRefundOrder",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "module": "int_2c2p/cartridge/scripts/jobs/CheckRefundOrderCancel",
+                "descripton": "",
+                "function": "execute",
+                "transactional": "false",
+                "timeout-in-seconds": "3600",
+                "parameters": {
+                    "parameter": []
+                }
+            }
+        ]
+    }
+}

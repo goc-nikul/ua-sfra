@@ -1,0 +1,27 @@
+<isif condition="${slotcontent}">
+
+    <iscomment> Render a tile of the category Name and the Category Landing Slot Image field </iscomment>
+
+    <div class="category-slot">
+        <isif condition="${slotcontent && slotcontent.calloutMsg}">
+            <h2>
+                <isprint value="${slotcontent.calloutMsg}" encoding="off"/>
+            </h2>
+        </isif>
+            <isloop items="${slotcontent.content}" var="category">
+                <isif condition="${'slotBannerImage' in category.custom && category.custom.slotBannerImage}">
+                    <div class="category-item">
+                        <a href="${URLUtils.url('Search-Show', 'cgid', category.ID)}" title="${category.displayName}">
+                            <div class="category-tile">
+                                <img class="img-fluid" src="${category.custom.slotBannerImage.getURL()}" title="${category.pageTitle}" alt="${category.displayName}"/>
+                                <h1>
+                                    <isprint value="${!empty(category.displayName) ? Resource.msgf('wishlist.producttile.shop', 'account', null, category.displayName) : ''}" encoding="htmlcontent"/>
+                                </h1>
+                            </div>
+                        </a>
+                    </div>
+                </isif>
+            </isloop>
+    </div>
+
+</isif>

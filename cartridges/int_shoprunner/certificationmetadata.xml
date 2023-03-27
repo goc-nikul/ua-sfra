@@ -1,0 +1,147 @@
+<certification>
+	<cartridgeInfo>
+		<name>ShopRunner</name>
+		<version>2.0.0</version>
+		<implementer>Lyons Consulting Group</implementer>
+	</cartridgeInfo>
+	<certificationInfo>
+		<certificationID>82</certificationID>
+		<certifiedby>
+			Brian LeBlanc
+		</certifiedby>
+		<date>
+			07/09/2013
+		</date>
+		<platform>
+			<version>13.3</version>
+			<storefront>SG2</storefront>
+		</platform>
+		<usecases>
+			<usecase>
+				<description>
+					Perform a Standard Checkout With Shoprunner eligible items
+				</description>
+				<steps>
+					1.  Add a shoprunner eligible item to the cart.
+					2.  Choose Checkout.
+					3.  Complete the shipping page, log into shoprunner,  and choose shoprunner as the shipping method.
+					4.  Complete the billing page.
+					5.  Verify that the order is created and shipping is free.
+				</steps>
+			</usecase>
+
+			<usecase>
+				<description>
+					Perform a Standard Checkout with a mixed cart
+				</description>
+				<steps>
+					1.  Add a shoprunner eligible item to the cart as well as a non-shoprunner eligible item.
+					2.  Choose Checkout.
+					3.  Complete the shipping page, log into shoprunner,  and choose shoprunner as the shipping method.
+					4.  Complete the billing page.
+					5.  Verify that the order is created and shipping is calculated for only the non-shoprunner eligible item.
+				</steps>
+			</usecase>
+			<usecase>
+				<description>
+					Perform an express checkout with Shoprunner eligible items.
+				</description>
+				<steps>
+					1.  Add one or more shoprunner eligible items to the cart.
+					2.  Choose checkout.
+					3.  Choose the express checkout with shoprunner link on the shipping page.
+					4.  Fill in the necessary information in the shoprunner iframe.
+					5.  Verify that the order is created and shipping is free.
+				</steps>
+			</usecase>
+			<usecase>
+				<description>
+					Perform an express checkout with a mixed cart
+				</description>
+				<steps>
+					1.  Add one or more shoprunner eligible items to the cart as well as one or more non-shoprunner eligible items.
+					2.  Choose checkout.
+					3.  Choose the express checkout with shoprunner link on the shipping page.
+					4.  Fill in the necessary information in the shoprunner iframe.
+					5.  Confirm that the shoprunner iframe indicates that there will be charges for shipping the non-shoprunner eligible items.
+					6.  Verify that the order is created..
+				</steps>
+			</usecase>
+		</usecases>
+	</certificationInfo>
+	<contentInfo>
+		<file><hash>6233282acf91dfb09b491d4ce5faa1e1</hash><name>int_shoprunner\.buildpath</name></file>
+		<file><hash>0d7aa95c507f1efa2f1e14f0fe78d884</hash><name>int_shoprunner\.project</name></file>
+		<file><hash>7a38441bccc27faf947ea0f6fcc3563e</hash><name>int_shoprunner\cartridge\scripts\payrunner\placeorder\AddBillingAddress.ds</name></file>
+		<file><hash>ab8d05f6f162708017055832c740e368</hash><name>int_shoprunner\cartridge\scripts\payrunner\placeorder\AddBillingEmail.ds</name></file>
+		<file><hash>e64d12a31204c7ef006d793054e5cd4e</hash><name>int_shoprunner\cartridge\scripts\payrunner\placeorder\AddShippingAddress.ds</name></file>
+		<file><hash>8642893e69fdcefd6c545f81d2829479</hash><name>int_shoprunner\cartridge\scripts\payrunner\placeorder\AddShippingMethod.ds</name></file>
+		<file><hash>658555f74ffc9a7ce74d315fa4c2061a</hash><name>int_shoprunner\cartridge\scripts\checkout\BuildShoprunnerBasket.ds</name></file>
+		<file><hash>2cf3d245d7f3bd3d89ddeadaae54a41e</hash><name>int_shoprunner\cartridge\scripts\checkout\CalculatePaymentTransactionTotals.ds</name></file>
+		<file><hash>bce93976f6276ed28eb951b0b59e40ec</hash><name>int_shoprunner\certificationmetadata.xml</name></file>
+		<file><hash>ec73937922f3af3cfa6e5d90feb14a4e</hash><name>int_shoprunner\cartridge\scripts\checkout\CheckAPOFPO.ds</name></file>
+		<file><hash>8c3c1954304984d8e5f221eca8ebed42</hash><name>int_shoprunner\cartridge\scripts\checkout\CheckCartEligibility.ds</name></file>
+		<file><hash>2c0530698ed138bb128084d4f2b1acc6</hash><name>int_shoprunner\cartridge\templates\default\shoprunner\checkouttracking.isml</name></file>
+		<file><hash>a53ae4ce37988a11085d9a46386015fb</hash><name>int_shoprunner\cartridge\scripts\checkout\CheckPOBox.ds</name></file>
+		<file><hash>82d5782c5c3663adc9038f528ea1500c</hash><name>int_shoprunner\cartridge\templates\default\shoprunner\cookiesession.isml</name></file>
+		<file><hash>9d5ff3b1f4e7e94506cef8e3e822e7ed</hash><name>int_shoprunner\cartridge\scripts\payrunner\placeorder\createProductList.ds</name></file>
+		<file><hash>bb4c4086c7dd1a8649f73ae48be2e17b</hash><name>int_shoprunner\cartridge\scripts\checkout\CreateShipmentShippingAddress.ds</name></file>
+		<file><hash>bd13e3253365d1dd4886142b8e472b9b</hash><name>int_shoprunner\cartridge\scripts\feeds\dailyOrder.ds</name></file>
+		<file><hash>895b6484dba17318e2eb0eb654c441b6</hash><name>int_shoprunner\cartridge\scripts\DeleteShopRunnerCookie.ds</name></file>
+		<file><hash>dd93c415b58c330beadb6149dc4012b1</hash><name>int_shoprunner\cartridge\templates\default\shoprunner\divtags.isml</name></file>
+		<file><hash>ad5cbb625be43f0c9ec614f42f918ad8</hash><name>int_shoprunner\cartridge\static\default\js\edutl.js</name></file>
+		<file><hash>640f36cb383baaae5fc31e7c07456c26</hash><name>int_shoprunner\cartridge\templates\resources\email.properties</name></file>
+		<file><hash>6d72eb86d46a511b71434975f4dbcaa2</hash><name>int_shoprunner\cartridge\scripts\checkout\FilterMultiShipMethods.ds</name></file>
+		<file><hash>542b6ed5f2f91f17091673e2f0c258db</hash><name>int_shoprunner\cartridge\scripts\checkout\GetApplicableShippingMethods.ds</name></file>
+		<file><hash>35bf3e97dd7186122cedb4052b280909</hash><name>int_shoprunner\cartridge\scripts\checkout\GetNonGiftCertificatePaymentAmount.ds</name></file>
+		<file><hash>f1e2ecbbe15206b7377ef953132eff4a</hash><name>int_shoprunner\cartridge\scripts\payrunner\getPRCart.ds</name></file>
+		<file><hash>419eef775afb56aced4aaf6d54eb23b4</hash><name>int_shoprunner\cartridge\templates\default\payrunner\getPRCart.isml</name></file>
+		<file><hash>ea64ddff28614a5d04e5ebab076c6f16</hash><name>int_shoprunner\cartridge\scripts\payrunner\getPREligibilityCart.ds</name></file>
+		<file><hash>303d4aaf09af69855d8875f3686754f0</hash><name>int_shoprunner\cartridge\scripts\checkout\GetShopRunnerToken.ds</name></file>
+		<file><hash>471130d03b4c45dce38b610b659c8666</hash><name>int_shoprunner\cartridge\templates\default\mail\giftcert.isml</name></file>
+		<file><hash>f3e9113393c4424694d552d9ae2a9a77</hash><name>int_shoprunner\cartridge\templates\default\marketing\giftcertificateemail.isml</name></file>
+		<file><hash>7aa891d2ec845e3900b12f2c532a3428</hash><name>int_shoprunner\cartridge\templates\default\shoprunner\htmlhead.isml</name></file>
+		<file><hash>5885fd2172cdd1f3ebf5a24be75899e8</hash><name>int_shoprunner\cartridge\templates\default\shoprunner\ineligiblecart.isml</name></file>
+		<file><hash>8428d1367650ef9db20e81f6e9a4f1b6</hash><name>int_shoprunner\cartridge\forms\default\ineligiblecart.xml</name></file>
+		<file><hash>594903bf66ff4aec63eb510071df3948</hash><name>int_shoprunner\cartridge\int_shoprunner.properties</name></file>
+		<file><hash>974266478918f86d94efa38e8804a0c5</hash><name>int_shoprunner\cartridge\templates\default\shoprunner\landing.isml</name></file>
+		<file><hash>3a6292cf4f48bdf9d9ad97058930fcb0</hash><name>int_shoprunner\cartridge\scripts\payrunner\placeorder\MergeQuantities.ds</name></file>
+		<file><hash>7c2098b0691ff4e5cc930893e7de57eb</hash><name>int_shoprunner\cartridge\templates\default\shoprunner\modules.isml</name></file>
+		<file><hash>3671067a9c73f9337c16ce882dba5331</hash><name>int_shoprunner\cartridge\scripts\feeds\orderFeed.ds</name></file>
+		<file><hash>8b9c7a3af86590b774932999ebd6e2e6</hash><name>int_shoprunner\cartridge\pipelines\PayRunner.xml</name></file>
+		<file><hash>5484870b1f11748c20355e9dd2d52f86</hash><name>int_shoprunner\cartridge\scripts\payrunner\payrunnerAPI.ds</name></file>
+		<file><hash>70a2083f31cd0c7e1c134f671f8c6e57</hash><name>int_shoprunner\cartridge\scripts\feeds\placeOrder.ds</name></file>
+		<file><hash>1ee274f90e7929813087180f7d32103d</hash><name>int_shoprunner\cartridge\templates\default\payrunner\placeorderjson.isml</name></file>
+		<file><hash>98c932709deef734c7d016532bd4c084</hash><name>int_shoprunner\cartridge\static\default\js\pr_functions.js</name></file>
+		<file><hash>b9465134cc67a4ca7a5ced1dd8a3f657</hash><name>int_shoprunner\cartridge\scripts\checkout\PreCalculateDefaultShipment.ds</name></file>
+		<file><hash>c44daa96deda628a3e8c277fc85d34a9</hash><name>int_shoprunner\cartridge\templates\default\shoprunner\productdetail.isml</name></file>
+		<file><hash>7a2cb274800dd8d136141b0422c9141f</hash><name>int_shoprunner\cartridge\scripts\feeds\productFeed.ds</name></file>
+		<file><hash>661ac87579efe5b32ec7663b4a237025</hash><name>int_shoprunner\cartridge\scripts\checkout\PullShoprunnerItems.ds</name></file>
+		<file><hash>8e95c43accecead6022e6bd5a10593fc</hash><name>int_shoprunner\cartridge\scripts\checkout\PullShoprunnerShipment.ds</name></file>
+		<file><hash>50ee5921d004f557848084dc289455ea</hash><name>int_shoprunner\cartridge\scripts\checkout\RemoveNonShopRunner.ds</name></file>
+		<file><hash>0245bfdcdf23594c25a35a4acfc664a1</hash><name>int_shoprunner\cartridge\scripts\checkout\SaveShopRunnerOrderToken.ds</name></file>
+		<file><hash>a9600b521ce6b1221f479f95ceef8770</hash><name>int_shoprunner\cartridge\scripts\payrunner\placeorder\SetupBasketFromPDP.ds</name></file>
+		<file><hash>c390e9bd8782aacd1429720a5fd822f6</hash><name>int_shoprunner\cartridge\scripts\payrunner\placeorder\SetupConfirmationRedirect.ds</name></file>
+		<file><hash>4e517e3092fc18e19c2cd504ef0441d5</hash><name>int_shoprunner\cartridge\scripts\payrunner\placeorder\SetupPlaceOrderRedirect.ds</name></file>
+		<file><hash>0b8511d740f544124d752c7c43453901</hash><name>int_shoprunner\cartridge\scripts\feeds\shipmentFeed.ds</name></file>
+		<file><hash>d1f9520fa040b20a36a97f51294aba42</hash><name>int_shoprunner\cartridge\templates\default\shoprunner\shippingjs.isml</name></file>
+		<file><hash>9c626f5caa7b9b4aa3ec514b2e01d9b6</hash><name>int_shoprunner\cartridge\templates\resources\shoprunner.properties</name></file>
+		<file><hash>05700de2c6c77cb8bfc8e161b54820c8</hash><name>int_shoprunner\cartridge\pipelines\ShopRunner.xml</name></file>
+		<file><hash>1b9a72af747b56249fc15ffd5272ebab</hash><name>int_shoprunner\cartridge\static\default\js\shoprunner_init.js</name></file>
+		<file><hash>089234b6d8586e6121fde29f2420baf2</hash><name>int_shoprunner\cartridge\scripts\ShopRunnerAuth.ds</name></file>
+		<file><hash>2fce6617252c971fb3debb22ab4411d6</hash><name>int_shoprunner\cartridge\scripts\checkout\ShopRunnerCreateShipments.ds</name></file>
+		<file><hash>79a2d4fbf30b2bba40da7ad6b6dc95b5</hash><name>int_shoprunner\cartridge\templates\default\shoprunner\splitorder.isml</name></file>
+		<file><hash>c5af19de392d617706572e60433f45ea</hash><name>int_shoprunner\cartridge\scripts\util\srErrorUtils.ds</name></file>
+		<file><hash>57023495c506b226b480a793fc79f333</hash><name>int_shoprunner\cartridge\pipelines\SRFeeds.xml</name></file>
+		<file><hash>77b73aa08567b41c617e21f7fe2d7ab7</hash><name>int_shoprunner\cartridge\scripts\util\srFriendlyURL.ds</name></file>
+		<file><hash>b47aa80ab1c9813db7220228b1cfd307</hash><name>int_shoprunner\cartridge\scripts\feeds\srFTP.ds</name></file>
+		<file><hash>a0bdcc46110d78352d3d896a7097bd68</hash><name>int_shoprunner\cartridge\pipelines\SRHelper.xml</name></file>
+		<file><hash>246aab09764955a8938076add53952b2</hash><name>int_shoprunner\cartridge\scripts\util\srProductUtils.ds</name></file>
+		<file><hash>8655ff47f91f6898d4537140aec7b446</hash><name>int_shoprunner\cartridge\scripts\payrunner\startPRCheckout.ds</name></file>
+		<file><hash>a9a1c1378cc6591504e5b54b374f2163</hash><name>int_shoprunner\cartridge\scripts\payrunner\placeorder\transferBasket.ds</name></file>
+		<file><hash>d3f28c59b6cc8136ea2f69dc58ebfd07</hash><name>int_shoprunner\cartridge\pipelines\TransferCartToProductList.xml</name></file>
+		<file><hash>47f8740c6095ffaea4a3ea19839f0986</hash><name>int_shoprunner\cartridge\scripts\payrunner\UpdateQuantities.ds</name></file>
+		<file><hash>3c8e287dc052a1a348f5994805b443a9</hash><name>int_shoprunner\cartridge\scripts\checkout\Utils.ds</name></file>
+		<file><hash>4a453b2eec51dc3963625addfad7f0b5</hash><name>int_shoprunner\cartridge\scripts\checkout\ValidatePaymentInstruments.ds</name></file>
+	</contentInfo>
+</certification>

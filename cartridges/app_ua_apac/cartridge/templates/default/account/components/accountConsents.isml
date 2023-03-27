@@ -1,0 +1,14 @@
+<div class="form-group g-checkbox">
+    <input type="checkbox" class="g-checkbox-input" id="add-to-email-list" <isif
+        condition="${dw.system.Site.current.getCustomPreferenceValue('defaultEmailOptIn')}">checked</isif>
+    <isprint value=${pdict.profileForm.customer.addtoemaillist.attributes} encoding="off" />
+    >
+    <isif condition="${pdict.smsOptInEnabled}">
+        <label class="g-checkbox-label"
+            for="add-to-email-list">${Resource.msg('field.checkbox.signup.SEAShipping', 'checkout', null)}</label>
+    <iselse/>
+        <label class="g-checkbox-label" for="add-to-email-list">
+            <isprint value="${pdict.profileForm.customer.addtoemaillist.label}" encoding="htmlcontent" />
+        </label>
+    </isif>
+</div>

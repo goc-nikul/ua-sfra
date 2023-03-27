@@ -1,0 +1,57 @@
+<div class="store-long-desc g-accordion-content collapse" id="acc-${store.ID}" style="">
+    <div class="b-storedetail-mobilewrap">
+    <div class="b-store-name store-name">${store.name}</div>
+    <div class="b-store-delivery-details ${!store.productInStoreInventory ? 'unavailable' : ''}"><span><isprint value="${store.availabilityMessage}" /></span>
+    <isif condition="${store.availabilityMessage !== undefined && store.orderby}">${Resource.msgf('store.orderBy.time', 'storeLocator', null, store.orderby)}</isif>
+    </div>
+    <div class="b-store-type">${store.storeType}</div>
+    <address>
+        <a class="store-map" target='_blank' href="${store.storeGoogleMapLink}">
+            ${store.address1}, </br>
+            <isif condition="${store.address2}">
+                ${store.address2}, </br>
+            </isif>
+            <isif condition="${store.city}">
+                ${store.city}, 
+            </isif>
+            <isif condition="${store.stateCode}">
+                ${store.stateCode}
+            </isif>
+            ${store.postalCode}
+        </a>
+    </address>
+    <isif condition="${store.phone}">
+        <div class="b-store-phone">
+            <span><a class="storelocator-phone" href="tel:${store.phone}">${store.phone}</a></span>
+        </div>
+    </isif>
+    <isif condition="${store.storeHoursJson}">
+        <div class="store-hours">
+            <h5>${Resource.msg('store.inventory.storehours','storeLocator',null)}</h5>
+            <ul>
+                <isloop items="${store.storeOpenHours}" var="storeOpen" >
+                    <isif condition="${storeOpen.startDay == storeOpen.endDay}">
+                        <li>
+                            <span class="first-child"><isprint value="${storeOpen.startDay}"/></span> 
+                            <span class="last-child"><isprint value="${storeOpen.openTime}"/> - <isprint value="${storeOpen.closeTime}"/></span>
+                        </li>
+                    <iselse>
+                        <li>
+                            <span class="first-child"><isprint value="${storeOpen.startDay}"/> - <isprint value="${storeOpen.endDay}"/></span> 
+                            <span class="last-child"><isprint value="${storeOpen.openTime}"/> - <isprint value="${storeOpen.closeTime}"/></span>
+                        </li>
+                    </isif>
+                </isloop>
+            </ul>
+        </div>
+    </isif>
+    </div>
+    <div class="store-pickup-details">
+        <h5>${Resource.msg('store.inventory.pickupdetails','storeLocator',null)}</h5>
+        <isprint value="${store.storePickupDetails}" encoding="off"/>
+    </div>
+    <div class="b-store_select-button ${!empty(pdict.selectedStoreID) && pdict.selectedStoreID == store.ID ? 'b-store_selected-button' : ''}">
+        <button class="btn btn-primary g-button_base g-button_primary--black b-storeselected-button ${!empty(pdict.selectedStoreID) && pdict.selectedStoreID == store.ID ? '' : 'hide'}">${Resource.msg('button.selected.store', 'storeLocator', null)}</button>
+        <button class="btn btn-primary g-button_base g-button_primary--black select-store ${!empty(pdict.selectedStoreID) && pdict.selectedStoreID == store.ID ? 'hide' : ''}" data-store-id="${store.ID}" data-cart="${URLUtils.url('Cart-Show')}" data-cart-href="${URLUtils.url('Stores-UpdateBopisShipments')}" data-href="${URLUtils.url('StoreLocator-SelectStore')}" data-text="${Resource.msg('button.select.store','storeLocator',null)}">${Resource.msg('button.select.store','storeLocator',null)}</button>
+    </div>
+</div>

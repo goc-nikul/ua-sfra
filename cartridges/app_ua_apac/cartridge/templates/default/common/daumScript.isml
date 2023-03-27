@@ -1,0 +1,13 @@
+<iscomment> Addrss lookup for KR site</iscomment>
+<isscript>
+    var assets = require('*/cartridge/scripts/assets.js');
+    var daumAddressLookupEnabled = require('*/cartridge/config/preferences').isDaumAddressLookupEnabled;
+    var DaumLoaderScript = require('*/cartridge/config/preferences').DaumLoaderScript;
+
+    if (daumAddressLookupEnabled) {
+        assets.addJs('/js/daum.js');
+    }
+</isscript>
+<isif condition="${daumAddressLookupEnabled}">
+    <script src="${DaumLoaderScript}"></script>
+</isif>

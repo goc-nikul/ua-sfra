@@ -1,0 +1,44 @@
+<isinclude template="components/modules"/>
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addCss('/css/wishlist.css');
+        assets.addJs('/js/wishlist.js');
+        assets.addCss('/css/login.css');
+        assets.addJs('/js/login.js');
+    </isscript>
+    <div class="l-wishlist-container">
+        <div class="l-wishlist-container-top">
+            <div class="wishlist-heading-slot">
+                <isif condition="${!empty(pdict.CurrentCustomer.getProductLists(dw.customer.ProductList.TYPE_WISH_LIST)) && (pdict.CurrentCustomer.getProductLists(dw.customer.ProductList.TYPE_WISH_LIST)[0] == null || pdict.CurrentCustomer.getProductLists(dw.customer.ProductList.TYPE_WISH_LIST)[0].items.length == 0)}">
+	                <h2 class="b-wishlist-saved_item">${Resource.msg('wishlist.heading.withoutitems', 'account', null)}</h2>
+	                <div class="b-wishlist-saved_item_desc">
+	                   <p>${Resource.msg('wishlist.just.message', 'account', null)} <span class="b-tile-fav_selectButton"></span> ${Resource.msg('wishlist.notsure.message', 'account', null)}<br>${Resource.msg('wishlist.checkout.newarrivals', 'account', null)}</p>
+	                </div>
+                <iselse>
+                   <h2 class="b-wishlist-saved_item">${Resource.msg('wishlist.heading.saveditems', 'account', null)}</h2>
+                   <div class="b-wishlist-saved_item_desc">
+                      <p>${Resource.msg('wishlist.gear.message', 'account', null)} <span class="b-tile-fav_selectButton"></span> ${Resource.msg('wishlist.makeyoubetter.message', 'account', null)}<br>
+                          <isif condition="${pdict.loggedIn}">
+                              ${Resource.msg('wishlist.allinoneplace.message', 'account', null)}
+                          <iselse>
+                              ${Resource.msg('wishlist.guest.message', 'account', null)}
+                          </isif>
+                      </p>
+                   </div>
+                </isif>
+            </div>
+            <isif condition="${!pdict.loggedIn}">
+                <div class="b-wishlist-btn_content">
+                        <a class="js-register b-wishlist-btn g-button_base g-button_secondary--black" href="${URLUtils.https('Login-CreateAccountModal')}" role="button"
+                         aria-label="${Resource.msg('header.account.createaccount', 'account', null)}">
+                           <span>${Resource.msg('header.account.createaccount', 'account', null)}</span>
+                        </a>
+                </div>
+            </isif>
+        </div>
+        <div>
+            <isinclude template="wishlist/components/wishlist" />
+        </div>
+    </div>
+</isdecorate>

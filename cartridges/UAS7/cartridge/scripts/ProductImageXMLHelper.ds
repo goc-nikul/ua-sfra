@@ -1,0 +1,217 @@
+importPackage( dw.system );
+importPackage( dw.catalog );
+importPackage( dw.io );
+importPackage( dw.util );
+
+/**
+ * ProductImageXMLHelper.ds is used to generate the image assignment 
+ * definitions for a given master product in XML format
+ * @param imageAssignmentJSON the style or material code used to .
+ */
+ 
+function ProductImageXMLHelper() {
+	
+	////////////////////////////////
+	// Initialize Constants
+	////////////////////////////////	
+			
+	// Manages whether debugging is enabled
+	var debugMode : Boolean = false;
+
+	// Describes the encoding for the file-writer and XML output
+	var encoding : String = "UTF-8";
+
+	// This function is used to queue the image assignments to be processed by the catalog import pipeline
+	this.queueImageAssignments = function( imageAssignments : Object, generateExport : String ) : String {
+		
+		// Initialize local variables
+		var fileName, fileObj, styleCode, catalog, xmlFile, efw, appConstants;
+		
+		// Pull the site-preferences used by this method
+		appConstants = this.getConfigurationSettings();		
+		
+		// Derrive the style-code from the product code
+		styleCode = this.getStyleFromProductCode(imageAssignments["id"]);
+			
+		// Get the identifier for the current catalog
+		catalog = CatalogMgr.getSiteCatalog();			
+				
+		// Retrieve the file name for the XML file to be written
+		fileObj = this.getFileSystemObjProperties(styleCode);
+				
+		// Determine the type of action this is, and initialize folders / filenames
+		if ( generateExport === 'true' ) {
+
+			// Create the export directory if it does not exist
+			(new File(fileObj["exportDirectory"])).mkdirs();		
+			
+			// Create the physical *.xml file handle for exports
+			xmlFile = new File(fileObj["exportFileLocation"]);			
+			
+		} else {
+		
+			// Create the feed directory if it does not exist
+			(new File(fileObj["feedDirectory"])).mkdirs();		
+		
+			// Create the physical *.xml file handle for processing
+			xmlFile = new File(fileObj["fileLocation"]);			
+			
+		}
+
+		// Create the file-writer instance (used to physically write file segments)
+		efw = new FileWriter(xmlFile, encoding);
+
+		/////////////////////////////////////
+		// BEGIN: Write the Export File
+		/////////////////////////////////////
+		
+		// Open the XML document with the XML declaration
+		efw.write('<?xml version="1.0" encoding="UTF-8"?>');		
+		
+		// Write the catalog declaration, and identify the catalog that this image-assignment will be applied to
+		efw.write('<catalog xmlns="http://www.demandware.com/xml/impex/catalog/2006-10-31" catalog-id="' + appConstants["defaultCatalog"] + '">');		
+		
+		// Write the product code and open the XML document
+		efw.write('<product product-id="' + styleCode + '">');
+
+		// Open the images element
+		efw.write('<images>');
+
+		// Iterate over each of the image assignments defined (to generate the image definitions)
+		for each ( var thisImageAssignment in imageAssignments["image_groups"] ) {
+
+			// Attach the image assignment xml for the durrent assignment definition			
+			efw.write(this.generateImageAssignmentXML(thisImageAssignment));			
+			
+		}
+
+		// Close the XML Document
+		efw.write('</images>');
+		efw.write('</product>');
+		efw.write('</catalog>');
+		
+		// Close the file writer
+		efw.flush();	
+		efw.close();
+
+		// Return the file name that was derrived
+		return fileObj["fileName"];
+
+	};
+
+	// This function is used to take an image assignment definition, and generate image-assignment xml
+	this.generateImageAssignmentXML = function( imageAssignment : Object ) : String {
+
+		// Initialize local variables
+		var output;
+		
+		// Default the output string
+		output = "";
+
+		// Open the image group definition element
+		output = output + '<image-group view-type="' + imageAssignment["view_type"] + '"';
+		
+		// Check if the current image-definition is specific to a variation value
+		if ( imageAssignment.hasOwnProperty("variation_value") ) {
+			output = output + ' variation-value="' + imageAssignment["variation_value"] + '"';
+		}
+		
+		// Close out the opening image-group tag
+		output = output + '>';
+
+		// Iterate over the collection of images, and build out the image-xml definitions
+		for each ( var thisImage in imageAssignment["images"] ){
+
+			// Build out the image path for this view type / variation combination	
+			output = output + '<image path="' + StringUtils.stringToXml(thisImage) + '"/>';
+			
+		}
+
+		// Close out the image-group definition
+		output = output + "</image-group>";
+		
+		// Return the output string
+		return output;
+		
+	};
+
+	// This function is used to generate an object containing the path, directory, and filename for the XML file to be generated
+	this.getFileSystemObjProperties = function( styleCode : String ) : Object {
+			
+		// Initialize the local variables
+		var fileObj, styleCode, gmtDateString, siteId, calendar, rootFeedPath;
+			
+		// Initialize the current calendar object
+		calendar = new Calendar();			
+			
+		// Format the date to be included in the feed file name and XML
+		gmtDateString = StringUtils.formatCalendar( calendar, "yyyy-MM-dd-HH-mm-ss" );
+
+		// Replace the hyphens, and append the miliseconds (to help create unique filenames)
+		gmtDateString = gmtDateString.replace(/-/g,"") + "." + calendar.get(calendar.MILLISECOND);
+		
+		// Initialize site-specific attributes
+		siteId = dw.system.Site.getCurrent().ID;
+				
+		// Defautl the root feed-path
+		rootFeedPath = dw.io.File.IMPEX;
+		
+		// Initialize the file output object
+		fileObj = {};
+		
+		// Return the feed-specific file properties 
+		fileObj["feedPath"] = '/src/image-assignments/';
+		fileObj["exportPath"] = '/src/image-assignments/_exports/';		
+		fileObj["feedDirectory"] = rootFeedPath + fileObj["feedPath"];
+		fileObj["exportDirectory"] = rootFeedPath + fileObj["exportPath"];
+		fileObj["fileName"] = styleCode + '.' + siteId + '.' + gmtDateString + '.xml';		
+		fileObj["fileLocation"] = fileObj["feedDirectory"] + fileObj["fileName"];
+		fileObj["exportFileLocation"] = fileObj["exportDirectory"] + fileObj["fileName"];
+		
+		// Return the file object
+		return fileObj;
+		
+	};
+	
+	// This function is used to retrieve a style code from a given product code
+	this.getStyleFromProductCode = function(productCode: String) : String {
+			
+		// Split the product code, and capture the first element
+		var output = productCode.split("-")[0];
+		
+		// Return the style code
+		return output;
+		
+	};
+
+	// This function is used to pull together the configuration settings for the import process
+	this.getConfigurationSettings = function() : Object {
+	
+		// Initialize local variables
+		var output, loggerName;
+		
+		// Initialize the output object
+		output = {};
+		
+		// Seed the logger name (used to capture exceptions)
+		loggerName = 'S7Integration.GenerateImageAssignmentXML';
+		
+		// Validate that the site catalog ftp server is defined in the current site's preferences
+	    if ( !('S7IntegrationDefaultCatalog' in dw.system.Site.current.preferences.custom) || empty(Site.getCurrent().getCustomPreferenceValue('S7IntegrationDefaultCatalog')))
+	    {
+	    	Logger.getLogger(loggerName).error( "Scene 7 Integration: Default Product Catalog is Not Defined." );
+	    	return PIPELET_ERROR;
+	    }		
+		
+		// Seed each of the application constants referenced by this class
+		output["defaultCatalog"] = Site.getCurrent().getCustomPreferenceValue('S7IntegrationDefaultCatalog');
+		
+		// Return the output variable
+		return output;
+		
+	};
+
+	// Return an instance of the class
+	return this;
+
+};

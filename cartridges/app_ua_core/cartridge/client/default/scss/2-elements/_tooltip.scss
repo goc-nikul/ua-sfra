@@ -1,0 +1,153 @@
+/* md
+
+# Tooltip
+If you need it could be added to different types of HTML-elements
+
+```html
+   <div class="g-tooltip">In
+        <span class="g-tooltip-text">Tooltip text</span>
+    </div>
+
+    <div class="g-tooltip">In
+        <span class="g-tooltip-text m-large">Tooltip text</span>
+    </div>
+
+    <div class="g-tooltip">In
+        <span class="g-tooltip-text m-large m-large-left">Tooltip text</span>
+    </div>
+
+    <div class="g-tooltip">In
+        <span class="g-tooltip-text m-large m-large-right">Tooltip text</span>
+    </div>
+
+    <div class="g-tooltip">In
+        <span class="g-tooltip-text g-tooltip-text--large m-large m-large-right">Tooltip text</span>
+    </div>
+```
+
+# Tooltip
+Additionaly you can add ```m-large```, ```m-large-left```, ```m-large-right``` classes to change width and position of tooltip
+
+```html_example
+<div style="display: flex;
+    flex-direction: column;
+    align-items: center;">
+        <div class="g-tooltip">In
+            <span class="g-tooltip-text">Tooltip text</span>
+        </div>
+    <br/>
+        <div class="g-tooltip">In
+            <span class="g-tooltip-text m-large">Tooltip text</span>
+        </div>
+
+    <br/>
+        <div class="g-tooltip">In
+            <span class="g-tooltip-text m-large m-large-left">Tooltip text</span>
+        </div>
+
+    <br/>
+        <div class="g-tooltip">In
+            <span class="g-tooltip-text m-large m-large-right">Tooltip text</span>
+        </div>
+    <br/>
+        <div class="g-tooltip">In
+            <span class="g-tooltip-text g-tooltip-text--large m-large m-large-right">Tooltip text</span>
+        </div>
+</div>
+```
+*/
+
+.g-tooltip {
+    position: relative;
+    display: inline-block;
+
+    @include respond-to(hoverable) {
+        &:hover {
+            .g-tooltip-text,
+            + .g-tooltip-text,
+            .g-tooltip-arrow {
+                visibility: visible;
+                opacity: 1;
+            }
+        }
+    }
+
+    @include respond-to(touch-only) {
+        &:active,
+        &:focus,
+        &:hover {
+            .g-tooltip-text,
+            + .g-tooltip-text,
+            .g-tooltip-arrow {
+                visibility: visible;
+                opacity: 1;
+            }
+        }
+    }
+
+    &-text {
+        position: absolute;
+        top: calc(100% + #{rem-calc(16)});
+        left: 50%;
+        z-index: 2;
+        display: inline-block;
+        visibility: hidden;
+        min-width: rem-calc(94);
+        padding: rem-calc(16) rem-calc(32);
+        border-radius: 1px;
+        background-color: $black;
+        font-size: rem-calc(12);
+        font-weight: 300;
+        line-height: rem-calc(18);
+        color: $white;
+        opacity: 0;
+        transform: translateX(-50%);
+        transition: opacity 0.3s;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            margin-left: rem-calc(-5);
+            border-color: transparent transparent $black transparent;
+            border-style: solid;
+            border-width: rem-calc(8);
+        }
+
+        &.m-large {
+            width: rem-calc(288);
+
+            &-left,
+            &-right {
+                transform: translateX(0);
+
+                &::after {
+                    transform: translateX(50%);
+                }
+            }
+
+            &-left {
+                left: rem-calc(-48);
+
+                &::after {
+                    left: rem-calc(48);
+                }
+            }
+
+            &-right {
+                right: rem-calc(-64);
+                left: auto;
+
+                &::after {
+                    right: rem-calc(76);
+                    left: auto;
+                }
+            }
+        }
+
+        &--large {
+            padding: rem-calc(20) rem-calc(16);
+        }
+    }
+}

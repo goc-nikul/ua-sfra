@@ -1,0 +1,24 @@
+/**
+* SetupBasketFromPDP.ds
+* Created by: jfriend on Mar 6, 2013
+* When the ShopRunner Express Checkout button is clicked from PDP,
+* this script is used to setup a new Demandware Basket using the 
+* details from the PDP page.
+*
+* Called from:
+*   ShopRunner-PayrunnerAPI
+*
+*   @input PDPSku : String
+*   @input PDPQuantity : String
+*
+*/
+importPackage( dw.system );
+
+function execute( args : PipelineDictionary ) : Number
+{
+   
+    args.PDPSku = "885778648926";
+    args.PDPQuantity = "3";
+
+    return PIPELET_NEXT;
+}

@@ -1,0 +1,136 @@
+/**
+* Demandware Script File
+*	This file is used to include one function used across
+*	all ShopRunner script files for file export
+*/
+importPackage( dw.system );
+importPackage( dw.net );
+importPackage( dw.io );
+importPackage( dw.svc );
+
+function ftpToSR(fts, site) {
+	var currentSite;
+	if (!empty(site)) {
+		currentSite = site;
+	} else  {
+		currentSite = Site.getCurrent();
+	}
+	try {
+		var srLogger = Logger.getLogger('ShopRunner', 'ShopRunner');
+		var filePath = fts.name;
+		var ftpPath = currentSite.getPreferences().getCustom()['sr_ftpPath'];
+		if (empty(ftpPath)) {
+			srLogger.error("ShopRunner : FTP path is empty.");
+			return false;
+		}
+		var remoteFolder = currentSite.getCustomPreferenceValue('sr_ftpPath').toString();
+		var ShoprunnerSftpFeedSubmit = require("~/cartridge/scripts/init/ftpServiceInit").ShoprunnerSftpFeedSubmit(currentSite);
+		var result = ShoprunnerSftpFeedSubmit.setOperation("putBinary", remoteFolder + '/' + filePath, fts).call();
+    	if( result.status != "OK" ){
+    		srLogger.error('ShopRunner API error occured with ftpService.statusCode ' + result);
+    		return false;
+    	};
+    	return true;
+	} catch (e) {
+		var ex = e;
+		// general error on connection
+		srLogger.error("ShopRunner : General error in the connection process. {0} ", ex.message);
+		return false;
+	}
+}
+
+function ftpToSRDeprecated(fts)
+{
+	var srLogger : Log = Logger.getLogger('ShopRunner', 'ShopRunner');	
+	var client : FTPClient = new FTPClient();
+	var host : String = '';
+	var ftpType : Object = {};
+	var ftpUser : String = '';
+	var ftpPass : String = '';
+	// if sr_ftpType is set in BM then grab the host
+	ftpType = false; //Default to SFTP. I am keeping the FTP forking code  as per viral's advice.
+	if(ftpType !== null) 
+	{
+		// grab the host url
+		if(ftpType) 
+		{
+			//use regular FTP
+			var client : FTPClient = new FTPClient();
+			host = currentSite.getPreferences().getCustom()['sr_ftpHostFTP'];
+		}
+		else 
+		{
+			//use SFTP
+			var client : SFTPClient = new SFTPClient();
+			host = currentSite.getPreferences().getCustom()['sr_ftpHostSFTP'];
+		}
+		var timeout : Number = currentSite.getCustomPreferenceValue("webserviceTimeout");
+		client.setTimeout(timeout);
+	}
+	else 
+	{
+		// the attribute is not set in BM, exit with error
+		srLogger.error('ShopRunner : FTP connection type variable(sr_ftpType) is not set in BM.');
+		return false;
+	}	
+	// check if host url is set
+	if(empty(host)) 
+	{
+		// exit with error
+		srLogger.error('ShopRunner : Host url is empty.');
+		return false;
+	}
+	else 
+	{
+		// grab user and pass
+		ftpUser = currentSite.getPreferences().getCustom()['sr_communicationUserName'];
+		ftpPass = currentSite.getPreferences().getCustom()['sr_communicationPassword'];
+		// if user and pass are not empty connect to host
+		if(!empty(ftpUser) && !empty(ftpPass)) 
+		{				
+			try
+			{
+				// try connecting to host
+				var connected : Boolean = client.connect(host, ftpUser, ftpPass);
+				if(!connected) 
+				{
+					srLogger.error('ShopRunner : FTP connection failed to {0}',host);
+					return false;
+				}
+				var filePath : String = fts.name;
+				var ftpPath : String = currentSite.getPreferences().getCustom()['sr_ftpPath'];
+				if(empty(ftpPath)) 
+				{
+					srLogger.error("ShopRunner : FTP path is empty.");
+					return false;
+				}
+				var remoteFolder : String = currentSite.getCustomPreferenceValue('sr_ftpPath').toString();
+				if(!client.putBinary(remoteFolder + '/'+filePath, fts))
+				{
+					srLogger.error("ShopRunner : Connection made, but upload failed to " + filePath);
+					client.disconnect();
+					return false;
+				}
+				client.disconnect();
+				return true;
+			}
+			catch(e) 
+			{
+				// general error on connection
+				srLogger.error("ShopRunner : General error in the connection process. {0} ", e.response);					
+				return false;
+			}							
+		}
+		else 
+		{
+			// if user and pass are empty, exit with error
+			srLogger.error("ShopRunner : FTP credentials are not defined.");
+			return false;
+		}
+	}
+}
+
+module.exports = {
+	ftpToSR: ftpToSR,
+	ftpToSRDeprecated: ftpToSRDeprecated
+};

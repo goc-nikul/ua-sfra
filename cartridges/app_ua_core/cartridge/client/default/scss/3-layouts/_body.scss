@@ -1,0 +1,246 @@
+html,
+%h-100 {
+    height: 100%;
+
+    &.ios.iphone {
+        // PHX-2516, PHX-3149- Fix for Iphone cursor color
+        form input,
+        form textarea {
+            caret-color: $grey5;
+            line-height: rem-calc(25);
+        }
+    }
+}
+
+.l-body {
+    @extend %h-100;
+
+    background: $body-bg;
+    font: rem-calc($font-base-size) + unquote('/') +  rem-calc(20) $font-base;
+    color: $bady-color;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+
+    &-page {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+
+        @include respond-to(desktop) {
+            padding-top: 106px;
+        }
+
+        @include respond-to(mobile) {
+            padding-top: 98px;
+        }
+
+        &.paypal-error-message {
+            @include respond-to(desktop) {
+                padding-top: 64px;
+            }
+            @include respond-to(mobile) {
+                .b-checkout_left,
+                .b-checkout_subheader-login {
+                    margin-top: 0;
+                }
+            }
+
+            .cart-error-messaging {
+                @include respond-to(mobile) {
+                    padding-top: 110px;
+                }
+            }
+        }
+
+        &[data-action=Checkout-Begin] {
+            @include respond-to(desktop) {
+                padding-top: 64px;
+            }
+
+            @include respond-to(mobile) {
+                padding-top: 56px;
+            }
+        }
+
+        &[data-action=Product-Show],
+        &[data-action=Account-EditProfile] {
+            @include respond-to(mobile) {
+                margin-bottom: 77px;
+            }
+            // Fix for scroll to the footer issue (iPhone) on the PDP
+            .b-footer-container {
+                @include respond-to(iphonex) {
+                    padding-bottom: rem-calc(85);
+                }
+                @include respond-to(iphonexr) {
+                    padding-bottom: rem-calc(85);
+                }
+                @include respond-to(iphonex-landscape) {
+                    padding-bottom: rem-calc(85);
+                }
+                @include respond-to(iphonexmax) {
+                    padding-bottom: rem-calc(85);
+                }
+                @include respond-to(iphonesse) {
+                    padding-bottom: rem-calc(85);
+                }
+                @include respond-to(iphonesseplus) {
+                    padding-bottom: rem-calc(85);
+                }
+                @include respond-to(iphonef) {
+                    padding-bottom: rem-calc(85);
+                }
+            }
+        }
+
+        &[data-action=Cart-Show] {
+            &.adjustIosFooter {
+                .b-footer-container {
+                    @include respond-to(iphonex) {
+                        padding-bottom: rem-calc(120);
+                    }
+                    @include respond-to(iphonexr) {
+                        padding-bottom: rem-calc(120);
+                    }
+                    @include respond-to(iphonex-landscape) {
+                        padding-bottom: rem-calc(120);
+                    }
+                    @include respond-to(iphonexmax) {
+                        padding-bottom: rem-calc(120);
+                    }
+                    @include respond-to(iphonesse) {
+                        padding-bottom: rem-calc(120);
+                    }
+                    @include respond-to(iphonesseplus) {
+                        padding-bottom: rem-calc(120);
+                    }
+                    @include respond-to(iphonef) {
+                        padding-bottom: rem-calc(120);
+                    }
+                    @include respond-to(mobile) {
+                        padding-bottom: rem-calc(120);
+                    }
+                }
+            }
+
+            &.ios-footer-adjustments {
+                .b-footer-container {
+                    @include respond-to(mobile) {
+                        padding-bottom: rem-calc(160);
+                    }
+                }
+            }
+        }
+    }
+
+    &-page_main {
+        flex: 1 1 auto;
+        min-height: 1px; // hack for IE 10/11
+    }
+
+    &-page_header {
+        position: fixed !important;
+        top: 0;
+        width: 100%;
+    }
+
+    &-bottom_flyout {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    &.modal-open {
+        height: 100vh;
+    }
+
+    &.m-flyout-open {
+        position: static;
+        width: 100%;
+        overflow: hidden;
+
+        @at-root {
+            /* stylelint-disable */
+            _:default:not(:root:root),
+            &:not(.m-flyout-search-open) {
+                position: fixed; // hack for Safari but not for search flyout
+            }
+            /* stylelint-enable */
+        }
+
+        @include respond-to(desktop) {
+            //shift content prevention
+            padding-right: rem-calc(17);
+        }
+    }
+
+    &.gallery-show {
+        &:not(.modal-opacity) {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+
+        &.modal-opacity {
+            .pdp-modal-zoom,
+            .modal-backdrop {
+                opacity: 0;
+            }
+        }
+    }
+
+    &.m-dropdown-open,
+    &.m-no-scroll {
+        @include respond-to(mobile) {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+    }
+
+    &.shopRunner-signedin {
+        .sr-shipping-method-content {
+            &::after {
+                display: none;
+            }
+        }
+    }
+}
+
+.branch-banner-is-active {
+    .l-body-page_header {
+        position: static !important;
+    }
+
+    .l-body-page {
+        padding-top: 0;
+    }
+
+    .b-mob_header {
+        @include respond-to(mobile) {
+            top: rem-calc(75);
+        }
+    }
+}
+
+#branch-banner-iframe {
+    position: fixed !important;
+}
+
+.hide-branch-banner {
+    margin-top: 0 !important;
+
+    .l-body-page {
+        margin-top: 0 !important;
+    }
+
+    #branch-banner-iframe {
+        display: none !important;
+    }
+}

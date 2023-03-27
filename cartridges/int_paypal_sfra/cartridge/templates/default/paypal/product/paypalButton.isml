@@ -1,0 +1,11 @@
+<isif condition="${dw.order.PaymentMgr.getPaymentMethod('PayPal').getPaymentProcessor().getID() == 'PAYPAL'}" >
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('//www.paypalobjects.com/api/checkout.js');
+        assets.addJs('/js/paypalUtils.js');
+        assets.addJs('/js/paypalMFRA.js');
+        assets.addCss('/css/paypal.css');
+    </isscript>
+
+    <isinclude url="${URLUtils.url('Product-LoadPaypalButton', 'pid', product.id, 'isVIP', pdict.isVIP)}">
+</isif>

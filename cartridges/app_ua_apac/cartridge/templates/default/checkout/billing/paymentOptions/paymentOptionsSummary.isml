@@ -1,0 +1,29 @@
+<isset name="TemplateUtils" value="${require('*/cartridge/scripts/util/template')}" scope="page"/>
+<div class="payment-details" data-allotment-points-applied="${Resource.msg('vip.label.allotment.points.applied.label', 'checkout', null)}" data-gift-card-type="${Resource.msg('giftcard.payment.title', 'giftcards', null)}">
+    <isloop items="${pdict.order.billing.payment.selectedPaymentInstruments}" var="payment">
+        <isif condition="${payment.paymentMethod === 'DW_APPLE_PAY'}">
+            <isinclude template="checkout/billing/paymentOptions/applePaySummary" />
+        </isif>
+        <isif condition="${payment.paymentMethod == 'AdyenComponent'} ">
+            <isinclude template="checkout/billing/paymentOptions/adyenComponentSummary"/>
+        </isif>
+        <isif condition="${TemplateUtils.isPaymentMethodZip(payment.paymentMethod)}">
+            <isinclude template="checkout/billing/paymentOptions/zipPaymentSummary" />
+        </isif>
+        <isif condition="${payment.paymentMethod == 'COD'} ">
+            <isinclude template="checkout/billing/paymentOptions/codPaymentSummary"/>
+        </isif>
+        <isif condition="${payment.paymentMethod == '2c2'}">
+            <isinclude template="checkout/billing/paymentOptions/2c2PaymentSummary" />
+         </isif>
+        <isif condition="${payment.paymentMethod === 'ATOME_PAYMENT'}">
+            <isinclude template="checkout/billing/paymentOptions/atomePaymentSummary" />
+        </isif>
+        <isif condition="${payment.paymentMethod === 'TOSS_PAYMENTS_CARD'}">
+            <isinclude template="checkout/billing/paymentOptions/tossPaymentSummary" />
+        </isif>
+        <isif condition="${payment.paymentMethod === 'NAVERPAY'}">
+            <isinclude template="checkout/billing/paymentOptions/naverPaySummary" />
+        </isif>
+    </isloop>
+</div>

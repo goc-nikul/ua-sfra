@@ -1,0 +1,64 @@
+<iscontent compact="true">
+<form action="${URLUtils.httpContinue()}" method="post"	name="${pdict.CurrentForms.cart.htmlName}">
+	<fieldset class="promo-code-fieldset">	
+	<isset name="PromoABTest" value="${dw.campaign.ABTestMgr.isParticipant('PROMOBOX','ACCOR')}" scope="page"/>
+        <div id="promo-code-form" class="form-row <isif condition="${PromoABTest}">promo-block</isif>">							
+			<div class="form-label-text">
+				${Resource.msg('billing.couponheader','checkout',null)}
+			</div>
+			<input class="input-text" type="text" name="${pdict.CurrentForms.cart.couponCode.htmlName}" id="${pdict.CurrentForms.cart.couponCode.htmlName}" />
+			<button type="submit" value="${pdict.CurrentForms.cart.addCoupon.htmlName}" name="${pdict.CurrentForms.cart.addCoupon.htmlName}" id="add-coupon" class="button black-button">
+				${Resource.msg('global.apply','locale',null)}
+			</button>
+			<isif condition="${pdict.CouponError=='COUPON_CODE_MISSING' && pdict.CurrentForms.cart.addCoupon.submitted}">
+				<span class="error">
+					${Resource.msg('cart.COUPON_CODE_MISSING','checkout', null)}
+				</span>
+			<iselseif condition="${pdict.CouponStatus != null && pdict.CouponStatus.error && pdict.CurrentForms.cart.addCoupon.submitted}">
+				<span class="error">
+					${Resource.msgf('cart.' + pdict.CouponStatus.code,'checkout', null, pdict.CurrentForms.cart.couponCode.htmlValue)}
+				</span>
+			</iselseif>
+			<iselseif condition="${pdict.CouponError=='OK' && pdict.CurrentForms.cart.addCoupon.submitted}">
+				<span class="error cart-coupon-code--submitted">
+					${Resource.msgf('cart.OK','checkout', null, pdict.CurrentForms.cart.couponCode.htmlValue.toUpperCase())}
+				</span>
+			</iselseif>
+			<iselseif condition="${pdict.CouponError=='REMOVED'}">
+				<span class="error">
+					${Resource.msgf('coupon.removedcoupon','checkout', null, pdict.CouponLineItem.couponCode.toUpperCase())}
+				</span>
+			</iselseif>			
+			</isif>	
+			<isloop items="${pdict.CurrentForms.cart.coupons}" var="FormCoupon" status="loopstateCoupons">
+				<isif condition="${!FormCoupon.object.applied}">
+					<div class="cart-coupon-item is--not-applied">
+						<span class="cart-coupon-item__text"><isprint value="${Resource.msgf('coupon.notappliedcoupon','checkout', null, FormCoupon.object.couponCode)}" encoding="off"/></span>
+						<button class="cart-coupon-item_button button-text remove" type="submit" value="${Resource.msg('coupon.remove','checkout',null)}" name="${FormCoupon.deleteCoupon.htmlName}">
+							<span class="fa fa-times-circle"></span>
+							<span class="remove-text">${Resource.msg('coupon.remove','checkout',null)}</span>
+						</button>
+                        <div class="coupon-details-modal">
+                            <isinclude template="checkout/components/couponfaileddialog"/>
+                        </div>
+					</div>
+				</isif>
+			</isloop>	
+		</div>
+		<isif condition="${!empty(pdict.Basket)}">
+			<div id="applied-coupons-list" class="b-coupons_price applied-coupons-list">			
+				<isloop items="${pdict.CurrentForms.cart.coupons}" var="FormCoupon" status="loopstateCoupons">
+					<isif condition="${FormCoupon.object.applied}">
+						<div class="cart-coupon-item is--applied">							
+							<span class="cart-coupon-item__text">${Resource.msgf('coupon.appliedcoupon','checkout', null, FormCoupon.object.couponCode)}</span>
+							<button class="cart-coupon-item_button button-text remove" type="submit" value="${Resource.msg('coupon.remove','checkout',null)}" name="${FormCoupon.deleteCoupon.htmlName}">
+								<span class="fa fa-times-circle"></span>
+								<span class="remove-text">${Resource.msg('coupon.remove','checkout',null)}</span>
+							</button>							
+						</div>	
+					</isif>	
+				</isloop>						
+			</div>
+		</isif>
+	</fieldset>		
+</form>

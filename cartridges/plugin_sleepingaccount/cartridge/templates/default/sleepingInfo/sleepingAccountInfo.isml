@@ -1,0 +1,77 @@
+<!--- TEMPLATENAME: sleepingAccountInfo.isml --->
+<isdecorate template="common/layout/page">
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isscript>
+    var assets = require('*/cartridge/scripts/assets.js');
+    assets.addJs('/js/sleepingAccount.js');
+    assets.addCss('/css/sleeping.css');
+</isscript>
+
+    <isset name="customerID" value="${pdict.customerNo}" scope="page" />
+    <div class="sleepingInfoMain" id="sleepingInfoMain">
+        <iscontentasset aid="sleeping-account-reactivate-info" />
+        <div class="sleepingInfoButtons">
+            <div class="activateLink">
+                <isif condition="${!pdict.isNaverSSOUser && !empty(pdict.userName)}">
+                    <form action="${pdict.actionUrl}" class="login ${!!pdict.showLoyaltyEnroll ? 'login_enroll-rewards' : ''}" method="GET" name="login-form" target="_self">
+                        <div class="b-input_row form-group sleepingEmailField required d-none">
+                            <label class="b-input_row-label form-control-label" for="login-form-email">
+                                ${Resource.msg('label.input.login.email', 'login', null)}
+                            </label>
+                            <input type="email" id="login-form-email"
+                            aria-required="true"
+                            required
+                            class="b-input_row-input form-control js-custom-input"
+                            aria-describedby="form-email-error"
+                            name="loginEmail" value="${pdict.userName}"
+                            autocomplete="turn"
+                            pattern="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$"
+                            data-pattern-mismatch="${Resource.msg('error.message.parse.email.profile.form','forms',null)}"
+                            maxlength="50"
+                            data-missing-error="${Resource.msg('error.card.info.missing.email', 'forms', null)}" readonly>
+                            <div class="invalid-feedback" id="form-email-error"></div>
+                        </div>
+                        <div class="b-input_row form-group sleepingPasswordField required">
+                            <label class="b-input_row-label form-control-label" for="login-form-password">
+                                    ${Resource.msg('label.input.login.password', 'login', null)}
+                            </label>
+                            <input type="password" id="login-form-password" required aria-required="true" class="b-input_row-input form-control js-custom-input" aria-describedby="form-password-error" name="loginPassword"
+                            data-missing-error="${Resource.msg('error.card.info.missing.password', 'login', null)}"
+                            >
+                            <span class="b-account-profile__show-password js-sleeping-show-password"
+                            data-show="${Resource.msg('label.create.account.show', 'login', null)}"
+                            data-hide="${Resource.msg('label.create.account.hide', 'login', null)}">${Resource.msg('label.create.account.show', 'login', null)}</span>
+                            <div class="invalid-feedback" id="form-password-error"></div>
+                        </div>
+
+                        <div class="b-invalid-cred"></div>
+                        <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+                        <button type="submit" class="btn btn-block g-button_primary--black g-button_base b-checkout-login_button js-login-button">${Resource.msg('account.reactivate', 'sleepingaccount', null)}</button>
+                    </form>
+                <iselse/>
+                <isscript>
+                    var UUIDUtils = require('dw/util/UUIDUtils');
+                    var uniqueString = UUIDUtils.createUUID();
+                    var isIdmEnabled = dw.system.Site.current.getCustomPreferenceValue('uaidmIsEnabled');
+                    var naverAuthUrl = dw.system.Site.current.getCustomPreferenceValue('naverAuthUrl');
+                    var executeController = 'Login-OAuthReentryNaver';
+                    if (isIdmEnabled) {
+                        executeController = 'Login-SocialLogin';
+                    }
+                    var callbackUrl = URLUtils.https(executeController, 'oauthProvider', 'naver');
+                    var clientId = dw.system.Site.current.getCustomPreferenceValue('naverSSOClientID');
+                    var apiURL = naverAuthUrl + clientId +"&redirect_uri="+ callbackUrl +"&state="+ uniqueString;
+                    session.custom.naverRedirectURL = URLUtils.url('Home-Show').toString();
+                </isscript>
+                <button type="submit" data-url='${URLUtils.url('SleepingAccount-Reactivate')}' data-redirect='${apiURL}' data-cusomerno='${pdict.customerNo}' class="btn btn-block g-button_primary--black g-button_base b-checkout-login_button reactivate-button">${Resource.msg('account.reactivate', 'sleepingaccount', null)}</button>
+                </isif>
+            </div>
+            <div class="deactivateLink">
+                <a class="leave-deactivate-button leave-deactivate-button-btnCross <isif condition="${!pdict.isNaverSSOUser}">naver-top-close</isif>" id="continueButton" href="${URLUtils.url('Home-Show')}">${Resource.msg('account.deactivate', 'sleepingaccount', null)}</a>
+            </div>
+        </div>
+        <div class="sleepingErrorText d-none">
+            ${Resource.msg('sleeping.error.text', 'sleepingaccount', null)}
+        </div>
+    </div>
+</isdecorate>

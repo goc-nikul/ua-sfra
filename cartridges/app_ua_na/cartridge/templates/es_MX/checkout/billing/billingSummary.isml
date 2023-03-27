@@ -1,0 +1,31 @@
+<isif condition="${pdict.order.billing.billingAddress.address !== null}">
+    <isset name="address" value="${pdict.order.billing.billingAddress.address}" scope="page"/>
+    <iselse>
+    <isset name="address" value="{}" scope="page"/>
+</isif>
+
+<div class="b-payment-summary_details">
+    <!--- Payment information --->
+    <div class="b-payment-summary_row">
+		<div class="summary-details b-payment-summary_options">
+		    <isinclude template="checkout/billing/paymentOptions/paymentOptionsSummary" />
+		</div>
+		
+		<div class="summary-details billing b-payment-summary_billing summary-billing-section}">
+		     <isinclude template="checkout/addressSummary" />
+		     <iscomment> RFC Information to display in Billing Summary </iscomment>
+             <isinclude template="checkout/rfcInformation" />
+		</div>
+	</div>
+	<isif condition="${pdict.order.billing.billingAddress.address == null}">
+		 <div class="b-payment-summary_row b-payment-summary_gift">
+		   <div>
+		       
+		   </div>
+		 </div>
+	</isif>
+</div>
+
+<iscomment> ### Custom Adyen cartridge start ### </iscomment>
+<isinclude template="adyenActionModal" />
+<iscomment> ### Custom Adyen cartridge end ### </iscomment>

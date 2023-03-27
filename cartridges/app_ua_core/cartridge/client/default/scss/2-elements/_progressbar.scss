@@ -1,0 +1,75 @@
+/* progress bar styling */
+
+.meter {
+    height: 8px;  /* Can be anything */
+    position: relative;
+    margin: 0 0 rem-calc(25) 0; /* Just for demo spacing */
+    background: $grey3;
+    -moz-border-radius: rem-calc(25);
+    -webkit-border-radius: rem-calc(25);
+    border-radius: rem-calc(25);
+    padding: 0.3rem;
+}
+
+.meter > span {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    border-radius: rem-calc(25);
+    background-color: $green;
+    overflow: hidden;
+}
+
+.animate > span::after {
+    display: none;
+}
+
+@-webkit-keyframes move {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 50px 50px;
+    }
+}
+
+.black > span {
+    background-color: $black;
+    background-image: none;
+}
+
+.green > span {
+    background-color: $green;
+}
+
+.nostripes > span > span,
+.nostripes > span::after {
+    -webkit-animation: none;
+    background-image: none;
+}
+
+.b-header_progress-bar {
+    margin: 1.25rem 0 0;
+
+    h4 {
+        font-size: rem-calc(12);
+
+        &.t-order_greentick {
+            color: $green;
+            position: relative;
+            padding-left: rem-calc(18);
+
+            span {
+                @include icon(check);
+
+                &::before {
+                    position: absolute;
+                    left: 0;
+                }
+            }
+        }
+    }
+}

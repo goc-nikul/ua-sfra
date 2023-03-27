@@ -1,0 +1,68 @@
+/**
+*   Script to write the configuration to the Smartling preferences permanently
+*
+*   @input requestParameter : Object
+*-   @output ExampleOut : Number
+*
+*/
+importPackage( dw.system );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "saveConfiguration"));
+
+/**
+    Write the configuration to the Smartling preferences permanently
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        var smartlingConfig : Object = new Object();
+
+        smartlingConfig['project_id'] = pdict.requestParameter['project_id'].stringValue;
+
+        if (pdict.requestParameter['user_identifier'].stringValue != '') {
+            smartlingConfig['user_identifier'] = pdict.requestParameter['user_identifier'].stringValue;
+        }
+
+        if (pdict.requestParameter['user_secret'].stringValue.indexOf('*****') >= 0) {
+            var configData : JSON = JSON.parse(Site.getCurrent().getPreferences().custom['smartling_configuration_data']) || {};
+            smartlingConfig['user_secret'] = configData['user_secret'];
+        } else {
+            smartlingConfig['user_secret'] = pdict.requestParameter['user_secret'].stringValue;
+        }
+
+        if (pdict.requestParameter['time_out'].stringValue != '') {
+            smartlingConfig['time_out'] = pdict.requestParameter['time_out'].stringValue;
+        } else {
+            smartlingConfig['time_out'] = 10000;
+        }
+
+        smartlingConfig['retrival_type'] = pdict.requestParameter['retrival_type'].stringValue;
+        smartlingConfig['source_locale'] = pdict.requestParameter['source_locale'].stringValue;
+        if (pdict.requestParameter['auto_authorize_content'].stringValue != null) {
+            smartlingConfig['auto_authorize_content'] = pdict.requestParameter['auto_authorize_content'].stringValue;
+        }else {
+            smartlingConfig['auto_authorize_content'] = false;
+        }
+        smartlingConfig['target_locale'] = pdict.requestParameter['target_locale'].stringValue;
+        smartlingConfig['product_attribute_json'] = pdict.requestParameter['product_attribute_json'].stringValue;
+        smartlingConfig['content_attribute_json'] = pdict.requestParameter['content_attribute_json'].stringValue;
+        smartlingConfig['category_attribute_json'] = pdict.requestParameter['category_attribute_json'].stringValue;
+
+        if (pdict.requestParameter['catalog_ids'].stringValue != '') {
+            smartlingConfig['catalog_ids'] = pdict.requestParameter['catalog_ids'].stringValue;
+        } else {
+            smartlingConfig['catalog_ids'] = "apparel-catalog, electronics-catalog";
+        }
+        smartlingConfig['library_type'] = pdict.requestParameter['library_type'].stringValue;
+        smartlingConfig['token_salt'] = pdict.requestParameter['token_salt'].stringValue;
+
+        var sitePrefs : SitePreferences = dw.system.Site.getCurrent().getPreferences();
+        sitePrefs.custom['smartling_configuration_data'] = JSON.stringify(smartlingConfig);
+     } catch (e) {
+        LOGGER.errorException("saveConfiguration execution failed, requestParameter={0}", pdict.requestParameter, e);
+        return PIPELET_ERROR;
+    }
+
+   return PIPELET_NEXT;
+}

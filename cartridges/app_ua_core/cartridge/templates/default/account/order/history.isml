@@ -1,0 +1,79 @@
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/js/orderHistory.js');
+        assets.addJs('/js/account.js');
+        assets.addCss('/css/account/profile.css');
+    </isscript>
+    <!-- Tealium -->
+    <isscript>var pageContext={title:'OrderHistory',type:'orderhistory',ns:'orderhistory'};</isscript>
+    <div class="b-account b-account-history js-account-main-section">
+        <div class="b-account-container b-account-container-top">
+            <div class="b-account-left"></div>
+            <div class="b-account-right b-account-address_book">
+                <div class="b-account-address_book-pageHeading js-account-page-heading">
+                    <div class="heading-addresses">${Resource.msg('label.orderhistory','account',null)}<span class="account-icon"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="b-account-container b-account-container-bottom">
+            <div class="b-account-left js-account-left">
+        <isinclude template="account/leftNavLinks"/>
+            </div>
+
+            <div class="b-account-right">
+                <div class="account-orders-head-container">
+                <div class="address-right-container b-account-order_history">
+                    <isif condition="${pdict.CurrentCustomer && (pdict.CurrentCustomer.profile.custom.isEmployee || !empty(pdict.CurrentCustomer.profile.custom.vipAccountId))}">
+                        <p class="t-ordertab-msg">${Resource.msg('label.ordertabmsg.vip.employee','account',null)}</p>
+                    <iselse>
+                    <isset name="orderTabmsg" value="${pdict.returnsOnly ? Resource.msg('label.ordertabmsg.vip.employee','account',null) : Resource.msg('label.ordertabmsg','account',null)}" scope="page" />
+                        <p class="t-ordertab-msg">${orderTabmsg}</p>
+                    </isif>
+                    <isif condition="${pdict.contentBody && pdict.contentBody.OrderTrackContent.body}">
+                        <div class="additional-order-message">
+                            <isprint value="${pdict.contentBody.OrderTrackContent.body}" encoding="off"/>
+                        </div>
+                    </isif>
+                    <isset name="returnMsg" value="${pdict.returnsOnly ? Resource.msg('label.returns','account',null) : Resource.msg('label.returns.exchange','account',null)}" scope="page" />
+                    <isif condition="${pdict.CurrentCustomer && (pdict.CurrentCustomer.profile.custom.isEmployee || !empty(pdict.CurrentCustomer.profile.custom.vipAccountId))}">
+                      <isset name="returnMsg" value="${Resource.msg('label.returns','account',null)}" scope="page" />
+                    </isif>
+                    <div class="account-orders-head-container">
+					    <a class="account-history-orders active" href="${URLUtils.url('Order-History')}" >${Resource.msg('label.orders','account',null)}<isif condition="${pdict.totalOrdersCount}"> (<span class="order-count">${pdict.totalOrdersCount.toString()}</span>)</isif></a>
+					    <a class="account-history-returns" href="${URLUtils.url('Order-RMAHistory')}">${returnMsg}<isif condition="${pdict.returnOrdersCount}"> (<span class="orders-count">${pdict.returnOrdersCount.toString()}</span>)</isif></a>
+					</div>
+					<div class="account-orders-container">
+                         <isif condition="${pdict.orders && pdict.orders.length > 0}">
+                             <div class="container order-list-container">
+                                 <isinclude template="account/order/orderList"/>
+                             </div>
+                             <isif condition="${pdict.pageInfo && pdict.pageInfo.hasNextPage}">
+                                 <isset name="showMoreURL" value="${URLUtils.https('Order-History')}" scope="page" />
+                                 <isif condition="${pdict.returnsHistory}"> 
+                                     <isset name="showMoreURL" value="${URLUtils.https('Order-RMAHistory')}" scope="page" />
+                                 </isif>
+                                 <div class="account-orderhistory-showmore-container">
+                                     <a class="account-orderhistory-showmore g-button_secondary--black g-button_base" href="${showMoreURL}" data-after="${pdict.pageInfo && pdict.pageInfo.endCursor ?  pdict.pageInfo.endCursor : ''}">${Resource.msg('label.account.showmore','account',null)}</a>
+                                 </div>
+                             </isif>
+                         <iselse>
+                             <div class="container order-empty-list-container">
+                                 <isif condition="${pdict.orderHistory}">
+                                     <span class="start-shopping-msg">${Resource.msg('label.orderhistory.empty','account',null)}</span>
+                                 <iselse>
+                                 <isset name="returnTabMsg" value="${pdict.returnsOnly ? Resource.msg('label.returnshistory.empty.noexchange','account',null) : Resource.msg('label.returnshistory.empty','account',null)}" scope="page" />
+                                     <span class="start-shopping-msg">${returnTabMsg}</span>
+                                 </isif>
+                                 <div class="start-shopping">
+                                     <a class="g-button_base g-button_primary--black btn btn-primary b-button-continue" href="${URLUtils.https('Home-Show')}">${Resource.msg('label.account.continueshopping','account',null)}</a>
+                                 </div>
+                             </div>
+                         </isif>
+					</div>
+		        </div>
+		    </div>
+	    </div>
+    </div>
+</isdecorate>

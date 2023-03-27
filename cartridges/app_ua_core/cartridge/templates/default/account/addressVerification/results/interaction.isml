@@ -1,0 +1,54 @@
+<div class="b-address_multiple">
+    <div class="b-address_multiple-info b-address-title">
+        ${Resource.msg('verification.interaction.title','address', null)}
+    </div>
+    <div class="b-address-info">
+        ${Resource.msg('verification.interaction.message','address', null)}
+    </div>
+    <div class="b-address-list-container">
+        <div class="b-address-list b-address_list">
+            <div class="g-radio">
+                <input type="radio" id="keep-what-i-entered-qas-address" name="qas-suggestion" value="keep-what-i-entered-qas-address" class="input-radio g-radio-input"/>
+                <label for="keep-what-i-entered-qas-address" class="g-radio-label">
+                    ${Resource.msg('verification.interaction.entered','address', null)}
+                </label>
+            </div>
+            <div class="b-address_list-container">
+                <div><isprint value="${pdict.original.address1}" /></div>
+                <div><isprint value="${pdict.original.address2}" /></div>
+                <div>
+                    <isprint value="${pdict.original.city}" />,
+                    <isprint value="${pdict.original.state}" />
+                </div>
+                <div><isprint value="${pdict.original.zipCode}" /></div>
+            </div>
+        </div>
+        <div class="b-address-list b-address_list">
+            <div class="g-radio">
+                <input type="radio" id="suggested-qas-address" name="qas-suggestion" value="suggested" class="input-radio g-radio-input" checked>
+                <label for="suggested-qas-address" class="g-radio-label">
+                    ${Resource.msg('verification.interaction.suggested','address', null)}
+                </label>
+            </div>
+            <div class="b-address_list-container">
+                <div><isprint value="${pdict.address.address1}" /></div>
+                <div><isprint value="${pdict.address.address2}" /></div>
+                <div>
+                    <isprint value="${pdict.address.city}" />,
+                    <isprint value="${pdict.address.state}" />
+                </div>
+                <div><isprint value="${pdict.address.zipCode}" /></div>
+            </div>
+        </div>
+    </div>
+    <div class="b-address-info-waring">
+        <button type="button" data-action="accept" class="b-address-button g-button_base g-button_primary--black">
+            ${Resource.msg('verification.interaction.actions.accept', 'address', null)}
+        </button>
+        <div>
+	        <button type="button" data-action="edit" class="b-address-button g-button_styling">
+	            ${Resource.msg('verification.interaction.actions.edit', 'address', null)}
+	        </button>
+        </div>
+    </div>
+</div>

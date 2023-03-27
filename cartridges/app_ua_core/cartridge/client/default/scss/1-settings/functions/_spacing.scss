@@ -1,0 +1,9 @@
+@function spacing($spacing-value) {
+    @if not map-has-key($spacing, $spacing-value) {
+        /* stylelint-disable */
+        @error "Unknown spacing variable `#{$spacing-value}`. Make sure you are using a point from the spacing scale in `_settings/spacing.scss`.";
+        /* stylelint-enable */
+    }
+
+    @return rem-calc(map-get($spacing, $spacing-value));
+}

@@ -1,0 +1,192 @@
+/**
+* Name: getPrCart.ds 
+* Purpose: To create a JSON object that represents the current basket state
+* 
+*
+*	@input Basket : dw.order.Basket -The basket to build
+*	@output JSONPRCart : String;
+*
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+importPackage( dw.value );
+
+
+function execute( args : PipelineDictionary ) : Number
+{
+	var srBasket : Basket = args.Basket;
+	var jsonPRCart = "";
+	var prBasket : Object =  new Object();
+	
+	
+	var cartId = srBasket.getUUID();
+	var products : Object = getProducts(srBasket);
+	
+	prBasket.cartId = cartId;
+//	getCartTotals(srBasket,prBasket);
+	
+	prBasket.products = products;
+	prBasket.shippingGroups = getShipping(srBasket);
+//	prBasket.status = 0;
+	
+	var prCart : Object = new Object();
+	prCart.cart = prBasket;
+	prCart.status = 0;
+	
+	
+	jsonPRCart = JSON.stringify(prCart);
+	args.JSONPRCart  = jsonPRCart;
+	
+	return PIPELET_NEXT;
+	
+} 
+
+function getProducts(srBasket) {
+
+	var item : Object = new Object();
+	var products : Array = new Array();
+	var message : String = "test message";
+	var shippingGroup : String = "1";
+	var shippingGroups : Array= new Array();
+	
+
+	var basketLineItems : Collection = srBasket.allProductLineItems;
+	var basketItems = basketLineItems.iterator();
+	
+		
+	while (basketItems.hasNext()) {
+	
+		var productLineItem : ProductLineItem = basketItems.next();	
+		var sr_eligible = productLineItem.getProduct().getCustom().sr_eligible.value;
+		
+		item.sku = productLineItem.getProduct().ID;
+		item.skuName = productLineItem.getProduct().name.replace(/[^a-zA-Z0-9 ]/g,'');;
+		item.skuDescription = productLineItem.getProduct().getShortDescription().source.replace(/[^a-zA-Z0-9 ]/g,'');
+		
+		if (sr_eligible == "true")
+				item.isSREligible = true;
+		else	
+			item.isSREligible = false;			
+		
+		item.skuQty = productLineItem.getQuantity().value;
+				
+		item.shipping = new Array();				
+//		item.shipping = getShippingByProduct(productLineItem);;
+//		item.shippingGroup = shippingGroup;				
+		
+		item.message = message;
+		item.unitPrice = productLineItem.getPrice().value;
+		
+			
+		item.smallImageUrl = "";
+		item.largeImageUrl = "";
+		
+		if (productLineItem.getProduct().getImage('small', 0) != null) {
+			item.smallImageUrl = productLineItem.getProduct().getImage('small', 0).getAbsURL().toString(); 
+		}
+		
+		if (productLineItem.getProduct().getImage('large', 0) != null) {
+			item.largeImageUrl = productLineItem.getProduct().getImage('large', 0).getAbsURL().toString(); 
+		}
+		
+		products.push(item);
+		
+	}
+
+	return products;
+}
+
+
+
+
+function getShipping(srBasket) {
+	
+	var basketLineItems : Collection = srBasket.allProductLineItems;
+	var basketItems = basketLineItems.iterator();
+	
+	
+		var shippingMethods : HashMap = ShippingMgr.getAllShippingMethods();			
+		var shipping :  Array = new Array();
+		var shippingMethodsIterator = shippingMethods.iterator();
+		var groupNumber : Number = 0;
+		while (basketItems.hasNext()) {
+		
+			var productLineItem : ProductLineItem = basketItems.next();	
+			var sr_eligible = productLineItem.getProduct().getCustom().sr_eligible.value;
+
+				while (shippingMethodsIterator.hasNext()) {
+				
+				    groupNumber++;
+					var shippingMethod : ShippingMethod = shippingMethodsIterator.next();
+				
+					var itemShipping = new Object();
+				
+					itemShipping.groupNumber = groupNumber+'';
+					itemShipping.shippingDisplay = shippingMethod.description;
+					itemShipping.method = shippingMethod.displayName;
+					itemShipping.shipPrice = ShippingMgr.getShippingCost(shippingMethod,productLineItem.getPrice()).value;
+					itemShipping.selected = "false";
+				
+					shipping.push(itemShipping);
+
+	}			
+					
+	
+			
+			
+		
+		}
+	
+
+	
+	 return shipping;
+	 		
+ }
+
+
+	function getShippingByProduct(ProductLineItem) {
+	
+		var shippingMethods : HashMap = ShippingMgr.getAllShippingMethods();			
+		var shipping :  Array = new Array();
+		var shippingMethodsIterator = shippingMethods.iterator();
+		
+				while (shippingMethodsIterator.hasNext()) {
+				
+					var shippingMethod : ShippingMethod = shippingMethodsIterator.next();
+					var itemShipping = new Object();
+				
+					itemShipping.shippingDisplay = shippingMethod.description;
+					itemShipping.method = shippingMethod.displayName;
+					itemShipping.shipPrice = ShippingMgr.getShippingCost(shippingMethod,ProductLineItem.getPrice()).value;
+					itemShipping.selected = "false";
+				
+					shipping.push(itemShipping);
+
+				}	
+			
+			
+	 return shipping;		
+		
+	
+	}
+
+
+
+
+function getCartTotals(dwBasket,srCart) {
+		
+	
+	srCart.orderTotal = dwBasket.getMerchandizeTotalNetPrice().value
+	srCart.orderTax= "0.00";
+	srCart.orderSubTotal = dwBasket.getMerchandizeTotalNetPrice().value;
+    srCart.orderShipping = "0.00";
+    srCart.orderTotalWithTax = dwBasket.getMerchandizeTotalTax().value;
+    srCart.temp = "1";
+//    prBasket.giftCardTotal = "0.00";
+//    prBasket.promotionTotal = "0.00"
+    
+    
+    //return prBasket;
+	
+}

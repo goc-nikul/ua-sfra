@@ -1,0 +1,411 @@
+.login-in-page {
+    max-width: rem-calc(450);
+    margin: rem-calc(56) auto rem-calc(80);
+    @include font(main, rem-calc(12), 1.43);
+
+    .g-reset-password-modal {
+        display: none;
+    }
+
+    @include respond-to(mobile) {
+        margin: rem-calc(20) auto;
+        padding: 0 rem-calc(16);
+    }
+
+    .b-input_row {
+        margin-bottom: rem-calc(32);
+    }
+
+    .b-checkout-login_button {
+        margin-bottom: rem-calc(16);
+    }
+
+    .b-input_row-combine {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 0 0 rem-calc(32) 0;
+        position: relative;
+
+        .password-reset {
+            color: $grey5;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    }
+
+    .b-account-profile__show-password {
+        top: 0;
+        right: 0;
+        padding: rem-calc(12) rem-calc(10);
+        z-index: 99;
+    }
+
+    .g-password-modal-close {
+        display: none;
+    }
+}
+
+.g-modal-loginform {
+    .g-modal-content {
+        @include respond-to(phones) {
+            padding: {
+                left: rem-calc(16);
+                right: rem-calc(16);
+            };
+        }
+    }
+
+    .g-modal-dialog {
+        max-width: rem-calc(450);
+        margin: rem-calc(32) auto;
+        min-height: calc(100% - (2rem * 2));
+
+        .b-input_row {
+            margin-bottom: 1.75rem;
+
+            &:nth-of-type(2) {
+                margin-bottom: rem-calc(24);
+            }
+        }
+
+        .b-checkout-login_button {
+            margin-bottom: 1rem;
+        }
+
+        .b-input_row-combine {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 0 0 rem-calc(32) 0;
+
+            .password-reset {
+                color: $grey5;
+                text-decoration: none;
+                cursor: pointer;
+            }
+        }
+    }
+
+    .b-account-profile__show-password {
+        top: 0;
+        right: 0;
+        padding: 0.75rem 0.625rem;
+        z-index: 99;
+    }
+}
+
+.g-modal-loginform,
+.g-modal-registerUser,
+.b-cart-added-confirmation-modal,
+.login-in-page,
+.g-modal-userRegistered,
+.register-in-page {
+    .g-login-modal-header {
+        @include font(main_bold, rem-calc(24), 1.33);
+
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 0;
+        padding-bottom: rem-calc(24);
+        padding-top: rem-calc(10);
+        flex-wrap: wrap;
+
+        .g-password-modal {
+            &-close {
+                position: absolute;
+                width: 1rem;
+                right: rem-calc(25);
+                top: rem-calc(32);
+
+                &_button {
+                    @include closeIcon(right, rem-calc(16));
+
+                    position: absolute;
+                    padding: rem-calc(24) !important;
+                    left: -18px;
+                    top: -22px;
+
+                    &::before,
+                    &::after {
+                        top: rem-calc(22);
+                        left: rem-calc(18);
+                    }
+                }
+            }
+        }
+    }
+
+    .b-input_row {
+        .b-input_row-label {
+            &::before {
+                display: none;
+            }
+        }
+    }
+
+    .g-password-reset-confirm-modal {
+        .confirm-password-reset-text {
+            @include font(main, rem-calc(14), 1.43);
+
+            div {
+                margin-top: rem-calc(24);
+            }
+        }
+
+        .b-checkout-login_button {
+            margin-bottom: 0;
+        }
+    }
+
+    .free-shipping-promotion {
+        @include font(main, rem-calc(12), rem-calc(18));
+
+        color: $deep-sea;
+        width: 100%;
+
+        div {
+            padding-top: rem-calc(14);
+
+            @include respond-to(phones) {
+                padding-top: rem-calc(8);
+            }
+        }
+
+        .forgot-password-info {
+            color: $red;
+        }
+    }
+}
+
+.g-modal-registerUser,
+.register-in-page {
+    .g-login-modal-header {
+        padding-bottom: 0;
+    }
+}
+
+.b-header_account {
+    color: $white;
+}
+
+.btn-reset-password-close {
+    position: absolute;
+    top: rem-calc(24);
+    right: rem-calc(24);
+    color: $black;
+}
+
+.b-login-forminfo {
+    padding-top: rem-calc(10);
+    text-align: center;
+
+    .b-registerlink-login {
+        span {
+            color: $black;
+
+            &.b-registerlink {
+                text-decoration: underline;
+                cursor: pointer;
+            }
+        }
+
+        padding: rem-calc(16) 0 0;
+    }
+}
+
+.reset-password-body {
+    p {
+        margin-bottom: rem-calc(32);
+    }
+}
+
+.reset-password-header {
+    border: 0;
+    margin: 0;
+    padding-bottom: rem-calc(16);
+}
+
+.force-reset-password-header {
+    border: 0;
+    margin: 0;
+    padding-bottom: rem-calc(16);
+
+    h2 {
+        font-family: $font-base;
+        font-size: 32px;
+        font-style: normal;
+        font-stretch: condensed;
+        font-weight: $font-title;
+        margin: 0 auto;
+        text-align: center;
+        text-transform: uppercase;
+    }
+}
+
+.force-reset-password-body {
+    p {
+        font-family: $font-base;
+        font-size: 14px;
+        font-weight: $font-regular;
+        font-style: normal;
+    }
+}
+
+.btn-back-to-login {
+    margin-top: rem-calc(32);
+
+    .b-back-to-login_button {
+        font-family: $font-base;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: $font-semi-bold;
+    }
+}
+
+.reset-password-footer {
+    margin-top: rem-calc(32);
+    color: $grey5;
+
+    a {
+        text-decoration: underline;
+        cursor: pointer;
+        color: $grey5;
+    }
+}
+
+.btn-back-login {
+    background: transparent;
+    border: 1px solid $black;
+    color: $black;
+}
+
+.reset-password-form {
+    .btn-back-login {
+        border: 1px solid $black;
+        color: $black;
+    }
+}
+
+.b-login-formmessage {
+    position: relative;
+}
+
+.b-login-tooltip-content {
+    padding: 0 rem-calc(10) 0 rem-calc(4);
+
+    @include respond-to(no-phones) {
+        position: relative;
+    }
+
+    .g-tooltip-arrow {
+        visibility: hidden;
+        opacity: 0;
+        position: absolute;
+        bottom: rem-calc(2);
+        left: rem-calc(-2);
+        transform: rotate(180deg);
+        top: auto;
+
+        &::after {
+            content: '';
+            border-color: transparent transparent $black transparent;
+            border-style: solid;
+            border-width: rem-calc(8);
+        }
+    }
+
+    .g-tooltip-icon {
+        @include icon(question);
+
+        cursor: pointer;
+        top: rem-calc(2);
+        position: relative;
+
+        &::before {
+            font-size: 0.8rem;
+        }
+    }
+
+    .g-tooltip-text {
+        top: auto;
+        padding: rem-calc(16);
+        bottom: rem-calc(28);
+
+        &::after {
+            display: none;
+        }
+
+        @include respond-to(no-phones) {
+            width: rem-calc(314);
+            left: rem-calc(-64);
+        }
+
+        @include respond-to(phones) {
+            width: 100%;
+            left: 0;
+            transform: none;
+        }
+
+        @include respond-to(tablets) {
+            bottom: rem-calc(26);
+        }
+    }
+}
+
+.btn-resetPassword-login {
+    margin-top: rem-calc(32);
+}
+
+.b-invalid-cred {
+    display: none;
+    padding: 0 0 rem-calc(20) rem-calc(16);
+    color: $red;
+    text-align: left;
+}
+
+.register-login,
+.b-registerlink-login,
+.login-in-page {
+    .b-header_account-link {
+        color: $black;
+        text-decoration: underline;
+        font-size: rem-calc(12);
+        margin-left: rem-calc(4);
+        overflow: initial;
+    }
+}
+
+.forgot-password {
+    &.t-align-right {
+        line-height: 1.4;
+    }
+}
+
+#login {
+    .register-policy {
+        margin: rem-calc(16) 0 0;
+        @include font(main, rem-calc(12), 1.67);
+
+        span,
+        a {
+            color: $grey5;
+        }
+
+        a {
+            text-underline-position: under;
+            text-decoration: underline;
+        }
+    }
+}
+
+.b-registration-error {
+    @include error_message;
+
+    .b-registration-error-link {
+        text-decoration: underline;
+        cursor: pointer;
+        color: $red;
+    }
+}

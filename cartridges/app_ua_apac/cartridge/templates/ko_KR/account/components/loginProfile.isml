@@ -1,0 +1,62 @@
+<isinclude template="components/modules"/>
+<div class="login-in-page js-login-in-page">
+    <div class="row justify-content-center">
+        <div class="card">
+            <div class="login-form-nav">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="login" role="tabpanel" aria-labelledby="login-tab">
+                        <input type="hidden" class="save-profile-ajax" value="${true}">
+                        <div class="js-login-panel">
+                            <div class="g-login-modal-header">
+                                <h2 class="request-password-title">${Resource.msg('link.header.login','account',null)}</h2>
+                                <div class="free-shipping-promotion">
+                                    <isslot id="login-modal-promo-message" context="global" description="Message Banner In Login Modal" />
+                                </div>
+                            </div>
+                            <isinclude template="account/components/loginForm" />
+                            <isif condition="${dw.system.Site.current.getCustomPreferenceValue('facebookLoginEnabled')}">
+                                <isinclude template="account/components/oauth" />
+                            </isif>
+                            <iscomment> NAVER SSO LOGIN </iscomment>
+                            <isif condition="${dw.system.Site.current.getCustomPreferenceValue('isNaverSSOEnabled')}">
+                                <isset name="naverButtonImgURL" value="${dw.system.Site.current.getCustomPreferenceValue('naverLoginBtnImageUrl').getAbsURL()}" scope="page" />
+                                <isset name="naverButtonDestination" value="login" scope="page" />
+                                <isinclude template="account/components/naverSSO" />
+                            </isif>
+                        </div>
+                        <div class="js-reset-panel">
+                            <isinclude template="account/password/requestPasswordResetModal"/>
+                        </div>
+                        <div class="b-login-forminfo">
+                            <div class="b-login-formmessage">
+                                <span>${Resource.msg('login.text.login.info', 'login', null)}</span>
+                                <span class="b-login-tooltip-content">
+                                    <span class="g-tooltip">
+                                        <span class="g-tooltip-icon">
+                                            <span class="g-tooltip-arrow"></span>
+                                        </span>
+                                    </span>
+                                    <span class="g-tooltip-text">
+                                        ${Resource.msg('login.text.infotooltip', 'login', null)}
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="register-policy">
+                                <span>
+                                    <iscontentasset aid="login-register-policy" />
+                                </span>
+                            </div>
+                            <div class="b-registerlink-login">
+                                <span>${Resource.msg('login.text.new.user', 'login', null)}</span>
+                                <a class="b-header_account-link js-register" href="${URLUtils.https('Login-CreateAccountModal')}" data-href="${URLUtils.https('Login-CreateAccountModal')}" role="button"
+                                    aria-label="${Resource.msg('label.header.registerbutton', 'account', null)}">
+                                    ${Resource.msg('link.header.register', 'account', null)}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

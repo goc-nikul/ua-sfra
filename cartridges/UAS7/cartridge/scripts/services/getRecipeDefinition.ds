@@ -1,0 +1,65 @@
+/**
+* getRecipeDefinition
+* -------------------
+* This script is used to retrieve a specific recipe definition for a given recipe-category / view-type
+* combination.  The script will build out the recipe-key using both of these fields, retrieve the custom data
+* for this recipe definition, and then build out a new JSON object representing the recipe definition.
+* 
+* @input 	recipeCategory : String Describes the recipe category being requested.
+* @input 	viewType: String Describes the view-type specified for the current recipe category.
+* @output 	json : Object
+*
+*/
+
+// Initialize packages to import
+importPackage( dw.system );
+importPackage( dw.util );
+
+// This function retrieves the definition for a given recipe category / view-type combination, and returns a JSON document representing the definition.
+function execute( args : PipelineDictionary ) : void
+{
+
+	// Initialize the output object that will be serialized
+	var outputObj = {};
+
+	// Capture the service arguments
+	var recipeCategory : String = args.recipeCategory;
+	var viewType : String = args.viewType;
+
+	// Pull together the primary key
+	var pk : String = recipeCategory + "|" + viewType;
+
+	try{
+	
+		// Retrieve each of the recipe categories that are currently stored in the RecipeCategories custom object
+		var recipeDefinition = dw.object.CustomObjectMgr.queryCustomObject("RecipeDefinitions", "custom.RECIPEDEFINITIONID = {0}", pk);
+	
+		// Seed the initial properties of the output object 
+		outputObj["UUID"] = recipeDefinition.UUID;
+		outputObj["CATEGORYNAME"] = recipeDefinition.custom["CATEGORYNAME"];
+		outputObj["VIEWTYPE"] = recipeDefinition.custom["VIEWTYPE"];
+		outputObj["RECIPE"] = recipeDefinition.custom["RECIPE"];
+		outputObj["SAMPLEURL"] = recipeDefinition.custom["SAMPLEURL"];
+	
+		// Convert the orientation and definition to JSON
+		outputObj["DEF"] = JSON.parse(recipeDefinition.custom["DEF"]);
+		outputObj["ORIENTATION"] = JSON.parse(recipeDefinition.custom["ORIENTATION"]);
+		
+	} catch(e) {
+		
+		// If an error is caught, output it
+		trace(e);
+				
+	}
+
+	// Take the recipe categories array, and convert it to JSON
+	var jsonString : String = JSON.stringify(outputObj);
+	
+	// Seed the argument variable with the JSON string
+	// This will get outputed via the /ajax/jsonOutput template.
+	args.json = jsonString;
+
+	// Continue processing the pipeline
+    return PIPELET_NEXT;
+   
+}

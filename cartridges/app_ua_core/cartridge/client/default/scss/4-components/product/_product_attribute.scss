@@ -1,0 +1,47 @@
+.b-product_attribute {
+    &-title {
+        font-size: rem-calc(14);
+        display: flex;
+        padding: 0 0 rem-calc(8) 0;
+        white-space: nowrap;
+    }
+
+    .b-swatches_circle,
+    .b-swatches_text {
+        flex-wrap: wrap;
+    }
+
+    .b-product_sizeChart {
+        display: inline;
+        position: absolute;
+        margin: 0 5px 0 0;
+        padding: 0;
+        border: 0;
+        left: 0;
+        top: -4px;
+        z-index: 1;
+
+        a {
+            color: $grey5;
+            @include font(main_med, rem-calc(14), 1.67);
+            @include respond-to(mobile) {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .b-product_link {
+        display: inline;
+        margin: 10px 0 0;
+        border: 0;
+        left: 0;
+
+        a {
+            color: $grey5;
+            @include font(main_med, rem-calc(14), 1.67);
+            @include respond-to(mobile) {
+                text-decoration: underline;
+            }
+        }
+    }
+}

@@ -1,0 +1,97 @@
+.b-navigation_utility {
+    &-list {
+        display: flex;
+        justify-content: space-between;
+        min-height: rem-calc(72);
+        padding: rem-calc(16) 0;
+        background-color: $grey1;
+        border-top: 1px solid $grey3;
+    }
+
+    &-item {
+        display: flex;
+        flex: 1 1 25%;
+        flex-direction: column;
+        align-items: center;
+        padding: 0 rem-calc(16);
+        font-size: rem-calc(14);
+    }
+
+    &-link {
+        font-weight: $font-medium;
+        line-height: 1;
+        text-align: center;
+        text-decoration: none;
+        color: $black;
+    }
+
+    &-title,
+    &-toggle {
+        display: block;
+        font-weight: $font-medium;
+    }
+
+    &-toggle {
+        @include button-to-link;
+
+        color: $black;
+    }
+
+    &-title {
+        line-height: rem-calc(16);
+        text-decoration: none;
+        color: $black;
+    }
+
+    &-icon {
+        display: inline-block;
+        width: rem-calc(20);
+        margin-bottom: rem-calc(8);
+        line-height: rem-calc(16);
+
+        &::before {
+            display: block;
+        }
+
+        &.m-account {
+            @include icon(account);
+        }
+
+        &.fflag {
+            width: 27px;
+            height: 17px;
+            margin-bottom: 0;
+        }
+    }
+
+    &-text {
+        display: inline-block;
+        margin-bottom: rem-calc(8);
+        font-size: rem-calc(12);
+        line-height: rem-calc(16);
+        text-transform: uppercase;
+    }
+
+    &-sublist {
+        @include flyout-absolute-common(auto, 100%, 0);
+
+        display: none;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: $modal-bg;
+
+        &.m-show {
+            display: block;
+        }
+    }
+
+    &-sublink {
+        @include font(main_med, rem-calc(14), rem-calc(16));
+
+        display: block;
+        padding: rem-calc(18) rem-calc(16);
+        text-decoration: none;
+        color: $black;
+    }
+}

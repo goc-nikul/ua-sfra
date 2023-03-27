@@ -1,0 +1,12 @@
+<isinclude template="components/modules"/>
+<isset name="product" value="${pdict.product}" scope="page" />
+<isloop items="${pdict.product.variationAttributes}" var="attr" status="attributeStatus">
+  <isif condition="${attr.values.length >= 1}">
+        <isif condition="${attr.id !== 'color'}">
+            <iscontinue/>
+        </isif>
+        <div class="b-product_attrs-item" data-attr="${attr.id}" data-error-label="${Resource.msg('error.message.required.' + attr.id,'product',null) ? Resource.msg('error.message.required.' + attr.id,'product',null) : Resource.msg('error.message.required.default','product',null)}">
+            <isinclude template="product/components/variationAttribute" />
+        </div>
+    </isif>
+</isloop>

@@ -1,0 +1,322 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19" secure="false">
+	<group formid="customer">
+
+		<field 
+			formid="emailaddressName" 
+			label="label.input.email.profile" 
+			type="string" 
+			max-length="50"
+			mandatory="true" 
+			binding="custom.emailaddressName" 
+			missing-error="forms.address.email.invalid" 
+			value-error="profile.usernametaken"/>
+
+		<field 
+			formid="emailaddressDomain" 
+			label="label.input.emaildomain.profile" 
+			type="string" 
+			max-length="50"
+			mandatory="true" 
+			binding="custom.emailaddressDomain" 
+			regexp="^[\w.\-]+\.[a-zA-Z]{2,}$" 
+			missing-error="forms.address.email.invalid" />
+
+		<field 
+			formid="emailaddressNameConfirm" 
+			label="label.input.email.profile" 
+			type="string" 
+			mandatory="false" 
+			max-length="50"
+			binding="emailaddressNameConfirm" 
+			missing-error="forms.address.email.invalid" 
+			value-error="profile.usernametaken"/>
+
+		<field 
+			formid="emailAddressDomainConfirm" 
+			label="label.input.email.profile" 
+			type="string" 
+			mandatory="false" 
+			max-length="50"
+			binding="emailaddressDomainConfirm" 
+			regexp="^[\w.\-]+\.[a-zA-Z]{2,}$" 
+			missing-error="forms.address.email.invalid" />
+
+		<field 
+			formid="emailaddressDomainSelect" 
+			label="label.input.emailaddressDomainSelect.profile" 
+			type="string" 
+			mandatory="false" 
+			binding="custom.emailaddressDomainSelect">
+
+			<options>
+				<option optionid="directinput" 	label="forms.directinput" 	value="" />
+				<option optionid="naver.com" 	label="naver.com" 			value="naver.com" />
+				<option optionid="hanmail.net" 	label="hanmail.net" 		value="hanmail.net" />
+				<option optionid="nate.com" 	label="nate.com" 			value="nate.com" />
+				<option optionid="gmail.com" 	label="gmail.com" 			value="gmail.com" />
+				<option optionid="hotmail.com" 	label="hotmail.com" 		value="hotmail.com" />
+				<option optionid="daum.net" 	label="daum.net" 			value="daum.net" />
+				<option optionid="yahoo.co.kr" 	label="yahoo.co.kr" 		value="yahoo.co.kr" />
+				<option optionid="hanmir.com" 	label="hanmir.com" 			value="hanmir.com" />
+				<option optionid="dreamwiz.com" label="dreamwiz.com" 		value="dreamwiz.com" />
+				<option optionid="lycos.co.kr" 	label="lycos.co.kr" 		value="lycos.co.kr" />
+				<option optionid="empas.com" 	label="empas.com" 			value="empas.com" />
+				<option optionid="paran.com" 	label="paran.com" 			value="paran.com" />
+			</options>
+		</field>
+
+		<field 
+			formid="firstname" 
+			label="label.input.firstname.profile" 
+			mandatory="false" 
+			max-length="50"
+			regexp="^[A-Za-z0-9\u3131-\uD79D- ]+$"
+			range-error="error.message.50orless" 
+			type="string" />
+
+		<field 
+			formid="lastname" 
+			label="label.input.name.profile" 
+			mandatory="true" 
+			max-length="50" 
+			regexp="^[A-Za-z0-9\u3131-\uD79D- ]+$"
+			range-error="error.message.50orless" 
+			type="string" />
+
+		<field
+			formid="email" 
+			label="label.input.email.profile" 
+			mandatory="true" 
+			max-length="50" 
+			missing-error="error.message.required"
+			parse-error="error.message.parse.email.profile.form"
+			range-error="error.message.50orless"
+			regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$" 
+			value-error="ValueErrorText"
+			type="string"/> 
+			<!-- TODO value-error not comming back from the platform -->
+
+        <field
+            formid="newemail" 
+            label="label.input.newemail" 
+            mandatory="true" 
+            max-length="50" 
+            missing-error="error.message.required"
+            parse-error="error.message.parse.email.profile.form"
+            range-error="error.message.50orless"
+            regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$" 
+            value-error="ValueErrorText"
+            type="string"/>
+
+        <field
+            formid="newemailconfirm" 
+            label="label.input.newemailconfirm" 
+            mandatory="true" 
+            max-length="50" 
+            missing-error="error.message.required"
+            parse-error="error.message.parse.email.profile.form"
+            range-error="error.message.50orless"
+            regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$" 
+            value-error="ValueErrorText"
+            type="string"/>
+
+		<field 
+			formid="emailconfirm"
+			label="label.input.emailconfirm.profile"
+			mandatory="true"
+			max-length="50"
+			missing-error="error.message.required"
+			parse-error="error.message.parse.email.profile.form"
+			range-error="error.message.50orless"
+			regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$"
+			value-error="ValueErrorText"
+			type="string"/> 
+			<!-- TODO value-error not comming back from the platform -->
+
+            <field formid="countryDialingCode" label="label.input.countryDialingCode" type="string" mandatory="false" binding="countryDialingCode">
+                <options>
+                    <option optionid="+82"      label="KR: +82"          value="+82"/>
+             </options>
+            </field>
+
+		<field 
+			formid="phone"
+			label="label.input.phone.profile"
+			mandatory="true"
+			type="string"/> 
+
+            <field formid="phoneMobile1" label="profile.phone" type="string" mandatory="true" binding="phoneMobile1" max-length="3" missing-error="forms.address.phone.missing" range-error="forms.address.field.invalid" value-error="forms.address.field.invalid">
+                <options>
+                    <option optionid="" label="forms.select" value=""/>
+                    <option optionid="010" label="010" value="010" />
+                    <option optionid="011" label="011" value="011" />
+                    <option optionid="016" label="016" value="016" />
+                    <option optionid="017" label="017" value="017" />
+                    <option optionid="018" label="018" value="018" />
+                    <option optionid="019" label="019" value="019" />
+                </options>
+            </field>
+            <field formid="phoneMobile2" label="profile.phone" type="string" mandatory="true" binding="custom.phoneMobile2" max-length="4" regexp="^([0-9]{3,4})$" missing-error="forms.address.phone.missing" range-error="forms.address.field.invalid" value-error="forms.address.field.invalid" parse-error="forms.address.field.invalid"/>
+            <field formid="phoneMobile3" label="profile.phone" type="string" mandatory="true" binding="custom.phoneMobile3" max-length="4" regexp="^([0-9]{3,4})$" missing-error="forms.address.phone.missing" range-error="forms.address.field.invalid" value-error="forms.address.field.invalid" parse-error="forms.address.field.invalid"/>
+		
+		<field formid="birthYear" label="label.input.birthYear" type="string" mandatory="true" binding="birthYear" missing-error="forms.address.birthdate.missing">
+			<options>
+				<option optionid="" label="forms.select" value=""/>
+			</options>
+		</field>
+        <field formid="birthMonth" label="label.input.birthMonth" type="string" mandatory="true" binding="birthMonth" missing-error="forms.address.birthdate.missing">
+	        <options>
+	            <option optionid="0"   label="forms.select"         value=""/>
+	            <option optionid="1"   label="label.select.month.january"         value="1"/>
+	            <option optionid="2"   label="label.select.month.february"        value="2"/>
+	            <option optionid="3"   label="label.select.month.march"           value="3"/>
+	            <option optionid="4"   label="label.select.month.april"           value="4"/>
+	            <option optionid="5"   label="label.select.month.may"             value="5"/>
+	            <option optionid="6"   label="label.select.month.june"            value="6"/>
+	            <option optionid="7"   label="label.select.month.july"            value="7"/>
+	            <option optionid="8"   label="label.select.month.august"          value="8"/>
+	            <option optionid="9"   label="label.select.month.september"       value="9"/>
+	            <option optionid="10"  label="label.select.month.october"         value="10"/>
+	            <option optionid="11"  label="label.select.month.november"        value="11"/>
+	            <option optionid="12"  label="label.select.month.december"        value="12"/>   
+	        </options>
+        </field>
+
+        <field formid="birthDay" label="label.input.birthDay" type="string" mandatory="true" binding="birthDay" missing-error="forms.address.birthdate.missing">
+            <options>
+                <option optionid=""      label="forms.select"  value=""/>
+                <option optionid="1"     label="01"         value="1"/>
+                <option optionid="2"     label="02"         value="2"/>
+                <option optionid="3"     label="03"         value="3"/>
+                <option optionid="4"     label="04"         value="4"/>
+                <option optionid="5"     label="05"         value="5"/>
+                <option optionid="6"     label="06"         value="6"/>
+                <option optionid="7"     label="07"         value="7"/>
+                <option optionid="8"     label="08"         value="8"/>
+                <option optionid="9"     label="09"         value="9"/>
+                <option optionid="10"     label="10"         value="10"/>
+                <option optionid="11"     label="11"         value="11"/>
+                <option optionid="12"     label="12"         value="12"/>
+                <option optionid="13"     label="13"         value="13"/>
+                <option optionid="14"     label="14"         value="14"/>
+                <option optionid="15"     label="15"         value="15"/>
+                <option optionid="16"     label="16"         value="16"/>
+                <option optionid="17"     label="17"         value="17"/>
+                <option optionid="18"     label="18"         value="18"/>
+                <option optionid="19"     label="19"         value="19"/>
+                <option optionid="20"     label="20"         value="20"/>
+                <option optionid="21"     label="21"         value="21"/>
+                <option optionid="22"     label="22"         value="22"/>
+                <option optionid="23"     label="23"         value="23"/>
+                <option optionid="24"     label="24"         value="24"/>
+                <option optionid="25"     label="25"         value="25"/>
+                <option optionid="26"     label="26"         value="26"/>
+                <option optionid="27"     label="27"         value="27"/>
+                <option optionid="28"     label="28"         value="28"/>
+                <option optionid="29"     label="29"         value="29"/>
+                <option optionid="30"     label="30"         value="30"/>
+                <option optionid="31"     label="31"         value="31"/>
+            </options>
+        </field>
+
+        <field formid="gender" label="label.input.gender" type="string" mandatory="false" binding="gender">
+            <options>
+                <option optionid=""     label="forms.select"     value="0"/>
+                <option optionid="Male"     label="label.select.gender.male"         value="1"/>
+                <option optionid="Female"   label="label.select.gender.female"       value="2"/>
+           </options>
+        </field>
+
+		<field 
+			formid="addtoemaillist" 
+			label="description.checkbox.emailsignup.profile" 
+			type="boolean"/>
+
+		<field 
+			formid="smsOptIn" 
+			label="profile.addsmstolist" 
+			type="boolean" 
+			mandatory="false" 
+			binding="smsOptIn" 
+			default-value="false"/>
+
+		<field 
+			formid="agreetopolicy" 
+			label="profile.agreetopolicy" 
+			mandatory="true"
+			type="boolean"/>
+
+		<field 
+			formid="agreetodatatransfer" 
+			label="profile.agreetodatatransfer" 
+			mandatory="true" 
+			type="boolean"/>
+
+        <group formid="preferences">
+            <group formid="genders">
+	            <field formid="17ef2222b4ae2c3c080b" type="string" label="label.input.genders.men" default-value="17ef2222b4ae2c3c080b" mandatory="false" />
+	            <field formid="9b801213a051ebafd4d5" type="string" label="label.input.genders.women" default-value="9b801213a051ebafd4d5" mandatory="false" />
+	            <field formid="1a757f7504684c6fee5f" type="string" label="label.input.genders.boys" default-value="1a757f7504684c6fee5f" mandatory="false" />
+	            <field formid="14e2aa6a73daf41a2f45" type="string" label="label.input.genders.girls" default-value="14e2aa6a73daf41a2f45" mandatory="false" />
+	        </group>
+	        
+	        <group formid="activities">
+	            <field formid="19cdd17575e118c2eb75" type="string" label="label.input.activities.baseball" default-value="19cdd17575e118c2eb75" mandatory="false" />
+	            <field formid="a436b611a37574705861" type="string" label="label.input.activities.football" default-value="a436b611a37574705861" mandatory="false" />
+	            <field formid="d7cdbca5c1fec2f2e83e" type="string" label="label.input.activities.military" default-value="d7cdbca5c1fec2f2e83e" mandatory="false" />
+	            <field formid="72018b8825fbda00a7c0" type="string" label="label.input.activities.softball" default-value="72018b8825fbda00a7c0" mandatory="false" />
+	            <field formid="28d8e46e3ef4f54c8cee" type="string" label="label.input.activities.basketball" default-value="28d8e46e3ef4f54c8cee" mandatory="false" />
+	            <field formid="f2e3d21efeb906c31d33" type="string" label="label.input.activities.golf" default-value="f2e3d21efeb906c31d33" mandatory="false" />
+	            <field formid="4f4f43b68fe843843019" type="string" label="label.input.activities.running" default-value="4f4f43b68fe843843019" mandatory="false" />
+	            <field formid="d4b792a53f4fdf5ab139" type="string" label="label.input.activities.training" default-value="d4b792a53f4fdf5ab139" mandatory="false" />
+	            <field formid="1186ed9c0e478a3b97a9" type="string" label="label.input.activities.fishing" default-value="1186ed9c0e478a3b97a9" mandatory="false" />
+	            <field formid="2edd7b702c85c59cd45b" type="string" label="label.input.activities.hunting" default-value="2edd7b702c85c59cd45b" mandatory="false" />
+	            <field formid="57fc4a5fadde3c42b43a" type="string" label="label.input.activities.soccer" default-value="57fc4a5fadde3c42b43a" mandatory="false" />
+	            <field formid="32cbd8af77afabe3a347" type="string" label="label.input.activities.yoga" default-value="32cbd8af77afabe3a347" mandatory="false" />
+	        </group>
+        </group>
+
+		<field 
+			formid="addtoemaillist" 
+			label="description.checkbox.emailsignup.profile"  
+			type="boolean"/>
+	</group>
+
+	<group formid="login">
+		<field 
+			formid="password" 
+			label="label.input.password.profile"
+			mandatory="true"
+			value-error="error.message.currentpasswordnomatch"
+			type="string" />
+			<!-- TODO value-error -->
+
+        <field 
+            formid="creatPassword" 
+            label="label.input.creatPassword.profile"
+            mandatory="true"
+            value-error="error.message.currentpasswordnomatch"
+            type="string" />
+            <!-- TODO value-error -->
+
+		<field 
+			formid="passwordconfirm"
+			label="label.input.passwordconfirm.profile"
+			type="string"
+			mandatory="true"
+			value-error="error.message.currentpasswordnomatch"/>
+			<!-- TODO value-error -->
+		
+		<field 
+			formid="currentpassword" 
+			label="label.input.currentpassword.profile" 
+			mandatory="true"
+			value-error="error.message.currentpasswordnomatch"
+			type="string" />
+		
+		<include formid="newpasswords" name="newPasswords"/>
+	</group>
+	<action formid="create" valid-form="true"/>
+	<action formid="fbcreate" valid-form="true"/>
+</form>

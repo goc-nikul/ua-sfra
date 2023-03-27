@@ -1,0 +1,228 @@
+{
+    "step-types": {
+        "script-module-step": [
+            {
+                "@type-id": "custom.CustomFeeds.Script",
+                "timeout-in-seconds": "86400",
+                "@supports-parallel-execution": "false",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "description": "Export Social Channels Feeds",
+                "module": "int_socialfeeds/cartridge/scripts/export/pipelet/CreateCustomFeedsExportMgr",
+                "function": "generate",
+                "transactional": "false",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "IsDisabled",
+                            "description": "Mark the step as disabled. This will skip the step and returns a OK status",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "@trim": "true"
+                        },
+                        {
+                            "@name": "ExportCatalogs",
+                            "description": "Should we export catalogs?",
+                            "@type": "boolean",
+                            "default-value": true,
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "DeltaCatalogExportInDays",
+                            "description": "Catalog delta export for last X days; Set 0 to do full export.",
+                            "@type": "double",
+                            "default-value": 0,
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "Locales",
+                            "description": "Comma separated locales for which will be build a feed (in 'es_ES' format)",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "GroupLocaleExport",
+                            "description": "Whether to group locales when getting product fields.",
+                            "@type": "boolean",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "GenerateDeleteFeed",
+                            "description": "Whether to generate delete product feed or not",
+                            "@type": "boolean",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "CustomObjectIds",
+                            "description": "Comma separated custom object ids to build a feed. If empty it will execute all feeds.",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "Hostname",
+                            "description": "Host name for urls. If defined, this host name will be use for urls. ",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "SKIP",
+                            "description": "Used when the step is disabled."
+                        },
+                        {
+                            "@code": "NO_DATA",
+                            "description": "Used when there is no data to export."
+                        },
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when the step failed with an error."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when the step finished successfully."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.OCI.TriggerExport",
+                "timeout-in-seconds": "3600",
+                "@supports-parallel-execution": "false",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "description": "Trigger Export of OCI Inventory File",
+                "module": "int_socialfeeds/cartridge/scripts/oci/jobs/export.js",
+                "function": "trigger",
+                "transactional": "false",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "LocationIds",
+                            "@type": "string",
+                            "@trim": "true",
+                            "@required": "false",
+                            "description": "Comma separated list of location ids"
+                        },
+                        {
+                            "@name": "LocationGroupIds",
+                            "@type": "string",
+                            "@trim": "true",
+                            "@required": "false",
+                            "description": "Comma separated list of location group ids. If a location is part of the group, it should not be exported twice."
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "SKIP",
+                            "description": "Used when the step is disabled."
+                        },
+                        {
+                            "@code": "WARN",
+                            "description": "Used when there is expected exception."
+                        },
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when the step failed with an error."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when the step finished successfully."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.OCI.DownloadExport",
+                "timeout-in-seconds": "3600",
+                "@supports-parallel-execution": "false",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "description": "Trigger Export of OCI Inventory File",
+                "module": "int_socialfeeds/cartridge/scripts/oci/jobs/export.js",
+                "function": "download",
+                "transactional": "false",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "FolderPath",
+                            "@type": "string",
+                            "@trim": "true",
+                            "@required": "true",
+                            "description": "IMPEX Folder path, relative to 'src'"
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "SKIP",
+                            "description": "Used when the step is disabled."
+                        },
+                        {
+                            "@code": "WARN",
+                            "description": "Used when there is expected exception."
+                        },
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when the step failed with an error."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when the step finished successfully."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.OCI.DeltaExport",
+                "timeout-in-seconds": "3600",
+                "@supports-parallel-execution": "false",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "description": "Trigger Export of OCI Inventory File",
+                "module": "int_socialfeeds/cartridge/scripts/oci/jobs/export.js",
+                "function": "delta",
+                "transactional": "false",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "FolderPath",
+                            "@type": "string",
+                            "@trim": "true",
+                            "@required": "true",
+                            "description": "IMPEX Folder path, relative to 'src'"
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "SKIP",
+                            "description": "Used when the step is disabled."
+                        },
+                        {
+                            "@code": "WARN",
+                            "description": "Used when there is expected exception."
+                        },
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when the step failed with an error."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when the step finished successfully."
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

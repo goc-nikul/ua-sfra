@@ -1,0 +1,16 @@
+<isscript>
+    var assets = require('*/cartridge/scripts/assets');
+    assets.addJs('/js/minihub.js');
+    assets.addCss('/css/minihub/minihub.css');
+</isscript>
+
+<div class="minihub">
+    <isif condition="${pdict.minihub && pdict.minihub.show}">
+        <isinclude template="minihub/components/mhbanner" />
+        <isinclude template="minihub/components/mhmodal" />
+    </isif>
+    <isif condition="${pdict.minihub && (pdict.minihub.error || pdict.minihub.isInvalidCoupon)}">
+        <input type="hidden" id="minihub-error-handler" value="${JSON.stringify(pdict.minihub.error)}" />
+    </isif>
+    <input id="minihub-csrf" type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+</div>

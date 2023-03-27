@@ -1,0 +1,48 @@
+.g-product-modal,
+.g-coupon-modal,
+.g-availability-modal {
+    &-dialog {
+        max-width: rem-calc(544);
+        margin: rem-calc(28) auto;
+        min-height: calc(100% - (1.75rem * 2));
+    }
+
+    &-content {
+        padding: rem-calc(56);
+        padding-right: rem-calc(48);
+
+        @include respond-to(mobile) {
+            padding: rem-calc(56) rem-calc(24);
+        }
+    }
+
+    &-body {
+        @include font(main_bold, rem-calc(24), 1.33);
+    }
+
+    &-footer {
+        margin-top: rem-calc(24);
+
+        button,
+        a {
+            max-width: rem-calc(208);
+
+            @include respond-to(mobile) {
+                max-width: 100%;
+            }
+        }
+
+        .cart-delete-confirmation-btn,
+        .delete-coupon-confirmation-btn,
+        .js-delete-coupon-confirmation-btn,
+        .cart-delete-confirmation-button,
+        .js-delete-idme-coupon-confirmation-btn,
+        .btn-delete-address {
+            float: right;
+
+            @include respond-to(mobile) {
+                margin-top: rem-calc(24);
+            }
+        }
+    }
+}

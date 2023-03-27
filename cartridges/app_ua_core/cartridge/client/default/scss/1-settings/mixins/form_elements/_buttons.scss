@@ -1,0 +1,272 @@
+@mixin link-to-button {
+    display: inline-flex;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: none;
+    }
+}
+
+// Common styles for buttons
+
+@mixin button-common_styles {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+    &:focus {
+        outline: 0;
+    }
+
+    &.disabled,
+    &.m-disabled,
+    &:disabled {
+        pointer-events: none;
+        cursor: default;
+    }
+
+    &:hover,
+    &:active,
+    &:focus {
+        text-decoration: none;
+    }
+}
+
+@mixin button-type_style($border-color, $background-color, $color: null) {
+    border-color: $border-color;
+    background-color: $background-color;
+    color: $color;
+}
+
+// Mixin for different type of button
+
+@mixin button($type: primary) {
+    @include button-common_styles;
+
+    @if ($type == primary-black) {
+        @include button-type_style($black, $black, $white);
+
+        &:not(:disabled) {
+            &:active {
+                @include button-type_style($grey6, $grey6);
+            }
+
+            &:focus {
+                border-color: $focus-color;
+                box-shadow: 0 0 4px 2px $focus-color;
+            }
+
+            @include respond-to(hoverable) {
+                &:hover {
+                    @include button-type_style($grey5, $grey5);
+                }
+            }
+        }
+
+        &.disabled,
+        &.m-disabled,
+        &:disabled {
+            @include button-type_style($grey3, $grey3);
+        }
+    }
+
+    @else if ($type == primary-white) {
+        @include button-type_style($white, $white, $black);
+
+        &:not(:disabled) {
+            &:active {
+                color: $grey6;
+            }
+
+            &:focus {
+                box-shadow: 0 0 4px 2px $focus-color;
+            }
+
+            @include respond-to(hoverable) {
+                &:hover {
+                    color: $grey5;
+                }
+            }
+        }
+
+        &.disabled,
+        &.m-disabled,
+        &:disabled {
+            color: $grey3;
+        }
+    }
+
+    @else if ($type == secondary-black) {
+        @include button-type_style($black, $white, $black);
+
+        &:not(:disabled) {
+            &:active {
+                border-color: $grey6;
+                color: $grey6;
+            }
+
+            &:focus {
+                box-shadow: 0 0 4px 2px $focus-color;
+            }
+
+            @include respond-to(hoverable) {
+                &:hover {
+                    border-color: $grey5;
+                    color: $grey5;
+                }
+            }
+        }
+
+        &.disabled,
+        &.m-disabled,
+        &:disabled {
+            border-color: $grey3;
+            color: $grey3;
+        }
+    }
+    @else if ($type == secondary-gray) {
+        @include button-type_style($grey4, $white, $grey4);
+
+        &:not(:disabled) {
+            &:active {
+                border-color: $grey6;
+                color: $grey6;
+            }
+
+            &:focus {
+                box-shadow: 0 0 4px 2px $focus-color;
+            }
+
+            @include respond-to(hoverable) {
+                &:hover {
+                    border-color: $grey5;
+                    color: $grey5;
+                }
+            }
+        }
+
+        &.disabled,
+        &.m-disabled,
+        &:disabled {
+            border-color: $grey3;
+            color: $grey3;
+        }
+    }
+
+    @else if ($type == secondary-white) {
+        @include button-type_style($white, $black, $white);
+
+        &:not(:disabled) {
+            &:active {
+                border-color: $grey2;
+                color: $grey2;
+            }
+
+            &:focus {
+                box-shadow: 0 0 4px 2px $focus-color;
+            }
+
+            @include respond-to(hoverable) {
+                &:hover {
+                    border-color: $grey3;
+                    color: $grey3;
+                }
+            }
+        }
+
+        &.disabled,
+        &.m-disabled,
+        &:disabled {
+            border-color: $grey5;
+            color: $grey5;
+        }
+    }
+
+    @else if ($type == tertiary) {
+        @include button-type_style(map-get($third-button-color, default-state), map-get($third-button-color, default-state), $white);
+
+        &:not(:disabled) {
+            &:active {
+                @include button-type_style(map-get($third-button-color, active-state), map-get($third-button-color, active-state));
+            }
+
+            &:focus {
+                box-shadow: 0 0 4px 2px $black;
+            }
+
+            @include respond-to(hoverable) {
+                &:hover {
+                    @include button-type_style(map-get($third-button-color, hover-state), map-get($third-button-color, hover-state));
+                }
+            }
+        }
+
+        &.disabled,
+        &.m-disabled,
+        &:disabled {
+            @include button-type_style(map-get($third-button-color, disabled-state), map-get($third-button-color, disabled-state));
+        }
+    }
+
+    @else if ($type == facebook) {
+        @include button-type_style(map-get($facebook-button-color, default-state), map-get($facebook-button-color, default-state), $white);
+
+        &:not(:disabled) {
+            &:active {
+                @include button-type_style(map-get($facebook-button-color, active-state), map-get($facebook-button-color, active-state));
+            }
+
+            &:focus {
+                box-shadow: 0 0 4px 2px $black;
+            }
+
+            @include respond-to(hoverable) {
+                &:hover {
+                    @include button-type_style(map-get($facebook-button-color, hover-state), map-get($facebook-button-color, hover-state));
+                }
+            }
+        }
+
+        &.disabled,
+        &.m-disabled,
+        &:disabled {
+            @include button-type_style(map-get($facebook-button-color, disabled-state), map-get($facebook-button-color, disabled-state));
+        }
+    }
+}
+
+@mixin button-base_styles {
+    @include font(main_med, rem-calc(12), 1.67);
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 212px;
+    min-height: rem-calc(44);
+    padding: rem-calc(10) rem-calc(15);
+    border: none;
+    border: 1px solid transparent;
+    border-radius: rem-calc(4);
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+@mixin button-base_styles_secondary {
+    @include font(main_med, rem-calc(12), 1.67);
+
+    position: relative;
+    display: inline-flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+    max-width: rem-calc(250);
+    min-height: rem-calc(44);
+    padding: rem-calc(10) rem-calc(15);
+    border: none;
+    border: 1px solid transparent;
+    border-radius: rem-calc(4);
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}

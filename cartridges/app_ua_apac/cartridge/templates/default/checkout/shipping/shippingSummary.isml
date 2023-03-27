@@ -1,0 +1,52 @@
+<!--- Shipping Address --->
+<isloop var="shippingModel" items="${pdict.order.shipping}" status="shippingLoop">
+    <isif condition="${shippingLoop.first || shippingModel.selectedShippingMethod.storePickupEnabled}">
+        <div class="single-shipping b-shipping-summary_single-shipping" data-shipment-summary="${shippingModel.UUID}" data-pickupAddress="${Resource.msg('label.hal.pickup.addres', 'checkout', null)}">
+            <isinclude template="checkout/shipping/shippingTitle"/>
+             <isif condition="${shippingModel.shippingAddress !== null}">
+                <isset name="address" value="${shippingModel.shippingAddress}" scope="page"/>
+            <iselse>
+                <isset name="address" value="{}" scope="page"/>
+            </isif>
+            <div class="summary-details shipping b-shipping-summary_summary-details b-shipping-summary_shipping">
+                <isinclude template="checkout/addressSummary" />
+            </div>
+
+            <!--- Shipping information --->
+            <div class="row summary-details leading-lines b-shipping-summary_summary-details">
+                <div class="col-8">
+                    <isset name="zeroCost" value="${dw.util.StringUtils.formatMoney(new dw.value.Money(0, pdict.CurrentSession.currency.currencyCode))}" scope="page" />
+                    <input class="shippingCostID" value="${zeroCost}" type="hidden">
+                    <input class="freeTextID" value="${Resource.msg('heading.shipping.method.freeprice', 'checkout', null)}" type="hidden">
+                    <p class="shipping-method">
+                        <span class="shipping-method-title">${shippingModel.selectedShippingMethod.displayName}</span>
+                        (<span class="text-right pricing shipping-method-price bfx-price bfx-list-price">
+                            <isif condition="${shippingModel.selectedShippingMethod.shippingCost === zeroCost}">
+	                            ${Resource.msg('heading.shipping.method.freeprice', 'checkout', null)}
+	                        <iselse>
+	                            ${shippingModel.selectedShippingMethod.shippingCost}
+	                        </isif>
+                        </span>)
+                        <isif condition="${shippingModel.selectedShippingMethod !=null && shippingModel.selectedShippingMethod.shippingDeliveryDates && !pdict.preOrderProductTileMessage}">
+                            <div class="shipping-method-arrival-time">
+                                ${shippingModel.selectedShippingMethod.shippingDeliveryDates}
+                            </div>
+                        </isif>
+                    </p>
+                    <isif condition="${pdict.preOrderProductTileMessage}">
+                    <span class="shipping-method-preorder">
+                        <iscontentasset aid=${pdict.preOrderProductTileMessage} />
+                    </span>
+                    </isif>
+                    <p class="b-shipping-summary_callout"><iscontentasset aid="shipping-callout-summary" /></p>
+                </div>
+                <div class="col-4 end-lines">
+                </div>
+            </div>
+            <iscomment><isinclude template="checkout/shipping/giftMessageSummary" /></iscomment>
+        </div>
+    </isif>
+</isloop>
+<p class="summary-section-label shipping-addr-label multi-shipping b-shipping-summary-multi-shipping">
+    ${Resource.msg('order.summery.section.text', 'order', null)}
+</p>

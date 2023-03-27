@@ -1,0 +1,322 @@
+
+
+.b-cart-added-confirmation-modal {
+    &.show ~ .modal-backdrop {
+        display: block;
+        z-index: 105;
+    }
+
+    .g-modal-dialog {
+        max-width: rem-calc(552);
+        margin: rem-calc(32) auto;
+
+        @include respond-to(phones) {
+            margin: auto;
+        }
+
+        @include respond-to(no-phones) {
+            min-height: calc(100% - (2rem * 2));
+        }
+
+        @include respond-to(phones-small) {
+            max-width: 100%;
+        }
+
+        .g-modal-content {
+            padding: rem-calc(40) 0;
+            box-shadow: none;
+
+            @include respond-to(mobile) {
+                padding: rem-calc(25) 0;
+            }
+
+            @include respond-to(phones) {
+                padding: rem-calc(20) 0 rem-calc(24);
+            }
+
+            .js-product-detailsConfirmation {
+                padding: 0 rem-calc(24);
+            }
+
+            .b-add-to-cart-confirmation-modal-header {
+                border-bottom: 1px solid $grey10;
+                margin-bottom: rem-calc(32);
+                padding-bottom: rem-calc(7);
+                position: relative;
+
+                @include respond-to(phones) {
+                    margin-bottom: rem-calc(11);
+                }
+
+                .g-modal-header {
+                    padding: 0;
+                    margin-bottom: 0;
+                    position: absolute;
+                    right: rem-calc(-15);
+                    top: rem-calc(-16);
+
+                    @include respond-to(mobile) {
+                        z-index: 1;
+                    }
+
+                    button {
+                        background: transparent;
+                        border: 0;
+                        width: rem-calc(48);
+                        height: rem-calc(48);
+                        float: right;
+                        cursor: pointer;
+                        font-size: 0;
+                        color: $black;
+
+                        &::before {
+                            content: '';
+                            position: absolute;
+                            right: rem-calc(16);
+                            width: rem-calc(16);
+                            height: rem-calc(1);
+                            background-color: $black;
+                            transform: rotate(45deg);
+                        }
+
+                        &::after {
+                            content: '';
+                            position: absolute;
+                            right: rem-calc(16);
+                            width: rem-calc(16);
+                            height: rem-calc(1);
+                            background-color: $black;
+                            transform: rotate(135deg);
+                        }
+                    }
+                }
+
+                .t-product-qty {
+                    position: relative;
+                    padding-left: rem-calc(17);
+                    padding-bottom: rem-calc(5);
+                    font-weight: $font-semi-bold;
+
+                    .number-of-items {
+                        margin-left: rem-calc(8);
+                    }
+
+                    .b-header_cart-added-confirmation-modal-title {
+                        padding-left: rem-calc(2);
+                    }
+
+                    &::before {
+                        content: "";
+                        top: 0;
+                        left: 0;
+                        position: absolute;
+                        background-image: url(../../images/green-checkmark-success.svg);
+                        height: rem-calc(16);
+                        width: rem-calc(17);
+
+                        @include respond-to(phones) {
+                            line-height: 1;
+                        }
+
+                        @include respond-to(desktop) {
+                            transform: scale(1.4);
+                        }
+                    }
+                }
+            }
+
+            .b-add-to-cart-confirmation-item {
+                display: flex;
+                margin-bottom: 0;
+
+                @include respond-to(phones) {
+                    margin-bottom: rem-calc(16);
+                }
+
+                .b-confirmation-item-image {
+                    flex-basis: 23%;
+                    margin-right: rem-calc(12);
+                    min-width: rem-calc(95);
+
+                    @include respond-to(phones) {
+                        max-width: rem-calc(72);
+                        min-width: rem-calc(72);
+                    }
+                }
+
+                .b-confirmation-item-details {
+                    margin-top: rem-calc(30);
+                    font-size: rem-calc(12);
+
+                    @include respond-to(phones) {
+                        margin-top: 0;
+                    }
+
+                    .b-confirmation-item-name {
+                        font-weight: 600;
+                    }
+                }
+
+                .b-confimation-item-preorder-mask {
+                    margin: rem-calc(8) 0 rem-calc(12);
+                    color: $green;
+
+                    @include font(main_med, rem-calc(12), rem-calc(16));
+                }
+            }
+
+            .b-confirmation-modal-footer {
+                padding: 0 rem-calc(24);
+
+                @include respond-to(phones) {
+                    background: $white;
+                }
+
+                .b-checkout-continue-sec {
+                    display: flex;
+                    justify-content: space-between;
+
+                    .countinue-shopping-btn {
+                        flex-basis: 48%;
+                        max-width: 48%;
+                        border-color: black;
+                        padding: rem-calc(10);
+
+                        @include respond-to(phones) {
+                            flex-basis: 47%;
+                            max-width: 47%;
+                        }
+                    }
+
+                    .checkout-btn {
+                        flex-basis: 48%;
+                        max-width: 48%;
+                        padding: rem-calc(10);
+
+                        @include respond-to(phones) {
+                            flex-basis: 49%;
+                            max-width: 49%;
+                        }
+                    }
+                }
+            }
+
+            .b-cart-content-recommendation {
+                .b-cart-content_left {
+                    padding: 0 0 rem-calc(24);
+                    width: 100%;
+
+                    @include respond-to(phones) {
+                        padding: 0 0 rem-calc(24);
+                    }
+
+                    .b-cart-inner-content_left {
+                        .g-carousel {
+                            padding: 0 rem-calc(24);
+
+                            .carousel-disabled {
+                                .g-carousel-slide {
+                                    @include respond-to(phones) {
+                                        width: rem-calc(96);
+                                        margin-right: rem-calc(12);
+                                        padding: 0;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    @include respond-to(mobile) {
+                        border-top: 0;
+                        margin: 0;
+
+                        .b-cart-inner-content_left {
+                            padding: 0;
+                        }
+                    }
+
+                    .g-carousel-heading {
+                        padding: 0;
+                        border-bottom: 0;
+                        margin: rem-calc(20) 0 rem-calc(15) 0;
+
+                        @include respond-to(phones) {
+                            margin: 0 0 rem-calc(12) 0;
+                        }
+
+                        .g-carousel-title {
+                            font-size: rem-calc(14);
+                            padding-left: rem-calc(24);
+                            line-height: 1.2;
+                        }
+                    }
+
+                    .g-carousel-slide {
+                        width: rem-calc(136);
+
+                        @media screen and (max-width: 360px) {
+                            max-width: rem-calc(96);
+                        }
+
+                        @include respond-to(phones) {
+                            .b-tile {
+                                .b-tile-badge_top_left {
+                                    min-width: rem-calc(52);
+                                }
+
+                                .b-tile-info {
+                                    padding-bottom: 0;
+                                    padding-top: rem-calc(5);
+                                }
+
+                                .b-tile-name {
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                    display: -webkit-box;
+                                    -webkit-line-clamp: 2;
+
+                                    /*! autoprefixer: off */
+                                    -webkit-box-orient: vertical;
+
+                                    /* autoprefixer: on */
+                                }
+
+                                .b-tile-name,
+                                .b-price {
+                                    font-size: rem-calc(12);
+
+                                    .b-price-value {
+                                        font-size: rem-calc(12);
+                                    }
+                                }
+                            }
+                        }
+
+                        .b-tile-badge_top_left {
+                            background: rgba(240, 240, 240, 0.73);
+
+                            &.b-flameIcon {
+                                .b-flameIcon-sec {
+                                    padding: rem-calc(5);
+                                    background: none;
+                                }
+                            }
+                        }
+                    }
+
+                    .g-carousel-control {
+                        top: rem-calc(83);
+
+                        @include respond-to(mobile) {
+                            top: 36%;
+                        }
+
+                        @include respond-to(phones-small) {
+                            top: 31%;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

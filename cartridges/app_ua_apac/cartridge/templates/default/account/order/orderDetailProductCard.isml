@@ -1,0 +1,463 @@
+<isif condition="${typeof order !=='undefined' && order.hasMultipleShipments && orderItem.shipment}">
+    <div class="order-item-shipment">
+        <isinclude template="account/order/orderItemShipmentStatus"/>
+    </div>
+</isif>
+<div class="order-item ${!orderItem.exchangeItem ? 'original-order' : ''} <isif condition="${order.bopisItemscount > 0 && !order.bopisItemsOnly && addBopisClass == 1 && orderItem.isBopis }">b-bopis-only-item</isif>">
+    <input type="hidden" name="orderPid" class="orderPid" value="${orderItem.ID}" />
+    <isif condition="${pdict.exchangeDetailsPage && !orderItem.exchangeItem}">
+	      <div class="ex-original-order-text">
+	          <span>${Resource.msgf('label.orderhistory.originalordertxt','account',null)}</span>
+	      </div>
+    </isif>
+    <isif condition="${pdict.exchangeDetailsPage && orderItem.exchangeItem}">
+        <div class="b-return-order">
+           <span class="t_dashboard-order-creation-date">${Resource.msgf('label.orderhistory.status','account',null, pdict.exchangeOrder.status, pdict.exchangeOrder.creationDate)}</span>
+           <span class="t_dashboard-order-number order-subText">
+               <p class="t-dv-orderno">${Resource.msgf('label.orderhistory.exchangeOrdertxt','account',null)} ${Resource.msgf('label.orderhistory.orderno','account',null, pdict.exchangeOrder.originalOrderNo)}</p>
+               <p class="t-mv-orderno">${Resource.msgf('label.orderhistory.ordernodot','account',null, pdict.exchangeOrder.orderNo)}</p>
+           </span>
+         </div>
+     </isif>
+    <div class="b-order-col-left">
+        <div class="b-returns-container">
+            <isset name="prodURL" value="${URLUtils.url('Product-Show','pid',orderItem.ID)}" scope="page" />
+			<isset name="currentSiteCode" value="${dw.system.Site.getCurrent().getID()}" scope="page" />
+	        <div class="order-item-image" data-product="${orderItem.ID}">
+	              <a href="${prodURL}"><img class="img-fluid" src="${orderItem.imageUrl}" alt="${orderItem.name}" title="${orderItem.name}"></a>
+	              <isif condition="${pdict.orderReturnItems && pdict.orderReturnItems === 'select'}">
+	                    <isif condition="${pdict.exchangeOrder && orderItem.exchangeItems && orderItem.exchangeItems.length === 0}">
+	                        <div class="item-not-eligible">
+                                 <p>${Resource.msg('exchange.not.eligible','refunds',null)}</p>
+                                 <span class="g-tooltip">
+                                     <p>${Resource.msg('returns.not.tqmark','refunds',null)}</p>
+                                     <span class="g-tooltip-text">${Resource.msg('exchange.tooltip','refunds',null)}</span>
+                                 </span>
+                            </div>
+	                    <iselseif condition="${!orderItem.isEligibleForReturn}" >
+                            <div class="item-not-eligible">
+								<isif condition="${!empty(orderItem.ineligibilityReasonTxt)}">
+									<p>${orderItem.ineligibilityReasonTxt}</p>
+								<iselse/>
+                                	<p>${Resource.msg('returns.not.eligible','refunds',null)}</p>
+								</isif>
+								<isif condition="${orderItem.displayTooltip && order.paymentMethod !== 'KLARNA_PAYMENTS'}">
+									<span class="g-tooltip">
+	                                    <p>${Resource.msg('returns.not.tqmark','refunds',null)}</p>
+	                                    <span class="g-tooltip-text">${Resource.msg('returns.tooltip','refunds',null)}</span>
+	                                </span>
+								</isif>
+                            </div>
+						<iselseif condition="${!empty(orderItem.partialReturnText)}">
+							<div class="item-not-eligible"><p>${orderItem.partialReturnText}</p></div>
+	                    </isif>
+	                </isif>
+						<isif condition="${!empty(orderItem.quantityExchanged) && !empty(orderItem.quantityReturned) && orderItem.quantityExchanged > 0 && orderItem.quantityReturned > 0}">
+							<div class="order-item-return-count-info"><isprint value="${Resource.msgf('returns.returnedandexchanged', 'refunds', null, orderItem.quantityReturned, orderItem.quantityExchanged)}" encoding="off" /></div>
+						<iselseif condition="${!empty(orderItem.quantityExchanged) && orderItem.quantityExchanged > 0}">
+							<div class="order-item-return-count-info"><isprint value="${orderItem.quantityExchanged > 1 ? Resource.msgf('returns.itemsexchanged', 'refunds', null, orderItem.quantityExchanged) : Resource.msg('returns.itemexchanged', 'refunds', null)}" encoding="off" /></div>
+						<iselseif condition="${!empty(orderItem.quantityReturned) && orderItem.quantityReturned > 0}">
+							<div class="order-item-return-count-info"><isprint value="${orderItem.quantityReturned > 1 ? Resource.msgf('returns.itemsreturned', 'refunds', null, orderItem.quantityReturned) : Resource.msg('returns.itemreturned', 'refunds', null)}" encoding="off" /> </div>
+						<iselseif condition="${order.bopisItemscount === 0 && orderItem.fulfillmentStatus ==='PENDING_SHIPMENT' && order.orderItems.length > 1}">
+						    <div class="order-item-return-count-info">${Resource.msg('label.pendingshipment','account',null)}</div>
+						<iselseif condition="${order.bopisItemscount === 0 && orderItem.fulfillmentStatus ==='UNFULFILLED' && order.orderItems.length > 1}">
+						     <div class="order-item-return-count-info">${Resource.msg('label.inprogress','account',null)}</div>
+						</isif>
+	        </div>
+	        <div class="order-item-info">
+	            <div class="b-oitem-details">
+	                <div class="b-item-sec order-item-name">
+	                    <span><a href="${prodURL}"><isprint value="${orderItem.name}" encoding="off" /></a></span>
+	                </div>
+	                <isif condition="${orderItem.sku}">
+	                    <div class="b-item-sec order-item-sku" data-sku="${orderItem.sku}">
+	                        <span><isprint value="${Resource.msgf('label.item.Sku','account',null,orderItem.sku)}" encoding="off" /></span>
+	                    </div>
+	                </isif>
+	                <div class="b-item-sec order-item-size">
+				        <span class="updated-color">
+				           <isif condition="${orderItem.color}">
+                                 <isprint value="${Resource.msgf('label.item.Color','account',null,orderItem.color)}" encoding="off" />                      
+                            </isif>
+				        </span>
+				        <span class="updated-size">
+				            <isif condition="${orderItem.size}">
+                                 <isprint value="${Resource.msgf('label.item.Size','account',null,orderItem.size)}" encoding="off" />
+                            </isif>
+				        </span>
+				        <span>
+				            <isif condition="${orderItem.exchangeItem && orderItem.quantity}">
+                                 <isprint value="${Resource.msgf('label.item.Quantity','account',null,orderItem.quantity)}" encoding="off" />
+                             </isif>
+				        </span>
+                    </div>
+					<isif condition="${orderItem.isPersonalizationEligible}">
+					    <div class="b-item-sec order-item-size personalization-detail">
+						    <span><isprint value="${orderItem.personalizationDetail}"/></span>
+						</div>
+					</isif>
+                    <isset name="enableShippingInfo" value="${true}" scope="page" />
+                    <isif condition="${!pdict.rmaDetailsPage && !pdict.exchangeDetailsPage && pdict.orderReturnItems != 'select' && (orderItem.fulfillmentStatus === 'CANCELED' || orderItem.fulfillmentStatus === 'CANCELLED')}">
+                        <div class="b-order-item-cancelled">
+                            <span>${Resource.msgf('order.status.cancelled','account',null)}: </span><span>${Resource.msg('label.not.available','common',null)}</span>
+                        </div>
+                        <isset name="enableShippingInfo" value="${false}" scope="page" />
+                    </isif>
+	                <isif condition="${orderItem.shippedTo && enableShippingInfo}">
+	                    <div class="b-item-sec order-shipped-to">
+	                       <isif condition="${order && order.isCommercialPickup}">
+	                           <span class="b-item-sec order-shipped-header">
+                                  <isprint value="${Resource.msg('label.item.collectionpoint.pickup','account',null)}"/>
+                               </span>
+		                   <iselse>
+		                      <span class="b-item-sec order-shipped-header">
+                                  <isprint value="${orderItem.isBopis ? Resource.msg('label.item.collectionpoint.pickup','account',null) : Resource.msg('label.item.shippedto','account',null)}"/>
+                              </span>
+                              <span class="b-item-sec order-shipped-body"><isprint value="${orderItem.shippedTo}" encoding="off" /></span>
+	                       </isif>
+	                        <isif condition="${orderItem.shippingAddress}">
+							    <isif condition="${orderItem.isBopis}">
+									<a target="_blank" href="${orderItem.storeMapLink}">
+										<span class="b-item-sec order-shipped-address-info">
+											<isprint value="${orderItem.shippingAddress.name}" encoding="off" />
+										</span>
+										<span class="b-item-sec order-shipped-address-Line order-shipped-address-info">
+											<isprint value="${orderItem.shippingAddress.address1}" encoding="off" />
+										</span>
+										<isif condition="${orderItem.shippingAddress.district || orderItem.shippingAddress.city || orderItem.shippingAddress.stateCode || orderItem.shippingAddress.postalCode}">
+											<span class="b-item-sec order-shipped-address-info">
+												<isprint value="${Resource.msgf('label.address.info','account',null,(orderItem.shippingAddress.district || ''),  (orderItem.shippingAddress.suburb || ''), (orderItem.shippingAddress.city || ''), (orderItem.shippingAddress.stateCode || ''), (orderItem.shippingAddress.postalCode || ''))}" />
+											</span>
+										</isif>
+									</a>
+								<iselse>
+									<isif condition="${order && order.isCommercialPickup}">
+									<span class="b-item-sec order-shipped-address-Line1 order-shipped-address-info">
+										<isprint value="${orderItem.shippingAddress.address1}" encoding="off" />
+									</span>
+									<isif condition="${orderItem.shippingAddress.address2}">
+										<span class="b-item-sec order-shipped-address-Line2 order-shipped-address-info">
+											<isprint value="${orderItem.shippingAddress.address2}" encoding="off" />
+										</span>
+									</isif>
+									<iselse>
+										<span class="b-item-sec order-shipped-address-Line order-shipped-address-info">
+											<isprint value="${orderItem.shippingAddress.name}" encoding="off" />
+											<isif condition="${orderItem.shippingAddress.address2}">
+												<isprint value="${Resource.msgf('label.address.line','account',null,orderItem.shippingAddress.address1,orderItem.shippingAddress.address2)}" />
+											<iselse>
+												<isprint value="${orderItem.shippingAddress.address1}" encoding="off" />
+											</isif>
+										</span>
+									</isif>
+									<isif condition="${(orderItem.shippingAddress.district || orderItem.shippingAddress.city || orderItem.shippingAddress.stateCode || orderItem.shippingAddress.postalCode) && orderItem.shippingAddress.countryCode.value !== 'HK'}">
+										<span class="b-item-sec order-shipped-address-info">
+											<isprint value="${Resource.msgf('label.address.info','account',null,(orderItem.shippingAddress.district || ''), (orderItem.shippingAddress.suburb  || ''), (orderItem.cityLabel ? orderItem.cityLabel : orderItem.shippingAddress.city || ''), (orderItem.stateCodeLabel ? orderItem.stateCodeLabel : orderItem.shippingAddress.stateCode || ''), (orderItem.shippingAddress.postalCode || ''))}" />
+										</span>
+										<iselse/>
+										<span class="b-item-sec order-shipped-address-info">
+												<isprint value="${Resource.msgf('label.address.info.hk','account',null,(orderItem.stateCodeLabel ? orderItem.stateCodeLabel : orderItem.shippingAddress.stateCode || ''))}" />
+										</span>
+									</isif>
+									<isif condition="${session.custom.currentCountry == 'KR'}">
+									    <span class="b-item-sec order-shipped-address-info">${orderItem.shippingAddress.phone}</span>
+									</isif>
+								</isif>
+	                        </isif>
+
+	                    </div>
+	                </isif>
+	                <isset name="disablePriceInfo" value="${false}" scope="page" />
+	                <isif condition="${pdict.orderReturnItems == 'reason' && pdict.exchangeOrder}">
+	                    <isset name="disablePriceInfo" value="${true}" scope="page" />
+	                </isif>
+	                <isif condition="${!disablePriceInfo}">
+		                <isif condition="${!orderItem.exchangeItem}">
+							<div class="b-item-sec order-item-price">
+								<span class="price-sale">
+									<isprint value="${Resource.msgf('label.item.price','account',null,orderItem.pricePerUnit, orderItem.quantity)}" />
+								</span>
+								<isif condition="${orderItem.listPrice !== 0}">
+									<span class="price-was price-strikethrough">
+											<isprint value="${orderItem.listPrice}" encoding="off" />
+										</span>
+								</isif>
+							</div>
+		                </isif>
+	                </isif>
+	                 <isif condition="${pdict.orderReturnItems == 'reason' && pdict.exchangeOrder === null}">
+                        <div  class="btn-orderItem-remove">
+                          <a class="js-confirm-orderItem-remove" data-url="${pdict.returnRefreshURL}" data-items="${pdict.selectedPids}" data-pid="${orderItem.upc}" data-orderid="${pdict.order.orderNo}">${Resource.msg('label.order.remove','account',null)}</a>
+                        </div>
+                    </isif> 
+	                <isif condition="${!pdict.rmaDetailsPage && !pdict.exchangeDetailsPage && pdict.orderReturnItems != 'select' }">
+		                <isif condition="${orderItem.fulfillmentStatus === 'CANCELED' || orderItem.fulfillmentStatus === 'CANCELLED'}">
+                             <div class="shop-similar-items">
+                                  <a href="${orderItem.shopSimilarItemsLink}">${Resource.msg('label.item.shopsimilar','account',null)}</a>
+                             </div>
+                        <iselse>
+			                <div class="b-order-col-right">
+			                    <div class="b-oitem-buyagain">
+			                        <div class="order-item-buy-again">
+			                           <a class="" data-analytics-track="buy-again" href="${orderItem.url}">${Resource.msg('label.item.buyagain','account',null)}</a>
+			                        </div>
+			                    </div>
+			                    <isset name="mainProduct" value="${require('dw/catalog/ProductMgr').getProduct(orderItem.ID)}" scope="page">
+								<isif condition="${mainProduct}">
+									<isset name="styleCode" value="${mainProduct.isMaster() ? mainProduct.ID : mainProduct.getVariationModel().getMaster().ID}" scope="page" />
+									<div class="b-item-sec bv-write-review">
+										<a href="${'#'}" class="write-review-link" data-analytics-style-bv="${styleCode}" data-analytics-order-review="${mainProduct.custom.bvReviewCount}" data-analytics-order-rating="${mainProduct.custom.bvAverageRating}" data-product="${orderItem.ID}">${Resource.msg('label.order.review','account',null)}</a>
+									</div>
+								</isif>
+			                </div>
+		                </isif>
+	                </isif> 
+	            </div>
+	        </div>	
+	        <isif condition="${pdict.orderReturnItems !=null && pdict.orderReturnItems == 'select' && orderItem.isEligibleForReturn}">
+	            <isset name="enableCheckbox" value="${true}" scope="page" />
+	            <isif condition="${pdict.exchangeOrder && orderItem.exchangeItems && orderItem.exchangeItems.length === 0}"> 
+	                <isset name="enableCheckbox" value="${false}" scope="page" />
+	            </isif>
+	            <isif condition="${enableCheckbox}"> 
+	                 <div class="b-order-checksec">
+                        <div class="g-checkbox">
+							<isset name="shipmentId" value="${orderItem.shipmentId ? ('_' + orderItem.shipmentId) : ''}" scope="page"/>
+                            <input type="checkbox" id="${orderItem.upc.concat(shipmentId)}" class="g-checkbox-input select-return-item" name="return-order-${orderItem.upc}" value="${orderItem.upc}" data-shipment-id="${orderItem.shipmentId}">
+                            <label class="g-checkbox-label" for="${orderItem.upc.concat(shipmentId)}"></label>
+                        </div>
+                    </div>
+	            </isif>
+	        </isif>
+        </div>
+         <div class="b-itemstatus-mv">
+             <isif condition="${orderItem.shippedTo && enableShippingInfo}">
+                  <div class="b-item-sec order-shipped-to">
+                      <isif condition="${order && order.isCommercialPickup}">
+                          <span class="b-item-sec order-shipped-header">
+                             <isprint value="${Resource.msg('label.item.collectionpoint.pickup','account',null)}"/>
+                          </span>
+                      <iselse>
+                         <span class="b-item-sec order-shipped-header">
+                            <isprint value="${orderItem.isBopis ? Resource.msg('label.item.collectionpoint.pickup','account',null) : Resource.msg('label.item.shippedto','account',null)}"/>
+                         </span>
+                         <span class="b-item-sec order-shipped-body"><isprint value="${orderItem.shippedTo}" encoding="off" /></span>
+                      </isif>
+                      <isif condition="${orderItem.shippingAddress}">
+                          <isif condition="${order && order.isCommercialPickup}">
+                                <span class="b-item-sec order-shipped-address-Line1 order-shipped-address-info">
+                                    <isprint value="${orderItem.shippingAddress.address1}" encoding="off" />
+                                </span>
+                                <isif condition="${orderItem.shippingAddress.address2}">
+                                    <span class="b-item-sec order-shipped-address-Line2 order-shipped-address-info">
+                                        <isprint value="${orderItem.shippingAddress.address2}" encoding="off" />
+                                    </span>
+                                </isif>
+                          <iselse>
+                              <span class="b-item-sec order-shipped-address-Line">
+                                  <isif condition="${orderItem.shippingAddress.address2}">
+                                      <isprint value="${Resource.msgf('label.address.line','account',null,orderItem.shippingAddress.address1,orderItem.shippingAddress.address2)}" />
+                                  <iselse>
+                                      <isprint value="${orderItem.shippingAddress.address1}" encoding="off" />
+                                  </isif>
+                              </span>
+                          </isif>
+                          <span class="b-item-sec order-shipped-address-info">
+                              <isif condition="${orderItem.shippingAddress.district || orderItem.shippingAddress.city || orderItem.shippingAddress.stateCode || orderItem.shippingAddress.postalCode}">
+									<span class="b-item-sec order-shipped-address-info">
+										<isprint value="${Resource.msgf('label.address.info','account',null,(orderItem.shippingAddress.district || ''),  (orderItem.shippingAddress.suburb || ''), (orderItem.shippingAddress.city || ''), (orderItem.shippingAddress.stateCode || ''), (orderItem.shippingAddress.postalCode || ''))}" />
+									</span>
+							  </isif>
+                          </span>
+                      </isif>
+					  	<isif condition="${session.custom.currentCountry == 'KR'}">
+							<span class="b-item-sec order-shipped-address-info">${orderItem.shippingAddress.phone}</span>
+						</isif>
+                  </div>
+              </isif>
+              <isif condition="${pdict.orderReturnItems && pdict.orderReturnItems === 'select'}">
+                    <isif condition="${pdict.exchangeOrder && orderItem.exchangeItems && orderItem.exchangeItems.length === 0}">
+                        <div class="item-not-eligible">
+                             <p>${Resource.msg('exchange.not.eligible','refunds',null)}</p>
+                             <span class="g-tooltip">
+                                 <p>${Resource.msg('returns.not.tqmark','refunds',null)}</p>
+                                 <span class="g-tooltip-text">${Resource.msg('exchange.tooltip','refunds',null)}</span>
+                             </span>
+                        </div>
+                    <iselseif condition="${!orderItem.isEligibleForReturn}" >
+                        <div class="item-not-eligible">
+							<isif condition="${!empty(orderItem.ineligibilityReasonTxt)}">
+								<p>${orderItem.ineligibilityReasonTxt}</p>
+							<iselse/>
+                            	<p>${Resource.msg('returns.not.eligible','refunds',null)}</p>
+							</isif>
+							<isif condition="${orderItem.displayTooltip}">
+								<span class="g-tooltip">
+									<p>${Resource.msg('returns.not.tqmark','refunds',null)}</p>
+									<span class="g-tooltip-text">${Resource.msg('returns.tooltip','refunds',null)}</span>
+								</span>
+							</isif>
+                        </div>
+					<iselseif condition="${!empty(orderItem.partialReturnText)}">
+							<div class="item-not-eligible"><p>${orderItem.partialReturnText}</p></div>
+                    </isif>
+                </isif>
+        </div>
+        <isif condition="${!pdict.rmaDetailsPage && !pdict.exchangeDetailsPage && pdict.orderReturnItems != 'select' }">
+            <isif condition="${orderItem.fulfillmentStatus === 'CANCELED' || orderItem.fulfillmentStatus === 'CANCELLED'}">
+                <div class="shop-similar-items-mv">
+                    <a href="${orderItem.shopSimilarItemsLink}">${Resource.msg('label.item.shopsimilar','account',null)}</a>
+                </div>
+            <iselse>
+	            <div class="b-buyreview-mv">
+	                <div class="b-oitem-buyagain">
+	                    <div class="order-item-buy-again">
+	                       <a class="" data-analytics-track="buy-again" href="${orderItem.url}">${Resource.msg('label.item.buyagain','account',null)}</a>
+	                    </div>
+	                </div>
+	                   <div class="b-item-sec bv-write-review">
+	                       <a href="${'#'}" class="write-review-link" data-product="${orderItem.ID}">${Resource.msg('label.order.review','account',null)}</a>
+	                   </div>
+	            </div>
+            </isif>
+        </isif>
+        <isif condition="${orderItem.exchangeItem}">
+	         <div class="b-card-exchange-order">
+	             <span class="b-card-exchange-symbol"></span>
+	             <span class="b-card-exchange-text">${Resource.msgf('label.rmaHistory.exchange','account',null)}</span>
+	         </div>
+         </isif>
+        <isif condition="${pdict.orderReturnItems == 'reason'}"> 
+	        <div class="order-return-reason-main" data-orderitem-id="${orderItem.orderItemID ? orderItem.orderItemID : ''}">
+	            <div class="b-rr-form-sec">
+	                <div class="order-return-qty b-input_row ${pdict.orderReturnItems == 'reason' && pdict.exchangeOrder ? 'order-qty-exchange' : 'order-qty-return'} <isif condition="${orderItem.quantity === 1}"> b-singleQty <iselse> b-quantity </isif> select-wrap">
+	                    <isif condition="${pdict.exchangeOrder}">
+	                        <input type="hidden" name="isExchangeItems" class="isExchangeItems" value="${true}" />
+	                    <iselse/>
+	                        <input type="hidden" name="isExchangeItems" class="isExchangeItems" value="${false}" />
+	                    </isif>
+	                   <label class="b-input_row-label">${Resource.msg('select.return.qty','account',null)}</label>
+	                   <isif condition="${orderItem.quantity === 1}">
+	                   <input type="text" readonly class="order-return-qty-select form-control b-quantity-select custom-select order-return-form-input" id="input-qty" data-pid="${orderItem.upc}" name="input-quantity" value="1"/>
+	                   <iselse>
+	                   <select class="order-return-qty-select form-control b-quantity-select custom-select order-return-form-input" value="1" data-pid="${orderItem.upc}">
+	                       <isloop items="${new Array(orderItem.quantity)}" status="loopstate">
+	                           <option class="order-return-qty-option" value="${loopstate.count}">${loopstate.count}</option>
+	                       </isloop>
+	                   </select>
+	                   </isif>
+	                </div>        
+	                <div class="form-group order-return-reason b-input_row b-quantity select-wrap">
+	                      <label class="form-control-label b-input_row-label">${Resource.msg('select.return.reason','account',null)}</label>
+	                      <isif condition="${pdict.orderReturnItems == 'reason' && pdict.exchangeOrder}">
+                                <label class="form-control-label b-input_row-label">${Resource.msg('select.return.exchange.reason','account',null)}</label>
+	                            <select class="b-order-reason-select js-order-exchage-reason-select order-return-reason-select form-control b-quantity-select custom-select order-return-form-input">
+	                                   <option class="order-return-reason-option select-default" value="">${Resource.msg('label.select','common',null)}</option>
+                                       <option class="order-return-reason-option" value="SIZE_TOO_BIG">${Resource.msg('option.return.reason.toobig','account',null)}</option>
+                                       <option class="order-return-reason-option" value="SIZE_TOO_SMALL">${Resource.msg('option.return.reason.toosmall','account',null)}</option>
+                                       <option class="order-return-reason-option" value="NOT_AS_PICTURED">${Resource.msg('option.return.reason.color.notaspictured','account',null)}</option>
+                                       <option class="order-return-reason-option" value="DO_NOT_LIKE_OR_CHANGED_MIND">${Resource.msg('option.return.reason.color.donotlike','account',null)}</option>
+                                       <option class="order-return-reason-option" value="DEFECTIVE_PRODUCT">${Resource.msg('option.return.reason.defective','account',null)}</option>
+                               </select>
+                               <div class="invalid-feedback return-reason-invalid-feedback hide" data-error="${Resource.msg('option.return.exchange.reason.error','account',null)}">${Resource.msg('option.return.reason.error','account',null)}</div>
+	                      <iselse>
+							<isif condition="${!empty(dw.system.Site.current.getCustomPreferenceValue('returnReasonCodes'))}">
+								<isset name="returnReasonCodes" value="${dw.system.Site.current.getCustomPreferenceValue('returnReasonCodes')}" scope="page" />
+								<label class="form-control-label b-input_row-label">${Resource.msg('select.return.reason','account',null)}</label>
+								<select class="b-order-reason-select js-order-return-reason-select order-return-reason-select form-control b-quantity-select custom-select order-return-form-input auto-return-reason">
+									<option class="order-return-reason-option select-default" value="">${Resource.msg('label.select','common',null)}</option>
+									<isloop items="${returnReasonCodes}" var="updatedReturnReasonCode" status="loopstatus">
+										<option class="order-return-reason-option" value="${updatedReturnReasonCode.value}">${updatedReturnReasonCode.displayValue}</option>
+									</isloop>
+								</select>
+							<iselse>
+								<label class="form-control-label b-input_row-label">${Resource.msg('select.return.reason','account',null)}</label>
+								<select class="b-order-reason-select js-order-return-reason-select order-return-reason-select form-control b-quantity-select custom-select order-return-form-input">
+										<option class="order-return-reason-option select-default" value="">${Resource.msg('label.select','common',null)}</option>
+										<option class="order-return-reason-option" value="SIZE_TOO_BIG">${Resource.msg('option.return.reason.toobig','account',null)}</option>
+										<option class="order-return-reason-option" value="SIZE_TOO_SMALL">${Resource.msg('option.return.reason.toosmall','account',null)}</option>
+										<option class="order-return-reason-option" value="DURABILITY_OVER_TIME">${Resource.msg('option.return.reason.durability','account',null)}</option>
+										<option class="order-return-reason-option" value="QUALITY">${Resource.msg('option.return.reason.quality','account',null)}</option>
+										<option class="order-return-reason-option" value="FUNCTIONALITY">${Resource.msg('option.return.reason.functionality','account',null)}</option>
+										<option class="order-return-reason-option" value="NOT_AS_PICTURED">${Resource.msg('option.return.reason.notaspictured','account',null)}</option>
+										<option class="order-return-reason-option" value="DO_NOT_LIKE_OR_CHANGED_MIND">${Resource.msg('option.return.reason.donotlike','account',null)}</option>
+										<option class="order-return-reason-option" value="SHIPPING_ISSUE_DAMAGED">${Resource.msg('option.return.reason.shippingissue','account',null)}</option>
+										<option class="order-return-reason-option" value="SHIPPING_ISSUE_LATE">${Resource.msg('option.return.reason.shippingissuelate','account',null)}</option>
+										<option class="order-return-reason-option" value="WRONG_ITEM_SHIPPED">${Resource.msg('option.return.reason.wrongitemshipped','account',null)}</option>
+										<option class="order-return-reason-option" value="OTHER">${Resource.msg('option.return.reason.other','account',null)}</option>
+								</select>
+							</isif>
+		                       <div class="invalid-feedback return-reason-invalid-feedback hide" data-error="${Resource.msg('option.return.reason.error','account',null)}">${Resource.msg('option.return.reason.error','account',null)}</div>
+	                      </isif>
+	                </div>
+	            </div>
+	            <isif condition="${!pdict.hideReturnCommentsSection}">
+	                <div class="order-return-comments b-input_row form-group">
+	                    <label class="b-input_row-label form-control-label">${Resource.msg('select.return.comment','account',null)}</label>
+	                    <textarea class="return-comments js-valideComment b-quantity-select" name="return-comments"rows="5" cols="33"></textarea>
+	                    <div class="invalid-feedback info-maxChar">${Resource.msg('or.reason.comment.error', 'forms', null)}</div>
+	                </div>
+	            </isif>
+	        </div>
+	    </isif>
+	    <isif condition="${pdict.orderReturnItems == 'reason' && pdict.exchangeOrder}">
+	        <div class="js-exchange-items-info hide">
+		        <isloop items="${orderItem.exchangeProductHits}" var="exchangeProduct" status="loopstate">
+		            <div class="exchange-items-container selected ${orderItem.exchangeProductHits.length > 1 && loopstate.count > 1 ? 'hide' : ''}" data-loopcount="${loopstate.count}" data-exchange-price="${exchangeProduct.price.sales.decimalPrice}" data-exchange-sku="${exchangeProduct.custom.sku}" data-exchange-itemCount="${orderItem.exchangeProductHits.length}" data-exchange-items="${orderItem.exchangeProducts}" data-productid="${orderItem.ID}" data-exchange-originOrder="${pdict.exchangeOrder.rmaNumber}">
+	                    <isinclude template="product/exchange/exchangeItemInfo"/>
+	                </div>
+		        </isloop>
+	        </div>
+	    </isif>
+    </div>  
+	    <isif condition="${pdict.exchangeDetailsPage}">
+            <isif condition="${orderItem.exchangeItem}">
+            <div class="b-order-col-rightsec">
+	            <div class="b-return-reference-col-right">
+	              <div class="b-order-exchanged-date b-return-reference-info ">
+	                  <h2>${Resource.msgf('label.orderexchange.exchangedate','account',null)}</h2>
+	                  <p>${pdict.exchangeOrder.creationDate}</p>
+	              </div>
+	              <div class="b-order-exchanged-order-num b-return-reference-info ">
+	                  <h2>${Resource.msgf('label.orderexchange.orderNo','account',null)}</h2>
+	                  <p>${pdict.exchangeOrder.orderNo}</p>
+                  </div>
+	              <div class="b-order-return-reference b-return-reference-info ">
+	                  <h2>${Resource.msgf('label.orderreturn.referenceNo','account',null)}</h2>
+	                  <p>${pdict.exchangeOrder.rmaNumber}</p>
+                  </div>
+                  </div>
+                </div>
+            </isif>
+            <isif condition="${!orderItem.exchangeItem}">
+            <div class="b-order-col-rightsec">
+               <div class="b-return-reference-col-right">
+	              <div class="b-order-return-reason b-return-reference-info ">
+	                  <h2>${Resource.msgf('label.orderexchange.reason','account',null)}</h2>
+	                  <p>${orderItem.returnReason}</p>
+	              </div>
+                  </div>
+               </div>
+            </isif>
+        </isif>
+		<isif condition="${pdict.rmaDetailsPage && empty(pdict.exchangeOrder)}">
+		    <div class="b-order-col-rightsec">
+			    <div class="b-return-reference-col-right">
+			       <div class="b-return-reference-info <isif condition="${loopStatus.index !== 0}">b-return-selectall</isif>">
+			           <div class="b-return-reference-header">
+			               <h2>${Resource.msg('label.orderDetails.returnReference','account',null)}</h2>
+			           </div>
+			           <div class="b-return-reference-number">
+			               <p><isprint value="${order.rmaNumber}" /></p>
+			           </div>
+			       </div>
+			       <div class="b-return-reference-info">
+			           <div class="b-return-reason-header">
+			               <h2>${Resource.msg('label.orderDetails.returnReason','account',null)}</h2>
+			               <p><isprint value="${orderItem.returnReason}" /></p>
+			           </div>
+			       </div>
+			   </div>
+		   </div>
+		</isif>
+    </div>  

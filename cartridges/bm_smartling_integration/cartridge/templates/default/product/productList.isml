@@ -1,0 +1,297 @@
+<isdecorate template="application/MenuFrame">
+<iscontent type="text/html" charset="UTF-8" />
+<isinclude template="inc/Modules" />
+<isinclude template="application/style" />
+
+<isset name="thisCategory"   value="pdict.CurrentHttpParameterMap.category_id.stringValue" scope="PAGE" />
+<isscript>
+var thisCategory : dw.catalog.Category = pdict.category;
+
+var categoryInfo =  new Array;
+
+if (thisCategory != null)
+{
+    categoryInfo.push(thisCategory);
+    while (thisCategory.getParent()) {
+        thisCategory = thisCategory.getParent();
+        categoryInfo.push(thisCategory);
+    }
+    categoryInfo.reverse() ;
+}
+</isscript>
+<div id="progress-overlay" class="progress-overlay"></div>
+<img id="progress-spinner" class="progress-spinner" src="${URLUtils.staticURL('/icons/spinner.gif')}" />
+<table border="0" cellspacing="0" cellpadding="0">
+    <tbody>
+        <tr>
+            <td class="breadcrumb">
+                <a class="breadcrumb" href="${URLUtils.url('ViewApplication-CompressMenuGroup', 'MenuGroupID', 'SiteMenu', 'OverviewPage', 'SiteNavigationBar-ShowSiteOverview')}">Site</a>
+                &nbsp>&nbsp
+                <a class="breadcrumb" href="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', 'smartling')}">Smartling</a>
+
+            <isif condition="${categoryInfo.length > 0 }">
+                &nbsp>&nbsp<a class="breadcrumb" href="${URLUtils.url('SmartlingProduct-ShowCategory')}">Product translation</a>
+                <isloop items="${categoryInfo}" var="category" status="status">
+                    <isif condition="${category.ID != 'root'}">
+                        <isif condition="${status.last != true}">
+                            &nbsp>&nbsp<a class="breadcrumb" href="${URLUtils.url('SmartlingProduct-ShowCategory', 'category_id', category.ID)}">${category.displayName}</a>
+                        <iselse>
+                            &nbsp>&nbsp${category.displayName}
+                        </isif>
+                    </isif>
+                </isloop>
+            <iselse>
+                &nbsp>&nbsp Product translation
+            </isif>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<!-- EO Page Navigator -->
+
+<isscript>
+var util = require("~/cartridge/scripts/util");
+</isscript>
+
+<h1>Product list</h1>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="  margin-bottom: 30px; margin-left: 20px;">
+<isloop items="${pdict.localesList}" var="locale">
+    <tr><td>
+        <input type="checkbox" name="language" value="${locale.get(0)}" id="${locale.get(0)}"/><label for="${locale.get(0)}"> ${locale.get(1)}</label>
+    </td></tr>
+</isloop>
+    <tr><td>
+        <a id="selectAllLocales" onclick="checkAllLocales('language')">Select All</a>
+    </td></tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="  margin-bottom: 30px; margin-left: 20px;">
+    <tr>
+        <td>
+            <div align="left" style="padding: 10px">
+                <input id="send_translate" type="button" onclick="submit()" name="send_translate" value="Translate" class="button"/>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<span id="messageSpan"></span>
+
+<isset name="allProducts" value="${dw.catalog.ProductMgr.queryAllSiteProducts()}" scope="page" />
+<!-- table list view -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+
+        <tr>
+            <td class="table_header w e s" width="30px"><a id="select" onclick="checkAll('itemId')">Select All</a> <a id="clean" style="display: none;"onclick="unCheckAll('itemId')">Clean All</a></td>
+            <td class="table_header e s">Thumbnail</td>
+            <td class="table_header e s">Article</td>
+            <td class="table_header e s">Value</td>
+            <td class="table_header e s">Short description</td>
+            <td class="table_header e s">Long description</td>
+            <td class="table_header e s">Locales</td>
+            <td class="table_header e s">Status Link</td>
+        </tr>
+        <isloop items="${pdict.mapingModel.pageElements}" var="product">
+        <!-- content -->
+        <tr><!-- Name -->
+            <td class="table_detail w e s" >
+                <input type="checkbox" name='itemId' value="${product.ID}" />
+            </td>
+            <td class="table_detail e s"  width="40px">
+                <img width="40px" height="40px" alt="${product.name}" src="${product.getImage('small') != null ? product.getImage('small').URL : URLUtils.staticURL('/icons/defailt-product-image.png')}">
+            </td>
+            <td class="table_detail e s" >
+                <a href="${URLUtils.url('ViewProduct_52-Edit', 'ProductID', product.getUUID())}"><isprint value="${product.ID}" /></a>
+            </td>
+            <!--- Value --->
+            <td class="table_detail e s" >
+                <isprint value="${product.name}" />
+            </td>
+            <td name="shortDescription" class="table_detail e s" width="30%">
+                ${product.shortDescription}
+            </td>
+            <td name="longDescription" class="table_detail e s"  width="30%">
+                ${product.longDescription}
+            </td>
+            <td class="table_detail e s" >
+                ${util.getLocales(product.ID)}
+            </td>
+            <td class="table_detail e s" >
+                <a href="${URLUtils.url('SmartlingProduct-ShowItemStatus', 'item', product.ID, 'category_id', pdict.CurrentHttpParameterMap.category_id.stringValue)}">Show Status</a>
+            </td>
+        </tr>
+        </isloop>
+</table>
+
+<input id="ajax_url" type="hidden" value="${URLUtils.url('SmartlingProduct-SendTranslate')}"/>
+
+<script type="text/javascript">
+var uploadInProgress = false;
+window.onbeforeunload = function() {
+    if (uploadInProgress) return 'Sending for translation is still in progress!';
+};
+
+function submit()
+{
+    var itemCheckbox = jQuery("[name='itemId']");
+    var languageCheckbox = jQuery("[name='language']");
+    var items = new Array();
+    var languages = new Array();
+    var languageNames = new Array();
+    var ajaxUrl = document.getElementById('ajax_url').value;
+
+    itemCheckbox.each(function(index, value) {
+        if(jQuery(this).prop( "checked" )) {
+            items.push(jQuery(this).val());
+        }
+    });
+
+    languageCheckbox.each(function(index, value) {
+        if(jQuery(this).prop( "checked" )) {
+            languages.push(jQuery(this).val());
+            languageNames.push(jQuery("label[for='"+jQuery(this).attr("id")+"']").text())
+        }
+    });
+
+    if (languages.length === 0 || items.length === 0) {
+        alert("Please select at least one product and language");
+        return;
+    }
+
+    if (! window.confirm("You have selected " + items.length + " items for translation.\n" +
+            "Target languages: \n   " + languageNames.join().replace(/,/g, ' ,\n   ') + ".\n" +
+            "Click OK to submit for translation.")) {
+        return;
+    }
+
+    jQuery("#progress-overlay").show();
+    jQuery("#progress-spinner").show();
+    uploadInProgress = true;
+
+    var requestThreshold = 100;
+    var chunkSize = Math.floor(requestThreshold / languages.length);
+
+
+    var dfd = jQuery.Deferred();
+    var promise = dfd.promise();
+    var responses = [];
+
+    function chainRequest(chunk) {
+        promise = promise.then(function (response) {
+            responses.push(response);
+            return jQuery.ajax({
+                url: ajaxUrl,
+                type: 'post',
+                data: {
+                    'items': String(chunk),
+                    'languages': String(languages)
+                }
+            });
+        });
+    }
+
+    splitArrayIntoChunks(items, chunkSize)
+        .forEach(
+            function (chunk) {
+                chainRequest(chunk)
+            });
+
+    dfd.resolve();
+
+    promise
+        .then(
+                function (response) {
+                    jQuery("#progress-overlay").hide();
+                    jQuery("#progress-spinner").hide();
+                    uploadInProgress = false;
+                    alert('Items sent for translation. Thank you!');
+                    window.location.reload(true);
+                });
+}
+
+function splitArrayIntoChunks(items, chunkSize) {
+    var chunks = [];
+    for (var start = 0; start < items.length; start += chunkSize) {
+        chunks.push(items.slice(start, start + chunkSize));
+    }
+    return chunks;
+}
+
+function checkAllLocales(name)
+{
+    var checkbox = jQuery("[name='"+name+"']");
+    checkbox.each(function(index, value) {
+        jQuery(this).prop("checked", true);
+    });
+}
+
+function checkAll(name)
+{
+    var checkbox = jQuery("[name='"+name+"']");
+    checkbox.each(function(index, value) {
+        jQuery(this).prop("checked", true);
+    });
+    jQuery("#select").hide();
+    jQuery("#clean").show();
+}
+
+function unCheckAll(name)
+{
+    var checkbox = jQuery("[name='"+name+"']");
+    checkbox.each(function(index, value) {
+        jQuery(this).removeAttr('checked');
+    });
+    jQuery("#clean").hide();
+    jQuery("#select").show();
+}
+</script>
+
+<isscript>
+    current = pdict.CurrentHttpParameterMap.page.stringValue;
+    totalCount = pdict.countProduct;
+    pageURL = URLUtils.url('SmartlingProduct-SiteAction');
+    maxPage = pdict.pageMax;
+
+    lr = 5; // number of explicit page links to the left and right
+    if ( maxPage <= 2*lr )
+    {
+        rangeBegin = 0;
+        rangeEnd = maxPage;
+    }
+    else
+    {
+        rangeBegin = Math.max( Math.min( current - lr, maxPage - 2*lr ), 0 );
+        rangeEnd = Math.min( rangeBegin + 2*lr, maxPage );
+    }
+
+
+</isscript>
+<isinclude template="application/script"/>
+
+<table class="pagecursor" width="100%" border="0" cellspacing="1" cellpadding="1">
+    <tbody>
+        <tr>
+            <td class="pagecursortxt top" align="left" width="100%" ></td>
+
+            <isloop status="i" begin="${rangeBegin}" end="${rangeEnd}">
+                <isif condition="${(i.index < totalCount-1) && totalCount > maxPage}">
+                    <isif condition="${i.index == current-1}">
+                        <td class="pagecursoritem" align="right" width="1">
+                            <a href="${URLUtils.url('SmartlingProduct-ShowCategory', 'category_id', pdict.category.getID(), 'page', (i.index + 1).toString())}" class="pagecursorbtn" style="border: 1px solid #ccc;"><b>[${(i.index + 1).toString()}]</b></a>
+                        </td>
+                    <iselse>
+                        <td class="pagecursortxt" align="right" width="1">
+                            <a href="${URLUtils.url('SmartlingProduct-ShowCategory', 'category_id', pdict.category.getID(), 'page', (i.index + 1).toString())}" class="pagecursorbtn" style="border: 1px solid #ccc;"><b>[${(i.index + 1).toString()}]</b></a>
+                        </td>
+                    </isif>
+                </isif>
+                <isif condition="${(totalCount-((i.index+1)*maxPage)) <= 0}">
+                    <isbreak/>
+                </isif>
+            </isloop>
+        </tr>
+    </tbody>
+</table>
+
+</isdecorate>

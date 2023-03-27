@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="artifact" targetNamespace="http://www.canadapost.ca/ws/soap/artifact" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://www.canadapost.ca/ws/soap/artifact" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/2004-08-24.xsd/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/">
+	<wsdl:types>
+		<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.canadapost.ca/ws/soap/artifact">
+
+			<xsd:element name="get-artifact-request">
+				<xsd:complexType>
+					<xsd:all>
+						<xsd:element name="locale" type="tns:locale" minOccurs="0" />
+						<xsd:element name="platform-id" type="tns:PlatformIDType" minOccurs="0" />
+						<xsd:element name="artifact-id" type="tns:ArtifactIdType" />
+						<xsd:element name="page-index" type="tns:PageIndexType" minOccurs="0" />
+					</xsd:all>
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="get-artifact-response">
+				<xsd:complexType>
+					<xsd:choice>
+						<xsd:element name="artifact-data">
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element name="image" type="xsd:string" />
+									<xsd:element name="mime-type" type="xsd:string" />
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+						<xsd:element name="messages" type="tns:messages" />
+					</xsd:choice>
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:simpleType name="ArtifactIdType">
+				<xsd:restriction base="xsd:integer">
+					<xsd:minInclusive value="0" />
+					<xsd:maxInclusive value="999999999999999999" />
+				</xsd:restriction>
+			</xsd:simpleType>
+
+			<xsd:simpleType name="PageIndexType">
+				<xsd:restriction base="xsd:integer">
+					<xsd:minInclusive value="0" />
+					<xsd:maxInclusive value="99" />
+				</xsd:restriction>
+			</xsd:simpleType>
+
+
+			<xsd:complexType name="messages">
+				<xsd:sequence>
+					<xsd:element minOccurs="0" maxOccurs="unbounded" name="message">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="code" type="xsd:string" />
+								<xsd:element name="description" type="xsd:string" />
+							</xsd:sequence>
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:simpleType name="locale">
+				<xsd:restriction base="xsd:string">
+					<xsd:pattern value="([eE][nN]|[fF][rR])" />
+				</xsd:restriction>
+			</xsd:simpleType>
+
+			<xsd:simpleType name="PlatformIDType">
+				<xsd:restriction base="xsd:string">
+					<xsd:pattern value="\d{1,10}" />
+				</xsd:restriction>
+			</xsd:simpleType>				
+
+		</xsd:schema>
+	</wsdl:types>
+
+	<wsdl:message name="GetArtifactRequest">
+		<wsdl:part name="body" element="tns:get-artifact-request"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="GetArtifactResponse">
+		<wsdl:part name="body" element="tns:get-artifact-response"></wsdl:part>
+	</wsdl:message>
+	<wsdl:portType name="ArtifactPortType">
+		<wsdl:operation name="GetArtifact">
+			<wsdl:input message="tns:GetArtifactRequest"></wsdl:input>
+			<wsdl:output message="tns:GetArtifactResponse"></wsdl:output>
+		</wsdl:operation>
+	</wsdl:portType>
+
+	<wsdl:binding name="Artifact" type="tns:ArtifactPortType">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="GetArtifact">
+			<soap:operation soapAction="http://www.canadapost.ca/ws/soap/artifact/GetArtifact" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+
+	<wsdl:service name="ArtifactService">
+		<wsdl:port name="ArtifactPort" binding="tns:Artifact">
+			<soap:address location="https://ct.soa-gw.canadapost.ca/rs/soap/artifact" />
+		</wsdl:port>
+	</wsdl:service>
+
+</wsdl:definitions>

@@ -1,0 +1,18 @@
+<isdecorate template="common/layout/page">
+    <isinclude template="coremedia/modules.isml"/>
+    <isif condition="${require('dw/system/System').getInstanceType() === 0}">
+        <isif condition="${CMUtil.isLiveContextEnabled()}">
+            <div class="content-wrapper">
+                <isset name="pageId" value="${pdict.content.ID}" scope="page"/>
+                <div class="content-primary">
+                    <islcinclude pageId="${pageId}" placement="primary" prefetch="true" />
+                </div>
+                <div class="content-secondary">
+                    <islcinclude pageId="${pageId}" placement="secondary" prefetch="true" />
+                </div>
+            </div>
+        </isif>
+    <iselse/>
+        <isredirect location="${pdict.ReturnURL}">
+    </isif>
+</isdecorate>

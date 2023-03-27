@@ -1,0 +1,323 @@
+.g-collection-modal {
+    &-dialog {
+        max-width: rem-calc(920);
+
+        @include respond-to(desktop) {
+            margin: rem-calc(16) auto;
+            min-height: calc(100% - (1rem * 2));
+        }
+
+        @include respond-to(mobile) {
+            height: 100%;
+        }
+    }
+
+    .g-modal-close {
+        @include respond-to(mobile) {
+            right: rem-calc(16);
+        }
+    }
+
+    &-content {
+        padding: rem-calc(56) rem-calc(118) 0;
+
+        @include respond-to(mobile) {
+            padding: rem-calc(16) rem-calc(16) 0;
+            height: 100%;
+            overflow: hidden;
+        }
+    }
+
+    &-close-button {
+        width: rem-calc(16);
+        height: rem-calc(16);
+
+        &::after,
+        &::before {
+            width: rem-calc(16);
+        }
+    }
+
+    &-body {
+        .b-store-locator-container {
+            h2 {
+                @include respond-to(mobile) {
+                    padding-bottom: rem-calc(24);
+                }
+            }
+        }
+
+        .store-locator-no-results {
+            @include font(main, rem-calc(14), 1.43);
+
+            color: $red;
+            padding: 0;
+            letter-spacing: normal;
+            margin-top: 0;
+
+            @include respond-to(desktop) {
+                height: rem-calc(320);
+            }
+        }
+
+        .collection-pick-message {
+            @include font(main, rem-calc(14), 1.43);
+
+            color: $red;
+            margin-bottom: rem-calc(16);
+
+            @include respond-to(mobile) {
+                margin-top: rem-calc(16);
+            }
+
+            &-shown {
+                .b-collectionpoint-locator-formgroup {
+                    margin-bottom: rem-calc(8);
+                }
+            }
+        }
+
+        .results {
+            display: flex;
+
+            &.hide-button {
+                .b-stores-results {
+                    @include respond-to(mobile) {
+                        margin-bottom: 0;
+                        max-height: calc(100vh - 300px);
+                    }
+                }
+
+                .b-collectionpoint-buttons {
+                    @include respond-to(mobile) {
+                        display: none;
+                    }
+                }
+            }
+        }
+
+        .b-stores-results {
+            flex: 1 1 100%;
+            width: 100%;
+            margin-bottom: rem-calc(116);
+            max-width: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: initial;
+
+            @include respond-to(mobile) {
+                margin-bottom: rem-calc(80);
+                max-height: calc(100vh - 375px);
+            }
+
+            @include respond-to(desktop) {
+                &-two {
+                    overflow: hidden;
+                }
+
+                &-more {
+                    min-height: rem-calc(420);
+                    max-height: rem-calc(420);
+                }
+            }
+        }
+
+        .collection-point {
+            padding: rem-calc(16) rem-calc(16) rem-calc(24);
+            box-shadow: 0 rem-calc(2) rem-calc(4) 0 $french-gray;
+            border: 1px solid $athens-gray;
+            margin-bottom: rem-calc(24);
+            border-radius: rem-calc(4);
+            display: flex;
+            position: relative;
+
+            .g-radio-input {
+                cursor: pointer;
+                width: 100%;
+                height: 100%;
+                max-width: 100% !important;
+                max-height: 100% !important;
+                clip: initial !important;
+                opacity: 0;
+            }
+
+            &.selected {
+                border: 1px solid $black;
+            }
+
+            @include respond-to(desktop) {
+                align-items: center;
+            }
+
+            @include respond-to(mobile) {
+                padding: rem-calc(16) rem-calc(8) rem-calc(16) rem-calc(16);
+            }
+
+            .collection-point-store {
+                display: flex;
+                justify-content: space-between;
+                @include font(main, rem-calc(12), 1.67);
+
+                color: $grey5;
+                align-items: center;
+                flex-basis: 100%;
+
+                @include respond-to(mobile) {
+                    flex-wrap: wrap;
+                }
+
+                .collection-point-store-name {
+                    @include font(main, rem-calc(14), 1.43);
+
+                    font-weight: 600;
+                    color: $black;
+                    margin-bottom: rem-calc(4);
+                }
+
+                .collection-point-store-bottom {
+                    text-align: right;
+
+                    @include respond-to(mobile) {
+                        flex-basis: 100%;
+                        margin-top: rem-calc(12);
+                        display: flex;
+                        justify-content: space-between;
+                    }
+
+                    .collection-point-store-distance {
+                        @include respond-to(mobile) {
+                            display: inline-block;
+                            order: 2;
+                        }
+
+                        @include respond-to(desktop) {
+                            margin-bottom: rem-calc(4);
+                        }
+                    }
+
+                    .collection-point-store-hours {
+                        text-decoration: underline;
+                        cursor: pointer;
+                    }
+
+                    .g-tooltip-text {
+                        width: rem-calc(189);
+                        right: 0;
+                        transform: translateX(4%);
+                        left: auto;
+                        top: calc(100% + 10px);
+                        padding: rem-calc(16) rem-calc(16) rem-calc(11);
+                        text-align: initial;
+                        z-index: 2;
+
+                        @include respond-to(mobile) {
+                            left: 0;
+                            right: auto;
+                            transform: none;
+                        }
+
+                        .date-time {
+                            .last-child {
+                                float: right;
+                            }
+                        }
+
+                        &::after {
+                            left: 80%;
+
+                            @include respond-to(mobile) {
+                                left: 20%;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        .b-collectionpoint-locator-formgroup {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: rem-calc(32);
+
+            @include respond-to(mobile) {
+                flex-wrap: wrap;
+                margin-bottom: rem-calc(16);
+            }
+
+            .b-input_row,
+            .b-store-searchbutton {
+                margin-bottom: 0;
+                flex-basis: rem-calc(212);
+                max-width: rem-calc(212);
+
+                @include respond-to(mobile) {
+                    max-width: 100%;
+                    flex-basis: 100%;
+                    padding-bottom: rem-calc(16);
+                }
+            }
+
+            .b-store-searchbutton {
+                @include respond-to(mobile) {
+                    padding-bottom: rem-calc(16);
+                    border-bottom: 1px solid $grey3;
+                }
+
+                button {
+                    @include respond-to(mobile) {
+                        max-width: 100%;
+                    }
+                }
+            }
+        }
+
+        .b-collectionpoint-buttons {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: $white;
+            left: 0;
+            padding: rem-calc(31) rem-calc(118) rem-calc(40);
+            text-align: right;
+            border-top: 1px solid $nobel;
+            z-index: 1;
+
+            @include respond-to(mobile) {
+                position: fixed;
+                padding: rem-calc(16) 0;
+                margin: 0 rem-calc(16);
+                width: calc(100% - 32px);
+
+                button {
+                    max-width: 100%;
+                }
+            }
+
+            .btn-collection-point-close {
+                @include font(main, rem-calc(16), 1.5);
+
+                color: $grey5;
+                text-decoration: underline;
+                background: transparent;
+                border: 0;
+                margin-right: rem-calc(36);
+                cursor: pointer;
+
+                @include respond-to(mobile) {
+                    display: none;
+                }
+            }
+
+            .error-message-text {
+                @include font(main, rem-calc(14), 1.43);
+
+                color: $red;
+                margin-top: rem-calc(16);
+
+                @include respond-to(mobile) {
+                    text-align: center;
+                }
+            }
+        }
+    }
+}

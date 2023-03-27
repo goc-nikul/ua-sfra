@@ -1,0 +1,9 @@
+<!--- TEMPLATENAME: 2c2PaySummary.isml --->
+<div class="2c2pay-method-name">
+    <span>
+        <isprint value="${payment.name}"/>
+    </span>
+</div>
+<div class="2c2pay-amount">
+    ${dw.util.StringUtils.formatMoney(new dw.value.Money(payment.amount, pdict.CurrentSession.currency.currencyCode))}
+</div>

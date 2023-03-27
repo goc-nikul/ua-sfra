@@ -1,0 +1,146 @@
+@import '../components/g-reward-card';
+
+.mhmodal {
+    .g-modal-dialog {
+        @include respond-to(desktop) {
+            margin: 0 auto;
+            max-width: rem-calc(395);
+            max-height: rem-calc(670);
+        }
+    }
+
+    .g-modal-close {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        position: relative;
+        top: auto;
+        left: auto;
+        right: auto;
+        padding: 0 rem-calc(20);
+        height: rem-calc(58);
+
+        .g-modal-close-button {
+            position: relative;
+            width: rem-calc(12);
+            height: rem-calc(12);
+
+            &::after,
+            &::before {
+                top: rem-calc(9.19);
+                background-color: $white;
+                height: rem-calc(2);
+
+                @include respond-to(desktop) {
+                    background-color: $black;
+                    height: rem-calc(1);
+                    width: rem-calc(12);
+                }
+            }
+        }
+    }
+
+    .g-modal-content {
+        background-color: $black;
+        display: grid;
+        grid-template-rows: rem-calc(58) 1fr rem-calc(90);
+        padding: 0;
+
+        @include respond-to(desktop) {
+            background-color: $white;
+        }
+    }
+
+    &__body-content {
+        -ms-overflow-style: auto;
+        overflow-y: auto;
+        padding: 0 rem-calc(50) rem-calc(30);
+        height: calc(100% - #{rem-calc(123)});
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: start;
+        align-items: center;
+    }
+
+    &__oos-msg {
+        margin: 10px 0;
+    }
+
+    &_vcenter {
+        @include respond-to(desktop) {
+            margin: rem-calc(28) auto;
+            min-height: calc(100% - (#{rem-calc(28)} * 2));
+            display: flex;
+            align-items: center;
+        }
+    }
+
+    .g-modal-body {
+        height: calc(100vh - #{rem-calc(148)});
+        overflow: hidden;
+
+        @include respond-to(desktop) {
+            height: 100vh;
+            max-height: rem-calc(522);
+        }
+    }
+
+    .g-modal-footer {
+        width: 100%;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: center;
+        border-top: rem-calc(1) solid $white;
+        height: rem-calc(90);
+        margin: 0;
+        background-color: $black;
+
+        @include respond-to(desktop) {
+            border-color: $black;
+            background-color: $white;
+        }
+
+        .btn {
+            background-color: $white;
+            color: $black;
+
+            @include respond-to(desktop) {
+                background-color: $black;
+                color: $white;
+            }
+        }
+    }
+
+    &__header {
+        font-family: $font-base;
+        color: $white;
+        width: 100%;
+        margin: rem-calc(20) 0;
+        text-align: center;
+        @include font(main_bold, rem-calc(14), rem-calc(20));
+
+        @include respond-to(desktop) {
+            color: $black;
+        }
+    }
+
+    &__points {
+        height: rem-calc(63);
+        background-color: $loyalty-red;
+        width: 100%;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        align-items: center;
+        font-family: $font-base;
+        color: $white;
+        text-transform: uppercase;
+
+        @include font(main_bold, rem-calc(18), rem-calc(26));
+
+        &-value {
+            margin: 0 rem-calc(5) 0 0;
+        }
+    }
+}

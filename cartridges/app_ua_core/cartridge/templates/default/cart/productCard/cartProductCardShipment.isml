@@ -1,0 +1,86 @@
+<!--- Edit product --->
+<isif condition="${pdict.storeObj}">
+    <isset name="selectedStore" value="${pdict.storeObj.ID}" scope="page" />
+    <isset name="store" value="${require('dw/catalog/StoreMgr').getStore(selectedStore)}" scope="page" />
+</isif>
+
+<isset name="storeInventory" value="${'storeInventory' in lineItem.custom && lineItem.custom.storeInventory ? parseFloat(lineItem.custom.storeInventory).toFixed(0) : ''}" scope="page" />
+<div class="b-product_shipaddress">
+    <a href="${URLUtils.url('Stores-ShipToAddress', 'pid', lineItem.id, 'uuid', lineItem.UUID)}" class="anchor-link new-link ${!lineItem.custom.fromStoreId || !lineItem.custom.instoreAvailability ? 'selected' : ''}">
+        <div class="b-product_listcard">
+            <div class="b-product_list-input">
+                <input type="radio" id="cart-shipping-product-${typeof lineItem !=='undefined' ? lineItem.UUID :''}" name="cart-store-product-${typeof lineItem !=='undefined' ? lineItem.UUID :''}" class="input-radio g-radio-input" <isif condition="${!lineItem.custom.fromStoreId || !lineItem.custom.instoreAvailability}"> checked</isif>>
+                <label for="cart-shipping-product-${typeof lineItem !=='undefined' ? lineItem.UUID :''}" class="g-radio-label"></label>
+            </div>
+            <div class="b-product_list-label">
+                <img src="${URLUtils.staticURL('/images/UAtruck.svg')}" alt="${Resource.msg('cart.ship.to.address', 'storeLocator', null)}" title="${Resource.msg('cart.ship.to.address', 'storeLocator', null)}">
+                <span class="label-text">${Resource.msg('cart.ship.to.address', 'storeLocator', null)}</span>
+            </div>
+        </div>
+    </a>
+</div>
+<div class="b-product_pickup bfx-remove-element">
+    <isif condition="${!pdict.storeObj || !pdict.storeObj.ID}">
+        <a href="${URLUtils.url('Stores-InventorySearch', 'showMap', false, 'horizontalView', true, 'isForm', true)}" class="btn btn-block cart-pid btn-get-in-store-inventory btn-outline-primary" data-action-url="${URLUtils.url('Stores-InventorySearch', 'showMap', false, 'horizontalView', true, 'isForm', true)}" data-pid="${lineItem.id}" data-uuid="${lineItem.UUID}" data-ats-action-url="${pdict.pickUpInStore ? pdict.pickUpInStore.atsActionUrl : ''}">
+            <div class="b-store-choose-link">
+                <span class="b-store-choose-content b-product_listcard">
+                    <div class="b-product_list-input">
+                        <input type="radio" id="cart-store-product-${typeof lineItem !=='undefined' ? lineItem.UUID :''}" name="cart-store-product-${typeof lineItem !=='undefined' ? lineItem.UUID :''}" class="input-radio g-radio-input">
+                        <label for="cart-store-product-${typeof lineItem !=='undefined' ? lineItem.UUID :''}" class="g-radio-label"></label>
+                    </div>
+                    <div class="b-product_list-label">
+                        <img src="${URLUtils.staticURL('/images/store.svg')}" alt="${Resource.msg('button.choose.store', 'storeLocator', null)}" title="${Resource.msg('title.hero.choosestore', 'storeLocator', null)}">
+                        <span class="b-store-heading label-text">${Resource.msg('label.item.pdp.heading','product',null)}</span>
+                        <span class="b-choose-store">${Resource.msg('button.choose.store','storeLocator',null)}</span>
+                    </div>
+                </span>
+            </div>
+        </a>
+    <iselse>
+        <a href="${URLUtils.url('Stores-UpdateBopisShipments', 'newStoreId', pdict.storeObj.ID, 'pid', lineItem.id, 'uuid', lineItem.UUID)}" class="anchor-link new-link ${(!lineItem.custom.instoreAvailability) || (!lineItem.custom.instoreAvailability && pdict.storeObj.basketHasStores) ? 'disabled' : ''} ${lineItem.custom.instoreAvailability && lineItem.custom.fromStoreId ? 'selected' : ''}" data-uuid="${lineItem.UUID}">
+            <div class="b-store-choose-link">
+                <span class="b-store-choose-content b-product_listcard">
+                    <div class="b-product_list-input">
+                        <input type="radio" id="cart-store-product-${typeof lineItem !=='undefined' ? lineItem.UUID :''}" name="cart-store-product-${typeof lineItem !=='undefined' ? lineItem.UUID :''}" class="input-radio g-radio-input" <isif condition="${lineItem.custom.instoreAvailability && lineItem.custom.fromStoreId}"> checked</isif>>
+                        <label for="cart-store-product-${typeof lineItem !=='undefined' ? lineItem.UUID :''}" class="g-radio-label"></label>
+                    </div>
+                    <div class="b-product_list-label">
+                        <img src="${URLUtils.staticURL('/images/store.svg')}" alt="${Resource.msg('button.choose.store', 'storeLocator', null)}" title="${Resource.msg('title.hero.choosestore', 'storeLocator', null)}">
+                        <isif condition="${lineItem.custom.instoreAvailability && (store.custom.enableStore !== false)}">
+                            <isif condition="${pdict.storeObj.basketHasStores && !('fromStoreId' in shipment.custom && shipment.custom.fromStoreId) && (pdict.bopisShipments && pdict.bopisShipments.length == 1)}"> 
+                                <span class="label-text store-label-text">
+                                    <div><span class="highlight"><isprint value="${lineItem.custom.storeAvailabilityMsg}" /></span> ${Resource.msg('store.product.at','storeLocator',null)} <span class="underline btn-get-in-store-inventory" data-action-url="${URLUtils.url('Stores-InventorySearch', 'showMap', false, 'horizontalView', true, 'isForm', true)}">${pdict.storeObj.name}</span></div>
+                                    <isif condition="${storeInventory && storeInventory > 0 && storeInventory < 11}">
+                                        <div class="store-availability-message">${Resource.msgf('cart.pli.available.items', 'storeLocator', null, storeInventory)}</div>
+                                    </isif>
+                                </span>
+                            <iselseif condition="${lineItem.custom.instoreAvailability && pdict.storeObj.basketHasStores && shipment.custom.fromStoreId}" >
+                                <span class="label-text store-label-text">
+                                    <div><span class="highlight"><isprint value="${lineItem.custom.storeAvailabilityMsg}" /></span></div>
+                                    <isif condition="${storeInventory && storeInventory > 0 && storeInventory < 11}">
+                                        <div class="store-availability-message">${Resource.msgf('cart.pli.available.items', 'storeLocator', null, storeInventory)}</div>
+                                    </isif>
+                                </span>
+                            <iselseif condition="${pdict.storeObj.basketHasStores && !shipment.custom.fromStoreId}" >
+                                <span class="label-text store-label-text">
+                                    <div><span class="highlight"><isprint value="${lineItem.custom.storeAvailabilityMsg}" /></span></div>
+                                    <isif condition="${storeInventory && storeInventory > 0 && storeInventory < 11}">
+                                        <div class="store-availability-message">${Resource.msgf('cart.pli.available.items', 'storeLocator', null, storeInventory)}</div>
+                                    </isif>
+                                </span>
+                            </isif>
+                        <iselseif condition="${!lineItem.custom.instoreAvailability && pdict.storeObj.basketHasStores}">
+                             <span class="label-text store-label-text">
+                                 <div><span class="unavailable">${Resource.msg('cart.store.pickup.unavailable', 'storeLocator', null)}</span></div>
+                             </span>
+                        <iselse>
+                            <span class="label-text store-label-text">
+                                <div><span class="unavailable">${Resource.msg('cart.store.pickup.unavailable', 'storeLocator', null)}</span> ${Resource.msg('store.product.at','storeLocator',null)} <span class="underline btn-get-in-store-inventory" data-action-url="${URLUtils.url('Stores-InventorySearch', 'showMap', false, 'horizontalView', true, 'isForm', true)}">${pdict.storeObj.name}</span></div>
+                            </span>
+                        </isif>
+                    </div>
+                </span>
+            </div>
+        </a>
+    </isif>
+</div>

@@ -1,0 +1,281 @@
+.b-giftcard {
+    &__balance-title {
+        @include t-title-3;
+    }
+
+    &__balance-subtitle {
+        @include t-title-6;
+
+        &.caMessage {
+            @include font(main, rem-calc(13), rem-calc(16));
+
+            margin-bottom: rem-calc(10);
+        }
+    }
+
+    &__balance-slot {
+        display: flex;
+        padding: rem-calc(100) 0 0;
+
+        @include respond-to(mobile) {
+            display: block;
+            padding: 0;
+        }
+    }
+
+    &__checkbalance {
+        @include grid-col(6);
+
+        padding: rem-calc(58) rem-calc(78);
+
+        @include respond-to(mobile) {
+            @include grid-col(12);
+
+            padding: rem-calc(30) rem-calc(24) !important;
+        }
+    }
+
+    &__slot-half {
+        @include grid-col(6);
+
+        padding: 0 !important;
+
+        @include respond-to(mobile) {
+            display: none;
+        }
+    }
+
+    &__checkbalance-form {
+        padding: rem-calc(20) 0 0;
+    }
+
+    &__top-content {
+        @include base-wrapper;
+
+        text-align: center;
+        padding: rem-calc(102) 0 rem-calc(122);
+
+        @include respond-to(mobile) {
+            padding: rem-calc(31) 0 rem-calc(32);
+        }
+    }
+
+    &__landing-wrapper {
+        max-width: rem-calc(430);
+        width: 100%;
+        margin: 0 auto;
+
+        @include respond-to(mobile) {
+            margin: 0;
+        }
+    }
+
+    &__topbanner-content {
+        width: auto;
+        margin: 0 auto;
+        display: inline-block;
+
+        @include respond-to(mobile) {
+            max-width: rem-calc(175);
+        }
+
+        h5 {
+            @include font(main_bold, rem-calc(16), 1.5rem);
+        }
+
+        h2 {
+            @include font(main_bold, rem-calc(32), 1);
+
+            padding-bottom: rem-calc(12);
+
+            @include respond-to(mobile) {
+                font-size: rem-calc(24);
+                line-height: 1.2;
+                padding-top: rem-calc(12);
+            }
+        }
+
+        span {
+            font-size: rem-calc(14);
+            line-height: rem-calc(20);
+
+            @include respond-to(mobile) {
+                font-size: rem-calc(14);
+                max-width: rem-calc(150);
+                width: 100%;
+                display: block;
+                margin: rem-calc(6) auto 0;
+            }
+        }
+    }
+
+    &__banner-top {
+        @include base-wrapper;
+
+        display: flex;
+
+        @include respond-to(mobile) {
+            display: block;
+        }
+    }
+
+    &__banner-top-left,
+    &__banner-top-right {
+        @include grid-col(6);
+
+        @include respond-to(mobile) {
+            @include grid-col(12);
+        }
+    }
+
+    &__banner-top-right {
+        @include respond-to(mobile) {
+            margin-top: rem-calc(40);
+        }
+    }
+
+    &__banner-image {
+        position: relative;
+
+        img {
+            max-width: 100%;
+        }
+    }
+
+    &__banner-bottom-content {
+        padding: rem-calc(20) 0 0;
+
+        h5 {
+            @include font(main_bold, rem-calc(16), 1.5rem);
+        }
+
+        p {
+            color: $grey5;
+        }
+
+        @include respond-to(mobile) {
+            padding: rem-calc(16) 0 0;
+        }
+    }
+}
+
+.f-giftcardinput {
+    &__balance {
+        max-width: rem-calc(283);
+        width: 100%;
+    }
+
+    &__pin {
+        max-width: rem-calc(126);
+        width: 100%;
+    }
+
+    &__button {
+        max-width: rem-calc(208);
+        width: 100%;
+    }
+}
+
+.x-ua-hover-div {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 100%;
+    padding-top: 30%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: all 0.5s ease;
+    text-align: center;
+
+    .x-ua-new-white-cta {
+        display: inline-block;
+        padding: rem-calc(11.5) rem-calc(20);
+        border: 2px solid $white;
+        color: $white;
+        font-size: rem-calc(13);
+        font-weight: $font-bold;
+    }
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.gift-card {
+    &__balance-form-row.b-submit-result {
+        display: flex;
+
+        .form-row-button {
+            @include grid-col(6);
+
+            padding-left: 0 !important;
+        }
+
+        .b-balance-result-wrapper {
+            @include grid-col(6);
+
+            display: none;
+        }
+    }
+
+    &__balance-title {
+        font-size: 1rem;
+        line-height: 1;
+        font-weight: $font-bold;
+    }
+
+    &__balance-symbol,
+    &__balance-value {
+        font-size: rem-calc(32);
+        line-height: 1;
+        font-weight: $font-bold;
+
+        @include respond-to(phones) {
+            font-size: rem-calc(25);
+        }
+        @include respond-to(iphonesse) {
+            font-size: rem-calc(20);
+        }
+        @include respond-to(iphonef) {
+            font-size: rem-calc(16);
+        }
+    }
+
+    &__balance-ca-symbol {
+        @include font(main_bold, rem-calc(22), rem-calc(1));
+        @include respond-to(phones) {
+            font-size: rem-calc(18);
+        }
+        @include respond-to(iphonef) {
+            font-size: rem-calc(16);
+        }
+    }
+}
+
+.giftCard-available-balance-errormsg {
+    color: $red;
+}
+
+.b-cardnumber_demo {
+    display: flex;
+    align-items: center;
+    padding-top: 5px;
+
+    span.b-demo-image {
+        background: url('../../images/iconimages/cardnumber.png') no-repeat;
+        height: rem-calc(23);
+        width: rem-calc(40);
+        max-width: 100%;
+        line-height: 1;
+    }
+
+    span {
+        font-size: rem-calc(11);
+        color: $red;
+        text-transform: uppercase;
+        font-weight: $font-bold;
+        line-height: 1;
+        margin-left: 5px;
+    }
+}

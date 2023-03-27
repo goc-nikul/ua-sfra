@@ -1,0 +1,60 @@
+<isset name="productAdded" value="${pdict.ProductDetails}" scope="page" />
+<isset name="sizeValue" value="${pdict.sizeValue}" scope="page" />
+<div class="b-add-to-cart-confirmation-modal-container">
+   <div class="b-add-to-cart-confirmation-modal-header">
+      <div class="t-product-qty">
+         <span class="b-header_cart-added-confirmation-modal-number-of-items number-of-items">(${parseInt(pdict.Quantity) === 1 ? Resource.msgf('label.number.item.added.to.cart','cart', null, pdict.Quantity) : Resource.msgf('label.number.item.added.to.cart', null, pdict.Quantity)})</span>
+         <span class="b-header_cart-added-confirmation-modal-title">${Resource.msg('title.item.added.to.cart','cart',null)}</span>
+      </div>
+      <div class="g-modal-header">
+         <div class="g-password-modal-close">
+            <button type="button" class="close pull-right" data-dismiss="modal" aria-label="Close"></button>
+         </div>
+      </div>
+   </div>
+   <div class="b-add-to-cart-confirmation-item">
+      <div class="b-confirmation-item-image">
+         <img src="${ typeof productAdded.getImage('cartFullDesktop', 0) !== 'undefined' ? productAdded.getImage('cartFullDesktop', 0).URL : null}" class="" title="${typeof productAdded.getImage('cartFullDesktop', 0) !== 'undefined' ? productAdded.getImage('cartFullDesktop', 0).title : null}"  alt="${typeof productAdded.getImage('cartFullDesktop', 0) !== 'undefined' ? productAdded.getImage('cartFullDesktop', 0).alt : ''} image number 0" itemprop="image" />
+      </div>
+      <div class="b-confirmation-item-details">
+         <div class="b-confirmation-item-name">
+            <span>
+               <isprint value="${(productAdded && productAdded.name ? productAdded.name : '')}" encoding="off" />
+            </span>
+         </div>
+         <isif condition="${!empty(productAdded) && !(productAdded.custom.giftCard.value === 'EGIFT_CARD' || productAdded.custom.giftCard.value === 'GIFT_CARD')}">
+            <div class="b-confirmation-item-attributes">
+               <isif condition="${!empty(sizeValue)}">
+                  <p class="b-confirmation-item-size">${Resource.msg('label.item.added.to.cart.size','cart',null)}: ${sizeValue.displayValue ? sizeValue.displayValue : sizeValue.value}</p>
+               </isif>
+               <isif condition="${!empty(productAdded.custom && productAdded.custom.length)}">
+                  <p class="b-confirmation-item-length">${Resource.msg('label.item.added.to.cart.Length','cart',null)}: ${productAdded.custom.length}</p>
+               </isif>
+            </div>
+            <iselse>
+                <div class="b-confirmation-item-attributes">
+                    <isif condition="${!empty(productAdded) && (productAdded.custom.giftCard.value === 'EGIFT_CARD')}">
+                        <p class="b-confirmation-item-size">${Resource.msg('label.item.added.to.cart.amount','cart',null)}: ${pdict.Amount}</p>
+                    <iselseif condition="${!empty(productAdded && productAdded.priceModel.price.value)}" >
+                        <p class="b-confirmation-item-size">${Resource.msg('label.item.added.to.cart.amount','cart',null)}: ${productAdded.priceModel.price.decimalValue}</p>
+                    </isif>
+                </div>
+            </isif>
+            <isif condition="${pdict.isPersonalizationEligible}">
+                <div class="b-personalization-content">
+                    <isif condition="${pdict.personalizationDetail}">
+                        <div class="b-personalization-detail"><isprint value="${pdict.personalizationDetail}"/></div>
+                    </isif>
+                    <isif condition="${pdict.optionalItemPrice}">
+                        <span class="with-text"><isprint value="${Resource.msgf('personalize.price.detail', 'personalize', null, pdict.optionalItemPrice)}"/></span>
+                    </isif>
+                </div>
+            </isif>
+        <isif condition="${!empty(productAdded) && productAdded.custom.isPreOrder && productAdded.custom.preOrderProductTileMessage}">
+            <div class="b-confimation-item-preorder-mask">
+                ${productAdded.custom.preOrderProductTileMessage}
+            </div>
+        </isif>
+      </div>
+   </div>
+</div>

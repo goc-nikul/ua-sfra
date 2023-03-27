@@ -1,0 +1,136 @@
+.b-suggestions {
+    @include respond-to(desktop) {
+        @include flyout-absolute-common;
+
+        max-height: calc(100vh - #{rem-calc(140)});
+        background: $modal-bg;
+        transition: all 0.3s linear;
+        z-index: 1;
+
+        &::before {
+            @include flyout-absolute-common;
+
+            content: '';
+            height: 100vh;
+            background: $black;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    }
+
+    .b-tile_badge-recently-viewed {
+        display: none;
+    }
+
+    &-flyout {
+        @include respond-to(desktop) {
+            @include grid-container;
+
+            padding-top: rem-calc(56);
+            padding-bottom: rem-calc(16);
+        }
+    }
+
+    &-container {
+        @include grid-row($media: desktop);
+    }
+
+    &-products {
+        @include grid-col(9, $media: desktop);
+        @include grid-col(8, $media: desktop-large);
+
+        @include respond-to(desktop-large) {
+            @include grid-col-offset(1);
+        }
+
+        @include respond-to(desktop) {
+            order: -1;
+        }
+    }
+
+    &-results {
+        float: right;
+
+        &-link {
+            @include font(main_med, rem-calc(14), rem-calc(20));
+
+            color: $black;
+            text-decoration: underline;
+
+            @include respond-to(mobile) {
+                display: none;
+            }
+
+            &:hover {
+                text-decoration: none;
+            }
+        }
+    }
+
+    &-info {
+        @include grid-col(3, $media: desktop);
+
+        @include respond-to(tablets-landscape) {
+            padding-left: rem-calc(50);
+        }
+
+        @include respond-to(desktop-large) {
+            padding-left: rem-calc(75);
+        }
+    }
+
+    &-section {
+        padding-bottom: spacing(xs);
+
+        @include respond-to(desktop) {
+            padding-bottom: rem-calc(40);
+        }
+    }
+
+    &-title {
+        font-size: rem-calc(12);
+
+        @include respond-to(mobile) {
+            color: $grey5;
+        }
+
+        @include respond-to(desktop) {
+            @include font(main_med, rem-calc(14), rem-calc(20));
+
+            margin-bottom: rem-calc(16);
+        }
+    }
+
+    &-title_noresult {
+        @include t-title-5;
+
+        margin-top: rem-calc(24);
+        margin-bottom: rem-calc(24);
+
+        @include respond-to(mobile) {
+            padding-left: rem-calc(16);
+        }
+    }
+
+    &-text_noresult {
+        @include respond-to(mobile) {
+            padding-left: rem-calc(16);
+        }
+
+        @include respond-to(desktop) {
+            color: $grey5;
+        }
+    }
+
+    &-recommendation {
+        @include respond-to(phones) {
+            display: none;
+        }
+    }
+
+    &-recommendation_container {
+        @include respond-to(tablets) {
+            margin-top: rem-calc(16);
+        }
+    }
+}

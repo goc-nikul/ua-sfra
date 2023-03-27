@@ -1,0 +1,25 @@
+<div class="g-carousel-slide swiper-slide ${pdict.account.wishlist.length < 4 ? 'g-carousel-slide-less' : ''}">
+	<div class="account-wishlist-item card b-tile">
+		    <div class="b-tile-variations_container">
+		        <a href = "${URLUtils.url('Product-Show','pid', product.id)}">
+	           <img class="product-image img-fluid b-tile-images_container" src="${typeof  product.images !=='undefined' ? product.images.desktop.main.URL: null}" alt="${typeof product.images !== 'undefined' ? product.images.desktop.main.alt: null}" title="${typeof product.images !== 'undefined' ? product.images.desktop.main.title : null}">
+				</a>
+		        <button class="b-tile-fav_defultButton remove-btn remove-from-wishlist" data-url="${URLUtils.url('Wishlist-RemoveProductAccount','pid', product.id)}" aria-label="remove" data-pid="${product.id}">
+		            <span class="b-tile-fav_selectButton js-whislist-icon"></span>
+		        </button>
+		    </div>
+	    <div class="b-tile-info">
+		    <div class="b-tile-gift-container">
+		        <!--- product name--->
+		        <a href = "${URLUtils.url('Product-Show','pid', product.id)}">
+			        <div class="line-item-name b-tile-name">
+                        ${product.productName}
+			        </div>
+		        </a>
+		        <div class="b-price-value">
+		            <isinclude template="wishlist/components/productListItemProductPrice" />
+		        </div>
+		    </div>
+		</div>
+	</div>
+</div>

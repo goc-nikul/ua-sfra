@@ -1,0 +1,13 @@
+name: 'Build Packages'
+description: 'Build Packages'
+runs:
+  using: "composite"
+  steps:
+    - name: Build Packages
+      shell: bash
+      run: .build/build.sh
+    - name: Archive code and metadata packages
+      uses: actions/upload-artifact@v2
+      with:
+        name: code-and-metadata
+        path: out/artifacts

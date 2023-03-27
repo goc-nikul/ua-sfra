@@ -1,0 +1,32 @@
+.b-back_to_top {
+    @include base-wrapper;
+
+    position: fixed;
+    right: 0;
+    left: 0;
+    bottom: spacing(xl);
+    visibility: hidden;
+    z-index: 1;
+    text-align: right;
+    height: 0;
+    overflow: visible;
+
+    @include respond-to(phones-landscape) {
+        bottom: spacing(xl2);
+    }
+
+    &.m-shown {
+        visibility: visible;
+    }
+
+    &-button {
+        @include button-to-link;
+        @include icon(caret-up, $size: 32);
+        @include respond-to(desktop-large) {
+            margin-right: 4%;
+        }
+
+        cursor: pointer;
+        color: $black;
+    }
+}

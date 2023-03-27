@@ -1,0 +1,52 @@
+<form action="" class="login-oauth" method="post" name="login-oauth-form">
+    <div class="form-group">
+        <a href="${URLUtils.https('Login-OAuthLogin', 'oauthProvider', 'Under Armour', 'oauthLoginTargetEndPoint', pdict.oAuthReentryEndpoint)}" class="btn btn-block btn-outline-primary oauth-underarmour"
+           role="button" aria-pressed="true">
+            <i class="fa fa-underarmour" aria-hidden="true"></i>
+            ${Resource.msg('button.text.oauth.underarmour', 'login', null)}
+        </a>
+    </div>
+    <div class="form-group">
+        <a href="${URLUtils.https('Login-OAuthLogin', 'oauthProvider', 'Google', 'oauthLoginTargetEndPoint', pdict.oAuthReentryEndpoint)}" class="btn btn-block btn-outline-primary oauth-google"
+           role="button" aria-pressed="true">
+            <i class="fa fa-google" aria-hidden="true"></i>
+            ${Resource.msg('button.text.oauth.google', 'login', null)}
+        </a>
+    </div>
+    <div class="form-group">
+        <a href="${URLUtils.https('Login-OAuthLogin', 'oauthProvider', 'Facebook', 'oauthLoginTargetEndPoint', pdict.oAuthReentryEndpoint)}" class="btn btn-block btn-outline-primary oauth-facebook"
+           role="button" aria-pressed="true">
+                <i class="fa fa-facebook-official" aria-hidden="true"></i>
+                ${Resource.msg('button.text.oauth.facebook', 'login', null)}
+        </a>
+    </div>
+    
+	<iscomment>
+	LinkedIn requires special partner approval in order to obtain email address. Uncomment only if
+	your storefront does not depend on customer profile including an email address. 
+	</iscomment>
+	<iscomment>
+    <div class="form-group">
+        <a href="${URLUtils.https('Login-OAuthLogin', 'oauthProvider', 'LinkedIn', 'oauthLoginTargetEndPoint', pdict.oAuthReentryEndpoint)}" class="btn btn-block btn-outline-primary oauth-linkedin"
+           role="button" aria-pressed="true">
+            <i class="fa fa-linkedin" aria-hidden="true"></i>
+            ${Resource.msg('button.text.oauth.linkedin', 'login', null)}
+        </a>
+    </div>
+    </iscomment>
+    
+	<iscomment>
+	Connect2id does not include identity provider functionality. Uncomment only if
+	custom login and consent pages have been implemented for your Connect2id server.
+	</iscomment>
+	<iscomment>
+    <div class="form-group">
+        <a href="${URLUtils.https('Login-OAuthLogin', 'oauthProvider', 'Connect2id', 'oauthLoginTargetEndPoint', pdict.oAuthReentryEndpoint)}" class="btn btn-block btn-outline-primary oauth-connect2id"
+           role="button" aria-pressed="true">
+            <i class="fa fa-connect2id" aria-hidden="true"></i>
+            ${Resource.msg('button.text.oauth.connect2id', 'login', null)}
+        </a>
+    </div>
+    </iscomment>
+</form>
+

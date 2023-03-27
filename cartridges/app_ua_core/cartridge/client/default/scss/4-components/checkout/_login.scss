@@ -1,0 +1,123 @@
+.b-checkout-login {
+    &_container {
+        margin: rem-calc(40) auto rem-calc(50);
+        padding: 0 rem-calc(24);
+
+        @include respond-to(desktop) {
+            max-width: rem-calc(498);
+            margin: rem-calc(56) auto rem-calc(150);
+        }
+    }
+
+    &_card {
+        margin-bottom: rem-calc(52);
+
+        @include respond-to(mobile) {
+            margin-bottom: rem-calc(48);
+        }
+    }
+
+    &_card-header-custom {
+        @include font(main_bold, rem-calc(24), 1.33);
+
+        margin-bottom: rem-calc(24);
+
+        @include respond-to(mobile) {
+            @include font(main_med, rem-calc(16), 1.5);
+        }
+    }
+
+    &_card-first {
+        @include respond-to(mobile) {
+            margin-bottom: rem-calc(8);
+        }
+    }
+
+    &_card-body {
+        p {
+            @include font(main, rem-calc(14), 1.43);
+
+            color: $grey5;
+            margin-bottom: rem-calc(24);
+
+            @include respond-to(mobile) {
+                @include font(main, rem-calc(12), 1.67);
+
+                margin-bottom: rem-calc(16);
+            }
+        }
+    }
+
+    &_button {
+        max-width: 100%;
+    }
+
+    .login-oauth-form-group {
+        margin-bottom: rem-calc(16);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .b-input_row {
+        margin-bottom: rem-calc(24);
+
+        &-combine {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: rem-calc(24);
+            align-items: center;
+        }
+    }
+
+    .password-reset {
+        @include font(main_med, rem-calc(12), 1.67);
+
+        color: $grey5;
+        text-decoration: none;
+        text-transform: capitalize;
+    }
+
+    .hide-password {
+        display: none;
+
+        @include respond-to(mobile) {
+            display: block;
+        }
+    }
+
+    .show-password {
+        @include respond-to(mobile) {
+            display: none;
+        }
+    }
+}
+
+.g-password-modal {
+    &-dialog {
+        max-width: rem-calc(544);
+        margin: rem-calc(28) auto;
+        min-height: calc(100% - (1.75rem * 2));
+    }
+
+    &-content {
+        padding: rem-calc(16);
+    }
+
+    &-header {
+        @include font(main_bold, rem-calc(24), 1.33);
+
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        border-bottom: 1px solid $grey3;
+        padding-bottom: rem-calc(20);
+    }
+
+    &-close {
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+    }
+}

@@ -1,0 +1,190 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<div class="b-ordersinfo">
+     <div class="b-order-view_section">
+         <div class="b-order-checksec-error hide">
+             <isif condition="${pdict.exchangeOrder}">
+                 ${Resource.msg('order.exchange.selection.error','account',null)}
+             <iselse>
+                 ${Resource.msg('order.return.selection.error','account',null)}
+             </isif>
+         </div>
+         <isif condition="${pdict.rmaDetailsPage && !pdict.exchangeDetailsPage}">
+             <div class="b-return-order">
+                 <span class="t_dashboard-order-creation-date">${Resource.msgf('label.orderhistory.status','account',null, order.status, order.creationDate)}</span>
+                 <span class="t_dashboard-order-number order-subText">
+                     <p class="t-dv-orderno">${Resource.msgf('label.orderhistory.ordertxt','account',null)} ${Resource.msgf('label.orderhistory.orderno','account',null, order.orderNo)}</p>
+                     <p class="t-mv-orderno">${Resource.msgf('label.orderhistory.ordernodot','account',null, order.orderNo)}</p>
+                 </span>
+             </div>
+         <iselse>
+             <div class="b-return-order">
+                 <isif condition="${order && order.isCommercialPickup && (order.status === 'PICKUP_READY' || order.status === 'PARTIAL_PICKUP' || order.status === 'PICKED_UP' || order.status === 'SHIPPED' || order.status === 'RETURNING')}">
+                    <isif condition="${order.status === 'PICKUP_READY'}">
+                        <span class="t_dashboard-order-creation-date">
+                            <isprint value="${Resource.msgf('label.readyfor.pickup','account',null, order.pickUpStore)}" />
+                            <isif condition="${order.updatedDate}">
+                                <isprint value="${',' + order.updatedDate}" />
+                             </isif>
+                        </span>
+                    <iselseif condition="${order.status === 'PARTIAL_PICKUP'}">
+                        <span class="t_dashboard-order-creation-date">
+                            <isprint value="${Resource.msgf('label.Partial.pickup','account',null, order.pickUpStore)}" />
+                            <isif condition="${order.updatedDate}">
+                                <isprint value="${',' + order.updatedDate}" />
+                             </isif>
+                        </span>
+                    <iselseif condition="${order.status === 'PICKED_UP'}">
+                        <span class="t_dashboard-order-creation-date">
+                            <isprint value="${Resource.msgf('label.picked.up','account',null, order.pickUpStore)}" />
+                            <isif condition="${order.updatedDate}">
+                                <isprint value="${',' + order.updatedDate}" />
+                             </isif>
+                        </span>
+                   <iselseif condition="${order.status === 'SHIPPED'}">
+                        <span class="t_dashboard-order-creation-date">
+                            <isprint value="${Resource.msgf('label.shippedto.store','account',null, order.pickUpStore)}" />
+                            <isif condition="${order.updatedDate}">
+                                <isprint value="${',' + order.updatedDate}" />
+                             </isif>
+                        </span>
+                   <iselseif condition="${order.status === 'RETURNING'}">
+                        <span class="t_dashboard-order-creation-date">
+                            <isprint value="${Resource.msgf('label.notPicked.up.at','account',null, order.pickUpStore)}" />
+                        </span>
+                   </isif>
+                   <span class="t_dashboard-order-placed order-subText">${Resource.msgf('label.orderdetails.placed','account',null, order.creationDate)}</span>
+                 <iselseif condition="${!pdict.exchangeDetailsPage && pdict.orderReturnItems !=null && pdict.orderReturnItems == 'select' }">
+                     <span class="t_dashboard-order-creation-date">${order.creationDate}</span>
+                 <iselseif condition="${!pdict.exchangeDetailsPage}">
+                     <isset name="isPendingShipmentUnfullfilledItems" value="${true}" scope="page" />
+                     <isif condition="${!pdict.isOrderDetailPage}">
+                         <span class="t_dashboard-order-creation-date ${order.status === 'DELIVERED' ? 'order-delivered' : ''} ${(order.status === 'CANCELLED' && order.status === 'CANCELED') ? 'order-canceled' : ''}">
+                            <isloop items="${order.orderItems}" var="orderItem" status="loopStatus">
+                               <isif condition="${order.orderItems.length > 1}">
+                                   <isif condition="${(orderItem.fulfillmentStatus ==='PENDING_SHIPMENT' || orderItem.fulfillmentStatus ==='UNFULFILLED') && order.status ==='PENDING_SHIPMENT'}">
+                                       <isset name="isPendingShipmentUnfullfilledItems" value="${false}" scope="page" />
+                                       <isbreak/>
+                                   </isif>
+                               </isif>
+                            </isloop>
+                             <isif condition="${(isPendingShipmentUnfullfilledItems && !order.bopisItemsOnly)}">
+                                 <isprint value="${order.displayStatus}"/>
+                                 <isif condition="${order.updatedDate}">
+                                     <isprint value="${', ' + order.updatedDate}" />
+                                 </isif>
+                             </isif>
+                             <isif condition="${order.bopisItemsOnly}">
+                                 <isprint value="${order.bopisDisplayStatus}"/>
+                             </isif>
+                         </span>
+                         <span class="t_dashboard-order-placed order-subText">${Resource.msgf('label.orderdetails.placed','account',null, order.creationDate)}</span>
+                     <iselse/>
+                         <span class="t_dashboard-order-creation-date ${order.status === 'DELIVERED' ? 'order-delivered' : ''} ${(order.status === 'CANCELLED' && order.status === 'CANCELED') ? 'order-canceled' : ''}">
+                               <isif condition="${order.orderItems.length > 1}">
+                                   <isif condition="${(orderItem.fulfillmentStatus ==='PENDING_SHIPMENT' || orderItem.fulfillmentStatus ==='UNFULFILLED') && order.status ==='PENDING_SHIPMENT'}">
+                                       <isset name="isPendingShipmentUnfullfilledItems" value="${false}" scope="page" />
+                                   </isif>
+                               </isif>
+                             <isif condition="${(isPendingShipmentUnfullfilledItems && !order.bopisItemsOnly && (loopStatus.count === (order.orderItems.length - nonBopisItemCount + 1)))}">
+                                 <isprint value="${order.displayStatus}"/>
+                                 <isif condition="${order.updatedDate}">
+                                     <isprint value="${', ' + order.updatedDate}" />
+                                 </isif>
+                             </isif>
+                             <isif condition="${order.bopisItemsOnly && loopStatus.last}">
+                                 <isprint value="${order.bopisDisplayStatus}"/>
+                             </isif>
+                         </span>
+                         <isif condition="${loopStatus.first}">
+                             <span class="t_dashboard-order-placed order-subText">${Resource.msgf('label.orderdetails.placed','account',null, order.creationDate)}</span>
+                         </isif>
+                     </isif>
+                 </isif>
+                 <isif condition="${!pdict.exchangeDetailsPage && !pdict.isOrderDetailPage}">
+                     <span class="t_dashboard-order-number order-subText">
+                         <p class="t-dv-orderno">${Resource.msgf('label.orderhistory.ordertxt','account',null)} ${Resource.msgf('label.orderhistory.orderno','account',null, order.orderNo)}</p>
+                         <p class="t-mv-orderno">${Resource.msgf('label.orderhistory.ordernodot','account',null, order.orderNo)}</p>
+                     </span>
+                 <iselseif condition="${pdict.isOrderDetailPage && loopStatus.first}" >
+                     <span class="t_dashboard-order-number order-subText">
+                         <p class="t-dv-orderno">${Resource.msgf('label.orderhistory.ordertxt','account',null)} ${Resource.msgf('label.orderhistory.orderno','account',null, order.orderNo)}</p>
+                         <p class="t-mv-orderno">${Resource.msgf('label.orderhistory.ordernodot','account',null, order.orderNo)}</p>
+                     </span>
+                 </isif>
+             </div>
+             <isif condition="${order && order.isEligibleForReturn}">
+                 <div class="b-return-itemselected">
+                     <isif condition="${pdict.orderReturnItems !=null && pdict.orderReturnItems == 'select' }">
+                         ${Resource.msgf('label.orderreturn.count','account',null)}<span class="t_dashboard-item-count">0</span>
+                     </isif>
+                 </div>
+                 <div class="b-return-selectall">
+                     <input id="selectAll" type="checkbox" />
+                     <label id="select-txt" for="selectAll" data-current="Select All" data-selectall="${Resource.msg('option.return.selectall','account',null)}" data-deselectall="${Resource.msg('option.return.deselectall','account',null)}">${Resource.msg('option.return.selectall','account',null)}</label>
+                 </div>
+                 <div class="b-return-continuebtn">
+                     <isif condition="${pdict.orderReturnItems !=null && pdict.orderReturnItems == 'select' }">
+                        <isif condition="${pdict.exchangeOrder}">
+                        <isif condition="${pdict.continueGuestExchangeURL}">
+                                 <isset name="continueExchangeURL" value="${pdict.continueGuestExchangeURL}" scope="page" />
+                             <iselse>
+                                 <isset name="continueExchangeURL" value="${URLUtils.url('Order-ContinueExchange')}" scope="page" />
+                             </isif>
+                             <input class="continue-return g-button_base g-button_primary--black ${pdict.continueGuestExchangeURL ? 'continue-guest-return' : ''}" type="submit" data-orderID="${order.orderNo}" data-url="${continueExchangeURL}" data-return="" value="${Resource.msg('label.order.continue.return','account',null)}">
+                        <iselse>
+                             <isif condition="${pdict.continueGuestReturnURL}">
+                                 <isset name="continueReturnURL" value="${pdict.continueGuestReturnURL}" scope="page" />
+                             <iselse>
+                                 <isset name="continueReturnURL" value="${URLUtils.url('Order-ContinueReturn')}" scope="page" />
+                             </isif>
+                             <input class="continue-return g-button_base g-button_primary--black ${pdict.continueGuestReturnURL ? 'continue-guest-return' : ''}" type="submit" data-orderID="${order.orderNo}" data-url="${continueReturnURL}" data-return="" value="${Resource.msg('label.order.continue.return','account',null)}">
+                        </isif>
+                     </isif>
+                 </div>
+                    <iscomment> For Bonus Product Pop-Up </iscomment>
+                    <isif condition="${session.custom.currentCountry === 'KR' && pdict.isBonusProductAvailable}">
+                        <div class="g-modal g-product-modal" id="warningpopup" tabindex="-1" role="dialog">
+                            <div class="g-modal-dialog g-afterpay-modal-dialog g-modal-top" role="document">
+                                <div class="g-modal-content g-afterpay-modal-content">
+                                    <div class="g-modal-body g-product-modal-body delete-confirmation-body">
+                                        <div class="afterpay-content">
+                                            <iscontentasset aid="return-bonus-pop-up" />
+                                        </div>
+                                    </div>
+                                    <div class="b-confirmation-modal-footer">
+                                        <div class="b-checkout-continue-sec">
+                                            <button class="btn btn-primary btn-block g-button_base g-button_primary--white countinue-shopping-btn g-button_secondary--black g-button_base close" data-dismiss="modal" aria-label="Close">
+                                            ${Resource.msg('button.popup.cancel','account',null)}</button>
+                                            <button role="button" aria-pressed="true" data-redirect-url="${continueReturnURL}" class="btn btn-primary btn-block g-button_base g-button_primary--black checkout-btn close pull-right closePopUp">
+                                            ${Resource.msg('button.popup.ok','account',null)}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </isif>
+             </isif>
+         </isif>
+     </div>
+     <isif condition="${!pdict.rmaDetailsPage && !pdict.isOrderDetailPage}">
+         <div class="b-card-track">
+             <isif condition="${order.status && (order.status === 'SHIPPED' || order.status === 'PARTIAL_SHIPPED' || order.status === 'PICKUP_READY' || order.status === 'RETURNING') && order.shipment && !empty(order.shipment.trackingLink)}">
+                 <span class="pull-left order-details-track"><a class="track_order g-button_primary--black g-button_base" target="_blank" href="${order.shipment.trackingLink}">${Resource.msg('label.trackorder','account',null)}</a> </span>
+             </isif>
+        </div>
+     <iselseif condition="${pdict.isOrderDetailPage && loopStatus.first}" />
+     	<div class="b-card-track">
+             <isif condition="${order.status && (order.status === 'SHIPPED' || order.status === 'PARTIAL_SHIPPED' || order.status === 'PICKUP_READY' || order.status === 'RETURNING') && order.shipment && !empty(order.shipment.trackingLink)}">
+                 <span class="pull-left order-details-track"><a class="track_order g-button_primary--black g-button_base" target="_blank" href="${order.shipment.trackingLink}">${Resource.msg('label.trackorder','account',null)}</a> </span>
+             </isif>
+        </div>
+     	
+    </isif>
+    <isif condition="${pdict.exchangeDetailsPage && (pdict.exchangeOrder.status == 'SHIPPED' || pdict.exchangeOrder.status == 'PARTIAL SHIPPED' || pdict.exchangeOrder.status == 'DELIVERED')}">
+        <div class="b-card-track">
+           <span class="pull-left order-details-track"><a class="track_order g-button_primary--black g-button_base" target="_blank" href="${pdict.exchangeOrder.shipment.trackingLink}">${Resource.msg('label.order.track','account',null)}</a> </span>
+        </div>
+    </isif>
+    <input type="hidden" id="returnService" data-value="${order.returnService}"/>
+</div>

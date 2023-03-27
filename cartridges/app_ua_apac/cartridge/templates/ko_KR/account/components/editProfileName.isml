@@ -1,0 +1,27 @@
+<isif condition="${!dw.system.Site.current.getCustomPreferenceValue('showOnlyLastNameAsNameField')}">
+    <div class="b-account_form-column">
+        <div class="form-group b-input_row">
+            <label class="form-control-label b-input_row-label" for="firstName">
+                <isprint value="${pdict.profileForm.customer.firstname.label}" encoding="htmlcontent" />
+            </label>
+            <input type="text" class="form-control b-input_row-input" id="firstName"
+                <isprint value="${pdict.profileForm.customer.firstname.attributes}" encoding="off" />>
+            <div class="invalid-feedback"><isprint value="${(typeof(pdict.profileFieldsError.firstName) !== 'undefined' && !empty(pdict.profileFieldsError.firstName) && !empty(pdict.firstName)) ?  pdict.profileFieldsError.firstName : ''}"/></div>
+        </div>
+    </div>
+</isif>
+
+<div class="b-account_form-column">
+    <div class="form-group b-input_row">
+        <label class="form-control-label b-input_row-label" for="lastName">
+            <isif condition="${!dw.system.Site.current.getCustomPreferenceValue('showOnlyLastNameAsNameField')}">
+                <isprint value="${pdict.profileForm.customer.lastname.label}" encoding="htmlcontent" />
+            <iselse/>
+                <isprint value="${Resource.msg('label.input.name.profile', 'forms', null)}" encoding="htmlcontent" />
+            </isif>
+        </label>
+        <input type="text" class="form-control b-input_row-input" data-missing-error="${Resource.msg('error.message.required', 'forms', null)}" id="lastName"
+            <isprint value="${pdict.profileForm.customer.lastname.attributes}" encoding="off" />>
+        <div class="invalid-feedback"><isprint value="${(typeof(pdict.profileFieldsError.lastName) !== 'undefined' && !empty(pdict.profileFieldsError.lastName) && !empty(pdict.lastName)) ?  pdict.profileFieldsError.lastName : ''}"/></div>
+    </div>
+</div>

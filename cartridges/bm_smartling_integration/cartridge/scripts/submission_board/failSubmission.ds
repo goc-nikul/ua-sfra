@@ -1,0 +1,27 @@
+/**
+* Fails Smartling submission on error
+*
+* @input status : dw.system.Status
+* @input submissionUUID : String
+*
+*/
+importPackage( dw.system );
+importScript( "/utils/ExceptionLog.ds" );
+importScript( "/dao/submission.ds");
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "failSubmission"));
+
+function execute( args : PipelineDictionary ) : Number
+{
+    // If import failed just skip submission
+    if (args.status != null && args.status.code != 'IMPEX-0')
+    {
+        return PIPELET_NEXT;
+    }
+    
+    var submission = getSubmissionByUUID(args.submissionUUID);
+    LOGGER.info('Submission failed {0}', submissionToString(submission));
+    setSubmissionStatusFailed(submission);
+
+    return PIPELET_NEXT;
+}

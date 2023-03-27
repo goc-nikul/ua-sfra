@@ -1,0 +1,676 @@
+importPackage( dw.system );
+importPackage( dw.catalog );
+
+/**
+ * ProductImageHelper is used to parse, process, and retrieve the product image
+ * properties for a given style or material.
+ * @param productCode the style or material code used to .
+ */
+ 
+function ProductImageHelper() {
+	
+	////////////////////////////////
+	// Initialize Constants
+	////////////////////////////////	
+			
+	// This structure will be used to cache material code look-ups		
+	this.cache = {};			
+	this.cache.materials = {};
+			
+	////////////////////////////////
+	// Style / Material Validation
+	////////////////////////////////		
+			
+	// This function is used to check / determine if a product code is a style
+	this.isStyleCode = function(productCode : String) : Boolean {
+	
+        // Initialize local variables
+        var delimiterCount;
+
+        // Count the number of code delimiters present in the string
+        delimiterCount = productCode.match(/-/g);
+        
+        // Was a delimiter found?  If not, 
+        if ( delimiterCount !== null ) return false;
+        
+        // A style has to at least by seven characters
+        if ( productCode.length !== 7 ) return false;
+
+        // If all rules pass, then this is a style
+        return true;
+		
+	};
+
+	// This function is used to check / determine if a product code is a material code
+	this.isMaterialCode = function(productCode : String) : Boolean {
+	
+        // Initialize local variables
+        var objArray = [];
+
+        // Was a code-separator found?
+        if ( productCode.indexOf("-") === -1 ) return false;
+
+        // Count the number of code delimiters present in the string
+        var delimiterCount = productCode.match(/-/g);
+
+        // If more than one delimeter is present, then this is not a material
+        if ( delimiterCount.length != 1 ) return false;
+
+        // A material has to at least by seven characters
+        if ( productCode.length > 11 ) return false;
+
+        // Split the array into style and material elements
+        objArray = productCode.split("-");
+
+        // Test the style code element of this product code
+        if ( !this.isStyleCode(objArray[0]) ) return false;
+
+        // Test that the material code is three characters
+        if ( objArray[1].length !== 3 ) return false;
+
+        // If all rules pass, then this is a style
+        return true;
+		
+	};
+
+	// This function is used to retrieve a style code from a given material code
+	this.getStyleFromMaterialCode = function(productCode: String) : String {
+			
+		// Split the product code, and capture the first element
+		var output = productCode.split("-")[0];
+		
+		// Return the style code
+		return output;
+		
+	};
+
+	this.getMaterialCodeSuffix = function(productCode: String) : String {
+		
+		// Split the product code, and capture the 2nd element
+		var output = productCode.split("-")[1];	
+		
+		// Return the material code suffix
+		return output;		
+		
+	};
+
+	// This function is used to retrieve all the materials for a given product.  We do
+	// this by iterating over each of the variants and pulling out unique material values.
+	this.getAllMaterials = function(styleCode: String) : Array {
+		
+		// Initialize local variables
+		var output, logger, pm, product, variants, thisVariant, thisColor;
+		
+		// Check and see if this structure has been cached; if so, then pull from the cache
+		if ( this.cache.materials.hasOwnProperty(styleCode) ) return this.cache.materials[styleCode];
+		
+		// Initialize the output object
+		var output = {};
+		
+		// Initialize the object / array representations
+		output["array"] = [];
+		output["obj"] = {};
+		
+		// Initialize the Check for New Images logging debugger	
+		logger = Logger.getLogger( "UAS7.CNI" );		
+		
+		// Create a reference to the Product Manager
+		pm = dw.catalog.ProductMgr;		
+		
+		// Retrieve the Product using the style code
+		product = pm.getProduct(styleCode);		
+		
+		// Get the product attribute model
+		variants = product.getVariants();
+		
+		// Loop over the collection of product variants.  We loop over all the variants,
+		// as product.geVariants() returns all variants regardless of their active status.
+		for each ( var thisVariant in variants ) {
+
+			// Create a reference to the current color
+			thisColor = thisVariant.custom.color;
+
+			// Check if the output array doesn't have this color reference
+			if ( output["obj"].hasOwnProperty(thisColor) ) continue;
+	
+			// Put the current value in the output array (to maintain sequence)			
+			output["array"].push(thisColor);
+			
+			// Put the current value in the output obj (for quick look-ups)						
+			output["obj"][thisColor] = thisVariant.ID;
+		
+		}
+		
+		// Cache the material codes for this style
+		this.cache.materials[styleCode] = output;
+		
+		// Return the output variable
+		return output;
+		
+	};
+
+	// This function is used to retrieve the active collection of material codes for a given style.
+	// Please note that this only returns material codes for variants that are active
+	this.getActiveMaterials = function(styleCode: String) : Array {
+			
+		// Initialize local variables
+		var output, logger, pm, product, vm, colorAttribute, colorValues;
+		
+		// Initialize the output object
+		var output = [];
+		
+		// Initialize the Check for New Images logging debugger	
+		logger = Logger.getLogger( "UAS7.CNI" );		
+		
+		// Create a reference to the Product Manager
+		pm = dw.catalog.ProductMgr;		
+		
+		// Retrieve the Product using the style code
+		product = pm.getProduct(styleCode);		
+		
+		// Create a reference to the variation model
+		vm = product.variationModel;
+		
+		// Create a reference to the color / material code attribute
+		colorAttribute = vm.getProductVariationAttribute("color");
+
+		// Retrieve all the values for a given variant's color attributes
+		colorValues = vm.getAllValues(colorAttribute);
+
+		// Loop over each of the configured variation colors
+		for each (var thisColorValue in colorValues ) {		
+			
+			// Capture each of the color-codes
+			output.push(thisColorValue.ID);
+				
+		}
+		
+		// Return the style copde
+		return output;
+		
+	};
+	
+	////////////////////////////////
+	// Image Retrieval Methods
+	////////////////////////////////		
+
+	// This function is used to retrieve the image definitions for a given product code
+	this.getProductImages = function(productCode: String, byPassDefaultImages: Boolean, defaultViewType : String) : Object {
+		
+		// Initialize local variables
+		var pm, logger, output, styleCode, product, isMaterialCode, materialCodes, materialCodeSuffix;
+		
+		// Initialize the output object
+		output = {};
+		
+		// Initialize the Check for New Images logging debugger	
+		logger = Logger.getLogger( "UAS7.CNI" );		
+
+		// Create a reference to the Product Manager
+		pm = dw.catalog.ProductMgr;
+
+		// Let's pull / default the style code from the current product code
+		styleCode = this.getStyleFromMaterialCode(productCode);
+
+		// Check if the style is valid / active
+		// Retrieve the Product using the style code
+		product = pm.getProduct(styleCode);
+		
+		// Was a valid product object returned?  If not, then report the error
+		// If you see this error, then the style processed was not valid 
+		if( empty(product) ) return { invalidStyle: styleCode };		
+
+		// Retrieve all the materials for this style
+		materialCodes = this.getAllMaterials(styleCode);
+
+		// Is this a style or material?
+		isMaterialCode = this.isMaterialCode(productCode);
+
+		// If this is a material code, then derrive the style from the material	
+		if ( isMaterialCode ) {
+
+			// Captuer the materialCode's suffix
+			materialCodeSuffix = this.getMaterialCodeSuffix(productCode);		
+
+			// Check if the current material code is present in the material object
+			if ( materialCodes["obj"].hasOwnProperty(materialCodeSuffix) ) {
+
+				// Retrieve the Product using the style code
+				product = pm.getProduct(styleCode);
+
+				// Otherwise, then retrieve the images for the specific material
+				output = this.getMaterialImages(product, productCode, defaultViewType);	
+
+			} else {
+
+				// If it's not, then the material isn't valid -- exit!
+				return { invalidMaterial: productCode };
+								
+			}
+			
+		} else {						
+						
+			// If so, then retrieve images for the full style and its materials
+			output = this.getStyleAndMaterialImages(product, styleCode, defaultViewType);
+			
+		}
+										
+		// Return the output object
+		return output;
+		
+	};
+
+	// This function is used to retrieve all the images associated to a given material
+	this.getMaterialImages = function (product, materialCode, defaultViewType) : Object {
+		
+		// Initialize local variables
+		var output, pm, variant, masterProductImages, colorAttribute, materialCodes, 
+			colorValues, thisMaterialCode, thisVariantID, materialViewTypes;
+		
+		// Provide a default for the defaultViewType if none was provided
+		if ( arguments.length !== 3 ) defaultViewType = "";
+		
+		// Initialize the output object
+		output = {};
+
+		// Create a reference to the Product Manager
+		pm = dw.catalog.ProductMgr;
+		
+		// Initialize the materialViewTypes object
+		materialViewTypes = {};
+		
+		// Retrieve all the materials codes for this product
+		materialCodes = this.getAllMaterials(product.ID);
+					
+		// Loop over each of the configured variation colors
+		for each (var thisMaterial in materialCodes["array"] ) {
+			
+			// Create / build-out the material code being represented
+			thisMaterialCode = product.ID + "-" + thisMaterial;			
+				
+			// Look for a match between the material code passed in, and what's being iterated over		
+			if ( materialCode !== thisMaterialCode ) continue;
+				
+			// Otherwise, infer the material code
+			thisVariantID = materialCodes["obj"][thisMaterial];
+						
+			// Retrieve the Product using the style code
+			variant = pm.getProduct(thisVariantID);			
+					
+			// Let's retrieve the view-types for the identified material
+			materialViewTypes = this.getImages(variant, materialCode);
+		
+			// Exit the loop early
+			break;
+			
+		}	
+		
+		// Was a viewType specified?
+		if ( defaultViewType.length > 0 ) {
+			
+			// Confirm that the materialViewTypes object has a reference to the default view-type
+			if ( materialViewTypes.hasOwnProperty(defaultViewType) ) {
+			
+				// If so, then render the displayUrl and include the view-type
+				output["DISPLAYURL"] = materialViewTypes[defaultViewType];								
+
+			} else {
+			
+				// Otherwise, default the displayURL
+				output["DISPLAYURL"] = [];		
+				
+			}
+
+		} else {
+		
+			// Otherwise, render and include all view types
+			output["VIEWTYPES"] = materialViewTypes;
+							
+		}
+		
+		// Once the images are retrieved, iterate over the collection 
+		// and create an array of product images parsed from the image Urls
+		output["IMAGES"] = this.parseProductImages(materialViewTypes);		
+			
+		// Return the output property
+		return output;			
+		
+	};
+
+	// This function is used to collect all the images
+	this.getStyleAndMaterialImages = function (product, styleCode, defaultViewType) : Object {
+		
+		// Initialize local variables
+		var output, masterProductImages, pm, variant, colorAttribute, colorValues, colorValueMap,
+			materialCode, styleCode, materialCodes, thisMaterialCode, thisVariantID, materialViewTypes, 
+			processedMaterials;
+		
+		// Initialize the output object
+		output = {};
+		
+		// Initialize the processedMaterials array;
+		processedMaterials = [];
+		
+		// Provide a default for the defaultViewType if none was provided
+		if ( arguments.length !== 3 ) defaultViewType = "";				
+		
+		//////////////////////////////////////////////////////////////
+		// Step 1: First, get the Default Assets for a Product Master
+		//////////////////////////////////////////////////////////////
+	
+		// Retrieve the product images for this style
+		masterProductImages	= this.getImages(product, styleCode);
+	
+		// Was a viewType specified?
+		if ( defaultViewType.length > 0 ) {
+			
+			// If so, then render the displayUrl and include the view-type
+			output["DISPLAYURL"] = 	masterProductImages[defaultViewType];
+			
+		} else {
+		
+			// Otherwise, render and include all view types
+			output["VIEWTYPES"] = masterProductImages;
+							
+		}
+				
+		// Once the images are retrieved, iterate over the collection 
+		// and create an array of product images parsed from the image Urls
+		output["IMAGES"] = this.parseProductImages(masterProductImages);	
+
+		//////////////////////////////////////////////////////////////
+		// Step 2: Process each of the materials associated to this style
+		//////////////////////////////////////////////////////////////
+
+		// Retrieve all the material codes for this style
+		materialCodes = this.getAllMaterials(styleCode);
+
+		// Create a reference to the Product Manager
+		pm = dw.catalog.ProductMgr;
+					
+		// Initialize the material-code element
+		output["MATERIALS"] = {};
+
+		// Retrieve all the materials codes for this product
+		materialCodes = this.getAllMaterials(product.ID);
+		
+		// Loop over each of the configured variation colors
+		for each (var thisMaterial in materialCodes["array"] ) {
+			
+			// Create / build-out the material code being represented
+			thisMaterialCode = product.ID + "-" + thisMaterial;			
+			
+			// Was this material code already processed?  If so, the continue to the next variant
+			if ( processedMaterials.indexOf(thisMaterialCode) !== -1 ) continue;		
+							
+			// Otherwise, infer the material code
+			thisVariantID = materialCodes["obj"][thisMaterial];
+						
+			// Retrieve the Product using the style code
+			variant = pm.getProduct(thisVariantID);			
+					
+			// Let's retrieve the view-types for the identified material
+			materialViewTypes = this.getImages(variant, thisMaterialCode);					
+			
+			// Initialize the material code reference
+			output["MATERIALS"][thisMaterialCode] = {};
+			
+			// Was a viewType specified?
+			if ( defaultViewType.length > 0 ) {
+				
+				// If so, then render the displayUrl and include the view-type
+				output["MATERIALS"][thisMaterialCode]["DISPLAYURL"] = materialViewTypes[defaultViewType];
+													
+			} else {
+			
+				// Otherwise, render and include all view types
+				output["MATERIALS"][thisMaterialCode]["VIEWTYPES"] = materialViewTypes;
+								
+			}
+			
+			// Once the images are retrieved, iterate over the collection 
+			// and create an array of product images parsed from the image Urls
+			output["MATERIALS"][thisMaterialCode]["IMAGES"] = this.parseProductImages(materialViewTypes);					
+
+			// Include this material in the collection of processed materials
+			processedMaterials.push(thisMaterialCode);
+							
+		}
+					
+		// Return the output property
+		return output;
+		
+	}
+
+	// This method will take a collection of view-types, and parse-out unique image filenames
+	this.parseProductImages = function(imageViewTypes : Object) : Array { 
+
+		// Initialize local variables
+		var output, viewType, thisImageUrl, imageFileName;
+		
+		// Initialize the output property
+		output = [];
+
+		// Loop over the different view-types
+		for each ( var thisViewType in imageViewTypes ) {
+			
+			// For each view type, loop over their collection of images
+			for each ( var thisImageObj in thisViewType ) {
+				
+				// Create a reference to the current file-name
+				imageFileName = thisImageObj["FILENAME"];
+				
+				// Check if this image has been added to the output array
+				if ( output.indexOf(imageFileName) === -1 ) output.push(imageFileName);
+				
+			} 
+									
+		}
+
+		// Sort the output array
+		output = output.sort();
+		
+		// Return the output array
+		return output;
+
+	};
+
+	// This method will retrieve the product images for a given product / variant
+	this.getImages = function(productObj, productCode) : Object {
+		
+		// Initialize local variables
+		var output, viewTypes, logger, styleCode, productCode, productImages, productImageUrl, viewTypeLabel;
+
+		// Initialize the output object
+		output = {};
+
+		// Initialize the Check for New Images logging debugger	
+		var logger = Logger.getLogger( "UAS7.CNI" );	
+		
+		// Retrieve the active collection of view-types
+		viewTypes = this.getViewTypes();		
+					
+		// For a given variant, let's iterate over each view-type
+		for each( var thisViewType in viewTypes ) {
+
+			// Initialize the view-type label
+			viewTypeLabel = thisViewType["VIEWTYPE"];
+
+			// Initialize the view-type reference for this product code
+			output[viewTypeLabel] = [];
+
+			// Create a reference to the current collection of variant Images for this view-type
+			productImages = productObj.getImages(viewTypeLabel);	
+												
+			// If no images are specified, then continue
+			if ( productImages.size() === 0 ) continue;
+			
+			// Loop over each image instance for a given view label
+			for each( var thisImage in productImages ) {
+				
+				// Capture the productImage url
+				productImageUrl = thisImage.absURL.toString();
+				
+				// Is the style / material code for this image
+				if ( productImageUrl.indexOf(productCode) === -1 ) {					
+
+					// Add the current imageUrl for this view-type
+					continue;
+
+				} else {
+					
+					// Add the current imageUrl for this view-type
+					output[viewTypeLabel].push({ 
+						//FILENAME: this.parseImageFileName(productImageUrl), 
+						
+						FILENAME: productImageUrl, 
+						URL: productImageUrl
+					});
+
+				}
+																		
+			}
+			
+		}
+		
+		// Return the output object
+		return output;		
+		
+	};
+
+	// This function is used to parse-out an image file-name from a recipe url
+	this.parseImageFileName = function (thisImageUrl) {
+		
+		// Initialize local variables
+		//var output, imageFileName;
+		
+		// Split the url at the place where the image filename is displayed
+		//output = thisImageUrl.split("is{Underarmour/")[1];
+		output = thisImageUrl.split("Underarmour/")[1];
+		
+		// Remove the closing curly-nonsense
+		//output = output.replace("}","");		
+		
+		// Return the parsed filename
+		//return output;
+		
+	};
+	
+	// This function is used to retrieve the full collection of recipe urls for all active view-types
+	this.getActiveRecipeUrlDefinitions = function() {
+		
+		// Initialize local variables
+		var viewTypes, viewTypeString, queryString, output, recipeDefinitions, recipeCategory, recipeUrl, thisRecipeDefinition;
+		
+		// Initialize the output object
+		output = {};
+		
+		// Retrieve the active view-types that are configured
+		viewTypes = this.getViewTypes();
+		
+		// Loop over each view-type, and retrieve the recipes associated
+		for each( var thisViewType in viewTypes ) {		
+
+			// Create a reference to the current view-type
+			viewTypeString = thisViewType["VIEWTYPE"];
+
+			// Check if this object has been configured with the current view type
+			if ( !output.hasOwnProperty(viewTypeString) ) output[viewTypeString] = {};
+
+			// Build out the view-type query string (to only retrieve recipes for this view-type)
+			queryString = "custom.VIEWTYPE = '" + viewTypeString + "'";
+
+			// Get the current recipe definitions -- filtering only on the current view type (as it is active)		
+			recipeDefinitions = dw.object.CustomObjectMgr.queryCustomObjects("RecipeDefinitions", queryString, "custom.CATEGORYNAME asc");
+					
+			// Loop over each of the recipe definitions
+			for each ( var thisRecipe in recipeDefinitions ) {
+				
+				// Retrieve the instance of custom recipe properties
+				thisRecipeDefinition = thisRecipe.getCustom();
+				
+				// Initialize the recipe category and url references
+				recipeCategory = thisRecipeDefinition["CATEGORYNAME"];
+				recipeUrl = thisRecipeDefinition["RECIPE"];				
+
+				// Seed the recipe category and url into the output object				
+				output[viewTypeString][recipeCategory] = recipeUrl;
+				
+			}
+				
+		}
+		
+		// Return the output object
+		return output;
+		
+	};	
+	
+	////////////////////////////////
+	// Common Data-Access Methods
+	////////////////////////////////
+	
+	// This function is used to retrieve the global collection of recipe categories in Business Manager
+	this.getRecipeCategories = function() : Array {
+		
+		// Retrieve each of the recipe categories that are currently stored in the RecipeCategories custom object
+		var recipeCategories = dw.object.CustomObjectMgr.queryCustomObjects("RecipeCategories", "", "custom.SEQUENCE asc");
+
+		// Create an output array that will be serialized
+		var outputArray : Array = [];
+
+		// Loop over each custom object instance
+		for each( var recipeCategory in recipeCategories ) {
+		
+			// Initialize the output object
+			var outputObj : Object = {};
+			
+			// Capture the properties that need to be serialized
+			outputObj["UUID"] = recipeCategory["UUID"];			
+			outputObj["CATEGORYNAME"] = recipeCategory.custom["CATEGORYNAME"];		
+			outputObj["SEQUENCE"] = recipeCategory.custom["SEQUENCE"];
+		
+			// Push the output object into the output array
+			outputArray.push(outputObj);
+		
+		}	
+	
+		// Return the output array
+		return outputArray;	
+		
+	};
+	
+	// This function is used to retrieve the global image view-types configured in Business Manager
+	this.getViewTypes = function() : Array {
+		
+		// Retrieve each of the recipe view types that are currently stored in the RecipeViewTypes custom object
+		// Note: Only active data is being returned by this service (in-active view-types are not returned)
+		var recipeViewTypes = dw.object.CustomObjectMgr.queryCustomObjects("RecipeViewTypes", "custom.ACTIVE=true", "custom.SEQUENCE asc");
+	
+		// Create an output array that will be serialized
+		var outputArray : Array = [];
+	
+		// Loop over each custom object instance
+		for each( var viewType in recipeViewTypes ) {
+		
+			// Initialize the output object
+			var outputObj : Object = {};
+			
+			// Capture the properties that need to be serialized
+			outputObj["UUID"] = viewType["UUID"];			
+			outputObj["VIEWTYPE"] = viewType.custom["VIEWTYPEID"];		
+			outputObj["SEQUENCE"] = viewType.custom["SEQUENCE"];
+		
+			// Push the output object into the output array
+			outputArray.push(outputObj);
+		
+		}		
+		
+		// Return the output array
+		return outputArray;
+		
+	};
+
+	// Return an instance of the class
+	return this;
+
+};

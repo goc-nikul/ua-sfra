@@ -1,0 +1,68 @@
+{
+  "step-types": {
+    "script-module-step": [
+     {
+        "@type-id": "custom.SRDailyOrderCount",
+        "@supports-parallel-execution": "false",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "description": "Send order details to MAO.",
+        "module": "int_shoprunner/cartridge/scripts/feeds/dailyOrder.ds",
+        "function": "execute",
+        "transactional": "false",
+        "timeout-in-seconds": "900",
+        "parameters": {
+          "parameter": [
+          ]
+        },
+        "status-codes": {
+          "status": [
+            {
+                "@code": "ERROR",
+                "description": "Used when an error occurred."
+            },
+            {
+                "@code": "OK",
+                "description": "Used when everything went well."
+            },
+            {
+                "@code": "WARN",
+                "description": "Used when small, but acceptable problems occurred."
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.SROrderFeed",
+        "@supports-parallel-execution": "false",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "description": "Send order details to MAO.",
+        "module": "plugin_shoprunner/cartridge/scripts/feeds/orderFeed.ds",
+        "function": "execute",
+        "transactional": "true",
+        "timeout-in-seconds": "900",
+        "parameters": {
+          "parameter": [
+          ]
+        },
+        "status-codes": {
+          "status": [
+            {
+                "@code": "ERROR",
+                "description": "Used when an error occurred."
+            },
+            {
+                "@code": "OK",
+                "description": "Used when everything went well."
+            },
+            {
+                "@code": "WARN",
+                "description": "Used when small, but acceptable problems occurred."
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

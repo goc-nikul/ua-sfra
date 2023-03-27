@@ -1,0 +1,10 @@
+<isif condition="${slotcontent != null}">
+	<isloop items="${slotcontent.content}" var="contentAsset">
+		<isscript>
+			var pointsEarned = 550; //this will be a custom attribute in the Basket/Order level
+			var markupText = contentAsset.custom.body ? contentAsset.custom.body.markup : "";
+			markupText = markupText.replace("$pointsEarned$", pointsEarned, 'g');
+		</isscript>
+		<isprint value="${markupText}" encoding="off"/>
+	</isloop>
+</isif>

@@ -1,0 +1,26 @@
+<div class="modal-dialog g-modal-dialog ${!empty(pdict.shopTheLookProducts) && pdict.shopTheLookProducts.length < 3 ? 'modal-adjustment' : ''}">
+    <div class="g-modal-content">
+        <div class="g-modal-header g-login-modal-header">
+            <h2 class="g-modal-title g-password-modal-title request-password-title"> ${Resource.msg('product.model.shopthisoutfitcta','product',null)}</h2>
+            <button type="button" class="g-password-modal-close btn-reset-password-close close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+
+        <div class="g-modal-body">
+            <div class="g-carousel">
+            <div class="shop-this-outfit-models b-product_carousels b-product_carousel-pdps js-carousel" data-cmp="carousel" data-carousel-type="shopImage">
+                <div class="b-product_carousel-wrapper js-swiper-wrapper swiper-wrapper">
+                    <isif condition="${!empty(pdict.shopTheLookProducts)}">
+                        <isloop items="${pdict.shopTheLookProducts}" var="shopTheLookProduct" status="loopState">
+                            <div class='b-product_carousel-slide js-product_carousel-slide swiper-slide' data-pid="${shopTheLookProduct.sku}">
+                                <isinclude url="${URLUtils.url('Tile-Show', 'pid',shopTheLookProduct.sku, 'pview', 'tile', 'ratings', false, 'swatches', false,'colorGroup',shopTheLookProduct.color,'shopThisLookoutfit',true)}"/>
+                            </div>
+                        </isloop>
+                    </isif>
+                </div>
+                <div class="b-product_carousel-control m-next js-swiper-button-next hidden-on-load"></div>
+                <div class="b-product_carousel-control m-prev js-swiper-button-prev hidden-on-load"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>

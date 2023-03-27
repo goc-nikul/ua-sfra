@@ -1,0 +1,36 @@
+@mixin hide-action($breakpoint) {
+    @if map-has-keys($break-points, $breakpoint) {
+        @include respond-to($breakpoint) {
+            &-#{$breakpoint} {
+                display: none;
+            }
+        }
+    }
+}
+
+@mixin hide-on-breakpoint($media: $break-points) {
+    @if type-of($media) == map {
+        @each $breakpoint in map-keys($media) {
+            @include hide-action($breakpoint);
+        }
+    } @else if type-of($media) == list {
+        @each $breakpoint in $media {
+            @include hide-action($breakpoint);
+        }
+    } @else if type-of($media) == string {
+        @include hide-action($media);
+    } @else {
+        @warn 'Invalid media type';
+    }
+}
+
+%hide,
+.hide,
+.h-hide {
+    display: none !important;
+}
+
+%hide,
+.h-hide-only {
+    @include hide-on-breakpoint;
+}

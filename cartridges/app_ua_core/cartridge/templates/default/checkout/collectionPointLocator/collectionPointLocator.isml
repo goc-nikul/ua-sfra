@@ -1,0 +1,31 @@
+<!--- TEMPLATENAME: collectionPointLocator.isml --->
+<div class="g-modal g-collection-modal" id="collectionPointLocator" tabindex="-1" role="dialog" aria-labelledby="collectionPointLocator">
+    <div class="g-modal-dialog g-collection-modal-dialog" role="document">
+        <div class="g-modal-content g-collection-modal-content">
+            <!-- Modal content-->
+            <button type="button" class="g-modal-close" data-dismiss="modal" aria-label="Close">
+                <div aria-hidden="true" class="g-modal-close-button g-collection-modal-close-button"></div>
+            </button>
+            <div class="g-modal-body g-collection-modal-body">
+                <div class="container collection-point-locator-container b-store-locator-container js-collection-point-locator-container">
+                    <div class="b-find-store-form js-find-store-form">
+                        <h2>${Resource.msg('title.choosestore.collection.point','checkout',null)}</h2>
+                        <div class="card search-form">
+                            <isinclude template="checkout/collectionPointLocator/collectionPointLocatorFields" />
+                        </div>
+                    </div>
+
+                    <div class="b-stores-list results-card">
+                        <div class="collection-pick-message hide">${Resource.msg('collection.pickup.selection.message','checkout',null)}</div>
+                        <div class="card-body">
+                            <div class="results" data-radius="${pdict.collectionPoints.radius}" data-has-results="${pdict.collectionPoints.pickupLocations ? true : false}">
+                                <isinclude template="checkout/collectionPointLocator/collectionPointLocatorResults" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" class="selceted-collection-point" value="">
+    </div>
+</div>

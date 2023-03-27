@@ -1,0 +1,32 @@
+<div class="b-ordersinfo">
+     <div class="b-order-view_section">
+        <div class="b-return-order">
+            <span class="t_dashboard-order-creation-date ${orderItem.shipment.status === 'Delivered' ? 'order-delivered' : ''} ${orderItem.shipment.status === 'Canceled' ? 'order-canceled' : ''}">
+                <isif condition="${orderItem.shipment.updatedDate}">
+                    ${Resource.msgf('label.orderhistory.status','account',null, Resource.msg('label.'+orderItem.shipment.status.toLowerCase().replace(/\s/g, ''),'account',null), orderItem.shipment.updatedDate)}
+                <iselse>
+                    ${Resource.msg('label.'+orderItem.shipment.status.toLowerCase().replace(/\s/g, ''), 'account', orderItem.shipment.status)}
+                </isif>
+            </span>
+            <span class="t_dashboard-order-placed order-subText">${Resource.msgf('label.orderdetails.placed','account',null, order.creationDate)}</span>
+            <span class="t_dashboard-order-number order-subText">
+                <p class="t-dv-orderno">${Resource.msgf('label.orderhistory.ordertxt','account',null)} ${Resource.msgf('label.orderhistory.orderno','account',null, order.orderNo)}</p>
+                <p class="t-mv-orderno">${Resource.msgf('label.orderhistory.ordernodot','account',null, order.orderNo)}</p>
+            </span>
+              
+          </div>
+     </div>
+     <div class="b-card-track">
+        <isif condition="${orderItem && orderItem.shipment && orderItem.shipment.trackingLink && orderItem.shipment.status !== 'Pending Shipment'}">
+            <span class="pull-left order-details-track">
+                <a class="track_order g-button_primary--black g-button_base" target="_blank" href="${orderItem.shipment.trackingLink}">
+                    <isif condition="${orderItem.shipment.shipmentCounter && order.shipmentCounter > 1}">
+                        ${Resource.msgf('label.trackshipment','account',null, orderItem.shipment.shipmentCounter)}
+                    <iselse>
+                         ${Resource.msg('label.trackshipment.single','account',null)}
+                    </isif>
+                </a> 
+            </span>
+        </isif>
+     </div>
+</div>

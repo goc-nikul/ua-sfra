@@ -1,0 +1,3787 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:sch="http://www.paazl.com/schemas/matrix" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:tns="http://www.paazl.com/schemas/matrix" targetNamespace="http://www.paazl.com/schemas/matrix">
+	<wsdl:types>
+		<xs:schema xmlns:matrix="http://www.paazl.com/schemas/matrix"
+			xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified"
+			elementFormDefault="qualified" targetNamespace="http://www.paazl.com/schemas/matrix">
+			<xs:element name="shippingOptionRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="orderReference" type="xs:string" />
+						<xs:element name="postcode" type="xs:string" />
+						<xs:element default="NL" minOccurs="0" name="country"
+							type="xs:string" />
+						<xs:element minOccurs="0" name="evening" type="xs:boolean" />
+						<xs:element minOccurs="0" name="weekend" type="xs:boolean" />
+						<xs:element minOccurs="0" name="extendedDeliveryDateDetails"
+							type="xs:boolean" />
+						<xs:element minOccurs="0" name="shippingOption" type="xs:string" />
+						<xs:element minOccurs="0" name="deliveryEstimate" type="xs:boolean" />
+						<xs:element minOccurs="0" name="deliveryDateRange"
+							type="matrix:dateRangeType" />
+						<xs:element minOccurs="0" name="sources" type="matrix:sources" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="shippingOptionResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element minOccurs="0" name="deliveryMatrix" type="xs:string" />
+							<xs:element name="shippingOptions">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element maxOccurs="unbounded" name="shippingOption">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="type" type="xs:string" />
+													<xs:element name="description" type="xs:string" />
+													<xs:element name="deliverySchemeLineId" type="xs:long" />
+													<xs:element name="distributor" type="xs:string" />
+													<xs:element minOccurs="0" name="partOfDay"
+														type="matrix:partOfDayType" />
+													<xs:element minOccurs="0" name="price" type="xs:double" />
+													<xs:element minOccurs="0" name="priceDiscount"
+														type="xs:double" />
+													<xs:element minOccurs="0" name="deliveryDayOfWeekRange"
+														type="matrix:dayOfWeekRangeType" />
+													<xs:element minOccurs="0" name="deliveryWindowStart"
+														type="xs:time" />
+													<xs:element minOccurs="0" name="deliveryWindowEnd"
+														type="xs:time" />
+													<xs:element minOccurs="0" name="datePreference"
+														type="xs:boolean" />
+													<xs:element minOccurs="0" name="cod" type="xs:boolean" />
+													<xs:element minOccurs="0" name="insurance" type="xs:boolean" />
+													<xs:element minOccurs="0"
+														name="needsServicePointAccountNumber" type="xs:boolean" />
+													<xs:element minOccurs="0" name="shipperNotification"
+														type="xs:boolean" />
+													<xs:element minOccurs="0"
+														name="needsAdditionalShipperNotification" type="xs:boolean" />
+													<xs:element minOccurs="0"
+														name="allowsAdditionalShipperNotification" type="xs:boolean" />
+													<xs:element minOccurs="0" name="servicePoints"
+														type="matrix:servicePointsType" />
+													<xs:choice>
+														<xs:element minOccurs="0" name="deliveryDates"
+															type="matrix:deliveryDatesType" />
+														<xs:element maxOccurs="unbounded" minOccurs="0"
+															name="deliveryDatesBySource" type="matrix:deliveryDatesBySourceType" />
+													</xs:choice>
+												</xs:sequence>
+												<xs:attribute name="type" type="xs:string">
+													<xs:annotation>
+														<xs:appinfo>	
+            													<jaxb:property name="typeAttribute"/>
+        													</xs:appinfo>
+        												</xs:annotation>
+        											</xs:attribute>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:complexType name="deliveryDatesBySourceType">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="source" type="matrix:source" />
+					<xs:element minOccurs="0" name="deliveryDates"
+						type="matrix:deliveryDatesType" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="sources">
+				<xs:annotation>
+					<xs:documentation>Sources represent multiple sender addresses.
+					</xs:documentation>
+				</xs:annotation>
+				<xs:sequence>
+					<xs:element maxOccurs="5" minOccurs="0" name="source"
+						type="matrix:source" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="source">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="name" type="xs:string">
+						<xs:annotation>
+							<xs:documentation>
+								Name is either user-defined or will be constructed using the
+								provided source fields.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="postCode">
+						<xs:annotation>
+							<xs:documentation>
+								Postal code is a mandatory field and refers the sender address postal
+								code.
+							</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="32" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="city" type="xs:string">
+						<xs:annotation>
+							<xs:documentation>
+								City is a mandatory field and should be the full name of a city. It
+								refers to the city of the sender address.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="country">
+						<xs:annotation>
+							<xs:documentation>
+								Country is a mandatory field and refers to the ISO Alpha-2 country code
+								of a country. It refers to the country code of the sender
+								address.
+							</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:pattern value="[a-zA-Z][a-zA-Z]" />
+								<xs:minLength value="2" />
+								<xs:maxLength value="2" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element minOccurs="0" name="timeZoneId" type="xs:string">
+						<xs:annotation>
+							<xs:documentation>
+								Time zone Id is an optional field and should be provided as one of
+								the AvailableZoneIds in the ZoneId class. It refers to the time
+								zone of the sender. For more detail, see:
+								https://docs.oracle.com/javase/8/docs/api/java/time/ZoneId.html
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:element name="activeShippingOptionRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element name="apiKey" type="xs:string" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="activeShippingOptionResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element name="activeShippingOptions">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element maxOccurs="unbounded" name="activeShippingOption">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="type" type="xs:string" />
+													<xs:element minOccurs="0" name="description"
+														type="xs:string" />
+													<xs:element name="distributor" type="xs:string" />
+													<xs:element name="distributorDescription" type="xs:string" />
+													<xs:element minOccurs="0" name="countries"
+														type="matrix:countriesType" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:simpleType name="dayOfWeekRangeType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="MONDAY" />
+					<xs:enumeration value="MONDAY_FRIDAY" />
+					<xs:enumeration value="MONDAY_SATURDAY" />
+					<xs:enumeration value="MONDAY_SUNDAY" />
+					<xs:enumeration value="TUESDAY_FRIDAY" />
+					<xs:enumeration value="TUESDAY_SATURDAY" />
+					<xs:enumeration value="SATURDAY" />
+					<xs:enumeration value="SUNDAY" />
+					<xs:enumeration value="TUESDAY_AND_THURSDAY" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:complexType name="countriesType">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" minOccurs="0" name="country"
+						type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="deliveryDatesType">
+				<xs:choice>
+					<xs:element maxOccurs="unbounded" minOccurs="0"
+						name="deliveryDate" type="xs:date" />
+					<xs:element maxOccurs="unbounded" minOccurs="0"
+						name="deliveryDateOption" type="matrix:deliveryDateOptionType" />
+				</xs:choice>
+			</xs:complexType>
+			<xs:complexType name="deliveryDateOptionType">
+				<xs:sequence>
+					<xs:element name="pickupDate" type="xs:dateTime" />
+					<xs:element name="deliveryDate" type="xs:date" />
+					<xs:element minOccurs="0" name="deliveryTimeRange" type="matrix:timeRangeType" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="servicePointsType">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" minOccurs="0"
+						name="servicePoint">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="distributor" type="xs:string" />
+								<xs:element name="shippingOption" type="xs:string" />
+								<xs:element name="name" type="xs:string" />
+								<xs:element name="postcode" type="xs:string" />
+								<xs:element name="address" type="xs:string" />
+								<xs:element name="city" type="xs:string" />
+								<xs:element minOccurs="0" name="province" type="xs:string" />
+								<xs:element minOccurs="0" name="coordinates"
+									type="matrix:coordinatesType" />
+								<xs:element minOccurs="0" name="distance" type="xs:string" />
+								<xs:element name="code" type="xs:string" />
+								<xs:element minOccurs="0" name="price" type="xs:double" />
+								<xs:element name="openingTimes">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element maxOccurs="unbounded" minOccurs="0"
+												name="time">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="day" type="matrix:dayType" />
+														<xs:element minOccurs="0" name="alwaysOpen"
+															type="xs:boolean" />
+														<xs:element minOccurs="0" name="openFromAfternoon"
+															type="xs:string" />
+														<xs:element minOccurs="0" name="openFromMorning"
+															type="xs:string" />
+														<xs:element minOccurs="0" name="openTillAfternoon"
+															type="xs:string" />
+														<xs:element minOccurs="0" name="openTillMorning"
+															type="xs:string" />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element minOccurs="0" name="extraDetails"
+									type="matrix:servicePointExtraDetails" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:simpleType name="partOfDayType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="ochtend" />
+					<xs:enumeration value="middag" />
+					<xs:enumeration value="avond" />
+					<xs:enumeration value="hele dag" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType name="dayType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="MONDAY" />
+					<xs:enumeration value="TUESDAY" />
+					<xs:enumeration value="WEDNESDAY" />
+					<xs:enumeration value="THURSDAY" />
+					<xs:enumeration value="FRIDAY" />
+					<xs:enumeration value="SATURDAY" />
+					<xs:enumeration value="SUNDAY" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:element name="deliveryEstimateRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="orderReference" type="xs:string" />
+						<xs:element minOccurs="0" name="shippingOption" type="xs:string" />
+						<xs:element name="weight" type="matrix:nonNegativeDecimal" />
+						<xs:element name="value" type="matrix:nonNegativeDecimal" />
+						<xs:element default="EUR" minOccurs="0" name="valueCurrency"
+							type="matrix:currencyCode" />
+						<xs:element default="NL" minOccurs="0" name="senderCountry"
+							type="xs:string" />
+						<xs:element minOccurs="0" name="senderCity" type="xs:string" />
+						<xs:element minOccurs="0" name="senderPostcode" type="xs:string" />
+						<xs:element default="NL" minOccurs="0" name="consigneeCountry"
+							type="xs:string" />
+						<xs:element minOccurs="0" name="consigneeCity" type="xs:string" />
+						<xs:element minOccurs="0" name="consigneePostcode"
+							type="xs:string" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="deliveryEstimateResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" minOccurs="0"
+								name="disambiguationCandidate" type="matrix:disambiguationCandidateType" />
+							<xs:element maxOccurs="unbounded" minOccurs="0"
+								name="deliveryEstimate" type="matrix:deliveryEstimateType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:complexType name="disambiguationCandidateType">
+				<xs:sequence>
+					<xs:element name="shippingOption" type="xs:string" />
+					<xs:element name="distributor" type="xs:string" />
+					<xs:element name="candidate" type="matrix:deliveryEstimateDestination" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="deliveryEstimateType">
+				<xs:sequence>
+					<xs:element name="shippingOption" type="xs:string" />
+					<xs:element name="distributor" type="xs:string" />
+					<xs:element name="destination" type="matrix:deliveryEstimateDestination" />
+					<xs:element minOccurs="0" name="expectedDeliveryDateFrom"
+						type="xs:dateTime" />
+					<xs:element name="expectedDeliveryDate" type="xs:dateTime" />
+					<xs:element minOccurs="0" name="transitDays" type="xs:nonNegativeInteger" />
+					<xs:element name="guarantee" type="xs:boolean" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="deliveryEstimateDestination">
+				<xs:sequence>
+					<xs:element name="country" type="xs:string" />
+					<xs:element minOccurs="0" name="province" type="xs:string" />
+					<xs:element name="city" type="xs:string" />
+					<xs:choice>
+						<xs:element minOccurs="0" name="postcode" type="xs:string" />
+						<xs:element minOccurs="0" name="postcodeRange" type="matrix:stringRangeType" />
+					</xs:choice>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:element name="orderStatusRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="orderReference" type="xs:string" />
+						<xs:element minOccurs="0" name="includeLabels" type="xs:boolean" />
+						<xs:element minOccurs="0" name="carrierStatus" type="xs:boolean" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="orderStatusResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element name="orderStatus" type="matrix:orderStatusContainerType" />
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:complexType name="orderStatusContainerType">
+				<xs:sequence>
+					<xs:element name="status" type="matrix:orderStatusType" />
+					<xs:element minOccurs="0" name="shippingLabels">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="0"
+									name="shippingLabel">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="createdDate" type="xs:dateTime" />
+											<xs:element minOccurs="0" name="scannedDate" type="xs:dateTime" />
+											<xs:element minOccurs="0" name="deliveredDate"
+												type="xs:dateTime" />
+											<xs:element minOccurs="0" name="deliveredbbDate"
+												type="xs:dateTime" />
+											<xs:element name="currentStatus" type="matrix:labelStatusType" />
+											<xs:element name="labelCode" type="xs:string" />
+											<xs:element minOccurs="0" name="trackingNumber"
+												type="xs:string" />
+											<xs:element name="trackTraceUrl" type="xs:anyURI" />
+											<xs:element minOccurs="0" name="batch" type="xs:string" />
+											<xs:element minOccurs="0" name="carrierStatus"
+												type="matrix:carrierStatusHistoryType" />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="carrierStatusHistoryType">
+				<xs:sequence>
+					<xs:element name="current" type="matrix:carrierStatusType" />
+					<xs:element minOccurs="0" name="history">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element maxOccurs="unbounded" minOccurs="0" name="status"
+									type="matrix:carrierStatusType" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="carrierStatusType">
+				<xs:sequence>
+					<xs:element name="info" type="xs:string" />
+					<xs:element name="type" type="xs:string" />
+					<xs:element name="code" type="xs:string" />
+					<xs:element name="description" type="xs:string" />
+					<xs:element name="city" type="xs:string" />
+					<xs:element name="postalcode" type="xs:string" />
+					<xs:element name="country" type="xs:string" />
+					<xs:element name="proofOfDelivery" type="xs:string" />
+					<xs:element name="date" type="xs:date" />
+					<xs:element name="time" type="xs:time" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:simpleType name="orderStatusType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="LABELS_NOT_CREATED" />
+					<xs:enumeration value="LABELS_CREATED" />
+					<xs:enumeration value="PREREGISTERED" />
+					<xs:enumeration value="READY_TO_POST" />
+					<xs:enumeration value="SCANNED" />
+					<xs:enumeration value="DELIVERED" />
+					<xs:enumeration value="DELIVEREDBB" />
+					<xs:enumeration value="PICKEDUP" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType name="labelStatusType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="CREATED" />
+					<xs:enumeration value="DELETED" />
+					<xs:enumeration value="READY_TO_POST" />
+					<xs:enumeration value="SCANNED" />
+					<xs:enumeration value="AVAILABLE_AT_PICKUP_POINT" />
+					<xs:enumeration value="DELIVERED" />
+					<xs:enumeration value="DELIVEREDBB" />
+					<xs:enumeration value="RETOUR" />
+					<xs:enumeration value="PICKEDUP" />
+					<xs:enumeration value="UITLEVERING" />
+					<xs:enumeration value="UNKNOWN" />
+					<xs:enumeration value="MANCO" />
+					<xs:enumeration value="NOT_AT_HOME" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:element name="listOrdersRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="changedSince" type="xs:dateTime" />
+						<xs:element minOccurs="0" name="page" type="xs:nonNegativeInteger" />
+						<xs:element minOccurs="0" name="carrierStatus" type="xs:boolean" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="listOrdersResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element name="orders" type="matrix:ordersType" />
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:complexType name="ordersType">
+				<xs:sequence>
+					<xs:element name="page" type="xs:nonNegativeInteger" />
+					<xs:element name="hasNextPage" type="xs:boolean" />
+					<xs:element name="webshop" type="xs:long" />
+					<xs:element name="webshopName" type="xs:string" />
+					<xs:element maxOccurs="100" minOccurs="0" name="order">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="createDate" type="xs:dateTime" />
+								<xs:element name="lastModificationDate" type="xs:dateTime" />
+								<xs:element name="orderReference" type="xs:string" />
+								<xs:element name="status" type="matrix:orderStatusType" />
+								<xs:element name="distributor" type="xs:string" />
+								<xs:element name="shippingOption" type="xs:string" />
+								<xs:element minOccurs="0" name="companyName" type="xs:string" />
+								<xs:element minOccurs="0" name="name" type="xs:string" />
+								<xs:element minOccurs="0" name="nameOther" type="xs:string" />
+								<xs:element name="shipToAddress" type="matrix:addressType" />
+								<xs:element minOccurs="0" name="servicePointDetails"
+									type="matrix:servicePointDetailsType" />
+								<xs:element minOccurs="0" name="emailAddress" type="xs:string" />
+								<xs:element minOccurs="0" name="phoneNumber" type="xs:string" />
+								<xs:element minOccurs="0" name="expectedDeliveryDate"
+									type="xs:dateTime" />
+								<xs:element minOccurs="0" name="expectedDeliveryTimeFrame"
+									type="matrix:timeRangeType" />
+								<xs:element minOccurs="0" name="preferredDeliveryDate"
+									type="xs:date" />
+								<xs:element default="false" minOccurs="0"
+									name="preferredDateChosen" type="xs:boolean" />
+								<xs:element maxOccurs="unbounded" minOccurs="0" name="label">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="createDate" type="xs:dateTime" />
+											<xs:element minOccurs="0" name="deliveryDate"
+												type="xs:dateTime" />
+											<xs:element name="status" type="matrix:labelStatusType" />
+											<xs:element name="barcode" type="xs:string" />
+											<xs:element minOccurs="0" name="trackingNumber"
+												type="xs:string" />
+											<xs:element minOccurs="0" name="expectedDeliveryDate"
+												type="xs:dateTime" />
+											<xs:element minOccurs="0" name="expectedDeliveryTimeFrame"
+												type="matrix:timeRangeType" />
+											<xs:element minOccurs="0" name="carrierStatus"
+												type="matrix:carrierStatusHistoryType" />
+											<xs:element minOccurs="0" name="deliveryInformation"
+												type="xs:string" />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:element name="googleMapSearchstringRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="orderReference" type="xs:string" />
+						<xs:element name="shippingOption" type="xs:string" />
+						<xs:element name="postcode" type="xs:string" />
+						<xs:element default="NL" minOccurs="0" name="country"
+							type="xs:string" />
+						<xs:element name="servicepoint" type="xs:int" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="googleMapSearchstringResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element name="searchstring" type="xs:string" />
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="orderRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="orderReference" type="xs:string" />
+						<xs:element ref="matrix:products" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="orderResponse" type="matrix:orderSaveResponseType" />
+			<xs:element name="updateOrderRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="orderReference" type="xs:string" />
+						<xs:element minOccurs="0" ref="matrix:products" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="updateOrderResponse" type="matrix:orderSaveResponseType" />
+			<xs:element name="deleteOrderRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="orderReference" type="xs:string" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="deleteOrderResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="success"
+								type="xs:string" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="commitOrderRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="orderReference" type="xs:string" />
+						<xs:element name="pendingOrderReference" type="xs:string" />
+						<xs:element name="totalAmount" type="xs:int" />
+						<xs:element default="EUR" minOccurs="0"
+							name="totalAmountCurrency" type="matrix:currencyCode" />
+						<xs:element minOccurs="0" name="language" type="xs:language" />
+						<xs:element name="customerEmail" type="xs:string" />
+						<xs:element minOccurs="0" name="customerPhoneNumber">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:maxLength value="15" />
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element ref="matrix:shippingMethod" />
+						<xs:element minOccurs="0" name="shipperAddress" type="matrix:senderAddress" />
+						<xs:element minOccurs="0" name="returnAddress" type="matrix:senderAddress" />
+						<xs:element ref="matrix:shippingAddress" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="validateOrderRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="orderReference" type="xs:string" />
+						<xs:element name="pendingOrderReference" type="xs:string" />
+						<xs:element name="totalAmount" type="xs:int" />
+						<xs:element default="EUR" minOccurs="0"
+							name="totalAmountCurrency" type="matrix:currencyCode" />
+						<xs:element minOccurs="0" name="language" type="xs:language" />
+						<xs:element name="customerEmail" type="xs:string" />
+						<xs:element minOccurs="0" name="customerPhoneNumber">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:maxLength value="15" />
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element ref="matrix:shippingMethod" />
+						<xs:element minOccurs="0" name="shipperAddress" type="matrix:senderAddress" />
+						<xs:element minOccurs="0" name="returnAddress" type="matrix:senderAddress" />
+						<xs:element ref="matrix:shippingAddress" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="shippingMethod">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="type" type="matrix:deliveryTypeType" />
+						<xs:element minOccurs="0" name="distributor" type="xs:string" />
+						<xs:element minOccurs="0" name="contract" type="xs:string" />
+						<xs:element name="identifier" type="xs:string" />
+						<xs:element name="option" type="xs:string" />
+						<xs:element minOccurs="0" name="returnContract"
+							type="matrix:returnContractType" />
+						<xs:element minOccurs="0" name="servicepointAccountNumber"
+							type="xs:string" />
+						<xs:element minOccurs="0" name="servicepointNotificationEmail"
+							type="xs:string" />
+						<xs:element minOccurs="0" name="servicepointNotificationMobile"
+							type="xs:string" />
+						<xs:element minOccurs="0" name="price" type="xs:double" />
+						<xs:element minOccurs="0" name="shippingPaymentType"
+							type="matrix:shippingPaymentType" />
+						<xs:element minOccurs="0" name="billingAccountNumber"
+							type="xs:string" />
+						<xs:element minOccurs="0" name="invoiceNumber" type="xs:string" />
+						<xs:element minOccurs="0" name="packagingWeight"
+							type="matrix:nonNegativeDecimal" />
+						<xs:element minOccurs="0" name="customsValue">
+							<xs:simpleType>
+								<xs:restriction base="matrix:nonNegativeDecimal">
+									<xs:fractionDigits value="2" />
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element default="EUR" minOccurs="0"
+							name="customsValueCurrency" type="matrix:currencyCode" />
+						<xs:element minOccurs="0" name="dutiesPaymentType"
+							type="matrix:dutiesPaymentType" />
+						<xs:element minOccurs="0" name="dutiesAccountNumber"
+							type="xs:string" />
+						<xs:element minOccurs="0" name="orderWeight"
+							type="matrix:nonNegativeDecimal" />
+						<xs:element minOccurs="0" name="assuredAmount" type="xs:int" />
+						<xs:element default="EUR" minOccurs="0"
+							name="assuredAmountCurrency" type="matrix:currencyCode" />
+						<xs:element minOccurs="0" name="collo" type="xs:int" />
+						<xs:element minOccurs="0" name="packageCount" type="xs:positiveInteger" />
+						<xs:element minOccurs="0" name="maxLabels" type="xs:int" />
+						<xs:element minOccurs="0" name="packagingType"
+							type="matrix:packagingTypeType" />
+						<xs:element minOccurs="0" name="preferredDeliveryDate"
+							type="xs:date" />
+						<xs:element default="false" minOccurs="0"
+							name="preferredDateChosen" type="xs:boolean" />
+						<xs:element minOccurs="0" name="description" type="xs:string" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:simpleType name="deliveryTypeType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="delivery" />
+					<xs:enumeration value="servicepoint" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:complexType name="returnContractType">
+				<xs:sequence>
+					<xs:element default="unspecified" name="type"
+						type="matrix:returnContractTypeType" />
+					<xs:element minOccurs="0" name="contract" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:simpleType name="returnContractTypeType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="unspecified" />
+					<xs:enumeration value="outbound" />
+					<xs:enumeration value="fixed" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType name="shipperNotificationTypeType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="email" />
+					<xs:enumeration value="sms" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType name="packagingTypeType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="FEDEX_10_KG_BOX" />
+					<xs:enumeration value="FEDEX_25_KG_BOX" />
+					<xs:enumeration value="FEDEX_BOX" />
+					<xs:enumeration value="FEDEX_ENVELOPE" />
+					<xs:enumeration value="FEDEX_PAK" />
+					<xs:enumeration value="FEDEX_TUBE" />
+					<xs:enumeration value="YOUR_PACKAGING" />
+					<xs:enumeration value="UPS_LETTER" />
+					<xs:enumeration value="CUSTOMER_SUPPLIED_PACKAGE" />
+					<xs:enumeration value="TUBE" />
+					<xs:enumeration value="PAK" />
+					<xs:enumeration value="UPS_EXPRESS_BOX" />
+					<xs:enumeration value="UPS_25KG_BOX" />
+					<xs:enumeration value="UPS_10KG_BOX" />
+					<xs:enumeration value="SMALL_EXPRESS_BOX" />
+					<xs:enumeration value="MEDIUM_EXPRESS_BOX" />
+					<xs:enumeration value="LARGE_EXPRESS_BOX" />
+					<xs:enumeration value="VAN_SPREUWEL_COLLI" />
+					<xs:enumeration value="VAN_SPREUWEL_BLOCKPALLET" />
+					<xs:enumeration value="VAN_SPREUWEL_EUROPALLET" />
+					<xs:enumeration value="VAN_SPREUWEL_TROLLEY" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:complexType name="senderAddress">
+				<xs:sequence>
+					<xs:element name="addresseeLine" type="xs:string" />
+					<xs:element name="street" type="xs:string" />
+					<xs:element name="housenumber" type="xs:string" />
+					<xs:element minOccurs="0" name="addition" type="xs:string" />
+					<xs:element name="zipcode" type="xs:string" />
+					<xs:element name="city" type="xs:string" />
+					<xs:element minOccurs="0" name="province" type="xs:string" />
+					<xs:element default="NL" minOccurs="0" name="country"
+						type="xs:string" />
+					<xs:element maxOccurs="unbounded" minOccurs="0"
+						name="additionalAddressLine" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:element name="shippingAddress">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element minOccurs="0" name="accountNumber" type="xs:string" />
+						<xs:element name="customerName">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:maxLength value="255" />
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element minOccurs="0" name="companyName">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:maxLength value="255" />
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element minOccurs="0" name="nameOther">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:maxLength value="255" />
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element name="street" type="xs:string" />
+						<xs:element name="housenumber" type="xs:string" />
+						<xs:element minOccurs="0" name="addition" type="xs:string" />
+						<xs:element maxOccurs="unbounded" minOccurs="0"
+							name="additionalAddressLine" type="xs:string" />
+						<xs:element name="zipcode" type="xs:string" />
+						<xs:element name="city" type="xs:string" />
+						<xs:element minOccurs="0" name="province" type="xs:string" />
+						<xs:element default="NL" minOccurs="0" name="country"
+							type="xs:string" />
+						<xs:element default="true" minOccurs="0"
+							name="localAddressValidation" type="xs:boolean" />
+						<xs:element minOccurs="0" name="additionalInstruction"
+							type="xs:string" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="commitOrderResponse" type="matrix:orderSaveResponseType" />
+			<xs:element name="validateOrderResponse" type="matrix:validateOrderResponseType" />
+			<xs:element name="changeOrderRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="orderReference" type="xs:string" />
+						<xs:element minOccurs="0" name="newOrderReference"
+							type="xs:string" />
+						<xs:element minOccurs="0" name="totalAmount" type="xs:int" />
+						<xs:element default="EUR" minOccurs="0"
+							name="totalAmountCurrency" type="matrix:currencyCode" />
+						<xs:element minOccurs="0" name="language" type="xs:language" />
+						<xs:element minOccurs="0" name="customerEmail" type="xs:string" />
+						<xs:element minOccurs="0" name="customerPhoneNumber">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:maxLength value="15" />
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element minOccurs="0" name="shippingMethod"
+							type="matrix:changeShippingMethod" />
+						<xs:element minOccurs="0" name="shipperAddress"
+							type="matrix:changeSenderAddress" />
+						<xs:element minOccurs="0" name="returnAddress"
+							type="matrix:changeSenderAddress" />
+						<xs:element minOccurs="0" name="shippingAddress"
+							type="matrix:changeShippingAddress" />
+						<xs:element minOccurs="0" name="products" type="matrix:changeProducts" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:complexType name="changeShippingMethod">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="type" type="matrix:deliveryTypeType" />
+					<xs:element minOccurs="0" name="contract" type="xs:string" />
+					<xs:element minOccurs="0" name="identifier" type="xs:string" />
+					<xs:element minOccurs="0" name="option" type="xs:string" />
+					<xs:element minOccurs="0" name="servicepointAccountNumber"
+						type="xs:string" />
+					<xs:element minOccurs="0" name="servicepointNotificationEmail"
+						type="xs:string" />
+					<xs:element minOccurs="0" name="servicepointNotificationMobile"
+						type="xs:string" />
+					<xs:element minOccurs="0" name="price" type="xs:double" />
+					<xs:element minOccurs="0" name="shippingPaymentType"
+						type="matrix:shippingPaymentType" />
+					<xs:element minOccurs="0" name="billingAccountNumber"
+						type="xs:string" />
+					<xs:element minOccurs="0" name="invoiceNumber" type="xs:string" />
+					<xs:element minOccurs="0" name="packagingWeight"
+						type="matrix:nonNegativeDecimal" />
+					<xs:element minOccurs="0" name="customsValue">
+						<xs:simpleType>
+							<xs:restriction base="matrix:nonNegativeDecimal">
+								<xs:fractionDigits value="2" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element default="EUR" minOccurs="0"
+						name="customsValueCurrency" type="matrix:currencyCode" />
+					<xs:element minOccurs="0" name="dutiesPaymentType"
+						type="matrix:dutiesPaymentType" />
+					<xs:element minOccurs="0" name="dutiesAccountNumber"
+						type="xs:string" />
+					<xs:element minOccurs="0" name="orderWeight"
+						type="matrix:nonNegativeDecimal" />
+					<xs:element minOccurs="0" name="assuredAmount" type="xs:int" />
+					<xs:element default="EUR" minOccurs="0"
+						name="assuredAmountCurrency" type="matrix:currencyCode" />
+					<xs:element minOccurs="0" name="collo" type="xs:int" />
+					<xs:element minOccurs="0" name="packageCount" type="xs:positiveInteger" />
+					<xs:element minOccurs="0" name="maxLabels" type="xs:int" />
+					<xs:element minOccurs="0" name="packagingType"
+						type="matrix:packagingTypeType" />
+					<xs:element minOccurs="0" name="preferredDeliveryDate"
+						type="xs:date" />
+					<xs:element default="false" minOccurs="0"
+						name="preferredDateChosen" type="xs:boolean" />
+					<xs:element minOccurs="0" name="description" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="changeSenderAddress">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="addresseeLine" type="xs:string" />
+					<xs:element minOccurs="0" name="street" type="xs:string" />
+					<xs:element minOccurs="0" name="housenumber" type="xs:string" />
+					<xs:element minOccurs="0" name="addition" type="xs:string" />
+					<xs:element minOccurs="0" name="zipcode" type="xs:string" />
+					<xs:element minOccurs="0" name="city" type="xs:string" />
+					<xs:element minOccurs="0" name="province" type="xs:string" />
+					<xs:element default="NL" minOccurs="0" name="country"
+						type="xs:string" />
+					<xs:element maxOccurs="unbounded" minOccurs="0"
+						name="additionalAddressLine" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="changeShippingAddress">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="accountNumber" type="xs:string" />
+					<xs:element minOccurs="0" name="customerName">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="255" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element minOccurs="0" name="companyName">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="255" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element minOccurs="0" name="nameOther">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="255" />
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element minOccurs="0" name="street" type="xs:string" />
+					<xs:element minOccurs="0" name="housenumber" type="xs:string" />
+					<xs:element minOccurs="0" name="addition" type="xs:string" />
+					<xs:element maxOccurs="unbounded" minOccurs="0"
+						name="additionalAddressLine" type="xs:string" />
+					<xs:element minOccurs="0" name="zipcode" type="xs:string" />
+					<xs:element minOccurs="0" name="city" type="xs:string" />
+					<xs:element minOccurs="0" name="province" type="xs:string" />
+					<xs:element default="NL" minOccurs="0" name="country"
+						type="xs:string" />
+					<xs:element minOccurs="0" name="localAddressValidation"
+						type="xs:boolean" />
+					<xs:element minOccurs="0" name="additionalInstruction"
+						type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="changeProducts">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" minOccurs="0" name="product">
+						<xs:complexType>
+							<xs:all>
+								<xs:element default="1" minOccurs="0" name="quantity"
+									type="xs:positiveInteger" />
+								<xs:element default="1" minOccurs="0" name="packagesPerUnit"
+									type="xs:positiveInteger" />
+								<xs:element minOccurs="0" name="weight"
+									type="matrix:nonNegativeDecimal" />
+								<xs:element minOccurs="0" name="width"
+									type="xs:nonNegativeInteger" />
+								<xs:element minOccurs="0" name="height"
+									type="xs:nonNegativeInteger" />
+								<xs:element minOccurs="0" name="length"
+									type="xs:nonNegativeInteger" />
+								<xs:element minOccurs="0" name="volume"
+									type="matrix:nonNegativeDecimal" />
+								<xs:element minOccurs="0" name="code" type="xs:string" />
+								<xs:element minOccurs="0" name="description" type="xs:string" />
+								<xs:element minOccurs="0" name="countryOfManufacture"
+									type="xs:string" />
+								<xs:element minOccurs="0" name="unitPrice"
+									type="matrix:nonNegativeDecimal" />
+								<xs:element default="EUR" minOccurs="0"
+									name="unitPriceCurrency" type="matrix:currencyCode" />
+								<xs:element minOccurs="0" name="hsTariffCode" type="xs:string" />
+								<xs:element minOccurs="0" name="direction" type="matrix:directionType" />
+							</xs:all>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="mode" type="matrix:changeProductsModeType" />
+			</xs:complexType>
+			<xs:simpleType name="changeProductsModeType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="add" />
+					<xs:enumeration value="replace" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:complexType name="labelProducts">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" minOccurs="0"
+						name="labelProduct">
+						<xs:complexType>
+							<xs:all>
+								<xs:element minOccurs="0" name="quantity" type="xs:positiveInteger" />
+								<xs:element minOccurs="0" name="weight"
+									type="matrix:nonNegativeDecimal" />
+								<xs:element minOccurs="0" name="width"
+									type="xs:nonNegativeInteger" />
+								<xs:element minOccurs="0" name="height"
+									type="xs:nonNegativeInteger" />
+								<xs:element minOccurs="0" name="length"
+									type="xs:nonNegativeInteger" />
+								<xs:element minOccurs="0" name="volume"
+									type="matrix:nonNegativeDecimal" />
+								<xs:element minOccurs="0" name="code" type="xs:string" />
+								<xs:element minOccurs="0" name="description" type="xs:string" />
+							</xs:all>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="mode" type="matrix:labelProductsModeType" />
+			</xs:complexType>
+			<xs:simpleType name="labelProductsModeType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="add" />
+					<xs:enumeration value="replace" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:element name="changeOrderResponse" type="matrix:orderSaveResponseType" />
+			<xs:element name="orderDetailsRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="orderReference" type="xs:string" />
+						<xs:element minOccurs="0" name="extendedDetails" type="xs:boolean" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="orderDetailsResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element minOccurs="0" name="webshopId" type="xs:string" />
+							<xs:element minOccurs="0" name="matrixCode" type="xs:string" />
+							<xs:element name="createDate" type="xs:dateTime" />
+							<xs:element minOccurs="0" name="companyName" type="xs:string" />
+							<xs:element minOccurs="0" name="name" type="xs:string" />
+							<xs:element minOccurs="0" name="nameOther" type="xs:string" />
+							<xs:element name="shipToAddress" type="matrix:addressType" />
+							<xs:element minOccurs="0" name="emailAddress" type="xs:string" />
+							<xs:element minOccurs="0" name="phoneNumber" type="xs:string" />
+							<xs:element name="senderName" type="xs:string" />
+							<xs:element name="senderAddress" type="matrix:addressType" />
+							<xs:element name="returnName" type="xs:string" />
+							<xs:element name="returnAddress" type="matrix:addressType" />
+							<xs:element name="shippingOption" type="matrix:shippingOptionDetailsType" />
+							<xs:element minOccurs="0" name="servicePointDetails"
+								type="matrix:servicePointDetailsType" />
+							<xs:element name="numberOfArticles" type="xs:int" />
+							<xs:element minOccurs="0" name="shippingPaymentType"
+								type="matrix:shippingPaymentType" />
+							<xs:element minOccurs="0" name="billingAccountNumber"
+								type="xs:string" />
+							<xs:element minOccurs="0" name="invoiceNumber" type="xs:string" />
+							<xs:element minOccurs="0" name="packagingWeight"
+								type="matrix:nonNegativeDecimal" />
+							<xs:element minOccurs="0" name="customsValue" type="xs:decimal" />
+							<xs:element default="EUR" minOccurs="0"
+								name="customsValueCurrency" type="matrix:currencyCode" />
+							<xs:element minOccurs="0" name="dutiesPaymentType"
+								type="matrix:dutiesPaymentType" />
+							<xs:element minOccurs="0" name="dutiesAccountNumber"
+								type="xs:string" />
+							<xs:element minOccurs="0" name="orderWeight" type="xs:decimal" />
+							<xs:element minOccurs="0" name="maxLabels" type="xs:int" />
+							<xs:element name="collo" type="xs:boolean" />
+							<xs:element minOccurs="0" name="codValue" type="xs:decimal" />
+							<xs:element default="EUR" minOccurs="0" name="codValueCurrency"
+								type="matrix:currencyCode" />
+							<xs:element minOccurs="0" name="insuredValue" type="xs:int" />
+							<xs:element default="EUR" minOccurs="0"
+								name="insuredValueCurrency" type="matrix:currencyCode" />
+							<xs:element minOccurs="0" name="packagingType"
+								type="matrix:packagingTypeType" />
+							<xs:element minOccurs="0" name="pickupDate" type="xs:date" />
+							<xs:element minOccurs="0" name="preferredDeliveryDate"
+								type="xs:date" />
+							<xs:element default="false" minOccurs="0"
+								name="preferredDateChosen" type="xs:boolean" />
+							<xs:element minOccurs="0" name="description" type="xs:string" />
+							<xs:element minOccurs="0" name="additionalInstruction"
+								type="xs:string" />
+							<xs:element minOccurs="0" name="shipperNotificationType"
+								type="matrix:shipperNotificationTypeType" />
+							<xs:element minOccurs="0" name="shipperNotificationTarget"
+								type="xs:string" />
+							<xs:element minOccurs="0"
+								name="additionalShipperNotificationType" type="matrix:shipperNotificationTypeType" />
+							<xs:element minOccurs="0"
+								name="additionalShipperNotificationTarget" type="xs:string" />
+							<xs:element minOccurs="0" name="deliveryWindowStart"
+								type="xs:time" />
+							<xs:element minOccurs="0" name="deliveryWindowEnd"
+								type="xs:time" />
+							<xs:element minOccurs="0" name="products">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element maxOccurs="unbounded" name="product"
+											type="matrix:productType" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:complexType name="shippingOptionDetailsType">
+				<xs:sequence>
+					<xs:element name="distributor" type="xs:string" />
+					<xs:element minOccurs="0" name="contract" type="xs:string" />
+					<xs:element name="option" type="xs:string" />
+					<xs:element name="description" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="addressType">
+				<xs:sequence>
+					<xs:choice>
+						<xs:sequence>
+							<xs:element name="street" type="xs:string" />
+							<xs:element name="housenumber" type="xs:string" />
+							<xs:element minOccurs="0" name="addition" type="xs:string" />
+						</xs:sequence>
+						<xs:element name="address" type="xs:string" />
+					</xs:choice>
+					<xs:element maxOccurs="unbounded" minOccurs="0"
+						name="additionalAddressLine" type="xs:string" />
+					<xs:element name="postcode" type="xs:string" />
+					<xs:element name="city" type="xs:string" />
+					<xs:element minOccurs="0" name="province" type="xs:string" />
+					<xs:element minOccurs="0" name="country" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="servicePointDetailsType">
+				<xs:sequence>
+					<xs:element name="code" type="xs:string" />
+					<xs:element name="name" type="xs:string" />
+					<xs:element minOccurs="0" name="notificationEmail" type="xs:string" />
+					<xs:element minOccurs="0" name="notificationMobile"
+						type="xs:string" />
+					<xs:element name="address" type="matrix:addressType" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="productType">
+				<xs:sequence>
+					<xs:element name="quantity" type="xs:int" />
+					<xs:element minOccurs="0" name="packagesPerUnit" type="xs:int" />
+					<xs:element name="unitPrice" type="xs:double" />
+					<xs:element default="EUR" minOccurs="0" name="unitPriceCurrency"
+						type="matrix:currencyCode" />
+					<xs:element name="weight" type="xs:double" />
+					<xs:element minOccurs="0" name="length" type="xs:int" />
+					<xs:element minOccurs="0" name="width" type="xs:int" />
+					<xs:element minOccurs="0" name="height" type="xs:int" />
+					<xs:element minOccurs="0" name="volume" type="xs:double" />
+					<xs:element minOccurs="0" name="code" type="xs:string" />
+					<xs:element minOccurs="0" name="description" type="xs:string" />
+					<xs:element minOccurs="0" name="countryOfManufacture"
+						type="xs:string" />
+					<xs:element minOccurs="0" name="hsTariffCode" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:element name="checkoutRequest" type="matrix:baseCheckoutRequestType" />
+			<xs:element name="checkoutResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element name="url" type="xs:anyURI" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="checkoutStatusRequest" type="matrix:baseCheckoutRequestType" />
+			<xs:element name="checkoutStatusResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element minOccurs="0" name="locale" type="xs:language" />
+							<xs:element minOccurs="0" name="callbackUrl" type="xs:anyURI" />
+							<xs:element minOccurs="0" name="consignee">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element minOccurs="0" name="country" type="xs:string" />
+										<xs:element minOccurs="0" name="postcode" type="xs:string" />
+										<xs:element minOccurs="0" name="city" type="xs:string" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element minOccurs="0" name="delivery">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element minOccurs="0" name="deliveryType"
+											type="matrix:deliveryTypeType" />
+										<xs:element minOccurs="0" name="option" type="xs:string" />
+										<xs:element minOccurs="0" name="description" type="xs:string" />
+										<xs:element minOccurs="0" name="rate" type="xs:decimal" />
+										<xs:element minOccurs="0" name="cod" type="xs:boolean" />
+										<xs:element minOccurs="0" name="insurance" type="xs:boolean" />
+										<xs:element minOccurs="0" name="signatureRequired"
+											type="xs:boolean" />
+										<xs:element minOccurs="0" name="directDeliveryOnly"
+											type="xs:boolean" />
+										<xs:element minOccurs="0" name="servicePointBasePostalCode"
+											type="xs:string" />
+										<xs:element minOccurs="0" name="servicePointBaseCity"
+											type="xs:string" />
+										<xs:element minOccurs="0" name="servicePoint"
+											type="matrix:servicePointType" />
+										<xs:element minOccurs="0" name="servicePointAccountNumber"
+											type="xs:string" />
+										<xs:element minOccurs="0" name="preferredDeliveryDate"
+											type="xs:date" />
+										<xs:element minOccurs="0" name="timeFrame"
+											type="matrix:openOrClosedTimeRangeType" />
+										<xs:element minOccurs="0" name="transitDaysRange"
+											type="matrix:nonNegativeIntegerRangeType" />
+										<xs:element default="false" minOccurs="0"
+											name="preferredDateChosen" type="xs:boolean" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element minOccurs="0" name="notification">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element minOccurs="0" name="emailAddress" type="xs:string" />
+										<xs:element minOccurs="0" name="phoneNumber" type="xs:string" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="addressRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="orderReference" type="xs:string" />
+						<xs:element name="zipcode" type="xs:string" />
+						<xs:element name="housenumber" type="xs:string" />
+						<xs:element minOccurs="0" name="addition" type="xs:string" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="addressResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element name="address">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="zipcode" type="xs:string" />
+									<xs:element name="housenumber" type="xs:string" />
+									<xs:element name="street" type="xs:string" />
+									<xs:element name="city" type="xs:string" />
+									<xs:element minOccurs="0" name="addition" type="xs:string" />
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generatePdfLabelsRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element default="zebra" minOccurs="0" name="printer"
+							type="matrix:printerType" />
+						<xs:element maxOccurs="unbounded" name="order"
+							type="matrix:orderType" />
+						<xs:element minOccurs="0" name="includeMetaData" type="xs:boolean" />
+						<xs:element minOccurs="0" name="includeTrackingUrl"
+							type="xs:boolean" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generatePdfLabelsResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element name="labels" type="xs:base64Binary" />
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateZplLabelsRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element default="zebra" minOccurs="0" name="printer"
+							type="matrix:printerType" />
+						<xs:element maxOccurs="unbounded" name="order"
+							type="matrix:orderType" />
+						<xs:element minOccurs="0" name="includeMetaData" type="xs:boolean" />
+						<xs:element minOccurs="0" name="includeTrackingUrl"
+							type="xs:boolean" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateZplLabelsResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element name="labels" type="xs:base64Binary" />
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateLabelsRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element default="PDF" name="labelFormat" type="matrix:labelFormatType" />
+						<xs:element default="zebra" minOccurs="0" name="printer"
+							type="matrix:printerType" />
+						<xs:element maxOccurs="unbounded" name="order"
+							type="matrix:orderType" />
+						<xs:element minOccurs="0" name="includeMetaData" type="xs:boolean" />
+						<xs:element minOccurs="0" name="includeTrackingUrl"
+							type="xs:boolean" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateLabelsResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element name="labels" type="xs:base64Binary" />
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generatePdfCustomsDocumentsRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element maxOccurs="unbounded" name="order"
+							type="matrix:orderType" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generatePdfCustomsDocumentsResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element name="documents" type="xs:base64Binary" />
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateShippingManifestRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:choice>
+							<xs:sequence>
+								<xs:element name="startDate" type="xs:dateTime" />
+								<xs:element name="endDate" type="xs:dateTime" />
+							</xs:sequence>
+							<xs:element name="identifier" type="xs:string" />
+						</xs:choice>
+						<xs:element name="distributor" type="xs:string" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateShippingManifestResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element name="shippingManifest" type="xs:base64Binary" />
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateExtraPdfLabelRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="orderReference" type="xs:string" />
+						<xs:element minOccurs="0" name="labelProducts" type="matrix:labelProducts" />
+						<xs:element default="zebra" minOccurs="0" name="printer"
+							type="matrix:printerType" />
+						<xs:element minOccurs="0" name="batch" type="xs:string" />
+						<xs:element minOccurs="0" name="includeMetaData" type="xs:boolean" />
+						<xs:element minOccurs="0" name="includeTrackingUrl"
+							type="xs:boolean" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateExtraPdfLabelResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element name="label" type="xs:base64Binary" />
+							<xs:element minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateImageLabelsRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element maxOccurs="unbounded" name="order"
+							type="matrix:orderType" />
+						<xs:element minOccurs="0" name="includeMetaData" type="xs:boolean" />
+						<xs:element minOccurs="0" name="includeTrackingUrl"
+							type="xs:boolean" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateImageLabelsResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" name="label"
+								type="matrix:labelType" />
+							<xs:element minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateExtraImageLabelRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="orderReference" type="xs:string" />
+						<xs:element minOccurs="0" name="labelProducts" type="matrix:labelProducts" />
+						<xs:element minOccurs="0" name="batch" type="xs:string" />
+						<xs:element minOccurs="0" name="includeMetaData" type="xs:boolean" />
+						<xs:element minOccurs="0" name="includeTrackingUrl"
+							type="xs:boolean" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateExtraImageLabelResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" name="label"
+								type="matrix:labelType" />
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generatePdfReturnLabelsRequest">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="matrix:generateReturnLabelsType">
+							<xs:sequence>
+								<xs:element default="zebra" minOccurs="0" name="printer"
+									type="matrix:printerType" />
+							</xs:sequence>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generatePdfReturnLabelsResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element name="label" type="xs:base64Binary" />
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateExtraPdfReturnLabelRequest">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="matrix:generateReturnLabelType">
+							<xs:sequence>
+								<xs:element default="zebra" minOccurs="0" name="printer"
+									type="matrix:printerType" />
+							</xs:sequence>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateExtraPdfReturnLabelResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element name="label" type="xs:base64Binary" />
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateImageReturnLabelsRequest" type="matrix:generateReturnLabelsType" />
+			<xs:element name="generateImageReturnLabelsResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" name="label"
+								type="matrix:returnLabelType" />
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateExtraImageReturnLabelRequest"
+				type="matrix:generateReturnLabelType" />
+			<xs:element name="generateExtraImageReturnLabelResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" name="label"
+								type="matrix:returnLabelType" />
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="getExistingPdfLabelsRequest">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="matrix:getExistingLabelsType">
+							<xs:sequence>
+								<xs:element default="zebra" minOccurs="0" name="printer"
+									type="matrix:printerType" />
+							</xs:sequence>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="getExistingPdfLabelsResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element name="labels" type="xs:base64Binary" />
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="getExistingPdfLabelRequest">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="matrix:getExistingLabelType">
+							<xs:sequence>
+								<xs:element default="zebra" minOccurs="0" name="printer"
+									type="matrix:printerType" />
+							</xs:sequence>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="getExistingPdfLabelResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element name="label" type="xs:base64Binary" />
+							<xs:element minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="getExistingZplLabelsRequest">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="matrix:getExistingLabelsType">
+							<xs:sequence>
+								<xs:element default="zebra" minOccurs="0" name="printer"
+									type="matrix:printerType" />
+							</xs:sequence>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="getExistingZplLabelsResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element name="labels" type="xs:base64Binary" />
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="getExistingZplLabelRequest">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="matrix:getExistingLabelType">
+							<xs:sequence>
+								<xs:element default="zebra" minOccurs="0" name="printer"
+									type="matrix:printerType" />
+							</xs:sequence>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="getExistingZplLabelResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element name="label" type="xs:base64Binary" />
+							<xs:element minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="getExistingImageLabelsRequest" type="matrix:getExistingLabelsType" />
+			<xs:element name="getExistingImageLabelsResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" name="label"
+								type="matrix:labelType" />
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="getExistingImageLabelRequest" type="matrix:getExistingLabelType" />
+			<xs:element name="getExistingImageLabelResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" name="label"
+								type="matrix:labelType" />
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="metaData"
+								type="matrix:labelMetaDataType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateAdditionalPdfDocumentRequest">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="matrix:generateAdditionalDocumentType">
+							<xs:sequence>
+								<xs:element default="zebra" minOccurs="0" name="printer"
+									type="matrix:printerType" />
+							</xs:sequence>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateAdditionalPdfDocumentResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element maxOccurs="unbounded" name="document"
+							type="matrix:additionalDocumentContainerType" />
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="generateAdditionalImageDocumentRequest"
+				type="matrix:generateAdditionalDocumentType" />
+			<xs:element name="generateAdditionalImageDocumentResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element maxOccurs="unbounded" name="document"
+							type="matrix:additionalDocumentContainerType" />
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="cancelShipmentsRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element maxOccurs="unbounded" minOccurs="0" name="label"
+							type="matrix:existingLabelType" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="cancelShipmentsResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="label"
+								type="matrix:labelResponseType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ordersToShipRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element minOccurs="0" name="date" type="xs:date" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ordersToShipResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element maxOccurs="unbounded" minOccurs="0" name="order"
+							type="matrix:orderToShipType" />
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="pickupRequestOptionsRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="internalReference" type="xs:string" />
+						<xs:element default="NL" minOccurs="0" name="pickupCountry"
+							type="xs:string" />
+						<xs:element default="NL" minOccurs="0" name="deliveryCountry"
+							type="xs:string" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="pickupRequestOptionsResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" name="pickupRequestOption"
+								type="matrix:pickupRequestOptionType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="createPickupRequestRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="internalReference" type="xs:string" />
+						<xs:element minOccurs="0" name="contract" type="xs:string" />
+						<xs:element name="pickupRequestOption" type="xs:string" />
+						<xs:element minOccurs="0" name="orderReference" type="xs:string" />
+						<xs:element name="pieceCount" type="xs:int" />
+						<xs:element name="pickupDate" type="xs:date" />
+						<xs:element name="pickupWindowStart" type="xs:time" />
+						<xs:element name="pickupWindowEnd" type="xs:time" />
+						<xs:choice>
+							<xs:sequence>
+								<xs:element name="pickupCompanyName" type="xs:string" />
+								<xs:element name="pickupContactName" type="xs:string" />
+							</xs:sequence>
+							<xs:element name="pickupName" type="xs:string" />
+						</xs:choice>
+						<xs:element name="pickupAddress" type="matrix:addressType" />
+						<xs:element name="pickupPhoneNumber" type="xs:string" />
+						<xs:element minOccurs="0" name="pickupEmailAddress"
+							type="xs:string" />
+						<xs:element minOccurs="0" name="deliveryAddress" type="matrix:addressType" />
+						<xs:element minOccurs="0" name="deliveryEmailAddress"
+							type="xs:string" />
+						<xs:element minOccurs="0" name="additionalInstruction"
+							type="xs:string" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="createPickupRequestResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element name="success" type="xs:string" />
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="cancelPickupRequestRequest" type="matrix:pickupRequestQueryType" />
+			<xs:element name="cancelPickupRequestResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element name="success" type="xs:string" />
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="pickupRequestDetailsRequest" type="matrix:pickupRequestQueryType" />
+			<xs:element name="pickupRequestDetailsResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element name="createDate" type="xs:dateTime" />
+							<xs:element name="internalReference" type="xs:string" />
+							<xs:element minOccurs="0" name="externalReference"
+								type="xs:string" />
+							<xs:element name="webshop" type="xs:long" />
+							<xs:element minOccurs="0" name="contract" type="xs:string" />
+							<xs:element name="pickupRequestOption" type="xs:string" />
+							<xs:element name="distributor" type="xs:string" />
+							<xs:element minOccurs="0" name="orderReference" type="xs:string" />
+							<xs:element name="pieceCount" type="xs:int" />
+							<xs:element name="pickupDate" type="xs:date" />
+							<xs:element name="pickupWindowStart" type="xs:time" />
+							<xs:element name="pickupWindowEnd" type="xs:time" />
+							<xs:element minOccurs="0" name="pickupCompanyName"
+								type="xs:string" />
+							<xs:element minOccurs="0" name="pickupContactName"
+								type="xs:string" />
+							<xs:element name="pickupAddress" type="matrix:addressType" />
+							<xs:element name="residentialPickup" type="xs:boolean" />
+							<xs:element name="pickupPhoneNumber" type="xs:string" />
+							<xs:element minOccurs="0" name="pickupEmailAddress"
+								type="xs:string" />
+							<xs:element name="deliveryAddress" type="matrix:addressType" />
+							<xs:element minOccurs="0" name="deliveryEmailAddress"
+								type="xs:string" />
+							<xs:element name="status" type="matrix:pickupRequestStatusType" />
+							<xs:element name="statusDate" type="xs:dateTime" />
+							<xs:element minOccurs="0" name="additionalInstruction"
+								type="xs:string" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="pickupRequestStatusRequest" type="matrix:pickupRequestQueryType" />
+			<xs:element name="pickupRequestStatusResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element name="internalReference" type="xs:string" />
+							<xs:element name="webshop" type="xs:long" />
+							<xs:element name="status" type="matrix:pickupRequestStatusType" />
+							<xs:element name="date" type="xs:dateTime" />
+							<xs:element name="statusHistory"
+								type="matrix:pickupRequestStatusHistoryType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:complexType name="pickupRequestStatusHistoryType">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" name="statusEntry"
+						type="matrix:pickupRequestStatusEntryType" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:element name="servicePointsRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element minOccurs="0" name="shippingOption" type="xs:string" />
+						<xs:element minOccurs="0" name="evening" type="xs:boolean" />
+						<xs:element minOccurs="0" name="weekend" type="xs:boolean" />
+						<xs:choice>
+							<xs:sequence>
+								<xs:element default="NL" minOccurs="0" name="country"
+									type="xs:string" />
+								<xs:element minOccurs="0" name="postcode" type="xs:string" />
+								<xs:element default="5" minOccurs="0" name="limit"
+									type="xs:nonNegativeInteger" />
+							</xs:sequence>
+							<xs:sequence>
+								<xs:element name="southWest" type="matrix:coordinatesType" />
+								<xs:element name="northEast" type="matrix:coordinatesType" />
+							</xs:sequence>
+						</xs:choice>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="servicePointsResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" minOccurs="0"
+								name="shippingOption">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="distributor" type="xs:string" />
+										<xs:element name="shippingOption" type="xs:string" />
+										<xs:element maxOccurs="unbounded" minOccurs="0"
+											name="servicePoint" type="matrix:servicePointType" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:complexType name="servicePointType">
+				<xs:sequence>
+					<xs:element name="code" type="xs:string" />
+					<xs:element name="name" type="xs:string" />
+					<xs:element maxOccurs="unbounded" name="address" type="xs:string" />
+					<xs:element name="postcode" type="xs:string" />
+					<xs:element name="city" type="xs:string" />
+					<xs:element minOccurs="0" name="province" type="xs:string" />
+					<xs:element name="country" type="xs:string" />
+					<xs:element minOccurs="0" name="coordinates" type="matrix:coordinatesType" />
+					<xs:element minOccurs="0" name="distance" type="xs:decimal" />
+					<xs:element maxOccurs="unbounded" minOccurs="0"
+						name="businessHours" type="matrix:businessHoursType" />
+					<xs:element minOccurs="0" name="extraDetails"
+						type="matrix:servicePointExtraDetails" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="servicePointExtraDetails">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="pictureUrl" type="xs:string" />
+					<xs:element maxOccurs="unbounded" minOccurs="0"
+						name="locationHints" type="xs:string" />
+					<xs:element maxOccurs="unbounded" minOccurs="0" name="remarks"
+						type="xs:string" />
+					<xs:element minOccurs="0" name="status"
+						type="matrix:servicePointExtraDetailsStatus" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="servicePointExtraDetailsStatus">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="available" type="xs:boolean" />
+					<xs:element minOccurs="0" name="code" type="xs:string" />
+					<xs:element minOccurs="0" name="value" type="xs:string" />
+					<xs:element minOccurs="0" name="referenceDate" type="xs:date" />
+					<xs:element minOccurs="0" name="referenceStartDate"
+						type="xs:date" />
+					<xs:element minOccurs="0" name="referenceEndDate" type="xs:date" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="businessHoursType">
+				<xs:sequence>
+					<xs:element name="day" type="matrix:dayType" />
+					<xs:element name="from" type="xs:time" />
+					<xs:element name="until" type="xs:time" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:element name="rateRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="orderReference" type="xs:string" />
+						<xs:element default="NL" minOccurs="0" name="country"
+							type="xs:string" />
+						<xs:element minOccurs="0" name="postalCode" type="xs:string" />
+						<xs:element minOccurs="0" name="shippingOption" type="xs:string" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="rateResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" name="rate">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="type" type="matrix:deliveryTypeType" />
+										<xs:element name="distributor" type="xs:string" />
+										<xs:element name="shippingOption" type="xs:string" />
+										<xs:element name="description" type="xs:string" />
+										<xs:element name="rate" type="xs:decimal" />
+										<xs:element minOccurs="0" name="rateDiscount" type="xs:double" />
+										<xs:element minOccurs="0" name="transitDaysRange"
+											type="matrix:nonNegativeIntegerRangeType" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="createStoresRequest" type="matrix:changeStoresRequestType" />
+			<xs:element name="createStoresResponse" type="matrix:changeStoresResponseType" />
+			<xs:element name="updateStoresRequest" type="matrix:changeStoresRequestType" />
+			<xs:element name="updateStoresResponse" type="matrix:changeStoresResponseType" />
+			<xs:element name="deleteStoresRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element maxOccurs="unbounded" name="store"
+							type="matrix:deleteStoreType" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="deleteStoresResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="code"
+								type="xs:string" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:complexType name="deleteStoreType">
+				<xs:all>
+					<xs:element name="hash" type="xs:string" />
+					<xs:element name="code" type="xs:string" />
+				</xs:all>
+			</xs:complexType>
+			<xs:element name="listStoresRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="listStoresResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" minOccurs="0" name="store"
+								type="matrix:storeDetailsType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="openBatchRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element minOccurs="0" name="distributor" type="xs:string" />
+						<xs:element minOccurs="0" name="shippingOption" type="xs:string" />
+						<xs:element minOccurs="0" name="country" type="xs:string" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="openBatchResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element name="batch" type="xs:string" />
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="closeBatchRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="batch" type="xs:string" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="closeBatchResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element name="summary" type="matrix:batchStatusType" />
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="listOpenBatchesRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="listOpenBatchesResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element maxOccurs="unbounded" name="batch" type="xs:string" />
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="batchStatusRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="batch" type="xs:string" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="batchStatusResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element name="batch" type="matrix:batchStatusType" />
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:simpleType name="documentType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="GIF" />
+					<xs:enumeration value="JPG" />
+					<xs:enumeration value="PDF" />
+					<xs:enumeration value="PNG" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:complexType name="proofOfDeliveryDocumentType">
+				<xs:sequence>
+					<xs:element name="documentType" type="matrix:documentType" />
+					<xs:element name="document" type="xs:base64Binary" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:element name="proofOfDeliveryRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+						<xs:element name="barcode" type="xs:string" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="proofOfDeliveryResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:sequence>
+							<xs:element minOccurs="0" name="signedBy" type="xs:string" />
+							<xs:element minOccurs="0" name="proofOfDeliveryDocument"
+								type="matrix:proofOfDeliveryDocumentType" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="triggerCarrierRegistrationRequest">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="hash" type="xs:string" />
+						<xs:element name="webshop" type="xs:long" />
+						<xs:element name="barcodes" type="matrix:triggerBarcodeRequestType" />
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="triggerCarrierRegistrationResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:group ref="matrix:errorResponse" />
+						<xs:element name="shippingLabels">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element maxOccurs="unbounded" name="shippingLabel"
+										type="matrix:triggerBarcodeResponseType" />
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:complexType name="triggerBarcodeRequestType">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" minOccurs="0" name="barcode"
+						type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="triggerBarcodeResponseType">
+				<xs:all>
+					<xs:element name="barcode" type="xs:string" />
+					<xs:element name="status" type="matrix:triggerResponseStatus" />
+					<xs:element name="identifier" type="xs:string" />
+				</xs:all>
+			</xs:complexType>
+			<xs:simpleType name="triggerResponseStatus">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="QUEUED" />
+					<xs:enumeration value="ALREADY_PROCESSED" />
+					<xs:enumeration value="NOT_ALLOWED" />
+					<xs:enumeration value="UNKNOWN" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:element name="products">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" name="product">
+							<xs:complexType>
+								<xs:all>
+									<xs:element default="1" minOccurs="0" name="quantity"
+										type="xs:positiveInteger" />
+									<xs:element default="1" minOccurs="0" name="packagesPerUnit"
+										type="xs:positiveInteger" />
+									<xs:element minOccurs="0" name="matrix">
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:pattern value="[A-Za-z]" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element minOccurs="0" name="weight"
+										type="matrix:nonNegativeDecimal" />
+									<xs:element minOccurs="0" name="width"
+										type="xs:nonNegativeInteger" />
+									<xs:element minOccurs="0" name="height"
+										type="xs:nonNegativeInteger" />
+									<xs:element minOccurs="0" name="length"
+										type="xs:nonNegativeInteger" />
+									<xs:element minOccurs="0" name="volume"
+										type="matrix:nonNegativeDecimal" />
+									<xs:element minOccurs="0" name="code" type="xs:string" />
+									<xs:element minOccurs="0" name="description" type="xs:string" />
+									<xs:element minOccurs="0" name="countryOfManufacture"
+										type="xs:string" />
+									<xs:element minOccurs="0" name="unitPrice"
+										type="matrix:nonNegativeDecimal" />
+									<xs:element default="EUR" minOccurs="0"
+										name="unitPriceCurrency" type="matrix:currencyCode" />
+									<xs:element minOccurs="0" name="hsTariffCode" type="xs:string" />
+									<xs:element minOccurs="0" name="direction"
+										type="matrix:directionType" />
+									<xs:element minOccurs="0" name="processingDays"
+										type="xs:nonNegativeInteger" />
+									<xs:element minOccurs="0" name="promotionAbsolute"
+										type="xs:boolean" />
+									<xs:element minOccurs="0" name="promotion" type="xs:decimal" />
+									<xs:element minOccurs="0" ref="matrix:availableStores" />
+								</xs:all>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="availableStores">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" name="store">
+							<xs:complexType>
+								<xs:all>
+									<xs:element name="storeCode" type="xs:string" />
+									<xs:element minOccurs="0" name="quantity" type="xs:positiveInteger" />
+								</xs:all>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:complexType name="orderSaveResponseType">
+				<xs:choice>
+					<xs:group ref="matrix:errorResponse" />
+					<xs:element name="succes" type="xs:string" />
+				</xs:choice>
+			</xs:complexType>
+			<xs:complexType name="validateOrderResponseType">
+				<xs:choice>
+					<xs:group maxOccurs="unbounded" ref="matrix:errorResponse" />
+					<xs:element name="succes" type="xs:string" />
+				</xs:choice>
+			</xs:complexType>
+			<xs:simpleType name="printerType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="laser" />
+					<xs:enumeration value="zebra" />
+					<xs:enumeration value="zebra_10x15" />
+					<xs:enumeration value="zebra_10x21" />
+					<xs:enumeration value="a4" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType name="labelFormatType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="PDF" />
+					<xs:enumeration value="ZPL" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:complexType name="orderType">
+				<xs:all>
+					<xs:element name="hash" type="xs:string" />
+					<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+					<xs:element name="orderReference" type="xs:string" />
+					<xs:element minOccurs="0" name="labelProducts" type="matrix:labelProducts" />
+					<xs:element minOccurs="0" name="batch" type="xs:string" />
+				</xs:all>
+			</xs:complexType>
+			<xs:complexType name="returnLabelsOrderType">
+				<xs:all>
+					<xs:element name="hash" type="xs:string" />
+					<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+					<xs:element name="orderReference" type="xs:string" />
+					<xs:element minOccurs="0" name="labelProducts" type="matrix:labelProducts" />
+					<xs:element minOccurs="0" name="shippingOption" type="xs:string" />
+				</xs:all>
+			</xs:complexType>
+			<xs:complexType name="baseCheckoutRequestType">
+				<xs:all>
+					<xs:element name="hash" type="xs:string" />
+					<xs:element name="webshop" type="xs:long" />
+					<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+					<xs:element name="orderReference" type="xs:string" />
+				</xs:all>
+			</xs:complexType>
+			<xs:complexType name="generateReturnLabelsType">
+				<xs:sequence>
+					<xs:element name="webshop" type="xs:long" />
+					<xs:element maxOccurs="unbounded" name="order"
+						type="matrix:returnLabelsOrderType" />
+					<xs:element minOccurs="0" name="includeMetaData" type="xs:boolean" />
+					<xs:element minOccurs="0" name="includeTrackingUrl"
+						type="xs:boolean" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="generateReturnLabelType">
+				<xs:sequence>
+					<xs:element name="hash" type="xs:string" />
+					<xs:element name="webshop" type="xs:long" />
+					<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+					<xs:element name="orderReference" type="xs:string" />
+					<xs:element minOccurs="0" name="labelProducts" type="matrix:labelProducts" />
+					<xs:element minOccurs="0" name="shippingOption" type="xs:string" />
+					<xs:element minOccurs="0" name="includeMetaData" type="xs:boolean" />
+					<xs:element minOccurs="0" name="includeTrackingUrl"
+						type="xs:boolean" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="getExistingLabelsType">
+				<xs:sequence>
+					<xs:element name="webshop" type="xs:long" />
+					<xs:element maxOccurs="unbounded" name="label"
+						type="matrix:existingLabelType" />
+					<xs:element minOccurs="0" name="includeMetaData" type="xs:boolean" />
+					<xs:element minOccurs="0" name="includeTrackingUrl"
+						type="xs:boolean" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="existingLabelType">
+				<xs:all>
+					<xs:element name="hash" type="xs:string" />
+					<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+					<xs:element name="orderReference" type="xs:string" />
+					<xs:element name="barcode" type="xs:string" />
+				</xs:all>
+			</xs:complexType>
+			<xs:complexType name="getExistingLabelType">
+				<xs:sequence>
+					<xs:element name="hash" type="xs:string" />
+					<xs:element name="webshop" type="xs:long" />
+					<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+					<xs:element name="orderReference" type="xs:string" />
+					<xs:element name="barcode" type="xs:string" />
+					<xs:element minOccurs="0" name="includeMetaData" type="xs:boolean" />
+					<xs:element minOccurs="0" name="includeTrackingUrl"
+						type="xs:boolean" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="labelType">
+				<xs:simpleContent>
+					<xs:extension base="xs:base64Binary">
+						<xs:attribute name="orderReference" type="xs:string" />
+						<xs:attribute name="barcode" type="xs:string" />
+						<xs:attribute name="trackingNumber" type="xs:string" />
+						<xs:attribute name="batch" type="xs:string" />
+						<xs:anyAttribute />
+					</xs:extension>
+				</xs:simpleContent>
+			</xs:complexType>
+			<xs:complexType name="labelMetaDataType">
+				<xs:sequence>
+					<xs:element name="orderReference" type="xs:string" />
+					<xs:element name="barcode" type="xs:string" />
+					<xs:element minOccurs="0" name="trackingNumber" type="xs:string" />
+					<xs:element minOccurs="0" name="batch" type="xs:string" />
+					<xs:element maxOccurs="unbounded" minOccurs="0"
+						name="additionalDocument" type="matrix:additionalDocumentType" />
+					<xs:element minOccurs="0" name="trackingUrl" type="xs:anyURI" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="returnLabelType">
+				<xs:simpleContent>
+					<xs:extension base="matrix:labelType">
+						<xs:attribute name="returnOrderReference" type="xs:string" />
+					</xs:extension>
+				</xs:simpleContent>
+			</xs:complexType>
+			<xs:complexType name="generateAdditionalDocumentType">
+				<xs:sequence>
+					<xs:element name="hash" type="xs:string" />
+					<xs:element name="webshop" type="xs:long" />
+					<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+					<xs:element name="orderReference" type="xs:string" />
+					<xs:element name="barcode" type="xs:string" />
+					<xs:element name="documentType" type="matrix:additionalDocumentType" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="additionalDocumentContainerType">
+				<xs:sequence>
+					<xs:element name="orderReference" type="xs:string" />
+					<xs:element name="barcode" type="xs:string" />
+					<xs:element minOccurs="0" name="trackingNumber" type="xs:string" />
+					<xs:element minOccurs="0" name="batch" type="xs:string" />
+					<xs:element name="documentType" type="matrix:additionalDocumentType" />
+					<xs:element name="document" type="xs:base64Binary" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="labelResponseType">
+				<xs:sequence>
+					<xs:element name="barcode" type="xs:string" />
+					<xs:element minOccurs="0" name="trackingNumber" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="orderToShipType">
+				<xs:sequence>
+					<xs:element name="webshop" type="xs:long" />
+					<xs:element name="orderReference" type="xs:string" />
+					<xs:element name="distributor" type="xs:string" />
+					<xs:element name="deliveryDate" type="xs:date" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="pickupRequestOptionType">
+				<xs:sequence>
+					<xs:element name="identifier" type="xs:string" />
+					<xs:element name="description" type="xs:string" />
+					<xs:element name="distributor" type="xs:string" />
+					<xs:element name="option" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="pickupRequestQueryType">
+				<xs:sequence>
+					<xs:element name="hash" type="xs:string" />
+					<xs:element name="webshop" type="xs:long" />
+					<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+					<xs:choice>
+						<xs:element name="internalReference" type="xs:string" />
+						<xs:sequence>
+							<xs:element name="distributor" type="xs:string" />
+							<xs:element name="externalReference" type="xs:string" />
+						</xs:sequence>
+					</xs:choice>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:simpleType name="pickupRequestStatusType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="created" />
+					<xs:enumeration value="registered" />
+					<xs:enumeration value="temporaryFailure" />
+					<xs:enumeration value="permanentFailure" />
+					<xs:enumeration value="pickedup" />
+					<xs:enumeration value="canceled" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:complexType name="pickupRequestStatusEntryType">
+				<xs:sequence>
+					<xs:element name="timestamp" type="xs:dateTime" />
+					<xs:element minOccurs="0" name="status"
+						type="matrix:pickupRequestStatusType" />
+					<xs:element minOccurs="0" name="code" type="xs:string" />
+					<xs:element minOccurs="0" name="description" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="changeStoresRequestType">
+				<xs:sequence>
+					<xs:element name="webshop" type="xs:long" />
+					<xs:element minOccurs="0" name="targetWebshop" type="xs:long" />
+					<xs:element maxOccurs="unbounded" name="store"
+						type="matrix:changeStoreDetailsType" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="changeStoresResponseType">
+				<xs:choice>
+					<xs:group ref="matrix:errorResponse" />
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" minOccurs="0" name="code"
+							type="xs:string" />
+					</xs:sequence>
+				</xs:choice>
+			</xs:complexType>
+			<xs:complexType name="storeDetailsType">
+				<xs:sequence>
+					<xs:element name="code" type="xs:string" />
+					<xs:element name="name" type="xs:string" />
+					<xs:element name="address" type="matrix:addressType" />
+					<xs:element minOccurs="0" name="coordinates" type="matrix:coordinatesType" />
+					<xs:element maxOccurs="unbounded" minOccurs="0"
+						name="businessHours" type="matrix:businessHoursType" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="changeStoreDetailsType">
+				<xs:complexContent>
+					<xs:extension base="matrix:storeDetailsType">
+						<xs:sequence>
+							<xs:element name="hash" type="xs:string" />
+						</xs:sequence>
+					</xs:extension>
+				</xs:complexContent>
+			</xs:complexType>
+			<xs:complexType name="batchStatusType">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" minOccurs="0" name="order"
+						type="matrix:batchStatusOrderType" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="batchStatusOrderType">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" minOccurs="0" name="label"
+						type="matrix:batchStatusLabelType" />
+				</xs:sequence>
+				<xs:attribute name="reference" type="xs:string" />
+			</xs:complexType>
+			<xs:complexType name="batchStatusLabelType">
+				<xs:attribute name="barcode" type="xs:string" />
+			</xs:complexType>
+			<xs:complexType name="dateRangeType">
+				<xs:sequence>
+					<xs:element name="lowerBound" type="xs:date" />
+					<xs:element name="upperBound" type="xs:date" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="timeRangeType">
+				<xs:sequence>
+					<xs:element name="lowerBound" type="xs:time" />
+					<xs:element name="upperBound" type="xs:time" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="openOrClosedTimeRangeType">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="lowerBound" type="xs:time" />
+					<xs:element minOccurs="0" name="upperBound" type="xs:time" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="stringRangeType">
+				<xs:sequence>
+					<xs:element name="lowerBound" type="xs:string" />
+					<xs:element name="upperBound" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="nonNegativeIntegerRangeType">
+				<xs:sequence>
+					<xs:element name="lowerBound" type="xs:nonNegativeInteger" />
+					<xs:element name="upperBound" type="xs:nonNegativeInteger" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:simpleType name="nonNegativeDecimal">
+				<xs:restriction base="xs:decimal">
+					<xs:minInclusive value="0" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType name="currencyCode">
+				<xs:restriction base="xs:string">
+					<xs:length value="3" />
+					<xs:pattern value="[A-Z]{3}" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:complexType name="coordinatesType">
+				<xs:sequence>
+					<xs:element name="latitude" type="xs:decimal" />
+					<xs:element name="longitude" type="xs:decimal" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="errorType">
+				<xs:sequence>
+					<xs:element name="code" type="xs:int" />
+					<xs:element name="message" type="xs:string" />
+				</xs:sequence>
+			</xs:complexType>
+			<xs:group name="errorResponse">
+				<xs:sequence>
+					<xs:element name="error" type="matrix:errorType" />
+				</xs:sequence>
+			</xs:group>
+			<xs:simpleType name="dutiesPaymentType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="SENDER" />
+					<xs:enumeration value="RECIPIENT" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType name="shippingPaymentType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="shipper" />
+					<xs:enumeration value="consignee" />
+					<xs:enumeration value="thirdParty" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType name="additionalDocumentType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="codForm" />
+					<xs:enumeration value="customsDeclaration" />
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType name="directionType">
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="pickup" />
+					<xs:enumeration value="delivery" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:schema>
+	</wsdl:types>
+	<wsdl:message name="changeOrderRequest">
+		<wsdl:part element="tns:changeOrderRequest" name="changeOrderRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="orderDetailsRequest">
+		<wsdl:part element="tns:orderDetailsRequest" name="orderDetailsRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="googleMapSearchstringRequest">
+		<wsdl:part element="tns:googleMapSearchstringRequest" name="googleMapSearchstringRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="orderRequest">
+		<wsdl:part element="tns:orderRequest" name="orderRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="deliveryEstimateResponse">
+		<wsdl:part element="tns:deliveryEstimateResponse" name="deliveryEstimateResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="batchStatusResponse">
+		<wsdl:part element="tns:batchStatusResponse" name="batchStatusResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getExistingZplLabelRequest">
+		<wsdl:part element="tns:getExistingZplLabelRequest" name="getExistingZplLabelRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateAdditionalImageDocumentResponse">
+		<wsdl:part element="tns:generateAdditionalImageDocumentResponse"
+			name="generateAdditionalImageDocumentResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generatePdfLabelsResponse">
+		<wsdl:part element="tns:generatePdfLabelsResponse" name="generatePdfLabelsResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="commitOrderRequest">
+		<wsdl:part element="tns:commitOrderRequest" name="commitOrderRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generatePdfCustomsDocumentsRequest">
+		<wsdl:part element="tns:generatePdfCustomsDocumentsRequest"
+			name="generatePdfCustomsDocumentsRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateZplLabelsRequest">
+		<wsdl:part element="tns:generateZplLabelsRequest" name="generateZplLabelsRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getExistingPdfLabelResponse">
+		<wsdl:part element="tns:getExistingPdfLabelResponse" name="getExistingPdfLabelResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="activeShippingOptionResponse">
+		<wsdl:part element="tns:activeShippingOptionResponse" name="activeShippingOptionResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="cancelShipmentsResponse">
+		<wsdl:part element="tns:cancelShipmentsResponse" name="cancelShipmentsResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="addressRequest">
+		<wsdl:part element="tns:addressRequest" name="addressRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateExtraPdfReturnLabelRequest">
+		<wsdl:part element="tns:generateExtraPdfReturnLabelRequest"
+			name="generateExtraPdfReturnLabelRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getExistingPdfLabelsResponse">
+		<wsdl:part element="tns:getExistingPdfLabelsResponse" name="getExistingPdfLabelsResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="createPickupRequestResponse">
+		<wsdl:part element="tns:createPickupRequestResponse" name="createPickupRequestResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateImageReturnLabelsResponse">
+		<wsdl:part element="tns:generateImageReturnLabelsResponse"
+			name="generateImageReturnLabelsResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateImageLabelsResponse">
+		<wsdl:part element="tns:generateImageLabelsResponse" name="generateImageLabelsResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateExtraImageLabelResponse">
+		<wsdl:part element="tns:generateExtraImageLabelResponse"
+			name="generateExtraImageLabelResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="proofOfDeliveryResponse">
+		<wsdl:part element="tns:proofOfDeliveryResponse" name="proofOfDeliveryResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getExistingPdfLabelRequest">
+		<wsdl:part element="tns:getExistingPdfLabelRequest" name="getExistingPdfLabelRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="servicePointsRequest">
+		<wsdl:part element="tns:servicePointsRequest" name="servicePointsRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateExtraPdfLabelRequest">
+		<wsdl:part element="tns:generateExtraPdfLabelRequest" name="generateExtraPdfLabelRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateAdditionalImageDocumentRequest">
+		<wsdl:part element="tns:generateAdditionalImageDocumentRequest"
+			name="generateAdditionalImageDocumentRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="listOrdersResponse">
+		<wsdl:part element="tns:listOrdersResponse" name="listOrdersResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="changeOrderResponse">
+		<wsdl:part element="tns:changeOrderResponse" name="changeOrderResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getExistingImageLabelRequest">
+		<wsdl:part element="tns:getExistingImageLabelRequest" name="getExistingImageLabelRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="batchStatusRequest">
+		<wsdl:part element="tns:batchStatusRequest" name="batchStatusRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateAdditionalPdfDocumentRequest">
+		<wsdl:part element="tns:generateAdditionalPdfDocumentRequest"
+			name="generateAdditionalPdfDocumentRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="pickupRequestDetailsRequest">
+		<wsdl:part element="tns:pickupRequestDetailsRequest" name="pickupRequestDetailsRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getExistingPdfLabelsRequest">
+		<wsdl:part element="tns:getExistingPdfLabelsRequest" name="getExistingPdfLabelsRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="createStoresRequest">
+		<wsdl:part element="tns:createStoresRequest" name="createStoresRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="servicePointsResponse">
+		<wsdl:part element="tns:servicePointsResponse" name="servicePointsResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateAdditionalPdfDocumentResponse">
+		<wsdl:part element="tns:generateAdditionalPdfDocumentResponse"
+			name="generateAdditionalPdfDocumentResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateZplLabelsResponse">
+		<wsdl:part element="tns:generateZplLabelsResponse" name="generateZplLabelsResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="listOpenBatchesResponse">
+		<wsdl:part element="tns:listOpenBatchesResponse" name="listOpenBatchesResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="listStoresRequest">
+		<wsdl:part element="tns:listStoresRequest" name="listStoresRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateExtraPdfReturnLabelResponse">
+		<wsdl:part element="tns:generateExtraPdfReturnLabelResponse"
+			name="generateExtraPdfReturnLabelResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="ordersToShipRequest">
+		<wsdl:part element="tns:ordersToShipRequest" name="ordersToShipRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="closeBatchResponse">
+		<wsdl:part element="tns:closeBatchResponse" name="closeBatchResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="openBatchRequest">
+		<wsdl:part element="tns:openBatchRequest" name="openBatchRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="listOrdersRequest">
+		<wsdl:part element="tns:listOrdersRequest" name="listOrdersRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="checkoutStatusResponse">
+		<wsdl:part element="tns:checkoutStatusResponse" name="checkoutStatusResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="pickupRequestStatusRequest">
+		<wsdl:part element="tns:pickupRequestStatusRequest" name="pickupRequestStatusRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="cancelPickupRequestResponse">
+		<wsdl:part element="tns:cancelPickupRequestResponse" name="cancelPickupRequestResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="proofOfDeliveryRequest">
+		<wsdl:part element="tns:proofOfDeliveryRequest" name="proofOfDeliveryRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="createStoresResponse">
+		<wsdl:part element="tns:createStoresResponse" name="createStoresResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="deleteStoresRequest">
+		<wsdl:part element="tns:deleteStoresRequest" name="deleteStoresRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="shippingOptionResponse">
+		<wsdl:part element="tns:shippingOptionResponse" name="shippingOptionResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateLabelsRequest">
+		<wsdl:part element="tns:generateLabelsRequest" name="generateLabelsRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="commitOrderResponse">
+		<wsdl:part element="tns:commitOrderResponse" name="commitOrderResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="updateOrderResponse">
+		<wsdl:part element="tns:updateOrderResponse" name="updateOrderResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateImageLabelsRequest">
+		<wsdl:part element="tns:generateImageLabelsRequest" name="generateImageLabelsRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateExtraImageReturnLabelRequest">
+		<wsdl:part element="tns:generateExtraImageReturnLabelRequest"
+			name="generateExtraImageReturnLabelRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="validateOrderRequest">
+		<wsdl:part element="tns:validateOrderRequest" name="validateOrderRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="pickupRequestStatusResponse">
+		<wsdl:part element="tns:pickupRequestStatusResponse" name="pickupRequestStatusResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateShippingManifestRequest">
+		<wsdl:part element="tns:generateShippingManifestRequest"
+			name="generateShippingManifestRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="updateOrderRequest">
+		<wsdl:part element="tns:updateOrderRequest" name="updateOrderRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="ordersToShipResponse">
+		<wsdl:part element="tns:ordersToShipResponse" name="ordersToShipResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="pickupRequestOptionsRequest">
+		<wsdl:part element="tns:pickupRequestOptionsRequest" name="pickupRequestOptionsRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="listOpenBatchesRequest">
+		<wsdl:part element="tns:listOpenBatchesRequest" name="listOpenBatchesRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getExistingImageLabelsResponse">
+		<wsdl:part element="tns:getExistingImageLabelsResponse"
+			name="getExistingImageLabelsResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="openBatchResponse">
+		<wsdl:part element="tns:openBatchResponse" name="openBatchResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="orderStatusRequest">
+		<wsdl:part element="tns:orderStatusRequest" name="orderStatusRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="activeShippingOptionRequest">
+		<wsdl:part element="tns:activeShippingOptionRequest" name="activeShippingOptionRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateExtraImageLabelRequest">
+		<wsdl:part element="tns:generateExtraImageLabelRequest"
+			name="generateExtraImageLabelRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateExtraImageReturnLabelResponse">
+		<wsdl:part element="tns:generateExtraImageReturnLabelResponse"
+			name="generateExtraImageReturnLabelResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getExistingZplLabelResponse">
+		<wsdl:part element="tns:getExistingZplLabelResponse" name="getExistingZplLabelResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getExistingZplLabelsResponse">
+		<wsdl:part element="tns:getExistingZplLabelsResponse" name="getExistingZplLabelsResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getExistingImageLabelResponse">
+		<wsdl:part element="tns:getExistingImageLabelResponse" name="getExistingImageLabelResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="triggerCarrierRegistrationRequest">
+		<wsdl:part element="tns:triggerCarrierRegistrationRequest"
+			name="triggerCarrierRegistrationRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="googleMapSearchstringResponse">
+		<wsdl:part element="tns:googleMapSearchstringResponse" name="googleMapSearchstringResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="triggerCarrierRegistrationResponse">
+		<wsdl:part element="tns:triggerCarrierRegistrationResponse"
+			name="triggerCarrierRegistrationResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="deleteStoresResponse">
+		<wsdl:part element="tns:deleteStoresResponse" name="deleteStoresResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateImageReturnLabelsRequest">
+		<wsdl:part element="tns:generateImageReturnLabelsRequest"
+			name="generateImageReturnLabelsRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="rateRequest">
+		<wsdl:part element="tns:rateRequest" name="rateRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getExistingZplLabelsRequest">
+		<wsdl:part element="tns:getExistingZplLabelsRequest" name="getExistingZplLabelsRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="deliveryEstimateRequest">
+		<wsdl:part element="tns:deliveryEstimateRequest" name="deliveryEstimateRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="getExistingImageLabelsRequest">
+		<wsdl:part element="tns:getExistingImageLabelsRequest" name="getExistingImageLabelsRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="shippingOptionRequest">
+		<wsdl:part element="tns:shippingOptionRequest" name="shippingOptionRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generatePdfReturnLabelsRequest">
+		<wsdl:part element="tns:generatePdfReturnLabelsRequest"
+			name="generatePdfReturnLabelsRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="cancelShipmentsRequest">
+		<wsdl:part element="tns:cancelShipmentsRequest" name="cancelShipmentsRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="checkoutStatusRequest">
+		<wsdl:part element="tns:checkoutStatusRequest" name="checkoutStatusRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="checkoutRequest">
+		<wsdl:part element="tns:checkoutRequest" name="checkoutRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="updateStoresRequest">
+		<wsdl:part element="tns:updateStoresRequest" name="updateStoresRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="pickupRequestDetailsResponse">
+		<wsdl:part element="tns:pickupRequestDetailsResponse" name="pickupRequestDetailsResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="closeBatchRequest">
+		<wsdl:part element="tns:closeBatchRequest" name="closeBatchRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="orderResponse">
+		<wsdl:part element="tns:orderResponse" name="orderResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="orderDetailsResponse">
+		<wsdl:part element="tns:orderDetailsResponse" name="orderDetailsResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="checkoutResponse">
+		<wsdl:part element="tns:checkoutResponse" name="checkoutResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generatePdfLabelsRequest">
+		<wsdl:part element="tns:generatePdfLabelsRequest" name="generatePdfLabelsRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="deleteOrderResponse">
+		<wsdl:part element="tns:deleteOrderResponse" name="deleteOrderResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateShippingManifestResponse">
+		<wsdl:part element="tns:generateShippingManifestResponse"
+			name="generateShippingManifestResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="deleteOrderRequest">
+		<wsdl:part element="tns:deleteOrderRequest" name="deleteOrderRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateLabelsResponse">
+		<wsdl:part element="tns:generateLabelsResponse" name="generateLabelsResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="createPickupRequestRequest">
+		<wsdl:part element="tns:createPickupRequestRequest" name="createPickupRequestRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="rateResponse">
+		<wsdl:part element="tns:rateResponse" name="rateResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generatePdfReturnLabelsResponse">
+		<wsdl:part element="tns:generatePdfReturnLabelsResponse"
+			name="generatePdfReturnLabelsResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="updateStoresResponse">
+		<wsdl:part element="tns:updateStoresResponse" name="updateStoresResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generatePdfCustomsDocumentsResponse">
+		<wsdl:part element="tns:generatePdfCustomsDocumentsResponse"
+			name="generatePdfCustomsDocumentsResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="listStoresResponse">
+		<wsdl:part element="tns:listStoresResponse" name="listStoresResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="orderStatusResponse">
+		<wsdl:part element="tns:orderStatusResponse" name="orderStatusResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="generateExtraPdfLabelResponse">
+		<wsdl:part element="tns:generateExtraPdfLabelResponse" name="generateExtraPdfLabelResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="pickupRequestOptionsResponse">
+		<wsdl:part element="tns:pickupRequestOptionsResponse" name="pickupRequestOptionsResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="cancelPickupRequestRequest">
+		<wsdl:part element="tns:cancelPickupRequestRequest" name="cancelPickupRequestRequest"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="validateOrderResponse">
+		<wsdl:part element="tns:validateOrderResponse" name="validateOrderResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="addressResponse">
+		<wsdl:part element="tns:addressResponse" name="addressResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:portType name="Order">
+		<wsdl:operation name="changeOrder">
+			<wsdl:input message="tns:changeOrderRequest" name="changeOrderRequest"></wsdl:input>
+			<wsdl:output message="tns:changeOrderResponse" name="changeOrderResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="orderDetails">
+			<wsdl:input message="tns:orderDetailsRequest" name="orderDetailsRequest"></wsdl:input>
+			<wsdl:output message="tns:orderDetailsResponse" name="orderDetailsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="googleMapSearchstring">
+			<wsdl:input message="tns:googleMapSearchstringRequest"
+				name="googleMapSearchstringRequest"></wsdl:input>
+			<wsdl:output message="tns:googleMapSearchstringResponse"
+				name="googleMapSearchstringResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="order">
+			<wsdl:input message="tns:orderRequest" name="orderRequest"></wsdl:input>
+			<wsdl:output message="tns:orderResponse" name="orderResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="deliveryEstimate">
+			<wsdl:input message="tns:deliveryEstimateRequest" name="deliveryEstimateRequest"></wsdl:input>
+			<wsdl:output message="tns:deliveryEstimateResponse" name="deliveryEstimateResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="batchStatus">
+			<wsdl:input message="tns:batchStatusRequest" name="batchStatusRequest"></wsdl:input>
+			<wsdl:output message="tns:batchStatusResponse" name="batchStatusResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getExistingZplLabel">
+			<wsdl:input message="tns:getExistingZplLabelRequest" name="getExistingZplLabelRequest"></wsdl:input>
+			<wsdl:output message="tns:getExistingZplLabelResponse"
+				name="getExistingZplLabelResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateAdditionalImageDocument">
+			<wsdl:input message="tns:generateAdditionalImageDocumentRequest"
+				name="generateAdditionalImageDocumentRequest"></wsdl:input>
+			<wsdl:output message="tns:generateAdditionalImageDocumentResponse"
+				name="generateAdditionalImageDocumentResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generatePdfLabels">
+			<wsdl:input message="tns:generatePdfLabelsRequest" name="generatePdfLabelsRequest"></wsdl:input>
+			<wsdl:output message="tns:generatePdfLabelsResponse"
+				name="generatePdfLabelsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="commitOrder">
+			<wsdl:input message="tns:commitOrderRequest" name="commitOrderRequest"></wsdl:input>
+			<wsdl:output message="tns:commitOrderResponse" name="commitOrderResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generatePdfCustomsDocuments">
+			<wsdl:input message="tns:generatePdfCustomsDocumentsRequest"
+				name="generatePdfCustomsDocumentsRequest"></wsdl:input>
+			<wsdl:output message="tns:generatePdfCustomsDocumentsResponse"
+				name="generatePdfCustomsDocumentsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateZplLabels">
+			<wsdl:input message="tns:generateZplLabelsRequest" name="generateZplLabelsRequest"></wsdl:input>
+			<wsdl:output message="tns:generateZplLabelsResponse"
+				name="generateZplLabelsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getExistingPdfLabel">
+			<wsdl:input message="tns:getExistingPdfLabelRequest" name="getExistingPdfLabelRequest"></wsdl:input>
+			<wsdl:output message="tns:getExistingPdfLabelResponse"
+				name="getExistingPdfLabelResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="activeShippingOption">
+			<wsdl:input message="tns:activeShippingOptionRequest"
+				name="activeShippingOptionRequest"></wsdl:input>
+			<wsdl:output message="tns:activeShippingOptionResponse"
+				name="activeShippingOptionResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="cancelShipments">
+			<wsdl:input message="tns:cancelShipmentsRequest" name="cancelShipmentsRequest"></wsdl:input>
+			<wsdl:output message="tns:cancelShipmentsResponse" name="cancelShipmentsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="address">
+			<wsdl:input message="tns:addressRequest" name="addressRequest"></wsdl:input>
+			<wsdl:output message="tns:addressResponse" name="addressResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateExtraPdfReturnLabel">
+			<wsdl:input message="tns:generateExtraPdfReturnLabelRequest"
+				name="generateExtraPdfReturnLabelRequest"></wsdl:input>
+			<wsdl:output message="tns:generateExtraPdfReturnLabelResponse"
+				name="generateExtraPdfReturnLabelResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getExistingPdfLabels">
+			<wsdl:input message="tns:getExistingPdfLabelsRequest"
+				name="getExistingPdfLabelsRequest"></wsdl:input>
+			<wsdl:output message="tns:getExistingPdfLabelsResponse"
+				name="getExistingPdfLabelsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="createPickupRequest">
+			<wsdl:input message="tns:createPickupRequestRequest" name="createPickupRequestRequest"></wsdl:input>
+			<wsdl:output message="tns:createPickupRequestResponse"
+				name="createPickupRequestResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateImageReturnLabels">
+			<wsdl:input message="tns:generateImageReturnLabelsRequest"
+				name="generateImageReturnLabelsRequest"></wsdl:input>
+			<wsdl:output message="tns:generateImageReturnLabelsResponse"
+				name="generateImageReturnLabelsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateImageLabels">
+			<wsdl:input message="tns:generateImageLabelsRequest" name="generateImageLabelsRequest"></wsdl:input>
+			<wsdl:output message="tns:generateImageLabelsResponse"
+				name="generateImageLabelsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateExtraImageLabel">
+			<wsdl:input message="tns:generateExtraImageLabelRequest"
+				name="generateExtraImageLabelRequest"></wsdl:input>
+			<wsdl:output message="tns:generateExtraImageLabelResponse"
+				name="generateExtraImageLabelResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="proofOfDelivery">
+			<wsdl:input message="tns:proofOfDeliveryRequest" name="proofOfDeliveryRequest"></wsdl:input>
+			<wsdl:output message="tns:proofOfDeliveryResponse" name="proofOfDeliveryResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="servicePoints">
+			<wsdl:input message="tns:servicePointsRequest" name="servicePointsRequest"></wsdl:input>
+			<wsdl:output message="tns:servicePointsResponse" name="servicePointsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateExtraPdfLabel">
+			<wsdl:input message="tns:generateExtraPdfLabelRequest"
+				name="generateExtraPdfLabelRequest"></wsdl:input>
+			<wsdl:output message="tns:generateExtraPdfLabelResponse"
+				name="generateExtraPdfLabelResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="listOrders">
+			<wsdl:input message="tns:listOrdersRequest" name="listOrdersRequest"></wsdl:input>
+			<wsdl:output message="tns:listOrdersResponse" name="listOrdersResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getExistingImageLabel">
+			<wsdl:input message="tns:getExistingImageLabelRequest"
+				name="getExistingImageLabelRequest"></wsdl:input>
+			<wsdl:output message="tns:getExistingImageLabelResponse"
+				name="getExistingImageLabelResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateAdditionalPdfDocument">
+			<wsdl:input message="tns:generateAdditionalPdfDocumentRequest"
+				name="generateAdditionalPdfDocumentRequest"></wsdl:input>
+			<wsdl:output message="tns:generateAdditionalPdfDocumentResponse"
+				name="generateAdditionalPdfDocumentResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="pickupRequestDetails">
+			<wsdl:input message="tns:pickupRequestDetailsRequest"
+				name="pickupRequestDetailsRequest"></wsdl:input>
+			<wsdl:output message="tns:pickupRequestDetailsResponse"
+				name="pickupRequestDetailsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="createStores">
+			<wsdl:input message="tns:createStoresRequest" name="createStoresRequest"></wsdl:input>
+			<wsdl:output message="tns:createStoresResponse" name="createStoresResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="listOpenBatches">
+			<wsdl:input message="tns:listOpenBatchesRequest" name="listOpenBatchesRequest"></wsdl:input>
+			<wsdl:output message="tns:listOpenBatchesResponse" name="listOpenBatchesResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="listStores">
+			<wsdl:input message="tns:listStoresRequest" name="listStoresRequest"></wsdl:input>
+			<wsdl:output message="tns:listStoresResponse" name="listStoresResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ordersToShip">
+			<wsdl:input message="tns:ordersToShipRequest" name="ordersToShipRequest"></wsdl:input>
+			<wsdl:output message="tns:ordersToShipResponse" name="ordersToShipResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="closeBatch">
+			<wsdl:input message="tns:closeBatchRequest" name="closeBatchRequest"></wsdl:input>
+			<wsdl:output message="tns:closeBatchResponse" name="closeBatchResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="openBatch">
+			<wsdl:input message="tns:openBatchRequest" name="openBatchRequest"></wsdl:input>
+			<wsdl:output message="tns:openBatchResponse" name="openBatchResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="checkoutStatus">
+			<wsdl:input message="tns:checkoutStatusRequest" name="checkoutStatusRequest"></wsdl:input>
+			<wsdl:output message="tns:checkoutStatusResponse" name="checkoutStatusResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="pickupRequestStatus">
+			<wsdl:input message="tns:pickupRequestStatusRequest" name="pickupRequestStatusRequest"></wsdl:input>
+			<wsdl:output message="tns:pickupRequestStatusResponse"
+				name="pickupRequestStatusResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="cancelPickupRequest">
+			<wsdl:input message="tns:cancelPickupRequestRequest" name="cancelPickupRequestRequest"></wsdl:input>
+			<wsdl:output message="tns:cancelPickupRequestResponse"
+				name="cancelPickupRequestResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="deleteStores">
+			<wsdl:input message="tns:deleteStoresRequest" name="deleteStoresRequest"></wsdl:input>
+			<wsdl:output message="tns:deleteStoresResponse" name="deleteStoresResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="shippingOption">
+			<wsdl:input message="tns:shippingOptionRequest" name="shippingOptionRequest"></wsdl:input>
+			<wsdl:output message="tns:shippingOptionResponse" name="shippingOptionResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateLabels">
+			<wsdl:input message="tns:generateLabelsRequest" name="generateLabelsRequest"></wsdl:input>
+			<wsdl:output message="tns:generateLabelsResponse" name="generateLabelsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="updateOrder">
+			<wsdl:input message="tns:updateOrderRequest" name="updateOrderRequest"></wsdl:input>
+			<wsdl:output message="tns:updateOrderResponse" name="updateOrderResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateExtraImageReturnLabel">
+			<wsdl:input message="tns:generateExtraImageReturnLabelRequest"
+				name="generateExtraImageReturnLabelRequest"></wsdl:input>
+			<wsdl:output message="tns:generateExtraImageReturnLabelResponse"
+				name="generateExtraImageReturnLabelResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="validateOrder">
+			<wsdl:input message="tns:validateOrderRequest" name="validateOrderRequest"></wsdl:input>
+			<wsdl:output message="tns:validateOrderResponse" name="validateOrderResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateShippingManifest">
+			<wsdl:input message="tns:generateShippingManifestRequest"
+				name="generateShippingManifestRequest"></wsdl:input>
+			<wsdl:output message="tns:generateShippingManifestResponse"
+				name="generateShippingManifestResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="pickupRequestOptions">
+			<wsdl:input message="tns:pickupRequestOptionsRequest"
+				name="pickupRequestOptionsRequest"></wsdl:input>
+			<wsdl:output message="tns:pickupRequestOptionsResponse"
+				name="pickupRequestOptionsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getExistingImageLabels">
+			<wsdl:input message="tns:getExistingImageLabelsRequest"
+				name="getExistingImageLabelsRequest"></wsdl:input>
+			<wsdl:output message="tns:getExistingImageLabelsResponse"
+				name="getExistingImageLabelsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="orderStatus">
+			<wsdl:input message="tns:orderStatusRequest" name="orderStatusRequest"></wsdl:input>
+			<wsdl:output message="tns:orderStatusResponse" name="orderStatusResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getExistingZplLabels">
+			<wsdl:input message="tns:getExistingZplLabelsRequest"
+				name="getExistingZplLabelsRequest"></wsdl:input>
+			<wsdl:output message="tns:getExistingZplLabelsResponse"
+				name="getExistingZplLabelsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="triggerCarrierRegistration">
+			<wsdl:input message="tns:triggerCarrierRegistrationRequest"
+				name="triggerCarrierRegistrationRequest"></wsdl:input>
+			<wsdl:output message="tns:triggerCarrierRegistrationResponse"
+				name="triggerCarrierRegistrationResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="rate">
+			<wsdl:input message="tns:rateRequest" name="rateRequest"></wsdl:input>
+			<wsdl:output message="tns:rateResponse" name="rateResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generatePdfReturnLabels">
+			<wsdl:input message="tns:generatePdfReturnLabelsRequest"
+				name="generatePdfReturnLabelsRequest"></wsdl:input>
+			<wsdl:output message="tns:generatePdfReturnLabelsResponse"
+				name="generatePdfReturnLabelsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="checkout">
+			<wsdl:input message="tns:checkoutRequest" name="checkoutRequest"></wsdl:input>
+			<wsdl:output message="tns:checkoutResponse" name="checkoutResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="updateStores">
+			<wsdl:input message="tns:updateStoresRequest" name="updateStoresRequest"></wsdl:input>
+			<wsdl:output message="tns:updateStoresResponse" name="updateStoresResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="deleteOrder">
+			<wsdl:input message="tns:deleteOrderRequest" name="deleteOrderRequest"></wsdl:input>
+			<wsdl:output message="tns:deleteOrderResponse" name="deleteOrderResponse"></wsdl:output>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="OrderSoap11" type="tns:Order">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="changeOrder">
+			<soap:operation soapAction="" />
+			<wsdl:input name="changeOrderRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="changeOrderResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="orderDetails">
+			<soap:operation soapAction="" />
+			<wsdl:input name="orderDetailsRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="orderDetailsResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="googleMapSearchstring">
+			<soap:operation soapAction="" />
+			<wsdl:input name="googleMapSearchstringRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="googleMapSearchstringResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="order">
+			<soap:operation soapAction="" />
+			<wsdl:input name="orderRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="orderResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="deliveryEstimate">
+			<soap:operation soapAction="" />
+			<wsdl:input name="deliveryEstimateRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="deliveryEstimateResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="batchStatus">
+			<soap:operation soapAction="" />
+			<wsdl:input name="batchStatusRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="batchStatusResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getExistingZplLabel">
+			<soap:operation soapAction="" />
+			<wsdl:input name="getExistingZplLabelRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="getExistingZplLabelResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateAdditionalImageDocument">
+			<soap:operation soapAction="" />
+			<wsdl:input name="generateAdditionalImageDocumentRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="generateAdditionalImageDocumentResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generatePdfLabels">
+			<soap:operation soapAction="" />
+			<wsdl:input name="generatePdfLabelsRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="generatePdfLabelsResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="commitOrder">
+			<soap:operation soapAction="" />
+			<wsdl:input name="commitOrderRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="commitOrderResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generatePdfCustomsDocuments">
+			<soap:operation soapAction="" />
+			<wsdl:input name="generatePdfCustomsDocumentsRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="generatePdfCustomsDocumentsResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateZplLabels">
+			<soap:operation soapAction="" />
+			<wsdl:input name="generateZplLabelsRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="generateZplLabelsResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getExistingPdfLabel">
+			<soap:operation soapAction="" />
+			<wsdl:input name="getExistingPdfLabelRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="getExistingPdfLabelResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="activeShippingOption">
+			<soap:operation soapAction="" />
+			<wsdl:input name="activeShippingOptionRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="activeShippingOptionResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="cancelShipments">
+			<soap:operation soapAction="" />
+			<wsdl:input name="cancelShipmentsRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="cancelShipmentsResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="address">
+			<soap:operation soapAction="" />
+			<wsdl:input name="addressRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="addressResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateExtraPdfReturnLabel">
+			<soap:operation soapAction="" />
+			<wsdl:input name="generateExtraPdfReturnLabelRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="generateExtraPdfReturnLabelResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getExistingPdfLabels">
+			<soap:operation soapAction="" />
+			<wsdl:input name="getExistingPdfLabelsRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="getExistingPdfLabelsResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="createPickupRequest">
+			<soap:operation soapAction="" />
+			<wsdl:input name="createPickupRequestRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="createPickupRequestResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateImageReturnLabels">
+			<soap:operation soapAction="" />
+			<wsdl:input name="generateImageReturnLabelsRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="generateImageReturnLabelsResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateImageLabels">
+			<soap:operation soapAction="" />
+			<wsdl:input name="generateImageLabelsRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="generateImageLabelsResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateExtraImageLabel">
+			<soap:operation soapAction="" />
+			<wsdl:input name="generateExtraImageLabelRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="generateExtraImageLabelResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="proofOfDelivery">
+			<soap:operation soapAction="" />
+			<wsdl:input name="proofOfDeliveryRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="proofOfDeliveryResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="servicePoints">
+			<soap:operation soapAction="" />
+			<wsdl:input name="servicePointsRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="servicePointsResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateExtraPdfLabel">
+			<soap:operation soapAction="" />
+			<wsdl:input name="generateExtraPdfLabelRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="generateExtraPdfLabelResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="listOrders">
+			<soap:operation soapAction="" />
+			<wsdl:input name="listOrdersRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="listOrdersResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getExistingImageLabel">
+			<soap:operation soapAction="" />
+			<wsdl:input name="getExistingImageLabelRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="getExistingImageLabelResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateAdditionalPdfDocument">
+			<soap:operation soapAction="" />
+			<wsdl:input name="generateAdditionalPdfDocumentRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="generateAdditionalPdfDocumentResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="pickupRequestDetails">
+			<soap:operation soapAction="" />
+			<wsdl:input name="pickupRequestDetailsRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="pickupRequestDetailsResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="createStores">
+			<soap:operation soapAction="" />
+			<wsdl:input name="createStoresRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="createStoresResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="listOpenBatches">
+			<soap:operation soapAction="" />
+			<wsdl:input name="listOpenBatchesRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="listOpenBatchesResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="listStores">
+			<soap:operation soapAction="" />
+			<wsdl:input name="listStoresRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="listStoresResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="ordersToShip">
+			<soap:operation soapAction="" />
+			<wsdl:input name="ordersToShipRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="ordersToShipResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="closeBatch">
+			<soap:operation soapAction="" />
+			<wsdl:input name="closeBatchRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="closeBatchResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="openBatch">
+			<soap:operation soapAction="" />
+			<wsdl:input name="openBatchRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="openBatchResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="checkoutStatus">
+			<soap:operation soapAction="" />
+			<wsdl:input name="checkoutStatusRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="checkoutStatusResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="pickupRequestStatus">
+			<soap:operation soapAction="" />
+			<wsdl:input name="pickupRequestStatusRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="pickupRequestStatusResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="cancelPickupRequest">
+			<soap:operation soapAction="" />
+			<wsdl:input name="cancelPickupRequestRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="cancelPickupRequestResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="deleteStores">
+			<soap:operation soapAction="" />
+			<wsdl:input name="deleteStoresRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="deleteStoresResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="shippingOption">
+			<soap:operation soapAction="" />
+			<wsdl:input name="shippingOptionRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="shippingOptionResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateLabels">
+			<soap:operation soapAction="" />
+			<wsdl:input name="generateLabelsRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="generateLabelsResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="updateOrder">
+			<soap:operation soapAction="" />
+			<wsdl:input name="updateOrderRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="updateOrderResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateExtraImageReturnLabel">
+			<soap:operation soapAction="" />
+			<wsdl:input name="generateExtraImageReturnLabelRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="generateExtraImageReturnLabelResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="validateOrder">
+			<soap:operation soapAction="" />
+			<wsdl:input name="validateOrderRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="validateOrderResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generateShippingManifest">
+			<soap:operation soapAction="" />
+			<wsdl:input name="generateShippingManifestRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="generateShippingManifestResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="pickupRequestOptions">
+			<soap:operation soapAction="" />
+			<wsdl:input name="pickupRequestOptionsRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="pickupRequestOptionsResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getExistingImageLabels">
+			<soap:operation soapAction="" />
+			<wsdl:input name="getExistingImageLabelsRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="getExistingImageLabelsResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="orderStatus">
+			<soap:operation soapAction="" />
+			<wsdl:input name="orderStatusRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="orderStatusResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="getExistingZplLabels">
+			<soap:operation soapAction="" />
+			<wsdl:input name="getExistingZplLabelsRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="getExistingZplLabelsResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="triggerCarrierRegistration">
+			<soap:operation soapAction="" />
+			<wsdl:input name="triggerCarrierRegistrationRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="triggerCarrierRegistrationResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="rate">
+			<soap:operation soapAction="" />
+			<wsdl:input name="rateRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="rateResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="generatePdfReturnLabels">
+			<soap:operation soapAction="" />
+			<wsdl:input name="generatePdfReturnLabelsRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="generatePdfReturnLabelsResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="checkout">
+			<soap:operation soapAction="" />
+			<wsdl:input name="checkoutRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="checkoutResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="updateStores">
+			<soap:operation soapAction="" />
+			<wsdl:input name="updateStoresRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="updateStoresResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="deleteOrder">
+			<soap:operation soapAction="" />
+			<wsdl:input name="deleteOrderRequest">
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output name="deleteOrderResponse">
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="OrderService">
+		<wsdl:port binding="tns:OrderSoap11" name="OrderSoap11">
+			<soap:address
+				location="https://staging.paazl.com:443/parcelshipperservice/services" />
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

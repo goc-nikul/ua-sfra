@@ -1,0 +1,29 @@
+<isif condition="${pdict.vipPoints !== null}">
+<div class="vip-points-wrapper">
+    <h2 class="vip-title">${Resource.msg('vip.heading', 'checkout', null)}</h2>
+    <div class="vip-items">
+        <span class="vip-itemsattr">
+            <span>${Resource.msg('vip.label.current.total','checkout', null)}</span>
+        </span>
+        <span class="vip-itemsvalue available-points">
+            <span><isprint value="${pdict.vipPoints.availablePoints}" /> </span>
+        </span>
+    </div>
+    <div class="vip-items">
+        <span class="vip-itemsattr">
+            <span>${Resource.msg('vip.label.amount.applied','checkout', null)}</span>
+        </span>
+        <span class="vip-itemsvalue amount-applied">
+            <isprint value="${pdict.vipPoints.usedPoints}" />
+        </span>
+    </div>
+    <div class="vip-items">
+        <span class="vip-itemsattr">
+            <span>${Resource.msg('vip.label.remaining.points','checkout', null)}</span>
+        </span>
+        <span class="vip-itemsvalue remaining-points">
+            <isprint value="${pdict.vipPoints.remainingPoints}" />
+        </span>
+    </div>
+</div>
+</isif>

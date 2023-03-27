@@ -1,0 +1,51 @@
+/**
+*
+*   @input productId : String
+*   @output localesList : dw.util.ArrayList
+*   @output name : String
+*
+*/
+importPackage( dw.system );
+importPackage( dw.object );
+importPackage( dw.catalog );
+importPackage( dw.util );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "status.product"));
+
+/**
+    query custom objects to obtain translation state of a product.
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        var product : Product = ProductMgr.getProduct(pdict.productId);
+        var sitePrefs : SitePreferences = Site.getCurrent().getPreferences();
+        var smartlingConfiguration : String = sitePrefs.custom['smartling_configuration_data'];
+        var smartlingConfigurationJson : JSON = JSON.parse(smartlingConfiguration);
+        var targetLocale : JSON = JSON .parse(smartlingConfigurationJson['target_locale']);
+
+        var list : ArrayList = new ArrayList;
+        for each (var locale : Object in targetLocale['target_locale']) {
+            var localeData : ArrayList =  new ArrayList;
+            localeData.addAt(0, locale['demandware']);
+            if (locale['demandware'] == "default") {
+                localeData.addAt(1, "default");
+            } else {
+                var language : CustomObject = CustomObjectMgr.queryCustomObject("SMARTLING_LOCALES", "custom.ID = '" + locale['demandware'] + "'");
+                localeData.addAt(1, language.getCustom()['name']);
+                localeData.addAt(2, locale['demandware']);
+            }
+            list.push(localeData);
+        }
+
+        pdict.localesList = list;
+        pdict.name = product.getName();
+
+    } catch (e) {
+        LOGGER.errorException("status.product execution failed for productId={0}", pdict.productId, e);
+        return PIPELET_ERROR;
+    }
+
+   return PIPELET_NEXT;
+}

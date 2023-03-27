@@ -1,0 +1,257 @@
+.g-modal {
+    &-size-chart {
+        max-width: rem-calc(856);
+        margin-top: rem-calc(28);
+
+        @include respond-to(mobile) {
+            margin: spacing(xs2);
+        }
+
+        &-content {
+            padding: rem-calc(24) rem-calc(36) rem-calc(70) rem-calc(56);
+
+            @include respond-to(mobile) {
+                padding: rem-calc(20) rem-calc(20)  rem-calc(75);
+            }
+        }
+
+        &-header {
+            margin-bottom: rem-calc(17);
+
+            button {
+                background: transparent;
+                border: 0;
+                width: 16px;
+                height: 16px;
+                float: right;
+                @include icon(exit);
+
+                cursor: pointer;
+                color: $black;
+            }
+
+            .sr-only {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                padding: 0;
+                margin: -1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                border: 0;
+            }
+        }
+    }
+}
+
+.b-sizechart {
+    @include respond-to(mobile) {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &_title {
+        @include font(main_bold, rem-calc(24), 1.33);
+
+        text-align: center;
+        margin-bottom: rem-calc(16);
+
+        @include respond-to(mobile) {
+            text-align: left;
+        }
+    }
+
+    &_standard {
+        display: inherit;
+    }
+
+    .modal-subtitle {
+        @include font(main_bold, rem-calc(16), 1.5);
+
+        margin-bottom: rem-calc(8);
+    }
+
+    .detail-section {
+        max-width: rem-calc(384);
+        display: inline-block;
+        margin-right: rem-calc(15);
+        box-sizing: border-box;
+
+        @include respond-to(mobile) {
+            max-width: 100%;
+            margin-right: 0;
+        }
+    }
+
+    &_right {
+        max-width: rem-calc(350);
+        display: inline-block;
+        float: right;
+        box-sizing: border-box;
+
+        @include respond-to(mobile) {
+            margin-top: rem-calc(24);
+            text-align: center;
+            max-width: 100%;
+            margin-right: 0;
+            float: left;
+        }
+    }
+
+    &_heading,
+    .modal-subtitle {
+        @include font(main_bold, rem-calc(16), 1.5);
+
+        margin: rem-calc(24) 0 rem-calc(8) 0;
+    }
+
+    .table,
+    .sizingTable {
+        margin-top: rem-calc(20);
+        max-width: rem-calc(384);
+        width: 50%;
+        display: inline-block;
+        margin-right: rem-calc(15);
+        box-sizing: border-box;
+
+        @include respond-to(mobile) {
+            max-width: 100%;
+            margin-right: 0;
+            width: 100%;
+            overflow-x: scroll;
+        }
+
+        th {
+            text-align: left;
+            padding: 0 rem-calc(10);
+            @include font(main_bold, rem-calc(13), 1.67);
+
+            @include respond-to(mobile) {
+                padding: rem-calc(2) rem-calc(11);
+            }
+        }
+
+        tr {
+            border-bottom: 1px solid $grey3;
+
+            &:last-child {
+                border-bottom: none;
+            }
+        }
+
+        td {
+            padding: rem-calc(9);
+
+            @include respond-to(mobile) {
+                padding: rem-calc(10) rem-calc(6);
+                @include font(main, rem-calc(13), 1.67);
+            }
+        }
+
+        sup {
+            top: 0;
+        }
+
+        tbody,
+        thead {
+            tr {
+                th:first-child {
+                    @include respond-to(mobile) {
+                        position: sticky;
+                        left: 0;
+                        z-index: 1;
+                        background: $white;
+                    }
+                }
+            }
+        }
+    }
+
+    .fitguide__item {
+        flex-direction: column;
+        flex-basis: 100%;
+
+        @include respond-to(no-phones) {
+            width: 23%;
+            flex-basis: auto;
+            align-self: flex-start;
+        }
+    }
+
+    .fitguide-overflow {
+        width: 100%;
+        display: inline-block;
+
+        &:not(.swiper-container-initialized) {
+            .fitguide-container {
+                @include respond-to(no-phones) {
+                    justify-content: space-around;
+                }
+            }
+        }
+
+        @include respond-to(mobile) {
+            order: 6;
+        }
+    }
+
+    .fitguide__title {
+        @include font(main_bold, rem-calc(16), 1.5);
+    }
+
+    .fitguide__description {
+        p {
+            @include font(main_med, rem-calc(12), 1.67);
+        }
+    }
+}
+
+.t-sizechart {
+    &_measure {
+        @include font(main, rem-calc(12), 1.67);
+    }
+}
+
+.g-modal-size-chart {
+    .b-sizechart {
+        .sizingTable-container span {
+            margin-top: -10px;
+        }
+        @include respond-to(no-phones) {
+            .fitguide-container {
+                margin-left: -10px;
+            }
+
+            .fitguide__item {
+                width: rem-calc(220);
+
+                strong {
+                    font-weight: $font-bold;
+                }
+            }
+        }
+    }
+}
+
+.b-table-socks {
+    @include respond-to(mobile) {
+        overflow: auto;
+    }
+
+    .sizingTable {
+        @include respond-to(mobile) {
+            width: rem-calc(650);
+            overflow: auto;
+        }
+
+        thead {
+            th {
+                font-weight: $font-bold;
+
+                p {
+                    font-weight: $font-bold;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,29 @@
+<isinclude template="/components/coreModules" />
+
+<div class="b-refinements_category js-refinements-parent b-show_more js-refinements-parent m-collapsed" >
+    <isif condition="${secondLevelcategories.length > 0}">
+        <ul class="b-refinements_category-content b-show_more-list">
+            <isset name="hasThirdLevelCategories" value="${false}" scope="page" />
+            <isloop items="${secondLevelcategories}" var="secondLevelcategory" status="status">
+                <isif condition="${(!('hidefromLeftNavigationRefinement' in secondLevelcategory && secondLevelcategory.hidefromLeftNavigationRefinement.valueOf() && secondLevelcategory.hidefromLeftNavigationRefinement.valueOf().toString === 'true'))}">
+                    <li class="b-refinements_category-item b-show_more-item ${cutoffThreshold === status.index && !secondLevelcategory.subCategories.length ? 'm-break' : ''}">
+                        <button data-href="${secondLevelcategory.url}"
+                                data-analytics-plp-filter-value="${secondLevelcategory.title}"
+                                title="${Resource.msgf(secondLevelcategory.selected ? 'label.refinement.selected.title' : 'label.refinement.title', 'search', null, refinement.displayName.toLowerCase(), category.title)}"
+                                class="b-refinements_category-link ${secondLevelcategory.selected ? 'm-selected js-category-selected' : ''} js-category-link">
+                            ${secondLevelcategory.title}
+                        </button>
+
+                        <isif condition="${secondLevelcategory.subCategories.length > 0}">
+                            <isthirdlevelcategories subcategories="${secondLevelcategory.subCategories}"/>
+                            <isset name="hasThirdLevelCategories" value="${true}" scope="page" />
+                        </isif>
+                    </li>
+                </isif>
+            </isloop>
+        </ul>
+        <isif condition="${secondLevelcategories.length > cutoffThreshold && !hasThirdLevelCategories}" >
+            <isinclude template="components/showMoreButton" />
+        </isif>
+    </isif>
+</div>

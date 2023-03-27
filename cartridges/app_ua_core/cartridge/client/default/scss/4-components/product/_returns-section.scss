@@ -1,0 +1,110 @@
+.return-and-exchange {
+    @include respond-to(desktop) {
+        border-bottom: rem-calc(1) solid $grey3;
+        padding: rem-calc(25) 0;
+    }
+    @include respond-to(mobile) {
+        .g-accordion-item {
+            padding: rem-calc(18) 0 rem-calc(10) 0;
+        }
+
+        .g-accordion-content {
+            padding: 0;
+        }
+    }
+
+    .return-title {
+        position: relative;
+        font-size: rem-calc(14);
+        font-weight: 500;
+        cursor: pointer;
+
+        @include respond-to(mobile) {
+            padding: 0;
+            padding-bottom: rem-calc(8);
+        }
+
+        &.g-accordion-header {
+            @include respond-to(desktop) {
+                &.collapsed {
+                    &::after {
+                        content: "\E90B";
+                    }
+                }
+
+                &::after {
+                    position: absolute;
+                    content: "\E90E";
+                    right: rem-calc(18);
+                    top: 50%;
+                    transform: translateY(-50%);
+                    font-family: 'icomoon' !important;
+                    font-size: 1rem;
+                    font-style: normal;
+                    font-weight: normal;
+                    line-height: 1;
+                    font-variant: normal;
+                    color: inherit;
+                    text-transform: none;
+                    -webkit-font-smoothing: antialiased;
+                }
+            }
+            @include respond-to(mobile) {
+                &::after {
+                    top: 40%;
+                }
+            }
+        }
+
+        .icon-exchange {
+            vertical-align: middle;
+            margin-right: rem-calc(16);
+        }
+
+        span {
+            line-height: rem-calc(16);
+            display: inline-block;
+            vertical-align: bottom;
+        }
+    }
+
+    .return-body {
+        font-size: rem-calc(12);
+        line-height: 1.67;
+        color: $grey5;
+        width: 100%;
+        min-width: 100%;
+        @include respond-to(desktop) {
+            margin-top: rem-calc(9);
+        }
+
+        a {
+            color: $grey5;
+        }
+    }
+
+    .g-accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
+        @include respond-to(mobile) {
+            padding-right: 0;
+            padding-top: 0;
+        }
+
+        &.show {
+            max-height: rem-calc(1000);
+        }
+    }
+}
+
+.b-product_info {
+    .prices-add-to-cart-actions {
+        padding-bottom: rem-calc(32);
+        border-bottom: rem-calc(1) solid $grey3;
+
+        @include respond-to(mobile) {
+            padding-bottom: rem-calc(16);
+        }
+    }
+}

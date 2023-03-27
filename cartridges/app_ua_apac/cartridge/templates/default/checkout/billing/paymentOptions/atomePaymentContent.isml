@@ -1,0 +1,28 @@
+<iscomment> Applicable Atome Payment</iscomment>
+<div class="tab-pane atome-payment-content apac-payments ${paymentOption.ID.toLowerCase() + '_tab_pane'}" data-method-id="${paymentOption.ID.toLowerCase()}" id="${paymentOption.ID.toLowerCase() + '_tab_pane'}" role="tabpanel">
+    <isset name="paymentOptionID" value="${paymentOption.ID.toLowerCase()}" scope="page" />
+    <input type="hidden" class="form-control" name="isAtome" value="true" disabled="disabled" />
+
+    <li class="atome paymentMethod payment-form-fields">
+        <div class="ayen-payWrapper">
+         <input type="hidden" class="form-control" name="${pdict.forms.billingForm.paymentMethod.htmlName}"
+            value="ATOME_PAYMENT" />
+            <input name="brandCode" type="radio" value="atome_payment" id="rb_atome" />
+            <label id="lb_atome" for="rb_atome">
+           <isprint value="${Resource.msg('payment.method.name', 'atome', null)}" />
+            </label>
+            <div class="pay-image-wrapper">
+                <img class="paymentMethod_img_atome ${paymentOptionID}-payments-option-logo" src="${URLUtils.staticURL('/images/atome-logo.svg')}"
+                    alt="${paymentOption.name}" title="${paymentOption.name}" />
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </li>
+
+    <iscomment> Atome Marketing Message AtomeEnabled</iscomment>
+    <div class="additionalFields" id="component_atome" style="display:none">
+        <div class="atome-marketing">
+            <isinclude template="atome/marketing/atomeInstallmentCheckout" />
+        </div>
+    </div>
+</div>

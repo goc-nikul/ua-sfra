@@ -1,0 +1,22 @@
+<iscomment> Applicable Atome Payment</iscomment>
+<div class="tab-pane atome-payment-content" id="atome-payment-content" role="tabpanel">
+    <input type="hidden" class="form-control" name="isAtome" value="true" disabled="disabled" />
+
+    <fieldset class="payment-form-fields">
+        <!--- payment method is credit card --->
+        <input type="hidden" class="form-control"
+            name="${pdict.forms.billingForm.paymentMethod.htmlName}"
+            value="ATOME_PAYMENT"
+        >
+
+        <fieldset class="credit-card-form">
+            <input type="hidden" class="form-control" name="dwfrm_billing_creditCardFields_cardType" value="Atome Payment">
+        </fieldset>
+    </fieldset>
+
+    <iscomment> Atome Marketing Message AtomeEnabled</iscomment>
+    <div class="atome-marketing">
+        <isinclude template="atome/marketing/atomeInstallmentCheckout" />
+    </div>
+</div>
+

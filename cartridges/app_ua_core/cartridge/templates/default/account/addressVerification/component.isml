@@ -1,0 +1,19 @@
+<isset name="addressVerificationProvider" value="${require('~/cartridge/modules/providers').get('AddressVerification')}" scope="page" />
+<isif condition="${addressVerificationProvider.enabledInBM()}"/>
+    <div class="g-modal g-address-verification" id="addressVerification" tabindex="-1" role="dialog" aria-labelledby="addressVerification">
+        <div class="g-modal-dialog g-address-verification-modal-dialog" role="document">
+            <div class="g-modal-content g-address-verification-modal-content">
+                <div class="g-modal-body g-address-verification-modal-body">
+                    <div
+                        data-cmp="addressVerification"
+                        data-json-config="${pdict.addressVerificationConfig}"
+                        data-verification-url="${URLUtils.https('AddressVerification-Verify')}"
+                        data-get-url="${URLUtils.https('AddressVerification-Get')}"
+                        data-type-down-search-url="${URLUtils.https('AddressVerification-TypeDownSearch')}"
+                    >
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</isif>

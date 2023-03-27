@@ -1,0 +1,142 @@
+importPackage( dw.system );
+importPackage( dw.object );
+importPackage( dw.util );
+
+var smartlingConfig = require('/bm_smartling_integration/cartridge/scripts/dao/configuration.ds');
+var HttpUtils = require ('/bm_smartling_integration/cartridge/scripts/file_api/httpUtils');
+var smartlingFileApi = require ('/bm_smartling_integration/cartridge/scripts/file_api/smartlingFileApi');
+var progressService = require ('/bm_smartling_integration/cartridge/scripts/service/progressService');
+var localeService = require("/bm_smartling_integration/cartridge/scripts/service/localeService.ds");
+var submissionDao = require ('/bm_smartling_integration/cartridge/scripts/dao/submission.ds');
+var ExceptionLog = require ('/bm_smartling_integration/cartridge/scripts/utils/ExceptionLog.ds').ExceptionLog;
+var LOGGER = new ExceptionLog(dw.system.Logger.getLogger("smartling", "submissionService"));
+var LAST_MODIFIED_RESPONSE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+var STATUS_IN_PROGRESS = "in progress";
+
+/**
+    Go through submissions and request downloading completed
+*/
+function filterSubmissionsWithFullProgressWithSameFileUri(submissions) {
+    var result = new ArrayList();
+    if (!submissions.isEmpty()) {
+        try {
+            var localeSubmission = new HashMap();
+            var statuses = getStatuses(submissions.get(0));
+            var totalStringCount = statuses['totalStringCount'];
+            var itemsStatuses = statuses['items'];
+            if (itemsStatuses!= null) {
+                for each (var submission in submissions) {
+                    localeSubmission.put(submission.custom['locale'], submission);
+                }
+
+                for each (var status in itemsStatuses){
+                    var locale = status['localeId'];
+                    var completedStringCount = status['completedStringCount'];
+                    var authorizedStringCount = status['authorizedStringCount'];
+                    var excludedStringCount = status['excludedStringCount'];
+                    var submission = localeSubmission.get(localeService.getClientLocale(locale));
+
+                    if (submission!= null) {
+                        var progress = progressService.calculateProgress(completedStringCount, authorizedStringCount, excludedStringCount, totalStringCount);
+                        submissionDao.updateProgress(submission, progress);
+
+                        if (progress == 100) {
+                            LOGGER.info("Submission {0} has been translated completely and will be downloaded [projectId={1}]",
+                                submissionDao.submissionToString(submission), smartlingConfig.getProjectId());
+                            result.add(submission);
+                        } else {
+                            submissionDao.setSubmissionStatusInProgress(submission);
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            if (e instanceof HttpUtils.SmartlingFileNotFoundError) {
+                LOGGER.warn("fileUri not found in dashboard, marking submissions as failed\n{0}", submissionsToString(submissions));
+                for each (var submission in submissions) {
+                    submissionDao.setSubmissionStatusFailed(submission);
+                }
+            } else {
+                throw e;
+            }
+        }
+    }
+    return result;
+}
+
+/**
+    Go through submissions and find updated translations (by last modified timestamp)
+*/
+function filterOutdatedSubmissionsWithSameFileUri(submissions) {
+    var result = new ArrayList();
+    if (!submissions.isEmpty()){
+        try {
+            var localeSubmissions = new HashMap();
+            var lastModified = getLastModified(submissions.get(0));
+            if (lastModified != null) {
+                for each ( var submission in submissions) {
+                    localeSubmissions.put(submission.custom['locale'], submission);
+                }
+
+                for each (var localeObject in lastModified) {
+                    var clientLocale = localeService.getClientLocale(localeObject['localeId'])
+                    var submission = localeSubmissions.get(clientLocale);
+                    if (submission !== null){
+                        var smLastModified = submission.custom['smLastModified'];
+                        var submissionLastModified = new Calendar(smLastModified !== null ? smLastModified : new Date(1000));
+                        var localeLastModified = new Calendar();
+                        localeLastModified.parseByFormat(localeObject['lastModified'], LAST_MODIFIED_RESPONSE_FORMAT);
+
+                        if (submissionLastModified.before(localeLastModified)
+                            || (STATUS_IN_PROGRESS.equals(submission.custom['status']) && submission.custom['progress'] === 100)) {
+                                LOGGER.info('Translation for submission with fileUri="{0}" and locale={1} has been updated or in inconsistant state [projectId={2}]',
+                                    submission.custom['fileUri'], submission.custom['locale'], smartlingConfig.getProjectId());
+                            result.add(submission);
+                        }
+                        submissionDao.updateSmartlingLastModified(submission, localeLastModified.getTime());
+                    }
+                }
+            }
+        } catch (e) {
+            if (e instanceof HttpUtils.SmartlingFileNotFoundError) {
+                LOGGER.warn("fileUri not found in dashboard, marking submissions as failed\n{0}", submissionsToString(submissions));
+                for each (var submission in submissions) {
+                    submissionDao.setSubmissionStatusFailed(submission);
+                }
+            } else {
+                throw e;
+            }
+        }
+    }
+    return result;
+}
+
+/**
+    Get smartling status for all locales
+*/
+function getStatuses(submission) {
+    LOGGER.debug('Querying file status for fileUri="{0}"', submission.custom['fileUri']);
+    var statuses = smartlingFileApi.fileStatuses(submission.custom['fileUri']);
+    return statuses['response']['data'];
+}
+
+/**
+    Get smartling last modified timestamp for all locales
+*/
+function getLastModified(submission) {
+    LOGGER.debug('Querying lastModified for fileUri="{0}"', submission.custom['fileUri']);
+    var lastModified = smartlingFileApi.lastModified(submission.custom['fileUri']);
+    return lastModified['response']['data']['items'];
+}
+
+/**
+    Convert submissions collection to string
+*/
+function submissionsToString(submissions) {
+    var collection = "[\n";
+    for each (var submission in submissions ){
+        collection += submissionDao.submissionToString(submission) + "\n";
+    }
+    collection+="]";
+    return collection;
+}

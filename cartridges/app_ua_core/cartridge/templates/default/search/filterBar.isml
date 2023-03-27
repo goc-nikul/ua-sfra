@@ -1,0 +1,26 @@
+<div class="b-refinements_header-content">
+    <div class="b-refinements_header-title">${Resource.msg('refinements.title', 'search', null)}</div>
+    <isif condition="${!empty(pdict.productSearch) && pdict.productSearch.selectedFilters.length > 0 && !(pdict.productSearch.selectedFilters.length == 1 && (pdict.productSearch.selectedFilters[0].id == 'experienceType' || pdict.productSearch.selectedFilters[0].id == 'premiumFilter' || pdict.productSearch.selectedFilters[0].id == 'isMFOItem'))}">
+        <div class="b-refinements_header-clear js-selected-refinements">
+            <a href="${pdict.productSearch.searchResultResetLink}" role="button" class="b-refinements_header-btn js-refinements_clear" data-href="${pdict.productSearch.resetLink}">
+                ${Resource.msg('refinements.clear', 'search', null)}
+            </a>
+        </div>
+    </isif>
+    <button class="b-refinements_header-close js-close-filter">${Resource.msg('refinements.close', 'search', null)}</button>
+</div>
+<ul class="b-refinements_swatch">
+    <isloop items="${pdict.productSearch.selectedFilters}" var="refinement">
+        <iscomment>TODO: Pass list of refinements to suppress (not hardcoded)</iscomment>
+        <isif condition="${refinement.type !== 'category' && refinement.id !== 'experienceType' && refinement.id !== 'premiumFilter' && refinement.id !== 'isMFOItem' && refinement.id !== 'availableForLocale' }">
+            <li class="b-refinements_swatch-item">
+                <a href="${pdict.productSearch.searchResultResetLink}" data-href="${refinement.url}" data-analytics-plp-selected-filter-value="${refinement.displayValue}" class="b-refinements_swatch-btn js-refinement_swatch">
+                    <span class="b-refinements_swatch-text" aria-hidden="true">${refinement.displayValue}</span>
+                    <span class="b-refinements_swatch-remove">
+                        ${Resource.msgf('assistive.text.remove.filter.button', 'search', null, refinement.title)}
+                    </span>
+                </a>
+            </li>
+        </isif>
+    </isloop>
+</ul>

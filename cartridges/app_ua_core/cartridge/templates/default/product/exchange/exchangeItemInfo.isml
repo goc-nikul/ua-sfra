@@ -1,0 +1,43 @@
+<isif condition="${pdict.exchangeProduct}"> 
+    <isset name="exchangeProduct" value="${pdict.exchangeProduct}" scope="page" />
+</isif>
+<isif condition="${pdict.exchangeItemCount}">
+    <isset name="exchangeItemCount" value="${new Number(pdict.exchangeItemCount)}" scope="page" />
+<iselse>
+    <isset name="exchangeItemCount" value="${orderItem.exchangeProductHits.length}" scope="page" />
+</isif>
+<div class="select-order-exchange-items">
+    <div class="order-exchange-items-header">
+        <isif condition="${exchangeItemCount === 1}">
+            ${Resource.msg('label.exchange.options','refunds',null)}
+        <iselse>
+            ${Resource.msgf('label.exchange.options.items','refunds',null, loopstate.count)}
+        </isif>
+    </div>
+    <div class="order-exchange-items" data-product="${exchangeProduct.custom.sku}">
+        <div class="b_exopt_item-wrap">
+            <div class="order-exchange-item-container-left">
+                <isset name="product" value="${exchangeProduct}" scope="page" />
+                 <isloop items="${product.variationAttributes}" var="attr" status="attributeStatus">
+                      <div data-attr="${attr.id}" class="swatch row">
+                          <isinclude template="product/exchange/variationAttribute" />
+                      </div>
+                </isloop>
+            </div>
+            <div class="order-exchange-item-container-right">
+                <div class="order-exchange-item-edit">
+                    <div class="order-exchange-item-edit-symbol"><a href="${URLUtils.url('Order-SelectExchangeItem')}" class="js-order-exchange-item-edit">${Resource.msg('link.edit.address','account',null)}<span></span></a></div>
+                </div>
+            </div>
+        </div>
+        <isset name="productHelpers" value="${require('*/cartridge/scripts/helpers/productHelpers')}" scope="page"/>
+        <isset name="fixProductColorNames" value="${productHelpers.fixProductColorNames(exchangeProduct.custom.colorway)}" scope="page"/>
+        <div class="hide">
+            <div class="updatedSkuVal">${Resource.msgf('label.item.Sku','account',null,exchangeProduct.custom.sku)}</div>
+            <div class="updatedColorVal">${Resource.msgf('label.exchange.product.info.colorvalue','account',null,fixProductColorNames)}</div>
+            <div class="updatedSizeVal">${Resource.msgf('label.exchange.product.info.sizevalue','account',null,exchangeProduct.custom.size)}</div>
+        </div>
+        <div class="order-exchange-item-color">${Resource.msgf('label.exchange.product.info','account',null,fixProductColorNames, exchangeProduct.custom.color, exchangeProduct.custom.size)}</div>
+    </div>
+</div>
+<div class="order-exchange-product-details"></div>

@@ -1,0 +1,39 @@
+<isdecorate template="common/layout/page">
+	<iscache hour="2" varyby="price_promotion" if="${pdict.apiProductSearch && !pdict.apiProductSearch.isPersonalizedSort()}"/>
+	<isinclude template="/components/modules" />
+
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets');
+        assets.addJs('/js/search.js');
+        if(pdict.bvScout) {
+     	    assets.addJs(pdict.bvScout);
+        }
+    </isscript>
+
+    <div class="l-plp">
+        <isinclude template="search/refinements/mobHeaderCategories" />
+
+        <isinclude template="search/searchResultsNoDecorator" />
+       <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('atomeEnabled')}">
+		    <isinclude template="atome/marketing/atome_modal_popup_desktop" />
+	   </isif>
+
+        <div class="b-back_to_top" data-cmp="backToTop">
+            <button class="b-back_to_top-button js-back_to_top-button" title="${Resource.msg('button.back_to_top', 'common', null)}" aria-label="${Resource.msg('button.back_to_top', 'common', null)}">
+            </button>
+        </div>
+    </div>
+    <isif condition="${!empty(pdict.pageURLs)}"> 
+        <div class="page-url">
+            <isloop items="${pdict.pageURLs}" var="pageURL" status="loopstate">
+                <ul class="page-urls">
+                    <li class="page-url-item">
+                        <a class="page-link page-${loopstate.count}" href="${pageURL}">
+                        </a>
+                    </li>
+                </ul>
+            </isloop>
+        </div>
+    </isif>
+    
+</isdecorate>

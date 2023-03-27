@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?demandware-pipeline version="2.0"?>
+
+<pipeline type="view">
+  <branch basename="_ANONYMOUS_BRANCH_1">
+    <segment>
+      <node>
+        <text-node>
+          <description>Handles callback requests - checks that request is correct and runs CheckStatus job to check and download completed files.</description>
+        </text-node>
+        <node-display width="2" x="0" y="0"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="Start">
+    <segment>
+      <node>
+        <start-node name="Start" secure="false"/>
+        <node-display orientation="horizontal" x="0" y="1"/>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="source" x="1" y="0"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <pipelet-node pipelet-name="Script" pipelet-set-identifier="bc_api">
+          <description>Checks validity of the specified token</description>
+          <config-property key="Transactional" value="false"/>
+          <config-property key="ScriptFile" value="callBackServiceHandler.ds"/>
+          <key-binding alias="CurrentHttpParameterMap.token.stringValue" key="token"/>
+          <key-binding alias="CurrentHttpParameterMap.fileUri.stringValue" key="fileUri"/>
+          <key-binding alias="CurrentHttpParameterMap.locale.stringValue" key="smartlingLocale"/>
+          <key-binding alias="errorCode" key="errorCode"/>
+          <key-binding alias="errorMessage" key="errorMessage"/>
+        </pipelet-node>
+        <node-display orientation="horizontal" x="1" y="0"/>
+        <branch basename="b2" source-connector="error">
+          <transition target-connector="in1" target-path="./b3.1">
+            <transition-display>
+              <bend-point relative-to="source" x="0" y="2"/>
+            </transition-display>
+          </transition>
+        </branch>
+      </node>
+      <simple-transition/>
+      <node>
+        <pipelet-node pipelet-name="RunJobNow" pipelet-set-identifier="bc_api">
+          <key-binding alias="&quot;smartlingCheckStatus&quot;" key="JobName"/>
+        </pipelet-node>
+        <node-display orientation="horizontal" x="3" y="0"/>
+        <branch basename="b3" source-connector="error">
+          <transition target-connector="in2"/>
+          <segment>
+            <node>
+              <join-node/>
+              <node-display x="0" y="1"/>
+            </node>
+            <simple-transition/>
+            <node>
+              <interaction-node transaction-required="false">
+                <template buffered="true" dynamic="false" name="callback/callbackErrorResponse"/>
+              </interaction-node>
+              <node-display orientation="horizontal" x="1" y="0"/>
+            </node>
+          </segment>
+        </branch>
+      </node>
+      <simple-transition>
+        <transition-display>
+          <bend-point relative-to="target" x="-1" y="0"/>
+        </transition-display>
+      </simple-transition>
+      <node>
+        <interaction-node transaction-required="false">
+          <template buffered="true" dynamic="false" name="callback/CallBackResponse"/>
+        </interaction-node>
+        <node-display orientation="horizontal" x="2" y="0"/>
+      </node>
+    </segment>
+  </branch>
+</pipeline>

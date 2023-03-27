@@ -1,0 +1,58 @@
+/**
+* This changes the name of the catalog-id in the supplied Import file by using the
+* first catalog ID in the list.
+*
+*
+* @input inCatalogIds : dw.util.List
+* @input importFile : String
+* @input status : dw.system.Status
+* @input submissionUUID : String
+* @output outCatalogIds : dw.util.List
+*
+*/
+importPackage( dw.io );
+importPackage( dw.util );
+importPackage( dw.system );
+importScript( "/utils/ExceptionLog.ds" );
+importScript( "dao/submission.ds");
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "renameToCatalogId"));
+
+/**
+*   This changes the name of the catalog-id in the supplied Import file by using the
+*   first catalog ID in the list.
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    LOGGER.warn('Previous import failed with error: message="{0}", code={1}, status={2}, Details: DataErrorCount={3}, DataWarningCount={4}\n', pdict.status.message, pdict.status.code, pdict.status.status, pdict.status.details.get("DataErrorCount"), pdict.status.details.get("DataWarningCount"));
+    
+    if (pdict.status.code === 'IMPEX-120')
+    {
+        return PIPELET_ERROR;
+    }
+    
+    if (pdict.inCatalogIds.empty)
+    {
+        LOGGER.error('No suitable catalog for product "{0}"', pdict.importFile);
+        return PIPELET_ERROR;
+    }
+    
+    var catalogIds : List = new ArrayList(pdict.inCatalogIds);
+    var catalogId : String = catalogIds.shift();
+    LOGGER.debug("path: " + dw.io.File.IMPEX + " + " + File.SEPARATOR + "src" + pdict.importFile);
+    var file : File = new File(File.IMPEX + File.SEPARATOR + "src" + pdict.importFile);
+    LOGGER.debug("file exists: " + file.exists());
+    var fileReader : FileReader = new FileReader(file, "UTF-8");
+    var fileContents : String = fileReader.getString();
+    LOGGER.debug("XML: " + fileContents);
+    fileContents = fileContents.replace(/catalog-id=[\"][a-zA-Z0-9_-]+[\"]/, "catalog-id=\"" + catalogId + "\"");
+    LOGGER.debug("replace XML: " + fileContents);
+    fileReader.close();
+    var fileWriter : FileWriter = new FileWriter(file, "UTF-8");
+    fileWriter.write(fileContents);
+    fileWriter.flush();
+    fileWriter.close();
+    pdict.outCatalogIds = catalogIds;
+
+    return PIPELET_NEXT;
+}

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shipping xmlns="http://www.demandware.com/xml/impex/shipping/2007-03-31">
+    <shipping-method method-id="paazl_EUR" default="true">
+        <display-name xml:lang="x-default">PickUp Shipping</display-name>
+        <description xml:lang="x-default">PickUp Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <currency>EUR</currency>
+    </shipping-method>
+
+    <shipping-method method-id="paazl_GBP" default="true">
+        <display-name xml:lang="x-default">PickUp Shipping</display-name>
+        <description xml:lang="x-default">PickUp Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <currency>GBP</currency>
+    </shipping-method>
+
+    <shipping-method method-id="UK-free-shipping" default="false">
+        <display-name xml:lang="de">Gratisversand für Mitarbeiter</display-name>
+        <display-name xml:lang="x-default">Employee Free Shipping</display-name>
+        <display-name xml:lang="en-GB">UK Employee Free Shipping</display-name>
+        <display-name xml:lang="fr">Livraison gratuite pour employés</display-name>
+        <display-name xml:lang="nl">Gratis verzending voor medewerkers</display-name>
+        <description xml:lang="x-default">Employee Free Shipping</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0.01">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.countryCode</attribute-path>
+                        <operator>exists</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+            <excluded-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.city</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>Manchester</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.postalCode</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>M1 6JX</string>
+                    </condition>
+                </condition-group>
+            </excluded-addresses>
+        </excluded-addresses>
+    </shipping-method>
+
+</shipping>

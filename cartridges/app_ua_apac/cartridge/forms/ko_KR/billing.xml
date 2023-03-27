@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+
+    <field formid="shippingAddressUseAsBillingAddress" label="profile.billingSameAsShipping" type="boolean"
+           binding="shippingAddressUseAsBillingAddress" checked="false" />
+        
+    <field 
+			formid="emailaddressName" 
+			label="label.input.email.billing" 
+			type="string" 
+            max-length="50"
+			mandatory="true" 
+			binding="custom.emailaddressName" 
+			missing-error="forms.address.email.invalid" 
+			value-error="profile.usernametaken"/>
+
+    <field 
+        formid="emailaddressDomain" 
+        label="label.input.emaildomain.billing" 
+        type="string" 
+        mandatory="true" 
+        max-length="50"
+        binding="custom.emailaddressDomain" 
+        regexp="^[\w.\-]+\.[a-zA-Z]{2,}$" 
+        missing-error="forms.address.email.invalid" />
+
+    <field 
+        formid="emailaddressDomainSelect" 
+        label="label.input.emailaddressDomainSelect.profile" 
+        type="string" 
+        mandatory="false" 
+        binding="custom.emailaddressDomainSelect">
+
+        <options>
+            <option optionid="directinput" 	label="forms.directinput" 	value="" />
+            <option optionid="naver.com" 	label="naver.com" 			value="naver.com" />
+            <option optionid="hanmail.net" 	label="hanmail.net" 		value="hanmail.net" />
+            <option optionid="nate.com" 	label="nate.com" 			value="nate.com" />
+            <option optionid="gmail.com" 	label="gmail.com" 			value="gmail.com" />
+            <option optionid="hotmail.com" 	label="hotmail.com" 		value="hotmail.com" />
+            <option optionid="daum.net" 	label="daum.net" 			value="daum.net" />
+            <option optionid="yahoo.co.kr" 	label="yahoo.co.kr" 		value="yahoo.co.kr" />
+            <option optionid="hanmir.com" 	label="hanmir.com" 			value="hanmir.com" />
+            <option optionid="dreamwiz.com" label="dreamwiz.com" 		value="dreamwiz.com" />
+            <option optionid="lycos.co.kr" 	label="lycos.co.kr" 		value="lycos.co.kr" />
+            <option optionid="empas.com" 	label="empas.com" 			value="empas.com" />
+            <option optionid="paran.com" 	label="paran.com" 			value="paran.com" />
+        </options>
+    </field>
+
+    <field
+        formid="billEmail" 
+        label="label.input.email.billing" 
+        mandatory="true" 
+        max-length="50" 
+        binding="customerEmail"
+        missing-error="error.message.required"
+        parse-error="error.message.parse.email.profile.form"
+        range-error="error.message.50orless"
+        regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$" 
+        value-error="ValueErrorText"
+        type="string"/> 
+
+    <include formid="addressFields" name="address"/>
+
+    <include formid="contactInfoFields" name="contactInfo"/>
+
+    <field formid="paymentMethod" type="string" mandatory="true" />
+
+    <include formid="creditCardFields" name="creditCard"/>
+    
+    <field formid="subscribe" type="boolean" checked="false" default-value="false" mandatory="false" />
+
+</form>

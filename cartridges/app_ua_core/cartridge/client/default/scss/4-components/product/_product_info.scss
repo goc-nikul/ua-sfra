@@ -1,0 +1,219 @@
+.b-product_info {
+    position: relative;
+    padding-bottom: spacing(xs);
+    font-size: rem-calc(12);
+    line-height: rem-calc(20);
+
+    @include respond-to(desktop) {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: rem-calc(60);
+        left: 0;
+    }
+
+    .b-promo-tooltip-content-text {
+        color: $green;
+    }
+
+    .b-product_promo {
+        .b-promo-tooltip-content {
+            .g-tooltip-text {
+                top: calc(100% + 12px);
+            }
+        }
+    }
+
+    .b-product_loyalty-points {
+        font-weight: 600;
+        font-size: rem-calc(14);
+        line-height: rem-calc(16);
+        padding: rem-calc(10) 0;
+    }
+}
+
+.b-modal {
+    &_block {
+        display: flex;
+        padding: rem-calc(10) 0 0 0;
+
+        .l-modal_name {
+            padding: 0 rem-calc(10) 0 0;
+            margin-right: rem-calc(10);
+            position: relative;
+            color: $black;
+
+            &::after {
+                content: '|';
+                position: absolute;
+                font-size: rem-calc(12);
+                color: $black;
+                right: -2px;
+            }
+        }
+
+        .l-style_name {
+            color: $grey5;
+        }
+    }
+}
+
+.l-pdp-images {
+    position: relative;
+    z-index: 2;
+    height: 100% !important;
+
+    @include respond-to(desktop) {
+        align-self: flex-start;
+        position: sticky;
+        top: rem-calc(136);
+    }
+
+    .l-tile-badge_top_left,
+    .l-tile-badge_bottom_left {
+        font-weight: $font-regular;
+        font-size: rem-calc(12);
+        line-height: 1.6;
+        position: absolute;
+        display: block;
+        cursor: default;
+        top: rem-calc(16);
+        text-align: center;
+        left: rem-calc(28);
+        padding: rem-calc(6);
+        min-width: rem-calc(88);
+        min-height: rem-calc(32);
+        border-radius: 0.25rem;
+        background: $white;
+        z-index: 9;
+
+        &.b-flameIcon {
+            top: rem-calc(8);
+            left: rem-calc(20);
+
+            @include respond-to(mobile) {
+                left: rem-calc(8);
+            }
+
+            .b-flameIcon-sec {
+                padding: rem-calc(8);
+            }
+        }
+
+        @include respond-to(mobile) {
+            left: rem-calc(16);
+        }
+    }
+
+    .l-tile-badge_bottom_left {
+        right: rem-calc(28);
+        left: auto;
+        padding: 0;
+        min-width: auto;
+        min-height: auto;
+        border-radius: 0;
+        background: transparent;
+
+        @include respond-to(mobile) {
+            right: rem-calc(16);
+        }
+    }
+
+    .gallery-show & {
+        position: relative;
+        top: auto;
+        z-index: initial;
+    }
+}
+
+.btn-pdp-modal-link {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    border-bottom: solid 1px $black;
+}
+
+.pdp-modal-heading {
+    margin-top: rem-calc(16);
+    font-size: rem-calc(16);
+    font-weight: bold;
+    line-height: 1.33;
+}
+
+.pdp-modal-body {
+    margin-left: 15px;
+    list-style: disc;
+}
+
+.b-promo {
+    &-tooltip-content {
+        &.b-not-eligible {
+            .b-promo-tooltip {
+                &-content-text {
+                    color: $black;
+
+                    .u-negative-content,
+                    .u-negative-content-mobile {
+                        text-decoration: underline;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.l-tile-badge_top_left,
+.b-tile-badge_top_left {
+    &.b-flameIcon {
+        background: transparent;
+        padding: 0;
+        top: rem-calc(3);
+        left: rem-calc(3);
+
+        .b-flameIcon-sec {
+            display: flex;
+            align-items: flex-end;
+            background: rgba(240, 240, 240, 0.73);
+            border-radius: rem-calc(4);
+            padding: rem-calc(10);
+
+            @include respond-to(mobile) {
+                padding: rem-calc(5);
+            }
+
+            .img-flameIcon {
+                max-width: rem-calc(17);
+            }
+
+            .flameIcon-text {
+                padding-left: rem-calc(8);
+                text-transform: uppercase;
+                font-weight: $font-bold;
+                color: $black;
+                line-height: rem-calc(16);
+            }
+        }
+    }
+}
+
+.b-tile-badge_top_left {
+    &.b-flameIcon {
+        .b-flameIcon-sec {
+            .img-flameIcon {
+                position: relative;
+                top: rem-calc(1);
+            }
+        }
+    }
+}
+
+.b-product-quickview-images {
+    .l-tile-badge_top_left.b-flameIcon {
+        background: transparent;
+        padding: 0;
+    }
+}
+
+.cm-list .module__list.owl-carousel .module__list-item .b-tile-badge_bottom_left img {
+    width: auto;
+}

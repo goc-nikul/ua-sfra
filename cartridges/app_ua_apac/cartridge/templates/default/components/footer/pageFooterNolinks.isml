@@ -1,0 +1,41 @@
+<script>
+    window.pageContext = <isprint value="${JSON.stringify(pdict.pageContext || new Object())}" encoding="off"/>;
+    window.sitePreferences = {};
+    window.sitePreferences.AddressVerificationEnabled = <isprint value="${pdict.AddressVerificationEnabled}" encoding="off"/>;
+    window.sitePreferences.isBOPISEnabled = <isprint value="${'isBOPISEnabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.getCustomPreferenceValue('isBOPISEnabled')}" encoding="off"/>;
+    window.sitePreferences.qasAddressSuggestion = ${pdict.qasAddressSuggestion};
+    <isif condition="${!empty(pdict.qasRestrictedCountries)}">
+        window.sitePreferences.qasRestrictedCountries = <isprint value="${pdict.qasRestrictedCountries}" encoding="off"/>;
+    </isif>
+     <isif condition="${!empty(pdict.countryData)}">
+        window.countryData = <isprint value="${pdict.countryData}" encoding="off"/>;
+    </isif>
+    if (window.sitePreferences.isBOPISEnabled) {
+        window.shipmentMergedBOPIS = false;
+    }
+    <isif condition="${pdict.qasProvinceMapping}">
+        window.sitePreferences.qasProvinceMapping = <isprint value="${pdict.qasProvinceMapping}" encoding="off"/>;
+    </isif>
+    <isif condition="${pdict.businessTypeAddressEnabled}">
+        window.sitePreferences.businessTypeAddressEnabled = <isprint value="${pdict.businessTypeAddressEnabled}" encoding="off"/>;
+    </isif>
+    <isif condition="${pdict.qasValidCountries}">
+    	window.sitePreferences.qasValidCountries = <isprint value="${pdict.qasValidCountries}" encoding="off"/>;
+        window.AddressVerificationCountryEnabled = !!(window.sitePreferences.qasValidCountries["${pdict.CurrentSession.custom.currentCountry}"]);
+	</isif>
+    <isif condition="${!empty(pdict.isKRCustomCheckoutEnabled)}">
+        window.sitePreferences.isKRCustomCheckoutEnabled = <isprint value="${pdict.isKRCustomCheckoutEnabled}" encoding="off"/>;
+    </isif>
+    <isif condition="${!empty(pdict.isShowOnlyLastNameAsNameFieldEnabled)}">
+        window.sitePreferences.isShowOnlyLastNameAsNameFieldEnabled = <isprint value="${pdict.isShowOnlyLastNameAsNameFieldEnabled}" encoding="off"/>;
+    </isif>
+    <isif condition="${!empty(pdict.showSplitPhoneMobileField)}">
+        window.sitePreferences.showSplitPhoneMobileField = <isprint value="${pdict.showSplitPhoneMobileField}" encoding="off"/>;
+    </isif>
+</script>
+
+<!-- mpulse script -->
+<input type="hidden" id="qasToken" value="${pdict.qasToken}"/>
+<isinclude url="${URLUtils.url('AkamaimPulse-RenderScript')}"/>
+<isinclude url="${URLUtils.url('TrustArc-RenderScript')}"/>
+<isinclude template="components/heartbeat" />

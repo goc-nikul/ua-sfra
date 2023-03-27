@@ -1,0 +1,41 @@
+<isset name="paymentMethod" value="${!empty(pdict.order.billing.payment.selectedPaymentInstruments) ? pdict.order.billing.payment.selectedPaymentInstruments[0].paymentMethod : null}" scope="page" />
+<isif condition="${paymentMethod === 'AdyenComponent'}">
+	<isinclude template="checkout/billing/adyenGivingComponent" />
+</isif>
+<div class="card confirm-details">
+    <div class="card-body">
+        <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('isLoyaltyEnable') && !customer.isMemberOfCustomerGroup('Loyalty')}">
+            <isset name="loyaltyHelper" value="${require('*/cartridge/scripts/helpers/loyaltyHelper')}" scope="page" />
+            <isset name="postalCode" value="${pdict.order.billing.billingAddress.address.postalCode}" scope="page">
+            <isif condition="${!loyaltyHelper.isVIPCustomer()}">
+                <isif condition="${loyaltyHelper.isLoyaltyPilotEnabled() ? loyaltyHelper.isLoyaltyPilotZipCode(postalCode) : true}">
+                    <isinclude template="/checkout/confirmation/loyaltyRegistredCard" />
+                </isif>
+            </isif>    
+        </isif>
+        <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('isLoyaltyEnable') && customer.isMemberOfCustomerGroup('Loyalty') && pdict.order.estimatedLoyaltyPoints > 0}">
+            <isscript>
+                assets.addCss('/css/checkout/loyaltyConfirmationRegistered.css');
+            </isscript>
+            <div class="b-order-confirmation_inner-details b-loyalty-confirmation-registred">
+                <isinclude template="/components/loyaltyPointsEarn" />
+            </div>
+        </isif>
+        <isif condition="${!pdict.isOnlyGCPorduct && (pdict.isHALOrder == null || pdict.isHALOrder == false) && !pdict.basketHasOnlyBopisShipment}">
+            <div class="b-order-confirmation_inner-details">
+                <div class="b-order-confirmation_details-heading shipping-heading-sec">
+                    <img class="store-icon" src="${URLUtils.staticURL('/images/truck-md-icon.svg')}" alt="${Resource.msg('title.shipping.information', 'confirmation', null)}" title="${Resource.msg('title.shipping.information', 'confirmation', null)}">
+                    <span class="shipping-heading">${Resource.msg('title.shipping.information', 'confirmation', null)}</span>
+                </div>
+                <isinclude template="checkout/shipping/shippingSummary" />
+            </div>
+        </isif>
+        <div class="b-order-confirmation_inner-details ${pdict.isBOPISEnabled && pdict.basketHasBopisShipment ? 'last' : ''}">
+            <div class="b-order-confirmation_details-heading">
+                ${Resource.msg('title.billing.information', 'confirmation', null)}
+            </div>
+            <isinclude template="checkout/billing/billingSummary" />
+        </div>
+    </div>
+</div>
+

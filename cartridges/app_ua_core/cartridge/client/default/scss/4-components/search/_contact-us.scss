@@ -1,0 +1,29 @@
+.b-contact_us {
+    &-title {
+        @include font(main_bold, rem-calc(16), rem-calc(24));
+
+        padding-bottom: rem-calc(12);
+
+        @include respond-to(desktop) {
+            padding-bottom: rem-calc(16);
+            font-size: rem-calc(20);
+            line-height: rem-calc(26);
+        }
+    }
+
+    &-item {
+        padding-top: rem-calc(4);
+        padding-bottom: rem-calc(4);
+    }
+
+    &-link {
+        @include link(medium);
+
+        font-size: rem-calc(12);
+        color: $grey6;
+
+        @include respond-to(desktop) {
+            font-size: rem-calc(13);
+        }
+    }
+}

@@ -1,0 +1,18 @@
+<isloop var="HALshippingModel" items="${pdict.order.shipping}" status="shippingLoop">
+    <isif condition="${shippingLoop.first}">
+	    <isif condition="${HALshippingModel.shippingAddress !== null}">
+	        <isset name="address" value="${HALshippingModel.shippingAddress}" scope="page"/>
+        <iselse>
+            <isset name="address" value="{}" scope="page"/>
+        </isif>
+        <div class="single-shipping b-shipping-summary_single-shipping" data-shipment-summary="${HALshippingModel.UUID}" data-pickupAddress="${Resource.msg('label.hal.pickup.addres', 'checkout', null)}">
+            <p class="summary-section-label">${Resource.msg('label.hal.pickup.addres', 'checkout', null)}</p>
+            <div class="summary-details shipping b-shipping-summary_summary-details b-shipping-summary_shipping">
+                <isinclude template="checkout/halAddressSummary" />
+            </div>
+            <div class="row summary-details leading-lines b-shipping-summary_summary-details">
+                &nbsp;
+            </div>
+        </div>
+    </isif>
+</isloop>

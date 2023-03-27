@@ -1,0 +1,46 @@
+name: Deploy Branch
+on:
+  schedule:
+    - cron: '0 0,16 * * 1,2,3,4,5'
+    - cron: '0 0 * * 0,6'
+  workflow_dispatch:
+    branches-ignore:
+      - 'master'
+      - 'main'
+jobs:
+  build:
+    name: Build and Deploy for Branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v2
+        with:
+          ssh-key: ${{ secrets.GH_SSH_KEY }}
+          persist-credentials: true
+          submodules: recursive
+      - uses: ./.github/actions/lint-and-test
+      - uses: ./.github/actions/build-packages
+      - name: Deploy
+        run: .build/deploy-branch.sh
+        env:
+            SFCC_OAUTH_CLIENT_ID: ${{ secrets.SFCC_OAUTH_CLIENT_ID }}
+            SFCC_OAUTH_CLIENT_SECRET: ${{ secrets.SFCC_OAUTH_CLIENT_SECRET }}
+            SFCC_CERT_UA03_P12: ${{ secrets.SFCC_CERT_UA03_P12 }}
+            SFCC_CERT_UA03_SECRET: ${{ secrets.SFCC_CERT_UA03_SECRET }}
+            DEBUG_DEPLOY: ${{ secrets.DEBUG_DEPLOY }}
+            DRY_RUN: ${{ secrets.DRY_RUN }}
+      - name: Run Tests
+        run: .build/run_tests-branch.sh
+        env:
+            TEST_QUEUE_USER: ${{ secrets.TEST_QUEUE_USER }}
+            TEST_QUEUE_PASSWORD: ${{ secrets.TEST_QUEUE_PASSWORD }}
+            DRY_RUN: ${{ secrets.DRY_RUN }}
+      - name: Slack Notification
+        if: ${{ always() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+            SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+            SLACK_USERNAME: ua-sfra-build
+            SLACK_COLOR: ${{ job.status }}
+            SLACK_MESSAGE: '${{ job.status }}'

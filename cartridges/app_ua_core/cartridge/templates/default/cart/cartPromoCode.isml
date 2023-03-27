@@ -1,0 +1,34 @@
+<iscomment><div class="row">
+    <div class="col-12 d-sm-none">
+        <p class="optional-promo">${Resource.msg('action.enter.promo.code','cart',null)}</p>
+    </div>
+</div></iscomment>
+<div class="b-promo">
+    <div class="b-promo_code">
+        <form action="${pdict.actionUrls.submitCouponCodeUrl}" class="js-promo-code-form b-promo_form" method="GET" name="promo-code-form" data-cmp="cartTile">
+            <div class="form-group">
+                <p class="newDesktopLabel">${Resource.msg('label.promo.code.desktop','cart',null)}</p>
+                <div class="b-promo_input">
+                    <div class="b-input_row">
+                        <label for="couponCode" class="b-input_row-label">${Resource.msg('label.promo.code','cart',null)}</label>
+                        <input type="text" class="b-input_row-input form-control coupon-code-field bfx-coupon-form-input" id="couponCode" name="couponCode" data-analytics-track="order summary : promo_code">
+                    </div>
+
+                    <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+
+                    <div class="col-5 promo-code-submit">
+                        <button type="submit" class="btn btn-primary btn-block promo-code-btn t-apply_code bfx-coupon-form-submit">
+                            <span class="hide-mobile">${Resource.msg('button.submit.promo.code.desktop','cart',null)}</span>
+                            <span class="hide-desktop">${Resource.msg('button.submit.promo.code','cart',null)}</span>
+                        </button>
+                    </div>
+                    <div class="coupon-error">
+                        <span class="coupon-missing-error b-promo-missing-error" id="missingCouponCode" role="alert">${Resource.msg('error.missing.coupon.code', 'cart', null)}</span>
+                        <span class="coupon-error-message b-promo-error-message" id="invalidCouponCode" role="alert"></span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+

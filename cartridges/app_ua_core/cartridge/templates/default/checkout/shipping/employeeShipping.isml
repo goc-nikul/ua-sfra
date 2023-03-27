@@ -1,0 +1,44 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<div class="shipping-section b-shipping-section">
+    <div class="single-shipping">
+        <isset name="shippingModel" value="${pdict.order.shipping[0]}" scope="page" />
+        <isset name="shipmentLoopState" value="${null}" scope="page" />
+        <isset name="lineItem" value="${null}" scope="page" />
+        <isset name="isHideEmployeeOfficeAddresses" value="${pdict.hideEmployeeOfficeAddresses || pdict.officeAddresses.length === 0}" scope="page" />
+        <div class="card" data-shipment-uuid="${shippingModel.UUID}">
+            <div class="card-header b-shipping-card-header">
+                <h2 class="card-header-custom">${Resource.msg('heading.checkout.shipping', 'checkout', null)}</h2>
+            </div>
+            <div class="btn-shipping">
+                <isif condition="${isHideEmployeeOfficeAddresses}">
+                    <button class="btn-shiptooffice g-button_base js-officeisclosed disableActiveState">${Resource.msg('employee.select.shiptooffice', 'checkout', null)}</button>
+                    <iselse/>
+                    <button class="btn-shiptooffice g-button_base js-shiptooffice ${!shippingModel.matchingAddressId ? 'active' : ''}">${Resource.msg('employee.select.shiptooffice', 'checkout', null)}</button>
+                </isif>
+                <button class="btn-shiptopersonal g-button_base js-shiptopersonal ${isHideEmployeeOfficeAddresses ? 'disableClick' : ''} ${shippingModel.matchingAddressId || isHideEmployeeOfficeAddresses ? 'active' : ''}">
+                    ${Resource.msg('employee.select.shiptopersonal', 'checkout', null)}
+                </button>
+            </div>
+            <input type="hidden" id="qasShipping" value="${false}">
+            <input type="hidden" id="geoLocationDetails" value="">
+            <div class="shipping-error"></div>
+            <isinclude template="checkout/shipping/shipmentCard" />
+            <isinclude template="account/addressVerification/component" />
+        </div>
+    </div>
+
+    <iscomment>
+        <div class="multi-shipping">
+            <isloop items="${pdict.order.shipping}" var="shippingModel" status="shipmentLoopState">
+                <isloop items="${shippingModel.productLineItems.items}" var="lineItem">
+                    <div class="card" data-shipment-uuid="${shippingModel.UUID}">
+                        <div class="card-header">
+                            <isinclude template="checkout/productCard/productShippingCard" />
+                        </div>
+                        <isinclude template="checkout/shipping/shipmentCard" />
+                    </div>
+                </isloop>
+            </isloop>
+        </div>
+    </iscomment>
+</div>

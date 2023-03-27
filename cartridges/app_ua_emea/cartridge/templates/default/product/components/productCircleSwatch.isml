@@ -1,0 +1,79 @@
+<isset name="productHelpers" value="${require('*/cartridge/scripts/helpers/productHelpers')}" scope="page"/>
+<isset name="productHelper" value="${require('*/cartridge/scripts/helpers/ProductHelper')}" scope="page"/>
+<isset name="productObj" value="${require('dw/catalog/ProductMgr').getProduct(product.id)}" scope="page"/>
+<isset name="master" value="${productObj.master ? productObj : productObj.masterProduct}" scope="page"/>
+<isif condition="${productSwatches}">
+    <isif condition="${productSwatches.length > 0}">
+        <isset name="orderableVarients" value="0" scope="page" />
+        <isset name="isPLP" value="${!empty(pdict.isPLP) && (pdict.isPLP)}" scope="page"/>
+        <ul class="b-swatches_circle swiper-wrapper js-swiper-wrapper">
+            <isloop items="${productSwatches}" var="swatch" status="loopState">
+                <isif condition="${swatch.selectable}">
+                    <isset name="orderableVarients" value="${++orderableVarients}" scope="page" />
+                </isif>
+                <isif condition="${isPLP}">
+                    <isset name="swatchURL" value="${swatch.url}" scope="page" />
+                <iselse/>
+                    <isset name="swatchURL" value="${URLUtils.url('Product-Show', 'pid', product.id)}" scope="page" />
+                </isif>
+                <isset name="stdLightness" value="${swatch.color.stdLightness}" scope="page" />
+                <isset name="lightnessValues" value="${swatch.color.lightnessValues}" scope="page"/>
+
+                <isif condition="${typeof lightnessValues !== "undefined"}">
+                    <isif condition="${lightnessValues.length === 1}">
+                        <isset name="lightness" value="${lightnessValues[0]}" scope="page" />
+                    <iselseif condition="${lightnessValues.length === 2}"/>
+                        <isset name="lightnessI" value="${lightnessValues[0]}" scope="page" />
+                        <isset name="lightnessII" value="${lightnessValues[1]}" scope="page" />
+                    </isif>
+                </isif>
+                <isset name="colorVariant" value="${!empty(master) ? productHelper.getVariantForColor(master, swatch.value) : ''}" scope="page"/>
+                <isset name="modelSpecObj" value="${!empty(colorVariant) && dw.system.Site.getCurrent().getCustomPreferenceValue('enableModelSpec') ? productHelpers.getSelectedModelSpecObj(colorVariant) : ''}" scope="page"/>
+                <isset name="imageModelSpec" value="${!empty(modelSpecObj) && (swatch.hoverImageMain && !!swatch.hoverImageMain.URL) ? productHelpers.getImageSpecificModelSpec(modelSpecObj, swatch.hoverImageMain.URL.toString()) : ''}" scope="page"/>
+                <isset name="currentCountry" value="${pdict.CurrentRequest.locale && pdict.CurrentRequest.locale != 'default' ? pdict.CurrentRequest.locale.split('_')[1] : 'US'}" scope="page" />
+                <isset name="modelSpecs" value="" scope="page" />
+                <isif condition="${!empty(imageModelSpec) && imageModelSpec.showModelInfo === true && !empty(imageModelSpec.modelSize) && !empty(imageModelSpec.modelHeightCm) && !empty(imageModelSpec.modelHeightFtIn)}">
+                    <isset name="modelHeightCountry"
+                        value="${currentCountry === 'GB' ? imageModelSpec.modelHeightFtIn : imageModelSpec.modelHeightCm}" scope="page" />
+                    <isset name="modelSpecs" value="${Resource.msgf(currentCountry === 'GB' ? 'product.model.specification.dropdown' : 'product.model.specification.metric', 'product', null, modelHeightCountry, imageModelSpec.modelSize)}" scope="page" />
+                <iselseif condition="${!empty(imageModelSpec) && imageModelSpec.showModelInfo === true && !empty(imageModelSpec.modelSize)}"/>
+                    <isset name="modelSpecs" value="${Resource.msgf('product.model.size.flat','product',null, imageModelSpec.modelSize)}" scope="page" />
+                </isif>
+                <li data-index="${loopState.count-1}" class="b-swatches_circle-item swiper-slide ${typeof loopState !=='undefined' && loopState.first ? 'first' : ''} ${typeof loopState !=='undefined' && loopState.count > 30 ? 'hideNow' : ''} ${typeof loopState !=='undefined' && loopState.count > 20 ? 'hideNowMobile' : ''} <isif condition="${swatch.type === 'image' && !isPLP}">b-swatch_image</isif>" data-url="${swatch.url}">
+                    <a href="${swatchURL}"
+                        data-attr-url="${swatch.url}"
+                        data-index="${loopState.count-1}"
+                        data-product-img="${swatch.hoverImage && swatch.hoverImage.URL}"
+                        data-product-imgmain="${swatch.hoverImageMain && swatch.hoverImageMain.URL}"
+                        data-product-sizeModel=""
+                        data-product-modelSpec="${modelSpecs}"
+                        data-product-hoverImageDefault="${swatch.hoverImageDefault && swatch.hoverImageDefault.URL}"
+                        data-attr-value="${swatch.value}"
+                        title="${isPLP ? Resource.msg('product.view.color', 'product', null) + ' ' +swatch.displayValue +'-' + swatch.value : Resource.msgf('product.select.color', 'product', null, swatch.displayValue)}"
+                        <isif condition="${!isPLP}"> role="button" </isif>
+                        class="
+                            b-swatches_circle-link
+                            ${swatch.selected ? 'm-active' : ''}
+                            ${swatch.selectable ? '' : 'm-disabled'}
+                            ${typeof lightnessValues !== "undefined" && lightnessValues.length === 1 && !empty(lightness) ? (lightness[2] < stdLightness ? 'no-border' : '') : ''}
+                            ${typeof lightnessValues !== "undefined" && lightnessValues.length === 2 && !empty(lightnessI && lightnessII) ? (lightnessI[2] < stdLightness && lightnessII[2] < stdLightness ? 'no-border' : '') : ''}
+                            js-swatch-link pdp-open-new-tab"
+                    >
+                        <isset name="swatchColorHex" value="${swatch.color.hex}" scope="page" />
+                        <isset name="swatchColorHexII" value="${swatch.color.hexII}" scope="page" />
+                        <span class="b-swatches_circle-value" style="background-image:
+                            ${swatch.type === 'image' && !isPLP && swatch.image.URL ? 'url('+swatch.image.URL+')' : 'linear-gradient(90deg, ' + swatchColorHex + ' 0%, ' + swatchColorHex + ' 50%, ' + swatchColorHexII + ' 50%, ' + swatchColorHexII + ' 100%);'}
+                        ">
+                        </span>
+                    </a>
+                </li>
+            </isloop>
+            <isif condition="${typeof attr !=='undefined' && attr.id === 'color'}">
+             <li class="b-color-more_less ">
+                <span class="l-show-more js-show-more">${Resource.msg('label.item.showmore', 'product', null)}</span>
+                <span class="l-show-less js-show-less">${Resource.msg('label.item.showless', 'product', null)}</span>
+             </li>
+         </isif>
+        </ul>
+    </isif>
+</isif>

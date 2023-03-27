@@ -1,0 +1,59 @@
+<isset name="notAvailableItems" value="${dw.web.Resource.msg('label.not.available.items.instock', 'common', null)}" scope="page" />
+
+<isif condition="${!empty(lineItem.availabilityError) && !lineItem.isPartiallyAvailable}">
+    <isset name="notAvailableItems" value="${dw.web.Resource.msg('label.not.available.items.instock', 'common', null)}" scope="page" />
+</isif>
+
+<div class="b-productcard_item_availability line-item-availability availability-${typeof lineItem !=='undefined' ? lineItem.UUID : ''} bfx-product-inventory" data-labelNotAvailable="${notAvailableItems}">
+    <isif condition="${(lineItem.availabilityError || lineItem.priceTotal.price === 'N/A' || ('isOnline' in lineItem && !lineItem.isOnline)) && !lineItem.custom.fromStoreId}">
+        <div class="b-header_minicart-item-check">
+            <isif condition="${lineItem.isPartiallyAvailable}">
+                <p class="b-header_minicart-check-icon"></p>
+                <div class="line-item-attributes">
+                    <div><isprint value="${dw.web.Resource.msgf('label.quantity.in.stock', 'common', null, lineItem.instockQuantity)}" /></div>
+                    <div><isprint value="${dw.web.Resource.msg('label.not.available.items', 'common', null)}" /></div>
+                </div>
+            <iselse>
+                <div class="b-header_minicart_content">
+                    <div class="b-header_minicart_content_message">
+                        <p class="b-header_minicart-check-icon"></p>
+                        <p class="line-item-attributes">${notAvailableItems}</p>
+                    </div>
+                    <div class="b-header_minicart_content_togetherbutton b-cartlineitem_togetherbutton">
+                        <isif condition="${!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR')}">
+                            <isinclude template="cart/productCard/cartProductCardSaveLater" />
+                        </isif>
+                        <isinclude template="cart/productCard/cartProductCardEdit" />
+                        <isif condition="${!lineItem.isBonusProductLineItem}">
+                            <div class="hidden-md-down">
+                                <isinclude template="components/deleteButton" />
+                            </div>
+                        </isif>
+                    </div>
+                </div>
+            </isif>
+        </div>
+    <iselseif condition="${pdict.storeObj && pdict.storeObj[lineItem.UUID]}">
+        <div class="b-header_minicart-item-check">
+            <div class="b-header_minicart_content">
+                <div class="b-header_minicart_content_message">
+                    <p class="b-header_minicart-check-icon"></p>
+                    <p class="line-item-attributes">${pdict.storeObj[lineItem.UUID]}</p>
+                </div>
+                <isif condition="${pdict.storeObj[lineItem.UUID] === dw.web.Resource.msg('label.not.available.items.storechanged.oos', 'common', null)}">
+                    <div class="b-header_minicart_content_togetherbutton b-cartlineitem_togetherbutton">
+                        <isif condition="${!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR')}">
+                            <isinclude template="cart/productCard/cartProductCardSaveLater" />
+                        </isif>
+                        <isinclude template="cart/productCard/cartProductCardEdit" />
+                        <isif condition="${!lineItem.isBonusProductLineItem}">
+                            <div class="hidden-md-down">
+                                <isinclude template="components/deleteButton" />
+                            </div>
+                        </isif>
+                    </div>
+                </isif>
+            </div>
+        </div>
+    </isif>
+</div>

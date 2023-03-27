@@ -1,0 +1,8 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isif condition="${pdict.format == 'ajax'}">
+    <isset name="isRegisterPage" value="${false}" scope="page" />
+    <isinclude template="account/components/registerModal" />
+<iselse>
+    <isset name="isRegisterPage" value="${true}" scope="page" />
+    <isinclude template="account/components/registerPage" />
+</isif>

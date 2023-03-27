@@ -1,0 +1,65 @@
+<div class="g-modal-header g-login-modal-header">
+    <h2 class="g-modal-title g-password-modal-title request-password-title">${Resource.msg('link.header.login','account',null)}</h2>
+    <div class="g-password-modal-close">
+        <button type="button" class="g-password-modal-close_button close" data-dismiss="modal" aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+    </div>
+    <div class="free-shipping-promotion">
+        <isslot id="login-modal-promo-message" context="global" description="Message Banner In Login Modal" />
+    </div>
+</div>
+<div class="g-modal-body">
+    <div class="row justify-content-center">
+        <div class="card">
+            <div class="login-form-nav">
+                <div class="tab-content">
+                    <div class="tab-pane ${pdict.navTabValue === 'login' ? 'active' : ''}" id="login" role="tabpanel" aria-labelledby="login-tab">
+                        <isinclude template="account/components/loginForm" />
+                        <isinclude template="account/password/requestPasswordResetModal"/>
+                        <isinclude template="account/password/forcePasswordresetModal"/>
+                        
+                        <isif condition="${dw.system.Site.current.getCustomPreferenceValue('facebookLoginEnabled')}">
+                            <isinclude template="account/components/oauth" />
+                        </isif>
+                        <div class="b-login-forminfo">
+                            <div class="b-login-formmessage">
+                                <span>${Resource.msg('login.text.login.info', 'login', null)}</span>
+                                <span class="b-login-tooltip-content">
+                                    <span class="g-tooltip">
+                                        <span class="g-tooltip-icon">
+                                            <span class="g-tooltip-arrow"></span>
+                                        </span>
+                                    </span>
+                                    <span class="g-tooltip-text">
+                                        ${Resource.msg('login.text.infotooltip', 'login', null)}
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="register-policy">
+                                <span>
+                                    <isif condition="${'showLoyaltyEnroll' in pdict && !!pdict.showLoyaltyEnroll}">
+                                        <iscontentasset aid="loyalty-login-register-policy" />
+                                    <iselse/>
+                                        <iscontentasset aid="login-register-policy" />
+                                    </isif>
+                                </span>
+                            </div>
+                            <div class="b-registerlink-login">
+                            <isif condition="${'showLoyaltyEnroll' in pdict && !!pdict.showLoyaltyEnroll}">
+                                <isset name="CreateAccountModalURL" value="${URLUtils.https('Login-CreateAccountModal', 'pilotEnroll', 'true', 'channel', pdict.channel, 'subChannel', pdict.subChannel, 'subChannelDetail', pdict.subChannelDetail)}" scope="page"/>
+                            <iselse/>
+                                <isset name="CreateAccountModalURL" value="${URLUtils.https('Login-CreateAccountModal')}" scope="page"/>
+                            </isif>
+                                <span>${Resource.msg('login.text.new.user', 'login', null)}</span>
+	                            <a class="b-header_account-link js-register" href="javascript:void(0);" data-href="${CreateAccountModalURL}" role="button"
+	                                aria-label="${Resource.msg('label.header.registerbutton', 'account', null)}">
+	                                ${Resource.msg('link.header.register', 'account', null)}
+	                            </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

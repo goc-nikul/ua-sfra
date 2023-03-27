@@ -1,0 +1,35 @@
+<div class="b-cart-content_left js-cart-items">
+    <div class="b-cart_empty_basket js-only_when_empty">
+        <div class="b-cart-inner-content_left">
+            <h1 class="b-cart-page_title">${Resource.msg('title.your.shopping.cart','cart',null)}</h1>
+            <div class="b-cart_empty_basket_outer">
+            <p>${Resource.msg('empty.cart.msg','cart',null)}</p>
+            </div>
+        </div>
+    </div>
+    <div class="b-cart-inner-content_left cart-left-inner">
+        <div class="valid-cart-error-msg"></div>
+        <h1 class="b-cart-page_title">
+            <span class="b-cart-content_spanno">${Resource.msg('title.your.shopping.cart','cart',null)}</span>
+            <span class="number-of-items b-cart-content_noofitems">(${parseInt(pdict.numItems) === 1 ? Resource.msgf('label.number.item.in.cart','cart', null, pdict.numItems) : Resource.msgf('label.number.items.in.cart','cart', null, pdict.numItems)})</span>
+        </h1>
+
+        <div class="b-cart-content_mobile">
+            <isinclude template="cart/cartApproachingDiscount" />
+        </div>
+        <isloop items="${pdict.lineItems}" var="lineItem" status="loopState">
+            <isif condition="${lineItem.productType === 'bundle'}">
+                <isinclude template="cart/productCard/cartBundleCard" />
+            <iselse/>
+                <isif condition="${lineItem.noProduct === true}">
+                    <isinclude template="cart/productCard/uncategorizedCartProductCard" />
+                <iselse/>
+                    <isinclude template="cart/productCard/cartProductCard" />
+                </isif>
+            </isif>
+        </isloop>
+        <div class="b-cart-order-promo b-promo-order" data-order-employee="${Resource.msg('employee.order.discount', 'common', null)}" data-order-nonemployee="${Resource.msg('label.order.discount', 'common', null)}">
+            <isinclude template="cart/cartPromoDisplay" />
+        </div>
+    </div>	
+</div>

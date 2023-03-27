@@ -1,0 +1,17 @@
+<div class="container store-locator-container b-store-locator-container js-store-locator-container">
+    <div class="b-find-store-form js-find-store-form">
+     <h2>${Resource.msg('title.hero.choosestore','storeLocator',null)}</h2>
+        <div class="card search-form">
+            <isinclude template="storeLocator/storeLocatorFields" />
+        </div>
+    </div>
+    <input type="hidden" name="prodPID" value="${pdict.prodPID}"/>
+    <input type="hidden" name="prodUUID" value="${pdict.prodUUID}"/>
+    <div class="b-stores-list results-card">
+        <div class="card-body">
+            <div class="results striped" data-search-key="${JSON.stringify(pdict.stores.searchKey)}" data-radius="${pdict.stores.radius.toFixed()}" data-has-results="${pdict.stores.stores.length > 0}">
+                <isinclude template="storeLocator/storeLocatorResults" />
+            </div>
+        </div>
+    </div>
+</div>

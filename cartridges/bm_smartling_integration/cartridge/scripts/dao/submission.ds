@@ -1,0 +1,150 @@
+importPackage( dw.system );
+importPackage( dw.object );
+importPackage( dw.util );
+importScript( "/utils/ExceptionLog.ds" );
+
+var STATUS_COMPLETE: String = "complete";
+var STATUS_IN_PROGRESS: String = "in progress";
+var STATUS_FAILED: String = "failed";
+var TYPE_SMARTLING_SUBMISSION: String = "SMARTLING_SUBMISSION";
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "submissionDao"));
+
+/**
+    Update progress of submission
+*/
+function updateProgress(submission: CustomObject, progress: Number) {
+    submission.custom['progress'] = progress;
+    LOGGER.info("Updated submission {0} progress to {1}", submissionToString(submission), progress);
+}
+
+/**
+    Update status property of submission
+*/
+function updateStatus(submission: CustomObject, status: String) {
+    submission.custom['status'] = status;
+    LOGGER.info("Updated submission {0} status to {1}", submissionToString(submission), status);
+}
+
+/**
+    Update status property as In Progress
+*/
+function setSubmissionStatusInProgress(submission: CustomObject) {
+    updateStatus(submission, STATUS_IN_PROGRESS);
+}
+
+/**
+    Update status property as Complete
+*/
+function setSubmissionStatusComplete(submission: CustomObject) {
+    updateStatus(submission, STATUS_COMPLETE);
+}
+
+/**
+    Update status property As Failed
+*/
+function setSubmissionStatusFailed(submission: CustomObject) {
+    updateStatus(submission, STATUS_FAILED);
+}
+
+/**
+    Set translation complete time
+*/
+function updateTimeApplied(submission: CustomObject) {
+    var applied = new Date();
+    submission.custom['applied'] = applied;
+    LOGGER.info('Updated submission {0} timeApplied to "{1}"', submissionToString(submission), applied.toUTCString());
+}
+
+/**
+    Set smartling timestamp
+*/
+function updateSmartlingLastModified(submission: CustomObject, date: Date) {
+    submission.custom['smLastModified'] = date;
+    LOGGER.debug('Updated submission {0} smartlingLastModified to "{1}"', submissionToString(submission), date.toUTCString());
+}
+
+function updateWordsSubmitted(submission: CustomObject, count: Number) {
+    submission.custom['wordsSubmitted'] = count;
+}
+
+/**
+    Get submission by UUID
+*/
+function getSubmissionByUUID(uuid : String) {
+    return CustomObjectMgr.queryCustomObject(TYPE_SMARTLING_SUBMISSION, "UUID = {0}", uuid);
+}
+/**
+    Get submission by ItemId and locale
+*/
+function getSubmissionByItemIdAndLocale(itemId : String, locale : String) {
+    return CustomObjectMgr.queryCustomObject(TYPE_SMARTLING_SUBMISSION, "custom.itemId = {0} AND custom.locale = {1}", itemId, locale);
+}
+
+/**
+    Find all submissions by FileURI
+*/
+function getAllActiveSubmissionsSortedByFileName(): SeekableIterator {
+    return CustomObjectMgr.queryCustomObjects(TYPE_SMARTLING_SUBMISSION, "custom.status = {0}", "custom.fileUri asc", STATUS_IN_PROGRESS);
+}
+
+/**
+    Find submissions by itemId
+ */
+function getSubmissionsByItemId(itemId : String, itemType : String): SeekableIterator {
+    return CustomObjectMgr.queryCustomObjects(TYPE_SMARTLING_SUBMISSION, "custom.itemId = {0} AND custom.itemType = {1}", null, itemId, itemType);
+}
+
+/**
+    Search submissions by custom attributes
+*/
+function getSubmissionsByFilterOrdered(searchPhraze: String, status: String, itemType:String, sortField: String, sortOrder: String): SeekableIterator {
+
+    sortField = sortField != null ? "custom." + sortField : "custom.submitted";
+    sortOrder = sortOrder != null ? sortOrder : "desc";
+    var order = sortField + " " + sortOrder;
+
+    var filterString : ArrayList = new ArrayList;
+    var filterArgs : Array = new Array;
+
+    if (itemType != null && itemType !== "") {
+        filterString.push('custom.itemType = {' + filterArgs.length + '}');
+        filterArgs.push(itemType);
+    }
+
+    if (status != null && status !== "") {
+        filterString.push('custom.status = {' + filterArgs.length + '}');
+        filterArgs.push(status);
+    }
+
+    if (searchPhraze != null && searchPhraze !== "") {
+        filterString.push("(custom.itemId ILIKE {" + filterArgs.length + "} OR custom.itemName ILIKE {" + filterArgs.length + "} OR custom.fileUri ILIKE {" + filterArgs.length + "})");
+        filterArgs.push("*" + searchPhraze + "*");
+    }
+
+    LOGGER.debug('Searching submissions: query="{0}", args="{1}", ordering="{2}"', filterString.join(" AND "), filterArgs.join(", "), order);
+    return CustomObjectMgr.queryCustomObjects('SMARTLING_SUBMISSION', filterString.join(" AND "), order, filterArgs);
+}
+
+/**
+    Convert submission to string
+*/
+function submissionToString(submission: CustomObject) {
+    return submission !== null ? '[fileUri="'+ submission.custom['fileUri']+'", locale='+ submission.custom['locale']+', uuid='+submission.UUID+']' : "null"
+}
+
+if (typeof (exports) !== 'undefined') {
+    exports.updateProgress = updateProgress;
+    exports.updateStatus = updateStatus;
+    exports.setSubmissionStatusInProgress = setSubmissionStatusInProgress;
+    exports.setSubmissionStatusComplete = setSubmissionStatusComplete;
+    exports.setSubmissionStatusFailed = setSubmissionStatusFailed;
+    exports.updateTimeApplied = updateTimeApplied;
+    exports.updateSmartlingLastModified = updateSmartlingLastModified;
+    exports.updateWordsSubmitted = updateWordsSubmitted;
+    exports.getSubmissionByUUID = getSubmissionByUUID;
+    exports.getSubmissionByItemIdAndLocale = getSubmissionByItemIdAndLocale;
+    exports.getAllActiveSubmissionsSortedByFileName = getAllActiveSubmissionsSortedByFileName;
+    exports.getSubmissionsByFilterOrdered = getSubmissionsByFilterOrdered;
+    exports.submissionToString = submissionToString;
+    exports.getSubmissionsByItemId = getSubmissionsByItemId;
+}

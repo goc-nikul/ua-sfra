@@ -1,0 +1,114 @@
+/* md
+
+# Text
+Category: Typography/Plain Text
+
+```html
+    <p class="t-text-1">Regular text: Lorem ipsum dolor sit amet.</p>
+    <p class="t-text-2">Regular text: Lorem ipsum dolor sit amet.</p>
+    <p class="t-text-3">Regular text: Lorem ipsum dolor sit amet.</p>
+    <p class="t-text-4">Regular text: Lorem ipsum dolor sit amet.</p>
+    <p class="t-text t-bold">Bold text: Lorem ipsum dolor sit amet.</p>
+    <p class="t-text t-italic">Italic text: Lorem ipsum dolor sit amet.</p>
+    <p class="t-text t-underline">Underlined text: Lorem ipsum dolor sit amet.</p>
+    <p class="t-text t-uppercase">Uppercased text: Lorem ipsum dolor sit amet.</p>
+    <p class="t-text t-error">Error text: Lorem ipsum dolor sit amet.</p>
+```
+
+```html_example
+    <div style="padding: 15px 0;  display: flex; flex-direction: column; align-items: center">
+        <p class="t-text-1">Regular text: Lorem ipsum dolor sit amet.</p> </br>
+        <p class="t-text-2">Regular text: Lorem ipsum dolor sit amet.</p> </br>
+        <p class="t-text-3">Regular text: Lorem ipsum dolor sit amet.</p> </br>
+        <p class="t-text-4">Regular text: Lorem ipsum dolor sit amet.</p>
+        </br>
+        <p class="t-text t-bold">Bold text: Lorem ipsum dolor sit amet.</p> </br>
+        <p class="t-text t-italic">Italic text: Lorem ipsum dolor sit amet.</p> </br>
+        <p class="t-text t-underline">Underlined text: Lorem ipsum dolor sit amet.</p> </br>
+        <p class="t-text t-uppercase">Uppercased text: Lorem ipsum dolor sit amet.</p> </br>
+        <p class="t-text t-error">Error text: Lorem ipsum dolor sit amet.</p>
+    </div>
+```
+
+You can use ```t-align-center``` class to center text, ```t-align-right``` class to align it to right and ```t-align-left``` class to align it to left
+
+```html
+    <p class="t-text t-align-left">Regular text: Lorem ipsum dolor sit amet.</p>
+    <p class="t-text t-align-center">Regular text: Lorem ipsum dolor sit amet.</p>
+    <p class="t-text t-align-right">Regular text: Lorem ipsum dolor sit amet.</p>
+```
+
+```html_example
+    <div style="padding: 15px 0">
+        <p class="t-text t-align-left">Regular text: Lorem ipsum dolor sit amet.</p>
+        <p class="t-text t-align-center">Regular text: Lorem ipsum dolor sit amet.</p> </br>
+        <p class="t-text t-align-right">Regular text: Lorem ipsum dolor sit amet.</p>
+    </div>
+```
+*/
+
+.t-text-1 {
+    @include t-text-1;
+}
+
+.t-text-2 {
+    @include t-text-2;
+}
+
+.t-text-3 {
+    @include t-text-3;
+}
+
+.t-text-4 {
+    @include t-text-4;
+}
+
+.t-text {
+    @include font(main);
+}
+
+.t-bold {
+    @include font(main_bold);
+}
+
+.t-medium {
+    @include font(main_med);
+}
+
+.t-italic {
+    font-style: italic;
+}
+
+.t-underline {
+    text-decoration: underline;
+}
+
+.t-bold-underline {
+    border-bottom: 2px solid currentColor;
+}
+
+.t-uppercase {
+    text-transform: uppercase;
+}
+
+.t-error {
+    @include t-text-3;
+
+    color: $error-color !important;
+}
+
+.t-align-left {
+    text-align: left;
+}
+
+.t-align-center {
+    text-align: center;
+}
+
+.t-align-right {
+    text-align: right;
+}
+
+.t-text-hover-state {
+    @include t-text-state;
+}

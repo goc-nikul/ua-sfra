@@ -1,0 +1,70 @@
+<!--- TEMPLATENAME: collectionPointLocatorResults.isml --->
+<isif condition="${pdict.collectionPoints &&  pdict.collectionPoints.pickupLocations &&  pdict.collectionPoints.pickupLocations.count > 0}">
+    <ul class="b-stores-results ${pdict.collectionPoints.pickupLocations.count <= 3 ? 'b-stores-results-two' : 'b-stores-results-more' }">
+        <isloop items="${pdict.collectionPoints.pickupLocations.locations}" var="collectionPoint" status="loopState">
+            <div class="collection-point">
+                <div class="collection-point-store-input">
+                    <input type="radio" id="collection-point-store-${loopState.index}" name="collection-point-store" class="input-radio g-radio-input js-input-radio">
+                    <label for="collection-point-store-${loopState.index}" class="g-radio-label"></label>
+                </div>
+                <div class="collection-point-store">
+                    <span>
+                       <div class="collection-point-store-name store-name" data-hal-location-id="${!empty(collectionPoint.id) ? collectionPoint.id : '' }" data-hal-location-type="${!empty(collectionPoint.type) ? collectionPoint.type : '' }"><isprint value="${collectionPoint.companyName ? collectionPoint.companyName : ''}" /></div>
+                       <isif condition="${collectionPoint.address}">
+                          <div class="store-address"><isprint value="${collectionPoint.address.streetLines[0] ? collectionPoint.address.streetLines[0] : ''}" /></div>
+                          <span class="store-city"><isprint value="${collectionPoint.address.city ? collectionPoint.address.city + ',' : ''}" /></span>
+                          <span class="store-state"><isprint value="${collectionPoint.address.state ? collectionPoint.address.state : ''}" /></span>
+                          <span class="store-postalcode"><isprint value="${collectionPoint.address.postalCode ? collectionPoint.address.postalCode : ''}" /></span>
+                       </isif>
+                    </span>
+                    <span class="collection-point-store-bottom">
+                       <div class="collection-point-store-distance">
+	                       <isif condition="${!empty(collectionPoint.distanceMiles)}">
+	                            <isprint value="${Resource.msgf('collection.point.distance', 'checkout', null, (collectionPoint.distanceMiles).toFixed(2))}" />
+	                       </isif>
+                       </div>
+                       <isset name="pickupHours" value="${collectionPoint.pickupHours}" scope="page" />
+                       <isif condition="${pickupHours && pickupHours.length > 0}">
+                          <isset name="openTimeFirst" value="${pickupHours[0].openTime}" scope="page" />
+                          <isset name="openTimeLast" value="${pickupHours[pickupHours.length -1].openTime}" scope="page" />
+                          <isset name="closeTimeFirst" value="${pickupHours[0].closeTime}" scope="page" />
+                          <isset name="closeTimeLast" value="${pickupHours[pickupHours.length -1].closeTime}" scope="page" />
+                          <isif condition="${openTimeFirst ===  openTimeLast && closeTimeFirst === closeTimeLast}">
+	                           <div class="g-tooltip">
+		                          <div class="collection-point-store-hours"><isprint value="${Resource.msg('message.store.hours','checkout',null)}" /></div>
+		                          <span class="g-tooltip-text">
+		                              <div class="date-time">
+		                                  <span><isprint value="${Resource.msgf('collection.point.days', 'checkout', null, pickupHours[0].day, pickupHours[pickupHours.length -1].day)}" /></span>
+		                                  <span class="last-child"><isprint value="${Resource.msgf('collection.point.timings', 'checkout', null, openTimeFirst, closeTimeFirst)}" /></span>
+		                              </div>
+		                           </span>
+	                           </div>
+	                      <iselse>
+		                      <div class="g-tooltip">
+		                          <div class="collection-point-store-hours"><isprint value="${Resource.msg('message.store.hours','checkout',null)}" /></div>
+		                          <span class="g-tooltip-text">
+		                              <div class="date-time">
+		                                  <span><isprint value="${Resource.msgf('collection.point.days', 'checkout', null, pickupHours[0].day, pickupHours[pickupHours.length -2].day)}" /></span>
+		                                  <span class="last-child"><isprint value="${Resource.msgf('collection.point.timings', 'checkout', null, openTimeFirst, pickupHours[pickupHours.length -2].closeTime)}" /></span>
+		                              </div>
+		                              <div class="date-time">
+		                                  <span><isprint value="${pickupHours[pickupHours.length -1].day}" /></span>
+		                                  <span class="last-child"><isprint value="${Resource.msgf('collection.point.timings', 'checkout', null, openTimeLast , closeTimeLast)}" /></span>
+		                              </div>
+		                           </span>
+	                           </div>
+                          </isif>
+                          
+                       </isif>
+                    </span>
+                </div>
+            </div>
+        </isloop>
+    </ul>
+    <div class="b-collectionpoint-buttons">
+        <button type="button" class="btn btn-outline-primary btn-collection-point-close" data-dismiss="modal">${Resource.msg('button.cancel','checkout',null)}</button>
+        <button class="btn btn-primary g-button_base g-button_primary--black select-collection-point" data-href="${URLUtils.url('CheckoutShippingServices-SelectCollectionPoint')}">${Resource.msg('button.select.collection.point','checkout',null)}</button>
+    </div>
+<iselse>
+    <p class="text-center store-locator-no-results">${Resource.msg('error.no.collection.points','checkout',null)}</p>
+</isif>

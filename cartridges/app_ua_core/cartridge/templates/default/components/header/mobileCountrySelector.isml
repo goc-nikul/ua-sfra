@@ -1,0 +1,55 @@
+<iscomment> Locale Switcher </iscomment>
+<iscomment>
+<isif condition="${pdict.localeModel.locale.localLinks.length > 0}">
+    <div class="b-navigation_utility-item js-list-item" data-cmp="localeSelector" data-url="${URLUtils.url('Page-SetLocale')}">
+        <button class="b-navigation_utility-toggle js-list-show" data-cat="${Resource.msgf('global.locale', 'locale', null)}" data-level="0">
+            <span class="b-navigation_utility-text">
+                ${pdict.localeModel.locale.language.toUpperCase()}
+            </span>
+            <span class="b-navigation_utility-title">
+                ${Resource.msg('locale.select.' + pdict.locale, 'locale', null)}
+            </span>
+        </button>
+        <ul class="b-navigation_utility-sublist js-list-wrapper" data-cat="${Resource.msgf('global.locale', 'locale', null)}">
+            <li class="b-navigation-title">
+                <span class="b-navigation-title_text">
+                    ${Resource.msg('locale.select.' + pdict.locale, 'locale', null)}
+                </span>
+            </li>
+            <li class="b-navigation_utility-subitem">
+                <a class="b-navigation_utility-sublink m-active m-link-medium" href="${'#'}"
+                    data-locale="${pdict.locale}" data-currencyCode="${pdict.localeModel.locale.currencyCode}">
+                    ${Resource.msg('locale.select.' + pdict.locale, 'locale', null)}
+                </a>
+            </li>
+            <isloop items="${pdict.localeModel.locale.localLinks}" var="localeLink">
+                <li class="b-navigation_utility-subitem">
+                    <a class="b-navigation_utility-sublink m-link-medium js-locale-item" href="${'#'}"
+                        data-locale="${localeLink.localID}" data-currencyCode="${localeLink.currencyCode}">
+                        ${Resource.msg('locale.select.' + localeLink.localID, 'locale', null)}
+                    </a>
+                </li>
+            </isloop>
+        </ul>
+    </div>
+<iselse>
+    <div class="b-navigation_utility-item">
+        <span class="b-navigation_utility-text">
+            ${pdict.localeModel.locale.language.toUpperCase()}
+        </span>
+        <span class="b-navigation_utility-title">
+            ${Resource.msg('locale.select.' + pdict.locale, 'locale', null)}
+        </span>
+    </div>
+</isif>
+</iscomment>
+<iscomment> Country Switcher </iscomment>
+<isset name="currentCountry" value="${pdict.shipCountry ? pdict.shipCountry : pdict.CountryModel.country.countryCode.toLowerCase()}" scope="page">
+<li class="b-navigation-item b-navigation-mobile-locale-item js-list-item js-accessibility-nav-item" role="none">
+    <a class="b-navigation-link m-has-sublist" href="${URLUtils.http('Page-CountriesList')}">
+        <span class="b-navigation-text">
+            <i class="b-navigation_utility-icon fflag fflag-${currentCountry.toUpperCase()}"></i>
+            <span>${Resource.msg('global.regionselection', 'locale', null)} ${currentCountry}</span>
+        </span>
+    </a>
+</li>

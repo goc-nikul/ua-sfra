@@ -1,0 +1,50 @@
+{
+    "step-types": {
+        "script-module-step": [
+            {
+                "@type-id": "custom.MembersonLoyalty.CancelMembersonVoucher",
+                "@supports-site-context": "true",
+                "module": "int_memberson/cartridge/scripts/job/cancelMembersonVoucher.js",
+                "description": "Cancel Memberson Vouchers for Unpaid and failed orders so that vouchers can be used later",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [{
+                            "@name": "startDate",
+                            "description": "Orders prior to this start date will not be queried",
+                            "@type": "date-string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "delayInHours",
+                            "description": "Only orders prior to this delay period will be queried",
+                            "@type": "double",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "endDate",
+                            "description": "Only orders prior to this date will be queried. This will override the value in 'delay' parameter",
+                            "@type": "date-string",
+                            "@required": "false"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.MembersonLoyalty.NotifyVoucherCancellation",
+                "@supports-site-context": "true",
+                "module": "int_memberson/cartridge/scripts/job/cancelMembersonVoucherNotification.js",
+                "description": "Send Voucher Cancellation Notification emails to operations team",
+                "function": "execute",
+                "parameters": {
+                    "parameter": [{
+                            "@name": "senderEmail",
+                            "description": "Notification Sender Email",
+                            "@type": "string",
+                            "@required": "true"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

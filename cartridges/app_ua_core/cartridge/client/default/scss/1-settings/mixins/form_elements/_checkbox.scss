@@ -1,0 +1,82 @@
+@mixin checkbox($el: wrapper, $input_class: '-input', $label_class: '-label') {
+    @if ($el == wrapper) {
+        line-height: 0;
+
+        &:hover &#{$label_class} {
+            opacity: 0.75;
+        }
+
+        &#{$label_class} {
+            @include t-text-3;
+
+            position: relative;
+            padding-left: rem-calc(32);
+            cursor: pointer;
+
+            &::after,
+            &::before {
+                content: '';
+                position: absolute;
+            }
+
+            &::after {
+                top: 0;
+                left: 0;
+                z-index: 1;
+                width: rem-calc(16);
+                height: rem-calc(16);
+                border: 1px solid $black;
+            }
+
+            &::before {
+                content: '\e911';
+                font-family: 'icomoon' !important;
+                font-size: rem-calc(16);
+                font-style: normal;
+                font-weight: normal;
+                line-height: 1;
+                font-variant: normal;
+                color: inherit;
+                speak: none;
+                text-transform: none;
+
+                /* Better Font Rendering =========== */
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                top: rem-calc(8);
+                left: rem-calc(8);
+                display: none;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        &#{$input_class}.m-error ~ &#{$label_class},
+        &#{$input_class}.m-invalid ~ &#{$label_class} {
+            &::after {
+                border-color: $error-color;
+            }
+        }
+
+        &#{$input_class}:checked ~ &#{$label_class} {
+            &::before {
+                display: block;
+            }
+        }
+
+        &#{$input_class}:focus ~ &#{$label_class} {
+            .m-accessible-on &::after {
+                box-shadow: 0 0 4px 1px $focus-color !important;
+            }
+        }
+
+        &#{$input_class}.m-invalid:focus ~ &#{$label_class} {
+            .m-accessible-on &::after {
+                box-shadow: 0 0 2px 0 $error-color !important;
+            }
+        }
+    }
+
+    &#{$input_class} {
+        @include hide(visually);
+    }
+}

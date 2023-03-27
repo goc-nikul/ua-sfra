@@ -1,0 +1,50 @@
+/**
+*   @input itemIds : dw.util.ArrayList Category ids to create custom objects for
+*   @input submitter : String
+*   @input languages : String
+*
+*/
+importPackage( dw.system );
+importPackage( dw.catalog );
+importPackage( dw.object );
+importPackage( dw.util );
+importScript("submitItem.ds");
+importScript("helpFunctions.ds");
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "category.sendTranslate"));
+/**
+    Create a category translation custom object instance from each passed in id.
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+
+    try {
+
+        var languages : Array = pdict.languages.split(',');
+
+        for each (var locale : String in languages) {
+
+            if (locale != "") {
+
+                for each (var id : String in pdict.itemIds) {
+                    var ids : dw.util.ArrayList = id.split(',');
+                    for each (var catId : String in ids) {
+                        var category : Category = CatalogMgr.getCategory(catId);
+                        var submission : CustomObject = issetSubmission(catId, locale);
+                        if(!submission) {
+                            var submission : CustomObject = CustomObjectMgr.createCustomObject("SMARTLING_SUBMISSION", UUIDUtils.createUUID());
+                            LOGGER.info("Created category submission for categoryId={0} and locale={1}", category.ID, locale);
+                        }
+                        LOGGER.info('Submitting category categoryId={0} for locale="{1}"', category.ID, locale);
+                        submitCategory(submission, category, pdict.submitter, locale);
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        LOGGER.errorException('category.sendTranslate execution failed, itemIds="{0}", submitter="{1}", languages="{2}"', pdict.itemIds, pdict.submitter, pdict.languages, e);
+    }
+
+    return PIPELET_NEXT;
+}

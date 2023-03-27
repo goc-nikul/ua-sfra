@@ -1,0 +1,32 @@
+/**
+ * Simple Handle Complete Purchase Status checks for CreditStatus.
+ * and returns back that to UI.  This is one way to prevent HTML Response.
+ *
+ * @input CreditCardStatus : Object
+ * @input jsonPRCart : String
+ 
+ * @output jsonPRCart : String
+ */
+
+var SRStatusCode = require("~/cartridge/scripts/util/srGlobals").SRStatusCode;
+
+function execute(args) {
+	var ccstatus = args.CreditCardStatus;
+	var jsonPRCart = args.jsonPRCart);
+	args.jsonPRCart = handlePurchase(ccstatus, jsonPRCart);
+	return PIPELET_NEXT;
+}	
+
+function handlePurchase(ccstatus, jsonPRCart) {
+	var cartJSON = JSON.parse(jsonPRCart);
+	if (ccstatus && ccstatus.error) {
+		cartJSON.status = SRStatusCode.CREDIT_CARD_AUTH_FAILURE;
+		cartJSON.message = ccstatus.message;
+	}
+	return JSON.stringify(cartJSON);
+}
+
+module.exports = {
+    execute: execute,
+	handlePurchase: handlePurchase
+};

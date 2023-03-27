@@ -1,0 +1,5 @@
+<li class="g-tabs-chip nav-item paypal-tab ${ pdict.eligiblePaymentMethods && pdict.eligiblePaymentMethods.payPal && !pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') ? '' : 'hide'}" role="tab" data-method-id="${paymentOption.ID}" data-returnfrompaypal-url="${URLUtils.url('AurusPay-ReturnFromPayPal')}">
+    <a class="g-tabs-link nav-link ${pdict.selectedPaymentMethod == paymentOption.ID ? 'active' : ''}" data-toggle="tab" href="#paypal-content" role="tab">
+        <isprint value="${Resource.msg('heading.payment.paypal', 'checkout', null)}" />
+    </a>
+</li>

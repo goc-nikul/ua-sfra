@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?demandware-pipeline version="2.0"?>
+
+<pipeline group="Extensions">
+  <description>Pipeline to extend Business Manager menu actions and include corresponding templates for visualization, forms and actions</description>
+  <branch basename="_ANONYMOUS_BRANCH_1">
+    <segment>
+      <node>
+        <text-node>
+          <description>The &quot;RecipeAssignerShow&quot; pipeline is used to render the HTML interface to the recipe assignment tool.  This tool allows merchandisers to assign Scene 7 recipes to product material assets.</description>
+        </text-node>
+        <node-display height="2" x="1" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="RecipeAssignerShow">
+    <segment>
+      <node>
+        <start-node name="RecipeAssignerShow" secure="false"/>
+        <node-display x="1" y="3"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <interaction-node transaction-required="false">
+          <template buffered="true" dynamic="false" name="extensions/site-menu/custom-recipe-assignment"/>
+        </interaction-node>
+        <node-display x="0" y="2"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_3">
+    <segment>
+      <node>
+        <text-node>
+          <description>The &quot;RecipeManagerShow&quot; pipeline is used to render the HTML interface to the recipe manager tool.  This tool allows merchandisers to define, edit, and adjust Scene 7 recipe definitions.</description>
+        </text-node>
+        <node-display height="2" x="4" y="1"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="RecipeManagerShow">
+    <segment>
+      <node>
+        <start-node name="RecipeManagerShow" secure="false"/>
+        <node-display x="4" y="3"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <interaction-node transaction-required="false">
+          <template buffered="true" dynamic="false" name="extensions/site-menu/custom-recipe-manager"/>
+        </interaction-node>
+        <node-display x="0" y="2"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="_ANONYMOUS_BRANCH_5">
+    <segment>
+      <node>
+        <text-node>
+          <description>The &quot;CheckForNewImagesShow&quot; pipeline is used to render the HTML interface for the Scene7 Images Report.  This report is used to identify products that</description>
+        </text-node>
+        <node-display height="2" x="1" y="7"/>
+      </node>
+    </segment>
+  </branch>
+  <branch basename="CheckForNewImagesShow">
+    <segment>
+      <node>
+        <start-node name="CheckForNewImagesShow" secure="false"/>
+        <node-display x="1" y="9"/>
+      </node>
+      <simple-transition/>
+      <node>
+        <interaction-node transaction-required="false">
+          <template buffered="true" dynamic="false" name="extensions/site-menu/custom-check-for-new-images"/>
+        </interaction-node>
+        <node-display x="0" y="2"/>
+      </node>
+    </segment>
+  </branch>
+</pipeline>

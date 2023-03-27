@@ -1,0 +1,221 @@
+.faq__wrapper {
+    #Devoluciones {
+        .b-return_info-list {
+            margin-top: rem-calc(20);
+
+            .b-return_info-item {
+                float: left;
+                display: table;
+                vertical-align: top;
+                width: 31%;
+                margin: rem-calc(0) rem-calc(11) rem-calc(30) rem-calc(0);
+
+                @include respond-to(tablets) {
+                    width: auto;
+                }
+
+                @include respond-to(phones) {
+                    width: 100%;
+                    min-height: rem-calc(40);
+                    margin: rem-calc(0) rem-calc(0) rem-calc(5);
+                    display: block;
+                    position: relative;
+                }
+            }
+
+            .b-return_info-icon {
+                font-size: rem-calc(14);
+                width: rem-calc(39);
+                height: rem-calc(39);
+                display: table-cell;
+                padding: rem-calc(0) rem-calc(20) rem-calc(0) rem-calc(0);
+
+                @include respond-to(phones) {
+                    font-size: rem-calc(14);
+                    width: rem-calc(39);
+                    height: rem-calc(39);
+                    display: table-cell;
+                    padding: rem-calc(0) rem-calc(20) rem-calc(0) rem-calc(0);
+                    position: absolute;
+                    top: 50%;
+                    left: 0;
+                    margin-top: rem-calc(-20);
+                }
+            }
+
+            .b-return_info-desc {
+                font-size: rem-calc(13);
+                width: rem-calc(123);
+                display: table-cell;
+                vertical-align: middle;
+                line-height: rem-calc(18);
+
+                @include respond-to(phones) {
+                    width: 100%;
+                    height: rem-calc(40);
+                    padding-left: rem-calc(50);
+                    text-align: left;
+                }
+            }
+        }
+    }
+
+    .faq__q-and-a {
+        display: inline-block;
+    }
+}
+
+.b-customer-returns {
+    .mobile-collapse-content {
+        ul {
+            line-height: rem-calc(25);
+            margin: rem-calc(16) 0;
+            padding: 0 rem-calc(24);
+
+            @include respond-to(mobile) {
+                padding: 0;
+                display: inline-block;
+                margin-top: 0;
+            }
+        }
+    }
+
+    .b-return_info-item {
+        list-style: none;
+        border-bottom: rem-calc(1) solid transparent !important;
+        float: left;
+        display: table;
+        vertical-align: top;
+        width: 31%;
+        margin: 0 2% rem-calc(30) 0;
+
+        @include respond-to(mobile) {
+            width: 100%;
+            min-height: rem-calc(40);
+            margin: 0 0 rem-calc(5);
+            display: block;
+            position: relative;
+            list-style: none;
+            float: left;
+            vertical-align: top;
+        }
+    }
+
+    .b-return_info-icon {
+        padding: 0 rem-calc(10) 0 0;
+        font-size: rem-calc(14);
+        width: rem-calc(39);
+        height: rem-calc(39);
+        display: table-cell;
+
+        @include respond-to(mobile) {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            margin-top: rem-calc(-20);
+            padding: 0 rem-calc(10) 0 0;
+            font-size: rem-calc(14);
+            width: rem-calc(39);
+            height: rem-calc(39);
+            display: table-cell;
+        }
+    }
+
+    .b-return_info-desc {
+        font-size: rem-calc(13);
+        display: table-cell;
+        vertical-align: middle;
+        line-height: rem-calc(18);
+        width: 65%;
+
+        @include respond-to(mobile) {
+            width: 100%;
+            height: rem-calc(40);
+            padding-left: rem-calc(50);
+            text-align: left;
+            font-size: rem-calc(13);
+            display: table-cell;
+            vertical-align: middle;
+            line-height: rem-calc(18);
+        }
+    }
+}
+
+.ua-returns-container {
+    .backbtn {
+        display: none;
+    }
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none !important;
+}
+
+.b-customer-mx {
+    .b-rx-title {
+        padding: 0 0 rem-calc(11);
+        text-transform: uppercase;
+        font-size: rem-calc(21);
+        margin: 0;
+        font-weight: bold;
+    }
+
+    .b-rx-title {
+
+        @include respond-to(mobile) {
+            margin: 0;
+            line-height: rem-calc(18);
+            display: flex;
+            border-bottom: none;
+            border-top: rem-calc(1) solid #ccc;
+            font-size: rem-calc(16);
+            font-weight: 700;
+            position: relative;
+            text-transform: capitalize;
+            cursor: pointer;
+            padding: rem-calc(12) 0;
+        }
+    }
+
+    .desk-accord-plus {
+
+        @include respond-to(mobile) {
+            position: absolute;
+            top: rem-calc(17);
+            right: rem-calc(15);
+            font-weight: 400;
+        }
+    }
+
+    .desk-accord-plus {
+
+        @include respond-to(mobile) {
+            &::after {
+                content: "+";
+                font-size: rem-calc(25);
+                font-weight: 700;
+            }
+        }
+    }
+
+    .mobile-collapse-content {
+
+        @include respond-to(mobile) {
+            display: none;
+        }
+    }
+
+    .mobile-collapse-content.show {
+
+        @include respond-to(mobile) {
+            display: block;
+        }
+    }
+
+    .desk-accord-plus.show {
+
+        @include respond-to(mobile) {
+            display: none;
+        }
+    }
+}

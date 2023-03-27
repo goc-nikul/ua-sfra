@@ -1,0 +1,19 @@
+<isset name="PreferencesUtil" value="${require('~/cartridge/scripts/utils/PreferencesUtil')}" scope="page">
+<isif condition="${PreferencesUtil.isCountryEnabled('qualtricsEnabled')}">
+    <div class="b-qualitrics-link">
+        <a href="${PreferencesUtil.getValue('qualtricsSurveySourceURL')}" class="js-open-qualtrics" data-analytics-track="data-qualtrics" target="_blank">${Resource.msg('product.qualtrics.heading', 'product', null)}</a>
+    
+        <div class="g-modal g-qualtrics-modal" id="qualtricsModal" tabindex="-1" role="dialog" aria-labelledby="qualtricsModal">
+            <div class="g-modal-dialog g-qualtrics-modal-dialog" role="document">
+                <div class="g-modal-content g-qualtrics-modal-content">
+                    <div class="g-modal-header g-qualtrics-modal-header">
+                        <button type="button" class="g-modal-close" data-dismiss="modal" aria-label="Close"><div aria-hidden="true" class="g-qualtrics-modal-close g-modal-close-button"></div></button>
+                    </div>
+                    <div class="g-modal-body g-qualtrics-modal-body">
+                        <iframe name="qualtrics" id="qualtricsModal" src="${PreferencesUtil.getValue('qualtricsSurveySourceURL')}" frameborder="0" border="0" scrolling="no" style="width: 100%; min-height: 520px;"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</isif>

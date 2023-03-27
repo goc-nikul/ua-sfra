@@ -1,0 +1,14 @@
+<isdecorate template="common/layout/page">
+    <isinclude template="coremedia/modules.isml"/>
+    <isif condition="${CMUtil.isLiveContextEnabled()}">
+        <div class="content-wrapper">
+            <isset name="pageId" value="${pdict.content ? pdict.content.ID : ''}" scope="page"/>
+            <div class="content-primary">
+                <islcinclude pageId="${pageId}" placement="primary" prefetch="true" />
+            </div>
+            <div class="content-secondary">
+                <islcinclude pageId="${pageId}" placement="secondary" prefetch="true" />
+            </div>
+        </div>
+    </isif>
+</isdecorate>

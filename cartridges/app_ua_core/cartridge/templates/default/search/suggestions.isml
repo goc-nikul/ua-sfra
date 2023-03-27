@@ -1,0 +1,116 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<iscache hour="2" varyby="price_promotion" if="${!pdict.personalized}"/>
+
+<isset name="suggestionsCategoryAvailable" value="${pdict.suggestions.category && pdict.suggestions.category.available}"  scope="page"/>
+<isset name="suggestionsProductAvailable" value="${pdict.suggestions.product && pdict.suggestions.product.available}"  scope="page"/>
+<div class="b-suggestions js-suggestions">
+    <div class="b-suggestions-flyout">
+        <div class="b-suggestions-container" role="listbox" id="search-results">
+            <div class="b-suggestions-info">
+                <isif condition="${suggestionsCategoryAvailable}">
+                    <div class="b-suggestions-section">
+                        <div class="b-suggestions-title">
+                            ${pdict.suggestions.category.title}
+                        </div>
+                        <ul class="b-suggestions_info-list">
+                            <isloop items="${pdict.suggestions.category.categories}" var="category" status="listindex">
+                                <isset
+                                    name="suggestedCatText"
+                                    value="${!empty(category.categorySearchDisplayName) && category.categorySearchDisplayName != null ? category.categorySearchDisplayName : category.name}"
+                                    scope="page"
+                                />
+                                <isset
+                                    name="suggestedCatParText"
+                                    value="${category.parentID !== 'root' ? Resource.msg('label.suggest.in', 'search', null) + ' ' + category.parentName : ''}"
+                                    scope="page"
+                                />
+                                <li class="b-suggestions_info-item js-item" id="category-${listindex.index}" role="option">
+                                    <a class="b-suggestions_info-link" href="${category.url}"
+                                        data-analytics-track="search-suggestion"
+                                        data-analytics-value="category|${suggestedCatText} ${suggestedCatParText}"
+                                    >
+                                        <span class="b-suggestions_info-name">
+                                            ${suggestedCatText}
+                                            <isif condition="${!empty(suggestedCatParText)}">
+                                                <span class="b-suggestions_info-parent"> ${suggestedCatParText}</span>
+                                            </isif>
+                                        </span>
+                                    </a>
+                                </li>
+                            </isloop>
+                        </ul>
+                    </div>
+                </isif>
+
+                <isif condition="${!suggestionsProductAvailable && !suggestionsCategoryAvailable}">
+                    <div class="b-suggestions-section">
+                        <div class="b-suggestions-title">
+                            ${Resource.msg('label.header.search.modal.suggestions.result', 'search', null)}
+                        </div>
+                        <div class="b-suggestions-title_noresult">
+                            ${Resource.msg('label.header.search.modal.suggestions.noresults', 'search', null)}
+                        </div>
+                        <div class="b-suggestions-text_noresult">
+                            <iscontentasset aid="no-search-results-category-text" />
+                        </div>
+                    </div>
+                </isif>
+                <isif condition="${pdict.suggestions.recent && pdict.suggestions.recent.available}">
+                    <div class="b-suggestions-section">
+                        <div class="b-suggestions-title ">
+                            ${pdict.suggestions.recent.title}
+                        </div>
+                        <ul class="b-suggestions_info-list">
+                            <isloop items="${pdict.suggestions.recent.phrases}" var="phrase" status="listindex">
+                                <li class="b-suggestions_info-item js-item" id="phrase-2-${listindex.index}" role="option">
+                                    <a class="b-suggestions_info-link name" href="${phrase.url}"
+                                        data-analytics-track="search-suggestion"
+                                        data-analytics-value="recent searches|${phrase.value}"
+                                    >${phrase.value}</a>
+                                </li>
+
+                            </isloop>
+                        </ul>
+                    </div>
+                </isif>
+            </div>
+            <div class="b-suggestions-products b-suggestions_products">
+                <div class="b-suggestions-section">
+                    <isif condition="${suggestionsProductAvailable}">
+                        <isif condition="${pdict.suggestions.product.products.length >= 4}">
+                            <div class="b-suggestions-results">
+                                <a class="b-suggestions-results-link" href="${URLUtils.url('Search-Show') + '?q=' + pdict.CurrentHttpParameterMap.q.stringValue}">${Resource.msg('refinements.viewall', 'search', null)}</a>
+                            </div>
+                        </isif>
+                        <div class="b-suggestions-title">
+                            ${pdict.suggestions.product.title}
+                        </div>
+                        <ul class="b-suggestions_products-list">
+                            <isloop items="${pdict.suggestions.product.products}" var="product" status="listindex">
+                                <isif condition="${listindex.index < 4}">
+                                    <isif condition="${(pdict.enableAvailablePerLocale && product.custom.availableForLocale.value !== 'No') || !pdict.enableAvailablePerLocale}">
+                                        <li class="b-suggestions_products-item js-item b-tile" id="product-${listindex.index}" role="option"
+                                            data-analytics-track="search-suggestion"
+                                            data-analytics-value="product|${product.productName}"
+                                        >
+                                            <isinclude url="${URLUtils.url('Tile-Show', 'pid', product.id)}"/>
+                                        </li>
+                                    </isif>
+                                 </isif>
+                            </isloop>
+                        </ul>
+                    <iselse/>
+                        <div class="b-suggestions-recommendation">
+                            <div class="b-suggestions-title">
+                                ${Resource.msg('search.recommendation.title', 'search', null)}
+                            </div>
+                            <div class="b-suggestions-recommendation_container">
+                                <isslot id="no-search-results-product-recommendations" description="Slot no search results product recommendations" context="global" />
+                            </div>
+                        </div>
+                    </isif>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

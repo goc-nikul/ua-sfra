@@ -1,0 +1,24 @@
+    <iscontent type="text/html" charset="UTF-8" compact="true"/>
+<iscomment>
+    This template renders a content retrieved from the CoreMedia CMS into a content slot.
+</iscomment>
+<isinclude template="coremedia/modules.isml"/>
+
+<isset name="pageId" value="${CMUtil.pageId(pdict)}" scope="page"/>
+<isset name="categoryId" value="${CMUtil.categoryId(pdict)}" scope="page"/>
+<isset name="productId" value="${CMUtil.productId(pdict)}" scope="page"/>
+<isset name="placementName" value="" scope="page"/>
+<isset name="viewName" value="" scope="page"/>
+
+<isif condition="${!empty(slotcontent)}">
+    <isif condition="${!empty(slotcontent.custom['coremediaId'])}">
+        <isset name="pageId" value="${slotcontent.custom['coremediaId']}" scope="page"/>
+    </isif>
+    <isif condition="${!empty(slotcontent.custom['coremediaPlacement'])}">
+        <isset name="placementName" value="${slotcontent.custom['coremediaPlacement']}" scope="page"/>
+    </isif>
+    <isif condition="${!empty(slotcontent.custom['coremediaView'])}">
+        <isset name="viewName" value="${slotcontent.custom['coremediaView']}" scope="page"/>
+    </isif>
+</isif>
+<islcinclude pageId="${pageId}" categoryId="${categoryId}" productId="${productId}" placement="${placementName}" view="${viewName}" prefetch="true"/>

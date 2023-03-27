@@ -1,0 +1,37 @@
+<form
+    id="gated-waitlist-form"
+    class="b-gated-enrollment_waitlist-form"
+    action="${pdict.pageData.formActions.waitList}"
+    method="POST"
+    novalidate
+    <isprint value="${pdict.pageData.forms.waitList.attributes}" encoding="off" />
+    >
+    <div class="b-gated-enrollment_header_bold">
+        <isprint value="${Resource.msg('loyalty.gated.waitlist.header','loyalty', null)}" encoding="off" />
+    </div>
+    <div class="b-gated-enrollment_header b-gated-enrollment_header-waitlist">
+        <isprint value="${Resource.msg('loyalty.gated.waitlist.subheader','loyalty', null)}" encoding="off" />
+    </div>
+    <div class="form-group b-input_row b-gated-enrollment_input-waitlist required">
+        <label class="form-control-label b-input_row-label" for="email">
+            <isprint value="${pdict.pageData.forms.waitList.email.label}" encoding="htmlcontent" />
+        </label>
+        <input
+            id="email"
+            type="text"
+            class="form-control b-input_row-input js-custom-input js-email-field"
+            autocomplete="postal-code"
+            data-pattern-mismatch="${Resource.msg('error.message.mismatch.login.email', 'forms', null)}"
+            data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
+            <isprint value="${pdict.pageData.forms.waitList.email.attributes}" encoding="off" />
+            />
+        <input
+            id="zipCode"
+            type="hidden"
+            value="${pdict.pageData.zipCode}"
+            name="${pdict.pageData.forms.waitList.postalCode.htmlName}" />
+        <div class="invalid-feedback"></div>
+    </div>
+    <button type="submit" class="btn btn-block g-button_primary--black g-button_base b-gated-enrollment_submit" data-analytics-track="loyalty-waitlist">${Resource.msg('loyalty.gated.waitlist.submit','loyalty', null)}</button>
+    <input type="hidden" name="${pdict.pageData.csrf.tokenName}" value="${pdict.pageData.csrf.token}"/>
+</form>

@@ -1,0 +1,56 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<form action="${URLUtils.url('Order-Track')}" class="trackorder" method="POST" name="trackorder-form" data-cmp="formGeneric">
+    <iscontentasset aid="guest-track-order-text" />
+    <div class="card-body">
+        <isif condition="${pdict.orderTrackFormError}">
+            <div class="form-group">
+                <div class="alert alert-danger" data-analytics-type="order-track-err" role="alert">
+                    <strong>${pdict.orderTrackFormError}</strong>
+                </div>
+            </div>
+        </isif>
+
+        <div class="b-order_track-row form-group b-input_row required">
+             <label class="b-input_row-label form-control-label">${Resource.msg('label.input.trackorder.ordernumber', 'login', null)}
+                 <span class="b-input_row-label_simple">*</span>
+             </label>
+             <input
+                 type="text"
+                 required
+                 class="form-control b-input_row-input"
+                 aria-describedby="form-number-error"
+                 id="trackorder-form-number"
+                 name="trackOrderNumber"
+                 data-missing-error="${Resource.msg('error.track.info.missing.number', 'forms', null)}">
+             <div class="invalid-feedback" id="form-number-error"></div>
+        </div>
+
+        <div class="b-order_track-row form-group b-input_row required">
+             <label class="b-input_row-label form-control-label">${Resource.msg('label.input.trackorder.orderemail', 'login', null)}
+                 <span class="b-input_row-label_simple">*</span>
+             </label>
+             <input
+                 type="text"
+                 required
+                 class="form-control b-input_row-input js-custom-input"
+                 id="trackorder-form-email"
+                 aria-describedby="form-email-error"
+                 name="trackOrderEmail"
+                 pattern="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$"
+                 maxlength="50"
+                 data-missing-error="${Resource.msg('error.track.info.missing.email', 'forms', null)}"
+                 data-pattern-mismatch="${Resource.msg('error.message.parse.email.profile.form', 'forms', null)}" 
+                 data-range-error="${Resource.msg('error.message.lessthan50', 'forms', null)}">
+             <div class="invalid-feedback" id="form-number-error"></div>
+        </div>
+
+        <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+
+        <div class="form-group">
+            <button class="b-order_track-button g-button_base g-button_primary--black js-order_track-button" type="submit" name="submit" value="submit">
+                ${Resource.msg('button.text.trackorderform', 'login', null)}
+            </button>
+        </div>
+        <div class="b-order_track-link"><a href="${pdict.customer ? URLUtils.url('Order-History') : URLUtils.url('Login-Show', 'orderHistory', true)}" class="">${Resource.msg('label.orderhistoryfull','login',null)}</a></div>
+    </div>
+</form>

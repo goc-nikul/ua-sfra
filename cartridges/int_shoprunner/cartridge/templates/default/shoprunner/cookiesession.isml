@@ -1,0 +1,11 @@
+<!--- TEMPLATENAME: cookiesession.isml --->
+
+<isif condition="${!empty(pdict.ValidToken)}">
+	<iscookie name="sr_token" value="${pdict.ValidToken}" secure="off" path="/" >
+<iselse>
+	<iscookie name="sr_token" value="${null}" maxAge="0" secure="off" path="/">
+</isif>
+
+<isif condition="${!empty(pdict.CurrentForms.multishipping) || !empty(pdict.CurrentForms.singleshipping)}">
+   <script type="text/javascript" src="${URLUtils.staticURL('/js/pr_actions.js')}"></script>
+</isif> 

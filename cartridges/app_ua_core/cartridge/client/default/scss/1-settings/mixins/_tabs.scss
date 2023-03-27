@@ -1,0 +1,71 @@
+@mixin g-tabs-layout {
+    overflow: hidden;
+
+    &-link {
+        position: relative;
+        display: block;
+        padding: 0 spacing(sm);
+        @include font(main_med, rem-calc(16), 1.5);
+
+        text-decoration: none;
+        color: $black;
+        opacity: 0.6;
+    }
+
+    &-link.active {
+        opacity: 1;
+        @include font(main_med, rem-calc(16), 1.5);
+
+        &::before {
+            content: '';
+            position: absolute;
+            right: spacing(sm);
+            top: 100%;
+            left: spacing(sm);
+            border-bottom: 2px solid $black;
+        }
+    }
+
+    &-chips {
+        display: flex;
+        margin-bottom: spacing(sm);
+        margin-left: -(spacing(sm));
+    }
+
+    &-chip {
+        position: relative;
+
+        &:not(:last-child) {
+            &::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                border-right: 1px solid $grey3;
+            }
+        }
+    }
+
+    &-pane {
+        display: none;
+    }
+
+    &-pane.active {
+        display: block;
+    }
+}
+
+@mixin g-tabs($parent: &, $breakpoint: null) {
+    @if ($breakpoint == null) {
+        #{$parent} {
+            @include g-tabs-layout;
+        }
+    } @else {
+        @include respond-to($breakpoint) {
+            #{$parent} {
+                @include g-tabs-layout;
+            }
+        }
+    }
+}

@@ -1,0 +1,23 @@
+<isset name="order" value="${pdict.order}" scope="page" />
+<isset name="isUACAPIEnabled" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('orderHistoryDetailsProvider') && dw.system.Site.getCurrent().getCustomPreferenceValue('orderHistoryDetailsProvider').value === 'UACAPI'}" scope="page" />
+
+<div class="account-order-details-container">
+    <isinclude template="account/order/orderProductSummary" />
+    <isif condition="${!pdict.hideOrderSummary && empty(pdict.exchangeOrder)}">
+        <div class="card checkout-order-total-summary">
+            <div class="card-body order-total-summary">
+                <h2 class="order-summary_title">
+                <isif condition="${pdict.rmaDetailsPage}">
+                    ${Resource.msg('heading.return.summary', 'checkout', null)}
+                <iselse>
+                    ${Resource.msg('heading.order.summary', 'checkout', null)}
+                </isif>
+                </h2>
+                <isinclude template="account/order/orderTotalSummary" />
+            </div>
+			<isif condition="${isUACAPIEnabled}">
+                <isinclude template="account/order/orderCancel" />
+            </isif>
+        </div>
+    </isif>
+</div> 

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19">
+
+    <!-- fields for email and phone number -->
+    
+    <field formid="firstName" label="label.input.firstname.profile" type="string" mandatory="true" binding="firstName"
+           max-length="100" missing-error="address.firstname.missing" range-error="error.message.lessthan50"/>
+    <field formid="lastName" label="label.input.lastname.profile" type="string" mandatory="true" binding="lastName" max-length="100"
+           missing-error="address.lastname.missing" range-error="error.message.lessthan50"/>  
+               
+    <field formid="email" label="profile.email" type="string" mandatory="true" binding="email"
+           max-length="50" regexp="s*^[\w.%+-]+@[\w.-]+\.[\w]{2,6}\s*$" missing-error="error.card.info.missing.email"
+           parse-error="error.message.parse.email.profile.form" range-error="error.message.lessthan50"
+           value-error="ValueErrorText" required="" />
+
+    <field formid="phone" label="profile.phone" description="address.phone.example" type="string" mandatory="true"
+           binding="phone" min-length="0" max-length="20" regexp="^[0-9- \)\(+]{9,20}$" missing-error="error.card.info.missing.phone" range-error="error.message.between10and20" />
+    <field formid="countryDialingCode" label="label.input.countryDialingCode" type="string" mandatory="true" binding="countryDialingCode" missing-error="error.message.required">
+       <options>
+              <option optionid=""    label="label.select" value=""/>
+              <option optionid="+60" label="+60"         value="+60"/>
+              <option optionid="+65" label="+65" value="+65"/>
+              <option optionid="+62" label="+62" value="+62"/>
+              <option optionid="+852"   label="+852" value="+852"/>
+              <option optionid="+63"   label="+63" value="+63"/>
+              <option optionid="+66"   label="+66"  value="+66"/>
+       </options>
+   </field>
+</form>

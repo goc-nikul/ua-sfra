@@ -1,0 +1,48 @@
+/**
+*
+*   @input searchPhraze : String
+*   @input ascDesc : String
+*   @input sortField : String
+*   @input status : String
+*   @input itemType : String
+*   @output coList : dw.util.SeekableIterator
+*
+*/
+importPackage( dw.system );
+importPackage( dw.object );
+importPackage( dw.util );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "submissionBoard.sort"));
+
+/**
+    Sort submissions based on phrase, field, or type.
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        var request : String = "";
+
+        if (pdict.searchPhraze != null ) {
+            request = "custom.itemId ILIKE '*" + pdict.searchPhraze + "*' OR custom.itemName ILIKE '*" + pdict.searchPhraze + "*' OR custom.source ILIKE '*" + pdict.searchPhraze + "*'";
+        } else {
+            var filterParameter : ArrayList = new ArrayList;
+
+            if (pdict.itemType != null && pdict.itemType != "") {
+                filterParameter.push("custom.itemType = '" + pdict.itemType + "'");
+            }
+
+            if (pdict.status != null && pdict.status != "") {
+                filterParameter.push("custom.status = '" + pdict.status + "'");
+            }
+
+            request = filterParameter.join(" AND ");
+        }
+        pdict.coList = CustomObjectMgr.queryCustomObjects('SMARTLING_SUBMISSION', request, "custom." + pdict.sortField + " " + pdict.ascDesc);
+    } catch (e) {
+        LOGGER.errorException('submissionBoard.sort failed, searchPhraze="{0}", ascDesc={1}, sortField={2}, status={3}, itemType={4}', pdict.searchPhraze, pdict.ascDesc, pdict.sortField, pdict.status, pdict.itemType, e);
+        return PIPELET_ERROR;
+    }
+
+   return PIPELET_NEXT;
+}

@@ -1,0 +1,28 @@
+<iscomment> Init Paymetrics iframe </iscomment>
+<isset name="PaymetricHelper" value="${require('~/cartridge/scripts/util/PaymetricHelper')}" scope="page"/>
+<isset name="PaymetricURL" value="${PaymetricHelper.getPaymentFormURLs()}" scope="page"/>
+<isset name="inactiveCardTypes" value="${PaymetricHelper.getInactiveCardTypes()}" scope="page"/>
+<script src="${PaymetricURL.fullPath}"></script>
+
+<iscomment> Iframe placeholder/wrapper </iscomment>
+<div class="payment-sandbox-wrapper">
+    <isif condition="${pdict.customer.registeredUser}"> 
+        <div class="b-credit-card-form ${pdict.customer.registeredUser && pdict.customer.customerPaymentInstruments.length && !pdict.customer.customerAllCreditCardsDisable ? '' : 'hide'}">
+            <div class="b-credit-card-heading">${Resource.msg('label.payment.new.card', 'payment', null)}</div>
+            <div class="form-group g-checkbox b-account_save-default">
+                <input type="checkbox" class="g-checkbox-input form-control" id="makeDefaultPayment" name="${pdict.forms.billingForm.creditCardFields.defaultCard.htmlName}"
+                <isprint value=${pdict.forms.billingForm.creditCardFields.defaultCard.attributes} encoding="off"/> >
+                <label class="g-checkbox-label" for="makeDefaultPayment">
+                    ${Resource.msg('label.payment.checkbox.makedefault', 'payment', null)}
+                </label>
+            </div>
+            <div class="required-fields"><isprint value="${Resource.msgf('label.creditcard.requiredfields','checkout',null)}" /></div>
+        </div>
+    </isif>
+    <div id="payment-sandbox-container" class="payment-sandbox-container" data-locale="${pdict.CurrentRequest.locale.split('_')[0]}" data-is-csr="${pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR')}" data-inactive-card-types="${!empty(inactiveCardTypes) ? inactiveCardTypes : ''}" data-url="${PaymetricURL.domain}" data-currency="${pdict.CurrentSession.currency.currencyCode}" style="height: 350px"></div>
+</div>
+
+<isscript>
+    var assets = require('*/cartridge/scripts/assets.js');
+    assets.addJs('/js/paymetric.js');
+</isscript>

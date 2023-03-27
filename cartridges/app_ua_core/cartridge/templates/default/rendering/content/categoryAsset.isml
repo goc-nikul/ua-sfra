@@ -1,0 +1,9 @@
+<isdecorate template="common/layout/page">
+    <isset name="assetID" value="${pdict.category.custom.catAssetID}" scope="page"/>
+    <isset name="myContent" value="${dw.content.ContentMgr.getContent(assetID)}" scope="page"/>
+    <div class="content-wrapper content-asset__${assetID}">   
+        <isif condition="${!empty(myContent)}">
+            <isprint value="${myContent.custom.body}" encoding="off"/>
+        </isif>
+    </div>
+</isdecorate>

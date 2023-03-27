@@ -1,0 +1,43 @@
+/* Page class name in static pages */
+$pagenames:
+    'b-account-dashboard' b-account-dashboard,
+    'b-account-profile' b-account-profile,
+    'b-account-payment' b-account-payment,
+    'b-account-address' b-account-address,
+    'b-account-history' b-account-history;
+
+.b-account {
+    &-left_nav {
+        a {
+            @include font(main, rem-calc(16), 1.5);
+
+            @include respond-to(mobile) {
+                @include font(main, rem-calc(14), 1.5);
+            }
+
+            letter-spacing: 0.5px;
+            color: $black;
+            margin-bottom: rem-calc(16);
+            display: inline-block;
+            cursor: pointer;
+            text-decoration: none;
+        }
+    }
+
+    @each $pagename in $pagenames {
+        &.#{nth($pagename, 1)} {
+            .b-account-left_nav {
+                .#{nth($pagename, 2)} {
+                    a {
+                        font-weight: 600;
+                        text-decoration: underline;
+
+                        @include respond-to(mobile) {
+                            @include font(main_med, rem-calc(14), 1.5);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

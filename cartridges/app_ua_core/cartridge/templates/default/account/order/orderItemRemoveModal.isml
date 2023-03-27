@@ -1,0 +1,20 @@
+<div class="g-modal g-product-modal" id="js-orderItemRemoveModal" tabindex="-1" role="dialog" aria-labelledby="removeProductLineItemModal">
+    <div class="g-modal-dialog itemRemove-modal-dialog" role="document">
+        <div class="g-modal-content itemRemove-modal-content">
+            <div class="g-modal-body itemRemove-modal-body">
+                Remove this item?
+               
+                <img class="itemRemove-img" src="" alt="${Resource.msg('text.remove.product.line.item', 'cart', null)}" title="${Resource.msg('button.remove.item.confirm', 'cart', null)}">
+            
+            </div>
+            <div class="itemRemove-modal-footer">
+                <button type="button" class="g-button_base btn-itemRemove g-button_secondary--black btn btn-outline-primary" data-dismiss="modal">${Resource.msg('button.nevermind.cancel','cart',null)}</button>
+                <button type="button" class="g-button_base btn-itemRemove g-button_primary--black btn btn-primary js-confirm-orderItem-remove"
+                        data-dismiss="modal" data-url="${pdict.returnRefreshURL}" data-product="">
+                    ${Resource.msg('button.remove.item.confirm','cart',null)}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+

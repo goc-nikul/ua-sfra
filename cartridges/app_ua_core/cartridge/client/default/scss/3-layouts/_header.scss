@@ -1,0 +1,125 @@
+.l-header {
+    z-index: 101;
+    background-color: $black;
+
+    &-divider {
+        @include respond-to(mobile) {
+            position: relative;
+            z-index: 102;
+        }
+
+        height: 1px;
+        border: 0;
+        background-color: $white;
+    }
+
+    &-section_top,
+    &-section_bottom {
+        @include grid-container;
+    }
+
+    &-section_top {
+        height: rem-calc(40);
+    }
+
+    &-section_bottom {
+        @include respond-to(mobile) {
+            position: relative;
+            height: rem-calc(56);
+        }
+
+        &.m-sticky {
+            background: $black;
+        }
+    }
+
+    &-inner {
+        display: flex;
+        height: 100%;
+    }
+
+    &-utility {
+        justify-content: space-between;
+
+        @include respond-to(tablets) {
+            @include grid-col(1, 8);
+        }
+
+        @include respond-to(phones) {
+            flex: 1 1 33.33%;
+            max-width: 33.33%;
+        }
+
+        @include respond-to(desktop) {
+            justify-content: flex-end;
+        }
+    }
+
+    &-toggle {
+        display: flex;
+        align-items: center;
+
+        @include respond-to(tablets) {
+            @include grid-col(1, 8);
+        }
+
+        @include respond-to(phones) {
+            flex: 1 1 33.33%;
+            max-width: 33.33%;
+        }
+
+        @include respond-to(desktop) {
+            display: none;
+
+            &.l-header-utility {
+                display: none !important;
+            }
+        }
+    }
+
+    &-logo,
+    &-utility {
+        display: flex;
+        align-items: center;
+
+        @include respond-to(desktop) {
+            @include grid-col(3);
+        }
+    }
+
+    &-logo {
+        @include respond-to(mobile) {
+            flex: 1 1 auto;
+            justify-content: center;
+        }
+    }
+
+    &-nav {
+        @include respond-to(desktop) {
+            @include grid-col(6);
+        }
+
+        @media screen and (min-width: 1000px) and (max-width: 1440px) {
+            padding-right: 5.75rem;
+        }
+    }
+}
+
+.l-header-toggle {
+    .b-navigation_utility {
+        &-link {
+            color: $white;
+            font-size: rem-calc(16);
+            padding: rem-calc(15);
+            width: rem-calc(48);
+            height: rem-calc(48);
+        }
+
+        &-icon {
+            &::before {
+                font-size: rem-calc(16);
+            }
+        }
+    }
+}
+

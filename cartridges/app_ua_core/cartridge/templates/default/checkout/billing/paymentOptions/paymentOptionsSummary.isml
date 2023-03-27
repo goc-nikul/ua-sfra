@@ -1,0 +1,28 @@
+<div class="payment-details" data-allotment-points-applied="${Resource.msg('vip.label.allotment.points.applied.label', 'checkout', null)}" data-gift-card-type="${Resource.msg('giftcard.payment.title', 'giftcards', null)}">
+    <isloop items="${pdict.order.billing.payment.selectedPaymentInstruments}" var="payment">
+        <isif condition="${payment.paymentMethod === 'GIFT_CARD'}"> 
+            <isinclude template="checkout/billing/paymentOptions/giftCardSummary"/>
+        </isif>
+        <isif condition="${payment.paymentMethod === 'VIP_POINTS'}"> 
+            <isinclude template="checkout/billing/paymentOptions/vipSummary"/>
+        </isif>        
+        <isif condition="${payment.paymentMethod === 'CREDIT_CARD' || payment.paymentMethod === 'Paymetric' || payment.paymentMethod === 'AURUS_CREDIT_CARD'}">
+            <isinclude template="checkout/billing/paymentOptions/creditCardSummary" />
+        </isif>
+        <isif condition="${payment.paymentMethod === 'PayPal'}">
+            <isinclude template="paypal/checkout/paypalSummary" />
+        </isif>
+        <isif condition="${payment.paymentMethod === 'DW_APPLE_PAY'}">
+            <isinclude template="checkout/billing/paymentOptions/applePaySummary" />
+        </isif>
+        <isif condition="${payment.paymentMethod === 'KLARNA_PAYMENTS'}">
+            <isinclude template="checkout/billing/paymentOptions/klarnaPaymentSummary" />
+        </isif>
+         <isif condition="${payment.paymentMethod === 'AURUS_OXXO'}">
+            <isinclude template="checkout/billing/paymentOptions/oxxoPaymentSummary" />
+        </isif>
+        <isif condition="${payment.paymentMethod === 'AURUS_SAFETYPAY'}">
+            <isinclude template="checkout/billing/paymentOptions/safetyPayPaymentSummary" />
+        </isif>
+    </isloop>
+</div>

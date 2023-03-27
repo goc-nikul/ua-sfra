@@ -1,0 +1,27 @@
+<isif condition="${typeof orderConfirmationPage === 'undefined'}">
+    <isset name="orderConfirmationPage" value="${false}"  scope="page"/>
+</isif>
+
+<div class="b-header_minicart-item-name">
+    <isif condition="${lineItem.isGift}">
+        <isset name="prodURL" value="" scope="page" />
+    <iselse>
+        <isset name="prodURL" value="${URLUtils.url('Product-Show','pid',lineItem.id)}" scope="page" />
+    </isif>
+
+    <isif condition=${typeof miniCart !=='undefined' && miniCart}>
+        <a href="${typeof prodURL !=='undefined' ? prodURL :''}" class="product-item-name">
+    </isif>
+
+    <isif condition="${orderConfirmationPage}">
+    <span><a href="${prodURL}" class="b-lineitem_itemname bfx-product-name notranslate" target="_blank">
+        <isprint value=${lineItem.productName} encoding="off" />
+    </a></span>
+    <iselse/>
+        <span><isprint value=${lineItem.productName} encoding="off" /></span>
+    </isif>
+
+    <isif condition=${typeof miniCart !=='undefined' && miniCart}>
+        </a>
+    </isif>
+</div>

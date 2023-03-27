@@ -1,0 +1,46 @@
+<div class="bundled-line-item clearfix">
+    <div class="row">
+        <div class="col-lg-5 line-item-name">${productLineItem.productName}</div>
+    </div>
+    <div class="row">
+        <div class="col-lg-5">
+            <div class="row">
+                <div class="col-lg-12 d-flex flex-row">
+                    <div class="item-attributes d-flex flex-column">
+                        <isloop items="${productLineItem.variationAttributes}" var="attribute">
+                            <p class="line-item-attributes">${attribute.displayName}: ${attribute.displayValue}</p>
+                        </isloop>
+                        <div class="item-options">
+                            <isloop items="${productLineItem.options}" var="option">
+                                <div class="line-item-option">${option.displayName}</div>
+                            </isloop>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 d-lg-none"><hr class="line-item-divider"></div>
+        <div class="col-lg-7 product-card-footer">
+            <div class="row">
+                <div class="col-4">
+                    <div class="line-item-price-info">${Resource.msg('label.each.item.price','cart',null)}: </div>
+                    <span class="value">${productLineItem.bonusUnitPrice}</span>
+                </div>
+                <div class="col-4 col-lg-3 line-item-quantity">
+                    <div class="line-item-price-info">${Resource.msg('field.selectquantity','cart',null)}: </div>
+                    <div class="countItemQty"><isprint value="${productLineItem.quantity}" formatter="#"/></div>
+                </div>
+                <div class="col-4 line-item-total-price">
+                    <div class="line-item-price-info"> 
+                        ${Resource.msg('label.total.price','cart',null)}: 
+                    </div>
+                    <div class="price">
+                        <div class="pricing line-item-total-price-amount item-total-${productLineItem.UUID}">
+                            ${productLineItem.priceTotal.price}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

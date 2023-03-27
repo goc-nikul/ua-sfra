@@ -1,0 +1,49 @@
+/**
+* GetShippingObj.ds
+*   @input Basket : Object
+*   @output ShippingObj : Object
+*
+*/
+
+function execute (args) {
+	var shipping = shippingObj(args.Basket);
+	args.ShippingObj = shipping;
+	return PIPELET_NEXT;
+}
+
+function shippingObj(basket) {
+    var shippingAddress = basket.getDefaultShipment().getShippingAddress();
+	var shipping = setShippingObject(shippingAddress);
+	return shipping;
+}
+
+/******************************************************
+* function: setShippingObject
+*
+*  set the shipping object returned by processPROrder
+* 
+* input : the shipping address
+* output : the shipping object
+*
+******************************************************/
+function setShippingObject( shippingAddressObj )
+{
+	var shipping : Object = new Object();
+	if(shippingAddressObj != null)
+	{
+		shipping.shippingAddress1 = shippingAddressObj.address1;
+		shipping.shippingfirstName = shippingAddressObj.firstName;
+		shipping.shippinglastName = shippingAddressObj.lastName;
+		shipping.shippingCity = shippingAddressObj.city;
+		shipping.shippingStateCode = shippingAddressObj.stateCode;
+		shipping.shippingPostalCode = shippingAddressObj.postalCode;
+		shipping.shippingPhone = shippingAddressObj.phone;
+		shipping.shippingCountryCode = shippingAddressObj.countryCode;
+	}
+	return shipping;
+}
+
+module.exports = {
+    execute: execute,
+	shippingObj: shippingObj
+};

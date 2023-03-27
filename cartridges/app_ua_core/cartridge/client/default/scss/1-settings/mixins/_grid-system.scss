@@ -1,0 +1,71 @@
+// @description Grid system function
+// @group Grid
+// @require $media {list} - get list of breakpoints,
+//    by default using all media queries
+// @return max-width size for site width definition
+//    for each media which is configured in $container-max-widths
+// @return left and right paddings size for spaces from site width
+//    for each media which is configured in $container-margins
+
+@mixin get-container-gutter($media) {
+    @each $breakpoint in $media {
+        @if map-has-keys($break-points, $breakpoint) {
+            @include respond-to($breakpoint) {
+                @if map-has-keys($container-max-widths, $breakpoint) {
+                    max-width: map_get($container-max-widths, $breakpoint);
+                }
+                @if map-has-keys($container-margins, $breakpoint) {
+                    $grid-margins: map_get($container-margins, $breakpoint);
+
+                    @if $grid-margins != null {
+                        padding-right: rem-calc($grid-margins);
+                        padding-left: rem-calc($grid-margins);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// @description Grid system function
+// @require $media {list} - get list of breakpoints,
+//    by default using all media queries
+// @return left and right negative margins size for column gutter compensation
+//    for each media which is configured in $grid-gutter-width-map
+
+@mixin get-row-gutter($media) {
+    @each $breakpoint in $media {
+        @if map-has-keys($grid-gutter-width-map, $breakpoint) {
+            @include respond-to($breakpoint) {
+                $grid-gutter: map_get($grid-gutter-width-map, $breakpoint);
+
+                @if $grid-gutter != null {
+                    margin-right: rem-calc($grid-gutter / -2);
+                    margin-left: rem-calc($grid-gutter / -2);
+                }
+            }
+        }
+    }
+}
+
+// @description Grid system function
+// @require $media {list} - get list of breakpoints,
+//    by default using all media queries
+// @return left and right paddings size for column gutters
+//    for each media which is configured in $grid-gutter-width-map
+
+@mixin get-col-gutter($media) {
+    @each $breakpoint in $media {
+        @if map-has-keys($grid-gutter-width-map, $breakpoint) {
+            @include respond-to($breakpoint) {
+                $grid-gutter: map_get($grid-gutter-width-map, $breakpoint);
+
+                @if $grid-gutter != null {
+                    padding-right: rem-calc($grid-gutter / 2);
+                    padding-left: rem-calc($grid-gutter / 2);
+                    box-sizing: border-box;
+                }
+            }
+        }
+    }
+}

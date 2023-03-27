@@ -1,0 +1,36 @@
+<div class="col-xs-12">
+    <div class="form-group">
+        <label>${Resource.msg('msg.sdl.configure.parent.lavel', 'SDLTranslation', null)}</label>
+        <input type="checkbox"
+            id="sdlIsParentLevelTranslation"
+            onchange="sdlShowLocales(this)"
+            <isif condition="${pdict.ConfigObj.
+IsParentLevelTranslation == true}">checked="true" </isif>
+        />
+    </div>
+</div>
+
+<div class="col-xs-12 ${pdict.ConfigObj.
+IsParentLevelTranslation == false ? 'hide' : ''}" id="sdlLocalesDiv">
+    <table id="sdlLanguageMapTable" class="table table-striped table-bordered">
+        <tbody>
+            <isloop items="${pdict.ConfigObj.localesString.Languages}" var="eachLanguage" status="loopStatus">
+                <tr id="${eachLanguage.LanguageCode}">
+                    <td>
+                        <label>${eachLanguage.Name}</label>
+                    </td>
+                    <td>
+                        <select class="form-control languages" id="sdlLocales_${loopStatus.index}" name="${eachLanguage.LanguageCode}">
+                            <option value="None">None</option>
+                            <isloop items="${eachLanguage.Variants}" var="eachVariant" status="sam">
+                                <option value="${eachVariant.VariantCode}" <isif condition="${pdict.ConfigObj.languagesMap && pdict.ConfigObj.languagesMap[eachLanguage.LanguageCode] != undefined && pdict.ConfigObj.languagesMap[eachLanguage.LanguageCode] != null && pdict.ConfigObj.languagesMap[eachLanguage.LanguageCode] == eachVariant.VariantCode}">selected="true" </isif>>
+                                    ${eachVariant.VariantName}
+                                </option>
+                            </isloop>
+                        </select>
+                    </td>
+                </tr>
+            </isloop>
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,70 @@
+/* API includes */
+var Customer = require('dw/customer/Customer');
+var ProductList  = require('dw/customer/ProductList');
+var ProductListMgr  = require('dw/customer/ProductListMgr');
+
+/**
+* createProductList.ds
+* Remove any PayRunner-specific product lists assigned to current customer,
+* then create a new PayRunner-specific product list.
+*
+*   @input Customer : dw.customer.Customer; 
+*	@output ProductList : dw.customer.ProductList;
+*
+*/
+
+function execute(args) {
+	var ShopRunnerBasket = create(args.CurrentCustomer);
+	args.ProductList = ShopRunnerBasket;
+    return PIPELET_NEXT;
+}
+
+function create(customer) {
+	// Init vars
+    var ProductListIterator;
+    var CurrentProductLists;
+    
+    // Get any custom product lists currently assigned to customer
+    CurrentProductLists = ProductListMgr.getProductLists(customer,ProductList.TYPE_CUSTOM_3);
+      
+    // Get any PAYRUNNER-specific product list and remove it
+    var MyProductList = findPayRunnerProductList(CurrentProductLists); 
+    if (MyProductList != null) {
+         ProductListMgr.removeProductList(MyProductList);
+    }
+    
+    // Create a new product list using the current ShopRunner basket for the current customer
+	var ShopRunnerBasket = ProductListMgr.createProductList(Customer,ProductList.TYPE_CUSTOM_3);
+	
+	// Set new product list properties
+	ShopRunnerBasket.setDescription("Payrunner - saved basket");   
+	ShopRunnerBasket.setPublic(false);
+	ShopRunnerBasket.setEventType("PAYRUNNER");
+    
+    // Assign output variable
+	return ShopRunnerBasket;
+}
+
+
+function findPayRunnerProductList (ActiveProductLists) {
+	
+	// Ensure product list has products
+	if (ActiveProductLists.length ==== 0)
+		return null;
+
+	// Return product list if it is PAYRUNNER-specific
+	if (ActiveProductLists.length > 0) {
+		ProductListIterator =  ActiveProductLists.iterator();
+		while (ProductListIterator.hasNext()) {
+			var productList = ProductListIterator.next();
+			if (productList.eventType === "PAYRUNNER")  {
+				return productList;	
+			}  
+		}
+ 	}	
+}
+
+module.exports = {
+    execute: execute,
+	create: create
+};

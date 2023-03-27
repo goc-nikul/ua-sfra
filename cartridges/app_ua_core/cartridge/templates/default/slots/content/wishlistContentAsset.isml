@@ -1,0 +1,9 @@
+<isif condition="${slotcontent != null}">
+	<isloop items="${slotcontent.content}" var="contentAsset">
+		<isif condition="${(pdict.CurrentCustomer.getProductLists(dw.customer.ProductList.TYPE_WISH_LIST)[0] == null || pdict.CurrentCustomer.getProductLists(dw.customer.ProductList.TYPE_WISH_LIST)[0].items.length == 0) && dw.content.ContentMgr.getContent('wishlist-no-saved-items').online}">
+			<isprint value="${dw.content.ContentMgr.getContent('wishlist-no-saved-items').custom.body}" encoding="off"/>
+		<iselse>
+			<isprint value="${contentAsset.custom.body}" encoding="off"/>
+		</isif>
+	</isloop>
+</isif>

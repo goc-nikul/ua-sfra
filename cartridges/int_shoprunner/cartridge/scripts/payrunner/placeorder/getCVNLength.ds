@@ -1,0 +1,25 @@
+/**
+*	This script will dynamicaly set the cvn digits number and format
+*
+*   @input CreditCardType : String
+*   @output CvnNumber : String
+*
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+
+function execute( args : PipelineDictionary ) : Number
+{
+	/*
+		Remove CVV default of ‘000’and pass it as empty (Required only for Express Checkout implementation)
+		Payment pipeline defaults where we default CVV to ‘000’. While a majority of the issuers will issue a soft decline for CVV mismatch, 
+		some issuers will return a hard decline causing the EC transactions to fail.
+ 		To fix the issue delete "000" in Assign pipelet node on Pipeline PayRunner-Billing. 
+ 		Your implementation could be a bit different but following screenshot in the pipelet should help developers 
+ 		locate where CVV is assigned a default value and makes necessary changes to any customized payment pipeline as required.
+	*/
+    args.CvnNumber  = null;
+	return PIPELET_NEXT;
+}   	
+

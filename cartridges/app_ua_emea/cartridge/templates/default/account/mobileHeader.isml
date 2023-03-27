@@ -1,0 +1,111 @@
+<div class="b-navigation_utility-item js-list-item bfx-remove-element">
+    <isif condition="${empty(pdict.name)}">
+        <a class="b-navigation_utility-link js-login" href="${URLUtils.https('Login-Show')}" role="button"
+            aria-label="${Resource.msg('label.header.loginbutton', 'account', null)}">
+            <i class="b-navigation_utility-icon m-account" aria-hidden="true"></i>
+            <span class="b-navigation_utility-title">
+                ${Resource.msg('link.header.login', 'account', null)}
+            </span>
+        </a>
+    <iselse/>
+        <button class="b-navigation_utility-toggle js-account-list-show"
+            aria-label="${Resource.msg('header.account.name', 'account', null)}" data-level="0"
+            data-cat="${Resource.msg('header.account.name', 'account', null)}">
+            <i class="b-navigation_utility-icon m-account" aria-hidden="true"></i>
+            <span class="b-navigation_utility-title">
+                ${pdict.name}
+            </span>
+        </button>
+        <ul class="b-navigation_utility-sublist js-list-wrapper b-account-mob" role="menu"
+            data-cat="${Resource.msg('header.account.name', 'account', null)}"
+            aria-label="${Resource.msg('label.profile.myaccountlink', 'account', null)}">
+            <li class="b-navigation-title">
+                <span>${Resource.msgf('header.myaccount.welcome', 'account', null, pdict.name)}</span>
+            </li>
+            <li class="b-navigation_utility-subitem" role="presentation">
+                <a class="b-navigation_utility-sublink t-text-hover-state" href="${URLUtils.https('Account-Show')}" role="menuitem"
+                    tabindex="0">
+                    ${Resource.msg('page.heading.dashboard', 'account', null)}
+                </a>
+            </li>
+            <li class="b-navigation_utility-subitem" role="presentation">
+                <a class="b-navigation_utility-sublink t-text-hover-state" href="${URLUtils.https('Order-History')}" role="menuitem"
+                    tabindex="0">
+                    ${Resource.msg('label.orderhistory', 'account', null)}
+                </a>
+            </li>
+            <li class="b-navigation_utility-subitem" role="presentation">
+                <a class="b-navigation_utility-sublink t-text-hover-state" href="${URLUtils.https('Account-EditProfile')}" role="menuitem"
+                    tabindex="0">
+                    ${Resource.msg('label.profile', 'account', null)}
+                </a>
+            </li>
+            <li class="b-navigation_utility-subitem" role="presentation">
+                <a class="b-navigation_utility-sublink t-text-hover-state" href="${URLUtils.https('PaymentInstruments-List')}" role="menuitem"
+                    tabindex="0">
+                    ${Resource.msg('label.payment.methods', 'account', null)}
+                </a>
+            </li>
+            <li class="b-navigation_utility-subitem" role="presentation">
+                <a class="b-navigation_utility-sublink t-text-hover-state" href="${URLUtils.https('Address-List')}" role="menuitem"
+                    tabindex="0">
+                    ${Resource.msg('label.address', 'account', null)}
+                </a>
+            </li>
+            <li class="b-navigation_utility-subitem b-saved-mobile" role="presentation">
+                <a class="b-navigation_utility-sublink t-text-hover-state" href="${URLUtils.https('Wishlist-Show')}" role="menuitem"
+                    tabindex="0">
+                    ${Resource.msg('label.whishlist', 'account', null)}
+                </a>
+            </li>
+            <li class="b-navigation_utility-subitem b-logout-mobile" role="presentation">
+                <a class="b-navigation_utility-sublink" href="${URLUtils.url('Login-Logout')}" role="menuitem"
+                    tabindex="0">
+                    ${Resource.msg('link.header.logout', 'account', null)}
+                </a>
+            </li>
+        </ul>
+    </isif>
+</div>
+
+<isif condition="${!(pdict.CurrentCustomer && pdict.CurrentCustomer.authenticated)}">
+    <div class="b-navigation_utility-item b-register-link">
+       
+        <a class="b-navigation_utility-title b-header_account-link js-register" href="${URLUtils.https('Login-CreateAccountModal')}" role="button"
+            aria-label="${Resource.msg('label.header.registerbutton', 'account', null)}">
+             <span class="b-navigation_utility-text">
+             </span>
+            ${Resource.msg('link.header.register', 'account', null)}
+        </a>
+    </div>
+</isif>
+
+<!--- TEMPLATENAME: remoteWishListLink.isml --->
+<isif condition="${!(pdict.CurrentCustomer && pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR'))}">
+    <div class="b-header-wishlist b-wishlist b-navigation_utility-item">
+        <iscomment> TODO: Have to add the correct link for Wishlist</iscomment>
+        <a class="b-navigation_utility-link" href="${URLUtils.url('Wishlist-Show')}"
+            title="${Resource.msg('global.header.wishlist', 'common', null)}">
+            <i class="b-navigation_utility-icon b-wishlist-icon" aria-hidden="true"></i>
+            <span class="b-navigation_utility-title">${Resource.msg('global.header.wishlist', 'common', null)}</span>
+        </a>
+    </div>
+</isif>
+
+<isif condition="${pdict.CurrentCustomer && pdict.CurrentCustomer.authenticated}">
+    <div class="b-header-help b-navigation_utility-item">
+        <a class="b-navigation_utility-link" href="${URLUtils.https('Order-History')}"
+            title="${Resource.msg('label.orderhistory','account',null)}">
+            <i class="b-navigation_utility-icon b-order-icon" aria-hidden="true"></i>
+        <span class="b-navigation_utility-title">${Resource.msg('label.orderhistory','account',null)}</span>
+    </a>
+</div>
+</isif>
+
+<div class="b-header-help b-navigation_utility-item">
+    <a class="b-navigation_utility-link" href="${URLUtils.https('Page-Show','cid','contact-us')}"
+        title="${Resource.msg('global.header.help', 'common', null)}">
+        <i class="b-navigation_utility-icon b-help-icon" aria-hidden="true"></i>
+        <span class="b-navigation_utility-title">${Resource.msg('global.header.help', 'common', null)}</span>
+    </a>
+</div>

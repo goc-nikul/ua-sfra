@@ -1,0 +1,17 @@
+<iscontent type="text/xml" charset="UTF-8" encoding="off" /><?xml version="1.0" encoding="UTF-8" ?>
+<iscache type="relative" hour="24" />
+<shoplinker>
+    <product>
+        <customer_id>${pdict.customerID}</customer_id>
+        <partner_product_id>${pdict.partnerProductID}</partner_product_id>
+        <image_type>${Resource.msg('createimage.image_type', 'shoplinker', null)}</image_type>
+        <image_info>
+            <isloop items="${pdict.productImages}" var="image" status="loopstate">
+                <image>
+                    <image_kind>${image.type}</image_kind>
+                    <image_content><![CDATA[${image.URL}]]></image_content>
+                </image>
+            </isloop>
+        </image_info>
+    </product>
+</shoplinker>

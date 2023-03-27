@@ -1,0 +1,150 @@
+.b-refinements_attributes {
+    &-list {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        margin: 0 rem-calc(-4);
+
+        .b-swatches_circle-link {
+            margin: spacing(xs2) / 2 spacing(xs2);
+
+            &.m-active,
+            &:active {
+                margin: spacing(xs2) / 2 spacing(xs2);
+            }
+        }
+    }
+
+    &-item {
+        &.m-size {
+            flex: 0 0 rem-calc(56);
+            margin-bottom: spacing(xs);
+            padding: 0 spacing(xs2);
+            text-align: center;
+        }
+
+        &.m-checkbox {
+            flex: 0 0 100%;
+            margin-bottom: spacing(sm);
+            padding: 0 spacing(xs2) / 2;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    &-size {
+        padding-top: rem-calc(2);
+        position: relative;
+        width: 100%;
+        height: rem-calc(32);
+        border: 1px solid $grey3;
+        border-radius: 4px;
+        background: none;
+        font-size: rem-calc(9.6);
+        overflow: hidden;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        vertical-align: middle;
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        line-height: 1;
+
+        &:hover {
+            @include respond-to(desktop) {
+                border-color: $black;
+            }
+        }
+
+        &.m-selected {
+            border: 2px solid $black;
+        }
+
+        &.m-disabled {
+            position: relative;
+            border-color: $grey3;
+            color: $grey5;
+
+            &::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                display: block;
+                width: rem-calc(60);
+                height: 1px;
+                background: $grey3;
+                transform: rotate(39deg);
+                transform-origin: left;
+            }
+        }
+    }
+
+    &-checkbox {
+        @include button-to-link;
+        @include t-text-3;
+        @include icon('check', 'before', 12);
+
+        position: relative;
+        padding-left: spacing(md);
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        text-decoration: none;
+        color: inherit;
+        display: inline-block;
+
+        &::after,
+        &::before {
+            position: absolute;
+        }
+
+        &::after {
+            content: '';
+            top: -1px;
+            left: 0;
+            z-index: 1;
+            width: rem-calc(16);
+            height: rem-calc(16);
+            border: 1px solid $grey5;
+            @include respond-to(iphonesse) {
+                top: rem-calc(-2);
+            }
+            @include respond-to(samsung-galaxysn) {
+                top: rem-calc(-2);
+            }
+        }
+
+        &::before {
+            display: none;
+            top: rem-calc(2);
+            left: rem-calc(2);
+        }
+
+        &:hover {
+            &::after {
+                border: 1px solid $black;
+            }
+        }
+
+        &.m-selected {
+            &::before {
+                display: block;
+                @include respond-to(iphonesse) {
+                    top: 0;
+                }
+                @include respond-to(samsung-galaxysn) {
+                    top: 0;
+                }
+            }
+        }
+
+        &.disabled-team {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+    }
+}

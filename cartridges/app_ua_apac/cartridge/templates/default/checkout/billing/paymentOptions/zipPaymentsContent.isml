@@ -1,0 +1,19 @@
+<isset name="TemplateHelpers" value="${require('*/cartridge/scripts/util/template')}" scope="page" />
+<isset name="logoUrl" value="${TemplateHelpers.getPaymentMethodLogoUrl(paymentOption.ID)}" scope="page" />
+<isset name="paymentOptionID" value="${paymentOption.ID.toLowerCase()}" scope="page" />
+
+<script src="https://static.zipmoney.com.au/lib/js/zm-widget-js/dist/zip-widget.min.js"></script>
+
+<li class="zippay paymentMethod">
+    <div class="ayen-payWrapper">
+        <input name="brandCode" type="radio" value="zippay" id="rb_zippay" />
+        <label id="lb_zippay" for="rb_zippay">
+            <isprint value="${Resource.msg('payment.method.name', 'zip', null)}" />
+        </label>
+        <div class="pay-image-wrapper">
+            <img class="paymentMethod_img_zip ${paymentOptionID}-payments-option-logo" src="${logoUrl}"
+                alt="${paymentOption.name}" title="${paymentOption.name}" />
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</li>

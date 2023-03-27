@@ -1,0 +1,45 @@
+<div class="return-order-estimated-refund">
+    <span class="estimated-refund-header b-rs-htxt">${Resource.msg('label.refund.summary','confirmation', null)}:</span>
+</div>
+<!--- Subtotal --->
+<div class="order-summary_items subtotal-item">
+    <span class="order-summary_itemsattr">
+        <span class="order-receipt-label">${Resource.msg('label.order.subtotal','confirmation', null)} <span class="number-of-items-summary order-summary_noitems">(<isprint value="${pdict.order.itemCount.toFixed()}" encoding="off" />)</span>:</span>
+    </span>
+    <span class="order-summary_itemsvalue">
+        <span class="sub-total" value = "${pdict.order.subTotal}">${pdict.order.subTotal}</span>
+        <input type="hidden" name="sub-total" value="${pdict.order.subTotal}">
+    </span>
+</div>
+
+<!-- Employee Discount -->
+<isif condition="${customer.authenticated && customer.profile.custom.isEmployee && pdict.totals.totalEmployeeDiscount != null}">
+    <div class="order-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.totalEmployeeDiscount.value === 0}">hide-order-discount</isif>">
+        <span class="order-summary_itemsattr">            
+            <span>${Resource.msg('employee.order.discount', 'common', null)}:</span>
+        </span>
+        <span class="order-summary_itemsvalue">
+            <span class="text-right bfx-price order-discount-total"> - ${pdict.totals.totalEmployeeDiscount.formatted}</span>
+        </span>
+    </div>
+</isif>
+
+<!--- Sales Tax --->
+<div class="order-summary_items sales-tax-item">
+    <span class="order-summary_itemsattr">
+        <span class="order-receipt-label">${pdict.order.vatIncluded ? Resource.msg('label.vat.included','cart', null) : Resource.msg('label.order.taxes','confirmation', null)}:</span>
+    </span>
+    <span class="order-summary_itemsvalue">
+        <span class="text-right tax-total">${pdict.order.taxTotal}</span>
+    </span>
+</div>
+
+<!--- Grand Total --->
+<div class="order-summary_items grand-total-element">
+    <span class="order-summary_itemsattr">
+        <span class="order-receipt-label b-rs-htxt">${Resource.msg('label.estimated.refund','confirmation', null)} </span>
+    </span>
+    <span class="order-summary_itemsvalue">
+        <span class="text-right grand-total grand-total-sum b-rs-htxt">${pdict.order.orderTotal}</span>
+    </span>
+</div>

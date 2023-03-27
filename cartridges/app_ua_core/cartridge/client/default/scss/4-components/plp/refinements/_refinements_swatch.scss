@@ -1,0 +1,53 @@
+.b-refinements_swatch {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+
+    @include respond-to(mobile) {
+        padding: spacing(sm) spacing(xs);
+    }
+
+    &-item {
+        margin-right: spacing(sm) / 2;
+    }
+
+    &-btn {
+        position: relative;
+        display: block;
+        margin-bottom: spacing(sm) / 2;
+        padding: 0 spacing(lg) / 2 0 spacing(xs2);
+        border: 1px solid $black;
+        border-radius: 4px;
+        background: none;
+        font-size: rem-calc(12);
+        line-height: rem-calc(30);
+        text-decoration: none;
+        height: rem-calc(30);
+
+        .b-refinements_swatch-text {
+            height: rem-calc(30);
+            display: flex;
+            align-items: center;
+        }
+    }
+
+    &-remove {
+        @include icon('exit', 'before', 12);
+
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        width: rem-calc(12);
+        height: rem-calc(12);
+        font-size: 0;
+        transform: translateY(-50%);
+        cursor: pointer;
+
+        &::before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-size: rem-calc(12);
+        }
+    }
+}

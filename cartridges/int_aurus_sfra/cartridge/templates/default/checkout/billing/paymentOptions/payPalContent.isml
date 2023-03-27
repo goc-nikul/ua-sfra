@@ -1,0 +1,23 @@
+<!--- paypal tab content--->
+<div class="tab-pane paypal-content" id="paypal-content" role="tabpanel">
+    <fieldset class="payment-form-fields">
+        <!--- payment method is paypal --->
+        <input  type="hidden" class="form-control" name="${pdict.forms.billingForm.paymentMethod.htmlName}" value="PayPal">
+                
+		<isif condition="${!empty(dw.system.Site.current.getCustomPreferenceValue('paypalClientId'))}">
+			<isset name="payPalClientId" value="${dw.system.Site.current.getCustomPreferenceValue('paypalClientId')}" scope="page"/>
+		</isif>
+		
+		<iscomment>
+			--------------------------------------------------------------
+				PayPal
+			--------------------------------------------------------------
+		</iscomment>
+		
+		<iscomment>PayPal</iscomment>
+		<div id="paypalBtn" <isif condition="${!empty(dw.system.Site.current.getCustomPreferenceValue('paypalClientId'))}">data-paypalNo="${dw.system.Site.current.getCustomPreferenceValue('paypalClientId')}" </isif> class="payment-method <isif condition="${!empty(pdict.selectedPaymentID) && pdict.selectedPaymentID=='PayPal'}">payment-method-expanded</isif>" data-method="PayPal">
+			<!-- Set up a container element for the button -->
+			<div id="paypal-button-container" checkaurus="true"></div>
+		</div>
+    </fieldset>
+</div>

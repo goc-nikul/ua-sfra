@@ -1,0 +1,30 @@
+<div class="sdlDictionaryTableContainer">
+    <label class="tableHeading">
+        ${Resource.msg('msg.sdl.dictionary.select', 'SDLTranslation', null)}
+        <sup>${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}</sup>
+    </label>
+    <table id="sdlPropertiesTable" class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th class="sdlHidingSort"><input type="checkbox" id="sdlDictCheckAll" /></th>
+                <th>${Resource.msg('msg.sdl.dictionary.name', 'SDLTranslation', null)}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <isloop items="${pdict.PropertiesFileNames}" var="PropertiesFileName" >
+                <tr id="${PropertiesFileName.split('.')[0]}">
+                    <td>
+                    <input
+                        type="checkbox"
+                        class="dictionaryIDC"
+                        id="pf_${PropertiesFileName.split('.')[0]}"
+                        data-dictID="${PropertiesFileName.split('.')[0]}"
+                        data-fileName="${escape(PropertiesFileName.split('.')[0])}"
+                        onclick="sdlDictionaryMatrix('pf_${PropertiesFileName.split('.')[0]}','${escape(PropertiesFileName.split('.')[0])}', '${PropertiesFileName.split('.')[0]}')" />
+                    </td>
+                    <td class="sdlPropertiesID"><isif condition="${PropertiesFileName !== null}" >${PropertiesFileName.split('.')[0]}</isif></td>
+                </tr>
+            </isloop>
+        </tbody>
+    </table>
+</div>

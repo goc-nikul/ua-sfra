@@ -1,0 +1,52 @@
+<div class="g-modal g-modal-loyalty g-loyalty-enrolled-success" id="loyalty-enrolled-success" tabindex="-1" role="dialog">
+    <div class="g-modal-dialog" role="document">
+        <div class="g-modal-content">
+            <div class="g-modal-close">
+                <button type="button" class="close g-modal-close-button" data-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="g-loyalty-enrolled-success_img">
+                <img
+                    src="${URLUtils.staticURL('/images/loyalty-enrolled-success.jpg')}"
+                    alt="${Resource.msg('loyalty.img.alt.success', 'common', null)}" />
+            </div>
+            <div class="g-loyalty-enrolled-success_inner-wrapper">
+                <isif condition="${pdict.queryString.indexOf('alreadyEnrolled=true') < 0}">
+                    <div class="g-loyalty-enrolled-success_icon">
+                        <img
+                            src="${URLUtils.staticURL('/images/loyalty-icon-success.svg')}"
+                            alt="${Resource.msg('loyalty.icon.alt.success', 'common', null)}" />
+                    </div>
+                </isif>
+                
+                <isif condition="${pdict.queryString.indexOf('alreadyEnrolled=true') > -1}">
+                    <div class="g-modal-header">
+                        <h3 class="g-modal-header_title t-title-3">${Resource.msg('loyalty.modal.enrolled.already.header', 'loyalty', null)}</h3>
+                    </div>
+                    <div class="g-modal-body">
+                        <p>${Resource.msg('loyalty.modal.enrolled.already.text', 'loyalty', null)}</p>
+                    </div>
+                <iselse>
+                    <div class="g-modal-header">
+                        <h3 class="g-modal-header_title t-title-3">${Resource.msg('loyalty.modal.enrolled.success.header', 'loyalty', null)}</h3>
+                    </div>
+                    <div class="g-modal-body">
+                        <p>${Resource.msg('loyalty.modal.enrolled.success.text', 'loyalty', null)}</p>
+                    </div>
+                </isif>
+                <div class="g-modal-footer">
+                    <div class="g-loyalty-enrolled-success_btn-group">
+                        <a
+                            href="${pdict.rewardsLockerURL}"
+                            class="btn btn-block g-button_base g-button_secondary--black"
+                            >${Resource.msg('button.rewards.locker','loyalty', null)}</a>
+                        <a
+                            href="${URLUtils.url('Search-Show','cgid', 'new-arrivals')}"
+                            class="btn btn-block g-button_primary--black g-button_base"
+                            >${Resource.msg('button.shop','loyalty', null)}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

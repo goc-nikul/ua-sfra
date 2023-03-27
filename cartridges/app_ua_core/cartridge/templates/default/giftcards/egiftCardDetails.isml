@@ -1,0 +1,124 @@
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets');
+        assets.addJs('/js/productDetail.js');
+        assets.addCss('/css/product/detail.css');
+    </isscript>
+
+
+
+    <isset name="product" value="${pdict.product}" scope="page" />
+    <isobject object="${product.raw}" view="detail">
+        <div
+            class="l-pdp product-detail"
+            data-cmp="productDetail"
+            data-pid="${product.id}">
+            <div class="l-pdp-main">
+                <div class="l-pdp-images">
+                    <isif condition="${product.productTileUpperLeftBadge && product.productTileUpperLeftBadge.value}">
+                        <div class="l-tile-badge_top_left">${product.productTileUpperLeftBadge.displayValue}</div>
+                    </isif>
+                    <!-- Product Images Carousel -->
+                    <isinclude template="product/components/imageCarousel" />
+                </div>
+
+                <div class="l-pdp-info">
+                    <div class="b-product_info">
+                        <!-- Breadcrumbs -->
+                        <div class="b-product_breadcrumbs">
+                            <isinclude template="components/breadcrumbs/pageBreadcrumbs"/>
+                        </div>
+
+                        <!-- Product Name -->
+                        <div class="b-product_name">
+                            <h1 class="b-product_name-wording">${product.productName}</h1>
+                        </div>
+
+                        <div class="b-modal_block">
+                            <isif condition="${product.custom.style}">
+                                <div class="l-style_name">
+                                    <isprint value="${Resource.msg('label.item.style', 'product', null)}"/>
+                                    <span class="value"><isprint value="${product.custom.style}" /></span>
+                                </div>
+                            </isif>
+                        </div>
+                        <!-- Prices -->
+                        <div class="b-product_prices">
+
+                        </div>
+
+                        <isinclude template="giftcards/egiftcardsform" />
+
+                        <div class="b-product_attrs">
+                            <!-- Attributes -->
+                                <div class="b-product_actions prices-add-to-cart-actions">
+                                    <!-- Cart and [Optionally] Apple Pay -->
+                                    <div class="b-product_actions-inner">
+                                        <isinclude template="product/components/addToCartProduct" />
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Product Description -->
+                            <div class="b-product_attrs-item m-description">
+                                <isset name="loopState" value="{count: 1}" scope="page" />
+                                <isinclude template="product/components/productCustomDescription" />
+                            </div>
+
+                            <!-- Product Qualtrics Survey Link -->
+                            <isinclude template="product/components/productQualtricsSurvey" />
+                        </div>
+                        <!-- Product Deep Links -->
+                        <isinclude template="product/components/productDeepLinks" />
+                    </div>
+
+                </div>
+            </div>
+           
+
+           
+            <iscomment>User Generated Slot</iscomment>
+            <div class="b-product-slot m-slot_1">
+                <isslot id="pdp-ugc-slot" description="PDP User Generated Content 1" context="global" />
+            </div>
+
+            <div class="b-product-slot m-slot_2">
+                <isslot id="pdp-tech-banner-slot" description="Instagram carousel" context="global" />
+            </div>
+
+            <iscomment>Include CoreMedia header resources</iscomment>
+            <isinclude template="coremedia/modules.isml"/>
+
+            <isset name="pageId" value="${CMUtil.pageId(pdict)}" scope="page"/>
+            <isset name="productId" value="${CMUtil.productId(pdict)}" scope="page"/>
+
+            <!-- Coremedia : Fragement -->
+            <div class="b-product-slot m-slot_3">
+                <islcinclude productId="${productId}" pageId="${pageId}" placement="pdp-slot-1" prefetch="true" />
+            </div>
+            <!-- Technology Banner Content Assets -->
+            <isinclude template="product/components/technologyBanner" />
+
+            <!-- Complete the Look -->
+            <isinclude template="product/components/completeTheLook" />
+            <div class="b-product-slot m-slot_4">
+                <isslot id="pdp-product-recommendations" description="Product recommendations" context="global" />
+            </div>
+        </div>
+        <div class="sticky-cta">
+            <div class="b-product_actions prices-add-to-cart-actions">
+                <div class="product-details">
+                    <span class="b-name-header">${product.productName}</span>
+                    <span class="b-price-header">
+                        <isset name="price" value="${product.price}" scope="page"/>
+                        <isinclude template="product/components/pricing/main"/>
+                    </span>
+                </div>
+                    <!-- Cart and [Optionally] Apple Pay -->
+                <isinclude template="product/components/addToCartProduct"/>
+            </div>
+        </div>
+    </isobject>
+</isdecorate>
+

@@ -1,0 +1,42 @@
+<isdecorate template="common/layout/newsletter">
+<isinclude template="/components/modules" />
+   <isscript>
+      var assets = require('*/cartridge/scripts/assets.js');
+      assets.addCss('/css/newsletterlanding.css');
+   </isscript>
+   <div class="livetext__wrapper-71816327 livetext__wrapper livetext__primary-hero-livetext-newsletter-signup">
+      <div class="livetext__wrap-elements livetext__71816327">
+         <iscontentasset aid="email-subscription-banner" />
+      </div>
+      <div class="hero-signup  featured-banner--center">
+         <iscontentasset aid="email-subscription" />
+         <div class="success" id="success-message"></div>
+         <form action="${URLUtils.url('Newsletter-Subscribe')}" class="js-email-subscribe featured-banner__form" data-merkle-10="Schön, dass du dich angemeldet hast" data-merkle--10="Ungültige E-Mail-Adresse" data-merkle--40="Du bist schon angemeldet!" method="post" novalidate="novalidate" data-cmp="emailNewsletterSubs" data-emailsource="newslettersubscription">
+               <div class="form-row required featured-banner-form__input form-group" data-required-text="Bitte deine E-Mail-Adresse eingeben">
+                  <input 
+                     name="email" 
+                     regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$"
+                     mandatory="${true}"
+                     pattern_mismatch="${Resource.msg('error.message.parse.email.subscribe', 'forms', null)}"
+                     range_error="${Resource.msg('error.message.lessthan254', 'forms', null)}"
+                     type="email" 
+                     class="input-text email-input required stop-scroll .js-signup-email"
+                     id="subscribeNewsLetter"
+                     data-missing-error="${Resource.msg('error.message.required','forms',null)}"
+                     placeholder="${Resource.msg('placeholdertext.form.emailsignuppage', 'homePage', null)}" required=""
+                     arialabel="${Resource.msg('placeholdertext.form.emailsignup', 'homePage', null)}"
+                     attributes="${['maxLength="254"', 'data-analytics-location="footer"'].join(' ')}"
+                     data-errormessage="Die E-Mail-Adresse, die du eingegeben hast, ist ungültig. Bitte eine gültige E-Mail-Adresse eingeben."
+                  >
+               <div class="invalid-feedback"></div>
+            </div>
+            <div class="form-row form__buttons featured-banner-form__button">
+               <button name="email-submit" type="submit" class="button-cta cta-style1">${Resource.msg('link.header.register', 'account', null)}</button>
+            </div>
+            <div class="sign-up__legal"></div>
+         </form>
+         <iscontentasset aid="email-subscription-terms" />
+         <div class="form-success" id="feedSuccess">${Resource.msg('title.form.emailsignup', 'homePage', null)}</div>
+      </div>
+   </div>
+</isdecorate><!--- TEMPLATENAME: giftcardslandingpage.isml --->

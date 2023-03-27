@@ -1,0 +1,187 @@
+.b-shipping {
+    &-method {
+        padding-bottom: rem-calc(8);
+        position: relative;
+
+        .shoprunner {
+            margin-bottom: rem-calc(16);
+
+            @include respond-to(desktop) {
+                margin-left: rem-calc(32);
+            }
+        }
+
+        .sr-shipping-method-content {
+            &::after {
+                content: '';
+                width: 100%;
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                cursor: pointer;
+                z-index: 1;
+            }
+        }
+
+        &_heading {
+            font-size: rem-calc(16) !important;
+            font-weight: $font-medium;
+            line-height: 1.5;
+            margin-top: rem-calc(32);
+            margin-bottom: rem-calc(16);
+            position: relative;
+
+            .b-promo-tooltip-content {
+                margin-left: rem-calc(12);
+                width: auto;
+                position: static;
+                display: none;
+
+                &:hover {
+                    .g-tooltip-text,
+                    .g-tooltip-icon .g-tooltip-arrow {
+                        visibility: visible;
+                        opacity: 1;
+                    }
+                }
+
+                .g-tooltip-icon::before {
+                    top: 3px;
+                    position: relative;
+                }
+
+                .g-tooltip-arrow {
+                    bottom: 4px;
+                }
+
+                .g-tooltip-text {
+                    left: 0;
+                    transform: none;
+                    width: rem-calc(288);
+
+                    @include respond-to(mobile) {
+                        width: calc(100vw - 48px);
+                    }
+                }
+            }
+
+            @include respond-to(mobile) {
+                font-size: rem-calc(14) !important;
+                line-height: 1.43;
+                margin-top: rem-calc(24);
+            }
+        }
+
+        &_sub-heading {
+            font-size: rem-calc(14) !important;
+            line-height: 1.43;
+            margin-bottom: rem-calc(16);
+
+            @include respond-to(mobile) {
+                font-size: rem-calc(12) !important;
+                line-height: 1.67;
+            }
+        }
+
+        &_column {
+            border-radius: 4px;
+            border: 1px solid $grey3;
+            padding: rem-calc(16) rem-calc(24);
+            margin-bottom: rem-calc(16);
+            position: relative;
+
+            &.selected {
+                border: 2px solid $black;
+            }
+
+            @include respond-to(mobile) {
+                padding: rem-calc(16);
+            }
+        }
+
+        &_check {
+            display: flex;
+            align-items: center;
+        }
+
+        &_check-label {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-left: rem-calc(16);
+            align-items: center;
+        }
+
+        &_subheading {
+            @include t-text-1;
+
+            line-height: 1.43;
+
+            @include respond-to(mobile) {
+                font-size: rem-calc(12);
+                line-height: 1.67;
+            }
+        }
+
+        &_subheadingText {
+            @include t-text-4;
+
+            font-size: rem-calc(12);
+
+            @include respond-to(mobile) {
+                font-size: rem-calc(12);
+                line-height: 1.6;
+            }
+        }
+
+        &_custom-radio {
+            opacity: 0;
+            @include icon(check);
+        }
+
+        &_input {
+            opacity: 0;
+            width: 100%;
+            position: absolute;
+            left: 0;
+            height: 100%;
+            cursor: pointer;
+
+            &:checked + .g-custom-radio {
+                opacity: 1;
+            }
+        }
+
+        &_preorder {
+            margin: rem-calc(13) 0 rem-calc(27) 0;
+            color: $green;
+            @include font(main_med, rem-calc(14), rem-calc(20));
+        }
+    }
+}
+
+.b-mixedbag-msgs {
+    .b-mixedbag_giftcard-msg {
+        margin: rem-calc(20) rem-calc(16) rem-calc(40);
+        padding: rem-calc(16) rem-calc(24) rem-calc(16) 0;
+        border-left: 3px solid $black;
+        background-color: $grey2;
+        display: flex;
+        align-items: center;
+
+        img {
+            padding: 0 rem-calc(25);
+        }
+
+        .b-mixedbag_giftcard-msgcontent {
+            h5 {
+                font-weight: $font-medium;
+            }
+        }
+    }
+
+    .b-mixedbag-msgbelow {
+        margin-bottom: rem-calc(10);
+    }
+}

@@ -1,0 +1,42 @@
+<div class="b-add_to_bag_container">
+	<div class="b-add_to_bag">
+	    <input type="hidden" class="add-to-cart-url bfx-disable-element" value="${pdict.addToCartUrl}">
+	    <input type="hidden" class="cart-page-url bfx-disable-element" value="${pdict.cartPageUrl}">
+	     <button
+		        class="js-add-to-cart g-button_base g-button_primary--black b-add_to_bag-cta js-save-to-cart ${(item.master || !item.available) ? 'hide' : ''}"
+		        data-pid="${item.pid}"
+		        data-egc-editurl="${item.custom.giftCard ? URLUtils.url('Cart-EditFromSavedeGift','pid',item.pid, 'uuid', item.UUID , 'eGCedit', true) : ''}" 		        
+		        data-added-msg="${Resource.msg('button.addedtocart', 'common', null)}"
+		        data-add-another="${Resource.msg('button.addanother', 'common', null)}"
+		        data-addto-bag="${Resource.msg('button.addtocart', 'common', null)}"
+		        ${(!item.readyToOrder || (item.custom.giftCard && item.custom.giftCard === 'GIFT_CARD' && !item.readyToOrder && pdict.isVIP) || (!item.priceObj.sales) || (item.custom.exclusive && item.custom.exclusive === 'out-of-stock')) ? "disabled" : ""}>
+		        ${Resource.msg('button.addtocart', 'common', null)}
+		    </button>
+		    <isif condition="${item.master || !item.available}">
+	            <a href="${URLUtils.url('Product-ShowQuickView', 'pid', item.pid)}" class="edit-link js-cmp-inited js-cmp-editBasketProduct" data-cmp="editBasketProduct" title="${Resource.msg('button.addtocart', 'common', null)}">
+                    ${Resource.msg('button.addtocart', 'common', null)}
+                </a>
+            </isif>
+	    <div data-cmp="detailBonusProductModal"></div>
+	</div>
+</div>
+<isif condition="${item.custom.giftCard}">
+<div class="modal-show">
+        <div class="modal g-modal g-modal-eGCaddtoBag eGCModal" role="dialog">
+            <div class="modal-dialog g-modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content g-modal-content">
+                    <div class="modal-body">
+                        ${Resource.msg('giftcard.date.error', 'giftcards', null)}
+                    </div>
+                    <div class="g-modal-footer g-product-modal-footer">
+                        <button class="g-button_base g-button_secondary--black btn btn-outline-primary" data-dismiss="modal">${Resource.msg('giftcard.date.dailog.cancel', 'giftcards', null)} </button>
+                        <a class="g-button_base g-button_primary--black btn btn-primary js-edit-saveforlater" href="${URLUtils.url('Cart-EditFromSavedeGift','pid',item.pid, 'uuid', item.UUID , 'eGCedit', true)}">${Resource.msg('giftcard.date.dailog.edit', 'giftcards', null)}</a> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+     <input type="hidden" class="earlierdate" value="${!item.custom.gcValidDate}">
+     </isif>
+     

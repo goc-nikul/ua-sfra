@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<extensions xmlns="http://www.demandware.com/xml/bmmodules/2007-12-11"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.demandware.com/xml/bmmodules/2007-12-11 bmext.xsd">
+
+	<menuitem id="bm_SDLTranslation" position="99999" site="true">
+		<name xml:lang="x-default">RWS Translation</name>
+		<short_description xml:lang="x-default">
+			Cloud Based translation solution for eCommerce
+		</short_description>
+		<description xml:lang="x-default">
+			Cloud Based translation solution for eCommerce
+		</description>
+		<icon>images/SDL.png</icon>
+	</menuitem>
+
+	<menuaction id="SDLTranslationCreate" menupath="bm_SDLTranslation" position="998" site="true">
+		<name xml:lang="x-default">Create Translation Projects</name>
+		<short_description xml:lang="x-default">
+				Select items from Product, Content, Marketing and Dictionary 
+		</short_description>
+		<description xml:lang="x-default">
+			    Select items from Product, Content, Marketing and Dictionary 
+		</description>
+
+		<exec pipeline="SDLTranslation" node="CategoryOption"/>
+		<sub-pipelines>
+			<pipeline name="SDLTranslation-CategoryOption"/>
+			<pipeline name="SDLTranslation-SendCategoryProject"/>
+			<pipeline name="SDLTranslation-ProductOption"/>
+			<pipeline name="SDLTranslation-ProductCategoryOption"/>
+			<pipeline name="SDLTranslation-ProductByCategory"/>
+			<pipeline name="SDLTranslation-SearchProd"/>
+			<pipeline name="SDLTranslation-ContentAssetList"/>
+			<pipeline name="SDLTranslation-SendProductCategoryProject"/>
+			<pipeline name="SDLTranslation-SendProductProject"/>
+			<pipeline name="SDLTranslation-SendContentAssestsProject"/>
+			<pipeline name="SDLTranslation-Dictionary"/>
+			<pipeline name="SDLTranslation-FindDictionary"/>
+			<pipeline name="SDLTranslation-SendDictioanryProject"/>
+			<pipeline name="SDLTranslation-SitePromotionsList"/>
+			<pipeline name="SDLTranslation-SendPromotionsProjectForTMS"/>
+			<pipeline name="SDLTranslation-SiteCampaignList"/>
+			<pipeline name="SDLTranslation-SendCampaignsProjectForTMS"/>
+		</sub-pipelines>
+		<icon>images/SDL.png</icon>
+	</menuaction>
+
+	<menuaction id="SDLTranslationManage" menupath="bm_SDLTranslation" position="999" site="true">
+		<name xml:lang="x-default">View Translation Projects</name>
+		<short_description xml:lang="x-default">
+			Track and manage translation projects
+		</short_description>
+		<description xml:lang="x-default">
+			Track and manage translation projects
+		</description>
+		<exec pipeline="SDLTranslation" node="AllProjects"/>
+		<sub-pipelines>
+			<pipeline name="SDLTranslation-AllProjects"/>
+			<pipeline name="SDLTranslation-ProjetDetails"/>
+		</sub-pipelines>
+		<icon>images/SDL.png</icon>
+	</menuaction>
+
+	<menuaction id="SDLTranslationConfig" menupath="bm_SDLTranslation" position="1000" site="true">
+		<name xml:lang="x-default">Configuration Settings</name>
+		<short_description xml:lang="x-default">
+				Configure connector settings
+		</short_description>
+		<description xml:lang="x-default">
+				Configure connector settings
+		</description>
+		<exec pipeline="SDLTranslation" node="SDLConfiguration"/>
+		<sub-pipelines>
+			<pipeline name="SDLTranslation-SDLConfiguration"/>
+			<pipeline name="SDLTranslation-SaveConfig"/>
+		</sub-pipelines>
+		<icon>images/SDL.png</icon>
+	</menuaction>
+</extensions>

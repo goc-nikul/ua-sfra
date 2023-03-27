@@ -1,0 +1,29 @@
+<isif condition="${pdict.failReason == 'ORDER_CANCELLATION_FAILED'}">
+    <img alt="warning-sign" class="cancel-confirmation-modal_formSubmit_technicalErrorImg" src="${URLUtils.staticURL('/images/ic-lg-black-alert.svg')}">
+    <div class="cancel-confirmation-modal_formSubmit_technicalErrorTitle">${Resource.msg('cancel.request.technical.error', 'order', null)}</div>
+    <div class="cancel-confirmation-modal_formSubmit_technicalErrorText"><isprint value="${Resource.msg('contact.custom.service.modal', 'order', null)}" encoding="off" /></div>
+    <div class="cancel-confirmation-modal_formSubmit_technicalErrorButtons">
+        <isif condition="${customer.authenticated}">
+            <a href="${URLUtils.https('Order-Details','orderID', pdict.orderID)}" class="g-button_base g-button_secondary--black checkout-btn view-order-details">
+                ${Resource.msg('view.order.details', 'order', null)}
+            </a>
+        <iselse/>
+            <a href="${URLUtils.https('Order-TrackOrder')}" class="g-button_base g-button_secondary--black checkout-btn view-order-details">
+                ${Resource.msg('view.order.details', 'order', null)}
+            </a>
+        </isif>
+        <a href="javascript:void(0)" class="g-button_base g-button_primary--black checkout-btn live-chat-button">
+            ${Resource.msg('live.chat', 'order', null)}
+        </a>
+    </div>
+    
+    
+<iselseif condition="${pdict.failReason == 'ORDER_NOT_EXPORTED'}"/>
+    <div class="cancel-confirmation-modal_formSubmit_exportErrorTitle">${Resource.msg('cancel.request.export.error', 'order', null)}</div>
+    <div class="cancel-confirmation-modal_formSubmit_exportErrorText">${Resource.msg('cancel.request.export.error.details', 'order', null)}</div>
+    <button type="button" class="g-button_base g-button_primary--black c-modal-close cancel-confirmation-modal_formSubmit_exportErrorButton" data-dismiss="modal" aria-label="Close">
+        <div aria-hidden="true" class="c-modal-close c-modal-close-button">
+            ${Resource.msg('ok.button','order',null)}
+        </div>
+    </button>
+</isif>

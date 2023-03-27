@@ -1,0 +1,166 @@
+<isset name="isBOPISEnabled" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('isBOPISEnabled')}" scope="page" />
+<div class="card payment-form b-contact-info js-contact-info">
+    <div class="card-body">
+        <form autocomplete="on" class="js-checkout-forms" method="POST" action="" data-address-mode="" data-cmp="formGeneric" novalidate>
+            <!-------------------------------------------------------------------------->
+            <!-- Contact Info (Email and Phone)                                       -->
+            <!-------------------------------------------------------------------------->
+            <fieldset class="contact-info-block b-contact">
+                  <div class="b-contact_heading">${Resource.msg('msg.heading.contact','checkout',null)}</div>
+                  <div class="b-contact_subheading"><span class="b-contact_subspan js-orderinfo-update">${Resource.msg('msg.heading.orderinfo','checkout',null)}</span>
+                  <isif condition="${isBOPISEnabled && pdict.order.hasBopisItems}"><span class="b-contact_subspan js-pickupinfo-update">${Resource.msg('checkout.contact.info.message', 'checkout', null)}</span></isif>
+                  </div>
+                  <isset name="primaryContact" value="${pdict.forms.billingForm.contactInfoFields}" scope="page" />
+                  <isset name="addressFields" value="${pdict.forms.billingForm.addressFields}" scope="page" />
+                  <isset name ="ShipToCollection"  value ="${pdict.isCommercialPickup}" scope="page" /> 
+                  <isset name="PickupInStore" value="${isBOPISEnabled && pdict.order.hasBopisItems}" scope="page" />
+                  <div class="row b-contact_row b-contact_row-top js-contact_collectionPoint ${ShipToCollection || PickupInStore ? '' : 'hide'}">
+                        <div class="b-contact_column">
+                            <div class="form-group b-form_group b-input_row
+                                ${primaryContact.firstName.mandatory === true ? 'required' : ''}
+                                ${primaryContact.firstName.htmlName}">
+                                <label class="form-control-label b-input_row-label" for="contactInfoFirstName_${typeof lineItemUUID !== "undefined" ? lineItemUUID : ''}">${Resource.msg('label.input.firstname.profile','forms',null)}</label>
+                                <input type="text" enterkeyhint="go" class="form-control contactInfoFirstName b-input_row-input" id="contactInfoFirstName_${typeof lineItemUUID !== 'undefined' ? lineItemUUID : ''}" aria-describedby="contactInfoFirstName"
+                                    value="${(pdict.order.billing.billingAddress.address && pdict.order.billing.billingAddress.address.firstName) || ''}" <isprint value="${primaryContact.firstName.attributes}" encoding="off"/>>
+                                <div class="invalid-feedback" id="contactInfoFirstName"><isprint value="${primaryContact.firstName.error}" ></div>
+                            </div>
+                        </div>
+                        <div class="b-contact_column">
+                            <div class="form-group b-form_group b-input_row
+                                ${primaryContact.lastName.mandatory === true ? 'required' : ''}
+                                ${primaryContact.lastName.htmlName}">
+                                <label class="form-control-label b-input_row-label" for="contactInfoLastName_${typeof lineItemUUID !== "undefined" ? lineItemUUID : ''}">${Resource.msg('label.input.lastname.profile','forms',null)}</label>
+                                <input type="text" enterkeyhint="go" class="form-control contactInfoLastName b-input_row-input" id="contactInfoLastName_${typeof lineItemUUID !== 'undefined' ? lineItemUUID : ''}" aria-describedby="contactInfoLastName"
+                                    value="${(pdict.order.billing.billingAddress.address && pdict.order.billing.billingAddress.address.lastName) || ''}" <isprint value="${primaryContact.lastName.attributes}" encoding="off"/>>
+                                 <div class="invalid-feedback" id="contactInfoLastName"><isprint value="${typeof primaryContact.personLastName !== 'undefined' ?  primaryContact.personLastName.error : ''}" ></div>
+                            </div>
+                       </div>
+                  </div>
+
+                    <isif condition="${pdict.forms.billingForm.contactInfoFields.dob}">
+                        <div class="row b-contact_row">
+                            <div class="b-contact_column dateOfBirth">
+                                <div class="form-group b-form_group b-input_row
+                                     <isif condition=${pdict.forms.billingForm.contactInfoFields.dob.mandatory === true}>required</isif>
+                                     ${pdict.forms.billingForm.contactInfoFields.dob.htmlName}">
+                                    <label class="form-control-label b-input_row-label" for="dob">${Resource.msg('label.dob', 'forms', null)}</label>
+                                    <input type="text" class="form-control email b-input_row-input" id="dob"
+                                        <isif condition="${pdict.customer && pdict.customer.profile && !empty(pdict.customer.profile.dob)}">
+                                            value="${pdict.customer.profile.dob}"
+                                        </isif>
+                                        data-missing-error="${Resource.msg('error.dob.missing', 'forms', null)}"
+                                        data-pattern-mismatch="${Resource.msg('error.message.dob.invalid', 'forms', null)}"
+                                        data-under-age="${Resource.msg('error.message.dob.age', 'forms', null)}" <isprint
+                                        value=${pdict.forms.billingForm.contactInfoFields.dob.attributes} encoding="off" />>
+                                    <div class="invalid-feedback" id="dobInvalidMessage"></div>
+                                </div>
+                                <div class="date-format">
+                                    <span>${Resource.msg('label.date.format', 'forms', null)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </isif>
+
+                  <div class="row b-contact_row">
+                       <div class="b-contact_column tooltip">
+                           <div class="form-group b-form_group b-input_row
+                               <isif condition=${pdict.forms.billingForm.contactInfoFields.email.mandatory === true}>required</isif>
+                               ${pdict.forms.billingForm.contactInfoFields.email.htmlName}">
+                               <label class="form-control-label b-input_row-label" for="email">${Resource.msg('label.input.login.email','login',null)}</label>
+                                   <input <isif condition="${!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer && pdict.customer.profile && !empty(pdict.customer.profile.email)}"> readonly <iselse> autofocus </isif>
+                                       type="text" enterkeyhint="go" class="form-control email b-input_row-input js-custom-input js-email-field" id="email"
+                                       value="${(!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer && pdict.customer.profile && pdict.customer.profile.email) || pdict.order.orderEmail || ''}" <isprint value=${pdict.forms.billingForm.contactInfoFields.email.attributes} encoding="off"/>
+                                       data-analytics-track="contact info : email"
+                                       data-pattern-mismatch="${Resource.msg('error.message.parse.email.profile.form','forms',null)}"
+                                       data-missing-error="${​​​​​Resource.msg('error.message.required', 'forms', null)}​​​​​"
+                                       aria-describedby="emailInvalidMessage" >
+	                               <div class="b-contactinfo-tooltip-content">
+					                <span class="contant-tooltip">
+					                        <span class="g-tooltip-icon g-tooltip bfx-remove-element">
+					                           <span class="g-tooltip-arrow"></span>
+					                        </span>
+					                        <span class="g-tooltip-text">
+					                            ${Resource.msg('field.contact.email.tooltip','checkout',null)}
+					                        </span>
+					               </span>
+					            </div>
+                               <div class="invalid-feedback" id="emailInvalidMessage"></div>
+                           </div>
+                       </div>
+                       <isset name="customerPhone" value="${pdict.customer && pdict.customer.profile && pdict.customer.profile.phone ? pdict.customer.profile.phone : ''}" scope="page"/>
+                       <div class="b-contact_column tooltip">
+                           <div class="form-group b-form_group b-contact_phone b-input_row ${customerPhone ? 'customer-phonenumber' : ''}
+                               <isif condition=${pdict.forms.billingForm.contactInfoFields.phone.mandatory === true || pdict.isPhoneNumberMandatory}>required</isif>
+                               ${pdict.forms.billingForm.contactInfoFields.phone.htmlName}">
+                               <label class="form-control-label b-input_row-label" for="phoneNumber">${Resource.msg('field.customer.phone.number','checkout',null)}<isif condition=${pdict.forms.billingForm.contactInfoFields.phone.mandatory === true || pdict.isPhoneNumberMandatory}> *</isif></label>   
+                               <input type="tel" enterkeyhint="go" class="form-control phone b-input_row-input validatePhoneField js-custom-input <isif condition=${pdict.forms.billingForm.contactInfoFields.phone.mandatory === true || pdict.isPhoneNumberMandatory}>defaultMandatory</isif>" <isif condition=${pdict.forms.billingForm.contactInfoFields.phone.mandatory === true || pdict.isPhoneNumberMandatory}>required</isif> id="phoneNumber"
+                                   placeholder="${Resource.msg('contactus.phonenumber.format','forms',null)}" data-range-error="${Resource.msg('error.message.phonenumber.invalid','forms',null)}" data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid','forms',null)}" data-missing-error="${​​​​​Resource.msg('error.message.required', 'forms', null)}​​​​​" 
+                                   value="${customerPhone ? customerPhone : (pdict.order.billing.billingAddress.address && pdict.order.billing.billingAddress.address.phone || '')}" 
+                                   <isprint value=${pdict.forms.billingForm.contactInfoFields.phone.attributes} encoding="off"/>
+                                   data-analytics-track="contact info : phone"
+                                   aria-describedby="phoneInvalidMessage" >
+                                   <div class="b-contactinfo-tooltip-content">
+					                <span class="contant-tooltip">
+					                        <span class="g-tooltip-icon g-tooltip bfx-remove-element">
+					                           <span class="g-tooltip-arrow"></span>
+					                        </span>
+					                        <span class="g-tooltip-text">
+					                            ${Resource.msg('field.contact.phone.tooltip','checkout',null)}
+					                        </span>
+					               </span>
+					            </div>
+                               <div class="invalid-feedback" id="phoneInvalidMessage"></div>
+                           </div>
+                       </div>
+                   </div>
+                   <div class="b-contact_column b-checkout_contact-sign">
+                       <div class="g-checkbox">
+                           <input enterkeyhint="go" data-analytics-track="contact info : sign_me_up" id="emailUpdates" type="checkbox" name="email-sign-up-checkout" value="${dw.system.Site.current.getCustomPreferenceValue('defaultEmailOptIn') ? true: false}" class="g-checkbox-input" <isif condition="${dw.system.Site.current.getCustomPreferenceValue('defaultEmailOptIn')}">checked</isif>>
+                           <label class="g-checkbox-label" for="emailUpdates">
+                           <span>${Resource.msg('field.checkbox.sign.shipping','checkout',null)}</span>
+                           </label>
+                       </div>
+                       <iscontentasset aid="contact-info-canada" />
+                   </div>
+                   <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableSMSOptIn')}">
+                       <div class="b-contact_column b-checkout_contact-sign b-sms-opt-in ">
+                           <div class="g-checkbox">
+                               <input enterkeyhint="go" id="smsUpdates" type="checkbox" name="sms-opt-in-checkout" class="g-checkbox-input">
+                               <label class="g-checkbox-label" for="smsUpdates">
+                               <span>${Resource.msg('field.checkbox.sms.optin','checkout',null)}</span>
+                               </label>
+                           </div>
+                       </div>
+                   </isif>
+                    <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+            </fieldset>
+        </form>
+        <isif condition="${pdict.isVIP}">
+            <div class="vip-terms-checkbox">
+                <div class="g-checkbox">
+                    <input type="checkbox" enterkeyhint="go" checked name="vip-customer-terms" value="Vip Customer" id="vip-terms-conditions" class="g-checkbox-input vip-terms-conditions js-vip-click" data-analytics-track="contact info : vip_terms">
+                    <label class="vip-terms-conditions-text g-checkbox-label" for="vip-terms-conditions">${Resource.msg('vip.checkbox.label.text','checkout',null)} <a class="vip-terms js-vip-terms-click" href="#">${Resource.msg('vip.checkbox.label.terms','checkout',null)}</a></label>
+                </div>
+                <iscontentasset aid="vip-program-terms-conditions" />
+            </div>
+        </isif>
+        <isif condition="${customer.authenticated && !empty(customer.profile) && customer.profile.custom.isEmployee === true}">
+            <div class="employee-discount">
+                    ${Resource.msg('employee.discount.label.terms','checkout',null)}
+             </div>
+             <div class="employee-policy">
+                 ${Resource.msg('employee.discount1.label.terms','checkout',null)}
+             </div>
+            <div class ="b-checkout-modal-text g-checkbox">
+                <input type="checkbox" enterkeyhint="go" id="checkout-checkbox-link" class="g-checkbox-input checkout-checkbox-link js-employee-terms-conditions" name="employee-terms-and-conditions" data-analytics-track="contact info : employee_terms">
+                <label class="g-checkbox-label checkout-modal-textLink" for="checkout-checkbox-link">
+                    <isprint value="${Resource.msg('field.checkbox.employee.agree','checkout',null) + ' '}"/>
+                    <button type="button" data-cmp="termsAndConditionsModal" class="btn-modal-dialog">
+                        <isprint value="${Resource.msg('field.checkbox.employee.termsandconditions','checkout',null)}"/>
+                    </button>
+                </label>
+            </div>
+            <iscontentasset aid="employee-program-terms-conditions" />
+        </isif>
+    </div>
+</div>

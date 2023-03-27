@@ -1,0 +1,2861 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
+    <custom-type type-id="SiteData">
+        <display-name xml:lang="x-default">Site Data</display-name>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="ID">
+            <display-name xml:lang="x-default">ID</display-name>
+            <type>string</type>
+            <min-length>0</min-length>
+            <field-length>0</field-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="data">
+                <display-name xml:lang="x-default">Data</display-name>
+                <description xml:lang="x-default">JSON or other usable format with appropriate data</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="Attributes">
+                <display-name xml:lang="x-default">Attributes</display-name>
+                <attribute attribute-id="ID"/>
+                <attribute attribute-id="data"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="CustomFeedConfig">
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="id">
+            <display-name xml:lang="x-default">ID</display-name>
+            <description xml:lang="x-default">The ID of the feed</description>
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="configuration">
+                <display-name xml:lang="x-default">Configuration</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="fileEncoding">
+                <display-name xml:lang="x-default">File encoding</display-name>
+                <description xml:lang="x-default">default is UTF-8</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="fileName">
+                <display-name xml:lang="x-default">File name</display-name>
+                <description xml:lang="x-default">The file to export to, the following placeholders are allowed:
+{{timestamp format="yyyMMdd"}}</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="folderName">
+                <display-name xml:lang="x-default">Folder name</display-name>
+                <description xml:lang="x-default">The folder to export to, should always start with 'IMPEX/'</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="type">
+                <display-name xml:lang="x-default">Type</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">CSV</display>
+                        <value>CSV</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">XML</display>
+                        <value>XML</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="Attributes">
+                <display-name xml:lang="de-DE">Attributes</display-name>
+                <display-name xml:lang="x-default">Attributes</display-name>
+                <attribute attribute-id="id"/>
+                <attribute attribute-id="type"/>
+                <attribute attribute-id="configuration"/>
+                <attribute attribute-id="folderName"/>
+                <attribute attribute-id="fileName"/>
+                <attribute attribute-id="fileEncoding"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="FirstDataAuthToken">
+        <display-name xml:lang="x-default">FirstData Auth Token</display-name>
+        <description xml:lang="x-default">FirstData Auth Token</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <retention-days>2</retention-days>
+        <key-definition attribute-id="ID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="expires">
+                <display-name xml:lang="x-default">Token expiry time</display-name>
+                <type>date</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="token">
+                <display-name xml:lang="x-default">Auth Token</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="default">
+                <display-name xml:lang="x-default">Default</display-name>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="ID"/>
+                <attribute attribute-id="token"/>
+                <attribute attribute-id="expires"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="MAOAuthToken">
+        <display-name xml:lang="x-default">MAO Auth Token</display-name>
+        <description xml:lang="x-default">MAO Auth Token</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <retention-days>10</retention-days>
+        <key-definition attribute-id="ID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="expires">
+                <display-name xml:lang="x-default">Token expiry time</display-name>
+                <type>date</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="token">
+                <display-name xml:lang="x-default">Auth Token</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="default">
+                <display-name xml:lang="x-default">Default</display-name>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="ID"/>
+                <attribute attribute-id="token"/>
+                <attribute attribute-id="expires"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <!-- Accertify -->
+    <custom-type type-id="AccertifyNotify">
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <retention-days>7</retention-days>
+        <key-definition attribute-id="orderNo">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="isProcessed">
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="notifyData">
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="custom">
+                <attribute attribute-id="orderNo"/>
+                <attribute attribute-id="notifyData"/>
+                <attribute attribute-id="isProcessed"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <!-- Scene 7 Image mapping data -->
+    <custom-type type-id="RecipeDefinitions">
+        <display-name xml:lang="x-default">RecipeDefinitions</display-name>
+        <description xml:lang="x-default">This custom object is used to manage each of the individual Scene 7 recipe definitions for a given recipe category / view-type combination.</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="RECIPEDEFINITIONID">
+            <display-name xml:lang="x-default">RECIPEDEFINITIONID</display-name>
+            <description xml:lang="x-default">Describes the primary-key of a given recipe definition.</description>
+            <type>string</type>
+            <min-length>0</min-length>
+            <field-length>0</field-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="CATEGORYNAME">
+                <display-name xml:lang="x-default">CATEGORYNAME</display-name>
+                <description xml:lang="x-default">Describes the name of the recipe category associated to a given recipe definition.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="DEF">
+                <display-name xml:lang="x-default">DEF</display-name>
+                <description xml:lang="x-default">Describes the key / value pairs that represent the recipe definition in JSON format.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>100</field-length>
+                <field-height>10</field-height>
+            </attribute-definition>
+            <attribute-definition attribute-id="ORIENTATION">
+                <display-name xml:lang="x-default">ORIENTATION</display-name>
+                <description xml:lang="x-default">Describes the JSON document that contains the Image Orientation preferences for a given recipe.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>100</field-length>
+                <field-height>10</field-height>
+            </attribute-definition>
+            <attribute-definition attribute-id="RECIPE">
+                <display-name xml:lang="x-default">RECIPE</display-name>
+                <description xml:lang="x-default">Represents the recipe-segment of the Scene 7 image url that can be applied to multiple product variant representations.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>250</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="SAMPLEURL">
+                <display-name xml:lang="x-default">SAMPLEURL</display-name>
+                <description xml:lang="x-default">Describes the sample url that should render an example of a given recipe definition.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>250</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="USERNAME">
+                <display-name xml:lang="x-default">USERNAME</display-name>
+                <description xml:lang="x-default">Describes the user that last made a change to a given recipe definition.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="VIEWTYPE">
+                <display-name xml:lang="x-default">VIEWTYPE</display-name>
+                <description xml:lang="x-default">Describes the recipe view type associated to a given recipe definition.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="ATTRIBUTES">
+                <display-name xml:lang="x-default">ATTRIBUTES</display-name>
+                <attribute attribute-id="RECIPEDEFINITIONID"/>
+                <attribute attribute-id="CATEGORYNAME"/>
+                <attribute attribute-id="VIEWTYPE"/>
+                <attribute attribute-id="ORIENTATION"/>
+                <attribute attribute-id="DEF"/>
+                <attribute attribute-id="RECIPE"/>
+                <attribute attribute-id="SAMPLEURL"/>
+                <attribute attribute-id="USERNAME"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+     <custom-type type-id="ProductImageAssignments">
+        <display-name xml:lang="x-default">ProductImageAssignments</display-name>
+        <description xml:lang="x-default">This custom object is used to archive product image assignment requests make to master product definitions using the Scene 7 Recipe Assignment Tool Set.</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <retention-days>90</retention-days>
+        <key-definition attribute-id="ASSIGNMENTID">
+            <display-name xml:lang="x-default">ASSIGNMENTID</display-name>
+            <description xml:lang="x-default">Describes the unique identifier for each product / image assignment record.</description>
+            <type>string</type>
+            <min-length>0</min-length>
+            <field-length>0</field-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="IMAGEASSIGNMENTJSON">
+                <display-name xml:lang="x-default">IMAGEASSIGNMENTJSON</display-name>
+                <description xml:lang="x-default">Describes the collection of image assignments applied to a given master product.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>0</field-length>
+                <field-height>10</field-height>
+            </attribute-definition>
+            <attribute-definition attribute-id="PRODUCTCODE">
+                <display-name xml:lang="x-default">PRODUCTCODE</display-name>
+                <description xml:lang="x-default">Describes the style or material code to which the collection of image assignments will be applied.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>7</min-length>
+                <field-length>11</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="SITEID">
+                <display-name xml:lang="x-default">SITEID</display-name>
+                <description xml:lang="x-default">Describes the site to which a given product / image assignment document is associated.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="USERNAME">
+                <display-name xml:lang="x-default">USERNAME</display-name>
+                <description xml:lang="x-default">Describes the name of the Business Manager user that performed the product / image assignment.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="ATTRIBUTES">
+                <display-name xml:lang="x-default">ATTRIBUTES</display-name>
+                <attribute attribute-id="ASSIGNMENTID"/>
+                <attribute attribute-id="SITEID"/>
+                <attribute attribute-id="PRODUCTCODE"/>
+                <attribute attribute-id="IMAGEASSIGNMENTJSON"/>
+                <attribute attribute-id="USERNAME"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+     <custom-type type-id="RecipeCategories">
+        <display-name xml:lang="x-default">RecipeCategories</display-name>
+        <description xml:lang="x-default">This custom object is used to define each of the Scene 7 recipe categories available to the current Demandware instance.</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="CATEGORYNAME">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="DESCRIPTION">
+                <display-name xml:lang="x-default">DESCRIPTION</display-name>
+                <description xml:lang="x-default">Provides a description / overview for a given recipe category and how it is used.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="SEQUENCE">
+                <display-name xml:lang="x-default">SEQUENCE</display-name>
+                <description xml:lang="x-default">Describes the order in which recipe categories are displayed.</description>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>0</field-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="ATTRIBUTES">
+                <display-name xml:lang="x-default">ATTRIBUTES</display-name>
+                <attribute attribute-id="CATEGORYNAME"/>
+                <attribute attribute-id="DESCRIPTION"/>
+                <attribute attribute-id="SEQUENCE"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="RecipeDefinitionAuditHistory">
+        <display-name xml:lang="x-default">RecipeDefinitionAuditHistory</display-name>
+        <description xml:lang="x-default">This custom object is used to audit changes made to a given Scene 7 recipe definition.</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <retention-days>90</retention-days>
+        <key-definition attribute-id="AUDITID">
+            <display-name xml:lang="x-default">AUDITID</display-name>
+            <description xml:lang="x-default">Describes the unique identifier for a given recipe definition history record.</description>
+            <type>string</type>
+            <min-length>0</min-length>
+            <field-length>0</field-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="CATEGORYNAME">
+                <display-name xml:lang="x-default">CATEGORYNAME</display-name>
+                <description xml:lang="x-default">Describes the name of the recipe category associated to a given recipe definition.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="DEF">
+                <display-name xml:lang="x-default">DEF</display-name>
+                <description xml:lang="x-default">Describes the key / value pairs that represent the recipe definition in JSON format.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>100</field-length>
+                <field-height>10</field-height>
+            </attribute-definition>
+            <attribute-definition attribute-id="ORIENTATION">
+                <display-name xml:lang="x-default">ORIENTATION</display-name>
+                <description xml:lang="x-default">Describes the JSON document that contains the Image Orientation preferences for a given recipe.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>100</field-length>
+                <field-height>10</field-height>
+            </attribute-definition>
+            <attribute-definition attribute-id="RECIPE">
+                <display-name xml:lang="x-default">RECIPE</display-name>
+                <description xml:lang="x-default">Represents the recipe-segment of the Scene 7 image url that can be applied to multiple product variant representations.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>250</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="RECIPEDEFINITIONID">
+                <display-name xml:lang="x-default">RECIPEDEFINITIONID</display-name>
+                <description xml:lang="x-default">Describes the primary key for a given recipeCategory / recipeViewType Scene 7 recipe definition.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>100</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="SAMPLEURL">
+                <display-name xml:lang="x-default">SAMPLEURL</display-name>
+                <description xml:lang="x-default">Describes the sample url that should render an example of a given recipe definition.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>250</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="SITEID">
+                <display-name xml:lang="x-default">SITEID</display-name>
+                <description xml:lang="x-default">Describes the site through which a given recipe definition change was made.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="USERNAME">
+                <display-name xml:lang="x-default">USERNAME</display-name>
+                <description xml:lang="x-default">Describes the user that made the recorded change to a recipe definition.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="VIEWTYPE">
+                <display-name xml:lang="x-default">VIEWTYPE</display-name>
+                <description xml:lang="x-default">Describes the recipe view type associated to a given recipe definition.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="ATTRIBUTES">
+                <display-name xml:lang="x-default">ATTRIBUTES</display-name>
+                <attribute attribute-id="AUDITID"/>
+                <attribute attribute-id="RECIPEDEFINITIONID"/>
+                <attribute attribute-id="CATEGORYNAME"/>
+                <attribute attribute-id="VIEWTYPE"/>
+                <attribute attribute-id="SITEID"/>
+                <attribute attribute-id="USERNAME"/>
+                <attribute attribute-id="ORIENTATION"/>
+                <attribute attribute-id="DEF"/>
+                <attribute attribute-id="RECIPE"/>
+                <attribute attribute-id="SAMPLEURL"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+
+
+    <custom-type type-id="RecipeViewTypes">
+        <display-name xml:lang="x-default">RecipeViewTypes</display-name>
+        <description xml:lang="x-default">This custom object will be used to store all initial recipe view-type definitions.  These definitions should mirror the catalog image-types for a given site.</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="VIEWTYPEID">
+            <display-name xml:lang="x-default">VIEWTYPEID</display-name>
+            <description xml:lang="x-default">The viewTypeID represents the external primary-key for a given view type.</description>
+            <type>string</type>
+            <min-length>0</min-length>
+            <field-length>0</field-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="ACTIVE">
+                <display-name xml:lang="x-default">ACTIVE</display-name>
+                <description xml:lang="x-default">Describes the active status for a given view-type record (true = active, false = in-active / not in use).</description>
+                <type>boolean</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="DESCRIPTION">
+                <display-name xml:lang="x-default">DESCRIPTION</display-name>
+                <description xml:lang="x-default">Provides a summary and purpose for a given view-type and recipe display template.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="DEVICE">
+                <display-name xml:lang="x-default">DEVICE</display-name>
+                <description xml:lang="x-default">Describes the device that a given view-type is designed to cater to (mobile, tablet, or desktop).</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>25</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="HEIGHT">
+                <display-name xml:lang="x-default">HEIGHT</display-name>
+                <description xml:lang="x-default">Describes the default height for a given image view-type.</description>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>4</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="IMAGEFORMAT">
+                <display-name xml:lang="x-default">IMAGEFORMAT</display-name>
+                <description xml:lang="x-default">Describes the default image-format for a given view-type (ex. png-alpha, jpg, etc).</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>4</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="IMAGEPREF">
+                <display-name xml:lang="x-default">IMAGEPREF</display-name>
+                <description xml:lang="x-default">Describes the image-preference for a given view-type (ex. model, product, lay-down, etc).</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>25</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="NAME">
+                <display-name xml:lang="x-default">NAME</display-name>
+                <description xml:lang="x-default">Describes the internal / merchant-facing name for a given image view-type.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>50</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="PAGE">
+                <display-name xml:lang="x-default">PAGE</display-name>
+                <description xml:lang="x-default">Describes the page that a given image view-type would be visible on (ex. product-grid, product-detail, home-page, etc).</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>25</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="SEQUENCE">
+                <display-name xml:lang="x-default">SEQUENCE</display-name>
+                <description xml:lang="x-default">Describes the order / sequence in which view-types should be displayed.</description>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>5</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="WIDTH">
+                <display-name xml:lang="x-default">WIDTH</display-name>
+                <description xml:lang="x-default">Describes the default width (in pixels) for a given view-type.</description>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>4</field-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="ATTRIBUTES">
+                <display-name xml:lang="x-default">ATTRIBUTES</display-name>
+                <attribute attribute-id="VIEWTYPEID"/>
+                <attribute attribute-id="NAME"/>
+                <attribute attribute-id="DESCRIPTION"/>
+                <attribute attribute-id="HEIGHT"/>
+                <attribute attribute-id="WIDTH"/>
+                <attribute attribute-id="IMAGEPREF"/>
+                <attribute attribute-id="IMAGEFORMAT"/>
+                <attribute attribute-id="PAGE"/>
+                <attribute attribute-id="DEVICE"/>
+                <attribute attribute-id="ACTIVE"/>
+                <attribute attribute-id="SEQUENCE"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="SMARTLING_LOCALES">
+        <display-name xml:lang="x-default">Smartling locales</display-name>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="ID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="name">
+                <display-name xml:lang="x-default">Name</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="general">
+                <display-name xml:lang="x-default">General</display-name>
+                <attribute attribute-id="name"/>
+                <attribute attribute-id="ID"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="SMARTLING_SUBMISSION">
+        <display-name xml:lang="x-default">Smartling submission data</display-name>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="submissionId">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="applied">
+                <display-name xml:lang="x-default">Time Applied</display-name>
+                <type>datetime</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="contentHash">
+                <display-name xml:lang="x-default">Content hash</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="fileUri">
+                <display-name xml:lang="x-default">File name</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="itemId">
+                <display-name xml:lang="x-default">Item ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="itemName">
+                <display-name xml:lang="x-default">Item Name</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="itemType">
+                <display-name xml:lang="x-default">Item Type</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="locale">
+                <display-name xml:lang="x-default">Locale</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="outdated">
+                <display-name xml:lang="x-default">Outdated</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="progress">
+                <display-name xml:lang="x-default">Progress</display-name>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="smLastModified">
+                <display-name xml:lang="x-default">Smartling Last Modified</display-name>
+                <type>datetime</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="source">
+                <display-name xml:lang="x-default">Source</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="status">
+                <display-name xml:lang="x-default">Status</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="submitted">
+                <display-name xml:lang="x-default">Time Submitted</display-name>
+                <type>datetime</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="submitter">
+                <display-name xml:lang="x-default">Submitter</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="wordsSubmitted">
+                <display-name xml:lang="x-default">Words Submitted</display-name>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="general">
+                <display-name xml:lang="x-default">General</display-name>
+                <attribute attribute-id="submissionId"/>
+                <attribute attribute-id="itemName"/>
+                <attribute attribute-id="itemType"/>
+                <attribute attribute-id="itemId"/>
+                <attribute attribute-id="locale"/>
+                <attribute attribute-id="source"/>
+                <attribute attribute-id="fileUri"/>
+                <attribute attribute-id="progress"/>
+                <attribute attribute-id="status"/>
+                <attribute attribute-id="contentHash"/>
+                <attribute attribute-id="outdated"/>
+                <attribute attribute-id="submitter"/>
+                <attribute attribute-id="wordsSubmitted"/>
+                <attribute attribute-id="smLastModified"/>
+                <attribute attribute-id="submitted"/>
+                <attribute attribute-id="applied"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="MarketingCloudAuthToken">
+        <display-name xml:lang="x-default">Marketing Cloud Auth Token</display-name>
+        <description xml:lang="x-default">Marketing Cloud OAuth Token</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <retention-days>1</retention-days>
+        <key-definition attribute-id="siteID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="token">
+                <display-name xml:lang="x-default">Token</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="default">
+                <display-name xml:lang="x-default">Default</display-name>
+                <attribute attribute-id="siteID"/>
+                <attribute attribute-id="token"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="MarketingCloudAnalytics">
+        <display-name xml:lang="x-default">Marketing Cloud Analytics</display-name>
+        <description xml:lang="x-default">Marketing Cloud Analytics definitions</description>
+        <staging-mode>source-to-target</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="analyticEventID">
+            <display-name xml:lang="x-default">Analytic Event ID</display-name>
+            <description xml:lang="x-default">Event ID of the analytic activity being tracked</description>
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="analyticAttributes">
+                <display-name xml:lang="x-default">Analytic Attributes</display-name>
+                <description xml:lang="x-default">Analytic fields, data attributes, etc, should all be defined and mapped here.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="customEventName">
+                <display-name xml:lang="x-default">Custom Event Name</display-name>
+                <description xml:lang="x-default">Custom event name that is sent to Marketing Cloud</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="description">
+                <display-name xml:lang="x-default">Description</display-name>
+                <description xml:lang="x-default">Analytic event description</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="enabled">
+                <display-name xml:lang="x-default">Enabled?</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="default">
+                <display-name xml:lang="x-default">Default</display-name>
+                <attribute attribute-id="analyticEventID"/>
+                <attribute attribute-id="customEventName"/>
+                <attribute attribute-id="description"/>
+                <attribute attribute-id="enabled"/>
+                <attribute attribute-id="analyticAttributes"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="MarketingCloudDataExport">
+        <display-name xml:lang="x-default">Marketing Cloud Data Export</display-name>
+        <description xml:lang="x-default">Marketing Cloud Data Export definitions</description>
+        <staging-mode>source-to-target</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="exportID">
+            <display-name xml:lang="x-default">Export ID</display-name>
+            <description xml:lang="x-default">Export ID mapped from job in Business Manager</description>
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="description">
+                <display-name xml:lang="x-default">Description</display-name>
+                <description xml:lang="x-default">Export description</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="exportAttributes">
+                <display-name xml:lang="x-default">Export Attributes</display-name>
+                <description xml:lang="x-default">Export fields, data attributes, etc, should all be defined and mapped here.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="default">
+                <display-name xml:lang="x-default">Default</display-name>
+                <attribute attribute-id="exportID"/>
+                <attribute attribute-id="description"/>
+                <attribute attribute-id="exportAttributes"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="MarketingCloudDataExportStatus">
+        <display-name xml:lang="x-default">Marketing Cloud Data Export Status</display-name>
+        <description xml:lang="x-default">Tracks the last export for each feed to Marketing Cloud</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="siteID_exportID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="lastExportRun">
+                <display-name xml:lang="x-default">Last Export Run</display-name>
+                <type>datetime</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="default">
+                <display-name xml:lang="x-default">Default</display-name>
+                <attribute attribute-id="siteID_exportID"/>
+                <attribute attribute-id="lastExportRun"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="MarketingCloudTriggers">
+        <display-name xml:lang="x-default">Marketing Cloud Triggers</display-name>
+        <description xml:lang="x-default">Triggers defined for use with int_marketing_cloud cartridge.</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="hookID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="countriesEnabled">
+                <display-name xml:lang="x-default">Countries Enabled</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="customerKey">
+                <display-name xml:lang="x-default">Trigger External Key</display-name>
+                <description xml:lang="x-default">External Key of the entry event send definition.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="description">
+                <display-name xml:lang="x-default">Description</display-name>
+                <description xml:lang="x-default">Description of what this trigger event does</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="enabled">
+                <display-name xml:lang="x-default">Enabled?</display-name>
+                <description xml:lang="x-default">If unchecked, the trigger is disabled, in which case no communication is issued.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="subscriberAttributes">
+                <display-name xml:lang="x-default">Subscriber Attributes</display-name>
+                <description xml:lang="x-default">Subscriber profile fields, data extension attributes, etc, should all be defined and mapped here.</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="default">
+                <display-name xml:lang="x-default">Default</display-name>
+                <attribute attribute-id="hookID"/>
+                <attribute attribute-id="customerKey"/>
+                <attribute attribute-id="description"/>
+                <attribute attribute-id="enabled"/>
+                <attribute attribute-id="countriesEnabled"/>
+                <attribute attribute-id="subscriberAttributes"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="ReturnXML">
+        <display-name xml:lang="x-default">Return XML</display-name>
+        <description xml:lang="x-default">Object used to temporarily store Order and Return data for the daily XML export</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="returnID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="consignmentId">
+                <display-name xml:lang="x-default">Consignment ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="currencyCode">
+                <display-name xml:lang="x-default">Currency Code</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="customerSapId">
+                <display-name xml:lang="x-default">Customer SAP ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="dwOrderNo">
+                <display-name xml:lang="x-default">Demandware Order Number</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="invoiceSapId">
+                <display-name xml:lang="x-default">Invoice SAP ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="readyToExport">
+                <display-name xml:lang="x-default">Ready To Export</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnSkusJson">
+                <display-name xml:lang="x-default">Return Skus JSON</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="trackingNumber">
+                <display-name xml:lang="x-default">Tracking Number</display-name>
+                <description xml:lang="x-default">Tracking number provided by the return carrier</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="transactionReference">
+                <display-name xml:lang="x-default">Transaction Reference</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="general">
+                <display-name xml:lang="x-default">General</display-name>
+                <attribute attribute-id="dwOrderNo"/>
+                <attribute attribute-id="customerSapId"/>
+                <attribute attribute-id="returnID"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="returnSkusJson"/>
+                <attribute attribute-id="invoiceSapId"/>
+                <attribute attribute-id="trackingNumber"/>
+                <attribute attribute-id="transactionReference"/>
+                <attribute attribute-id="consignmentId"/>
+                <attribute attribute-id="currencyCode"/>
+                <attribute attribute-id="readyToExport"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="EODOrderReportData">
+        <display-name xml:lang="x-default">ID</display-name>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="ID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="data">
+                <display-name xml:lang="x-default">Data</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="custom">
+                <display-name xml:lang="x-default">custom</display-name>
+                <attribute attribute-id="ID"/>
+                <attribute attribute-id="data"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="OISAuthToken">
+        <display-name xml:lang="x-default">OIS Auth Token</display-name>
+        <description xml:lang="x-default">OIS Auth Token</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <retention-days>10</retention-days>
+        <key-definition attribute-id="ID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="expires">
+                <display-name xml:lang="x-default">OAuth token expires</display-name>
+                <type>date</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="token">
+                <display-name xml:lang="x-default">Auth Token</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="default">
+                <display-name xml:lang="x-default">Default</display-name>
+                <attribute attribute-id="token"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="expires"/>
+                <attribute attribute-id="ID"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="UACAPIAuthToken">
+        <display-name xml:lang="x-default">UACAPI Auth Token</display-name>
+        <description xml:lang="x-default">UACAPI Auth Token</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <retention-days>10</retention-days>
+        <key-definition attribute-id="ID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="expires">
+                <display-name xml:lang="x-default">OAuth token expires</display-name>
+                <type>date</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="token">
+                <display-name xml:lang="x-default">Auth Token</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="default">
+                <display-name xml:lang="x-default">Default</display-name>
+                <attribute attribute-id="token"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="expires"/>
+                <attribute attribute-id="ID"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="CombinePDP">
+        <display-name xml:lang="x-default">Combine PDP</display-name>
+        <description xml:lang="x-default">Create CombinePDP catalog XML file for import</description>
+        <staging-mode>source-to-target</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="ID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="combineMasterIDs">
+                <display-name xml:lang="x-default">Combine Master ID's</display-name>
+                <description xml:lang="x-default">Master ID's to combine</description>
+                <type>set-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="masterID">
+                <display-name xml:lang="x-default">MasterID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="combineMasterIDs">
+                <attribute attribute-id="ID"/>
+                <attribute attribute-id="masterID"/>
+                <attribute attribute-id="combineMasterIDs"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+	<custom-type type-id="BorderfreePendingShipmentNotifications">
+        <display-name xml:lang="x-default">Borderfree Pending Shipment Notifications</display-name>
+        <description xml:lang="x-default">Borderfree Pending Shipment Notifications</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <retention-days>30</retention-days>
+        <key-definition attribute-id="id">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="bfxShipmentData">
+                <display-name xml:lang="x-default">Borderfree Shipment Data</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="exported">
+                <display-name xml:lang="x-default">Exported</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="numFailedAttempts">
+                <display-name xml:lang="x-default">Number of Failed Attempts</display-name>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="orderID">
+                <display-name xml:lang="x-default">Order ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="parcelID">
+                <display-name xml:lang="x-default">Parcel ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="responseLog">
+                <display-name xml:lang="x-default">Response</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="System">
+                <display-name xml:lang="x-default">System</display-name>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+            <attribute-group group-id="Custom">
+                <display-name xml:lang="x-default">Custom</display-name>
+                <attribute attribute-id="id"/>
+                <attribute attribute-id="orderID"/>
+                <attribute attribute-id="parcelID"/>
+                <attribute attribute-id="bfxShipmentData"/>
+                <attribute attribute-id="numFailedAttempts"/>
+                <attribute attribute-id="exported"/>
+                <attribute attribute-id="responseLog"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+	<custom-type type-id="VIPAuthToken">
+        <display-name xml:lang="x-default">VIP Auth Token</display-name>
+        <description xml:lang="x-default">VIP Auth Token</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <retention-days>10</retention-days>
+        <key-definition attribute-id="ID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="expires">
+                <display-name xml:lang="x-default">OAuth token expires</display-name>
+                <type>date</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="token">
+                <display-name xml:lang="x-default">Auth Token</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="default">
+                <display-name xml:lang="x-default">Default</display-name>
+                <attribute attribute-id="ID"/>
+                <attribute attribute-id="expires"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="token"/>
+                <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+	<custom-type type-id="ShippingMethodDeliveryDate">
+        <display-name xml:lang="x-default">Shipping Method Delivery Date</display-name>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="shippingMethodId">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="expiryTime">
+                <display-name xml:lang="x-default">Expiry Time</display-name>
+                <type>datetime</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="maxDeliveryDate">
+                <display-name xml:lang="x-default">maxDeliveryDate</display-name>
+                <type>datetime</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="minDeliveryDate">
+                <display-name xml:lang="x-default">minDeliveryDate</display-name>
+                <type>datetime</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="ShippingDeliveryDate">
+                <display-name xml:lang="x-default">ShippingDeliveryDate</display-name>
+                <attribute attribute-id="expiryTime"/>
+                <attribute attribute-id="shippingMethodId"/>
+                <attribute attribute-id="maxDeliveryDate"/>
+                <attribute attribute-id="minDeliveryDate"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="returnLabelEmailRequests">
+        <display-name xml:lang="x-default">Return Label Email Requests</display-name>
+        <description xml:lang="x-default">Custom object to store return label email requests data. It'll be processed through a job and will be deleted after processing.</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <retention-days>1</retention-days>
+        <key-definition attribute-id="rmaId">
+            <display-name xml:lang="x-default">RMA ID</display-name>
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="base64encodedFileData">
+                <display-name xml:lang="x-default">Base 64 Encoded Return Label File Data</display-name>
+                <description xml:lang="x-default">Base 64 encoded return label file data received from FedEx/Canada post</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="customerNo">
+                <display-name xml:lang="x-default">Customer Number</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="fileType">
+                <display-name xml:lang="x-default">Return Label File Type</display-name>
+                <description xml:lang="x-default">Return label file type</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnLabelUrl">
+                <display-name xml:lang="x-default">Return Label URL</display-name>
+                <description xml:lang="x-default">Return label URL uploaded on Amazon S3. The file data will be uploaded to Amazon S3 through job and generated URL will be stored in this field</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="sfmcData">
+                <display-name xml:lang="x-default">SFMC Data</display-name>
+                <description xml:lang="x-default">Required data to make SFMC service calls to send return label emails</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="custom">
+                <display-name xml:lang="x-default">custom</display-name>
+                <attribute attribute-id="rmaId"/>
+                <attribute attribute-id="sfmcData"/>
+                <attribute attribute-id="fileType"/>
+                <attribute attribute-id="returnLabelUrl"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="base64encodedFileData"/>
+                <attribute attribute-id="customerNo"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+    <custom-type type-id="NewsLetterSignUp">
+        <display-name xml:lang="x-default">News Letter Sign Up</display-name>
+        <description xml:lang="x-default">Custom Objects for News Letter Sign Up Job</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="email">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+    </custom-type>
+
+    <custom-type type-id="KlarnaCountries">
+        <display-name xml:lang="x-default">Klarna Countries</display-name>
+        <staging-mode>source-to-target</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="country">
+            <display-name xml:lang="x-default">Country Code</display-name>
+            <type>string</type>
+            <min-length>0</min-length>
+            <field-length>0</field-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="klarnaLocale">
+                <display-name xml:lang="x-default">On-site Messaging Data Default Locale</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="credentialID">
+                <display-name xml:lang="x-default">Service Credential ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="osmUCI">
+                <display-name xml:lang="x-default">On-site messaging Data Client ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+			<attribute-definition attribute-id="osmCartEnabled">
+                <display-name xml:lang="x-default">Cart Placement Tag Enabled</display-name>
+                <description xml:lang="x-default">Whether Cart Placement Tag is Enabled</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+			<attribute-definition attribute-id="osmCartTagId">
+                <display-name xml:lang="x-default">Cart Placement Data Key</display-name>
+                <description xml:lang="x-default">Data Key of On-site messaging placement tag for Cart Page.</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+			<attribute-definition attribute-id="osmPDPEnabled">
+                <display-name xml:lang="x-default">PDP Placement Tag Enabled</display-name>
+                <description xml:lang="x-default">Whether PDP Placement Tag is Enabled</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+			<attribute-definition attribute-id="osmPDPTagId">
+                <display-name xml:lang="x-default">PDP Placement Data Key</display-name>
+                <description xml:lang="x-default">Data Key of On-site messaging placement tag for PDP Page.</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="osmHeaderEnabled">
+                <display-name xml:lang="x-default">Header Placement Tag Enabled</display-name>
+                <description xml:lang="x-default">To enable Klarna Header Placement in a given storefront</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="osmHeaderTagId">
+                <display-name xml:lang="x-default">Header Placement Data Key</display-name>
+                <description xml:lang="x-default">The Klarna On-site Messaging "data-key" of placement applicable for the Header</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="osmFooterEnabled">
+                <display-name xml:lang="x-default">Footer Placement Tag Enabled</display-name>
+                <description xml:lang="x-default">To enable Klarna footer Placement in a given storefront</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="osmFooterTagId">
+                <display-name xml:lang="x-default">Footer Placement Data Key</display-name>
+                <description xml:lang="x-default">The Klarna On-site Messaging "data-key" of placement applicable for the footer.</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="osmInfoPageEnabled">
+                <display-name xml:lang="x-default">Info Page Placement Tag Enabled</display-name>
+                <description xml:lang="x-default">To enable Klarna Info Page Placement in a given storefront</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="osmInfoPageTagId">
+                <display-name xml:lang="x-default">Info Page Placement Data Key</display-name>
+                <description xml:lang="x-default">The Klarna On-site Messaging "data-key" of placement applicable for the Info Page .</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="osmDataInlineEnabled">
+                <display-name xml:lang="x-default">Data Inline Enabled on PDP/Cart placement (Canada only)</display-name>
+                <description xml:lang="x-default">Enable this when using PayBright payment method in Canada</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="osmLibraryUrl">
+                <display-name xml:lang="x-default">Library URL</display-name>
+                <description xml:lang="x-default">URL to On-Site Messaging Library URL</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="kebCategory">
+                <display-name xml:lang="x-default">Express Button Category</display-name>
+                <description xml:lang="x-default">The Klarna Express Button category to be pre-selected on Checkout Page</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="paymentMethodID">
+                <display-name xml:lang="x-default">Payment Method ID</display-name>
+                <description xml:lang="x-default">Payment Method ID that should be used for placing of the order. If not defined, by default the payment method that should be used is 'KLARNA_PAYMENTS'.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="kebMCEnabled">
+                <display-name xml:lang="x-default">MiniCart Express Button Enabled</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="kebMCTheme">
+                <display-name xml:lang="x-default">MiniCart Express Button Theme</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">Default</display>
+                        <value>default</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Light</display>
+                        <value>light</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Dark</display>
+                        <value>dark</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="kebCheckoutEnabled">
+                <display-name xml:lang="x-default">Express Button checkout Enabled</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="kebEnvironment">
+                <display-name xml:lang="x-default">Express Button Environment</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">Playground</display>
+                        <value>playground</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Production</display>
+                        <value>production</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="kebLabel">
+                <display-name xml:lang="x-default">Express Button Label</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="kebLibraryUrl">
+                <display-name xml:lang="x-default">Express Button Library URL</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="kebCartEnabled">
+                <display-name xml:lang="x-default">Express Button Cart Enabled</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="kebMerchantID">
+                <display-name xml:lang="x-default">Express Button Merchant ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="kebShape">
+                <display-name xml:lang="x-default">Express Button Shape</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">Regular</display>
+                        <value>default</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Rectangle</display>
+                        <value>rect</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Pill</display>
+                        <value>pill</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="kebMiniCartShape">
+                <display-name xml:lang="x-default">Minicart Express Button Shape</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">Regular</display>
+                        <value>default</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Rectangle</display>
+                        <value>rect</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Pill</display>
+                        <value>pill</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="kebTheme">
+                <display-name xml:lang="x-default">Express Button Theme</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">Default</display>
+                        <value>default</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Light</display>
+                        <value>light</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Dark</display>
+                        <value>dark</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="custom">
+                <display-name xml:lang="x-default">General</display-name>
+                <attribute attribute-id="country"/>
+                <attribute attribute-id="klarnaLocale"/>
+                <attribute attribute-id="credentialID"/>
+				<attribute attribute-id="paymentMethodID"/>
+            </attribute-group>
+            <attribute-group group-id="osm">
+                <display-name xml:lang="x-default">On-site Messaging</display-name>
+                <attribute attribute-id="osmUCI"/>
+                <attribute attribute-id="osmCartEnabled"/>
+                <attribute attribute-id="osmCartTagId"/>
+                <attribute attribute-id="osmPDPEnabled"/>
+                <attribute attribute-id="osmPDPTagId"/>
+                <attribute attribute-id="osmHeaderEnabled"/>
+                <attribute attribute-id="osmHeaderTagId"/>
+                <attribute attribute-id="osmFooterEnabled"/>
+                <attribute attribute-id="osmFooterTagId"/>
+                <attribute attribute-id="osmInfoPageEnabled"/>
+                <attribute attribute-id="osmInfoPageTagId"/>
+                <attribute attribute-id="osmDataInlineEnabled"/>
+                <attribute attribute-id="osmLibraryUrl"/>
+            </attribute-group>
+            <attribute-group group-id="expressButton">
+                <display-name xml:lang="x-default">Express Button</display-name>
+                <attribute attribute-id="kebMerchantID"/>
+                <attribute attribute-id="kebEnvironment"/>
+                <attribute attribute-id="kebTheme"/>
+                <attribute attribute-id="kebShape"/>
+                <attribute attribute-id="kebCheckoutEnabled"/>
+                <attribute attribute-id="kebCartEnabled"/>
+                <attribute attribute-id="kebLibraryUrl"/>
+                <attribute attribute-id="kebCategory"/>
+                <attribute attribute-id="kebLabel"/>
+            </attribute-group>
+            <attribute-group group-id="expressMCButton">
+                <display-name xml:lang="x-default">MiniCart Express Button</display-name>
+                <attribute attribute-id="kebMCEnabled"/>
+                <attribute attribute-id="kebMCTheme"/>
+                <attribute attribute-id="kebMiniCartShape"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="authTokens">
+        <display-name xml:lang="x-default">Auth Tokens</display-name>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="name">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="expires">
+                <type>datetime</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="token">
+                <display-name xml:lang="x-default">Token</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="authToken">
+                <display-name xml:lang="x-default">authToken</display-name>
+                <attribute attribute-id="name"/>
+                <attribute attribute-id="expires"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="token"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="Project">
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="ProjectID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="CatalogIdsList">
+                <display-name xml:lang="x-default">CatalogIds List</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="IsAutoDownload">
+                <display-name xml:lang="x-default">IS Auto Download</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="IsTranslationHistoryCreated">
+                <display-name xml:lang="x-default">Is Translation History Created</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="ProjectName">
+                <display-name xml:lang="x-default">Project Name</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="ProjectStatus">
+                <display-name xml:lang="x-default">Project Status</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="ProjectType">
+                <display-name xml:lang="x-default">Project Type</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="TMSProjectID">
+                <display-name xml:lang="x-default">TMS Project ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="ProjectAttributeGroup">
+                <display-name xml:lang="x-default">ProjectAttributeGroup</display-name>
+                <attribute attribute-id="ProjectStatus"/>
+                <attribute attribute-id="ProjectName"/>
+                <attribute attribute-id="ProjectType"/>
+                <attribute attribute-id="ProjectID"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="IsTranslationHistoryCreated"/>
+                <attribute attribute-id="TMSProjectID"/>
+                <attribute attribute-id="CatalogIdsList"/>
+                <attribute attribute-id="IsAutoDownload"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="ProjectsDataForCreating">
+        <display-name xml:lang="x-default">Projects Data For Creating</display-name>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="ProjectID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="CatalogIdsList">
+                <display-name xml:lang="x-default">CatalogIds List</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="CreateProjectJson">
+                <display-name xml:lang="x-default">Create Project Json</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="IsTMSProjectCreated">
+                <display-name xml:lang="x-default">Is TMS Project Created</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="Name">
+                <display-name xml:lang="x-default">Name</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>3000</field-length>
+                <field-height>3000</field-height>
+            </attribute-definition>
+            <attribute-definition attribute-id="ProjectType">
+                <display-name xml:lang="x-default">Project Type</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="TargetLanguageProductsListMap">
+                <display-name xml:lang="x-default">Target Language Products List Map</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="ProjectID">
+                <display-name xml:lang="x-default">ProjectID</display-name>
+                <attribute attribute-id="ProjectID"/>
+                <attribute attribute-id="Name"/>
+                <attribute attribute-id="IsTMSProjectCreated"/>
+                <attribute attribute-id="ProjectType"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="TargetLanguageProductsListMap"/>
+                <attribute attribute-id="CreateProjectJson"/>
+                <attribute attribute-id="CatalogIdsList"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="SDL_Session">
+        <display-name xml:lang="x-default">SDL Session</display-name>
+        <description xml:lang="x-default">Token management</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="IDd">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="IsParentLevelTranslation">
+                <display-name xml:lang="x-default">Is Parent Level Translation</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="LanguagesMap">
+                <display-name xml:lang="x-default">Languages Map</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="SiteCatalogs">
+                <display-name xml:lang="x-default">Site Catalogs</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="SiteLibraries">
+                <display-name xml:lang="x-default">Site Libraries</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="TMSCredentials">
+                <display-name xml:lang="x-default">TMS Credentials</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="access_token">
+                <display-name xml:lang="x-default">access token</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="expires_in">
+                <display-name xml:lang="x-default">expires in</display-name>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="expiry_date">
+                <display-name xml:lang="x-default">expiry date</display-name>
+                <type>datetime</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="testpicklist">
+                <display-name xml:lang="x-default">testpicklist</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">preparing</display>
+                        <value>preparing</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Completed</display>
+                        <value>Completed</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">ready for Donwload</display>
+                        <value>ready for Donwload</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="token_type">
+                <display-name xml:lang="x-default">token type</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="translatableCampaignAttributes">
+                <display-name xml:lang="x-default">Translatable Campaign Attributes</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="translatableContentAttributes">
+                <display-name xml:lang="x-default">Translatable Content Assets Attributes</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="translatableProductAttributes">
+                <display-name xml:lang="x-default">Translatable Product Attributes</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="translatablePromotionAttributes">
+                <display-name xml:lang="x-default">Translatable Promotion Attributes</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="TmsSettings">
+                <display-name xml:lang="x-default">TmsSettings</display-name>
+                <attribute attribute-id="IDd"/>
+                <attribute attribute-id="access_token"/>
+                <attribute attribute-id="testpicklist"/>
+                <attribute attribute-id="expiry_date"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="token_type"/>
+                <attribute attribute-id="expires_in"/>
+                <attribute attribute-id="SiteLibraries"/>
+                <attribute attribute-id="SiteCatalogs"/>
+                <attribute attribute-id="TMSCredentials"/>
+                <attribute attribute-id="IsParentLevelTranslation"/>
+                <attribute attribute-id="LanguagesMap"/>
+                <attribute attribute-id="translatableProductAttributes"/>
+                <attribute attribute-id="translatableContentAttributes"/>
+                <attribute attribute-id="translatableCampaignAttributes"/>
+                <attribute attribute-id="translatablePromotionAttributes"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="TranslationHistory">
+        <display-name xml:lang="x-default">Translation History</display-name>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="FileID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="ArtifactID">
+                <display-name xml:lang="x-default">Artifact ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="ArtifactType">
+                <display-name xml:lang="x-default">Artifact Type</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="CatalogIdsList">
+                <display-name xml:lang="x-default">CatalogIds List</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="DownloadableFileID">
+                <display-name xml:lang="x-default">Downloadable File ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="IsAutoDownload">
+                <display-name xml:lang="x-default">IS Auto Download</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="ProjectID">
+                <display-name xml:lang="x-default">Project ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Status">
+                <display-name xml:lang="x-default">Status</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="TargetLanguage">
+                <display-name xml:lang="x-default">Target Language</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="TragetLanguageCode">
+                <display-name xml:lang="x-default">Traget Language Code</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="TranslationHistoryAttributeGroup">
+                <display-name xml:lang="x-default">TranslationHistoryAttributeGroup</display-name>
+                <attribute attribute-id="Status"/>
+                <attribute attribute-id="DownloadableFileID"/>
+                <attribute attribute-id="ArtifactID"/>
+                <attribute attribute-id="ArtifactType"/>
+                <attribute attribute-id="ProjectID"/>
+                <attribute attribute-id="FileID"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="TragetLanguageCode"/>
+                <attribute attribute-id="TargetLanguage"/>
+                <attribute attribute-id="CatalogIdsList"/>
+                <attribute attribute-id="IsAutoDownload"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+    <custom-type type-id="ProductPersonalization">
+        <display-name xml:lang="x-default">Product Personalization</display-name>
+        <description xml:lang="x-default">Personalization for Different Materials</description>
+        <staging-mode>source-to-target</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="ID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="backImage">
+                <display-name xml:lang="x-default">Back Image</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="backImageSponsors">
+                <display-name xml:lang="x-default">Back Image with Sponsors</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="defaultOption">
+                <display-name xml:lang="x-default">Default Option</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="enableSponsors">
+                <display-name xml:lang="x-default">Enable Sponsors</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="frontImage">
+                <display-name xml:lang="x-default">Front Image</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="frontImageSponsors">
+                <display-name xml:lang="x-default">Front Image with Sponsors</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="jerseyStyle">
+                <display-name xml:lang="x-default">Jersey Style</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="nameLocation">
+                <display-name xml:lang="x-default">Name Location</display-name>
+                <description xml:lang="x-default">Switches the location of the Name to above or below the Jersey Number. Default (None) is Below the Number.</description>
+                <type>enum-of-string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Above Number</display>
+                        <value>above</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Below Number</display>
+                        <value>below</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="nameOption">
+                <display-name xml:lang="x-default">Name</display-name>
+                <display-name xml:lang="es">Nombre</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="namenumberOption">
+                <display-name xml:lang="x-default">Name and Number</display-name>
+                <display-name xml:lang="es">Nombre y Número</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="namenumbersponsorsOption">
+                <display-name xml:lang="x-default">Name, Number and Sponsors</display-name>
+                <display-name xml:lang="es">Nombre, Número y Patrocinadores</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="namesponsorsOption">
+                <display-name xml:lang="x-default">Name and Sponsors</display-name>
+                <display-name xml:lang="es">Nombre y Patrocinadores</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="nopersonalizationsOption">
+                <display-name xml:lang="x-default">No personalizations</display-name>
+                <display-name xml:lang="es">Sin personalización</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="numberOption">
+                <display-name xml:lang="x-default">Number</display-name>
+                <display-name xml:lang="es">Número</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="numbersponsorsOption">
+                <display-name xml:lang="x-default">Number and Sponsors</display-name>
+                <display-name xml:lang="es">Número y Patrocinadores</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="personalizationInfo">
+                <display-name xml:lang="x-default">Personalize Info</display-name>
+                <type>text</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="sponsorsOption">
+                <display-name xml:lang="x-default">Sponsors</display-name>
+                <display-name xml:lang="es">Patrocinadores</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="custom">
+                <display-name xml:lang="x-default">custom</display-name>
+                <attribute attribute-id="ID"/>
+                <attribute attribute-id="jerseyStyle"/>
+                <attribute attribute-id="frontImage"/>
+                <attribute attribute-id="backImage"/>
+                <attribute attribute-id="enableSponsors"/>
+                <attribute attribute-id="frontImageSponsors"/>
+                <attribute attribute-id="backImageSponsors"/>
+                <attribute attribute-id="personalizationInfo"/>
+                <attribute attribute-id="nopersonalizationsOption"/>
+                <attribute attribute-id="nameOption"/>
+                <attribute attribute-id="numberOption"/>
+                <attribute attribute-id="namenumberOption"/>
+                <attribute attribute-id="sponsorsOption"/>
+                <attribute attribute-id="namesponsorsOption"/>
+                <attribute attribute-id="numbersponsorsOption"/>
+                <attribute attribute-id="namenumbersponsorsOption"/>
+                <attribute attribute-id="defaultOption"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+    <custom-type type-id="SalesChannelFeedConfig">
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="id">
+            <display-name xml:lang="x-default">ID</display-name>
+            <description xml:lang="x-default">The ID of the feed</description>
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="assignedSites">
+                <type>set-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="configuration">
+                <display-name xml:lang="x-default">Configuration</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="exportCategoryId">
+                <display-name xml:lang="x-default">Export Category ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="feedContext">
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">Catalog</display>
+                        <value>Catalog</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="fileEncoding">
+                <display-name xml:lang="x-default">File encoding</display-name>
+                <description xml:lang="x-default">default is UTF-8</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="fileName">
+                <display-name xml:lang="x-default">File name</display-name>
+                <description xml:lang="x-default">The file to export to, the following placeholders are allowed:
+                    {{timestamp format="yyyMMdd"}}</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="folderName">
+                <display-name xml:lang="x-default">Folder name</display-name>
+                <description xml:lang="x-default">The folder to export to, should always start with 'IMPEX/'</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="googleShoppingCategories">
+                <display-name xml:lang="x-default">googleShoppingCategories</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="includeNoPriceProducts">
+                <display-name xml:lang="x-default">Include Products Without Prices</display-name>
+                <description xml:lang="x-default">Only applies in the catalog context</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="includeOfflineProducts">
+                <display-name xml:lang="x-default">Include Offline Products</display-name>
+                <description xml:lang="x-default">Only applies in the catalog context</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="includeOutOfStockProducts">
+                <display-name xml:lang="x-default">Include Out Of Stock Products</display-name>
+                <description xml:lang="x-default">Only applies in the catalog context</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="includeSearchableIfUnavailableProducts">
+                <display-name xml:lang="x-default">Include Searchable if Unavailable Products</display-name>
+                <description xml:lang="x-default">Only applies in the catalog context</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="socialCategory">
+                <display-name xml:lang="x-default">socialCategory</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="type">
+                <display-name xml:lang="x-default">Type</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">CSV</display>
+                        <value>CSV</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">XML</display>
+                        <value>XML</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="Attributes">
+                <display-name xml:lang="de-DE">Attributes</display-name>
+                <display-name xml:lang="x-default">Attributes</display-name>
+                <attribute attribute-id="id"/>
+                <attribute attribute-id="type"/>
+                <attribute attribute-id="configuration"/>
+                <attribute attribute-id="folderName"/>
+                <attribute attribute-id="fileName"/>
+                <attribute attribute-id="fileEncoding"/>
+                <attribute attribute-id="assignedSites"/>
+                <attribute attribute-id="feedContext"/>
+                <attribute attribute-id="includeSearchableIfUnavailableProducts"/>
+                <attribute attribute-id="includeNoPriceProducts"/>
+                <attribute attribute-id="includeOutOfStockProducts"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="includeOfflineProducts"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="googleShoppingCategories"/>
+                <attribute attribute-id="socialCategory"/>
+                <attribute attribute-id="exportCategoryId"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+    <custom-type type-id="adyenNotification">
+        <display-name xml:lang="x-default">Adyen Notification</display-name>
+        <description xml:lang="x-default">Adyen Notification Update Queue</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <retention-days>3</retention-days>
+        <key-definition attribute-id="orderId">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="assignedSites">
+                <type>set-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="configuration">
+                <display-name xml:lang="x-default">Configuration</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="currency">
+                <display-name xml:lang="x-default">Currency</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="eventCode">
+                <display-name xml:lang="x-default">Event Code</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="eventDate">
+                <display-name xml:lang="x-default">Event Date</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="httpRemoteAddress">
+                <display-name xml:lang="x-default">Remote Address</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="live">
+                <display-name xml:lang="x-default">Live</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="merchantAccountCode">
+                <display-name xml:lang="x-default">Merchant Account Code</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="merchantReference">
+                <display-name xml:lang="x-default">Merchant Reference</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="operations">
+                <display-name xml:lang="x-default">Operations</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="paymentMethod">
+                <display-name xml:lang="x-default">Payment Method</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="processedDate">
+                <display-name xml:lang="x-default">Processed Date</display-name>
+                <type>datetime</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="processedStatus">
+                <display-name xml:lang="x-default">Processed Status</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="pspReference">
+                <display-name xml:lang="x-default">PSP Reference</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="reason">
+                <display-name xml:lang="x-default">Reason</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="success">
+                <display-name xml:lang="x-default">Success</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="updateStatus">
+                <display-name xml:lang="x-default">Update Status</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">PENDING</display>
+                        <value>PENDING</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">PROCESSED</display>
+                        <value>PROCESSED</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">PROCESS</display>
+                        <value>PROCESS</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="value">
+                <display-name xml:lang="x-default">Amount</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="version">
+                <display-name xml:lang="x-default">Version</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_log">
+                <display-name xml:lang="x-default">Adyen Log</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="general">
+                <display-name xml:lang="x-default">General</display-name>
+                <attribute attribute-id="reason"/>
+                <attribute attribute-id="orderId"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="version"/>
+                <attribute attribute-id="eventCode"/>
+                <attribute attribute-id="merchantAccountCode"/>
+                <attribute attribute-id="processedDate"/>
+                <attribute attribute-id="operations"/>
+                <attribute attribute-id="processedStatus"/>
+                <attribute attribute-id="success"/>
+                <attribute attribute-id="updateStatus"/>
+                <attribute attribute-id="httpRemoteAddress"/>
+                <attribute attribute-id="paymentMethod"/>
+                <attribute attribute-id="currency"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="merchantReference"/>
+                <attribute attribute-id="pspReference"/>
+                <attribute attribute-id="value"/>
+                <attribute attribute-id="live"/>
+                <attribute attribute-id="eventDate"/>
+                <attribute attribute-id="Adyen_log"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+</metadata>

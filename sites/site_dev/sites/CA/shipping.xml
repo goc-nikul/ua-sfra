@@ -1,0 +1,891 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shipping xmlns="http://www.demandware.com/xml/impex/shipping/2007-03-31">
+    <shipping-method method-id="standard-zone1" default="true">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <display-name xml:lang="fr-CA">Standard</display-name>
+        <description xml:lang="x-default">Standard Zone 1 - no PO Box</description>
+        <description xml:lang="fr-CA">Zone standard 1 - pas de boîte postale</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>SAPFREIGHT</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+            <amount order-value="0.01">7.99</amount>
+            <amount order-value="75">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.stateCode</attribute-path>
+                        <operator>exists</operator>
+                    </condition>
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.stateCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>ON</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>contains</operator>
+                        <string>po box</string>
+                        <string>PO Box</string>
+                        <string>PO BOX</string>
+                        <string>P.O. Box</string>
+                        <string>po Box</string>
+                        <string>po BOX</string>
+                        <string>p.o BOX</string>
+                        <string>p.o box</string>
+                        <string>P.O.Box</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="estimatedArrivalTime" xml:lang="x-default">5-7 business days</custom-attribute>
+            <custom-attribute attribute-id="isEmployeeFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="maoShippingMethodId">Standard</custom-attribute>
+            <custom-attribute attribute-id="maxDeliveryDays">7</custom-attribute>
+            <custom-attribute attribute-id="minDeliveryDays">5</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeCommercial">RATEP</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeResidential">RATEP</custom-attribute>
+            <custom-attribute attribute-id="sapShippingCondition">1</custom-attribute>
+            <custom-attribute attribute-id="selectDefaultShippingIfFree">true</custom-attribute>
+            <custom-attribute attribute-id="showFreeOnShippingButton">true</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="standard-zone1-pob" default="false">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <display-name xml:lang="fr-CA">Zone standard 1</display-name>
+        <description xml:lang="x-default">Standard Zone 1 - PO Box</description>
+        <description xml:lang="fr-CA">Zone standard 1 - boîte postale</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>SAPFREIGHT</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+            <amount order-value="0.01">7.99</amount>
+            <amount order-value="75">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.stateCode</attribute-path>
+                        <operator>exists</operator>
+                    </condition>
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.stateCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>ON</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>does-not-contain</operator>
+                        <string>po box</string>
+                        <string>PO Box</string>
+                        <string>PO BOX</string>
+                        <string>P.O. Box</string>
+                        <string>po Box</string>
+                        <string>po BOX</string>
+                        <string>p.o BOX</string>
+                        <string>p.o box</string>
+                        <string>P.O.Box</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="estimatedArrivalTime" xml:lang="x-default">1-3 business days</custom-attribute>
+            <custom-attribute attribute-id="isEmployeeFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="maoShippingMethodId">Standard</custom-attribute>
+            <custom-attribute attribute-id="maxDeliveryDays">3</custom-attribute>
+            <custom-attribute attribute-id="minDeliveryDays">1</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeCommercial">CAEX</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeResidential">CAEX</custom-attribute>
+            <custom-attribute attribute-id="sapShippingCondition">1</custom-attribute>
+            <custom-attribute attribute-id="selectDefaultShippingIfFree">true</custom-attribute>
+            <custom-attribute attribute-id="showFreeOnShippingButton">true</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="standard-zone2" default="false">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <display-name xml:lang="fr-CA">Standard</display-name>
+        <description xml:lang="x-default">Standard Zone 2 - no PO Box</description>
+        <description xml:lang="fr-CA">Zone standard 2 - pas de boîte postale</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>SAPFREIGHT</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+            <amount order-value="0.01">7.99</amount>
+            <amount order-value="75">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.stateCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>NB</string>
+                        <string>PE</string>
+                        <string>QC</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>contains</operator>
+                        <string>po box</string>
+                        <string>PO Box</string>
+                        <string>PO BOX</string>
+                        <string>P.O. Box</string>
+                        <string>po Box</string>
+                        <string>po BOX</string>
+                        <string>p.o BOX</string>
+                        <string>p.o box</string>
+                        <string>P.O.Box</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="estimatedArrivalTime" xml:lang="x-default">2-4 business days</custom-attribute>
+            <custom-attribute attribute-id="isEmployeeFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="maoShippingMethodId">Standard</custom-attribute>
+            <custom-attribute attribute-id="maxDeliveryDays">4</custom-attribute>
+            <custom-attribute attribute-id="minDeliveryDays">2</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeCommercial">RATEP</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeResidential">RATEP</custom-attribute>
+            <custom-attribute attribute-id="sapShippingCondition">1</custom-attribute>
+            <custom-attribute attribute-id="selectDefaultShippingIfFree">true</custom-attribute>
+            <custom-attribute attribute-id="showFreeOnShippingButton">true</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="standard-zone2-pob" default="false">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <display-name xml:lang="fr-CA">Standard</display-name>
+        <description xml:lang="x-default">Standard Zone 2 - PO Box</description>
+        <description xml:lang="fr-CA">Zone standard 2 - boîte postale</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>SAPFREIGHT</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+            <amount order-value="0.01">7.99</amount>
+            <amount order-value="75">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.stateCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>NB</string>
+                        <string>PE</string>
+                        <string>QC</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>does-not-contain</operator>
+                        <string>po box</string>
+                        <string>PO Box</string>
+                        <string>PO BOX</string>
+                        <string>P.O. Box</string>
+                        <string>po Box</string>
+                        <string>po BOX</string>
+                        <string>p.o BOX</string>
+                        <string>p.o box</string>
+                        <string>P.O.Box</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="estimatedArrivalTime" xml:lang="x-default">2-4 business days</custom-attribute>
+            <custom-attribute attribute-id="isEmployeeFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="maoShippingMethodId">Standard</custom-attribute>
+            <custom-attribute attribute-id="maxDeliveryDays">4</custom-attribute>
+            <custom-attribute attribute-id="minDeliveryDays">2</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeCommercial">CAEX</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeResidential">CAEX</custom-attribute>
+            <custom-attribute attribute-id="sapShippingCondition">1</custom-attribute>
+            <custom-attribute attribute-id="selectDefaultShippingIfFree">true</custom-attribute>
+            <custom-attribute attribute-id="showFreeOnShippingButton">true</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="standard-zone3-pob" default="false">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <display-name xml:lang="fr-CA">Standard</display-name>
+        <description xml:lang="x-default">Standard Zone 3 - PO Box</description>
+        <description xml:lang="fr-CA">Zone standard 3 - boîte postale</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>SAPFREIGHT</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+            <amount order-value="0.01">7.99</amount>
+            <amount order-value="75">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.stateCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>MB</string>
+                        <string>NS</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>does-not-contain</operator>
+                        <string>po box</string>
+                        <string>PO Box</string>
+                        <string>PO BOX</string>
+                        <string>P.O. Box</string>
+                        <string>po Box</string>
+                        <string>po BOX</string>
+                        <string>p.o BOX</string>
+                        <string>p.o box</string>
+                        <string>P.O.Box</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="estimatedArrivalTime" xml:lang="x-default">2-6 business days</custom-attribute>
+            <custom-attribute attribute-id="isEmployeeFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="maoShippingMethodId">Standard</custom-attribute>
+            <custom-attribute attribute-id="maxDeliveryDays">6</custom-attribute>
+            <custom-attribute attribute-id="minDeliveryDays">2</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeCommercial">CAEX</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeResidential">CAEX</custom-attribute>
+            <custom-attribute attribute-id="sapShippingCondition">1</custom-attribute>
+            <custom-attribute attribute-id="selectDefaultShippingIfFree">true</custom-attribute>
+            <custom-attribute attribute-id="showFreeOnShippingButton">true</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="standard-zone3" default="false">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <display-name xml:lang="fr-CA">Standard</display-name>
+        <description xml:lang="x-default">Standard Zone 3 - no PO Box</description>
+        <description xml:lang="fr-CA">Zone standard 3 - pas de boîte postale</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>SAPFREIGHT</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+            <amount order-value="0.01">7.99</amount>
+            <amount order-value="75">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.stateCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>MB</string>
+                        <string>NS</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>contains</operator>
+                        <string>po box</string>
+                        <string>PO Box</string>
+                        <string>PO BOX</string>
+                        <string>P.O. Box</string>
+                        <string>po Box</string>
+                        <string>po BOX</string>
+                        <string>p.o BOX</string>
+                        <string>p.o box</string>
+                        <string>P.O.Box</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="estimatedArrivalTime" xml:lang="x-default">2-6 business days</custom-attribute>
+            <custom-attribute attribute-id="isEmployeeFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="maoShippingMethodId">Standard</custom-attribute>
+            <custom-attribute attribute-id="maxDeliveryDays">6</custom-attribute>
+            <custom-attribute attribute-id="minDeliveryDays">2</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeCommercial">RATEP</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeResidential">RATEP</custom-attribute>
+            <custom-attribute attribute-id="sapShippingCondition">1</custom-attribute>
+            <custom-attribute attribute-id="selectDefaultShippingIfFree">true</custom-attribute>
+            <custom-attribute attribute-id="showFreeOnShippingButton">true</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="standard-zone4-pob" default="false">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <display-name xml:lang="fr-CA">Standard</display-name>
+        <description xml:lang="x-default">Standard Zone 4 - PO Box</description>
+        <description xml:lang="fr-CA">Zone standard 4 - boîte postale</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>SAPFREIGHT</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+            <amount order-value="0.01">7.99</amount>
+            <amount order-value="75">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.stateCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>AB</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>does-not-contain</operator>
+                        <string>po box</string>
+                        <string>PO Box</string>
+                        <string>PO BOX</string>
+                        <string>P.O. Box</string>
+                        <string>po Box</string>
+                        <string>po BOX</string>
+                        <string>p.o BOX</string>
+                        <string>p.o box</string>
+                        <string>P.O.Box</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="estimatedArrivalTime" xml:lang="x-default">3-4 business days</custom-attribute>
+            <custom-attribute attribute-id="isEmployeeFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="maoShippingMethodId">Standard</custom-attribute>
+            <custom-attribute attribute-id="maxDeliveryDays">4</custom-attribute>
+            <custom-attribute attribute-id="minDeliveryDays">3</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeCommercial">CAEX</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeResidential">CAEX</custom-attribute>
+            <custom-attribute attribute-id="sapShippingCondition">1</custom-attribute>
+            <custom-attribute attribute-id="selectDefaultShippingIfFree">true</custom-attribute>
+            <custom-attribute attribute-id="showFreeOnShippingButton">true</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="standard-zone4" default="false">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <display-name xml:lang="fr-CA">Standard</display-name>
+        <description xml:lang="x-default">Standard Zone 4 - no PO Box</description>
+        <description xml:lang="fr-CA">Zone standard 4 - pas de boîte postale</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>SAPFREIGHT</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+            <amount order-value="0.01">7.99</amount>
+            <amount order-value="75">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.stateCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>AB</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>contains</operator>
+                        <string>po box</string>
+                        <string>PO Box</string>
+                        <string>PO BOX</string>
+                        <string>P.O. Box</string>
+                        <string>po Box</string>
+                        <string>po BOX</string>
+                        <string>p.o BOX</string>
+                        <string>p.o box</string>
+                        <string>P.O.Box</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="estimatedArrivalTime" xml:lang="x-default">3-4 business days</custom-attribute>
+            <custom-attribute attribute-id="isEmployeeFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="maoShippingMethodId">Standard</custom-attribute>
+            <custom-attribute attribute-id="maxDeliveryDays">4</custom-attribute>
+            <custom-attribute attribute-id="minDeliveryDays">3</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeCommercial">RATEP</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeResidential">RATEP</custom-attribute>
+            <custom-attribute attribute-id="sapShippingCondition">1</custom-attribute>
+            <custom-attribute attribute-id="selectDefaultShippingIfFree">true</custom-attribute>
+            <custom-attribute attribute-id="showFreeOnShippingButton">true</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="standard-zone5" default="false">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <display-name xml:lang="fr-CA">Standard</display-name>
+        <description xml:lang="x-default">Standard Zone 5 - no PO Box</description>
+        <description xml:lang="fr-CA">Zone standard 5 - pas de boîte postale</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>SAPFREIGHT</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+            <amount order-value="0.01">7.99</amount>
+            <amount order-value="75">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.stateCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>BC</string>
+                        <string>SK</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>contains</operator>
+                        <string>po box</string>
+                        <string>PO Box</string>
+                        <string>PO BOX</string>
+                        <string>P.O. Box</string>
+                        <string>po Box</string>
+                        <string>po BOX</string>
+                        <string>p.o BOX</string>
+                        <string>p.o box</string>
+                        <string>P.O.Box</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="estimatedArrivalTime" xml:lang="x-default">4 business days</custom-attribute>
+            <custom-attribute attribute-id="isEmployeeFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="maoShippingMethodId">Standard</custom-attribute>
+            <custom-attribute attribute-id="maxDeliveryDays">4</custom-attribute>
+            <custom-attribute attribute-id="minDeliveryDays">4</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeCommercial">RATEP</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeResidential">RATEP</custom-attribute>
+            <custom-attribute attribute-id="sapShippingCondition">1</custom-attribute>
+            <custom-attribute attribute-id="selectDefaultShippingIfFree">true</custom-attribute>
+            <custom-attribute attribute-id="showFreeOnShippingButton">true</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="standard-zone6-pob" default="false">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <display-name xml:lang="fr-CA">Standard</display-name>
+        <description xml:lang="x-default">Standard Zone 6 - PO Box</description>
+        <description xml:lang="fr-CA">Zone standard 6 - boîte postale</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>SAPFREIGHT</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+            <amount order-value="0.01">7.99</amount>
+            <amount order-value="75">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.stateCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>NL</string>
+                        <string>NT</string>
+                        <string>NU</string>
+                        <string>YT</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>does-not-contain</operator>
+                        <string>po box</string>
+                        <string>PO Box</string>
+                        <string>PO BOX</string>
+                        <string>P.O. Box</string>
+                        <string>po Box</string>
+                        <string>po BOX</string>
+                        <string>p.o BOX</string>
+                        <string>p.o box</string>
+                        <string>P.O.Box</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="estimatedArrivalTime" xml:lang="x-default">7-10 business days</custom-attribute>
+            <custom-attribute attribute-id="isEmployeeFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="maoShippingMethodId">Standard</custom-attribute>
+            <custom-attribute attribute-id="maxDeliveryDays">10</custom-attribute>
+            <custom-attribute attribute-id="minDeliveryDays">7</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeCommercial">CAEX</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeResidential">CAEX</custom-attribute>
+            <custom-attribute attribute-id="sapShippingCondition">1</custom-attribute>
+            <custom-attribute attribute-id="selectDefaultShippingIfFree">true</custom-attribute>
+            <custom-attribute attribute-id="showFreeOnShippingButton">true</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="standard-zone6" default="false">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <display-name xml:lang="fr-CA">Standard</display-name>
+        <description xml:lang="x-default">Standard Zone 6 - no PO Box</description>
+        <description xml:lang="fr-CA">Zone standard 6 - pas de boîte postale</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>SAPFREIGHT</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+            <amount order-value="0.01">7.99</amount>
+            <amount order-value="75">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.stateCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>NL</string>
+                        <string>NT</string>
+                        <string>NU</string>
+                        <string>YT</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>contains</operator>
+                        <string>po box</string>
+                        <string>PO Box</string>
+                        <string>PO BOX</string>
+                        <string>P.O. Box</string>
+                        <string>po Box</string>
+                        <string>po BOX</string>
+                        <string>p.o BOX</string>
+                        <string>p.o box</string>
+                        <string>P.O.Box</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="estimatedArrivalTime" xml:lang="x-default">7-10 business days</custom-attribute>
+            <custom-attribute attribute-id="isEmployeeFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="maoShippingMethodId">Standard</custom-attribute>
+            <custom-attribute attribute-id="maxDeliveryDays">10</custom-attribute>
+            <custom-attribute attribute-id="minDeliveryDays">7</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeCommercial">RATEP</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeResidential">RATEP</custom-attribute>
+            <custom-attribute attribute-id="sapShippingCondition">1</custom-attribute>
+            <custom-attribute attribute-id="selectDefaultShippingIfFree">true</custom-attribute>
+            <custom-attribute attribute-id="showFreeOnShippingButton">true</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="standard-zone5-pob" default="false">
+        <display-name xml:lang="x-default">Standard</display-name>
+        <display-name xml:lang="fr-CA">Standard</display-name>
+        <description xml:lang="x-default">Standard Zone 5 - PO Box</description>
+        <description xml:lang="fr-CA">Zone standard 5 - boîte postale</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>SAPFREIGHT</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+            <amount order-value="0.01">7.99</amount>
+            <amount order-value="75">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.stateCode</attribute-path>
+                        <operator>is-not-equal</operator>
+                        <string>BC</string>
+                        <string>SK</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>does-not-contain</operator>
+                        <string>po box</string>
+                        <string>PO Box</string>
+                        <string>PO BOX</string>
+                        <string>P.O. Box</string>
+                        <string>po Box</string>
+                        <string>po BOX</string>
+                        <string>p.o BOX</string>
+                        <string>p.o box</string>
+                        <string>P.O.Box</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="estimatedArrivalTime" xml:lang="x-default">4 business days</custom-attribute>
+            <custom-attribute attribute-id="isEmployeeFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="maoShippingMethodId">Standard</custom-attribute>
+            <custom-attribute attribute-id="maxDeliveryDays">4</custom-attribute>
+            <custom-attribute attribute-id="minDeliveryDays">4</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeCommercial">CAEX</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeResidential">CAEX</custom-attribute>
+            <custom-attribute attribute-id="sapShippingCondition">1</custom-attribute>
+            <custom-attribute attribute-id="selectDefaultShippingIfFree">true</custom-attribute>
+            <custom-attribute attribute-id="showFreeOnShippingButton">true</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="express" default="false">
+        <display-name xml:lang="x-default">Express</display-name>
+        <display-name xml:lang="fr-CA">Express</display-name>
+        <description xml:lang="x-default">Express - no PO Box</description>
+        <description xml:lang="fr-CA">Express - pas de boîte postale</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>SAPFREIGHT</tax-class-id>
+        <price-table>
+            <amount order-value="0">19.95</amount>
+        </price-table>
+        <excluded-products>
+            <included-products>
+                <condition-group>
+                    <product-id-condition operator="is equal">
+                        <product-id>1368010</product-id>
+                    </product-id-condition>
+                </condition-group>
+            </included-products>
+        </excluded-products>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.address1</attribute-path>
+                        <operator>contains</operator>
+                        <string>po box</string>
+                        <string>PO Box</string>
+                        <string>PO BOX</string>
+                        <string>P.O. Box</string>
+                        <string>po Box</string>
+                        <string>po BOX</string>
+                        <string>p.o BOX</string>
+                        <string>p.o box</string>
+                        <string>P.O.Box</string>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="estimatedArrivalTime" xml:lang="x-default">2-4 business days</custom-attribute>
+            <custom-attribute attribute-id="isEmployeeFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="maoShippingMethodId">Express</custom-attribute>
+            <custom-attribute attribute-id="maxDeliveryDays">4</custom-attribute>
+            <custom-attribute attribute-id="minDeliveryDays">2</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeCommercial">RATEN</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeResidential">RATEN</custom-attribute>
+            <custom-attribute attribute-id="sapShippingCondition">EO</custom-attribute>
+            <custom-attribute attribute-id="shippingMethodId">Express</custom-attribute>
+            <custom-attribute attribute-id="selectDefaultShippingIfFree">false</custom-attribute>
+            <custom-attribute attribute-id="showFreeOnShippingButton">true</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="ship-to-office" default="false">
+        <display-name xml:lang="x-default">Ship to Office</display-name>
+        <display-name xml:lang="fr-CA">Expédier au bureau</display-name>
+        <description xml:lang="x-default">Ship to Office - Office addresses only</description>
+        <description xml:lang="fr-CA">Expédier au bureau - adresses du bureau seulement</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>SAPFREIGHT</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+            <amount order-value="0.01">4.99</amount>
+            <amount order-value="59.99">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="any">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>does-not-exist</operator>
+                    </condition>
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>is-false</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="estimatedArrivalTime" xml:lang="x-default">5-8 business days</custom-attribute>
+            <custom-attribute attribute-id="isEmployeeFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="maoShippingMethodId">Ship to Office</custom-attribute>
+            <custom-attribute attribute-id="maxDeliveryDays">8</custom-attribute>
+            <custom-attribute attribute-id="minDeliveryDays">5</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeCommercial">OFFICE</custom-attribute>
+            <custom-attribute attribute-id="sapCarrierCodeResidential">OFFICE</custom-attribute>
+            <custom-attribute attribute-id="sapShippingCondition">1</custom-attribute>
+            <custom-attribute attribute-id="shippingMethodId">Ship to Office</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="eGift_Card" default="false">
+        <display-name xml:lang="x-default">eGift Card Delivery</display-name>
+        <display-name xml:lang="fr-CA">Carte-cadeau</display-name>
+        <description xml:lang="x-default">Gift card applicable only for eGiftCard</description>
+        <description xml:lang="fr-CA">Carte-cadeau applicable uniquement pour eGiftCard</description>
+        <online-flag>true</online-flag>
+        <tax-class-id>exempt</tax-class-id>
+        <price-table>
+            <amount order-value="0">0</amount>
+        </price-table>
+        <excluded-products>
+            <included-products>
+                <condition-group>
+                    <attribute-condition operator="is not equal" attribute-id="giftCard">
+                        <attribute-value>EGIFT_CARD</attribute-value>
+                    </attribute-condition>
+                </condition-group>
+            </included-products>
+        </excluded-products>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.custom.isOfficeAddress</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="isEmployeeFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+    <shipping-method method-id="Borderfree" default="false">
+        <display-name xml:lang="x-default">Borderfree</display-name>
+        <description xml:lang="x-default">Shipping method for Borderfree international orders</description>
+        <online-flag>true</online-flag>
+        <price-table>
+            <amount order-value="0">0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.countryCode</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>US</string>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+    </shipping-method>
+
+</shipping>

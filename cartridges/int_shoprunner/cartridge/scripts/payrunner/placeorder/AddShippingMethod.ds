@@ -1,0 +1,112 @@
+var Collection = require('dw/util/Collection');
+var ShippingMgr = require('dw/order/ShippingMgr');
+var Status = require('dw/system/Status');
+/**
+ * This script sets the shipping method of the given shipment to
+ * the passed method id.
+ * 
+ * @input Shipment: dw.order.Shipment The shipment to update the shipping method for.
+ * @input ProductLineItems : dw.util.Collection Product line items.
+ * @input BasketSR : String Represents the current ShopRunner basket
+ * @input Context : String The pipeline node where the script is called from
+ *
+ */
+importScript( "util/srProductUtils.ds" );
+
+function execute(args) {
+	var result = addMethod(args);
+	if (result.status = Status.ERROR) {
+		return PIPELET_ERROR;
+	} else {
+		return PIPELET_NEXT;
+	}
+}
+
+function addMethod(args) {
+	var shipment = args.Shipment;
+	var basketSR = args.BasketSR;
+	var plitems = args.ProductLineItems;
+	var context = args.Context;
+	var status;
+	 
+	var basketSRjson = JSON.parse( basketSR );
+	var selectedShipMethId = getSelectedShipMethId(basketSRjson).replace('shippingMethodID-', '');
+	
+	var	shippingMethods;
+	if (shipment != null)
+	{
+		shippingMethods = ShippingMgr.getShipmentShippingModel(shipment).getApplicableShippingMethods();
+	}
+	else
+	{
+		shippingMethods = ShippingMgr.getAllShippingMethods();
+	}
+	// check the mixed cart status
+	var srStatus = SRProductUtils.checkCartEligibility(plitems);
+	
+	if (shippingMethods.length > 0) 
+	{
+		// Set the shipment shipping method to the passed one.
+		var shippingMethodsIter = shippingMethods.iterator();
+		while (shippingMethodsIter.hasNext())
+		{
+			var method = shippingMethodsIter.next();			
+			if (method.ID == 'shoprunner' && selectedShipMethId == 'shoprunner')
+			{
+				shipment.setShippingMethod( method );
+				break;
+			}
+			if (method.ID == 'shoprunner' && srStatus == 'ALL_SR')
+			{
+				shipment.setShippingMethod(method);
+				break;
+			}		
+			if (!method.displayName.equals(selectedShipMethId) && selectedShipMethId != 'shoprunner') 
+			{
+				continue;
+			}
+			else if (!method.displayName.equals(selectedShipMethId) && selectedShipMethId == 'shoprunner')
+			{
+				// do something
+			}
+			// set this shipping method
+			shipment.setShippingMethod(method);
+		}
+		status = new Status(Status.OK);
+	} 
+	else 
+	{
+		status = new Status(Status.ERROR);
+	}
+	
+	return status;
+}
+
+function getSelectedShipMethId(srBasket) 
+{
+	var selectedShipMeth : String = '';
+	if (!empty(srBasket))
+	{
+		for each (var shippingGroup in srBasket.shippingGroups) 
+		{
+			for each (var shipMeth in shippingGroup.shipping) 
+			{
+				if (shipMeth.selected) 
+				{
+					selectedShipMeth = shipMeth.method;
+					break;	
+				}
+			}	
+		}
+		if (empty(selectedShipMeth)) 
+		{
+			selectedShipMeth = 'shoprunner';	
+		}
+	}
+	return selectedShipMeth;
+}
+
+module.exports = {
+    execute: execute,
+	addMethod: addMethod
+};

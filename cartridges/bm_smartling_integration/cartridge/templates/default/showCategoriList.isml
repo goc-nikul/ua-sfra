@@ -1,0 +1,90 @@
+<isdecorate template="application/MenuFrame">
+<iscontent type="text/html" charset="UTF-8"/>
+<isinclude template="inc/Modules" />
+
+<!-- Page Navigator -->
+<isset name="thisCategory"   value="pdict.category" scope="PAGE" />
+<isscript>
+var thisCategory : dw.catalog.Category = pdict.category;
+var categoryInfo =  new Array;
+
+if (thisCategory != null)
+{
+    categoryInfo.push(thisCategory);
+    while (thisCategory.getParent()) {
+        thisCategory = thisCategory.getParent();
+        categoryInfo.push(thisCategory);
+    }
+    categoryInfo.reverse() ;
+}
+</isscript>
+<table border="0" cellspacing="0" cellpadding="0">
+    <tbody>
+        <tr>
+            <td class="breadcrumb">
+                <a class="breadcrumb" href="${URLUtils.url('ViewApplication-CompressMenuGroup', 'MenuGroupID', 'SiteMenu', 'OverviewPage', 'SiteNavigationBar-ShowSiteOverview')}">Site</a>
+                &nbsp>&nbsp
+                <a class="breadcrumb" href="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', 'smartling')}">Smartling</a>
+
+            <isif condition="${categoryInfo.length > 0 }">
+                &nbsp>&nbsp<a class="breadcrumb" href="${URLUtils.url('SmartlingProduct-ShowCategory')}">Product translation</a>
+                <isloop items="${categoryInfo}" var="category" status="status">
+                    <isif condition="${category.ID != 'root'}"> 
+                        <isif condition="${status.last != true}"> 
+                            &nbsp>&nbsp<a class="breadcrumb" href="${URLUtils.url('SmartlingProduct-ShowCategory', 'category_id', category.ID)}">${category.displayName}</a>
+                        <iselse />
+                            &nbsp>&nbsp${category.displayName}
+                        </isif>
+                    </isif>
+                </isloop>
+            <iselse />
+                &nbsp>&nbsp Product translation 
+            </isif>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<!-- EO Page Navigator -->
+
+<div id="IDListDiv">
+<br/>
+<form action="${URLUtils.url('SmartlingProduct-SearchByIds')}" method="post" name="SimSearch">
+  <table cellspacing="0" cellpadding="4" width="100%">
+    <tr>
+      <td colspan="4">
+        <table cellpadding="0" cellspacing="0" style="width:100%" border="0">
+          <tr>
+            <td valign="center" nowrap="nowrap" width="5%">
+              <span><b>Search by IDs:</b></span>
+            </td>
+            <td align="left" width="23%">
+              <textarea rows="3" cols="80" name="productIds"></textarea>
+            </td>
+            <td align="left" valign="center" style="padding-right: 4px;">
+              &nbsp;<button type="submit">Search</button>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</form>
+</div>
+
+<h1>Product translation</h1>
+
+<table border="0" cellpadding="0" cellspacing="0" width="70%">
+    <tr>
+        <td class="table_header e s">ID</td>
+        <td class="table_header e s">Name</td>
+    </tr>
+    
+        <isloop iterator="${pdict.categoryList}" alias="category"> 
+            <tr>
+                <td class="table_detail e s"><a href="${URLUtils.url('SmartlingProduct-ShowCategory', 'category_id', category.ID, 'page', 1)}">${category.ID}</a></td>
+                <td class="table_detail e s">${category.displayName}</td>
+            </tr>
+        </isloop>
+</table>
+
+</isdecorate>

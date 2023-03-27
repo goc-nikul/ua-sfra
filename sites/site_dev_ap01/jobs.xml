@@ -1,0 +1,3130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs xmlns="http://www.demandware.com/xml/impex/jobs/2015-07-01">
+    <job job-id="Exchange Rate Update" priority="0">
+        <description>Updates ExchangeRate Custom Object with currency exchange rates</description>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Update Exchange Rate" type="custom.UpdateExchangeRate" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2018-12-12Z</date-from>
+                    <start-time>05:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Thursday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Import PriceBooks" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Download from Amazon S3(OC)" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>to download files from S3 (ecommstaging)</description>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">.*xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/out/pricebooks/oc</parameter>
+                    <parameter name="TargetFolder">src/pricebooks/oc</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="DeleteRemoteFiles">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-flow/>
+                    </on-exit>
+                </rules>
+            </step>
+            <step step-id="Import Pricebooks OC" type="ImportPriceBook" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">/pricebooks/oc</parameter>
+                    <parameter name="FileNamePattern">.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">src/archive/pricebooks/apac/oc</parameter>
+                </parameters>
+            </step>
+        </flow>
+		<flow>
+            <context site-id="Sites"/>
+            <step step-id="Download from Amazon S3(SEA)" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>to download files from S3 (ecommstaging)</description>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">.*xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/out/pricebooks/sea</parameter>
+                    <parameter name="TargetFolder">src/pricebooks/sea</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="DeleteRemoteFiles">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-flow/>
+                    </on-exit>
+                </rules>
+            </step>
+            <step step-id="Import Pricebooks(SEA)" type="ImportPriceBook" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">/pricebooks/sea</parameter>
+                    <parameter name="FileNamePattern">.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">src/archive/pricebooks/apac/sea</parameter>
+                </parameters>
+            </step>
+        </flow>
+		<flow>
+            <context site-id="Sites"/>
+            <step step-id="Download from Amazon S3(TH)" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>to download files from S3 (ecommstaging)</description>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">.*xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/out/pricebooks/th</parameter>
+                    <parameter name="TargetFolder">src/pricebooks/th</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="DeleteRemoteFiles">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-flow/>
+                    </on-exit>
+                </rules>
+            </step>
+            <step step-id="Import Pricebooks" type="ImportPriceBook" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">/pricebooks/th</parameter>
+                    <parameter name="FileNamePattern">.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">src/archive/pricebooks/apac/th</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Download from Amazon S3(KR)" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>to download files from S3 (ecommstaging)</description>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">.*xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/out/pricebooks/kr</parameter>
+                    <parameter name="TargetFolder">src/pricebooks/kr</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="DeleteRemoteFiles">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Pricebooks KR" type="ImportPriceBook" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">/pricebooks/kr</parameter>
+                    <parameter name="FileNamePattern">.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">src/archive/pricebooks/apac/kr</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2018-12-12Z</date-from>
+                    <start-time>05:00:00.000Z</start-time>
+                    <interval>1h</interval>
+                    <day-of-week>
+                        <weekday>Monday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Import Inventory" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="OC - Download from Amazon S3" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>to download files from S3 (ecommstaging)</description>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">.*zip</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/out/inventory/oc</parameter>
+                    <parameter name="TargetFolder">src/inventory/in</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="DeleteRemoteFiles">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="SEA - Download from Amazon S3" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>to download files from S3 (ecommstaging)</description>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">.*zip</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/out/inventory/sea</parameter>
+                    <parameter name="TargetFolder">src/inventory/in</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="DeleteRemoteFiles">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="TH - Download from Amazon S3" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>to download files from S3 (ecommstaging)</description>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">.*zip</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/out/inventory/th</parameter>
+                    <parameter name="TargetFolder">src/inventory/in</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="DeleteRemoteFiles">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="KR - Download from Amazon S3" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>to download files from S3 (ecommstaging)</description>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">.*xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/out/inventory/kr</parameter>
+                    <parameter name="TargetFolder">src/inventory/out</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="DeleteRemoteFiles">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Unarchive Data" type="custom.CSComponents.UnzipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="SourceFolder">src/inventory/in</parameter>
+                    <parameter name="FilePattern">.*zip</parameter>
+                    <parameter name="TargetFolder">src/inventory/out</parameter>
+                    <parameter name="RemoveArchivesAfterCompletion">true</parameter>
+                    <parameter name="UseArchiveNameAsFolder">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import Inventory" type="custom.CSComponents.ImportInventoryLists" enforce-restart="false">
+                <description>We are only importing inventory here and not archiving it. See the FileAction = Keep</description>
+                <parameters>
+                    <parameter name="SourceFolder">src/inventory/out</parameter>
+                    <parameter name="FilePattern">.*xml</parameter>
+                    <parameter name="FileAction">KEEP</parameter>
+                    <parameter name="ImportMode">MERGE</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="OnError">CONTINUE</parameter>
+                    <parameter name="ArchivePath">src/archive/inventory/APAC</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Archive Inventory" type="custom.ZipFiles" enforce-restart="false">
+                <description>Separate step to archive inventory into zipfiles</description>
+                <parameters>
+                    <parameter name="filePattern">^.*xml</parameter>
+                    <parameter name="sourceFolder">src/inventory/out</parameter>
+                    <parameter name="targetFolder">src/archive/inventory/APAC</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2018-12-12Z</date-from>
+                    <start-time>05:00:00.000Z</start-time>
+                    <interval>4h</interval>
+                    <day-of-week>
+                        <weekday>Sunday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+	<job job-id="CombinePDP" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="CombinePDP" type="custom.combinepdp" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="exportDirectory">src/temp/combinepdp</parameter>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import_Catalog_Master" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">temp/combinepdp</parameter>
+                    <parameter name="FileNamePattern">^.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">src/archive/combinepdp/APAC</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="false">
+                <recurrence>
+                    <date-from>2019-12-18Z</date-from>
+                    <start-time>06:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Sunday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Import Catalog" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Download from Amazon S3" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>to download files from S3 (ecommstaging)</description>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">.*zip</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/out/catalogs</parameter>
+                    <parameter name="TargetFolder">src/catalog/in</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="DeleteRemoteFiles">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Unarchive data" type="custom.CSComponents.UnzipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="SourceFolder">src/catalog/in</parameter>
+                    <parameter name="FilePattern">.*zip</parameter>
+                    <parameter name="TargetFolder">src/catalog/out</parameter>
+                    <parameter name="RemoveArchivesAfterCompletion">true</parameter>
+                    <parameter name="UseArchiveNameAsFolder">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Catalogs" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">catalog/out</parameter>
+                    <parameter name="FileNamePattern">.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">OK</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">src/archive/catalog/APAC</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="CombinePDP" type="IncludeStepsFromJob" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="JobID">CombinePDP</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="availabilityforlocale" type="custom.availabilityforlocale" enforce-restart="false">
+                <description>Update ‘availableForLocale’ attribute value to ‘Yes’ for all master products</description>
+                <parameters>
+                    <parameter name="exportDirectory">src/temp/localeavailability</parameter>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                    <parameter name="CatalogsList">OCCatalog_storefront,SEACatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import Locale Catalog" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">temp/localeavailability</parameter>
+                    <parameter name="FileNamePattern">.*\.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">src/archive/localeavailability/</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2019-01-01Z</date-from>
+                    <start-time>05:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Sunday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Product Image and Categorization (SEA &amp; TH)" priority="0">
+        <description>Automatically associates variant images to the master product and assign categories for products in the prep-category</description>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_48">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_48">
+                <step step-id="CheckPrepCategory" type="custom.checkPrepCategory" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="masterCatalogID">APACCatalog</parameter>
+                        <parameter name="storefrontCatalogID">SEACatalog_storefront</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <split sequential="false">
+            <contexts template-ref="template_49">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_49">
+                <step step-id="Auto Video Assignment" type="custom.assignVideos" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="masterCatalogID">APACCatalog</parameter>
+                        <parameter name="storefrontCatalogID">SEACatalog_storefront</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <split sequential="false">
+            <contexts template-ref="template_50">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_50">
+                <step step-id="AutoImageAssignment" type="custom.assignImages" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="masterCatalogID">APACCatalog</parameter>
+                        <parameter name="storefrontCatalogID">SEACatalog_storefront</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportImageVideoAssignment" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/imageAssociation</parameter>
+                    <parameter name="FileNamePattern">.*associations.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="SEA"/>
+            <step step-id="AutoLookAssignment" type="custom.assignShopTheLook" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="IsQueryAllForSiteProducts">false</parameter>
+                    <parameter name="limitDOMServiceCall">30</parameter>
+                    <parameter name="shopTheLookthresholdDays">100</parameter>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportAutoLookAssigment" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/shopTheLook</parameter>
+                    <parameter name="FileNamePattern">.*ShopTheLook.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">archive/autoLook</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <split sequential="false">
+            <contexts template-ref="template_65">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_65">
+                <step step-id="AutoCategorization" type="custom.autoCategorization" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="masterCatalogID">APACCatalog</parameter>
+                        <parameter name="storefrontCatalogID">SEACatalog_storefront</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportCategorization" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/categoryAssociation</parameter>
+                    <parameter name="FileNamePattern">^catalog_category_associations.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <split sequential="false">
+            <contexts template-ref="template_66">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_66">
+                <step step-id="GenerateProductClassificationXML" type="custom.generateProductClassificationXML" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="masterCatalogID">APACCatalog</parameter>
+                        <parameter name="storefrontCatalogID">SEACatalog_storefront</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="importClassification" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/productClassifications</parameter>
+                    <parameter name="FileNamePattern">^product_classifications.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <split sequential="false">
+            <contexts template-ref="template_55">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_55">
+                <step step-id="CleanupPrepCategory" type="custom.cleanupPrepCategory" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="masterCatalogID">APACCatalog</parameter>
+                        <parameter name="storefrontCatalogID">SEACatalog_storefront</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportCleanPrepCategory" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/cleanupPrepCategory</parameter>
+                    <parameter name="FileNamePattern">^cleanup_prep_category.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Delete</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <split sequential="false">
+            <contexts template-ref="template_67">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_67">
+                <step step-id="AssignSizePrefTokens" type="custom.AssignSizePrefTokens" enforce-restart="false">
+                    <description>Create size preference token based on product custom attribute through job</description>
+                    <parameters>
+                        <parameter name="masterCatalogID">APACCatalog</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportSizePreferencesToken" type="ImportCatalog" enforce-restart="false">
+                <description>Import Size Preferences Token</description>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/sizePreferenceToken</parameter>
+                    <parameter name="FileNamePattern">.*tokenization.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/sizePreferenceToken</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="true">
+                <mark-job-as-hanging/>
+                <send-mail>
+                    <from>job-notifications-AP01@underarmour.com</from>
+                    <to>amasidda.medhegar@consultant.underarmour.com, yeshwanth.nagaraju@consultant.underarmour.com, Shane.Soifert@consultant.underarmour.com, dmaher@underarmour.com, anirudha.gandhe@underarmour.com, katie.johnson@salesforce.com, raj.kafley@underarmour.com</to>
+                    <bcc>Stella.Hou@consultant.underarmour.com</bcc>
+                </send-mail>
+            </on-running>
+            <on-retry enabled="true">
+                <send-mail>
+                    <from>job-notifications-AP01@underarmour.com</from>
+                    <to>amasidda.medhegar@consultant.underarmour.com, yeshwanth.nagaraju@consultant.underarmour.com, Shane.Soifert@consultant.underarmour.com, dmaher@underarmour.com, anirudha.gandhe@underarmour.com, katie.johnson@salesforce.com, raj.kafley@underarmour.com</to>
+                    <bcc>Stella.Hou@consultant.underarmour.com</bcc>
+                </send-mail>
+            </on-retry>
+            <on-exit status="ERROR" enabled="true">
+                <send-mail>
+                    <from>job-notifications-AP01@underarmour.com</from>
+                    <to>amasidda.medhegar@consultant.underarmour.com, yeshwanth.nagaraju@consultant.underarmour.com, Shane.Soifert@consultant.underarmour.com, dmaher@underarmour.com, anirudha.gandhe@underarmour.com, katie.johnson@salesforce.com, raj.kafley@underarmour.com</to>
+                    <bcc>Stella.Hou@consultant.underarmour.com</bcc>
+                </send-mail>
+            </on-exit>
+        </rules>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2017-09-26Z</date-from>
+                    <start-time>21:45:00.000Z</start-time>
+                    <interval>3h</interval>
+                    <day-of-week>
+                        <weekday>Friday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Thursday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="Product Image and Categorization OC" priority="0">
+        <description>Automatically associates variant images to the master product and assign categories for products in the prep-category</description>
+        <parameters/>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="CheckPrepCategory" type="custom.checkPrepCategory" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                    <parameter name="storefrontCatalogID">OCCatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="Auto Video Assignment" type="custom.assignVideos" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                    <parameter name="storefrontCatalogID">OCCatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="AutoImageAssignment" type="custom.assignImages" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                    <parameter name="storefrontCatalogID">OCCatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportImageVideoAssignment" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/imageAssociation</parameter>
+                    <parameter name="FileNamePattern">.*associations.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="AutoCategorization" type="custom.autoCategorization" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                    <parameter name="storefrontCatalogID">OCCatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportCategorization" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/categoryAssociation</parameter>
+                    <parameter name="FileNamePattern">^catalog_category_associations.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="GenerateProductClassificationXML" type="custom.generateProductClassificationXML" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                    <parameter name="storefrontCatalogID">OCCatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="importClassification" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/productClassifications</parameter>
+                    <parameter name="FileNamePattern">^product_classifications.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <split sequential="false">
+            <contexts template-ref="template_54">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+                <context site-id="OC"/>
+            </contexts>
+            <flow-template template-id="template_54">
+                <step step-id="ActivateAllPrepCategorySKUS" type="custom.activatePrepCategorySKUs" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="emailList">katie.johnson@salesforce.com</parameter>
+                        <parameter name="inventoryHealth">2</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <split sequential="false">
+            <contexts template-ref="template_276">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+                <context site-id="OC"/>
+            </contexts>
+            <flow-template template-id="template_276">
+                <step step-id="CleanupPrepCategory" type="custom.cleanupPrepCategory" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="masterCatalogID">APACCatalog</parameter>
+                        <parameter name="storefrontCatalogID">OCCatalog_storefront</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportCleanPrepCategory" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/cleanupPrepCategory</parameter>
+                    <parameter name="FileNamePattern">^cleanup_prep_category.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Delete</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="AssignSizePrefTokens" type="custom.AssignSizePrefTokens" enforce-restart="false">
+                <description>Create size preference token based on product custom attribute through job</description>
+                <parameters>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportSizePreferencesToken" type="ImportCatalog" enforce-restart="false">
+                <description>Import Size Preferences Token</description>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/sizePreferenceToken</parameter>
+                    <parameter name="FileNamePattern">.*tokenization.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/sizePreferenceToken</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules>
+            <on-running runtime-threshold="90m" enabled="true">
+                <mark-job-as-hanging/>
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>SFCC_L4@underarmour.com</to>
+                    <cc>katie.johnson@salesforce.com</cc>
+                </send-mail>
+            </on-running>
+            <on-retry enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>SFCC_L4@underarmour.com</to>
+                    <cc>katie.johnson@salesforce.com</cc>
+                </send-mail>
+            </on-retry>
+            <on-exit status="ERROR" enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>SFCC_L4@underarmour.com</to>
+                    <cc>katie.johnson@salesforce.com</cc>
+                </send-mail>
+            </on-exit>
+        </rules>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-02-23Z</date-from>
+                    <start-time>07:30:00.000Z</start-time>
+                    <interval>3h</interval>
+                    <day-of-week>
+                        <weekday>Friday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Thursday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="Product Image and Categorization KR" priority="0">
+        <description>Automatically associates variant images to the master product and assign categories for products in the prep-category</description>
+        <parameters/>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="CheckPrepCategory" type="custom.checkPrepCategory" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                    <parameter name="storefrontCatalogID">KRCatalog_storefront</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="NOPRODUCTS">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="Auto Video Assignment" type="custom.assignVideos" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                    <parameter name="storefrontCatalogID">KRCatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="AutoImageAssignment" type="custom.assignImages" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                    <parameter name="storefrontCatalogID">KRCatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="AssignSizePrefTokens" type="custom.AssignSizePrefTokens" enforce-restart="false">
+                <description>Create size preference token based on product custom attribute through job</description>
+                <parameters>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportImageVideoAssignment" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/imageAssociation</parameter>
+                    <parameter name="FileNamePattern">.*associations.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportSizePreferencesToken" type="ImportCatalog" enforce-restart="false">
+                <description>Import Size Preferences Token</description>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/sizePreferenceToken</parameter>
+                    <parameter name="FileNamePattern">.*tokenization.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/sizePreferenceToken</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="AutoCategorization" type="custom.autoCategorization" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                    <parameter name="storefrontCatalogID">KRCatalog_storefront</parameter>
+                    <parameter name="useNewCategoryRules">false</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportCategorization" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/categoryAssociation</parameter>
+                    <parameter name="FileNamePattern">^catalog_category_associations.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="GenerateProductClassificationXML" type="custom.generateProductClassificationXML" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                    <parameter name="storefrontCatalogID">KRCatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="importClassification" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/productClassifications</parameter>
+                    <parameter name="FileNamePattern">^product_classifications.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="AutoSize" type="custom.assignSize" enforce-restart="false">
+                <description>Put size translation at EN level</description>
+                <parameters>
+                    <parameter name="FootwearSizeVariation">sizevariation_KR</parameter>
+                    <parameter name="CatalogID">APACCatalog</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import Catalog - AutoSize" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/sizeAssociation/kr</parameter>
+                    <parameter name="FileNamePattern">catalog_size_associations_kr.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">WARN</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">ERROR</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="ActivateAllPrepCategorySKUS" type="custom.activatePrepCategorySKUs" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="emailList">sourabh.jacob@underarmour.com</parameter>
+                    <parameter name="inventoryHealth">2</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="CleanupPrepCategory" type="custom.cleanupPrepCategory" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                    <parameter name="storefrontCatalogID">KRCatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportCleanPrepCategory" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/cleanupPrepCategory</parameter>
+                    <parameter name="FileNamePattern">^cleanup_prep_category.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Delete</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="false">
+                <mark-job-as-hanging/>
+            </on-running>
+        </rules>
+        <triggers>
+            <run-recurring enabled="false">
+                <recurrence>
+                    <date-from>2017-09-26Z</date-from>
+                    <start-time>21:45:00.000Z</start-time>
+                    <interval>24h</interval>
+                    <day-of-week>
+                        <weekday>Thursday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="DataFeedWatch Export" priority="0">
+        <description>Review</description>
+        <parameters/>
+        <split sequential="false">
+            <flow>
+                <context site-id="OC"/>
+                <step step-id="DFW Export OC" type="custom.CustomFeeds-Process" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="feedConfigString">{     "en": {         "locales": [             "en_AU"         ],         "feed": [             "DataFeedWatch"         ],         "currency": [             "AUD"         ]     },     "nz": {         "locales": [             "en_NZ"         ],         "feed": [             "DFWSecondary"         ],         "currency": [             "NZD"         ]     } }</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="SEA"/>
+                <step step-id="DFW Export SEA" type="custom.CustomFeeds-Process" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="feedConfigString">{     "sg": {         "currency": [             "SGD"         ],         "feed": [             "DataFeedWatch"         ],         "locales": [             "en_SG"         ]     },     "id": {         "currency": [             "IDR"         ],         "feed": [             "DFWSecondary"         ],         "locales": [             "en_ID",             "in_ID"         ]     },     "my": {         "currency": [             "MYR"         ],         "feed": [             "DFWSecondary"         ],         "locales": [             "en_MY"         ]     },     "ph": {         "currency": [             "PHP"         ],         "feed": [             "DFWSecondary"         ],         "locales": [             "en_PH"         ]     },     "hk": {         "currency": [             "HKD"         ],         "feed": [             "DFWSecondary"         ],         "locales": [             "en_HK",             "zh_HK"         ]     } }</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="TH"/>
+                <step step-id="DFW Export TH" type="custom.CustomFeeds-Process" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="feedConfigString">{     "th": {         "locales": [             "en_TH",             "th_TH"         ],         "feed": [             "DFWSecondary"         ],         "currency": [             "THB"         ]     } }</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="KR"/>
+                <step step-id="DFW_KR" type="custom.CustomFeeds-Process" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="feedConfigString">{     "kr": {         "locales": ["ko_KR"],         "feed": ["DataFeedWatch"],         "currency": ["KRW"]     },    "default":{         "locales":[            "default"       ],       "feed":[            "DFWGlobalName"       ],       "currency":[            "KRW"       ]    } }</parameter>
+                    </parameters>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <stop-job/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow>
+        </split>
+        <split sequential="false">
+            <flow>
+                <context site-id="Sites"/>
+                <step step-id="OC-StorefrontCatalog-Export" type="ExportCatalog" enforce-restart="false">
+                    <description>Export the categories to DFW for the shop app</description>
+                    <parameters>
+                        <parameter name="CatalogID">OCCatalog_storefront</parameter>
+                        <parameter name="ExportCategories">true</parameter>
+                        <parameter name="ExportProducts">false</parameter>
+                        <parameter name="ExportCategoryAssignments">true</parameter>
+                        <parameter name="ExportProductOptions">true</parameter>
+                        <parameter name="ExportRecommendations">true</parameter>
+                        <parameter name="ExportVariationAttributes">true</parameter>
+                        <parameter name="ExportFile">/feeds/DFW/OC_CATALOG_FEEDEXPORT</parameter>
+                        <parameter name="OverwriteExportFile">true</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="Sites"/>
+                <step step-id="SEA-StorefrontCatalog-Export" type="ExportCatalog" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="CatalogID">SEACatalog_storefront</parameter>
+                        <parameter name="ExportCategories">true</parameter>
+                        <parameter name="ExportProducts">false</parameter>
+                        <parameter name="ExportCategoryAssignments">true</parameter>
+                        <parameter name="ExportProductOptions">true</parameter>
+                        <parameter name="ExportRecommendations">true</parameter>
+                        <parameter name="ExportVariationAttributes">true</parameter>
+                        <parameter name="ExportFile">/feeds/DFW/SEA_CATALOG_FEEDEXPORT</parameter>
+                        <parameter name="OverwriteExportFile">true</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="Sites"/>
+                <step step-id="KR-StorefrontCatalog-Export" type="ExportCatalog" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="CatalogID">KRCatalog_storefront</parameter>
+                        <parameter name="ExportCategories">true</parameter>
+                        <parameter name="ExportProducts">false</parameter>
+                        <parameter name="ExportCategoryAssignments">true</parameter>
+                        <parameter name="ExportProductOptions">true</parameter>
+                        <parameter name="ExportRecommendations">true</parameter>
+                        <parameter name="ExportVariationAttributes">true</parameter>
+                        <parameter name="ExportFile">/feeds/DFW/KR_CATALOG_FEEDEXPORT</parameter>
+                        <parameter name="OverwriteExportFile">true</parameter>
+                    </parameters>
+                </step>
+            </flow>
+        </split>
+        <rules>
+            <on-running runtime-threshold="300m" enabled="true">
+                <mark-job-as-hanging/>
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>intldev@underarmour.com</to>
+                </send-mail>
+            </on-running>
+            <on-exit status="OK,ERROR" enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>intldev@underarmour.com</to>
+                </send-mail>
+            </on-exit>
+        </rules>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2018-09-14Z</date-from>
+                    <start-time>20:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Thursday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Saturday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="Talkoot Catalog Import" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Get Talkoot Data" type="ExecuteScriptModule" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ExecuteScriptModule.Module">int_talkoot/cartridge/scripts/jobs/GetCatalogData.js</parameter>
+                    <parameter name="ExecuteScriptModule.FunctionName">execute</parameter>
+                    <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                    <parameter name="ExecuteScriptModule.TimeoutInSeconds">60</parameter>
+                    <parameter name="FilePath">src/catalog/talkoot</parameter>
+                    <parameter name="CatalogID">APACCatalog</parameter>
+                    <parameter name="TimeZone">-7</parameter>
+                    <parameter name="TimeOffset">2500</parameter>
+                    <parameter name="jobID">28</parameter>
+                </parameters>
+            </step>
+            <step step-id="CatalogImport" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">catalog/talkoot</parameter>
+                    <parameter name="FileNamePattern">^.*xml$</parameter>
+                    <parameter name="NoFilesFoundHandling">OK</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">ERROR</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">archive/Talkoot</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2020-04-17Z</date>
+                <time>08:17:23.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+	<job job-id="SDLTranslationJob" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_24">
+                <context site-id="OC"/>
+                <context site-id="SEA"/>
+                <context site-id="KR"/>
+            </contexts>
+            <flow-template template-id="template_24">
+                <step step-id="CreateTMSProjectJob" type="custom.SDLCreateTMSProjectJob" enforce-restart="false">
+                    <description>This Job creates the projects to the TMS and then deletes the temp project records from the SFCC.</description>
+                    <parameters/>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <continue/>
+                        </on-exit>
+                    </rules>
+                </step>
+                <step step-id="CreateTranslationHistoryJob" type="custom.SDLCreateTranslationHistoryJob" enforce-restart="false">
+                    <description>This job syncs with the TMS server and creates the Translation History Records to the SFCC</description>
+                    <parameters/>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <continue/>
+                        </on-exit>
+                    </rules>
+                </step>
+                <step step-id="TMSSyncSchedulerJob" type="custom.SDLSyncSchedularJob" enforce-restart="false">
+                    <description>TMS Sync Scheduler Job will sync up the TMS data with SFCC.</description>
+                    <parameters/>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <continue/>
+                        </on-exit>
+                    </rules>
+                </step>
+                <step step-id="SDLManagedTranslationDownload" type="custom.SDLDownloadJob" enforce-restart="false">
+                    <description>This Job will download the translated content from TMS and import in SFCC.</description>
+                    <parameters/>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <continue/>
+                        </on-exit>
+                    </rules>
+                </step>
+                <step step-id="TMSCompleteSchedulerJob" type="custom.SDLCompleteJob" enforce-restart="false">
+                    <description>This job deletes all the translation completed jobs from the SFCC and updates the projects in TMS as COMPLETED</description>
+                    <parameters/>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <continue/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-01-11Z</date-from>
+                    <start-time>01:22:37.000Z</start-time>
+                    <interval>1h</interval>
+                    <day-of-week>
+                        <weekday>Monday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Download Order Status" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <flow>
+                <context site-id="Sites"/>
+                <step step-id="Download Order Status NON ZIP OC - SSH (DO NOT TOUCH)" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                    <description>Downloading files from Amazon S3</description>
+                    <parameters>
+                        <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                        <parameter name="KeyAlias">uasftptest</parameter>
+                        <parameter name="FilePattern">^.*xml</parameter>
+                        <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/out/orderstatus/oc</parameter>
+                        <parameter name="TargetFolder">src/feeds/orderstatus/oc</parameter>
+                        <parameter name="Recursive">false</parameter>
+                        <parameter name="DeleteRemoteFiles">true</parameter>
+                        <parameter name="NoFileFoundStatus">OK</parameter>
+                    </parameters>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <stop-job/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="Sites"/>
+                <step step-id="Download Order Status NON ZIP SEA - SSH (DO NOT TOUCH)" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                    <description>Downloading files from Amazon S3</description>
+                    <parameters>
+                        <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                        <parameter name="KeyAlias">uasftptest</parameter>
+                        <parameter name="FilePattern">^.*xml</parameter>
+                        <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/out/orderstatus/sea</parameter>
+                        <parameter name="TargetFolder">src/feeds/orderstatus/sea</parameter>
+                        <parameter name="Recursive">false</parameter>
+                        <parameter name="DeleteRemoteFiles">true</parameter>
+                        <parameter name="NoFileFoundStatus">OK</parameter>
+                    </parameters>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <stop-job/>
+                        </on-exit>
+                    </rules>
+                </step>
+                <step step-id="Download Order Status NON ZIP TH - SSH (DO NOT TOUCH)" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                    <description>Downloading files from Amazon S3</description>
+                    <parameters>
+                        <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                        <parameter name="KeyAlias">uasftptest</parameter>
+                        <parameter name="FilePattern">^.*xml</parameter>
+                        <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/out/orderstatus/th</parameter>
+                        <parameter name="TargetFolder">src/feeds/orderstatus/th</parameter>
+                        <parameter name="Recursive">false</parameter>
+                        <parameter name="DeleteRemoteFiles">true</parameter>
+                        <parameter name="NoFileFoundStatus">OK</parameter>
+                    </parameters>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <stop-job/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="Sites"/>
+                <step step-id="Download Order Status NON ZIP KR - SSH (DO NOT TOUCH)" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                    <description>Downloading files from Amazon S3</description>
+                    <parameters>
+                        <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                        <parameter name="KeyAlias">uasftptest</parameter>
+                        <parameter name="FilePattern">^.*xml</parameter>
+                        <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/out/orderstatus/kr</parameter>
+                        <parameter name="TargetFolder">src/feeds/orderstatus/kr</parameter>
+                        <parameter name="Recursive">false</parameter>
+                        <parameter name="DeleteRemoteFiles">true</parameter>
+                        <parameter name="NoFileFoundStatus">OK</parameter>
+                    </parameters>
+                </step>
+            </flow>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-06-09Z</date-from>
+                    <start-time>08:28:44.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Saturday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Import Order Status - Shipment" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="Import Order Shipment OC" type="custom.OrderShipping" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="workingFolder">src/feeds/orderstatus/oc</parameter>
+                    <parameter name="filePattern">^.*ShipmentStatus*.*xml</parameter>
+                    <parameter name="sortDirection">ASCENDING</parameter>
+                    <parameter name="zipFiles">true</parameter>
+                    <parameter name="targetFolder">/src/archive/orderShipment/oc</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="SEA"/>
+            <step step-id="Import Order Shipment SEA" type="custom.OrderShipping" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="workingFolder">src/feeds/orderstatus/sea</parameter>
+                    <parameter name="filePattern">^.*OrderShipNotification*.*xml</parameter>
+                    <parameter name="sortDirection">ASCENDING</parameter>
+                    <parameter name="zipFiles">true</parameter>
+                    <parameter name="targetFolder">/src/archive/orderShipment/sea</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="TH"/>
+            <step step-id="Import Order Shipment TH" type="custom.OrderShipping" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="workingFolder">src/feeds/orderstatus/th</parameter>
+                    <parameter name="filePattern">^.*OrderShipNotification*.*xml</parameter>
+                    <parameter name="sortDirection">ASCENDING</parameter>
+                    <parameter name="zipFiles">true</parameter>
+                    <parameter name="targetFolder">/src/archive/orderShipment/th</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="Import Order Shipment KR" type="custom.OrderShipping" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="workingFolder">src/feeds/orderstatus/kr</parameter>
+                    <parameter name="filePattern">^.*ASN*.*xml</parameter>
+                    <parameter name="sortDirection">ASCENDING</parameter>
+                    <parameter name="zipFiles">true</parameter>
+                    <parameter name="targetFolder">/src/archive/orderShipment/kr</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-06-09Z</date-from>
+                    <start-time>08:29:16.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Saturday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Sunday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Bazaarvoice Inline Ratings Import" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_104">
+                <context site-id="OC"/>
+                <context site-id="SEA"/>
+                <context site-id="KR"/>
+            </contexts>
+            <flow-template template-id="template_104">
+                <step step-id="Download Rating Feed" type="custom.Bazaarvoice-Download" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="Enabled">true</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <split sequential="false">
+            <contexts template-ref="template_105">
+                <context site-id="OC"/>
+                <context site-id="SEA"/>
+                <context site-id="KR"/>
+            </contexts>
+            <flow-template template-id="template_105">
+                <step step-id="Import Ratings" type="custom.Bazaarvoice-Rating-Import" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="Enabled">true</parameter>
+                    </parameters>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <stop-job/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow-template>
+        </split>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="true">
+                <mark-job-as-hanging/>
+                <send-mail>
+                    <from>jobs@yourdomain.com</from>
+                    <to>jobadmin@yourdomain.com</to>
+                </send-mail>
+            </on-running>
+            <on-retry enabled="true">
+                <send-mail>
+                    <from>jobs@yourdomain.com</from>
+                    <to>jobadmin@yourdomain.com</to>
+                </send-mail>
+            </on-retry>
+            <on-exit status="ERROR" enabled="true">
+                <send-mail>
+                    <from>jobs@yourdomain.com</from>
+                    <to>jobadmin@yourdomain.com</to>
+                </send-mail>
+            </on-exit>
+        </rules>
+        <triggers>
+            <run-once enabled="true">
+                <date>2020-04-17Z</date>
+                <time>20:15:54.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    <job job-id="Bazaarvoice Product Feed Export" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_36">
+                <all-storefront-sites/>
+            </contexts>
+            <flow-template template-id="template_36">
+                <step step-id="Site Specific Feed" type="custom.Bazaarvoice-Product-Feed-Export" enforce-restart="true">
+                    <description/>
+                    <parameters>
+                        <parameter name="Enabled">true</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <split sequential="false">
+            <contexts template-ref="template_37">
+                <all-storefront-sites/>
+            </contexts>
+            <flow-template template-id="template_37">
+                <step step-id="Upload Product Feeds" type="custom.Bazaarvoice-Upload" enforce-restart="false">
+                    <description>Product Feed Upload</description>
+                    <parameters>
+                        <parameter name="Enabled">true</parameter>
+                        <parameter name="FeedType">Product</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-once enabled="true">
+                <date>2020-06-03Z</date>
+                <time>13:47:45.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    <job job-id="Adyen Process Notifications" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_48">
+                <context site-id="OC"/>
+                <context site-id="SEA"/>
+            </contexts>
+            <flow-template template-id="template_48">
+                <step step-id="Process" type="ExecuteScriptModule" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="ExecuteScriptModule.Module">int_adyen_overlay/cartridge/scripts/job/notifications.js</parameter>
+                        <parameter name="ExecuteScriptModule.FunctionName">processNotifications</parameter>
+                        <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                        <parameter name="ExecuteScriptModule.TimeoutInSeconds">3600</parameter>
+                    </parameters>
+                </step>
+                <step step-id="Clean" type="ExecuteScriptModule" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="ExecuteScriptModule.Module">int_adyen_overlay/cartridge/scripts/job/notifications.js</parameter>
+                        <parameter name="ExecuteScriptModule.FunctionName">clearNotifications</parameter>
+                        <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                        <parameter name="ExecuteScriptModule.TimeoutInSeconds">3600</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-06-13Z</date-from>
+                    <start-time>14:49:21.000Z</start-time>
+                    <interval>2m</interval>
+                    <day-of-week>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Saturday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Import Order Status - Refund" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="Import Order Refund OC" type="custom.OrderRefund" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="workingFolder">src/feeds/orderstatus/oc</parameter>
+                    <parameter name="filePattern">^.*RefundConfirmation*.*xml</parameter>
+                    <parameter name="sortDirection">ASCENDING</parameter>
+                    <parameter name="zipFiles">true</parameter>
+                    <parameter name="targetFolder">/src/archive/orderRefund/oc</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="SEA"/>
+            <step step-id="Import Order Refund SEA" type="custom.OrderRefund" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="workingFolder">src/feeds/orderstatus/sea</parameter>
+                    <parameter name="filePattern">^.*OrderRefund*.*xml</parameter>
+                    <parameter name="sortDirection">ASCENDING</parameter>
+                    <parameter name="zipFiles">true</parameter>
+                    <parameter name="targetFolder">/src/archive/orderRefund/sea</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+		<flow>
+            <context site-id="TH"/>
+            <step step-id="Import Order Refund TH" type="custom.OrderRefund" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="workingFolder">src/feeds/orderstatus/th</parameter>
+                    <parameter name="filePattern">^.*OrderRefund*.*xml</parameter>
+                    <parameter name="sortDirection">ASCENDING</parameter>
+                    <parameter name="zipFiles">true</parameter>
+                    <parameter name="targetFolder">/src/archive/orderRefund/th</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="Import Order Refund KR" type="custom.OrderRefund" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="workingFolder">src/feeds/orderstatus/kr</parameter>
+                    <parameter name="filePattern">^.*orderRefund*.*xml</parameter>
+                    <parameter name="sortDirection">ASCENDING</parameter>
+                    <parameter name="zipFiles">true</parameter>
+                    <parameter name="targetFolder">/src/archive/orderRefund/kr</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="true">
+                <mark-job-as-hanging/>
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>Sachin.S@hcl.com, narasimharaju_pinne@hcl.com, mohammedtaher.jamboo@hcl.com,mamta.galande@hcl.com, mayank.ma@hcl.com, sarita.choudhary@hcl.com</to>
+                </send-mail>
+            </on-running>
+            <on-retry enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>Sachin.S@hcl.com, narasimharaju_pinne@hcl.com, mohammedtaher.jamboo@hcl.com,mamta.galande@hcl.com, mayank.ma@hcl.com, sarita.choudhary@hcl.com</to>
+                </send-mail>
+            </on-retry>
+            <on-exit status="OK,ERROR" enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>Sachin.S@hcl.com, narasimharaju_pinne@hcl.com, mohammedtaher.jamboo@hcl.com,mamta.galande@hcl.com, mayank.ma@hcl.com, sarita.choudhary@hcl.com</to>
+                </send-mail>
+            </on-exit>
+        </rules>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2019-12-10Z</date-from>
+                    <start-time>00:00:00.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Friday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Thursday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Automated Returns XML" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="Generate XML OC" type="custom.AutomatedReturnXML" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Action">AutomatedReturnXML-GenerateXML</parameter>
+                    <parameter name="Verbose">true</parameter>
+                </parameters>
+            </step>
+            <step step-id="Upload XML OC" type="custom.CSComponents.FtpUpload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">^DEVOC-.*Return.*xml</parameter>
+                    <parameter name="SourceFolder">src/feeds/returns</parameter>
+                    <parameter name="TargetFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/in/returns/oc</parameter>
+                    <parameter name="Recursive">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Zip XML OC" type="custom.ZipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="filePattern">^DEVOC-.*Return.*xml</parameter>
+                    <parameter name="sourceFolder">src/feeds/returns</parameter>
+                    <parameter name="targetFolder">src/archive/returns</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">MULTIPLE_ARCHIVE_FILES</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="SEA"/>
+            <step step-id="Generate XML SEA" type="custom.AutomatedReturnXML" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Action">AutomatedReturnXML-GenerateXML</parameter>
+                    <parameter name="Verbose">true</parameter>
+                </parameters>
+            </step>
+            <step step-id="Upload XML SEA" type="custom.CSComponents.FtpUpload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">^DV-.*Return.*xml</parameter>
+                    <parameter name="SourceFolder">src/feeds/returns</parameter>
+                    <parameter name="TargetFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/in/returns/sea</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Zip XML SEA" type="custom.ZipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="filePattern">^DV-.*Return.*xml</parameter>
+                    <parameter name="sourceFolder">src/feeds/returns</parameter>
+                    <parameter name="targetFolder">src/archive/returns</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">MULTIPLE_ARCHIVE_FILES</parameter>
+                </parameters>
+            </step>
+        </flow>
+		<flow>
+            <context site-id="TH"/>
+            <step step-id="Generate XML TH" type="custom.AutomatedReturnXML" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Action">AutomatedReturnXML-GenerateXML</parameter>
+                    <parameter name="Verbose">true</parameter>
+                </parameters>
+            </step>
+            <step step-id="Upload XML TH" type="custom.CSComponents.FtpUpload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">^UATH-.*Return.*xml</parameter>
+                    <parameter name="SourceFolder">src/feeds/returns</parameter>
+                    <parameter name="TargetFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/in/returns/th</parameter>
+                    <parameter name="Recursive">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Zip XML TH" type="custom.ZipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="filePattern">^UATH-.*Return.*xml</parameter>
+                    <parameter name="sourceFolder">src/feeds/returns</parameter>
+                    <parameter name="targetFolder">src/archive/returns</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">MULTIPLE_ARCHIVE_FILES</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="Generate XML KR" type="custom.AutomatedReturnXML" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Action">AutomatedReturnXML-GenerateXML</parameter>
+                    <parameter name="Verbose">true</parameter>
+                </parameters>
+            </step>
+            <step step-id="Upload XML KR" type="custom.CSComponents.FtpUpload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">^DEVKR2_.*Return.*xml</parameter>
+                    <parameter name="SourceFolder">src/feeds/returns</parameter>
+                    <parameter name="TargetFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/in/returns/kr</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Zip XML KR" type="custom.ZipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="filePattern">^DEVKR2_.*Return.*xml</parameter>
+                    <parameter name="sourceFolder">src/feeds/returns</parameter>
+                    <parameter name="targetFolder">src/archive/returns</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">MULTIPLE_ARCHIVE_FILES</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-06-10Z</date-from>
+                    <start-time>19:47:56.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Friday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Thursday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="sizeAutoCategorization" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_58">
+                <context site-id="OC"/>
+                <context site-id="SEA"/>
+            </contexts>
+            <flow-template template-id="template_58">
+                <step step-id="CheckPrepCategory" type="custom.checkPrepCategory" enforce-restart="false">
+                    <description/>
+                    <parameters/>
+                </step>
+            </flow-template>
+        </split>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="AutoSize" type="custom.assignSize" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FootwearSizeVariation">sizevariation_OC</parameter>
+                    <parameter name="CatalogID">APACCatalog</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import Catalog" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/sizeAssociation/oc</parameter>
+                    <parameter name="FileNamePattern">catalog_size_associations_oc.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">WARN</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">ERROR</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="SEA"/>
+            <step step-id="AutoSize SEA" type="custom.assignSize" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FootwearSizeVariation">sizevariation_SEA</parameter>
+                    <parameter name="CatalogID">APACCatalog</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import Catalog SEA" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/sizeAssociation/SEA</parameter>
+                    <parameter name="FileNamePattern">catalog_size_associations_SEA.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">WARN</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">ERROR</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2021-05-25Z</date>
+                <time>13:06:04.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    <job job-id="Create External Profiles" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="Create External Profiles - OC" type="custom.createExternalProfiles" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="SEA"/>
+            <step step-id="Create External Profiles - SEA" type="custom.createExternalProfiles" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="Create External Profiles - KR" type="custom.createExternalProfiles" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2021-06-07Z</date>
+                <time>09:00:48.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    <job job-id="Health Report" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ZipPreviousExecution" type="custom.ZipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="sourceFolder">src/feeds/inventoryHealth</parameter>
+                    <parameter name="targetFolder">src/archive/inventoryHealth</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <split sequential="false">
+            <flow>
+                <context site-id="OC"/>
+                <step step-id="HealthOnlineOnly_OC" type="custom.InventoryHealth" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="exportDirectory">src/feeds/inventoryHealth</parameter>
+                        <parameter name="fileName">HealthReport_OnlineOnly_IncludeZeros_</parameter>
+                        <parameter name="pricebookValue">AUD</parameter>
+                        <parameter name="productMode">ONLINE_ONLY</parameter>
+                        <parameter name="outputRow">SKU_LEVEL</parameter>
+                        <parameter name="includeZeroCounts">true</parameter>
+                    </parameters>
+                </step>
+ 			 </flow>
+            <flow>
+                <context site-id="SEA"/>
+                <step step-id="HealthOnlineOnly_SEA" type="custom.InventoryHealth" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="exportDirectory">src/feeds/inventoryHealth</parameter>
+                        <parameter name="fileName">HealthReport_OnlineOnly_IncludeZeros_</parameter>
+                        <parameter name="pricebookValue">SGD</parameter>
+                        <parameter name="productMode">ONLINE_ONLY</parameter>
+                        <parameter name="outputRow">SKU_LEVEL</parameter>
+                        <parameter name="includeZeroCounts">true</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="TH"/>
+                <step step-id="HealthOnlineOnly_TH" type="custom.InventoryHealth" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="exportDirectory">src/feeds/inventoryHealth</parameter>
+                        <parameter name="fileName">HealthReport_OnlineOnly_IncludeZeros_</parameter>
+                        <parameter name="pricebookValue">THB</parameter>
+                        <parameter name="productMode">ONLINE_ONLY</parameter>
+                        <parameter name="outputRow">SKU_LEVEL</parameter>
+                        <parameter name="includeZeroCounts">true</parameter>
+                    </parameters>
+                </step>
+            </flow>
+        </split>
+        <split sequential="false">
+            <flow>
+                <context site-id="OC"/>
+                <step step-id="HealthOnlineOnly_NoZeroCounts_OC" type="custom.InventoryHealth" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="exportDirectory">src/feeds/inventoryHealth</parameter>
+                        <parameter name="fileName">HealthReport_OnlineOnly_NoZeroCount_SKU_</parameter>
+                        <parameter name="pricebookValue">AUD</parameter>
+                        <parameter name="productMode">ONLINE_ONLY</parameter>
+                        <parameter name="outputRow">SKU_LEVEL</parameter>
+                        <parameter name="includeZeroCounts">false</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="SEA"/>
+                <step step-id="HealthOnlineOnly_NoZeroCounts_SEA" type="custom.InventoryHealth" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="exportDirectory">src/feeds/inventoryHealth</parameter>
+                        <parameter name="fileName">HealthReport_OnlineOnly_NoZeroCount_SKU_</parameter>
+                        <parameter name="pricebookValue">SGD</parameter>
+                        <parameter name="productMode">ONLINE_ONLY</parameter>
+                        <parameter name="outputRow">SKU_LEVEL</parameter>
+                        <parameter name="includeZeroCounts">false</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="TH"/>
+                <step step-id="HealthOnlineOnly_NoZeroCounts_TH" type="custom.InventoryHealth" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="exportDirectory">src/feeds/inventoryHealth</parameter>
+                        <parameter name="fileName">HealthReport_OnlineOnly_NoZeroCount_SKU_</parameter>
+                        <parameter name="pricebookValue">THB</parameter>
+                        <parameter name="productMode">ONLINE_ONLY</parameter>
+                        <parameter name="outputRow">SKU_LEVEL</parameter>
+                        <parameter name="includeZeroCounts">false</parameter>
+                    </parameters>
+                </step>
+            </flow>
+        </split>
+        <split sequential="false">
+            <flow>
+                <context site-id="OC"/>
+                <step step-id="HealthALL_OC" type="custom.InventoryHealth" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="exportDirectory">src/feeds/inventoryHealth</parameter>
+                        <parameter name="fileName">HealthReport_ALL_SKU_IncludeZeros_</parameter>
+                        <parameter name="pricebookValue">AUD</parameter>
+                        <parameter name="productMode">ALL</parameter>
+                        <parameter name="outputRow">SKU_LEVEL</parameter>
+                        <parameter name="includeZeroCounts">true</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="SEA"/>
+                <step step-id="HealthALL_SEA" type="custom.InventoryHealth" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="exportDirectory">src/feeds/inventoryHealth</parameter>
+                        <parameter name="fileName">HealthReport_ALL_SKU_IncludeZeros_</parameter>
+                        <parameter name="pricebookValue">SGD</parameter>
+                        <parameter name="productMode">ALL</parameter>
+                        <parameter name="outputRow">SKU_LEVEL</parameter>
+                        <parameter name="includeZeroCounts">true</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="TH"/>
+                <step step-id="HealthALL_TH" type="custom.InventoryHealth" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="exportDirectory">src/feeds/inventoryHealth</parameter>
+                        <parameter name="fileName">HealthReport_ALL_SKU_IncludeZeros_</parameter>
+                        <parameter name="pricebookValue">THB</parameter>
+                        <parameter name="productMode">ALL</parameter>
+                        <parameter name="outputRow">SKU_LEVEL</parameter>
+                        <parameter name="includeZeroCounts">true</parameter>
+                    </parameters>
+                </step>
+            </flow>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-06-17Z</date-from>
+                    <start-time>11:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Generate_Outlet_Data" priority="0">
+        <description>Update product.custom.outletColors, product.custom.experienceType, and product.custom.isOutlet attributes and import, then add active styles from outlet categories based on outletColors data.
+11/16/2020:Ani:Job time moved to 10PM to accomodate changes to replication for 2020 Thanksgiving
+11/18/2020:Ani:Job time moved to 11:30 PM to accomodate changes to replication for 2020 Thanksgiving
+12/29/2020:AH: Changing frequency to every 6 hours to attempt to resolve false-positive issues from merch team</description>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_32">
+                <context site-id="OC"/>
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_32">
+                <step step-id="GenerateOutletAttributesXML" type="custom.assignOutletStatus" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="storefrontCatalogID">APACCatalog</parameter>
+                        <parameter name="updateUnorderableVariants">true</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportOutletAttributes" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/outletStatus</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">src/archive/outletStatus</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="GenerateOutletCategoriesXML-OC" type="custom.cleanUpOutletCategories" enforce-restart="false">
+                <description>Assign (or remove) outlet categories from style products</description>
+                <parameters>
+                    <parameter name="storefrontCatalogID">OCCatalog_storefront</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <split sequential="false">
+            <contexts template-ref="template_70">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_70">
+                <step step-id="GenerateOutletCategoriesXML-SEA" type="custom.cleanUpOutletCategories" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="storefrontCatalogID">SEACatalog_storefront</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportOutletCategories" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/outletStatus</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">src/archive/outletStatus</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <split sequential="false">
+            <contexts template-ref="template_41">
+                <context site-id="OC"/>
+                <context site-id="SEA"/>
+            </contexts>
+            <flow-template template-id="template_41">
+                <step step-id="Product Reindex" type="SearchReindex" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="Product related search indexes">true</parameter>
+                        <parameter name="Active data search index">false</parameter>
+                        <parameter name="Content search index">false</parameter>
+                        <parameter name="Indexer Type">Full Index Rebuild</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules>
+            <on-running runtime-threshold="120m" enabled="true">
+                <mark-job-as-hanging/>
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>SFCC_L4@underarmour.com</to>
+                    <cc>ppandey@liveareacx.com,dmaher@underarmour.com,schaki@underarmour.com,anirudha.gandhe@underarmour.com,lcarmona@underarmour.com</cc>
+                    <bcc>UA_APPS_SFRA@hcl.com</bcc>
+                </send-mail>
+            </on-running>
+            <on-retry enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>SFCC_L4@underarmour.com</to>
+                    <cc>dmaher@underarmour.com,schaki@underarmour.com,anirudha.gandhe@underarmour.com,lcarmona@underarmour.com</cc>
+                    <bcc>UA_APPS_SFRA@hcl.com</bcc>
+                </send-mail>
+            </on-retry>
+            <on-exit status="ERROR" enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>SFCC_L4@underarmour.com</to>
+                    <cc>dmaher@underarmour.com,schaki@underarmour.com,anirudha.gandhe@underarmour.com,lcarmona@underarmour.com</cc>
+                    <bcc>UA_APPS_SFRA@hcl.com</bcc>
+                </send-mail>
+            </on-exit>
+        </rules>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-03-14Z</date-from>
+                    <start-time>07:30:00.000Z</start-time>
+                    <interval>6h</interval>
+                    <day-of-week>
+                        <weekday>Thursday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Wednesday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="OrderConfirmationEmailTriggers" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_101">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+                <context site-id="OC"/>
+                <context site-id="KR"/>
+            </contexts>
+            <flow-template template-id="template_101">
+                <step step-id="OrderConfirmationEmailTriggers" type="custom.orderConfimationEmail" enforce-restart="false">
+                    <description>Trigger order confirmation email through this job</description>
+                    <parameters/>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2020-10-13Z</date-from>
+                    <start-time>22:28:55.000Z</start-time>
+                    <interval>5m</interval>
+                    <day-of-week>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Thursday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="RefreshExpiredAccessTokens" priority="0">
+        <description>Check and refresh access token for all required services configured in site preference</description>
+        <parameters/>
+        <split sequential="true">
+            <contexts template-ref="template_215">
+                <context site-id="OC"/>
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+                <context site-id="KR"/>
+            </contexts>
+            <flow-template template-id="template_215">
+                <step step-id="RefreshExpiredAccessTokens" type="custom.refreshAccessTokens" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="tokenRefreshTime">15</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2020-10-13Z</date-from>
+                    <start-time>22:28:55.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Thursday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Process ReturnXML CustomObject" priority="0">
+        <description>This job will process the objects marked as not ready for export. depending on the interface different steps will be executed</description>
+        <parameters/>
+        <split sequential="false">
+            <flow>
+                <context site-id="OC"/>
+                <step step-id="Nzpostfetchlabel" type="custom.nzpostfetchlabel" enforce-restart="false">
+                    <description>Process Newzeland Post Label</description>
+                    <parameters/>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="OC"/>
+                <step step-id="AupostProcesslabel" type="custom.aupostProcesslabel" enforce-restart="false">
+                    <description>Australia process label.</description>
+                    <parameters/>
+                </step>
+            </flow>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-09-22Z</date-from>
+                    <start-time>20:45:07.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Order Export" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_71">
+                <context site-id="KR"/>
+                <context site-id="OC"/>
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_71">
+                <step step-id="ExportOrders" type="custom.CSComponents.ExportOrders" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="TargetFolder">src/download/order</parameter>
+                        <parameter name="Filename">order_export</parameter>
+                        <parameter name="Query">exportStatus = 2 AND status != 8 AND status != 6 AND custom.updates = NULL</parameter>
+                        <parameter name="UpdateExportStatus">true</parameter>
+                        <parameter name="OverwriteExportFile">true</parameter>
+                        <parameter name="addTimestampToFileName">true</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="Archive Orders OC" type="custom.ZipFiles" enforce-restart="true">
+                <description/>
+                <parameters>
+                    <parameter name="filePattern">^.*order_export_OC.*xml</parameter>
+                    <parameter name="sourceFolder">src/download/order</parameter>
+                    <parameter name="targetFolder">src/archive/order/oc</parameter>
+                    <parameter name="deleteFile">KEEP_ON_SERVER</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-flow/>
+                    </on-exit>
+                </rules>
+            </step>
+            <step step-id="Upload Orders-OC" type="custom.CSComponents.FtpUpload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">^.*order_export_OC.*xml</parameter>
+                    <parameter name="SourceFolder">src/download/order</parameter>
+                    <parameter name="TargetFolder">ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/in/orders/oc</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="SEA"/>
+            <step step-id="Archive Orders SEA" type="custom.ZipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="filePattern">^.*order_export_SEA.*xml</parameter>
+                    <parameter name="sourceFolder">src/download/order</parameter>
+                    <parameter name="targetFolder">src/archive/order/sea</parameter>
+                    <parameter name="deleteFile">KEEP_ON_SERVER</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-flow/>
+                    </on-exit>
+                </rules>
+            </step>
+            <step step-id="Upload Orders-SEA" type="custom.CSComponents.FtpUpload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">^.*order_export_SEA.*xml</parameter>
+                    <parameter name="SourceFolder">src/download/order</parameter>
+                    <parameter name="TargetFolder">ftpdemandware_sea/in/orders</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="TH"/>
+            <step step-id="Archive Orders TH" type="custom.ZipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="filePattern">^.*order_export_TH.*xml</parameter>
+                    <parameter name="sourceFolder">src/download/order</parameter>
+                    <parameter name="targetFolder">src/archive/order/th</parameter>
+                    <parameter name="deleteFile">KEEP_ON_SERVER</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-flow/>
+                    </on-exit>
+                </rules>
+            </step>
+            <step step-id="Upload Orders-TH" type="custom.CSComponents.FtpUpload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">^.*order_export_TH.*xml</parameter>
+                    <parameter name="SourceFolder">src/download/order</parameter>
+                    <parameter name="TargetFolder">ftpdemandware_th/in/orders</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="Archive Orders KR" type="custom.ZipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="filePattern">^.*order_export_KR.*xml</parameter>
+                    <parameter name="sourceFolder">src/download/order</parameter>
+                    <parameter name="targetFolder">src/archive/order/kr</parameter>
+                    <parameter name="deleteFile">KEEP_ON_SERVER</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+            <step step-id="Upload Orders-KR" type="custom.CSComponents.FtpUpload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">^.*order_export_KR.*xml</parameter>
+                    <parameter name="SourceFolder">src/download/order</parameter>
+                    <parameter name="TargetFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/in/orders/kr</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-09-27Z</date-from>
+                    <start-time>10:12:15.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week>
+                        <weekday>Thursday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Wednesday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="ATOME Order Cancel" priority="0">
+        <description>Cancel any ATOME order in created status more than configured cancel timeout value in site preference</description>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_346">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_346">
+                <step step-id="ATOME Order Cancel" type="custom.atomeOrderCancel" enforce-restart="false">
+                    <description>Cancel any ATOME order in created status more than configured cancel timeout value in site preference</description>
+                    <parameters>
+                        <parameter name="forceOrderCancellation">false</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-10-12Z</date-from>
+                    <start-time>15:16:47.000Z</start-time>
+                    <interval>15m</interval>
+                    <day-of-week/>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="ATOME Order Force cancel" priority="0">
+        <description>Cancel any ATOME order in created status</description>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_148">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_148">
+                <step step-id="ATOME Order Force cancel" type="custom.atomeOrderCancel" enforce-restart="false">
+                    <description>Cancel any ATOME order in created status</description>
+                    <parameters>
+                        <parameter name="forceOrderCancellation">true</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2021-10-12Z</date-from>
+                    <start-time>15:16:25.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week/>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="NewsLetterSignUp" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_157">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+                <context site-id="OC"/>
+            </contexts>
+            <flow-template template-id="template_157">
+                <step step-id="NewsLetterSignUp" type="ExecuteScriptModule" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="ExecuteScriptModule.Module">app_ua_core/cartridge/scripts/util/newsLetterJob.js</parameter>
+                        <parameter name="ExecuteScriptModule.FunctionName">execute</parameter>
+                        <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2019-12-10Z</date-from>
+                    <start-time>00:00:00.000Z</start-time>
+                    <interval>2h</interval>
+                    <day-of-week>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Import Order Status - Confirmation" priority="0">
+        <description>Import Order Status - Confirmation</description>
+        <parameters/>
+        <split sequential="false">
+            <flow>
+                <context site-id="OC"/>
+                <step step-id="Import Order Shipment OC" type="custom.OrderAcknowledgement" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="workingFolder">src/feeds/orderstatus/oc</parameter>
+                        <parameter name="filePattern">^.*OrderConfirmation.*xml</parameter>
+                        <parameter name="sortDirection">ASCENDING</parameter>
+                        <parameter name="zipFiles">true</parameter>
+                        <parameter name="targetFolder">/src/archive/orderstatus/oc</parameter>
+                        <parameter name="deleteFile">DELETE</parameter>
+                        <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="SEA"/>
+                <step step-id="importOrderShipmentSEA" type="custom.OrderAcknowledgement" enforce-restart="false">
+                    <description>Import Order Shipment SEA</description>
+                    <parameters>
+                        <parameter name="workingFolder">src/feeds/orderstatus/sea</parameter>
+                        <parameter name="filePattern">^.*OrderConfirmation.*xml</parameter>
+                        <parameter name="sortDirection">ASCENDING</parameter>
+                        <parameter name="zipFiles">true</parameter>
+                        <parameter name="targetFolder">/src/archive/orderstatus/sea</parameter>
+                        <parameter name="deleteFile">DELETE</parameter>
+                        <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="TH"/>
+                <step step-id="importOrderShipmentTH" type="custom.OrderAcknowledgement" enforce-restart="false">
+                    <description>Import Order Shipment TH</description>
+                    <parameters>
+                        <parameter name="workingFolder">src/feeds/orderstatus/th</parameter>
+                        <parameter name="filePattern">^.*OrderConfirmation.*xml</parameter>
+                        <parameter name="sortDirection">ASCENDING</parameter>
+                        <parameter name="zipFiles">true</parameter>
+                        <parameter name="targetFolder">/src/archive/orderstatus/th</parameter>
+                        <parameter name="deleteFile">DELETE</parameter>
+                        <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="KR"/>
+                <step step-id="importOrderConfirmationKR" type="custom.OrderAcknowledgement" enforce-restart="false">
+                    <description>Import Order Confirmation KR</description>
+                    <parameters>
+                        <parameter name="workingFolder">src/feeds/orderstatus/kr</parameter>
+                        <parameter name="filePattern">^.*OrderConfirmation.*xml</parameter>
+                        <parameter name="sortDirection">ASCENDING</parameter>
+                        <parameter name="zipFiles">true</parameter>
+                        <parameter name="targetFolder">/src/archive/orderstatus/kr</parameter>
+                        <parameter name="deleteFile">DELETE</parameter>
+                        <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                    </parameters>
+                </step>
+            </flow>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2019-12-10Z</date-from>
+                    <start-time>00:00:00.000Z</start-time>
+                    <interval>5m</interval>
+                    <day-of-week>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="CancelMembersonVoucher" priority="0">
+        <description/>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_27">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_27">
+                <step step-id="CancelVoucher" type="custom.MembersonLoyalty.CancelMembersonVoucher" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="startDate">2022-10-04</parameter>
+                        <parameter name="delayInHours">2</parameter>
+                    </parameters>
+                </step>
+                <step step-id="Notification" type="custom.MembersonLoyalty.NotifyVoucherCancellation" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="senderEmail">donotreply@demandware.com</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2022-10-03Z</date-from>
+                    <start-time>16:00:00.000Z</start-time>
+                    <interval>12h</interval>
+                    <day-of-week>
+                        <weekday>Sunday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Saturday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Shoplinker Export" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="Send Products To Shoplinker" type="custom.SendProduct.Shoplinker" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="Generate Clear Category XML" type="custom.Generate.ClearCategoryXML.Shoplinker" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="filePath">/src/feeds/cleanCategory</parameter>
+                    <parameter name="categoryID">shoplinker</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import Clear Category XML" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/cleanCategory/kr/</parameter>
+                    <parameter name="FileNamePattern">^.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">ERROR</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">ERROR</parameter>
+                    <parameter name="AfterImportFileHandling">Archive Zipped</parameter>
+                    <parameter name="ArchiveFolder">/src/archive/shoplinker/kr</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2018-03-05Z</date-from>
+                    <start-time>03:15:00.000Z</start-time>
+                    <interval>12h</interval>
+                    <day-of-week>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Saturday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Sitemaps XMLs Import" priority="0">
+        <description>Job used to import the custom sitemaps XMLs from Google Cloud SFTP</description>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Download Sitemaps XMLs Files from SFTP" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>Download Sitemaps XMLs Files from SFTP</description>
+                <parameters>
+                    <parameter name="ServiceID">sitemaps_SFTP_service</parameter>
+                    <parameter name="FilePattern">^.*zip</parameter>
+                    <parameter name="SourceFolder">/home/seo_analytics/sitemaps/</parameter>
+                    <parameter name="TargetFolder">src/sitemaps/zip</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+            <step step-id="UnZip Sitemaps XMLs files" type="custom.UnzipFiles" enforce-restart="false">
+                <description>UnZip Sitemaps XMLs files</description>
+                <parameters>
+                    <parameter name="filePattern">^.*zip</parameter>
+                    <parameter name="sourceFolder">src/sitemaps/zip</parameter>
+                    <parameter name="targetFolder">src/sitemaps</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="Import Sitemaps XMLs OC" type="ExecuteScriptModule" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ExecuteScriptModule.Module">bc_jobs/cartridge/scripts/sitemaps/ImportSitemapsXML.js</parameter>
+                    <parameter name="ExecuteScriptModule.FunctionName">execute</parameter>
+                    <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                    <parameter name="ExecuteScriptModule.TimeoutInSeconds">3600</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <continue/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="SEA"/>
+            <step step-id="Import Sitemaps XMLs SEA" type="ExecuteScriptModule" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ExecuteScriptModule.Module">bc_jobs/cartridge/scripts/sitemaps/ImportSitemapsXML.js</parameter>
+                    <parameter name="ExecuteScriptModule.FunctionName">execute</parameter>
+                    <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                    <parameter name="ExecuteScriptModule.TimeoutInSeconds">3600</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <continue/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="TH"/>
+            <step step-id="Import Sitemaps XMLs TH" type="ExecuteScriptModule" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ExecuteScriptModule.Module">bc_jobs/cartridge/scripts/sitemaps/ImportSitemapsXML.js</parameter>
+                    <parameter name="ExecuteScriptModule.FunctionName">execute</parameter>
+                    <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                    <parameter name="ExecuteScriptModule.TimeoutInSeconds">3600</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <continue/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2022-08-24Z</date>
+                <time>10:51:42.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
+       <job job-id="SleepingAccountHandling" priority="0">
+        <description>Sleeping Account Handling</description>
+        <parameters/>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="SleepingAccountHandling" type="custom.SleepingAccount.Management" enforce-restart="false">
+                <description>Handle sleeping account management</description>
+                <parameters>
+                    <parameter name="sleepingAccountCutoffDays">365</parameter>
+                    <parameter name="sleepingAccountNotificationDays">330</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2017-08-01Z</date-from>
+                    <start-time>00:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Saturday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+
+</jobs>

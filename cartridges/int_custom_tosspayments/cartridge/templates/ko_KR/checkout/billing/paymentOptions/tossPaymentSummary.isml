@@ -1,0 +1,9 @@
+<!--- TEMPLATENAME: tossPaymentSummary.isml --->
+<div class="toss-method-name">
+    <span>
+        <isprint value="${payment.name}"/>
+    </span>
+</div>
+<div class="toss-amount">
+    ${dw.util.StringUtils.formatMoney(new dw.value.Money(payment.amount, pdict.CurrentSession.currency.currencyCode))}
+</div>

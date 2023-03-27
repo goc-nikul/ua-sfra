@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<payment-settings xmlns="http://www.demandware.com/xml/impex/paymentsettings/2009-09-15">
+
+    <payment-method method-id="2c2">
+        <name xml:lang="x-default">Credit/Debit Card &amp; Webpay</name>
+        <name xml:lang="th">บัตรเครดิต/เดบิต &amp; Webpay</name>
+        <image>2c2p/2C2P_Logo_RGB_Dark_Green-01.png</image>
+        <enabled-flag>true</enabled-flag>
+        <processor-id>2C2PAYMENT</processor-id>
+    </payment-method>
+
+    <payment-method method-id="COD">
+        <name xml:lang="x-default">Cash On Delivery</name>
+        <enabled-flag>true</enabled-flag>
+        <processor-id>COD</processor-id>
+		<ranges>
+            <range currency="THB">
+                <min-purchase-amount>0</min-purchase-amount>
+                <max-purchase-amount>6000</max-purchase-amount>
+            </range>
+        </ranges>
+    </payment-method>
+
+    <payment-method method-id="ATOME_PAYMENT">
+        <name xml:lang="x-default">ATOME_PAYMENT</name>
+        <description xml:lang="x-default">ATOME_PAYMENT</description>
+        <image>Atome_colored logo.png</image>
+        <enabled-flag>true</enabled-flag>
+        <processor-id>ATOME_PAYMENT</processor-id>
+    </payment-method>
+
+</payment-settings>

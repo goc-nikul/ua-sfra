@@ -1,0 +1,60 @@
+var URLUtils = require('dw/web/URLUtils');
+/**
+* SetupConfirmationRedirect.ds
+* To define input and output parameters, create entries of the form:
+*
+*   @input OrderNo : String
+*   @input FirstOrderNo : String
+*	@input PaymentInstrument : dw.order.OrderPaymentInstrument
+*	@input Order : dw.order.Order
+*   @input HttpParameterMap : dw.web.HttpParameterMap
+*
+*   @output RedirectScript : String
+*
+*/
+importScript( "util/srErrorUtils.ds" );
+
+var UUIDUtils = require('dw/util/UUIDUtils');
+var ExpressCheckoutUtil = require( "~/cartridge/scripts/payrunner/ExpressCheckoutUtil");
+
+function execute (args) {
+	var redirectScript = setupRedirect(args);
+	args.RedirectScript = redirectScript;
+	return PIPELET_NEXT;
+}
+
+function setupRedirect(args) {
+	var status = errorCodePaymentCart(args.PaymentInstrument, args.Order); // added in order to put the error code if Complete Purchase button is pressed
+	var orderNo = args.OrderNo;
+	var firstOrderNo = args.FirstOrderNo;
+	var confirmationPageUrl = URLUtils.https('ShopRunner-SetupConfirmation').toString(); 
+    var uuid = UUIDUtils.createUUID();
+    session.custom.redirectKey = uuid;
+    
+    confirmationPageUrl = confirmationPageUrl + "?g="+uuid;
+     
+    
+	var jsonString = '';
+	var jsonObject = {};
+	
+	// set the order number
+	var orderNumbers = orderNo;
+	if(!empty(firstOrderNo))
+	{
+		var orderNumbers = [];
+		orderNumbers.push(orderNo);
+		orderNumbers.push(firstOrderNo);
+	}
+	
+	// set up the object
+	jsonObject.redirectURL = confirmationPageUrl;
+	jsonObject.orderNumber = orderNo;
+	jsonObject.status = status;
+
+	return ExpressCheckoutUtil.applyScriptOK('ORDER_STATUS', jsonObject);
+}
+
+module.exports = {
+    execute: execute,
+	setupRedirect: setupRedirect
+};

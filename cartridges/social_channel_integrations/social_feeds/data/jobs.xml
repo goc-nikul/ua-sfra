@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs xmlns="http://www.demandware.com/xml/impex/jobs/2015-07-01">
+
+    <job job-id="google-surfaces-export" priority="0">
+        <description>Exports pricebook, inventory and stores in native XML format. Also exports product data using custom feeds</description>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ExportPriceBook" type="ExportPriceBook" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="PriceBookID">usd-m-list-prices</parameter>
+                    <parameter name="FileNamePrefix">feeds/export/social/google/pricebook/pricebook</parameter>
+                    <parameter name="OverwriteExportFile">true</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="ExportInventoryLists" type="ExportInventoryLists" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="InventoryListIDs">inventory_m, inventory_m_store_store1, inventory_m_store_store2, inventory_m_store_store3, inventory_m_store_store4</parameter>
+                    <parameter name="FileNamePrefix">feeds/export/social/google/inventory/inventory</parameter>
+                    <parameter name="OverwriteExportFile">true</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="ExportStores" type="ExportStores" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="StoreID">*</parameter>
+                    <parameter name="FileNamePrefix">feeds/export/social/google/stores/store</parameter>
+                    <parameter name="OverwriteExportFile">true</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="Export Products" type="custom.CustomFeeds.Script" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ExportCatalogs">true</parameter>
+                    <parameter name="DeltaCatalogExportInDays">0</parameter>
+                    <parameter name="CustomObjectIds">google-shopping</parameter>
+                    <parameter name="Hostname">www.example.com</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2022-08-25Z</date>
+                <time>16:57:47.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
+    <job job-id="tiktok-feed-export" priority="0">
+        <description>Exports Inventory in native XML format and exports product data using custom feeds</description>
+        <parameters/>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="Product Feed" type="custom.CustomFeeds.Script" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ExportCatalogs">true</parameter>
+                    <parameter name="DeltaCatalogExportInDays">0</parameter>
+                    <parameter name="GenerateDeleteFeed">true</parameter>
+                    <parameter name="CustomObjectIds">tiktok-feed</parameter>
+                    <parameter name="Hostname">zzte-036.sandbox.us02.dx.commercecloud.salesforce.com</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="ExportInventoryLists" type="ExportInventoryLists" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="InventoryListIDs">inventory_m, inventory_m_store_store1</parameter>
+                    <parameter name="FileNamePrefix">feeds/export/social/tiktok/inventory/inventory</parameter>
+                    <parameter name="OverwriteExportFile">true</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2022-09-27Z</date>
+                <time>18:07:19.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+</jobs>

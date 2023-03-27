@@ -1,0 +1,160 @@
+.b-payment-new_design {
+    .b-payement-tab-mx {
+        background-color: $grey1;
+        padding: 1rem 2rem;
+        margin-bottom: rem-calc(22);
+        border-bottom: 0;
+
+        .b-payment-tab_header {
+            display: none;
+        }
+
+        .b-payment-tab_content {
+            @include respond-to(desktop) {
+                max-width: 100%;
+                flex: 1 1 100%;
+            }
+        }
+
+        .adyen-checkout__card__form {
+            width: 80%;
+            padding: 0.9375rem 0 0;
+            @include respond-to(mobile) {
+                width: 100%;
+            }
+        }
+
+        .applepay-tab-wrapper {
+            .b-payment-accordion-head {
+                &.g-accordion-header {
+                    &.collapsed {
+                        @include respond-to(mobile) {
+                            display: none;
+
+                            &::after {
+                                display: none;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        .tab-pane {
+            &#applepay-content {
+                &.mac-only {
+                    @include respond-to(mobile) {
+                        border-bottom: 1px solid $grey3;
+                    }
+
+                    .b-payment-accordion-head {
+                        &.g-accordion-header {
+                            @include respond-to(mobile) {
+                                display: block;
+                            }
+                        }
+                    }
+                }
+            }
+
+            &:last-child {
+                @include respond-to(mobile) {
+                    border-bottom: 0;
+                }
+            }
+        }
+
+        .paymentMethod {
+            display: inline-block;
+            width: 100%;
+            margin: rem-calc(16) 0 rem-calc(16) 0;
+
+            .additionalFields {
+                margin: 0;
+            }
+
+            input[type='radio'] {
+                margin-right: rem-calc(10);
+            }
+
+            .paymentMethod_img {
+                height: rem-calc(16);
+            }
+
+            &.klarna,
+            &.klarna_account,
+            &.directEbanking {
+                .pay-image-wrapper {
+                    background: url('../images/cards/klarna.svg') no-repeat;
+                    width: rem-calc(46);
+                    height: rem-calc(11);
+                }
+            }
+
+            &.dotpay {
+                .pay-image-wrapper {
+                    background: url('../images/cards/dotpay.png') no-repeat;
+                    width: rem-calc(77);
+                    height: rem-calc(27);
+                    margin-bottom: rem-calc(2);
+                }
+            }
+
+            &.bcmc {
+                .pay-image-wrapper {
+                    background: url('../images/cards/bancontact.svg') no-repeat;
+                    width: rem-calc(46);
+                    height: rem-calc(33);
+                }
+            }
+
+            &.giropay {
+                .pay-image-wrapper {
+                    background: url('../images/cards/giropay.svg') no-repeat;
+                    width: rem-calc(43);
+                    height: rem-calc(21);
+                }
+            }
+
+            &.paypal {
+                .pay-image-wrapper {
+                    background: url('../images/cards/payPal.svg') no-repeat;
+                    width: rem-calc(53);
+                    height: rem-calc(15);
+                }
+
+                .additionalFields {
+                    margin-top: rem-calc(15);
+                }
+
+                .paymentMethod_img {
+                    display: none;
+                }
+            }
+
+            .pay-image-wrapper {
+                float: right;
+                display: inline-block;
+            }
+        }
+
+        #component_oxxo {
+            margin-top: rem-calc(16);
+        }
+
+        .adyen-checkout__card__holderName {
+            width: 80%;
+
+            input {
+                font-family: "-apple-system, BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+
+                &::placeholder {
+                    font-weight: 300;
+                }
+            }
+            @include respond-to(mobile) {
+                width: 100%;
+            }
+        }
+    }
+}

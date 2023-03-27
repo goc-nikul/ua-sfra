@@ -1,0 +1,107 @@
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets');
+        assets.addJs('/js/productDetail.js');
+        assets.addCss('/css/product/detail.css');
+    </isscript>
+
+
+
+    <isset name="product" value="${pdict.product}" scope="page" />
+    <isset name="isQuickView" value="${true}" scope="page" />
+    <isset name="isProductSet" value="${pdict.product.productType === 'set'}" scope="page" />
+
+    <isobject object="${product.raw}" view="detail">
+        <div
+            class="l-pdp product-detail b-physicalgiftcard_outer"
+            data-cmp="productDetail"
+            data-pid="${product.id}">
+            <div class="l-pdp-main">
+                <div class="l-pdp-images">
+                    <isif condition="${product.productTileUpperLeftBadge && product.productTileUpperLeftBadge.value}">
+                        <div class="l-tile-badge_top_left">${product.productTileUpperLeftBadge.displayValue}</div>
+                    </isif>
+                    <!-- Product Images Carousel -->
+                    <isinclude template="product/components/imageCarousel" />
+                    <isinclude template="product/components/productDetailZoomModal" />
+                </div>
+
+                <div class="l-pdp-info">
+                    <div class="b-product_info">
+
+                        <!-- Product Name -->
+                        <div class="b-product_name">
+                            <h1 class="b-product_name-wording">${product.productName}</h1>
+                        </div>
+
+                        <div class="b-modal_block">
+                            <isif condition="${product.custom.style}">
+                                <div class="l-style_name">
+                                    <isprint value="${Resource.msg('label.item.style', 'product', null)}"/>
+                                    <span class="value"><isprint value="${product.custom.style}" /></span>
+                                </div>
+                            </isif>
+                        </div>
+
+                        <div class="b-product_attrs">
+                            <!-- Attributes -->
+                            <isinclude template="product/components/mainAttributes" />
+
+                            <isset name="isBundle" value="${false}" scope="page" />
+                            <isset name="loopState" value="{count: 1}" scope="page" />
+                            <div class="b-product_attrs">
+	                            <isloop items="${product.variationAttributes}" var="attr" status="attributeStatus">
+	                                <div class="b-product_attrs-item" data-attr="${attr.id}">
+	                                    <isinclude template="product/components/variationAttribute" />
+	                                </div>
+	                            </isloop>
+	
+	                            <isif condition="${product.options && product.options.length > 0}">
+	                                <isinclude template="product/components/options" />
+	                            </isif>
+
+                                <div class="b-product_actions prices-add-to-cart-actions">
+                                    <!-- Quantity Drop Down Menu -->
+                                    <isif condition="${!isBundle && product.options.length === 0}">
+                                        <isinclude template="product/components/quantity" />
+                                    </isif>
+
+                                    <!-- Cart and [Optionally] Apple Pay -->
+                                    <div class="b-product_actions-inner">
+                                        <isinclude template="product/components/addToCartProduct" />
+                                        <isif condition="${!pdict.isVIP && !pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR')}">
+                                            <isinclude template="paypal/cart/paypalButton"/>
+                                        </isif>    
+                                        <div class="paypal-addtocart-error" style="display:none;" ></div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Product Description -->
+			                <div class="b-product_attrs-item m-description">
+			                    <isset name="loopState" value="{count: 1}" scope="page" />
+			                    <isinclude template="product/components/productCustomDescription" />
+			                </div>
+
+                            <!-- Product Qualtrics Survey Link -->
+                            <isinclude template="product/components/productQualtricsSurvey" />
+                        </div>
+                    </div>
+                </div>
+                <div class="b-product-slot">
+                    <isslot id="'physical-gift-card-product-recommendations" description="Product Recommendations specific to Physical Gift Card" context="global"/>
+                </div>
+            </div>
+        </div>
+        <div class="sticky-cta">
+            <div class="b-product_actions prices-add-to-cart-actions">
+                <div class="product-details">
+                    <span class="b-name-header"><isprint value="${product.productName}"/></span>
+                </div>
+                    <!-- Cart and [Optionally] Apple Pay -->
+                <isinclude template="product/components/addToCartProduct"/>
+            </div>
+        </div>
+    </isobject>
+</isdecorate>

@@ -1,0 +1,10 @@
+<isscript>
+    var assets = require('*/cartridge/scripts/assets');
+    assets.addJs('/js/global-loyalty.js');
+</isscript>
+
+<link rel="stylesheet" href="${URLUtils.staticURL('/css/loyaltyGlobal.css')}" />
+<isset name="loyaltyLandingContentAssetID" value="${'loyaltyLandingContentAssetID' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.loyaltyLandingContentAssetID}" scope="page" />
+<input type="hidden" id="gated-enrollment-url" value="${URLUtils.url('Loyalty-GatedEnrollmentModal')}" />
+<input type="hidden" id="enroll-failed" value="${URLUtils.url('Loyalty-HandleEnrollFail')}" />
+<input type="hidden" id="loyalty-ingrid-url" value="${URLUtils.url('Page-Show', 'cid', loyaltyLandingContentAssetID)}" />

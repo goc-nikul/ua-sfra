@@ -1,0 +1,41 @@
+<isinclude template="components/coreModules" />
+<isif condition="${pdict.productSearch.productIds.length > 0}">
+    <div class="b-sort" data-cmp="sortMobile" data-json-config='{"initOnDevice": ["extraSmall", "small", "medium", null, null]}'
+        data-analytics-plp-sort-default="${pdict.productSearch ? pdict.productSearch.productSort.ruleId : ''}"
+    >
+        <label for="sort-order" class="b-sort-label js-sort-label">${Resource.msgf('label.sort', 'search', null)}</label>
+        <isinputselect
+            fieldclass="js-select b-sort-select"
+            label="${Resource.msgf('label.sort', 'search', null)}"
+            labelclass="b-sort-label"
+            name="sort-order"
+            id="sort-order"
+            optionlist="${pdict.productSearch ? pdict.productSearch.productSort.options : ''}"
+            ruleid="${pdict.productSearch ? pdict.productSearch.productSort.ruleId : ''}"
+        />
+        <div class="b-sort-content js-mob_sort" >
+            <ul class="b-sort-list">
+                <isloop items="${pdict.productSearch.productSort.options}" var="option">
+					<li class="b-sort-item ${pdict.productSearch.productSort.ruleId && pdict.productSearch.productSort.ruleId.replace(/-/g, '').toLowerCase() === option.id.replace(/-/g, '') ? 'm-selected' : '' } js-sort-item" data-value="${option.url}"
+                        data-id="${option.id.replace(/\s/g,'')}"
+                        data-analytics-sort-value="${option.displayName}"
+                    >
+                        ${option.displayName}
+                    </li>
+                </isloop>
+            </ul>
+        </div>
+        <noscript>
+            <div class="dropdown">
+                <button class="dropbtn"><isprint value="${!empty(pdict.productSearch.productSort.selectedSortingOption)? pdict.productSearch.productSort.selectedSortingOption : (pdict.productSearch.productSort.options.length > 0 ? pdict.productSearch.productSort.options[0].displayName : '')}"/></button>
+                <ul class="dropdown-content">
+                    <isloop items="${pdict.productSearch.productSort.options}" var="option" status="loopStatus">
+                        <li class="b-sort-item ${((pdict.productSearch.productSort && pdict.productSearch.productSort.selectedSortingOption === option.displayName) || (empty(pdict.productSearch.productSort.selectedSortingOption) && loopStatus.index === 0)) ? 'highlighted' : '' } js-sort-item" data-value="${option.url}">
+                            <a href="${option.pageUrl}"><isprint value="${option.displayName}"/></a>
+                        </li>
+                    </isloop>
+                </ul>
+            </div>
+        </noscript>
+    </div>
+</isif>

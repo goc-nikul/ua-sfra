@@ -1,0 +1,18 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+
+<div class="g-accordion-item g-tabs-pane tab-pane oxxo-content oxxo_payments ${pdict.selectedPaymentMethod == paymentOption.ID ? 'active' : ''}" id="oxxo-content" role="tabpanel">
+    <div class="b-payment-accordion-head g-accordion-header ${pdict.selectedPaymentMethod == paymentOption.ID ? '' : 'collapsed'} js-oxxo-payment" data-method-id="AURUS_OXXO" role="button" data-toggle="collapse" data-target="#acc-6" aria-expanded="true" aria-controls="acc-6">
+         <isprint value="${Resource.msg('heading.payment.oxxo', 'checkout', null)}" />
+    </div>
+    <div class="g-accordion-content collapse ${pdict.selectedPaymentMethod == paymentOption.ID ? 'show' : ''}" id="acc-6" data-parent="#g-accordion-parent">
+        <fieldset class="payment-form-fields">
+                <input type="hidden" class="form-control" name="${pdict.forms.billingForm.paymentMethod.htmlName}" value="AURUS_OXXO" />
+                <input type="hidden" id="auruspayoxxoSessionID" value=""/>
+                <div id="oxxoPayDiv" style="pointer-events: none;"></div>
+                <div>
+                     <iscontentasset aid="OXXO-Payment-Description" />
+                </div>
+                 <div id="oxxoPayDiv_Bottom" style="display: none;"></div>
+        </fieldset>
+    </div>
+</div>

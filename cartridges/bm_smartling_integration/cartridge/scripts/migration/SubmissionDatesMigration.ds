@@ -1,0 +1,35 @@
+/**
+*/
+importPackage( dw.system );
+importPackage( dw.object );
+importPackage( dw.util );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartlingMigration", "submissionDataMigration"));
+
+function execute( args : PipelineDictionary ) : Number
+{
+    try {
+        var submissions : SeekableIterator = CustomObjectMgr.getAllCustomObjects("SMARTLING_SUBMISSION");
+        LOGGER.info("{0} submissions found, starting migration...", submissions.count);
+
+        for each (var submission : CustomObject in submissions) {
+            var custom : CustomAttributes = submission.custom;
+            if (submission.custom["timeSubmitted"] != null) {
+                submission.custom["submitted"] = new Date(submission.custom["timeSubmitted"]);
+            }
+            if (submission.custom["timeApplied"] != null) {
+                submission.custom["applied"] = new Date(submission.custom["timeApplied"]);
+            }
+            if (submission.custom["smartlingLastModified"] != null) {
+                submission.custom["smLastModified"] = new Date(submission.custom["smartlingLastModified"]);
+            }
+        }
+        submissions.close();
+
+        LOGGER.info("Migration done!");
+    } catch (e) {
+        LOGGER.errorException("submissionDataMigration failed", e);
+    }
+   return PIPELET_NEXT;
+}

@@ -1,0 +1,112 @@
+//PLP and PDP- select model size styling
+
+.b-plp-sidebar-modelSize {
+    padding: 0 rem-calc(32) rem-calc(40) 0;
+    @include respond-to(mobile) {
+        padding: rem-calc(16) 0 0 0;
+    }
+
+    .g-selectric-container {
+        z-index: auto;
+    }
+
+    .g-selectric-above {
+        .g-selectric {
+            border-radius: 0 0 rem-calc(4) rem-calc(4);
+        }
+
+        .g-selectric-items {
+            border-bottom: 0;
+            border-top: 1px solid $black;
+            border-radius: rem-calc(4) rem-calc(4) 0 0;
+        }
+    }
+
+    .g-selectric-below {
+        .g-selectric-items {
+            border-top: 0;
+            border-bottom: 1px solid $black;
+        }
+    }
+
+    &.b-pdp-modelSize {
+        padding: rem-calc(24) 0 0;
+        min-width: 50%;
+        max-width: 100%;
+        float: right;
+        @include respond-to(mobile) {
+            padding: rem-calc(12) rem-calc(16) rem-calc(10);
+            width: 100%;
+        }
+
+        .g-selectric-items {
+            box-shadow: 0 rem-calc(2) rem-calc(4) 0 rgba($black, 0.25);
+        }
+
+        .g-selectric {
+            .label {
+                &.not-available {
+                    color: $grey4;
+                }
+            }
+        }
+
+        &.disabled {
+            pointer-events: none;
+            color: $grey4;
+
+            .g-selectric {
+                .label {
+                    color: $grey4;
+                }
+            }
+
+            .pdp-modelSize-text {
+                padding-top: rem-calc(10);
+                color: $black;
+            }
+        }
+    }
+
+    .g-selectric-container {
+        .g-selectric-items li {
+            font-size: rem-calc(12);
+            line-height: rem-calc(20);
+            padding: rem-calc(6) rem-calc(8);
+
+            &.highlighted {
+                background: $grey2;
+            }
+
+            &.disabled {
+                color: $grey4;
+                pointer-events: none;
+            }
+        }
+    }
+
+    &.m-show {
+        display: none !important;
+        @include respond-to(mobile) {
+            display: block !important;
+        }
+    }
+
+    &.m-hide {
+        display: block !important;
+        @include respond-to(mobile) {
+            display: none !important;
+        }
+    }
+}
+
+.l-pdp {
+    .l-pdp-main {
+        .l-pdp-info {
+            @include respond-to(mobile) {
+                display: inline-block;
+                width: 100%;
+            }
+        }
+    }
+}

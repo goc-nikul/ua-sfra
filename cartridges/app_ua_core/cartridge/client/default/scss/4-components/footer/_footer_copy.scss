@@ -1,0 +1,36 @@
+.b-footer_copy {
+    margin-top: spacing(sm);
+    color: $grey5;
+
+    @include respond-to(desktop-large) {
+        @include grid-col-offset(1);
+    }
+
+    @include respond-to(tablets-landscape) {
+        padding-right: spacing(md);
+    }
+
+    @include respond-to(phones) {
+        margin-top: rem-calc(18);
+    }
+
+    &-year {
+        float: left;
+        margin-left: rem-calc(2);
+        padding-right: spacing(xs2);
+        @include respond-to(mobile) {
+            width: 100%;
+        }
+    }
+
+    &-links {
+        @include respond-to(phones) {
+            display: block;
+        }
+        @include respond-to(mobile) {
+            a {
+                text-decoration: underline;
+            }
+        }
+    }
+}

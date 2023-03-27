@@ -1,0 +1,28 @@
+<isif condition="${pdict.wishlistItemArray && pdict.wishlistItemArray.length > 0}"> 
+    <div class="b-cart-content b-cart-content-savelater">
+       <div class="b-cart-content_row">
+           <div class="b-cart-content_left">
+               <div class="b-cart-inner-content_left">
+                    <div class="g-savelater-heading">
+                        <span class="g-carousel-title">${Resource.msg('label.cart.saveditems','cart',null)}</span>
+                        <a class="cart-view-allsaveditems" href="${URLUtils.https('Wishlist-Show')}">${Resource.msg('global.viewall', 'common', null)}</a>
+                    </div>
+                    <isloop items="${pdict.wishlistItemArray}" var="item" status="loopState">
+                        <isif condition="${item}">
+                            <isinclude template="cart/productCard/cartSaveLaterCard"/>
+                        </isif>
+                    </isloop>
+                    <isif condition="${pdict.wishlistItemArray && pdict.wishlistItemArray.length > 9}">
+                        <div class="buttons-and-text">
+                            <div class="buttons-container">
+                                <a class="btn btn-block g-button_secondary--black g-button_base" href="${URLUtils.https('Wishlist-Show')}" role="button"
+                                    aria-label="${Resource.msg('global.viewall', 'common', null)}">${Resource.msg('global.viewall', 'common', null)}</a>
+                            </div>
+                        </div>
+                    </isif>
+               </div>
+           </div>
+        <div class="b-cart-content_right"></div>
+       </div>
+    </div>
+</isif>

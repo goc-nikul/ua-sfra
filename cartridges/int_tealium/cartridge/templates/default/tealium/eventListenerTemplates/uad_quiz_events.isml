@@ -1,0 +1,51 @@
+<script>
+  var safetyFirst = window.UADatalayer.prototype.safetyFirst;
+  safetyFirst(function bindQuizEvents(){
+    function getJSONDataStyle(coreMediaProdLink) {
+      var jsonObj = coreMediaProdLink.closest('[data-analytics^="{"');
+      var dataAttr = jsonObj && jsonObj.attr('data-analytics');
+      var dataJson = dataAttr && JSON.parse(dataAttr);
+      return dataJson && dataJson['data-style'];
+    }
+    var pageName = '';
+    document.body.addEventListener('productQuizStep', function braQuizEvent(ev){
+      var stepNumb = ev.detail.step_number;
+      var isQuizStart = stepNumb === 1;
+      pageName = isQuizStart ? ev.detail.quiz_name : pageName+ ':' +  ev.detail.step_name;
+      var pageData = {
+        page_name: isQuizStart ? ev.detail.quiz_name : pageName,
+        site_section: 'Quiz',
+        page_type: 'quiz'
+      };
+      var dataStyle = getJSONDataStyle($('[data-analytics-product-link="coremedia-product-link"]'));
+      if (dataStyle) {
+        pageData.products= [{
+          product_style: dataStyle
+        }];
+      }
+      window.UADatalayer.prototype.onDependenciesReady(function bindQuizEvents() {
+        if (isQuizStart) {
+          pageData.isQuizStart = 1;
+          pageData.page_name = ev.detail.quiz_name;
+          uaDatalayer.applyPageData(pageData);
+        } else {
+          pageData.isQuizStart = 0;
+          uaDatalayer.action('pageView', pageData);
+        }
+      });
+    });
+    window.UADatalayer.prototype.onDependenciesReady(function bindQuizEvents() {
+      $('body').on('click', '[data-analytics-product-link="coremedia-product-link"]', function () {
+        var dataStyle = getJSONDataStyle($(this));
+        var pageFindingMethod = "bra_quiz_primary";
+        if (uaDatalayer.getPageData().prev_page_name.indexOf('quiz_run') > -1) {
+            pageFindingMethod = "run_quiz_primary";
+        }
+        uaDatalayer.applyNextPageData({
+          page_finding_method: pageFindingMethod,
+          page_finding_method_style: dataStyle
+        });
+      });
+    });
+  });
+</script>

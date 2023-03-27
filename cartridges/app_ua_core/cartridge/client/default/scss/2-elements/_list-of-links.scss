@@ -1,0 +1,54 @@
+/* md
+
+# Product list
+
+```html
+    <ul class="b-link_list">
+        <li class="b-link_list-item">
+            <a href="#" class="b-link_list-link">Bags</a>
+        </li>
+        <li class="b-link_list-item">
+            <a href="#" class="b-link_list-link">Passport Covers</a>
+        </li>
+        <li class="b-link_list-item">
+            <a href="#" class="b-link_list-link">Travel Wallets</a>
+        </li>
+        <li class="b-link_list-item">
+            <a href="#" class="b-link_list-link">Washbags</a>
+        </li>
+        <li class="b-link_list-item">
+            <a href="#" class="b-link_list-link">Leather Accessories</a>
+        </li>
+    </ul>
+
+```
+
+```html_example
+    <div style="padding: 15px 0; display: flex; justify-content: space-around">
+        <ul class="b-link_list">
+            <li class="b-link_list-item"><a href="#" class="b-link_list-link">Bags</a></li>
+            <li class="b-link_list-item"><a href="#" class="b-link_list-link">Passport Covers</a></li>
+            <li class="b-link_list-item"><a href="#" class="b-link_list-link">Travel Wallets</a></li>
+            <li class="b-link_list-item"><a href="#" class="b-link_list-link">Washbags</a></li>
+            <li class="b-link_list-item"><a href="#" class="b-link_list-link">Leather Accessories</a></li>
+        </ul>
+    </div>
+```
+*/
+
+// Product list
+.b-link_list {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    &-item {
+        @include font(main_med, rem-calc(14), rem-calc(20));
+
+        padding-bottom: rem-calc(16);
+    }
+
+    &-link {
+        @include link;
+    }
+}

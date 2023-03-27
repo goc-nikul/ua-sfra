@@ -1,0 +1,192 @@
+<iscontent type="text/html" charset="UTF-8"/>
+<isinclude template="inc/Modules"/>
+
+
+<isset name="decoratorTemplate" value="application/MenuFrame" scope="page" />
+
+<isdecorate template="${decoratorTemplate}">
+
+    <isinclude template="sdl/common/SDLCommonInclude" sf-toolkit="on" />
+
+    <div class="sdlBody">
+        <div class="container sdlContainer">
+            <div class="panel panel-success">
+                <div class="panel-heading text-center">${Resource.msg('msg.sdl.manage.project', 'SDLTranslation', null)}</div>
+                <div class="panel-body">
+                    <isbreadcrumb name1="${Resource.msg('breadcrumb.title.merchantTools', 'SDLTranslation', null)}" url1="${merchantToolsURL}" name2="${Resource.msg('breadcrumb.title.SDL', 'SDLTranslation', null)}" url2="${SDLURL}" name3="${Resource.msg('breadcrumb.title.SDL.translation.jobs', 'SDLTranslation', null)}"/>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <isset name="dropDownValue" value="${pdict.ProjectFilter}" scope="page" />
+                                <div class="dropdown sdlAllProjDropdown">
+                                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        <isif condition="${dropDownValue == 'pa'}">
+                                            ${Resource.msg('msg.sdl.manage.project.approve', 'SDLTranslation', null)}
+                                        <iselseif condition="${dropDownValue == 'pp'}" />
+                                            ${Resource.msg('msg.sdl.manage.project.progress', 'SDLTranslation', null)}
+                                        <iselseif condition="${dropDownValue == 'pd'}" />
+                                            ${Resource.msg('msg.sdl.manage.project.download', 'SDLTranslation', null)}
+                                        <iselse>
+                                            ${Resource.msg('msg.sdl.manage.project.all.project', 'SDLTranslation', null)}
+                                        </isif>
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                        <li
+                                            <isif condition="${dropDownValue == 'pa'}">class="active"</isif>>
+                                            <a href="${URLUtils.url('SDLTranslation-AllProjects','sdlAllProjFilter', 'pa')}">
+                                               ${Resource.msg('msg.sdl.manage.project.approve', 'SDLTranslation', null)}
+                                            </a>
+                                        </li>
+
+                                        <li
+                                            <isif condition="${dropDownValue == 'pp'}">class="active" </isif>>
+                                            <a href="${URLUtils.url('SDLTranslation-AllProjects','sdlAllProjFilter', 'pp')}">
+                                                ${Resource.msg('msg.sdl.manage.project.progress', 'SDLTranslation', null)}
+                                            </a>
+                                        </li>
+
+                                        <li
+                                            <isif condition="${dropDownValue == 'pd'}">class="active" </isif>>
+                                            <a href="${URLUtils.url('SDLTranslation-AllProjects','sdlAllProjFilter', 'pd')}">
+                                                ${Resource.msg('msg.sdl.manage.project.download', 'SDLTranslation', null)}
+                                            </a>
+                                        </li>
+
+                                        <li
+                                            <isif condition="${dropDownValue == 'ap'}">class="active" </isif>>
+                                            <a href="${URLUtils.url('SDLTranslation-AllProjects','sdlAllProjFilter', 'ap')}">
+                                                ${Resource.msg('msg.sdl.manage.project.all.project', 'SDLTranslation', null)}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sdlAllProjTableContainer">
+                        <table id="sdlAllProjTable" class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>${Resource.msg('label.sdl.manage.project.project.name', 'SDLTranslation', null)}</th>
+                                    <th>${Resource.msg('label.sdl.manage.project.project.creation.date', 'SDLTranslation', null)}</th>
+                                    <th>${Resource.msg('label.sdl.manage.project.project.due.date', 'SDLTranslation', null)}</th>
+                                    <th>${Resource.msg('label.sdl.manage.project.project.delivered', 'SDLTranslation', null)}</th>
+                                    <th>${Resource.msg('label.sdl.manage.project.project.options', 'SDLTranslation', null)}</th>
+                                    <th>${Resource.msg('label.sdl.manage.project.project.lang', 'SDLTranslation', null)}</th>
+                                    <th class="sdlHidingSort fixedWidth120 ">${Resource.msg('label.sdl.manage.project.project.status', 'SDLTranslation', null)}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <isloop items="${pdict.ProjectList}" var="eachProj">
+                                    <tr>
+                                        <td>
+                                            <isif condition="${!empty(eachProj.Name)}">
+                                                <a
+                                                   class="projectName" href="${URLUtils.url('SDLTranslation-ProjetDetails','sdlProjId', eachProj.Id, 'sdlProjFilter',pdict.ProjectFilter)}">
+                                                    <isprint value="${eachProj.Name}" encoding="on" />
+                                                </a>
+                                            </isif>
+                                        </td>
+
+                                        <td>
+                                            <isif condition="${!empty(eachProj.CreationFormattedDate)}">
+                                                <isprint value="${eachProj.CreationFormattedDate}" encoding="on" />
+                                            </isif>
+                                        </td>
+
+                                        <td>
+                                            <isif condition="${!empty(eachProj.DueDate)}">
+                                                <isprint value="${eachProj.DueDate}" encoding="on" />
+                                            </isif>
+                                        </td>
+
+                                        <td>
+                                            <isif condition="${eachProj.Status === 3 && eachProj.DeliveredDate != null}">
+                                                <isprint value="${eachProj.DeliveredDate}" encoding="on" />
+                                            </isif>
+                                        </td>
+
+                                        <td>
+                                            <isif condition="${!empty(eachProj.ProjectOptionsName)}">
+                                                <isprint value="${eachProj.ProjectOptionsName}" encoding="on" />
+                                            </isif>
+                                        </td>
+
+                                        <td>
+                                            <isif condition="${eachProj.TargetLanguages != null}">
+                                                <isloop items="${eachProj.TargetLanguages}" var="row" status="loopstate">
+                                                    <isif condition="${loopstate.last == true}" >
+                                                        ${row.CultureCode}
+                                                    <iselse/>
+                                                        ${row.CultureCode} ,
+                                                    </isif>
+                                                </isloop>
+                                            </isif>
+                                        </td>
+                                        <td class="text-center">
+                                            <isset name="projStatus" value="${eachProj.Status}" scope="page" />
+                                            <isif condition="${projStatus === 1 }">
+                                                <a
+                                                    href="${URLUtils.url('SDLTranslation-AllProjects','sdlAllProjApproveID', eachProj.Id, 'sdlAllProjFilter',pdict.ProjectFilter, 'sdlAllProjFlag',1)}" class="btn btn-success sdlbtngroup">
+                                                    ${Resource.msg('label.sdl.manage.project.project.approve', 'SDLTranslation', null)}
+                                                </a>
+                                                <a
+                                                    href="${URLUtils.url('SDLTranslation-AllProjects','sdlAllProjRejectID', eachProj.Id, 'sdlAllProjFilter',pdict.ProjectFilter,'sdlAllProjFlag',2)}" class="btn btn-danger customBtnDanger sdlbtngroup">
+                                                    ${Resource.msg('label.sdl.manage.project.project.reject', 'SDLTranslation', null)}
+                                                </a>
+                                            </isif>
+                                            <isif condition="${projStatus === 3 }">
+                                                ${Resource.msg('label.sdl.manage.project.project.fordownload', 'SDLTranslation', null)}
+                                            </isif>
+
+                                            <isif condition="${projStatus === 0 }">
+                                                ${Resource.msg('label.sdl.manage.project.project.preparing', 'SDLTranslation', null)}
+                                            </isif>
+
+                                            <isif condition="${projStatus === 2 }">
+                                                ${Resource.msg('label.sdl.manage.project.project.inprogress', 'SDLTranslation', null)}
+                                            </isif>
+
+                                            <isif condition="${projStatus === 4 }">
+                                                ${Resource.msg('label.sdl.manage.project.project.completed', 'SDLTranslation', null)}
+                                            </isif>
+
+                                            <isif condition="${projStatus === 5 }">
+                                                ${Resource.msg('label.sdl.manage.project.project.partialdownload', 'SDLTranslation', null)}
+                                            </isif>
+
+                                            <isif condition="${projStatus === 6 }">
+                                                ${Resource.msg('label.sdl.manage.project.project.inreview', 'SDLTranslation', null)}
+                                            </isif>
+
+                                            <isif condition="${projStatus === 7 }">
+                                                ${Resource.msg('label.sdl.manage.project.project.reviewed', 'SDLTranslation', null)}
+                                            </isif>
+
+                                            <isif condition="${projStatus === 8 }">
+                                                ${Resource.msg('label.sdl.manage.project.project.insignoff', 'SDLTranslation', null)}
+                                            </isif>
+
+                                            <isif condition="${projStatus === 9 }">
+                                                ${Resource.msg('label.sdl.manage.project.project.signedoff', 'SDLTranslation', null)}
+                                            </isif>
+
+                                            <isif condition="${projStatus === 10 }">
+                                                ${Resource.msg('label.sdl.manage.project.project.forvendorselection', 'SDLTranslation', null)}
+                                            </isif>
+
+                                            <isif condition="${projStatus === 11 }">
+                                                ${Resource.msg('label.sdl.manage.project.project.cancelled', 'SDLTranslation', null)}
+                                            </isif>
+                                        </td>
+                                    </tr>
+                                </isloop>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</isdecorate>

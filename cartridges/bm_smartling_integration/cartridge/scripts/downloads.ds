@@ -1,0 +1,443 @@
+importPackage( dw.system );
+importPackage( dw.net );
+importPackage( dw.io );
+importPackage( dw.object );
+importPackage( dw.util );
+importPackage( dw.catalog );
+importPackage( dw.content );
+importScript( "helpFunctions.ds" );
+importScript( "service/submissionService.ds");
+importScript( "dao/submission.ds");
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "downloads"));
+
+/**
+    Download a content asset from the Smartling FILE api.
+*/
+function downloadContent(fileString : String, submission : CustomObject, itemId : String, locale : String)
+{
+    LOGGER.info("Going to download submission {0}", submissionToString(submission));
+    try {
+        var smartlingConfigurationJson : JSON = getConfiguration();
+        var contentAttributeJson : JSON = JSON.parse(smartlingConfigurationJson['content_attribute_json']);
+        var contentAttributes : HashMap = new HashMap();
+        var contentLibraryType : String = smartlingConfigurationJson['library_type'];
+
+        for each (var attribute : JSON in contentAttributeJson['content_attribute']) {
+            contentAttributes.put(attribute['id'], attribute);
+        }
+
+        var file : File = createFile(submission.custom['itemType'], submission.custom['fileUri']);
+
+        if (file.createNewFile()) {
+            var fileWriter : FileWriter = new FileWriter(file, "UTF-8");
+            fileWriter.write(fileString);
+            fileWriter.flush();
+            fileWriter.close();
+            var fileReader : FileReader = new FileReader(file, "UTF-8");
+            var xmlStreamReader : XMLStreamReader = new XMLStreamReader(fileReader);
+
+            var attributesArray : ArrayList = new ArrayList();
+            var valuesArray : ArrayList = new ArrayList();
+
+            var attributesMap : HashMap  = new HashMap();
+
+            while (xmlStreamReader.hasNext()){
+                if (xmlStreamReader.next() == XMLStreamConstants.START_ELEMENT) {
+                    var localElementName : String = xmlStreamReader.getLocalName();
+                    if (localElementName == "data") {
+                        var myObject : Object = xmlStreamReader.getXMLObject();
+                        var xmlString : XML = new XML(myObject);
+                        var contents : XMLList = xmlString.child('content');
+                        var attributes = contents.children().attribute('attribute');
+                        var values = contents.children().text();
+                        for each (var attribute in attributes) {
+                            attributesArray.push(attribute);
+                        }
+                        for each (var value in values) {
+                            valuesArray.push(value);
+                        }
+
+                        for (var i = 0; i < attributesArray.size(); i++) {
+                            attributesMap.put(attributesArray.get(i).toString(), valuesArray.get(i).toString());
+                        }
+                    }
+                }
+            }
+            xmlStreamReader.close();
+            fileReader.close();
+
+            var library : Library = ContentMgr.getSiteLibrary();
+            var file : File = new File(File.IMPEX + '/src/smartling/content/download/');
+            if (!file.isDirectory()) {
+                file.mkdirs();
+            }
+
+            var file : File = new File(File.IMPEX + '/src/smartling/content/download/content_' + itemId + '_' + locale + '.xml');
+            if (file.exists()) {
+                file.remove();
+            }
+            if (file.createNewFile()) {
+                var smartlingConfigurationJson : JSON = getConfiguration();
+                var contentAttributeJson : JSON = JSON.parse(smartlingConfigurationJson['content_attribute_json']);
+                var fileWriter : FileWriter = new FileWriter(file, "UTF-8");
+                var xsw : XMLStreamWriter = new XMLIndentingStreamWriter(fileWriter);
+                xsw.writeStartDocument();
+                    xsw.writeStartElement("library");
+                    xsw.writeAttribute("xmlns", "http://www.demandware.com/xml/impex/library/2006-10-31");
+                    if (contentLibraryType == "shared") {
+                        xsw.writeAttribute("library-id", library.getID());
+                    }
+                        xsw.writeStartElement("content");
+                        xsw.writeAttribute("content-id", itemId);
+                            if (contentAttributes.containsKey("name")) {
+                                addXMLAttribute(xsw, "display-name", locale.replace('_', '-'), attributesMap.get("name"));
+                            }
+
+                            if (contentAttributes.containsKey("description")) {
+                                addXMLAttribute(xsw, "description", locale.replace('_', '-'), attributesMap.get("description"));
+                            }
+
+                            xsw.writeStartElement("page-attributes");
+                                if (contentAttributes.containsKey("pageTitle")) {
+                                    addXMLAttribute(xsw, "page-title", locale.replace('_', '-'), attributesMap.get("pageTitle"));
+                                }
+
+                                if (contentAttributes.containsKey("pageDescription")) {
+                                    addXMLAttribute(xsw, "page-description", locale.replace('_', '-'), attributesMap.get("pageDescription"));
+                                }
+
+                                if (contentAttributes.containsKey("pageKeywords")) {
+                                    addXMLAttribute(xsw, "page-keywords", locale.replace('_', '-'), attributesMap.get("pageKeywords"));
+                                }
+                            xsw.writeEndElement();
+
+                            xsw.writeStartElement("custom-attributes");
+                                for each (var attribute : JSON in contentAttributes) {
+                                    if (attributesMap.containsKey(attribute['id'])) {
+                                        if (attribute['custom'] == 'true') {
+                                            if (attribute['type'] == 'set-of-string') {
+                                                addXMLCustomSetOfAttribute(xsw, attribute['id'], locale.replace('_', '-'), attributesMap.get(attribute['id']));
+                                            } else {
+                                                addXMLCustomAttribute(xsw, attribute['id'], locale.replace('_', '-'), attributesMap.get(attribute['id']));
+                                            }
+                                        }
+                                    }
+                                }
+                            xsw.writeEndElement();
+                        xsw.writeEndElement();
+                    xsw.writeEndElement();
+                xsw.writeEndDocument();
+                xsw.flush();
+                xsw.close();
+                fileReader.close();
+            }
+
+        }
+    } catch (e) {
+        LOGGER.errorException("Failed download Content, itemId={0}, locale={1}", itemId, locale, e);
+        throw "Failed download Content";
+    }
+    LOGGER.info("Submission {0} has been downloaded", submissionToString(submission));
+}
+
+/**
+    Download a PRODUCT from the Smartling FILE api.
+*/
+function downloadProduct(fileString : String, submission : CustomObject, itemId : String, locale : String) {
+    LOGGER.info("Going to download submission {0}", submissionToString(submission));
+    try {
+        var smartlingConfigurationJson : JSON = getConfiguration();
+        var productAttributeJson : JSON = JSON.parse(smartlingConfigurationJson['product_attribute_json']);
+        var productAttributes : HashMap = new HashMap();
+
+        for each (var attribute : JSON in productAttributeJson['product_attribute']) {
+            productAttributes.put(attribute['id'], attribute);
+        }
+
+        var file : File = createFile(submission.custom['itemType'], submission.custom['fileUri']);
+
+        if (file.createNewFile()) {
+            var fileWriter : FileWriter = new FileWriter(file, "UTF-8");
+            fileWriter.write(fileString);
+            fileWriter.flush();
+            fileWriter.close();
+            var fileReader : FileReader = new FileReader(file, "UTF-8");
+            var xmlStreamReader : XMLStreamReader = new XMLStreamReader(fileReader);
+
+            var attributesArray : ArrayList = new ArrayList();
+            var valuesArray : ArrayList = new ArrayList();
+
+            var attributesMap : HashMap  = new HashMap();
+
+            while (xmlStreamReader.hasNext()){
+                if (xmlStreamReader.next() == XMLStreamConstants.START_ELEMENT) {
+                    var localElementName : String = xmlStreamReader.getLocalName();
+                    if (localElementName == "data") {
+                        var myObject : Object = xmlStreamReader.getXMLObject();
+                        var xmlString : XML = new XML(myObject);
+                        var contents : XMLList = xmlString.child('product');
+                        for each (var child:XMLList in contents.elements()) {
+                            var attr = child.attribute('attribute').toString();
+                            var text = child.text().toString();
+                            attributesMap.put(attr, text);
+                        }
+                    }
+                }
+            }
+            xmlStreamReader.close();
+            fileReader.close();
+
+            var catalog : Catalog = CatalogMgr.getSiteCatalog();
+            LOGGER.info('Using default site catalog "{}" id="{}"', catalog.getDisplayName(), catalog.getID())
+
+            var file : File = new File(File.IMPEX + '/src/smartling/product/download/');
+            if (!file.isDirectory()) {
+                file.mkdirs();
+            }
+
+            var file : File = new File(File.IMPEX + '/src/smartling/product/download/product_' + itemId + '_' + locale + '.xml');
+            if (file.exists()) {
+                file.remove();
+            }
+            if (file.createNewFile()) {
+                var fileWriter : FileWriter = new FileWriter(file, "UTF-8");
+                var xsw : XMLStreamWriter = new XMLIndentingStreamWriter(fileWriter);
+                xsw.writeStartDocument();
+                    xsw.writeStartElement("catalog");
+                    xsw.writeAttribute("xmlns", "http://www.demandware.com/xml/impex/catalog/2006-10-31");
+                    xsw.writeAttribute("catalog-id", catalog.getID());
+                        xsw.writeStartElement("product");
+                        xsw.writeAttribute("product-id", itemId);
+                            if (productAttributes.containsKey("name") && attributesMap.containsKey("name")) {
+                                addXMLAttribute(xsw, "display-name", locale.replace('_', '-'), attributesMap.get("name"));
+                            }
+
+                            if (productAttributes.containsKey("shortDescription") && attributesMap.containsKey("shortDescription")) {
+                                addXMLAttribute(xsw, "short-description", locale.replace('_', '-'), attributesMap.get("shortDescription"));
+                            }
+
+                            if (productAttributes.containsKey("longDescription") && attributesMap.containsKey("longDescription")) {
+                                addXMLAttribute(xsw, "long-description", locale.replace('_', '-'), attributesMap.get("longDescription"));
+                            }
+
+                            xsw.writeStartElement("page-attributes");
+                                if (productAttributes.containsKey("pageTitle") && attributesMap.containsKey("pageTitle")) {
+                                    addXMLAttribute(xsw, "page-title", locale.replace('_', '-'), attributesMap.get("pageTitle"));
+                                }
+
+                                if (productAttributes.containsKey("pageDescription") && attributesMap.containsKey("pageDescription")) {
+                                    addXMLAttribute(xsw, "page-description", locale.replace('_', '-'), attributesMap.get("pageDescription"));
+                                }
+
+                                if (productAttributes.containsKey("pageKeywords") && attributesMap.containsKey("pageKeywords")) {
+                                    addXMLAttribute(xsw, "page-keywords", locale.replace('_', '-'), attributesMap.get("pageKeywords"));
+                                }
+                            xsw.writeEndElement();
+
+                            xsw.writeStartElement("custom-attributes");
+                                for each (var attribute : JSON in productAttributes) {
+                                    if (attributesMap.containsKey(attribute['id'])) {
+                                        if (attribute['custom'] == 'true') {
+                                            if (attribute['type'] == 'set-of-string') {
+                                                addXMLCustomSetOfAttribute(xsw, attribute['id'], locale.replace('_', '-'), attributesMap.get(attribute['id']));
+                                            } else {
+                                                addXMLCustomAttribute(xsw, attribute['id'], locale.replace('_', '-'), attributesMap.get(attribute['id']));
+                                            }
+                                        }
+                                    }
+                                }
+                            xsw.writeEndElement();
+                        xsw.writeEndElement();
+                    xsw.writeEndElement();
+                xsw.writeEndDocument();
+                xsw.flush();
+                xsw.close();
+                fileReader.close();
+            }
+        }
+    } catch (e) {
+        LOGGER.errorException("Failed download Product, itemId={0}, locale={1}", itemId, locale, e);
+        throw "Failed download Product";
+    }
+    LOGGER.info("Submission {0} has been downloaded", submissionToString(submission));
+}
+
+/**
+    Download a category from the Smartling FILE api.
+*/
+function downloadCategory(fileString : String, submission : CustomObject, itemId : String, locale : String) {
+    LOGGER.info("Going to download submission {0}", submissionToString(submission));
+    try {
+        var smartlingConfigurationJson : JSON = getConfiguration();
+        var categoryAttributeJson : JSON = JSON.parse(smartlingConfigurationJson['category_attribute_json']);
+        var categoryAttributes : HashMap = new HashMap();
+
+        for each (var attribute : JSON in categoryAttributeJson['category_attribute']) {
+            categoryAttributes.put(attribute['id'], attribute);
+        }
+
+        var file : File = createFile(submission.custom['itemType'], submission.custom['fileUri']);
+
+        if (file.createNewFile()) {
+            var fileWriter : FileWriter = new FileWriter(file, "UTF-8");
+            fileWriter.write(fileString);
+            fileWriter.flush();
+            fileWriter.close();
+            var fileReader : FileReader = new FileReader(file, "UTF-8");
+            var xmlStreamReader : XMLStreamReader = new XMLStreamReader(fileReader);
+
+            var attributesArray : ArrayList = new ArrayList();
+            var valuesArray : ArrayList = new ArrayList();
+
+            var attributesMap : HashMap  = new HashMap();
+
+            while (xmlStreamReader.hasNext()){
+                if (xmlStreamReader.next() == XMLStreamConstants.START_ELEMENT) {
+                    var localElementName : String = xmlStreamReader.getLocalName();
+                    if (localElementName == "data") {
+                        var myObject : Object = xmlStreamReader.getXMLObject();
+                        var xmlString : XML = new XML(myObject);
+                        var contents : XMLList = xmlString.child('category');
+                        var attributes = contents.children().attribute('attribute');
+                        var values = contents.children().text();
+                        for each (var attribute in attributes) {
+                            attributesArray.push(attribute);
+                        }
+                        for each (var value in values) {
+                            valuesArray.push(value);
+                        }
+
+                        for (var i = 0; i < attributesArray.size(); i++) {
+                            attributesMap.put(attributesArray.get(i).toString(), valuesArray.get(i).toString());
+                        }
+                    }
+                }
+            }
+            xmlStreamReader.close();
+            fileReader.close();
+
+            var catalog : Catalog = CatalogMgr.getSiteCatalog();
+            var file : File = new File(File.IMPEX + '/src/smartling/category/download/');
+            if (!file.isDirectory()) {
+                file.mkdirs();
+            }
+
+            var file : File = new File(File.IMPEX + '/src/smartling/category/download/category_' + itemId + '_' + locale + '.xml');
+            if (file.exists()) {
+                file.remove();
+            }
+            if (file.createNewFile()) {
+                var fileWriter : FileWriter = new FileWriter(file, "UTF-8");
+                var xsw : XMLStreamWriter = new XMLIndentingStreamWriter(fileWriter);
+                xsw.writeStartDocument();
+                    xsw.writeStartElement("catalog");
+                    xsw.writeAttribute("xmlns", "http://www.demandware.com/xml/impex/catalog/2006-10-31");
+                    xsw.writeAttribute("catalog-id", catalog.getID());
+                        xsw.writeStartElement("category");
+                        xsw.writeAttribute("category-id", itemId);
+                            if (categoryAttributes.containsKey("displayName")) {
+                                addXMLAttribute(xsw, "display-name", locale.replace('_', '-'), attributesMap.get("displayName"));
+                            }
+
+                            if (categoryAttributes.containsKey("description")) {
+                                addXMLAttribute(xsw, "description", locale.replace('_', '-'), attributesMap.get("description"));
+                            }
+
+                            xsw.writeStartElement("page-attributes");
+                                if (categoryAttributes.containsKey("pageTitle")) {
+                                    addXMLAttribute(xsw, "page-title", locale.replace('_', '-'), attributesMap.get("pageTitle"));
+                                }
+
+                                if (categoryAttributes.containsKey("pageDescription")) {
+                                    addXMLAttribute(xsw, "page-description", locale.replace('_', '-'), attributesMap.get("pageDescription"));
+                                }
+
+                                if (categoryAttributes.containsKey("pageKeywords")) {
+                                    addXMLAttribute(xsw, "page-keywords", locale.replace('_', '-'), attributesMap.get("pageKeywords"));
+                                }
+                            xsw.writeEndElement();
+
+                            xsw.writeStartElement("custom-attributes");
+                                for each (var attribute : JSON in categoryAttributes) {
+                                    if (attributesMap.containsKey(attribute['id'])) {
+                                        if (attribute['custom'] == 'true') {
+                                            if (attribute['type'] == 'set-of-string') {
+                                                addXMLCustomSetOfAttribute(xsw, attribute['id'], locale.replace('_', '-'), attributesMap.get(attribute['id']));
+                                            } else {
+                                                addXMLCustomAttribute(xsw, attribute['id'], locale.replace('_', '-'), attributesMap.get(attribute['id']));
+                                            }
+                                        }
+                                    }
+                                }
+                            xsw.writeEndElement();
+                        xsw.writeEndElement();
+                    xsw.writeEndElement();
+                xsw.writeEndDocument();
+                xsw.flush();
+                xsw.close();
+                fileReader.close();
+            }
+        }
+    } catch (e) {
+        LOGGER.error("Failed download Category, itemId={0}, locale={1}", itemId, locale,  e);
+        throw "Failed download Category";
+    }
+    LOGGER.info("Submission {0} has been downloaded", submissionToString(submission));
+}
+
+/**
+    Add XML attribute
+*/
+function addXMLAttribute(xsw : XMLStreamWriter, attributeId : String, locale : String, attributesValue : String)
+{
+    try {
+        xsw.writeStartElement(attributeId);
+            xsw.writeAttribute("xml:lang", locale);
+            xsw.writeCData(attributesValue);
+        xsw.writeEndElement();
+    } catch (e) {
+        LOGGER.errorException('Failed adding XML attribute, attributeId={0}, locale={1}, attributesValue="{2}"', attributeId, locale, attributesValue, e);
+        throw new Error(e);
+    }
+}
+
+/**
+    Add custom set of attribute
+*/
+function addXMLCustomSetOfAttribute(xsw : XMLStreamWriter, attributeId : String, locale : String, attributesValue : String)
+{
+    try {
+        attributesValue = attributesValue.split("\n");
+        xsw.writeStartElement("custom-attribute");
+            xsw.writeAttribute("xml:lang", locale);
+            xsw.writeAttribute("attribute-id", attributeId);
+            for each (var value : String in attributesValue) {
+                xsw.writeStartElement("value");
+                    xsw.writeCData(value);
+                xsw.writeEndElement();
+            }
+        xsw.writeEndElement();
+    } catch (e) {
+        LOGGER.errorException('Failed addXMLCustomSetOfAttribute, attributeId={0}, locale={1}, attributesValue="{2}"', attributeId, locale, attributesValue, e);
+        throw new Error(e);
+    }
+}
+
+/**
+    Add custom attribute
+*/
+function addXMLCustomAttribute(xsw : XMLStreamWriter, attributeId : String, locale : String, attributesValue : String)
+{
+    try {
+        xsw.writeStartElement("custom-attribute");
+            xsw.writeAttribute("xml:lang", locale);
+            xsw.writeAttribute("attribute-id", attributeId);
+            xsw.writeCData(attributesValue);
+        xsw.writeEndElement();
+    } catch (e) {
+        LOGGER.errorException('Failed addXMLCustomAttribute, attributeId={0}, locale={1}, attributesValue="{2}"', attributeId, locale, attributesValue, e);
+        throw new Error(e);
+    }
+}

@@ -1,0 +1,23 @@
+
+<isset name="subCategories" value="${pdict.subcategories}" scope="page" />
+
+<div class="b-refinements_category js-refinements-parent b-show_more js-refinements-parent m-collapsed b-refinements_category-children" >
+    <ul class="b-show_more-list b-refinements_category-list  js-child-category">
+        <isloop items="${subCategories}" var="subCategory" status="loopStatus">
+        <isif condition="${(!('hidefromLeftNavigationRefinement' in subCategory && subCategory.hidefromLeftNavigationRefinement.valueOf() && subCategory.hidefromLeftNavigationRefinement.valueOf().toString() === 'true'))}"> 
+            <li class="b-refinements_category-item b-show_more-item ${cutoffThreshold === loopStatus.index ? 'm-break' : ''}">
+                <button data-href="${subCategory.url}"
+                        data-analytics-plp-filter-value="${subCategory.title}"
+                        title="${Resource.msgf(subCategory.selected ? 'label.refinement.selected.title' : 'label.refinement.title', 'search', null, refinement.displayName.toLowerCase(), subCategory.title)}"
+                        class="b-refinements_category-link ${subCategory.selected ? 'm-selected js-category-selected' : ''} js-category-link">
+                    ${subCategory.title}
+                </button>
+            </li>
+        </isif>
+        </isloop>
+    </ul>
+
+    <isif condition="${subCategories.length > cutoffThreshold}" >
+        <isinclude template="components/showMoreButton" />
+    </isif>
+<div/>

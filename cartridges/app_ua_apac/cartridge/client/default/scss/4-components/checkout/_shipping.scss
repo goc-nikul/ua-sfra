@@ -1,0 +1,60 @@
+.b-shipping-carierMessage {
+    .carrierMessage {
+        .form-caption.description {
+            white-space: pre-line;
+        }
+    }
+}
+
+.new-shipping-address-margin {
+    margin-top: rem-calc(32);
+}
+
+.shipping-address-block-bottom {
+    padding-bottom: 0;
+    border-bottom: unset;
+}
+
+.b-shipping_form-row-phone-address {
+    .shipping-phone-width {
+        flex-basis: unset;
+    }
+}
+
+.b-checkout_main {
+    &[data-customer-type=registered] {
+        &[data-checkout-stage=payment] {
+            [data-address-mode=edit],
+            [data-address-mode=shipment] {
+                .billing-address-block {
+                    @include respond-to(desktop) {
+                        border-bottom: 0 none;
+                    }
+                }
+            }
+        }
+
+        .shipping-address-block {
+            .continue-buttons {
+                margin-bottom: rem-calc(22.4);
+            }
+        }
+
+        .shipping-address-block-bottom {
+            padding-bottom: 0;
+            border-bottom: unset;
+        }
+
+        .ship-to-address-wrap-content {
+            .shipment-selector-block-pad {
+                padding-bottom: rem-calc(20);
+            }
+        }
+    }
+}
+
+.contact-info-block {
+    .disable-domain-select-kr {
+        pointer-events: none;
+    }
+}

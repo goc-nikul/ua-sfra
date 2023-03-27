@@ -1,0 +1,51 @@
+/**
+*   @input itemIds : dw.util.ArrayList content Asset item ids to translate
+*   @input submitter : String user name for who is submitting
+*   @input languages : String languages for instances to create
+*
+*/
+importPackage( dw.system );
+importPackage( dw.content );
+importPackage( dw.object );
+importPackage( dw.util );
+importScript("submitItem.ds");
+importScript("helpFunctions.ds");
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "contentAsset.sendTranslate"));
+
+/**
+    Create custom object to represent a Content Asset translation request
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+
+        var languages : Array = pdict.languages.split(',');
+
+        for each (var locale : String in languages) {
+
+            if (locale != "") {
+
+                for each (var id : String in pdict.itemIds) {
+                    var ids : dw.util.ArrayList = id.split(',');
+                    for each (var contId : String in ids){
+                        var content:Content = ContentMgr.getContent(contId);
+                        var submission:CustomObject = issetSubmission(contId, locale);
+                        if (!submission) {
+                            var submission:CustomObject = CustomObjectMgr.createCustomObject("SMARTLING_SUBMISSION", UUIDUtils.createUUID());
+                            LOGGER.info("Created content submission for contentId={0} and locale={1}", content.ID, locale);
+                        }
+                        LOGGER.info('Submitting content contentId={0} for locale="{1}"', content.ID, locale);
+                        submitContent(submission, content, pdict.submitter, locale);
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        LOGGER.errorException('contentAsset.sendTranslate execution failed, itemIds="{0}", submitter="{1}", languages="{2}"', pdict.itemIds, pdict.submitter, pdict.languages, e);
+        var x = e;
+    }
+
+    return PIPELET_NEXT;
+}

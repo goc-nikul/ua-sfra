@@ -1,0 +1,22 @@
+<table border="0" cellpadding="4" cellspacing="0" width="100%" class="infobox_locale aldi">
+    <tbody>
+        <tr>
+            <td class="infobox_item" nowrap="nowrap">
+                <isprint value="${Resource.msg('personalization.select.language', 'bm', null)}"/>
+            </td>
+            <td width="100%" style="text-align: left;" class="button">
+                <form action="${URLUtils.url('ProductPersonalization-EditPage')}" method="get" name="localeForm">
+                    <isif condition="${pdict.productID}">
+                        <input type="hidden" name="productID" value="${pdict.productID}"/>
+                    </isif>
+                    <select name="localeID" class="dropdown inputfield_en" onchange="document.localeForm.submit();">
+                        <option value="default" ${pdict.localeID === 'default' ? 'selected = "selected"' : ''}>Default&nbsp;</option>
+                        <isloop items="${pdict.allowedlocales}" var="allowedLocale">
+                            <option value="${allowedLocale.id}" ${pdict.localeID === allowedLocale.id ? 'selected = "selected"' : ''}>${allowedLocale.name}</option>
+                        </isloop>
+                    </select>
+                </form>
+            </td>
+        </tr>
+    </tbody>
+</table>

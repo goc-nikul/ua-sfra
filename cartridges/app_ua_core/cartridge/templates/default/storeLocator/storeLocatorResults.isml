@@ -1,0 +1,57 @@
+<isif condition="${pdict.stores.stores.length > 0}">
+	<ul class="b-stores-results g-accordion--mobile" id="accordion-parent">
+	    <isset name="selectedStore" value="${pdict.stores.stores.length > 0 ? pdict.stores.stores[0] : ''}" scope="page"/>
+        <isset name="StoreUnavailableCount" value="${0}" scope="page" />
+		<isloop items="${pdict.stores.stores}" var="store" status="loopState">
+            <isif condition="${store.enableStore === false}">
+                <isset name="StoreUnavailableCount" value="${StoreUnavailableCount + 1}" scope="page" />
+            </isif>
+		    <isif condition="${pdict.showMap === 'true'}">
+		        <li class="card-body b-result-store g-accordion-item ${!(store.enableStore !== false) ? 'notpickup' : ''}" id="${store.ID}">
+		            <div class="map-marker"><span>${loopState.count}</span></div>
+		            <isinclude template="storeLocator/storeDetails" />
+		        </li>
+		    <iselse>
+		        <isif condition="${((empty(pdict.storePresentInResult) || empty(pdict.selectedStoreID)) && loopState.index == 0) || (!empty(pdict.selectedStoreID) && pdict.selectedStoreID == store.ID)}">
+		            <li class="card-body b-result-store g-accordion-item ${!(store.enableStore !== false) ? 'notpickup' : 'selected store-selected'}" id="${store.ID}">
+		                <div class="form-check">
+		                    <div class="b-result-store-input">
+		                        <input type="radio" id="input-${store.ID}" name="store" class="g-radio-input js-input-radio" ${store.enableStore !== false ? 'checked' : ''}>
+		                        <label class="g-radio-label" for="input-${store.ID}"></label>
+		                    </div>
+		                    <div class="b-result-store-content">
+		                        <isinclude template="storeLocator/storeDetails" />
+		                        <isset name="selectedStore" value="${store}" scope="page"/>
+		                    </div>
+		                </div>
+		            </li>
+		        <iselse/>
+		            <li class="card-body b-result-store ${!(store.enableStore !== false) ? 'notpickup' : ''}" id="${store.ID}">
+		                <div class="form-check">
+		                    <div class="b-result-store-input">
+                                <input type="radio" id="input-${store.ID}" name="store" class="g-radio-input js-input-radio">
+                                <label class="g-radio-label" for="input-${store.ID}"></label>
+                            </div>
+                            <div class="b-result-store-content">
+		                        <isinclude template="storeLocator/storeDetails" />
+		                    </div>
+		                </div>
+		            </li>
+		        </isif>
+		    </isif>
+		</isloop>
+	</ul>
+	<isset name="store" value="${!empty(selectedStore) ? selectedStore : ''}" scope="page" />
+    <div class="card current-store-with-inventory ${!empty(store) && (pdict.stores.stores.length === StoreUnavailableCount) ? 'b-store-unavailable' : ''}">
+        <isif condition="${!empty(store) && (pdict.stores.stores.length === StoreUnavailableCount)}">
+            <isprint value="${pdict.contentMarkUp}" encoding="off" />
+        <iselseif condition="${!empty(store) && (pdict.stores.stores.length !== StoreUnavailableCount)}" />
+		    <isinclude template="storeLocator/storeLongDescription"/>
+	    </isif>
+	</div>
+<iselseif condition="${pdict.stores.stores.length == 0 && !empty(pdict.postalCode)}"/>
+    <p class="text-center store-locator-no-results"><isprint value="${Resource.msgf('error.no.results','storeLocator',null, pdict.radius, pdict.postalCode, pdict.distanceUnit)}" /></p>
+</iselseif>
+<iselse/>
+    <p class="text-center store-locator-no-results"><isprint value="${Resource.msg('msg.enter.location','storeLocator',null)}" /></p>
+</isif>

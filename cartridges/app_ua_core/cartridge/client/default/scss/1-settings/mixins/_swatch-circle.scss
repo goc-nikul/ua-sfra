@@ -1,0 +1,83 @@
+@mixin swatch-circle {
+    position: relative;
+    width: rem-calc(30);
+    height: rem-calc(30);
+    padding: rem-calc(4);
+    border: 1px solid transparent;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+
+    &:hover,
+    &:active {
+        @include respond-to(desktop) {
+            border-color: $black;
+        }
+    }
+
+    &.active,
+    &.m-active {
+        border-color: $black;
+    }
+
+    &:active {
+        @include respond-to(desktop) {
+            box-shadow: inset 0 0 0 rem-calc(0.5) $black;
+            margin-left: rem-calc(0);
+        }
+    }
+
+    &.m-active {
+        box-shadow: inset 0 0 0 rem-calc(0.5) $black;
+        margin-left: rem-calc(0);
+    }
+
+    &:disabled,
+    &.disabled,
+    &.m-disabled {
+        border-color: $grey3;
+        cursor: default;
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: rem-calc(28);
+            height: 1px;
+            max-width: rem-calc(28);
+            background-color: $grey3;
+            transform: rotate(45deg);
+            transform-origin: left;
+        }
+
+        &:hover,
+        &:active {
+            border-color: $black;
+
+            &::after {
+                background-color: $black;
+            }
+        }
+
+        &:active::after {
+            height: 2px;
+        }
+    }
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+    }
+
+    &::before {
+        top: 50%;
+        left: 50%;
+        width: rem-calc(20);
+        height: rem-calc(20);
+        border: 1px solid $grey3;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+}

@@ -1,0 +1,285 @@
+.shipping-address {
+    .change-store {
+        max-width: 100%;
+    }
+
+    .selectedStore {
+        padding: rem-calc(24);
+        border: 1px solid $grey3;
+        margin-bottom: rem-calc(20);
+
+        .b-store-name {
+            @include font(main_bold, rem-calc(20), 1.67);
+        }
+
+        address {
+            a {
+                color: $black;
+            }
+        }
+
+        .b-store-phone {
+            padding: 1.5rem 0;
+
+            .storelocator-phone {
+                color: $black;
+            }
+        }
+
+        .store-hours {
+            h5 {
+                @include font(main_med, rem-calc(14), 1.67);
+            }
+        }
+    }
+
+    .b-store-locator {
+        &-container {
+            margin: rem-calc(16) auto;
+
+            @include respond-to(mobile) {
+                margin-top: 0;
+            }
+
+            h2 {
+                @include respond-to(mobile) {
+                    font-size: rem-calc(16);
+                    padding-bottom: rem-calc(24);
+                }
+            }
+
+            .search-form,
+            .results-card-button {
+                padding: rem-calc(24);
+                border: 1px solid $grey3;
+                margin-bottom: rem-calc(16);
+
+                @include respond-to(mobile) {
+                    padding: rem-calc(16);
+                }
+            }
+
+            .g-accordion--mobile {
+                .g-accordion-content.store-long-desc {
+                    @include respond-to(mobile) {
+                        padding-right: 0;
+
+                        img {
+                            width: 100%;
+                            float: none;
+                        }
+                    }
+                }
+            }
+
+            .b-result-store {
+                .form-check {
+                    button.select-store {
+                        @include respond-to(mobile) {
+                            display: block;
+                        }
+                    }
+                }
+            }
+
+            button {
+                max-width: 100%;
+            }
+
+            .b-input_row {
+                margin: 0;
+            }
+
+            .b-storelocator-formgroup {
+                flex-wrap: wrap;
+
+                .b-outer-mobilesearch {
+                    flex-wrap: wrap;
+                    max-width: 100%;
+                }
+
+                .b-storelocator-formelements {
+                    max-width: 100%;
+                    margin: 0 0 rem-calc(20);
+
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+
+                    &.b-store-radius {
+                        @include respond-to(mobile) {
+                            display: block;
+                        }
+                    }
+
+                    &.b-store-zipcode {
+                        @include respond-to(mobile) {
+                            label {
+                                display: block;
+                            }
+
+                            .input {
+                                border-radius: rem-calc(4);
+                            }
+                        }
+                    }
+
+                    &.b-store-searchbutton {
+                        margin: 0 0 rem-calc(20);
+
+                        @include respond-to(mobile) {
+                            position: static;
+
+                            .btn-storelocator-search {
+                                border-radius: 4px;
+                                font-size: inherit;
+
+                                &::after {
+                                    content: '';
+                                }
+                            }
+                        }
+                    }
+
+                    &.b-usemylocation {
+                        button {
+                            @include respond-to(mobile) {
+                                max-width: 100%;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .b-stores-list {
+                .results {
+                    padding-bottom: rem-calc(32);
+                    border: 1px solid $grey3;
+                    justify-content: center;
+                    max-height: rem-calc(700);
+                }
+
+                .store-locator-no-results {
+                    padding: 0;
+                    @include font(main_med, rem-calc(14), 1.43);
+
+                    @include respond-to(mobile) {
+                        padding: 0 rem-calc(16);
+                    }
+                }
+
+                .b-stores-results {
+                    padding: 0 rem-calc(10) 0 rem-calc(20);
+
+                    @include respond-to(mobile) {
+                        padding: 0 rem-calc(16);
+                    }
+
+                    .b-result-store {
+                        margin: 0;
+                        max-width: 100%;
+                        margin-bottom: rem-calc(20);
+
+                        .form-check {
+                            .store-details {
+                                cursor: pointer;
+                            }
+                        }
+                    }
+                }
+
+                .current-store-with-inventory {
+                    flex: 1 1 40%;
+                    padding: 0 rem-calc(20) 0 rem-calc(10);
+
+                    .store-long-desc {
+                        margin: 0;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.b-pickup-store {
+    .instore-pick-up-instructions {
+        padding-top: rem-calc(24);
+        margin-bottom: rem-calc(34);
+
+        .instructions-heading {
+            @include font(main_med, rem-calc(14), 1.67);
+
+            margin-bottom: rem-calc(16);
+        }
+
+        .pickup-instuctions {
+            display: flex;
+            justify-content: space-around;
+
+            @include respond-to(mobile) {
+                flex-wrap: wrap;
+            }
+
+            .pickup-instuction-content {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                flex-basis: 33.33%;
+                max-width: rem-calc(130);
+
+                @include respond-to(mobile) {
+                    flex-basis: 100%;
+                    max-width: 100%;
+                    margin-bottom: rem-calc(16);
+
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+                }
+
+                span {
+                    margin-top: rem-calc(15);
+
+                    @include respond-to(mobile) {
+                        width: 100%;
+                        text-align: center;
+                    }
+                }
+            }
+        }
+    }
+
+    .pickup-notifications {
+        padding-top: rem-calc(20);
+        border-top: 1px solid $grey3;
+
+        .notification-head,
+        .pickup-primary-head {
+            @include font(main_med, rem-calc(14), 1.67);
+
+            margin-bottom: rem-calc(10);
+        }
+
+        .pickup-id {
+            @include font(main_med, rem-calc(14), 1.67);
+        }
+
+        .primary-info {
+            margin-bottom: rem-calc(16);
+        }
+
+        .b-shipping {
+            border: 0;
+
+            &:last-child {
+                padding-bottom: rem-calc(15);
+                border-bottom: 1px solid $grey3;
+            }
+
+            .custom-checkbox {
+                position: relative;
+                margin-bottom: rem-calc(10);
+            }
+        }
+    }
+}

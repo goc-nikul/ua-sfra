@@ -1,0 +1,28 @@
+<isset name="finalOrigPrice" value="${price}" scope="page" />
+<isset name="additionalClass" value="" scope="page" />
+<isset name="listPrice" value="${!empty(finalOrigPrice) && finalOrigPrice.list ? finalOrigPrice.list : ''}" scope="page" />
+<isset name="salesPrice" value="${!empty(finalOrigPrice) && finalOrigPrice.sales ?finalOrigPrice.sales : ''}" scope="page" />
+<isset name="priceBookSalesPrice" value="${!empty(finalOrigPrice) && finalOrigPrice.priceBookSalesPrice ? finalOrigPrice.priceBookSalesPrice : ''}" scope="page" />
+
+<isif condition="${((!empty(finalOrigPrice) && (listPrice && finalOrigPrice.list && salesPrice && finalOrigPrice.sales)) && (Number(listPrice.decimalPrice) >= Number(salesPrice.decimalPrice)))}">
+    <isif condition="${typeof salesPrice !== 'undefined' && typeof priceBookSalesPrice !== 'undefined' &&  priceBookSalesPrice && Number(salesPrice.decimalPrice) < Number(priceBookSalesPrice.decimalPrice)}"> 
+        <isset name="price" value="${priceBookSalesPrice}" scope="page" />
+    </isif>
+
+    <isset name="price" value="${finalOrigPrice.list}" scope="page" />
+    
+    <isif condition="${price && typeof price !== 'undefined' && price.decimalPrice}">
+        <isset name="additionalClass" value="highlighted" scope="page" />
+        <span class="b-price-value m-strikethrough bfx-price ${additionalClass}" content="${price.decimalPrice}">
+            <isinclude template="/product/components/pricing/formatted" />
+        </span>
+    </isif>
+</isif>
+<isif condition="${!empty(finalOrigPrice)}">
+    <isset name="price" value="${finalOrigPrice.sales}" scope="page" />  
+</isif>
+<isif condition="${price && typeof price !== 'undefined' && price.decimalPrice}">
+    <span class="b-price-value ${additionalClass} bfx-price ${finalOrigPrice.list !== null ? 'm-actual' : ''}" content="${price.decimalPrice}">
+        <isinclude template="/product/components/pricing/formatted" />
+    </span>
+</isif>

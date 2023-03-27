@@ -1,0 +1,37 @@
+<isif condition="${pdict.wishlist && pdict.wishlist.items && pdict.wishlist.items.length > 0}">
+    <!---product cards--->
+    <div class="b-wishlist-grid wishlistItemCards" data-error-msg="${Resource.msg('wishlist.remove.error','wishlist',null)}">
+        <div class="b-wishlist-result_countandsort">
+            <div class="b-wishlist-result_count js-products_count">
+                <span class="js-products-count"><isprint value="${pdict.wishlist.length.toFixed(0)}" encoding="off" /></span>
+                ${pdict.wishlist.items.length === 1 ? Resource.msgf('label.wishlist.result', 'search', null) : Resource.msgf('label.wishlist.results', 'search', null)}
+            </div>
+        </div>
+        <div class ="b-wishlist-grid_view" >
+            <isloop items="${pdict.wishlist.items}" var="item">
+	            <isif condition=${(pdict.wishlist.publicView && item.publicItem) || (!pdict.wishlist.publicView)}>
+                    <isif condition="${(pdict.enableAvailablePerLocale && item.custom.availableForLocale.value !== 'No') || !pdict.enableAvailablePerLocale}">
+                        <isif condition="${!!item.bundle}">
+                            <isinclude template="wishlist/productCard/wishlistBundleCard" />
+                        <iselse/>
+                            <isinclude template="wishlist/components/wishlistProductCard" />
+                        </isif>
+                    </isif>
+                </isif>
+	        </isloop>
+        </div>
+        <isif condition="${pdict.wishlist.showMore}">
+             <div class="b-products_grid-footer b-grid_footer js-grid_footer">
+                <button type="button" class="b-grid_footer-more_button js-show_more g-button_base more-wl-items" >
+                    ${Resource.msg('text.link.show.more.results.wl', 'wishlist', null)}
+                </button>
+            </div>
+        </isif>
+        <span class="wishlistItemCardsData" data-uuid="${pdict.wishlist.UUID}" data-sort-rule="NewestAdded" data-href="${URLUtils.url('Wishlist-MoreList')}" data-page-number="${pdict.wishlist.pageNumber || 1}"  data-public-view=${pdict.wishlist.publicView}></span>
+    </div>
+</isif>
+<isif condition="${!pdict.wishlist || pdict.wishlist.items.length==0}">
+    <div class="wishlist-category-slot">
+        <isslot id="wishlist-categories-grid" context="global"  description="category grid tiles for wishlist landing page"/>
+    </div>
+</isif>

@@ -1,0 +1,53 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+<div class="b-customer-returns">
+    <isif condition="${pdict.contentBody}">
+        <isprint value="${pdict.contentBody.guestReturnsText}" encoding="off"/>
+    </isif>
+<isif condition="${pdict.returnBox}">
+    <form action="${URLUtils.url('Order-TrackReturns')}" class="proof-purchase" method="POST" name="proof-purchase">
+        <div class="ua-returns-container ${pdict.orderReturnsFormError ? 'return-label-div' : ''}">
+            <a class="backbtn" data-href="${URLUtils.url('Order-GuestReturns')}" data-template="returnretails"><span>${Resource.msg('returns.refunds.backbtn','refunds',null)}</span></a></br>
+            <div class="b-order_track-container">
+                <div class="b-order_track-left">
+                    <div class="proof-purchase-div b-return-wrap">
+
+                        <isset name="purchaseLocationForm" value="${pdict.returnRetailForm}" scope="page"/>
+                        <isif condition="${pdict.orderReturnsFormError}">
+                            <div class="form-group">
+                                <div class="alert alert-danger " role="alert">
+                                    <strong>${pdict.orderReturnsFormError}</strong>
+                                </div>
+                            </div>
+                        </isif>
+                        <div class="form-group b-order-return-input b-input_row">
+                            <label class="b-input_row-label form-control-label">${Resource.msg('returns.refunds.underaarmourstorerorder','refunds',null)}</label>
+                            <input type="text" class="form-control order-return-form-input" data-missing-error="${Resource.msg('or.order.error.required', 'forms', null)}" id="orederid" name="orderid" value="" <isprint value="${purchaseLocationForm.orderid.attributes}" encoding="off"/>/>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-group b-order-return-input b-input_row">
+                            <label class="b-input_row-label form-control-label">${Resource.msg('returns.refunds.underaarmourstoreremail','refunds',null)}</label>
+                            <input type="text" class="form-control order-return-form-input js-custom-input" pattern="^[\w\.\x25+-]+@[\w\.-]+\.[\w]{2,6}$" data-pattern-mismatch="${Resource.msg('error.message.parse.email.profile.form', 'forms', null)}"  data-missing-error="${Resource.msg('or.email.error.required', 'forms', null)}" id="emailreturnid" name="emailreturnid" value="" <isprint value="${purchaseLocationForm.emailreturnid.attributes}" encoding="off"/>/>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-group submit-section text-center mb-4">
+                            <button class="btn-continue btn btn-primary btn-block g-button_base g-button_primary--black continueReturnGuestOrder" data-template="returnreasons" data-href="${URLUtils.url('Order-TrackReturns')}" name="continueReturn" type="button">
+                            ${Resource.msg('returns.refunds.continue','refunds',null)}</br>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="b-order_track-right b-order_track-content_available orderreturn-img">
+                    <isif condition="${pdict.contentBody}">
+                        <isprint value="${pdict.contentBody.guestReturnsImage}" encoding="off"/>
+                    </isif>
+                </div>
+            </div>
+            <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+            <input type="hidden" id="template" name="template" value="">
+        </div>
+    </form>
+</isif>
+    <isif condition="${pdict.contentBody}">
+        <isprint value="${pdict.contentBody.guestReturnsTextBelow}" encoding="off"/>
+    </isif>
+</div>

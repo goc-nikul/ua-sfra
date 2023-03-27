@@ -1,0 +1,76 @@
+.g-loyalty-earn {
+    width: 100%;
+
+    &_logo {
+        width: rem-calc(200);
+    }
+
+    &_bg-img {
+        width: 100%;
+    }
+
+    &_cta {
+        text-align: center;
+        margin: rem-calc(20) 0 0;
+        white-space: nowrap;
+
+        @include respond-to(mobile) {
+            margin: rem-calc(20) 0;
+        }
+    }
+
+    &_header {
+        color: $white;
+        text-transform: uppercase;
+        @include font(main, rem-calc(29));
+    }
+
+    &_legal {
+        color: $white;
+        max-width: rem-calc(200);
+        text-align: center;
+        @include font(main, rem-calc(12));
+    }
+
+    &_content-wrapper {
+        position: relative;
+        width: 100%;
+
+        &_absolute {
+            position: absolute;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: center;
+            align-items: center;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+            gap: rem-calc(15) 0;
+        }
+    }
+
+    &_tooltip {
+        cursor: pointer;
+        vertical-align: middle;
+        margin: 0 0 0 rem-calc(5);
+        @include icon(question);
+    }
+
+    .m-large {
+        @include respond-to(mobile) {
+            &-loyalty-right {
+                right: rem-calc(-64);
+                left: auto;
+                transform: translateX(0);
+
+                &::after {
+                    right: rem-calc(76);
+                    left: auto;
+                    transform: translateX(50%);
+                }
+            }
+        }
+    }
+}

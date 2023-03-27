@@ -1,0 +1,43 @@
+<!--- TEMPLATENAME: returnreasons.isml --->
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+ <iscomment>
+<a class="backbtn" data-href="${URLUtils.url('Order-ProofOfPurchase')}" data-template="proof-purchase"><span>${Resource.msg('returns.refunds.backbtn','refunds',null)}</span></a>
+ </iscomment>
+<div class="proof-purchase-div b-return-wrap b-ua-returning">
+    <p>${Resource.msg('returns.refunds.underaarmourstorereturning','refunds',null)}</p>
+	<isset name="purchaseLocationForm" value="${pdict.returnRetailForm}" scope="page"/>
+	<div class="b-return-returning-wrap b-return-reason">
+        <div class="form-group b-input_row qty-wrap b-order-return-input">
+            <label class="b-input_row-label form-control-label">${Resource.msg('returns.refunds.underaarmourstorequantity','refunds',null)}</label>
+            <input type="text" pattern="^(\d?[1-9]|[1-9]0)$" data-missing-error="${Resource.msg('or.quantity.error.required', 'forms', null)}"
+             required class="form-control order-return-form-input returnquantity b-quantity-select" id="returnquantity" name="returnquantity" value="" <isprint value="${purchaseLocationForm.returnquantity.attributes}" encoding="off"/>/>
+            <div class="invalid-feedback"></div>
+        </div>
+        <div class="form-group b-input_row b-quantity select-wrap b-order-return-input">
+            <label class="b-input_row-label form-control-label">${Resource.msg('returns.refunds.underaarmourstorerr','refunds',null)}</label>
+            <select class="form-control b-quantity-select custom-select order-return-form-input" data-missing-error="${Resource.msg('or.reason.error.required', 'forms', null)}"
+            required id="returnreasons" name="returnreasons">
+	            <isloop items=${purchaseLocationForm.returnreasons.options} var="returnreasons">
+	                <option id="${returnreasons.id}" value="${returnreasons.htmlValue}">${returnreasons.label || ' '}</option>
+	            </isloop>
+            </select>
+            <div class="invalid-feedback"></div>
+        </div>
+	</div>
+	<div class="form-group b-input_row">
+        <label class="b-input_row-label">${Resource.msg('returns.refunds.underaarmourstorercomments','refunds',null)}</label>
+        <textarea type="text" class="form-control b-order-return-input returncomments b-quantity-select" id="returncomments" name="returncomments" value="" <isprint value="${purchaseLocationForm && purchaseLocationForm.returncomments ? purchaseLocationForm.returncomments.attributes : ""}" encoding="off"/>></textarea></br>
+    </div>	
+	<div class="b-return-returning-form">
+		<p>${Resource.msg('returns.refunds.underaarmourstorercp','refunds',null)}
+		<isset name="returnFormURL" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('storeReturnForm')}" scope="page" />
+		<a class="" href="${returnFormURL}" target="_blank">${Resource.msg('returns.refunds.underaarmourstorerrf','refunds',null)}</a></p>
+	</div>
+		<input type="hidden" id="template" name="template" value="">
+		<input type="hidden" name="transactionno" value="${pdict.formData.transactionno}">
+		<div class="form-group submit-section text-center mb-4">
+			<button class="btn btn-primary btn-block submit-shipping g-button_base g-button_primary--black continueReturn" data-template="returnaddress" data-href="${URLUtils.url('Order-ProofOfPurchase')}" name="submit" type="submit">
+				${Resource.msg('returns.refunds.underaarmourstorercontinue','refunds',null)}
+			</button>
+		</div>
+</div>

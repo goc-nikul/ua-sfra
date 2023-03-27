@@ -1,0 +1,15 @@
+<isif condition="${lineItem.appliedPromotions == null && (!empty(pdict.totals) && pdict.totals.orderLevelDiscountTotal.value === 0 && pdict.totals.shippingLevelDiscountTotal.value === 0)}">
+    <isif condition="${pdict.isEmployee}">
+        <div class="line-item-no-promo">${Resource.msg('msg.coupon.not.applied.isEmployee','cart',null)}</div>
+    </isif>
+    <isif condition="${pdict.isVIP}">
+        <div class="line-item-no-promo">${Resource.msg('msg.coupon.not.applied.isVip','cart',null)}</div>
+    </isif>
+    <isif condition="${pdict.CurrentCustomer.isMemberOfCustomerGroup('IDmeVerified')}">
+        <div class="line-item-no-promo">${Resource.msg('msg.coupon.not.applied.idme','cart',null)}</div>
+    </isif>
+<iselse>
+    <isif condition="${pdict.isEmployee && lineItem.custom && 'giftCard' in lineItem.custom && (lineItem.custom.giftCard === 'EGIFT_CARD' || lineItem.custom.giftCard === 'GIFT_CARD')}">
+        <div class="line-item-no-promo">${Resource.msg('msg.coupon.not.applied.isEmployee','cart',null)}</div>
+    </isif>
+</isif> 

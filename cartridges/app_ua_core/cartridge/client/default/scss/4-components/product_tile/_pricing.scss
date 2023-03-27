@@ -1,0 +1,117 @@
+.b-price {
+    @include respond-to(mobile) {
+        margin-top: (spacing(xs2)) / 2;
+    }
+
+    &-value {
+        color: $black;
+        white-space: nowrap;
+
+        @include respond-to(desktop) {
+            font-size: rem-calc(14);
+        }
+
+        @include respond-to(mobile) {
+            font-size: rem-calc(14);
+        }
+
+        &.highlighted {
+            color: #dc0019 !important;
+        }
+
+        &.m-strikethrough {
+            text-decoration: line-through;
+            @-moz-document url-prefix('') {
+                position: relative;
+                white-space: nowrap;
+                text-decoration: none;
+
+                &::after {
+                    border-top: 1px solid $black;
+                    position: absolute;
+                    content: '';
+                    right: 0;
+                    top: 40%;
+                    left: 0;
+                }
+
+                &.mac-strikethrough {
+                    &::after {
+                        top: 50%;
+                    }
+                }
+
+                @supports (-ms-ime-align:auto) {
+                    position: relative;
+                    white-space: nowrap;
+                    text-decoration: none;
+
+                    &::after {
+                        border-top: 1px solid $black;
+                        position: absolute;
+                        content: '';
+                        right: 0;
+                        top: 40%;
+                        left: 0;
+                    }
+
+                    &.mac-strikethrough {
+                        &::after {
+                            top: 50%;
+                        }
+                    }
+                }
+            }
+
+            @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+                &.m-strikethrough {
+                    position: relative;
+                    white-space: nowrap;
+                    text-decoration: none;
+
+                    &::after {
+                        border-top: 1px solid $black;
+                        position: absolute;
+                        content: '';
+                        right: 0;
+                        top: 40%;
+                        left: 0;
+                    }
+                }
+            }
+
+            @supports (-ms-ime-align:auto) {
+                &.m-strikethrough {
+                    position: relative;
+                    white-space: nowrap;
+                    text-decoration: none !important;
+
+                    &::after {
+                        border-top: 1px solid $black;
+                        position: absolute;
+                        content: '';
+                        right: 0;
+                        top: 40%;
+                        left: 0;
+                    }
+                }
+            }
+
+            @include respond-to(desktop) {
+                margin-right: spacing(xs);
+            }
+
+            @include respond-to(mobile) {
+                margin-right: spacing(xs2);
+            }
+        }
+
+        &.m-actual {
+            color: $black;
+        }
+    }
+
+    &-range_divider {
+        color: $grey5;
+    }
+}

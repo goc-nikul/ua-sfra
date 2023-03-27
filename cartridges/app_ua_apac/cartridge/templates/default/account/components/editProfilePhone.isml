@@ -1,0 +1,25 @@
+<isif condition="${dw.system.Site.getCurrent().getID() !== 'OC'}">
+    <div class="b-account_form-column b-account_form-column-mobile">
+        <div class="form-group b-gender">
+            <label class="form-control-label b-gender-label" for="countryDialingCode">
+                <isprint value="${pdict.profileForm.customer.countryDialingCode.label}" encoding="off" />
+            </label>
+            <select class="form-control b-gender-select" id="countryDialingCode"
+                <isprint value="${pdict.profileForm.customer.countryDialingCode.attributes}" encoding="off" />>
+                <isloop items=${pdict.profileForm.customer.countryDialingCode.options} var="countryDialingCode">
+                    <option id="${countryDialingCode.id}" value="${countryDialingCode.htmlValue}" <isif condition="${countryDialingCode.selected || pdict.currentCountryDialingCode === countryDialingCode.htmlValue}">selected</isif>>${countryDialingCode.label || ' '}</option>
+                </isloop>
+            </select>
+        </div>
+    </div>
+</isif>
+<div class="b-account_form-column">
+    <div class="form-group b-input_row">
+        <label class="form-control-label b-input_row-label" for="phone">
+            <isprint value="${pdict.profileForm.customer.phone.label}" encoding="htmlcontent" />
+        </label>
+        <input type="text" data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid.format','forms',null)}" data-error="${Resource.msg('error.message.phonenumber.lesserlength','forms',null)}" class="form-control b-input_row-input validatePhoneField js-custom-input" id="phone"
+            <isprint value="${pdict.profileForm.customer.phone.attributes}" encoding="off" />>
+        <div class="invalid-feedback"></div>
+    </div>
+</div>

@@ -1,0 +1,7 @@
+<span class="strike-through bfx-price bfx-original-price ${lineItem.priceTotal.strikeThroughPrice ? 'highlighted' : ''}
+<isif condition=${!lineItem.priceTotal.strikeThroughPrice}>non-adjusted-price</isif>">
+    <isprint value=${lineItem.priceTotal.strikeThroughPrice} encoding="off" />
+</span>
+<span class="${lineItem.priceTotal.strikeThroughPrice ? 'highlighted' : ''} pricing line-item-total-price-amount bfx-price bfx-product-subtotal item-total-${typeof lineItem !== 'undefined' ? lineItem.UUID : null}">
+    <isprint value=${lineItem.priceTotal.price} encoding="off" />
+</span>

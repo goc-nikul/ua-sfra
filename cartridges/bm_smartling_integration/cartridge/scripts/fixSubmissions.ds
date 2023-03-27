@@ -1,0 +1,108 @@
+/**
+ *
+ *   @output submissions : dw.util.Iterator
+ *
+ */
+importPackage( dw.util );
+importPackage( dw.system );
+importPackage( dw.object );
+
+importScript( "/utils/ExceptionLog.ds" );
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartlingFixDup", "fixSubmissions"));
+
+/**
+ Fix duplicated and broken submissions
+ */
+function execute( pdict : PipelineDictionary ) : Number
+{
+    try {
+        LOGGER.info("Fetching all submissions from database...");
+
+        var duplicates : Map = new HashMap();
+        var prev: CustomObject;
+
+        var submissionIterator: SeekableIterator =  CustomObjectMgr.queryCustomObjects("SMARTLING_SUBMISSION", "", "custom.itemId, custom.locale");
+        while (submissionIterator.hasNext()) {
+            var submission : CustomObject = submissionIterator.next();
+                        
+            if (prev && prev.custom['itemId'] === submission.custom['itemId'] && prev.custom['locale'] === submission.custom['locale']) {
+                var locale = submission.custom['locale'];
+                var itemId = submission.custom['itemId'];
+                var key = itemId + ":" + locale;
+
+                if (duplicates.containsKey(key)) {
+                    duplicates.get(key).add(submission);
+                } else {
+                    var dups : List = new ArrayList();
+                    dups.add(prev);
+                    dups.add(submission);
+                    duplicates.put(key, dups);
+                }
+            } else {
+                prev = submission;            
+            }
+        }
+        submissionIterator.close();
+
+        LOGGER.info("Found {0} duplicated keys", duplicates.size());
+
+        for each (var key : String in duplicates.keySet()) {
+            var dups : List = duplicates.get(key);
+            if (dups && dups.size() > 1) {
+                if (dups.size() === 2
+                    && dups.get(0).custom['fileUri'] !== undefined 
+                    && dups.get(0).custom['fileUri'] !== null 
+                    && dups.get(0).custom['fileUri'] === dups.get(1).custom['fileUri']
+                    && !(dups.get(0).custom['status'] === 'failed' && dups.get(1).custom['status'] === 'failed')
+                    )
+                {
+                    var goodSubmission = dups.get(0);
+                    goodSubmission.custom['status'] = 'in progress';
+                    goodSubmission.custom['smLastModified'] = new Date(1000);
+                    LOGGER.info("Updated submission {0}", submissionToString(goodSubmission));
+
+                    var badSubmission = dups.get(1);
+                    LOGGER.info("Removing bad submission {0}", submissionToString(badSubmission));
+                    CustomObjectMgr.remove(badSubmission);
+
+                } else if (dups.get(0).custom['fileUri'] === undefined || dups.get(0).custom['fileUri'] === null) {
+                    LOGGER.info("Removing null submission {0}", submissionToString(dups.get(0)));
+                    CustomObjectMgr.remove(dups.get(0));
+                    LOGGER.info("Removing null submission {0}", submissionToString(dups.get(1)));
+                    CustomObjectMgr.remove(dups.get(1));
+                } else {
+                    LOGGER.warn("Can't fix duplicate for \"{0}\"", key);
+                    for each (var dup in dups) {
+                        LOGGER.warn("submission can't be fixed {0}", submissionToString(dup));
+                    }
+                }
+            }
+            if (!dups) {
+                 LOGGER.warn("empty record for key \"{0}\"", key);
+            }
+            if (dups.size() === 1) {
+                LOGGER.warn("single record for key \"{0}\"", key);
+            }
+        }
+        LOGGER.info("Fixing finished");
+    } catch (e) {
+        LOGGER.errorException("fixSubmissions execution failed", e);
+        return PIPELET_ERROR;
+    }
+
+    return PIPELET_NEXT;
+}
+
+function submissionToString(submission: CustomObject) {
+    return submission !== null ? '[fileUri="'+ submission.custom['fileUri']
+        +'", locale='+ submission.custom['locale']
+        +', uuid='+submission.UUID
+        +', itemId='+submission.custom['itemId']
+        +', status="'+submission.custom['status']
+        +'", smLastModified='+submission.custom['smLastModified']
+        +', itemName="'+submission.custom['itemName']
+        +'", progress='+submission.custom['progress']
+        +', creationDate="'+submission.creationDate
+        +'", submitted="'+submission.custom['submitted']
+        +'"]' : "null"
+}

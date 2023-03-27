@@ -1,0 +1,18 @@
+<!--- TEMPLATENAME: cartWishlistRemove.isml --->
+<div class="b-product_remove">
+	<isif condition="${typeof item !== 'undefined' && !empty(item)}"> 
+	    <isif condition="${item.custom.style}">
+	        <isset name="styleCode" value="${item.custom.style}" scope="page" />
+	    <iselse>
+	        <isset name="mainProduct" value="${require('dw/catalog/ProductMgr').getProduct(item.pid)}" scope="page">
+	        <isset name="styleCode" value="${mainProduct.isMaster() ? mainProduct.ID : mainProduct.getVariationModel().getMaster().ID}" scope="page" />
+	    </isif>
+	    <a href="${URLUtils.url('Cart-RemoveFromSaved','pid',item.pid, 'uuid', item.UUID)}" class="save-later js-remove-saveforlater"
+	       data-pid="${item.pid}"
+	       data-style="${styleCode}"
+	       aria-label="${Resource.msgf('text.edit.line.item','cart', null,item.name)}"
+	       title="${Resource.msg('link.remove.item', 'cart',null)}">
+	           ${Resource.msg('link.remove.item', 'cart', null)}
+	    </a>
+	</isif>
+</div>

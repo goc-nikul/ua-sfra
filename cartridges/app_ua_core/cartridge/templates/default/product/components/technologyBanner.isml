@@ -1,0 +1,36 @@
+<isset name="technologyBanners" value="${product.custom.techBannerAssetIDs}" scope="page" />
+<isif condition="${!empty(technologyBanners)}">
+    <isset name="technologyBannerClass" value="" scope="page"/>
+    <isset name="showTechnologyBanners" value="${false}" scope="page" />
+
+    <iscomment>
+        Determine if at least one of the technology banners exists and is active
+    </iscomment> 
+    <isloop alias="techBanner" items="${technologyBanners}" status="loopstatus">
+        <isset name="tempTechBanner" value="${dw.content.ContentMgr.getContent(techBanner)}" scope="page" />
+        <isif condition="${tempTechBanner && tempTechBanner.isOnline()}">
+            <isset name="showTechnologyBanners" value="${true}" scope="page" />
+            <isbreak/>
+        </isif>
+    </isloop>
+
+    <isif condition="${showTechnologyBanners}">
+        <section id="technology-banner">
+            <div class="technology-banner__container">
+                <isif condition="${technologyBanners.length > 2}">
+                    <isset name="technologyBannerClass" value="technology-banner--show-three" scope="page"/>
+                </isif>
+                <isloop alias="techBanner" items="${technologyBanners}" status="loopstatus" end="${2}">
+                    <isset name="banner" value="${dw.content.ContentMgr.getContent(techBanner)}" scope="page" />
+                    <isif condition="${!empty(banner) && banner.isOnline()}">
+                        <div class="technology-banner ${technologyBannerClass}" id="${banner.ID}">
+                            <isif condition="${!empty(banner.custom.body)}">
+                                <div class="technology-banner__description"><isprint value="${banner.custom.body}" encoding="off"/></div>
+                            </isif>
+                        </div>
+                    </isif>
+                </isloop>
+            </div>
+        </section>
+    </isif>
+</isif>

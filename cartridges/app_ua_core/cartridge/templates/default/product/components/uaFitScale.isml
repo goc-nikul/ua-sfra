@@ -1,0 +1,21 @@
+ <isif condition="${dw.system.Site.current.getCustomPreferenceValue('UAFitScaleEnabled') === true && product.custom.showFitScale === true}">
+    <isif condition="${!empty(pdict.product)}">
+        <isset name="product" value="${pdict.product}" scope="page" />
+    </isif>
+    <div class="fit-scale">
+        <ul role="presentation">
+            <isloop items="${['loose','fitted','compression']}" var="fit" status="loopstatus">
+                <isset name="isSelected" value="${fit === product.custom.fittype.toLowerCase()}" scope="page" />
+                <isset name="selectedClass" value="${fit === product.custom.fittype.toLowerCase() ? 'selected' : ''}" scope="page" />
+                <li
+                    key="${fit}"
+                    aria-hidden="${isSelected}"
+                    class="${selectedClass}"
+                >
+                    ${Resource.msg('product.fittype.' + fit, 'product', null).replace(/:/g, '')}
+                </li>
+            </isloop>
+        </ul>
+        <div class="description ${product.custom.fittype.toLowerCase()}">${Resource.msg('fittype.description.short.' + product.custom.fittype.toLowerCase(), 'product', null)}</div>
+    </div>
+</isif>

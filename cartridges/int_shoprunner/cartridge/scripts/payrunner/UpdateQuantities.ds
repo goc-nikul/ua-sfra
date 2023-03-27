@@ -1,0 +1,63 @@
+var Collection  = require('dw/util/Collection');
+
+/**
+* UpdateQuantities.ds
+* The purpose of this script file is to update the Demandware basket with
+* whatever quantity is set within the ShopRunner modal during an
+* updatePRCart method api call. This ensures everything syncs as a 
+* Cart-Calculate is executed right after this script.
+*
+*	@input DWBasket : dw.order.Basket - The current Demandware basket
+*	@input SRBasket : Object - The current ShopRunner basket
+*   @output ProductToRemove : dw.order.ProductLineItem
+*
+*/
+
+function execute(args) {
+	var dwBasket = args.DWBasket;
+	var srBasket = args.SRBasket;
+	var productToRemove = update(dwBasket, srBasket);
+	args.ProductToRemove = productToRemove
+	return PIPELET_NEXT;
+}
+
+function update(dwBasket, srBasket) {
+	var basketLineItems = dwBasket.allProductLineItems;
+	var basketItems = basketLineItems.iterator();
+			
+	while (basketItems.hasNext()) 
+	{
+		var productLineItem = basketItems.next();	
+		var optionID = '';
+		var sku = '';
+		var productToRemove;
+		for each (var srBasketProduct in srBasket.products) 
+		{
+			// check if we are dealing with a option product
+			optionID = productLineItem.getOptionValueID();
+			sku = empty(optionID) ? productLineItem.getProduct().ID : optionID;
+			
+			if (srBasketProduct.sku == sku) 
+			{
+				if (srBasketProduct.skuQty != productLineItem.getQuantity().value) 
+				{
+					if (srBasketProduct.skuQty == '0') 
+					{
+						productToRemove = productLineItem;
+					} 
+					else 
+					{
+						productLineItem.setQuantityValue(Number(srBasketProduct.skuQty));
+					}
+					break;	
+				}
+			}			
+		} // end for each		
+	}
+	return productToRemove;
+}
+
+module.exports = {
+    execute: execute,
+	update: update
+};

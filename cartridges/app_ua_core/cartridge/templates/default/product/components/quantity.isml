@@ -1,0 +1,16 @@
+<div class="b-quantity">
+    <label for="quantity-${(typeof(loopState) !== 'undefined' && loopState && loopState.count) ? loopState.count : '1' }" class="b-quantity-label">
+        ${Resource.msg('label.quantity', 'common', null)}
+    </label>
+
+    <select class="b-quantity-select custom-select form-control js-quantity-select js-quantity-select-control bfx-product-qty" id="quantity-${(typeof(loopState) != 'undefined' && loopState && loopState.count) ? loopState.count : '1' }">
+        <isloop items="${product.quantities}" var="quantity">
+            <option value="${quantity.value}"
+                    <isif condition="${product.productType !== 'bundle'}">data-url="${quantity.url}"</isif>
+                    ${quantity.selected ? 'selected' : ''}
+            >
+                ${quantity.value}
+            </option>
+        </isloop>
+    </select>
+</div>

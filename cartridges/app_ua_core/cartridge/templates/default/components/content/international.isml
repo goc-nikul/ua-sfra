@@ -1,0 +1,42 @@
+<iscontent compact="true">
+
+<isscript>
+    var assets = require('*/cartridge/scripts/assets');
+    assets.addCss('/css/choose_region.css');
+</isscript>
+
+<isdecorate template="common/layout/page">
+    <section class="b-countries">
+        <div class="b-countries-wrapper">
+            <h1 class="b-countries-title">
+                ${Resource.msg('localization.country.title', 'content', null)}
+            </h1>
+            <h3 class="b-countries-sub_title">
+                ${Resource.msg('localization.country.subtitle', 'content', null)}
+            </h3>
+            <div id="countries-accordion" class="b-countries-content g-accordion--mobile">
+                <isloop items="${pdict.displayOrder}" var="code">
+                    <isset name="continent" value="${pdict.allCountries[code]}" scope="page"/>
+                        <div class="b-countries-continent g-accordion-item">
+                            <h2 id="${code}-header" class="b-countries-continent_title g-accordion-header collapsed"
+                                role="button" data-toggle="collapse" data-target="${'#'}${code}-content"
+                                aria-expanded="true" aria-controls="${'#'}${code}-content">
+                                <isprint value="${Resource.msg('global.continent.' + code, 'locale', null)}" encoding="off" />
+                            </h2>
+
+                            <ul id="${code}-content" class="b-countries-list g-accordion-content collapse"
+                                data-parent="#countries-accordion" aria-labelledby="${code}-header">
+                                <isloop items="${continent}" var="country">
+                                    <li class="b-countries-item">
+                                        <a class="b-countries-link" href="${country.url}">
+                                            <isprint value="${country.name}" encoding="off" />
+                                        </a>
+                                    </li>
+                                </isloop>
+                            </ul>
+                        </div>
+                </isloop>
+            </div>
+        </div>
+   </section>
+</isdecorate>

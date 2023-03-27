@@ -1,0 +1,92 @@
+.b-header {
+    position: relative;
+
+    &-banner {
+        @include grid-col;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: rem-calc(12);
+        text-align: center;
+        color: $white;
+
+        @include respond-to(desktop) {
+            margin: 0 auto;
+            flex-grow: 1;
+            justify-content: flex-end;
+        }
+    }
+
+    &-banner_link {
+        color: $white;
+
+        &:hover {
+            text-decoration: none;
+        }
+    }
+
+    &-utility {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        height: 100%;
+
+        @include respond-to(mobile) {
+            display: none;
+        }
+
+        @include respond-to(desktop) {
+            @include grid-col(4);
+        }
+
+        @include respond-to(desktop-large) {
+            @include grid-col(3);
+        }
+    }
+
+    &-nav_toggle {
+        @include icon(menu);
+        @include button-to-link;
+
+        color: $white;
+        cursor: pointer;
+        height: rem-calc(48);
+        width: rem-calc(48);
+    }
+
+    &-search {
+        max-width: rem-calc(152);
+
+        @include respond-to(desktop) {
+            margin-right: rem-calc(8);
+        }
+
+        @include respond-to(desktop-large) {
+            max-width: rem-calc(184);
+            margin-right: rem-calc(12);
+        }
+
+        @include respond-to(mobile) {
+            @include g-flyout-common;
+            @include g-flyout(right);
+
+            width: 100%;
+            overflow-y: auto;
+        }
+    }
+
+    &-wishlist {
+        // TODO: Will be used in scope of Phase2
+        display: block;
+        color: $white;
+
+        @include respond-to(desktop) {
+            margin-left: rem-calc(12);
+        }
+    }
+
+    &-minicart {
+        position: relative;
+    }
+}

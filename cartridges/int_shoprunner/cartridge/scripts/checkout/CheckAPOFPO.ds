@@ -1,0 +1,19 @@
+/**
+*	Given one or two string, check if either are a potential PO Box
+*
+*   @input City : String city value to check
+*
+*/
+importPackage( dw.system );
+importScript( "checkout/Utils.ds" );
+
+function execute( args : PipelineDictionary ) : Number
+{
+	var city : String = args.City;
+	
+	if (isCityAPOFPO(city)) 
+	{
+		return PIPELET_ERROR;
+	}
+   return PIPELET_NEXT;
+}

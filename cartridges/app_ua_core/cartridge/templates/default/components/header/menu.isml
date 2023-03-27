@@ -1,0 +1,122 @@
+<isset name="customerCountry" value="${pdict.CurrentSession.custom.customerCountry || (request.getLocale().slice(-2).toUpperCase())}" scope="page" />
+<nav class="b-navigation js-header-menu-container" data-cmp="headerMenuAccessibility"
+    data-json-config='{"initOnDevice": [null, null, "large", "extra-large"]}'>
+    <div class="b-navigation-header_mobile js-header-menu">
+        <button class="b-navigation-back js-list-hide" type="button" aria-label="${Resource.msg('button.back.navigation', 'common', null)}"></button>
+        <div class="b-navigation-logo b-logo">
+            <a class="b-logo-link" href="${URLUtils.url('Home-Show')}"
+                title="${Resource.msgf('global.home', 'common', null, customerCountry)}">
+                <img class="b-logo-image" src="${URLUtils.staticURL('/images/menulogo.svg')}"
+                    title="${Resource.msg('global.storename', 'common', null)}"
+                    alt="${Resource.msg('global.logo', 'common', null)}" />
+            </a>
+        </div>
+        <div class="b-navigation-close">
+            <button class="b-navigation-close_button js-menu-close" type="button" aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+        </div>
+    </div>
+    <div class="b-navigation-wrapper js-header-menu-wrapper">
+        <ul class="b-navigation-list js-list-wrapper js-accessibility-nav ${pdict.categories.length > 4 ? 'm-more-4-items' : ''}"
+            data-cat="logo" data-level="0" role="menubar">
+            <isif condition="${pdict.categories}">
+                <isloop items="${pdict.categories}" var="category">
+                    <isset name="uaAnalyticsPathTop" value="${category.name.toLowerCase()}" scope="page" />
+                    <isif condition="${category.subCategories}">
+                        <li class="b-navigation-item js-list-item js-accessibility-nav-item ${category.expandMobileCategory ? 'b-navigation-default-expanded-state' : '' } ${category.hideInMobileNavigation ? 'h-hide-only-mobile' : ''} ${category.hideInDesktopNavigation ? 'h-hide-only-desktop' : ''}" role="none">
+                            <isif condition="${category.isClickable}">
+                                <a class="b-navigation-link m-has-sublist js-accessibility-nav-link ${!category.expandMobileCategory ? 'js-list-show' : ''}" href="<isprint value="${category.url}" encoding="htmldoublequote"/>"
+                                    id="${category.id}" role="menuitem" tabindex="0" data-level="0" data-cat="${category.id}"
+                                    data-analytics-nav-track="${uaAnalyticsPathTop}|${category.url}"
+                                >
+                                    <span class="b-navigation-text">${category.name}</span>
+                                    <isif condition="${category.isShowFlameIcon}"> 
+                                    <span class="b-flameIcon" role="img" aria-label="${Resource.msg('label.flameIcon', 'common', null)}"></span>
+                                    </isif>
+                                </a>
+                            <iselse/>
+                                <div class="b-navigation-link m-has-sublist js-accessibility-nav-link ${!category.expandMobileCategory ? 'js-list-show' : ''}" role="menuitem" tabindex="0" data-level="0" data-cat="${category.id}">
+                                    <span class="b-navigation-text">${category.name}</span>
+                                    <isif condition="${category.isShowFlameIcon}"> 
+                                    <span class="b-flameIcon" role="img" aria-label="${Resource.msg('label.flameIcon', 'common', null)}"></span>
+                                    </isif>
+                                </div>
+                            </isif>
+                            <isset name="menuItem" value="${category}" scope="page" />
+                            <isset name="topCategory" value="${category}" scope="page" />
+                            <isset name="mobileMenuItem" value="${category}" scope="page" />
+                            <div class="b-navigation-flyout_wrapper js-accessibility-navLevel2">
+                                <div class="b-navigation-flyout" aria-label="${category.id}">
+                                    <ul class="b-navigation-level_2_list js-list-wrapper ${category.expandMobileCategory ? 'b-navigation-default-expanded-state-list' : ''}" data-cat="${category.id}" role="menu">
+                                        <li class="b-navigation-title ${category.expandMobileCategory ? 'b-navigation-default-expanded-state-title' : ''} ${category.hideInDesktopNavigation ? 'hide-only-in-desktop' : ''}" role="none">
+                                            <isif condition="${category.isClickable}">
+                                                <a class="b-navigation-title_link js-menu-title" href="<isprint value="${topCategory.url}" encoding="htmldoublequote"/>"
+                                                    data-menu-title="${topCategory.name}"
+                                                    data-analytics-nav-track="${uaAnalyticsPathTop}|${category.url}"
+                                                >
+                                                    ${topCategory.name}
+                                                </a>
+                                            <iselse/>
+                                                <span class="js-menu-title" data-menu-title="${topCategory.name}">${topCategory.name}</span>
+                                            </isif>
+                                        </li>
+                                        <isslot id="menu-category-banner" description="Slot of category for the main menu" context="category" context-object="${category.row}" />
+                                        <iscomment> Hide for desktop always only show for mobile if fullfill this condition</iscomment>
+                                        <isif condition="${category.expandMobileCategory}">
+                                            <isinclude template="components/header/MobileExpandCategory" />
+                                        </isif>
+                                        <isinclude template="components/header/menuItemLevel2" />
+                                        <isset name="menuItem" value="${mobileMenuItem}" scope="page" />
+                                        <isinclude template="components/header/mobileMenuItemLevel2" />
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    <iselse/>
+                        <li class="b-navigation-item js-accessibility-nav-item ${category.hideInMobileNavigation ? 'h-hide-only-mobile' : ''} ${category.hideInDesktopNavigation ? 'h-hide-only-desktop' : ''}" role="presentation">
+                            <a class="b-navigation-link js-accessibility-nav-link" href="<isprint value="${category.url}" encoding="htmldoublequote"/>"
+                                id="${category.id}-nav-item" data-level="0" class="nav-link" role="link" tabindex="0"
+                                data-analytics-nav-track="${uaAnalyticsPathTop}|${category.url}"
+                            >
+                                <span class="b-navigation-text">${category.name}</span>
+                                <isif condition="${category.isShowFlameIcon}">
+                                <span class="b-flameIcon" role="img" aria-label="${Resource.msg('label.flameIcon', 'common', null)}"></span>
+                                </isif>
+                            </a>
+                        </li>
+                    </isif>
+                </isloop>
+            </isif>
+            <isset name="localePlacement" value="mobile" scope="page" />
+            <isinclude url="${URLUtils.url('Page-Locale', 'mobile', true)}" />
+            <isif condition="${dw.system.Site.current.getCustomPreferenceValue('extole')}">
+                <li class="b-navigation-item js-list-item js-accessibility-nav-item b-extole_refer_mobile" role="none">
+                    <span id="extole_zone_global_header_mobile"></span>
+                </li>
+            </isif>
+        </ul>
+        <div class="b-navigation-utility b-navigation_utility-list js-header-utility js-list-wrapper">
+            <isinclude url="${URLUtils.url('Account-Header', 'mobile', true)}" />
+
+        </div>
+    </div>
+</nav>
+<button class="b-navigation-overlay js-menu-close js-header-menu-overlay"></button>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+var $headerItemsCountry = $('.headerItemCountry');
+var $headerItemsLocale = $('.headerItemLocal');
+var $headerDropdownCountry = $headerItemsCountry.children('.b-header_utility-container');
+var $headerToggleCountry = $headerItemsCountry.children('.b-header_utility-toggle');
+var $headerToggleLocale = $headerItemsLocale.children('.b-header_utility-toggle');
+var $headerDropdownLocale = $headerItemsLocale.children('.b-header_utility-container');
+
+$('.b-navigation-list > .b-navigation-item').mouseenter(function(){
+        if($headerDropdownCountry.hasClass('show')){
+            $($headerToggleCountry).click();
+        }
+        if($headerDropdownLocale.hasClass('show')){
+            $($headerToggleLocale).click();
+        }
+    })
+});
+</script>

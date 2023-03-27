@@ -1,0 +1,716 @@
+importPackage(dw.system);
+importPackage(dw.catalog);
+importPackage(dw.order);
+importPackage(dw.campaign);
+importPackage(dw.util);
+importPackage(dw.value);
+importPackage(dw.web);
+importScript("util/srProductUtils.ds");
+
+var SRStatusCode = require("*/cartridge/scripts/util/srGlobals").SRStatusCode;
+
+/* *****************************************
+ * Function for error code
+ * This function will set the status on the
+ * error code in order to display the message
+ * in the Express Checkout modal window
+ * this function will display promo error codes
+ ********************************************/
+
+function errorCodePromo(basket: Basket, cartObject: Object, isModal: Boolean, couponStatus: Status,
+	couponCode: String, srBasket: String) {
+	var check: Object = checkBlockOption(0, basket.getAllProductLineItems());
+	if (check.exit) {
+		setSRErrorLogger(check.statusCode, arguments.callee.name.toString());
+		return check.statusCode;
+	}
+	var statusObj: Object = {};
+	// validate promotions
+	var validation = validatePromotions(basket, isModal);
+	if (validation.invalide) {
+		var statusObj: Object = {};
+		statusObj.promoInvalidation = true;
+		statusObj.status = validation.code;
+		statusObj.message = validation.message;
+		statusObj.redirectUrl = '';
+
+		setSRErrorLogger(validation.statusNr, arguments.callee.name.toString());
+		return statusObj;
+	}
+
+	// init 'status' value
+	var status: Number = 0;
+	// init redirect url value
+	var redirectUrl: String = '';
+
+	// check the network Information
+	var networkResponse: Number = errorCodeNetwork();
+	if (networkResponse != 0) {
+		setSRErrorLogger(networkResponse, arguments.callee.name.toString());
+		return networkResponse;
+	}
+	if (!empty(couponStatus)) {
+		// get the discounts
+		var discountPlan: DiscountPlan = PromotionMgr.getDiscounts(basket);
+		var discounts: Collection;
+		for each(discounts in discountPlan.bonusDiscounts) {
+				if (!empty(discounts)) {
+					// check if the coupon code is with bonus choice of product
+					if (discounts.type == Discount.TYPE_BONUS_CHOICE) {
+						status = 43;
+						redirectUrl = URLUtils.http('Cart-Show').toString();
+					}
+				}
+			}
+			// check if the Promo Code is invalid 26
+		if (couponStatus.code == CouponStatusCodes.COUPON_CODE_UNKNOWN) {
+			status = 26;
+		}
+		// check if the coupon has expired Promo code expired 27
+		if (couponStatus.code == CouponStatusCodes.TIMEFRAME_REDEMPTION_LIMIT_EXCEEDED || couponStatus.code ==
+			CouponStatusCodes.NO_ACTIVE_PROMOTION) {
+			status = 27;
+		}
+		// check if the coupon can be applied for cart Items 29
+		var coupon: CouponLineItem = {};
+		var couponRank: Array = [];
+		for each(coupon in basket.couponLineItems) {
+				var breakOuterLoop: Boolean = false;
+
+				// get the priceAdjustments for the coupon
+				var couponPriceAdjustments: Collection = coupon.getPriceAdjustments();
+				if (!couponPriceAdjustments.isEmpty()) {
+					for each(var priceAdj: PriceAdjustment in couponPriceAdjustments) {
+						// check if Promo was already applied 28
+						if (couponStatus.code == CouponStatusCodes.COUPON_CODE_ALREADY_IN_BASKET && coupon.applied == true) {
+							status = 28;
+							breakOuterLoop = true;
+							break;
+						}
+
+						// get the coupon code from basket and compare it to the coupon code that has been input
+						if ((coupon.couponCode == couponCode) && coupon.statusCode == CouponStatusCodes.NO_APPLICABLE_PROMOTION &&
+							priceAdj.promotion.promotionClass != Promotion.PROMOTION_CLASS_PRODUCT) {
+							couponRank.push(priceAdj.promotion.rank); // see what rank has the promo that wasn`t applicable
+							status = 29;
+							breakOuterLoop = true;
+							break;
+						}
+						if (couponStatus.code == CouponStatusCodes.COUPON_CODE_ALREADY_IN_BASKET && coupon.applied == false) {
+							status = 29;
+							breakOuterLoop = true;
+							break;
+						}
+
+						// check if it set a customerGroup for campaign
+						if (priceAdj.promotion.basedOnCustomerGroups == true) {
+							var customGroup: Object = {};
+							var userNotEligible: Boolean = true;
+							var couponCustomerGroups: Collection = priceAdj.promotion.customerGroups;
+							var basketCustomerGroups: Collection = basket.customer.customerGroups;
+							// check if the customer group is allowed
+							for each(customGroup in couponCustomerGroups) {
+								// get the status for current user register / unregistered
+								if (basketCustomerGroups.contains(customGroup)) {
+									userNotEligible = false;
+									break;
+								}
+							}
+							if (userNotEligible) {
+								status = 37;
+								breakOuterLoop = true;
+								break;
+							}
+						}
+					}
+					if (breakOuterLoop) {
+						break;
+					}
+				} else {
+					// check if Promo was already applied 29
+					if (couponStatus.code == CouponStatusCodes.COUPON_CODE_ALREADY_IN_BASKET) {
+						status = 29;
+					}
+				}
+			}
+			// check if the coupon was allready redeemed
+		if (couponStatus.code == CouponStatusCodes.COUPON_CODE_ALREADY_REDEEMED) {
+			status = 30; // one time promo was already redeemed
+		}
+		// check if couponRank is empty
+		var crank: String = '';
+		if (!empty(couponRank)) {
+			for each(crank in couponRank) {
+				for each(coupon in Basket.couponLineItems) {
+					var couponPriceAdjustments: Collection = coupon.getPriceAdjustments();
+					for each(var priceAdj: PriceAdjustment in couponPriceAdjustments) {
+						if (coupon.statusCode == CouponStatusCodes.APPLIED) {
+							var couponAppliedRank = priceAdj.promotion.rank;
+							// check if coupon applyedRank is lower then couponRank that was not applyed
+							if (!empty(couponAppliedRank) && couponAppliedRank < crank) {
+								status = 36;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	//check if redirectUrl is empty too see what will be returned
+	var objectReturned: Object = {};
+	if (!empty(redirectUrl)) {
+		objectReturned.status = status;
+		objectReturned.redirectUrl = redirectUrl;
+		setSRErrorLogger(status, arguments.callee.name.toString());
+		return objectReturned;
+	}
+
+	setSRErrorLogger(status, arguments.callee.name.toString());
+	return status;
+}
+
+/*
+ * This function will return Gift Certificates
+ * error codes
+ */
+
+function errorCodeGc(cartObject: Object, giftCertificateStatus: Status, gcCode: String, basket: Basket) {
+	// init 'status' value
+	var status: Number = 0;
+	var check: Object = checkBlockOption(status, basket.getAllProductLineItems());
+	if (check.exit) {
+		setSRErrorLogger(check.statusCode, arguments.callee.name.toString());
+		return check.statusCode;
+	}
+	//check if gift certificate was applied
+	if (empty(giftCertificateStatus)) {
+		return cartObject;
+	}
+	// if a gift certificate is applied
+	else {
+		//check the network Information
+		var networkResponse: Number = errorCodeNetwork();
+		if (networkResponse != 0) {
+			setSRErrorLogger(networkResponse, arguments.callee.name.toString());
+			return networkResponse;
+		}
+		//check if the gift certificate is valid
+		if (giftCertificateStatus.code == GiftCertificateStatusCodes.GIFTCERTIFICATE_NOT_FOUND) {
+			status = 33;
+		}
+		//check if the gift certificate amount is >0
+		if (giftCertificateStatus.code == GiftCertificateStatusCodes.GIFTCERTIFICATE_INSUFFICIENT_BALANCE) {
+			status = 34;
+		}
+		//38 Gift Certificate Redemption failed
+		if (giftCertificateStatus.code == GiftCertificateStatusCodes.GIFTCERTIFICATE_REDEEMED) {
+			status = 38;
+		}
+		//39 Gift Certificate Promo is not allowed
+		if (giftCertificateStatus.code == GiftCertificateStatusCodes.GIFTCERTIFICATE_PENDING) {
+			status = 39;
+		}
+		setSRErrorLogger(status, arguments.callee.name.toString());
+		return status;
+	} // end else
+}
+
+/*
+ * This function will check product Information
+ */
+function errorCodeProduct(cartObject: String, basket: Basket) {
+	// init 'status' value
+	var status: Number = 0;
+	var check: Object = checkBlockOption(0, basket.getAllProductLineItems());
+	if (check.exit) {
+		setSRErrorLogger(check.statusCode, arguments.callee.name.toString());
+		return check.statusCode;
+	}
+	// check the network Information
+	var networkResponse: String = errorCodeNetwork();
+	if (networkResponse != 0) {
+		setSRErrorLogger(networkResponse, arguments.callee.name.toString());
+		return networkResponse;
+	}
+
+	// validate promotions
+	var validation = validatePromotions(basket, false);
+	if (validation.invalide) {
+		var statusObj: Object = {};
+		statusObj.status = validation.code;
+		statusObj.message = validation.message;
+		return statusObj;
+	}
+
+	// check if the cart is empty
+	var allProducts: Collection;
+	if (basket != null) {
+		allProducts = basket.getAllProductLineItems();
+	}
+	if (allProducts.empty || allProducts.length < 1) {
+		status = 41;
+	} else {
+		// loop through all products in the basket
+		var prodLineItem: Collection = basket.productLineItems;
+		var item: ProductLineItem;
+		var BasketProducts: Array = []; // create an array to compare the Basket Products with SrCartProducts
+		for each(item in prodLineItem) {
+			var prod: Product = item.getProduct();
+			// get the inventory for the current Site
+			var pil: ProductInventoryList = ProductInventoryMgr.getInventoryList();
+			var inventorRecord = pil.getRecord(prod.ID);
+			// check if the quantity of product is bigger that the stock and if the products are available
+			if ((inventorRecord.ATS.value < 1 || inventorRecord.ATS.available == 'false') || (inventorRecord.getATS()
+					.getValue() < item.quantityValue && inventorRecord.getATS() != 'N/A')) {
+				status = 6;
+				break
+			}
+			// check if the productID is the same as srCart product sku
+			BasketProducts.push(prod.ID);
+		}
+	}
+	setSRErrorLogger(status, arguments.callee.name.toString());
+	return status;
+}
+
+/*
+ * This function will check session / network information
+ * and will be applied in all functions
+ */
+
+function errorCodeNetwork() {
+	// init 'status' value
+	var status: Number = 0;
+
+	// get the Http Header
+	var header: Set = request.getHttpHeaders().entrySet();
+	var reqObject: MapEntry;
+	var xcon: Number = 0; // put a flag for x-is-connection
+	var con: Number = 0; // put a flag for connection
+
+	for each(reqObject in header) {
+		// check if cookies are disabled
+		if (reqObject.key == 'cookie' && empty(reqObject.value)) {
+			status = 18;
+		}
+		//check for Network Timeout
+		if (reqObject.key == 'x-is-connection' && reqObject.value != 'keep-alive') {
+			xcon = 1;
+		}
+		/*if (reqObject.key == 'connection' && reqObject.value != 'close') {
+			con = 1;
+		}*/ // connection is always keep-alive
+	}
+	if (xcon != 0 || con != 0) {
+		status = 15;
+	}
+	setSRErrorLogger(status, arguments.callee.name.toString());
+	return status;
+}
+
+// this function is for Product Detail Page CodePayment
+function errorCodePaymentPDP(paymentInstrument: OrderPaymentInstrument, basket: Basket) {
+	var status: Number = 0;
+	var check: Object = checkBlockOption(0, basket.getAllProductLineItems());
+	if (check.exit) {
+		setSRErrorLogger(check.statusCode, arguments.callee.name.toString());
+		return check.statusCode;
+	}
+	// check if Shoprunner send the paymentInstrument
+	if (empty(paymentInstrument)) {
+		// get all payment instruments from basket + check
+		status = 21;
+	}
+	// get the active credit cards from bm
+	var paymentManager: List = PaymentMgr.getActivePaymentMethods();
+	var activePayment: Object = {};
+	var cards: Array = [];
+	for each(activePayment in paymentManager) {
+		if (activePayment.ID == 'CREDIT_CARD') {
+			var activeCards: Object = {};
+			for each(activeCards in activePayment.activePaymentCards) {
+				cards.push(activeCards.cardType);
+			}
+		}
+	}
+
+	// this will check the error code 23 Credit Card Chosen Not supported
+	if (paymentInstrument.paymentMethod == 'CREDIT_CARD') {
+		var activeOk: Number = 0; // set a flag for credit card type
+		var cc: String = '';
+		for each(cc in cards) {
+			if (paymentInstrument.creditCardType == cc) {
+				activeOk = 1;
+			}
+		}
+		if (activeOk == 0) {
+			status = 23;
+		}
+		// get the current month & year
+		var date = new Date();
+		var month: Number = parseFloat(date.getMonth() + 1); // add 1 because the month[] starts from 0
+		var year: Number = parseFloat(date.getFullYear());
+
+		// get the credit card expiration date
+		var cmonth: Number = paymentInstrument.getCreditCardExpirationMonth();
+		var cyear: Number = paymentInstrument.getCreditCardExpirationYear();
+
+		// check if the card is expired 24
+		if (month > cmonth && year > cyear) {
+			status = 24;
+		}
+	}
+	var prodLineItem: Collection = basket.getAllProductLineItems();
+	var item: ProductLineItem;
+	for each(item in prodLineItem) {
+		var prod: Product = item.getProduct();
+		if (!empty(prod)) {
+			if (prod.custom.sr_eligible.value == 'false') {
+				// check if shipment is shoprunner for ineligible items; for block option ineligible options remain in the cart, but removed from srCart
+				if (item.shipment.shippingMethodID == 'shoprunner') {
+					status = SRStatusCode.SR_INELIGIBLE_CART_BLOCK;
+					break;
+				}
+			}
+		}
+	}
+	setSRErrorLogger(status, arguments.callee.name.toString());
+	return status;
+}
+
+// This function is for cart
+function errorCodePaymentCart(paymentInstrument: OrderPaymentInstrument, order: Order): Number {
+	// init 'status' value
+	var status: Number = 0;
+	var check: Object = checkBlockOption(status, order.getAllProductLineItems());
+	if (check.exit) {
+		setSRErrorLogger(check.statusCode, arguments.callee.name.toString());
+		return check.statusCode;
+	}
+	// check if Shoprunner send the paymentInstrument
+	if (empty(paymentInstrument)) {
+		// get all payment instruments from basket + check
+		status = 21;
+	}
+	// get the active credit cards from bm
+	var paymentManager: List = PaymentMgr.getActivePaymentMethods();
+	var activePayment: Object = {};
+	var cards: Array = [];
+	for each(activePayment in paymentManager) {
+		if (activePayment.ID == 'CREDIT_CARD') {
+			var activeCards: Object = {};
+			for each(activeCards in activePayment.activePaymentCards) {
+				cards.push(activeCards.cardType);
+			}
+		}
+	}
+
+	// this will check the error code 23 Credit Card Chosen Not supported
+	if (paymentInstrument.paymentMethod == 'CREDIT_CARD') {
+		var activeOk: Number = 0; // set a flag for credit card type
+		var cc: String = '';
+		for each(cc in cards) {
+			if (paymentInstrument.creditCardType == cc) {
+				activeOk = 1;
+			}
+		}
+		if (activeOk == 0) {
+			status = 23;
+		}
+		//get the current month & year
+		var date = new Date();
+		var month: Number = parseFloat(date.getMonth() + 1); // add 1 because the month[] starts from 0
+		var year: Number = parseFloat(date.getFullYear());
+
+		//get the credit card expiration date
+		var cmonth: Number = paymentInstrument.getCreditCardExpirationMonth();
+		var cyear: Number = paymentInstrument.getCreditCardExpirationYear();
+
+		// check if the card is expired 24
+		if (month > cmonth && year > cyear) {
+			status = 24;
+		}
+	}
+
+	var prodLineItem: Collection = order.getAllProductLineItems();
+	var item: ProductLineItem;
+	for each(item in prodLineItem) {
+		var prod: Product = item.getProduct();
+		if (!empty(prod)) {
+			if (prod.custom.sr_eligible.value == 'false') {
+				// check if shipment is shoprunner for ineligible items; for block option ineligible options remain in the cart, but removed from srCart
+				if (item.shipment.shippingMethodID == 'shoprunner') {
+					status = SRStatusCode.SR_INELIGIBLE_CART_BLOCK;
+					break;
+				}
+			}
+		}
+	}
+	setSRErrorLogger(status, arguments.callee.name.toString());
+	return status;
+}
+
+function arrayContains(a, obj) {
+	for (var i = 0; i < a.length; i++) {
+		if (a[i] === obj) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+// Checks all products in cart for eligibility
+function isBasketCointainsNonEligibleItems(basket: Basket): Boolean {
+	var result: Boolean = false;
+	var productLineItems: Collection = basket.getProductLineItems();
+	var productLineItemsIterator: Iterator = productLineItems.iterator();
+
+	while (productLineItemsIterator.hasNext()) {
+		var productLineItem: ProductLineItem = productLineItemsIterator.next();
+		var product: Product = productLineItem.getProduct();
+		var productEligible: Boolean = isProductEligible(product);
+
+		if (!isProductEligible(product)) {
+			result = true;
+			break;
+		}
+	}
+
+	return result;
+}
+
+// Checks single product is eligible for shoprunner
+function isProductEligible(product: Product): Boolean {
+	var result: Boolean = false;
+	if (('sr_eligible' in product.custom) && product.custom.sr_eligible.value == 'true') {
+		result = true;
+	}
+
+	return result;
+}
+
+// This function will check if a status returned is
+// an error or an info and it will log into Logger
+// also check if the block option is selected and the cart is Mixed
+function setStatusLogger(status: Number, objContainerStatus: Object, functionName: String) {
+	// check if it was an network error
+	if (empty(objContainerStatus)) {
+		Logger.getLogger('ShopRunner', 'ShopRunner').error('ShopRunner errorCodeNetwork function returns ' + status);
+	} else {
+		// check if the block option is selected and the cart is Mixed
+		if (status == SRStatusCode.SR_INELIGIBLE_CART_BLOCK) {
+			Logger.getLogger('ShopRunner', 'ShopRunner').error('ShopRunner ' + functionName + ' function returns ' +
+				status);
+		}
+		// check if the status received is an rrror
+		else if (objContainerStatus.arrayError.indexOf(status) >= 0 && status != 0) {
+			Logger.getLogger('ShopRunner', 'ShopRunner').error('ShopRunner ' + functionName + ' function returns ' +
+				status);
+		}
+		// check if the status received is an info
+		else if (objContainerStatus.arrayInfo.indexOf(status) >= 0 && status != 0) {
+			Logger.getLogger('ShopRunner', 'ShopRunner').info('ShopRunner ' + functionName + ' function returns ' +
+				status);
+		}
+	}
+}
+
+/**
+ *	validatePromotions will process the basket and verify if
+ *	all the promotions are valid
+ */
+function validatePromotions(dwBasket: Basket, isModal: Boolean) {
+	var srProducts: Number = 0;
+	var dwProducts: Number = 0;
+	var mixedBasket: Boolean = false;
+	var ineligibleBonusProds: Number = 0;
+	var defaultShipping: String = '';
+	var bmMixedPreference = Site.current.preferences.custom.sr_mixedorder.value;
+
+	// this object is returned by the function
+	var status: Object = {};
+	status.invalide = false;
+	status.code = 0;
+	status.message = '';
+
+	// take and process the product line items for bonus products and eligibility
+	var pli = dwBasket.getProductLineItems();
+	for each(var lineItem: ProductLineItem in pli) {
+		if (lineItem.getProduct().custom.sr_eligible.value == 'false') {
+			dwProducts++;
+			if (lineItem.isBonusProductLineItem()) {
+				ineligibleBonusProds++;
+			}
+		} else {
+			srProducts++;
+		}
+	}
+
+	// verify if mixed basket
+	if (srProducts > 0 && dwProducts > 0) {
+		mixedBasket = true;
+	}
+
+	// grab the default shipping method
+	var shipments: Collection = dwBasket.getShipments();
+	for each(var shipment: Shipment in shipments) {
+			// if only shoprunner shipment
+			if (shipments.size() == 1) {
+				defaultShipping = shipment.getShippingMethod().getID();
+				break;
+			}
+			var shipMethod: ShippingMethod = shipment.getShippingMethod();
+			if (shipMethod.isDefaultMethod()) {
+				defaultShipping = shipMethod.getID();
+			}
+		}
+		/**
+		 * Validations handling
+		 */
+	if (defaultShipping == 'shoprunner' && ineligibleBonusProds > 0 && bmMixedPreference != 'downgrade') {
+		status.invalide = true;
+		status.message = Resource.msg('shoprunner.promofail_shoprunner', 'shoprunner', null);
+	} else if (bmMixedPreference === 'splitShip' && ineligibleBonusProds > 0) {
+		status.invalide = true;
+		status.message = Resource.msg('shoprunner.promofail_shoprunner', 'shoprunner', null);
+	} else if (bmMixedPreference == "block" && ineligibleBonusProds > 0) {
+		status.invalide = true;
+		status.message = Resource.msg('shoprunner.promofail_block', 'shoprunner', null);
+	}
+	// set status code
+	// remove the ineligible items if the code was inserted using Express Checkout
+	if (status.invalide) {
+		status.code = SRStatusCode.SR_INELIGIBLE_CART_BLOCK;
+		if (isModal) {
+			removeCoupon(dwBasket);
+			status.code = 29;
+		}
+	}
+
+	return status;
+}
+
+/**
+ *	removeCoupon function is used to remove the ineligible coupon promotions
+ *	when a promo code is entered into Express Checkout
+ */
+function removeCoupon(dwBasket: Basket) {
+	// this block will check if the coupon code can be applied in basket
+	var prodLineItem: Collection = dwBasket.getAllProductLineItems();
+	var item: ProductLineItem;
+	for each(item in prodLineItem) {
+		var prod: Product = item.getProduct();
+		if (!empty(prod)) {
+			if (prod.custom.sr_eligible.value == 'false') {
+				// check if shipment is shoprunner for ineligible items;
+				// for block option ineligible options remain in the cart, but removed from srCart.
+				if (item.shipment.shippingMethodID == 'shoprunner') {
+					// check if there are any price adjustments
+					if (!empty(item.getPriceAdjustments())) {
+						// get the price adjustments from the productLineItem and compare
+						// the UUID with the price adjustments from couponLineItems from basket
+						// if any match is found then will remove the couponLineItem and the ProductLineItem
+						// from the basket
+						for each(var priceAdjustment: PriceAdjustment in item.getPriceAdjustments()) {
+								if (priceAdjustment.basedOnCoupon && priceAdjustment.getPromotion().getPromotionClass() == 'ORDER') {
+									if (!empty(dwBasket.getCouponLineItems())) {
+										for each(var couponLineItem: CouponLineItem in dwBasket.getCouponLineItems()) {
+											for each(var couponPriceAdjustment: PriceAdjustment in couponLineItem.getPriceAdjustments()) {
+												if (couponPriceAdjustment.UUID == priceAdjustment.UUID) {
+													dwBasket.removeCouponLineItem(couponLineItem);
+													dwBasket.removeProductLineItem(item);
+												}
+											}
+										}
+									}
+								} else if (priceAdjustment.basedOnCoupon && priceAdjustment.getPromotion().getPromotionClass() ==
+									'PRODUCT') {
+									if (item.isBonusProductLineItem()) {
+										// remove both the bonus product and the coupon
+										for each(var couponLineItem: CouponLineItem in dwBasket.getCouponLineItems()) {
+												for each(var priceAdj: PriceAdjustment in couponLineItem.priceAdjustments) {
+													if (priceAdj.promotion.UUID == priceAdjustment.promotion.UUID) {
+														dwBasket.removeCouponLineItem(couponLineItem);
+														dwBasket.removeProductLineItem(item);
+													}
+												}
+											} // end for each coupon
+									} // end if isBonusproduct
+								}
+							} // end for each priceAdjustment
+					} // end if no PriceAdjustments
+					break;
+				} // end if shoprunner method
+			} // end if ineligible
+		}
+	}
+}
+
+/**
+ *	The checkBlockOption validates the cart eligibility and "mixed" status.
+ *	In case the Mixed Order Preference is set to block and the cart is ineligible,
+ *	inform the callee function to stop execution and return statusCode.
+ **/
+function checkBlockOption(statusReceived: Number, productLineItems: Collection): Object {
+	var status: Number = statusReceived;
+	var exit: Boolean = false;
+	var srMixedCartOption: String = SRProductUtils.checkCartEligibility(productLineItems);
+	var isBlock: Boolean = Site.getCurrent().getCustomPreferenceValue('sr_mixedorder').value.value == 'block' ? true :
+		false;
+	if (isBlock && srMixedCartOption != 'ALL_SR') {
+		status = SRStatusCode.SR_INELIGIBLE_CART_BLOCK;
+		exit = true;
+	}
+	var response: Object = {};
+	response.statusCode = status;
+	response.exit = exit;
+	setSRErrorLogger(status, arguments.callee.name.toString());
+	return response;
+}
+
+/**
+ *	The setSRErrorLogger logs the passed status and the name of the function where
+ *	status was processed.
+ */
+function setSRErrorLogger(status: Number, functionName: String) {
+	// set the object which will keep the info/error status numbers
+	var objStatusStore: Object = {};
+	// array for statusInfo
+	var arrayInfo: Array = [4, 5, 6, 7, 8, 9, 13, 14, 26, 27, 28, 29, 30, 33, 34, 36, 37, 38, 39, 40, 43, 111];
+	// array for statusError
+	var arrayError: Array = [1, 2, 3, 10, 15, 18, 21, 23, 24, 41, 42];
+
+	// put the arrayInfo and arrayStatus into objStatusStore
+	objStatusStore.arrayInfo = arrayInfo;
+	objStatusStore.arrayError = arrayError;
+
+	// call the setStatusLogger
+	setStatusLogger(status, objStatusStore, functionName);
+}
+
+function toggleSRHeaderDivByEligiblity(pdict) {
+	try {
+		var divName = pdict.p_divname;
+		if (divName == 'sr_headerDiv') {
+			var BasketMgr = require('dw/order/BasketMgr');
+			var myBasket: Basket = BasketMgr.getCurrentBasket();
+			if (!myBasket) {
+				return;
+			}
+			var productLineItems: Collection = myBasket.getAllProductLineItems();
+			var cartStatus = SRProductUtils.checkCartEligibility(productLineItems);
+			if (cartStatus && cartStatus != 'ALL_SR' && !empty(session.custom.srtoken)) {
+				pdict.p_divname = "sr_dualEligibilityDiv";
+				pdict.ShopRunnerStatus = 'MIXED';
+			}
+		}
+	} catch (e) {
+		var ex = e;
+	}
+}
+
+module.exports = {
+	errorCodePromo: errorCodePromo,
+	errorCodeGc: errorCodeGc
+};

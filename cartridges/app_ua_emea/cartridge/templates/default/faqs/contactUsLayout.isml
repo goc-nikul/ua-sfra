@@ -1,0 +1,54 @@
+<iscomment>
+    TEMPLATENAME: contactUsLayout.isml
+</iscomment>
+<isdecorate template="faqs/contactUsDecorator">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets');
+        assets.addJs('/js/contactPage.js');
+    </isscript>
+    <isset name="faqResources" value="${require('*/cartridge/scripts/helpers/localeHelpers').getFAQResources()}" scope="page" />
+    <apex:page standardController="Case" showHeader="false" standardStylesheets="false" lightningStyleSheets="true" sidebar="false" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0" >
+
+        <head>
+            <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
+
+            <script language='javascript'>
+                window.faqResources = <isprint value="${JSON.stringify(faqResources)}" encoding="off" />;
+            </script>
+
+            <iscomment>
+                CAPTCHA SCRIPT
+            </iscomment>
+            <script src="https://www.google.com/recaptcha/api.js"></script>
+
+            <style>
+                input, select, textarea {
+                    width: 100%;
+                    margin-top: 0.4rem;
+                }
+                label {
+                    font-weight: bold;
+                }
+                .required:before {
+                    content:"* ";
+                    color: red;
+                }
+
+                .form {
+                    margin-top:0.5rem;
+                    color: white;
+                    background: black;
+                    padding: 0.3rem 1rem 0.3rem 1rem;
+                    border-radius: 0.25rem;
+                }
+
+            </style>
+        </head>
+
+        <div class="send-us-message">
+            <isreplace/>
+        </div>
+
+    </apex:page>
+
+</isdecorate>

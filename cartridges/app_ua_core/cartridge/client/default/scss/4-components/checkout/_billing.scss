@@ -1,0 +1,462 @@
+.b-billing,
+.b-shipping,
+.b-pickup,
+.b-billing-address {
+    border-bottom: 1px solid $grey3;
+
+    &_form-row {
+        display: flex;
+        justify-content: space-between;
+
+        @include respond-to(mobile) {
+            flex-wrap: wrap;
+        }
+    }
+
+    &_form-column {
+        width: 100%;
+        margin-right: rem-calc(16);
+
+        &:last-child {
+            margin-right: 0;
+        }
+
+        @include respond-to(mobile) {
+            margin-right: 0;
+        }
+    }
+
+    &_country {
+        @include respond-to(desktop) {
+            flex-basis: rem-calc(208);
+        }
+    }
+
+    .b-input_row,
+    .form-group {
+        margin-bottom: rem-calc(20);
+
+        @include respond-to(mobile) {
+            margin-bottom: rem-calc(16);
+        }
+
+        label.b-input_row-label,
+        label.form-control-label {
+            font-weight: inherit;
+
+            &::before {
+                content: ' ';
+            }
+
+            &::after {
+                color: $black;
+                content: '*';
+            }
+        }
+
+        select {
+            &:hover,
+            &:focus {
+                border-color: $black;
+                outline: none;
+                box-shadow: none;
+            }
+        }
+
+        &.error-field {
+            label.b-input_row-label,
+            label.form-control-label {
+                &::after {
+                    color: $red;
+                }
+            }
+        }
+    }
+
+    &_form-row-three {
+        justify-content: space-between;
+
+        .b-shipping_form-column,
+        .b-billing_form-column {
+            flex-basis: rem-calc(152);
+
+            @include respond-to(mobile) {
+                flex-basis: 48%;
+
+                &.b-shipping_form-column-adjust {
+                    flex-basis: 100%;
+                }
+            }
+        }
+    }
+
+    &_form-column-adjust.b-shipping_form-column,
+    &_form-column-adjust.b-billing_form-column {
+        flex-basis: rem-calc(487);
+
+        @include respond-to(mobile) {
+            flex-basis: 100%;
+        }
+    }
+
+    &_required-fields {
+        @include font(main_med, rem-calc(11), 1.6);
+
+        display: none;
+    }
+
+    &_zipcode,
+    &_state,
+    &_city {
+        .b-input_row {
+            margin-bottom: rem-calc(12);
+        }
+    }
+
+    .b-checkout_save-form {
+        margin-top: 0;
+    }
+
+    .b-checkout_save-text {
+        @include font(main, rem-calc(14), 1.43);
+
+        &.b-addNewBillingLabel {
+            line-height: 2.2;
+        }
+    }
+
+    &_heading {
+        @include font(main_med, rem-calc(16), 1.5);
+
+        flex-basis: 30%;
+
+        @include respond-to(mobile) {
+            flex-basis: 100%;
+        }
+    }
+
+    &_heading_line {
+        display: flex;
+        align-items: center;
+
+        &.display-required-text {
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+    }
+
+    &_show-add {
+        display: none;
+    }
+
+    .b-billing_required-fields {
+        display: block;
+        text-align: right;
+        margin-bottom: rem-calc(8);
+    }
+
+    &.display-billing-fields {
+        .address-selector-block {
+            padding-bottom: rem-calc(32);
+        }
+    }
+
+    &_firstline {
+        @include respond-to(mobile) {
+            position: relative;
+        }
+
+        .make-ship-as-bill {
+            &[data-collection=true] {
+                display: none;
+            }
+
+            @include respond-to(desktop) {
+                text-align: center;
+
+                &:not(.bopis-ship-as-bill) {
+                    margin-top: -19px;
+                }
+            }
+
+            @include respond-to(mobile) {
+                margin-top: rem-calc(24);
+            }
+
+            .form-group {
+                position: relative;
+                max-width: rem-calc(304);
+                margin: 0 auto;
+                padding-bottom: 1px;
+                text-align: left;
+
+                &.disabled {
+                    opacity: 0.5;
+                    pointer-events: none;
+                }
+
+                @include respond-to(mobile) {
+                    max-width: 100%;
+                }
+            }
+        }
+
+        .shipAsBilllabel {
+            @include font(main, rem-calc(14), 1.43);
+        }
+    }
+
+    &.billing-address {
+        margin-top: rem-calc(30);
+    }
+
+    &_shipAsBilllabel {
+        margin-left: rem-calc(16);
+        @include respond-to(mobile) {
+            margin-left: 0;
+        }
+    }
+
+    &_address2 {
+        label::after {
+            display: none;
+        }
+    }
+
+    // Address Suggestion
+    .address-picklist-container {
+        position: absolute;
+        background: $white;
+        z-index: 10;
+        width: 100%;
+        border: 1px solid $grey3;
+        border-top: 0;
+        bottom: auto;
+        top: 100%;
+        border-radius: rem-calc(4);
+
+        .address-picklist {
+            div {
+                cursor: pointer;
+                padding: rem-calc(8) rem-calc(15);
+
+                b {
+                    font-weight: 700;
+                }
+
+                &:hover,
+                &.selected {
+                    background-color: $grey2;
+                }
+            }
+        }
+    }
+
+    .readonly {
+        opacity: 0.5;
+    }
+}
+
+.b-billing-address {
+    margin: 0;
+    border: 0;
+}
+
+.klarna-payment-error {
+    display: flex;
+    color: $red;
+    margin-bottom: rem-calc(14);
+    @include font(main, rem-calc(12), 1.67);
+
+    font-weight: 600;
+    @include icon(alert);
+
+    &::before {
+        padding-right: rem-calc(12);
+    }
+}
+
+.b-payment-summary {
+    &_row {
+        display: flex;
+        flex-wrap: wrap;
+
+        .klarna-method-name {
+            background-image: url(../../images/logo-klarna-black.svg);
+            background-repeat: no-repeat;
+            text-indent: -9999px;
+        }
+    }
+
+    &_klarna {
+        .heading {
+            @include font(main_bold, rem-calc(14), 1.71);
+        }
+
+        .description {
+            @include font(main, rem-calc(12), 1.67);
+        }
+    }
+
+    .summary-details {
+        margin-bottom: 0;
+    }
+
+    &_options.summary-details {
+        flex-basis: rem-calc(208);
+        margin-right: 19%;
+        @include font(main, rem-calc(12), 1.67);
+
+        @include respond-to(mobile) {
+            flex-basis: 100%;
+            margin-right: 0;
+            margin-bottom: rem-calc(24);
+        }
+    }
+
+    &_billing {
+        @include font(main, rem-calc(12), 1.67);
+    }
+
+    &_details {
+        margin-bottom: rem-calc(32);
+
+        @include respond-to(mobile) {
+            margin-top: rem-calc(24);
+        }
+    }
+
+    &_gift {
+        @include font(main, rem-calc(12), 1.67);
+
+        margin-top: rem-calc(32);
+
+        @include respond-to(mobile) {
+            margin-top: rem-calc(24);
+        }
+    }
+}
+
+#paymetricError {
+    display: none;
+}
+
+.b-billing {
+    &.billing-address {
+        margin-bottom: rem-calc(32);
+        margin-top: rem-calc(18);
+    }
+
+    &_notvalidcard_errormessage {
+        display: flex;
+        margin: rem-calc(10) 0 rem-calc(20);
+        color: $black;
+        background: $grey2;
+        padding: rem-calc(20) rem-calc(16) rem-calc(16);
+        font-size: rem-calc(14);
+        font-weight: 500;
+        @include icon(alert);
+
+        &::before {
+            margin-right: rem-calc(6);
+            font-size: rem-calc(14);
+        }
+
+        p {
+            padding-right: rem-calc(20);
+            color: $black;
+        }
+    }
+}
+
+.b-checkout_main {
+    &[data-customer-type=guest] {
+        #billingAddressSelector {
+            @include respond-to(mobile) {
+                display: inline-block;
+                width: 100%;
+            }
+
+            .billing-address-section {
+                display: none;
+
+                &:last-child {
+                    display: block;
+                }
+            }
+
+            .billing-address-option {
+                padding: 0;
+                @include font(main, rem-calc(12), 1.67);
+
+                margin: 0 auto;
+                text-align: left;
+                margin-top: 0.5rem;
+                color: $black;
+                float: right;
+                width: 65%;
+                clear: both;
+                margin-bottom: rem-calc(20);
+                word-break: break-word;
+
+                @include respond-to(mobile) {
+                    text-align: left;
+                    padding: 0;
+                    width: 100%;
+                    float: left;
+                    margin-bottom: 0;
+                    margin-top: rem-calc(16);
+                    padding-left: rem-calc(32);
+                }
+            }
+        }
+
+        .b-checkout_innerleft {
+            .billing-address-block {
+                .billing-address,
+                .btn-add-new,
+                .billing-address-section-new,
+                .btn-show-details,
+                .button-delete-address,
+                .icon {
+                    display: none;
+                }
+
+                &.display-billing-fields {
+                    .billing-address {
+                        display: block;
+
+                        @include respond-to(mobile) {
+                            margin: 0;
+                            border: 0;
+                        }
+                    }
+
+                    .address-selector-block {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+
+    .b-checkout_main {
+        &[data-customer-type=registered] {
+            &.noBorder {
+                border-bottom: none;
+            }
+
+            .b-checkout_save-form {
+                margin-bottom: 0;
+            }
+
+            .b-billing {
+                &.billing-address {
+                    &.noMarginBottom {
+                        margin-bottom: 0;
+                    }
+                }
+            }
+        }
+    }
+}

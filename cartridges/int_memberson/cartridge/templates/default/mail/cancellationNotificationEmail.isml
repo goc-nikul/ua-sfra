@@ -1,0 +1,20 @@
+<body>
+    <table style="border: 1px solid black; border-collapse: collapse;">
+        <tr>
+            <th style="border: 1px solid black; border-collapse: collapse;">${Resource.msg('memberson.notificationemail.ordernumber', 'membersonGlobal', null)}</th>
+            <th style="border: 1px solid black; border-collapse: collapse;">${Resource.msg('memberson.notificationemail.customernumber', 'membersonGlobal', null)}</th>
+            <th style="border: 1px solid black; border-collapse: collapse;">${Resource.msg('memberson.notificationemail.voucher', 'membersonGlobal', null)}</th>
+            <th style="border: 1px solid black; border-collapse: collapse;">${Resource.msg('memberson.notificationemail.vouchernumber', 'membersonGlobal', null)}</th>
+            <th style="border: 1px solid black; border-collapse: collapse;">${Resource.msg('memberson.notificationemail.cancellationstatus', 'membersonGlobal', null)}</th>
+        </tr>
+        <isloop items="${pdict.notificationObjects}" var="notificationObject" status="loopstatus">
+            <tr>
+                <td style="border: 1px solid black; border-collapse: collapse;">${notificationObject.orderNo}</td>
+                <td style="border: 1px solid black; border-collapse: collapse;">${notificationObject.customerNo}</td>
+                <td style="border: 1px solid black; border-collapse: collapse;">${notificationObject.coupon}</td>
+                <td style="border: 1px solid black; border-collapse: collapse;">${notificationObject.voucherNo}</td>
+                <td style="border: 1px solid black; border-collapse: collapse;">${notificationObject.cancelStatus}</td>
+            </tr>
+        </isloop>
+    </table>
+</body>

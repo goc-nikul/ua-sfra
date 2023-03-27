@@ -1,0 +1,42 @@
+<iscomment> Country Switcher </iscomment>
+<isset name="currentCountry" value="${pdict.shipCountry ? pdict.shipCountry : pdict.CountryModel.country.countryCode.toLowerCase()}" scope="page">
+<li class="b-navigation-item b-navigation-mobile-locale-item js-list-item js-accessibility-nav-item" role="none">
+    <a class="b-navigation-link m-has-sublist" href="${URLUtils.http('Page-CountriesList')}">
+        <span class="b-navigation-text">
+            <i class="b-navigation_utility-icon fflag fflag-${currentCountry.toUpperCase()}"></i>
+            <span>${Resource.msg('global.regionselection', 'locale', null)} ${currentCountry}</span>
+        </span>
+    </a>
+</li>
+
+<iscomment> Locale Switcher </iscomment>
+<div class="locale-selector-mobile" data-cmp="localeSelector" data-url="${URLUtils.url('Page-SetLocale')}">
+   <div id="localeSwitcher">
+      <ul class="b-header_utility-list">
+         <li class="locale-subitem">
+            <a class="b-header_utility-link m-active m-link-medium " href="${'#'}" data-locale="${pdict.locale}"
+               data-currencyCode="${pdict.localeModel.locale.currencyCode}"
+               aria-label="${Resource.msg('locale.select.' + pdict.locale, 'locale', null)}">
+            ${Resource.msg('locale.select.' + pdict.locale, 'locale', null)}
+            </a>
+         </li>
+         <isloop items="${pdict.localeModel.locale.localLinks}" var="localeLink">
+            <isif condition="${localeLink.country === currentCountry}">
+               <li class="locale-subitem">
+                  <a class="b-header_utility-link m-link-medium js-locale-item" href="${'#'}"
+                     data-locale="${localeLink.localID}" data-currencyCode="${localeLink.currencyCode}"
+                     aria-label="${Resource.msg('locale.select.' + localeLink.localID, 'locale', null)}">
+                  ${Resource.msg('locale.select.' + localeLink.localID, 'locale', null)}
+                  </a>
+               </li>
+            </isif>
+         </isloop>
+      </ul>
+   </div>
+</div>
+<iscomment>Book Your Expert Fit snippet</iscomment>
+<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('bookSessionEnabled') && session.custom.currentCountry === 'AU'}">
+    <li class="b-navigation-item b-navigation-mobile-locale-item m-book-a-session">
+        <a href="${URLUtils.url('Page-Show','cid','book-your-expert-fit')}" class="b-navigation-link">${Resource.msg('book.session.text','common',null)}</a>
+    </li>
+</isif>

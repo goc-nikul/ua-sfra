@@ -1,0 +1,51 @@
+<isset name="IsDelivered" value="${currentOrder.orderItems.length == 1 && (orderStatus == 'BEING_PROCESSED')}" scope="page" />
+<isset name="isrealDelivered" value="${currentOrder.orderItems.length == 1 && orderStatus == 'DELIVERED'}" scope="page" />
+<isset name="orderItemsLength" value="${currentOrder.orderItems.length}" scope="page" />
+<isset name="countReviewTile" value="${0}" scope="page" />
+<isif condition="${orderItemsLength == 1}"> 
+		<isscript>
+		    var obj = currentOrder.orderItems[0];
+       		currentOrder.orderItems.push(obj);	
+		</isscript> 
+	</isif>
+<isloop items="${currentOrder.orderItems}" var="item" status="innerloopstate">
+   <div class="account-recent-orderhistory ${innerloopstate.first ? 'most-recent-order' : ''}">
+      <div class="image-container">
+         <isif condition="${(orderStatus === 'DELIVERED'  || innerloopstate.count == 2 || IsDelivered) && !(isrealDelivered && innerloopstate.count == 1) }">
+            <span class="order-item-update order-badge">${Resource.msg('label.order.recent','account',null)}</span> 
+         <iselse>
+             <span class="order-item-recent order-badge"><isprint value="${currentOrder.displayStatus}" /></span>
+         </isif>
+         <a href="${URLUtils.url('Order-Details', 'orderID', currentOrder.orderNo)}">
+         <img src="${item.imageUrl}" class="dashboard-orderitem-img" title="${Resource.msg('label.orderhistory.text','account', null)}" alt="${item.name}" itemprop="image" />
+         </a>
+      </div>
+      <div class="order-info">
+         <isif condition="${(orderStatus === 'DELIVERED' || IsDelivered || (orderItemsLength == 1 && innerloopstate.count == 2) || innerloopstate.count == 2) && !(isrealDelivered && innerloopstate.count == 1)}">
+            <isif condition="${countReviewTile == 1}">
+               <span class="item-recent-purchase">${Resource.msg('label.orderhistorydashboard.recentpurchase','account',null)}</span>
+             <iselse>
+               <span class="item-recent-purchase">${Resource.msg('label.order.new','account',null)}</span>
+            </isif>
+            <div class="bv-write-review">
+               <a href="${'#'}" class="write-review-link t-text-hover-state" data-product="${item.upc}">${Resource.msg('label.order.review','account',null)}</a>
+            </div>
+            <isset name="countReviewTile" value="${++ countReviewTile}" scope="page" />
+         <iselseif condition="${(orderStatus === 'SHIPPED' || (orderItemsLength == 1 && orderStatus === 'DELIVERED')) && innerloopstate.count != 2}">
+            <span class="item-update">${Resource.msgf('label.order.shippeditems','account',null,currentOrder.shippedItems)}</span>
+            <isif condition="${currentOrder.shipment && currentOrder.shipment.estimatedDelivery != null}"> 
+            <isscript>
+               var date = (currentOrder.shipment.estimatedDelivery).split('-');               
+               var estimatedDelivery = [date[1], date[2], date[0]].join('-');
+            </isscript>
+               <span class="item-estimated-delivery">${Resource.msgf('label.order.expected','account',null, estimatedDelivery)}</span>
+            </isif>
+            <div class="track-order">
+               <a href="${URLUtils.url('Order-Details', 'orderID', currentOrder.orderNo)}" class="track-order-link t-text-hover-state">${Resource.msg('label.trackorder','account',null)}</a>
+            </div>
+          <iselse>
+            <span class="account-order-status ${(orderStatus === 'CANCELED' || orderStatus === 'CANCELLED') ? 'canceled' : ''}"><isprint value="${currentOrder.displayStatus}" /></span>
+         </isif>
+      </div>
+   </div>
+</isloop>

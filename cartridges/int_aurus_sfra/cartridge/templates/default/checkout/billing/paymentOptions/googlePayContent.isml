@@ -1,0 +1,71 @@
+<isif condition="${!empty(dw.system.Site.current.getCustomPreferenceValue('Aurus_merchantIdentifier'))}">
+	<isset name="merchantIdentifier" value="${dw.system.Site.current.getCustomPreferenceValue('Aurus_merchantIdentifier')}" scope="page"/>
+</isif>
+
+<!--- paypal tab content--->
+<div class="tab-pane googlepay-content" data-merchant='${merchantIdentifier}' id="googlepay-content" role="tabpanel">
+    <fieldset class="payment-form-fields">
+        <!--- payment method is googlepay --->
+        <input  type="hidden" class="form-control" name="${pdict.forms.billingForm.paymentMethod.htmlName}" value="GooglePay">
+                
+		<isif condition="${!empty(dw.system.Site.current.getCustomPreferenceValue('googlePayClientId'))}">
+			<isset name="googlePayClientId" value="${dw.system.Site.current.getCustomPreferenceValue('googlePayClientId')}" scope="page"/>
+			
+		</isif>
+		
+		<iscomment>
+			--------------------------------------------------------------
+				Google Pay
+			--------------------------------------------------------------
+		</iscomment>
+		
+		<iscomment>GooglePay</iscomment>
+		<div id="container"></div>
+    </fieldset>
+    </div>
+
+<script>
+
+const baseRequest = {
+	apiVersion: 2,
+	apiVersionMinor: 0
+};
+const currencyCode = '${session.getCurrency().getCurrencyCode()}';
+const total = '${pdict.order.totals.grandTotal}';
+const orderTotal = total.slice(1);
+const allowedCardNetworks = ["AMEX", "DISCOVER", "INTERAC", "JCB", "MASTERCARD", "VISA"];
+const allowedCardAuthMethods = ["PAN_ONLY", "CRYPTOGRAM_3DS"];
+const tokenizationSpecification = {
+	type: 'PAYMENT_GATEWAY',
+	parameters: {
+		'gateway': '${dw.system.Site.current.getCustomPreferenceValue("aurus_gp_gateway")}',
+        'gatewayMerchantId': '${dw.system.Site.current.getCustomPreferenceValue("aurus_gp_gatewayMerchantId")}'
+	}
+};
+
+const baseCardPaymentMethod = {
+	type: 'CARD',
+	parameters: {
+		allowedAuthMethods: allowedCardAuthMethods,
+		allowedCardNetworks: allowedCardNetworks,
+		billingAddressRequired: true,
+		billingAddressParameters: {
+			'format' : 'FULL',
+			phoneNumberRequired: true
+		}
+	}
+};
+
+const cardPaymentMethod = Object.assign(
+	{},
+	baseCardPaymentMethod,
+	{
+		tokenizationSpecification: tokenizationSpecification
+	}
+);
+
+</script>
+
+<script src="${URLUtils.staticURL('/js/googlepay.js')}"></script>
+<script src="https://pay.google.com/gp/p/js/pay.js" onload="onGooglePayLoaded()"></script>
+

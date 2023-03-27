@@ -1,0 +1,43 @@
+.b-footer_contacts {
+    font-size: rem-calc(12);
+
+    @include respond-to(mobile) {
+        @include hide(all);
+    }
+
+    &-row {
+        display: flex;
+        margin-bottom: rem-calc(15);
+        position: relative;
+
+        &::before {
+            margin-right: rem-calc(16);
+        }
+
+        &.m-support {
+            @include icon('phone', 'before', 16, rem-calc(16));
+        }
+
+        &.m-email {
+            @include icon('mail', 'before', 16, rem-calc(16));
+        }
+
+        &.m-chat {
+            @include icon('chat', 'before', 16, rem-calc(16));
+        }
+    }
+
+    &-title {
+        @include font(main_med);
+    }
+
+    &-description {
+        word-break: break-all;
+    }
+
+    &-link {
+        @include link;
+
+        color: $black;
+    }
+}

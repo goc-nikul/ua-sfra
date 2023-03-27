@@ -1,0 +1,35 @@
+<noscript>
+    <isif condition="${pdict.productSearch.jsDisablePagination.pagination && pdict.productSearch.jsDisablePagination.pagination.length > 1}">
+        <div class="b-pagination">
+            <ul class="b-pagination_outer">
+                <isif condition="${pdict.productSearch.jsDisablePagination.isPreviousAvailable && !empty(pdict.productSearch.jsDisablePagination.previousURL)}">
+                    <li class="b-pagination_link previous">
+                        <a href="${pdict.productSearch.jsDisablePagination.previousURL}" title="${Resource.msg('search.nojspagination.previous.label', 'search', null)}">
+                            <span>
+                                <isprint value="${Resource.msg('search.nojspagination.previous', 'search', null)}"/>
+                            </span>
+                        </a>
+                    </li>
+                </isif>
+                <isloop var="paginationPage" items="${pdict.productSearch.jsDisablePagination.pagination}">
+                    <li class="b-pagination_link ${paginationPage.selected ? 'selected' : ''}">
+                        <a href="${paginationPage.url}" title="<isprint value="${Resource.msgf('search.nojspagination.link', 'search', null, paginationPage.index)}" encoding="off"/>">
+                            <span>
+                                <isprint value="${paginationPage.index}" formatter="#" />
+                            </span>
+                        </a>
+                    </li>
+                </isloop>
+                <isif condition="${pdict.productSearch.jsDisablePagination.isNextAvailable && !empty(pdict.productSearch.jsDisablePagination.nextURL)}">
+                    <li class="b-pagination_link next">
+                        <a href="${pdict.productSearch.jsDisablePagination.nextURL}" title="${Resource.msg('search.nojspagination.next.label', 'search', null)}">
+                            <span>
+                                <isprint value="${Resource.msg('search.nojspagination.next', 'search', null)}"/>
+                            </span>
+                        </a>
+                    </li>
+                </isif>
+            </ul>
+        </div>
+    </isif>
+</noscript>

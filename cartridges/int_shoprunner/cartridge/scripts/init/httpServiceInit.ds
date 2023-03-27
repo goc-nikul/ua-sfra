@@ -1,0 +1,53 @@
+importPackage( dw.svc );
+importPackage( dw.net );
+importPackage( dw.io );
+
+//the configure method creates the Service instance
+module.exports.ShoprunnerHttpsAuthenticationGet = function(site) {
+	var SRServiceConstant = require("~/cartridge/scripts/util/srGlobals").SRServiceConstant(site);
+	var service = LocalServiceRegistry = LocalServiceRegistry.createService(SRServiceConstant.AUTHENTICATION_SERVICE_ID, {
+    //the ServiceDefinition uses methods from the ServiceCallback object
+		createRequest: function(svc:HTTPService, args){
+			var x = args;
+			svc.setRequestMethod("GET");
+			svc.client.enableCaching(0);
+		},
+		parseResponse: function(svc:HTTPService, client:HTTPClient) {
+			var x = client.text;
+			return client.text;
+		},    
+		mockCall : function(svc:HTTPService, params) {
+			return {
+				statusCode: 200,
+				statusMessage: "Success",
+				text: "MOCK RESPONSE (" + svc.url + ")"
+			};
+		}
+	});
+	return service;
+};
+
+//the configure method creates the Service instance
+module.exports.ShoprunnerHttpsPaymentGet = function(site) {
+    var SRServiceConstant = require("~/cartridge/scripts/util/srGlobals").SRServiceConstant(site);
+	var service = LocalServiceRegistry = LocalServiceRegistry.createService(SRServiceConstant.PAYMENT_SERVICE_ID, {
+	//the ServiceDefinition uses methods from the ServiceCallback object
+		createRequest: function(svc:HTTPService, args){
+			var x = args;
+			svc.setRequestMethod("GET");
+			svc.client.enableCaching(0);
+		},
+		parseResponse: function(svc:HTTPService, client:HTTPClient) {
+			var x = client.text;
+			return client.text;
+		},    
+		mockCall : function(svc:HTTPService, params) {
+			return {
+				statusCode: 200,
+				statusMessage: "Success",
+				text: "MOCK RESPONSE (" + svc.url + ")"
+			};
+		}
+	});
+	return service;
+};

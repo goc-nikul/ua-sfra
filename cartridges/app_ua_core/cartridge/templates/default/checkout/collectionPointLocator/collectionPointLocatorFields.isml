@@ -1,0 +1,25 @@
+<!--- TEMPLATENAME: collectionPointLocatorFields.isml --->
+<div class="collection-point-locator-container">
+    <form action="${URLUtils.url('CheckoutShippingServices-GetCollectionPoints')}" class="collection-point-locator" method="get" name="collectionpointlocator">
+        <div class="b-collectionpoint-locator-formgroup">
+            <div class="b-storelocator-formelements required b-store-zipcode b-input_row js-form-group">
+                <label class="b-input_row-label form-control-label" for="collection-point-postal-code">${Resource.msg('field.zip.code','checkout',null)}</label>
+                <input autofocus type="text" class="form-control b-input_row-input" id="collection-point-postal-code" name="postalCode" value="" 
+                autocomplete="nofill" 
+                data-missing-error="${Resource.msg('collectionpoint.zipcode.missingerror', 'checkout', null)}"
+                data-pattern-mismatch="${Resource.msg('collectionpoint.zipcode.error', 'checkout', null)}"
+                data-noresult="${Resource.msg('collection.no.result.error', 'checkout', null)}"
+                >
+                <div class="invalid-feedback"></div>
+            </div>
+            <div class=" b-storelocator-formelements b-store-radius b-input_row">
+                <isinclude template="checkout/collectionPointLocator/collectionPointLocatorRadius" />
+            </div>
+            <div class="b-ollectionpointlocator-formelements b-store-searchbutton">
+                <button class="btn btn-primary g-button_base g-button_primary--black btn-collection-point-locator-search js-collection-point-locator-search">
+                    ${Resource.msg('button.find.collectionpoints','checkout',null)}
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

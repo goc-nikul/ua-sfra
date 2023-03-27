@@ -1,0 +1,12 @@
+<span class="strike-through bfx-price bfx-original-price ${lineItem.priceTotal.strikeThroughPrice ? 'highlighted' : ''}
+<isif condition=${!lineItem.priceTotal.strikeThroughPrice}>non-adjusted-price</isif>">
+    <isprint value=${lineItem.priceTotal.strikeThroughPrice} encoding="off" />
+</span>
+<isif condition="${lineItem.bfPriceTotal && !empty(lineItem.bfPriceTotal.adjustedUnitPrice)}"> 
+    <span class="cart-item-list-pricefirst bfx-price bfx-list-price hide">${lineItem.custom.giftCard === 'EGIFT_CARD' ? lineItem.priceTotal.price : lineItem.bfPriceTotal.adjustedUnitPrice}</span>
+<iselse>
+    <span class="cart-item-list-pricefirst bfx-price bfx-list-price hide">${lineItem.custom.giftCard === 'EGIFT_CARD' ? lineItem.priceTotal.price : lineItem.price.sales.formatted}</span>
+</isif>
+<span class="${lineItem.priceTotal.strikeThroughPrice ? 'highlighted' : ''} pricing line-item-total-price-amount bfx-price bfx-minicart-product-subtotal item-total-${typeof lineItem !=='undefined' ? lineItem.UUID :''}">
+    <isprint value="${lineItem.priceTotal.excludeOptionalPrice}" encoding="off" />
+</span>

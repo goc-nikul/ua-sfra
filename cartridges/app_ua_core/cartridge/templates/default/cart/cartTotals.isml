@@ -1,0 +1,195 @@
+<div class="order-summary">
+    <div class="order-summary_title">${Resource.msg('text.order.summary','cart',null)}</div>
+
+    <!--  cartSubtotal -->
+    <div class="order-summary_items">
+        <span class="order-summary_itemsattr">
+            <span>${Resource.msg('label.cart.subtotal','cart',null)} <span class="number-of-items-summary order-summary_noitems">(<isprint value="${pdict.numItems.toFixed()}" encoding="off" />)</span>:</span>
+        </span>
+        <span class="order-summary_itemsvalue">
+        <isif condition="${customer.authenticated && customer.profile.custom.isEmployee && pdict.totals.orderLevelDiscountTotal.value === 0}">
+           <span class="text-right sub-total bfx-price bfx-total-subtotal">${pdict.totals.subTotalWithoutAdjustments}</span>
+        <iselse/>
+           <span class="text-right sub-total bfx-price bfx-total-subtotal">${pdict.totals ? pdict.totals.subTotal : ''}</span>
+        </isif>
+        
+        </span>
+    </div>
+<iscomment> Total product promotional Discount except coupon code</iscomment>
+<div class="b-orderdiscount_except_coupon order-summary_items order-summary_discount bfx-remove-element ${!empty(pdict.totals) && pdict.totals.promotionalDiscount.value !== 0 ? '' : 'hide'}">
+    <span class="order-summary_itemsattr">
+        <span class="b-discount_calloutmsg">${Resource.msg('label.genericDiscount','common',null)}</span>
+        <span class="order-summary_itemsvalue">
+            <span class="text-right bfx-price product-discount-total">${pdict.totals.promotionalDiscount.formatted}</span>
+        </span>
+    </span>
+</div>
+<iscomment> promo discount excluding loyality and employee </iscomment>
+<div class="b-promo-outer-class">
+    <isif condition="${!empty(pdict.totals) && !empty(pdict.totals.couponsSavedAmount) && pdict.totals.couponsSavedAmount.value !== 0}">
+        <div class="order-summary_items order-summary_discount b-coupons_price coupon-price-adjustment bfx-remove-element">
+            <span class="order-summary_itemsattr">
+                <span class="promo-code_calloutmsg"><isprint value="${pdict.totals.couponsSavedAmount.multipleCouponsApplied ? Resource.msg('placholder.text.promo.codes.input','cart',null) : Resource.msg('placholder.text.promo.code.input','cart',null)}"/></span>
+                <span class="order-summary_itemsvalue">
+                    <span class="text-right bfx-price promo-discount-total"> <isprint value="${pdict.totals.couponsSavedAmount.formatted}" encoding="off" /></span>
+                </span>
+            </span>
+        </div>
+    </isif>
+</div>
+    <isif condition="${isLoyaltyEnabled && session.customer.isMemberOfCustomerGroup('Loyalty')}">
+	<!-- Estimated Loyalty Points -->
+    <div class="order-loyalty order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.estimatedLoyaltyPoints === 0}">hide-order-discount</isif>">
+        <span class="order-summary_itemsattr">
+			<span>${Resource.msg('label.order.loyalty.points', 'common', null)}:</span>
+        </span>
+        <span class="order-summary_itemsvalue">
+            <span class="text-right bfx-price order-loyalty-points"> +${pdict.totals.estimatedLoyaltyPoints}</span>
+        </span>
+    </div>
+
+    <!--- Order Discount --->
+	    <isif condition="${customer.authenticated}">
+			<div class="order-employee-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.orderLevelDiscountTotal.value === 0 || !pdict.totals.discountDistribution.isEmployeeDiscount || !pdict.totals.discountDistribution.employeeDiscountTotalValue > 0}">hide-order-discount</isif>">
+			        <span class="order-summary_itemsattr">
+								<span>${Resource.msg('employee.order.discount', 'common', null)}:</span>
+								<span class="order-summary_itemsvalue">
+									<span class="text-right bfx-price order-employee-discount-total"> ${pdict.totals.discountDistribution.employeeDiscountTotal}</span>
+								</span>
+			        </span>
+			</div>
+			<div class="order-loyalty-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.orderLevelDiscountTotal.value === 0 || !pdict.totals.discountDistribution.isLoyaltyDiscount || !pdict.totals.discountDistribution.loyaltyDiscountTotalValue > 0}">hide-order-discount</isif>">
+				        <span class="order-summary_itemsattr">
+				            <span>${Resource.msg('employee.loyalty.discount', 'common', null)}:</span>
+				            <span class="order-summary_itemsvalue">
+								<span class="text-right bfx-price order-loyalty-discount-total"> ${pdict.totals.discountDistribution.loyaltyDiscountTotal}</span>
+							</span>
+				        </span>
+			</div>
+			<div class="order-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.orderLevelDiscountTotal.value === 0 || pdict.totals.discountDistribution.orderLevelDiscountValue === 0}">hide-order-discount</isif>">
+			        <span class="order-summary_itemsattr">
+							<span>${Resource.msg('label.order.discount', 'common', null)}:</span>
+							<span class="order-summary_itemsvalue">
+								<span class="text-right bfx-price order-discount-total"> - ${pdict.totals.discountDistribution.orderLevelDiscountFormatted}</span>
+							</span>
+			        </span>
+		    </div>
+		<iselse/>
+			<div class="order-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.orderLevelDiscountTotal.value === 0}">hide-order-discount</isif>">
+		        <span class="order-summary_itemsattr">
+						<span>${Resource.msg('label.order.discount', 'common', null)}:</span>
+						<span class="order-summary_itemsvalue">
+							<span class="text-right bfx-price order-discount-total"> - ${pdict.totals.orderLevelDiscountTotal.formatted}</span>
+						</span>
+		        </span>
+		    </div>
+		</isif>
+	<iselse/>
+        <div class="order-summary_items order-summary_discount bfx-remove-element <isif condition="${customer.authenticated && customer.profile.custom.isEmployee}"> order-employee-discount <iselse/> order-discount </isif> <isif condition="${pdict.totals.orderLevelDiscountTotal.value === 0}">hide-order-discount</isif>">
+	        <span class="order-summary_itemsattr">
+	           <isif condition="${customer.authenticated && customer.profile.custom.isEmployee}">
+	               <span>${Resource.msg('employee.order.discount', 'common', null)}:</span>
+	           <iselse>
+	               <span>${Resource.msg('label.order.discount', 'common', null)}:</span>
+	           </isif>
+	        </span>
+	        <span class="order-summary_itemsvalue">
+	            <span class="text-right bfx-price <isif condition="${customer.authenticated && customer.profile.custom.isEmployee}"> order-employee-discount-total <iselse/> order-discount-total </isif>"> - ${pdict.totals.orderLevelDiscountTotal.formatted}</span>
+	        </span>
+		</div>
+    </isif>
+    <!-- Employee Discount -->
+    <isif condition="${customer.authenticated && !isLoyaltyEnabled && customer.profile.custom.isEmployee && pdict.totals.orderLevelDiscountTotal.value === 0}">
+        <div class="order-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.totalEmployeeDiscount.value === 0}">hide-order-discount</isif>">
+            <span class="order-summary_itemsattr">
+                <span>${Resource.msg('employee.order.discount', 'common', null)}:</span>
+            </span>
+            <span class="order-summary_itemsvalue">
+                <span class="text-right bfx-price order-discount-total"> - ${pdict.totals.totalEmployeeDiscount.formatted}</span>
+            </span>
+        </div>
+    </isif>
+
+    <!-- Sales Tax -->
+    <div class="row order-summary_items bfx-remove-element salesTax">
+        <span class="order-summary_itemsattr">
+            <isif condition="${pdict.vertexTaxCalculated}">
+                 <span>${Resource.msg('label.sales.tax','cart',null)}:</span>
+             <iselse>
+                 <span>${Resource.msg('label.estimated.sales.tax','cart',null)}:</span>
+             </isif>
+        </span>
+        <span class="order-summary_itemsvalue">
+            <span class="text-right tax-total bfx-price bfx-total-tax">${pdict.totals.totalTax}</span>
+        </span>
+    </div>
+    <isif condition="${pdict.hasBopis}">
+        <div class="row order-summary_items">
+            <span class="order-summary_itemsattr">
+                <span>${Resource.msg('cart.pick.up', 'storeLocator', null)}</span>
+            </span>
+            <span class="order-summary_itemsvalue order-summary_discount">
+                <span class="text-right bfx-price bfx-total-shipping shipping-cost">${Resource.msg('label.free.shipping', 'cart', null)}</span>
+            </span>
+        </div>
+     </isif>
+    <isset name="zeroCost" value="${dw.util.StringUtils.formatMoney(new dw.value.Money(0, pdict.CurrentSession.currency.currencyCode))}" scope="page" />
+    <isif condition="${!pdict.basketHasOnlyBopis}">
+    <div class="order-summary_items order-summary_shipping bfx-remove-element">
+        <span class="order-summary_itemsattr">
+             <isif condition="${pdict.vertexTaxCalculated}">
+                 <span>${Resource.msg('label.shipping.cost','cart',null)}:</span>
+             <iselse>
+                 <span>${Resource.msg('label.estimatedShipping.cost','cart',null)}:</span>
+             </isif>
+        </span>
+        <span class="order-summary_itemsvalue ${pdict.totals.totalShippingCost === zeroCost ? 'order-summary_discount' : ''}">
+             <isif condition="${pdict.totals.totalShippingCost === zeroCost}">
+                <span class="text-right shipping-cost bfx-price bfx-total-shipping">${Resource.msg('label.free.shipping', 'cart', null)}</span>
+            <iselse>
+                <span class="text-right bfx-price bfx-total-shipping shipping-cost">${pdict.totals.totalShippingCost}</span>
+            </isif>
+        </span>
+    </div>
+    </isif>
+
+	<!--- Shipping Discount --->
+	<div class="shipping-discount order-summary_items bfx-remove-element order-summary_discount <isif condition="${pdict.totals.shippingLevelDiscountTotal.value === 0 }">hide-shipping-discount</isif>">
+	    <span class="order-summary_itemsattr">
+	        <span>${Resource.msg('label.shipping.discount', 'common', null)}:</span>
+	    </span>
+	    <span class="order-summary_itemsvalue">
+	        <span class="text-right shipping-discount-total bfx-price">- ${pdict.totals.shippingLevelDiscountTotal.formatted}</span>
+	    </span>
+	    <input id="currencySymbol" value="${pdict.CurrentSession.currency.symbol}" type="hidden">
+	    <input id="freeText" value="${Resource.msg('label.free.shipping', 'cart', null)}" type="hidden">
+	</div>
+
+	<div class="order-summary_items order-summary_estimated <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('isKlarnaEnabled')}">klarna-enable</isif>">
+	    <span class="order-summary_itemsattr">
+	    <isif condition="${pdict.vertexTaxCalculated}">
+	        <span>${Resource.msg('label.total','cart',null)}:</span>
+	    <iselse>
+	        <span>${Resource.msg('label.estimatedtotal','cart',null)}:</span>
+	    </isif>
+	    </span>
+	    <span class="order-summary_itemsvalue">
+	        <span class="text-right grand-total bfx-price bfx-total-grandtotal">${pdict.totals.grandTotal}</span>
+	    </span>
+        <div class="b-order-saved-total ${pdict.showSavingExperience ? '' : 'hide'}">
+            <span class="order-summary_itemsattr">
+                <span>${Resource.msg('label.save.total','cart',null)}</span>
+            </span>
+            <span class="order-summary_itemsvalue">
+                <span class="text-right bfx-price">${pdict.totals.saveTotal.formatted}</span>
+            </span>
+        </div>
+	    <isset name="isEmployee" value="${(customer.authenticated && !empty(customer.profile) && customer.profile.custom.isEmployee === true)}" scope="page" />
+	    <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('isKlarnaEnabled') && !isEmployee && !(pdict.isVIP && pdict.isVIPOrder)}">
+            <div class="b-cart_klarna-placement ${pdict.hasGiftCards || pdict.orderContainsPreorder ? 'hide' : ''}">
+                <isinclude template="klarnapayments/modules.isml"/>
+                <iskosmcart />
+            </div>
+        </isif>
+	</div>
+</div>

@@ -1,0 +1,24 @@
+<div class="cart-and-ipay">
+    <input type="hidden" class="update-cart-url" value="${pdict.updateCartUrl}"
+           data-selected-quantity="${pdict.selectedQuantity}" data-uuid="${pdict.uuid}">
+    <button class="js-update-cart-product-global js-add-to-cart btn btn-primary g-button_base g-button_primary--black update-cart-product-global-style"
+            data-pid="${product.id}"
+            data-added-msg="${Resource.msg('button.addedtocart', 'common', null)}"
+            data-add-another="${Resource.msg('button.addanother', 'common', null)}"
+            data-addto-bag="${Resource.msg('button.addtocart', 'common', null)}"
+            data-pre-order="${Resource.msg('button.preorder', 'common', null)}"
+            data-coming-soon="${Resource.msg('button.comingsoon', 'common', null)}"
+            data-is-coming-soon="${product.exclusive.value === 'coming-soon' ? true : false}"
+            data-oos="${Resource.msg('button.OOS', 'common', null)}"
+            ${(product.exclusive.value === 'coming-soon' || product.exclusive.value === 'out-of-stock') ? "disabled" : ""}>
+            <isif condition="${product.custom.isPreOrder}">
+                ${Resource.msg('button.preorder', 'common', null)}
+            <iselseif condition="${product.exclusive.value === 'coming-soon'}">
+                ${Resource.msg('button.comingsoon', 'common', null)}
+            <iselseif condition="${product.exclusive.value === 'out-of-stock'}">
+                ${Resource.msg('button.OOS', 'common', null)}
+            <iselse/>
+                ${Resource.msg('button.update', 'common', null)}
+             </isif>
+    </button>
+</div>

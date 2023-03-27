@@ -1,0 +1,278 @@
+.b-account-profile {
+    .heading-addresses {
+        &.newCustProfile {
+            display: none;
+            @include respond-to(mobile) {
+                display: block;
+            }
+        }
+    }
+
+    .account-cancel-button {
+        margin-right: 0;
+        @include t-text-state;
+
+        font-size: rem-calc(14);
+    }
+
+    &-heading {
+        border: 0;
+
+        &.b-account-right {
+            @include respond-to(mobile) {
+                margin-bottom: 0;
+            }
+        }
+
+        .edit-profile-form {
+            margin-top: rem-calc(24);
+
+            @include respond-to(desktop) {
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            .invalid-feedback {
+                line-height: 1.35rem !important;
+            }
+
+            .b-account-dashboard_profile-icon {
+                opacity: 0;
+
+                @include respond-to(tablet-landscape) {
+                    display: none;
+                }
+            }
+
+            .b-account_continue-buttons {
+                &.b-account_save-buttons {
+                    @include spinner(button);
+
+                    @include respond-to(desktop) {
+                        flex: 1 1 100%;
+                        max-width: calc(100% - 106px);
+                    }
+
+                    .f-added-checkmark {
+                        @include icon(check);
+
+                        &::before {
+                            margin-right: rem-calc(9);
+                        }
+                    }
+
+                    @include respond-to(mobile) {
+                        position: fixed;
+                        bottom: 0;
+                        width: 100%;
+                        left: 0;
+                        padding: rem-calc(16);
+                        background: $white;
+                        z-index: 4;
+                        border-top: 1px solid $grey3;
+                    }
+                }
+            }
+        }
+    }
+
+    .new-customer-message {
+        @include font(main, rem-calc(16), 1.5);
+    }
+
+    .b-error-message {
+        color: $error-color;
+    }
+
+    &__form-row {
+        flex-wrap: wrap;
+    }
+
+    &__adjusttopspace {
+        @include respond-to(desktop) {
+            margin-top: rem-calc(12);
+        }
+    }
+
+    &__form-col {
+        flex-basis: 48%;
+        @include respond-to(mobile) {
+            flex-basis: 100%;
+        }
+
+        margin: 0;
+
+        .b-input_row {
+            @include respond-to(desktop) {
+                margin-bottom: rem-calc(10);
+            }
+        }
+    }
+
+    .password-rules {
+        font-size: rem-calc(11);
+    }
+
+    &__single-field .b-input_row {
+        width: 48%;
+        @include respond-to(mobile) {
+            width: 100%;
+            margin-bottom: rem-calc(16);
+        }
+    }
+
+    &__heading {
+        @include respond-to(mobile) {
+            width: 100%;
+        }
+    }
+
+    &__headwrap {
+        display: flex;
+
+        @include respond-to(desktop) {
+            align-items: center;
+        }
+
+        @include respond-to(mobile) {
+            justify-content: space-between;
+        }
+
+        .b-account-profile-subhead {
+            margin-bottom: 0;
+
+            @include respond-to(mobile) {
+                display: inline;
+                float: left;
+            }
+        }
+    }
+
+    &__change-email,
+    &__show-password {
+        top: rem-calc(12);
+        position: absolute;
+        font-size: rem-calc(12);
+        right: 17px;
+        cursor: pointer;
+    }
+
+    &__change-password {
+        cursor: pointer;
+        margin-top: rem-calc(15);
+        display: inline-block;
+        margin-left: rem-calc(16);
+        font-size: rem-calc(14);
+
+        @include respond-to(mobile) {
+            margin: rem-calc(5) 0 0;
+        }
+    }
+
+    &__email-details,
+    &__password-details {
+        display: none;
+    }
+
+    .required-fields {
+        text-align: right;
+        @include font(main_med, rem-calc(11), 1.6);
+
+        color: $grey5;
+    }
+
+    .expand-email {
+        padding-right: 4rem !important;
+    }
+
+    &__header {
+        &-desktop {
+            display: block;
+            @include respond-to(mobile) {
+                display: none;
+            }
+        }
+
+        &-mobile {
+            display: none;
+            @include respond-to(mobile) {
+                display: block;
+                width: 100%;
+            }
+        }
+    }
+
+    .b-account-edit-profile-pageHeading {
+        max-width: rem-calc(684);
+        flex: 1 1 rem-calc(684);
+        width: 100%;
+
+        @include respond-to(mobile) {
+            max-width: 100%;
+        }
+    }
+
+    .b-month,
+    .b-day,
+    .b-year,
+    .b-gender {
+        margin-bottom: 2rem;
+        width: rem-calc(212);
+        @include respond-to(mobile) {
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+    }
+
+    .b-account_form-row-three .b-account_form-column-mobile {
+        @include respond-to(mobile) {
+            flex-basis: 100%;
+            padding-right: 0;
+        }
+    }
+
+    .invalid-feedback {
+        line-height: 1.35rem !important;
+    }
+
+    .b-account-dashboard_profile-icon {
+        @include respond-to(mobile) {
+            width: rem-calc(43);
+            height: rem-calc(24);
+            margin: 0 auto;
+        }
+
+        @include respond-to(tablets-landscape) {
+            margin-right: 0 !important;
+        }
+
+        width: rem-calc(49);
+        display: table;
+        margin-right: rem-calc(45);
+        margin-left: 0;
+
+        .b-logo-image {
+            width: rem-calc(43);
+            height: rem-calc(24);
+        }
+    }
+
+    &-subhead {
+        margin-bottom: rem-calc(24);
+        display: block;
+    }
+
+    &_form-row {
+        &.align-center {
+            align-items: center;
+
+            .b-account_form-column {
+                &:last-child {
+                    @include respond-to(mobile) {
+                        text-align: center;
+                    }
+                }
+            }
+        }
+    }
+}

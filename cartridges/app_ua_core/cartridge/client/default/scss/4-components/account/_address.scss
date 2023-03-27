@@ -1,0 +1,610 @@
+.b-account {
+    &-container-bottom {
+        .b-account-right {
+            @include respond-to(mobile) {
+                margin-bottom: rem-calc(40);
+            }
+        }
+    }
+
+    &-payment_book {
+        &-section {
+            order: 2;
+        }
+
+        .viewMore,
+        .viewLess {
+            margin-bottom: 0 !important;
+            order: 3;
+        }
+
+        &-option {
+            &::after {
+                content: '';
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+
+            .b-loader {
+                position: absolute;
+                z-index: 2;
+            }
+        }
+
+        .edit-remove-button {
+            display: inline-block;
+            margin-top: rem-calc(16);
+
+            .edit-payment,
+            .remove-payment {
+                margin-top: 0;
+                position: relative;
+                z-index: 1;
+            }
+
+            &::after {
+                content: '';
+                background: transparent;
+                position: absolute;
+                width: rem-calc(160);
+                height: 35%;
+                bottom: 0;
+                left: 0;
+            }
+        }
+    }
+
+    &-address_book,
+    &-payment_book {
+        &-heading {
+            @include font(main_med, rem-calc(16), 1.5);
+
+            padding-bottom: rem-calc(16);
+            border-bottom: 1px solid $black;
+            margin-bottom: rem-calc(16);
+
+            @include respond-to(mobile) {
+                margin-bottom: 0;
+                padding-bottom: rem-calc(4);
+                border-bottom: 0;
+            }
+        }
+
+        &-noaddress {
+            margin-bottom: rem-calc(24);
+
+            br {
+                display: none;
+
+                @include respond-to(phones) {
+                    display: block;
+                }
+            }
+
+            @include respond-to(mobile) {
+                text-align: center;
+                border-bottom: 1px solid $black;
+                padding: 0 0 rem-calc(32);
+                letter-spacing: rem-calc(0.5);
+            }
+        }
+
+        &-pageHeading {
+            @include font(main_semi_bold, rem-calc(24), 1.33);
+
+            margin-bottom: rem-calc(32);
+
+            @include respond-to(desktop) {
+                pointer-events: none;
+            }
+
+            @include respond-to(mobile) {
+                @include font(main_med, rem-calc(14), 1.67);
+
+                text-align: center;
+                margin-bottom: 0;
+                padding: rem-calc(21) 0;
+                border-bottom: 1px solid $grey3;
+                cursor: pointer;
+
+                &.noBorder {
+                    border-bottom: none;
+                }
+            }
+
+            .account-icon {
+                @include icon(caret-down);
+
+                padding-left: rem-calc(16);
+                vertical-align: middle;
+                padding-right: rem-calc(16);
+                display: none;
+
+                @include respond-to(mobile) {
+                    display: inline-block;
+                }
+
+                &::before {
+                    line-height: 1.89 !important;
+                }
+            }
+
+            &.show {
+                .account-icon {
+                    @include icon(caret-up);
+                }
+            }
+        }
+
+        .viewMore,
+        .viewLess {
+            display: none;
+            text-decoration: underline;
+            margin-bottom: rem-calc(16);
+            white-space: nowrap;
+            @include font(main_semi_bold, rem-calc(12), 1.67);
+
+            @include respond-to(mobile) {
+                display: block;
+            }
+        }
+
+        &-updated {
+            text-align: right;
+            @include font(main_med, rem-calc(10), 1.6);
+
+            color: $grey5;
+
+            @include respond-to(mobile) {
+                margin-bottom: rem-calc(32);
+                padding-bottom: rem-calc(8);
+                border-bottom: 1px solid $black;
+                text-align: left;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
+
+                .required-fields {
+                    display: none;
+                }
+            }
+        }
+
+        &-default {
+            .required-fields {
+                @include respond-to(desktop) {
+                    display: none;
+                }
+            }
+
+            @include respond-to(mobile) {
+                display: flex;
+                justify-content: space-between;
+
+                .required-fields {
+                    @include font(main_med, rem-calc(10), 1.6);
+                }
+            }
+        }
+
+        &-container {
+            display: flex;
+            flex-wrap: wrap;
+
+            .address-form-container-generic {
+                flex-basis: 100%;
+                margin-bottom: rem-calc(56);
+                margin-top: rem-calc(8);
+
+                @include respond-to(mobile) {
+                    margin-bottom: rem-calc(32);
+                    margin-top: 0;
+                }
+            }
+
+            .card-holder-name {
+                word-break: break-word;
+            }
+        }
+
+        &-section {
+            padding: rem-calc(24) rem-calc(30) rem-calc(24) rem-calc(40);
+            @include font(main, rem-calc(12), 1.67);
+
+            border: 1px solid $grey3;
+            flex-basis: 50%;
+            max-width: rem-calc(330);
+            position: relative;
+            border-radius: rem-calc(4);
+            margin-right: rem-calc(24);
+            margin-bottom: rem-calc(24);
+
+            .b-account-address_book-option {
+                word-break: break-word;
+            }
+
+            @include respond-to(mobile) {
+                padding: rem-calc(16) rem-calc(30) rem-calc(16) rem-calc(24);
+                width: 100%;
+                max-width: 100%;
+                flex-basis: 100%;
+                margin-right: 0;
+            }
+
+            .default-bold-child {
+                @include font(main_semi_bold, rem-calc(14), 1.43);
+
+                margin-bottom: rem-calc(12);
+            }
+
+            .bold-child {
+                font-weight: 600;
+            }
+
+            &.default-address,
+            &.default-card {
+                border: 2px solid $black;
+
+                .icon {
+                    display: block;
+                }
+            }
+
+            &.default-card {
+                order: 1;
+            }
+
+            .icon {
+                @include icon(check);
+
+                position: absolute;
+                right: rem-calc(18);
+                top: rem-calc(24);
+                display: none;
+
+                @include respond-to(mobile) {
+                    top: rem-calc(16);
+                    right: rem-calc(16);
+                }
+            }
+
+            .edit-address,
+            .edit-payment,
+            .remove-address,
+            .remove-payment {
+                @include font(main_med, rem-calc(12), 1.67);
+
+                color: initial;
+                margin-top: rem-calc(16);
+                display: inline-block;
+                float: none;
+                cursor: pointer;
+                text-decoration: none;
+                border: 0;
+                background: transparent;
+
+                @include respond-to(mobile) {
+                    text-decoration: underline;
+                }
+            }
+
+            .remove-address,
+            .remove-payment {
+                margin-left: rem-calc(40);
+            }
+        }
+
+        &-new {
+            margin-top: rem-calc(8);
+            max-width: rem-calc(212);
+            width: rem-calc(212);
+
+            @include respond-to(mobile) {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+
+        &-containerNew,
+        .address-form-container-generic {
+            .add-edit-address {
+                .required-fields {
+                    @include font(main_med, rem-calc(10), 1.6);
+
+                    display: none;
+
+                    @include respond-to(mobile) {
+                        display: block;
+                    }
+                }
+            }
+
+            .add-address,
+            .add-payment,
+            .edit-address,
+            .edit-payment {
+                @include font(main_med, rem-calc(16), 1.5);
+
+                margin-top: rem-calc(8);
+            }
+
+            .address-form-container,
+            .payment-form-container {
+                position: relative;
+
+                .b-loader {
+                    position: absolute;
+                }
+            }
+
+            .payment-form-container {
+                @include respond-to(mobile) {
+                    margin-top: rem-calc(16);
+
+                    .b-account-address_book-default {
+                        flex-wrap: nowrap;
+                    }
+
+                    .b-account_save-default {
+                        flex-basis: auto;
+                    }
+                }
+            }
+
+            .add-new-button:not(.empty-address) {
+                @include respond-to(desktop) {
+                    text-align: left;
+                    padding-right: calc(100% - 684px);
+                }
+            }
+        }
+    }
+
+    &_form-row {
+        display: flex;
+        justify-content: space-between;
+
+        @include respond-to(mobile) {
+            flex-wrap: wrap;
+        }
+    }
+
+    &_form-row-three {
+        justify-content: space-between;
+
+        .b-account_form-column {
+            flex-basis: rem-calc(152);
+
+            @include respond-to(mobile) {
+                flex-basis: 100%;
+            }
+        }
+    }
+
+    &_form-column {
+        width: 100%;
+        margin-right: rem-calc(24);
+
+        .b-input_row {
+            margin-bottom: rem-calc(32);
+
+            @include respond-to(mobile) {
+                margin-bottom: rem-calc(16);
+            }
+        }
+
+        &:last-child {
+            margin-right: 0;
+        }
+
+        @include respond-to(mobile) {
+            margin-right: 0;
+        }
+    }
+
+    &_form-row-three .b-account_form-column-mobile {
+        @include respond-to(mobile) {
+            flex-basis: 50%;
+            padding-right: rem-calc(8);
+        }
+    }
+
+    &_form-column-mobile_adjust {
+        @include respond-to(mobile) {
+            padding-right: 0;
+        }
+    }
+
+    &_form-column-adjust.b-account_form-column {
+        flex-basis: rem-calc(330);
+
+        @include respond-to(mobile) {
+            flex-basis: 100%;
+        }
+    }
+
+    &_address-container {
+        max-width: rem-calc(684);
+        padding-top: rem-calc(32);
+        position: relative;
+
+        @include respond-to(mobile) {
+            padding-top: rem-calc(16);
+            max-width: 100%;
+        }
+    }
+
+    &_continue-buttons {
+        text-align: right;
+
+        @include respond-to(mobile) {
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .account-cancel-button {
+            @include font(main_med, rem-calc(12), 1.67);
+
+            margin-right: rem-calc(40);
+            color: $grey5;
+            cursor: pointer;
+            text-decoration: none;
+
+            @include respond-to(mobile) {
+                order: 2;
+                width: 100%;
+                margin-right: 0;
+                margin-top: rem-calc(16);
+                text-decoration: underline;
+            }
+        }
+
+        .account-save-button,
+        .account-saveemail-button,
+        .account-savepassword-button {
+            max-width: rem-calc(212);
+
+            @include respond-to(mobile) {
+                max-width: 100%;
+            }
+
+            &.account-save-payment-button {
+                @include spinner(button);
+
+                .f-added-checkmark {
+                    @include icon(check);
+
+                    &::before {
+                        margin-right: rem-calc(9);
+                    }
+                }
+            }
+        }
+    }
+
+    &-address_book-default {
+        display: flex;
+
+        @include respond-to(mobile) {
+            flex-wrap: wrap;
+        }
+    }
+
+    &_save-default {
+        margin-bottom: rem-calc(32);
+        position: relative;
+
+        @include respond-to(desktop) {
+            margin-right: rem-calc(24);
+        }
+
+        @include respond-to(mobile) {
+            flex-basis: 100%;
+
+            &.first {
+                margin-top: rem-calc(16);
+                margin-bottom: rem-calc(28);
+            }
+        }
+    }
+}
+
+//Address Modal
+.g-address-modal {
+    &-dialog {
+        max-width: rem-calc(448);
+        margin: rem-calc(28) auto;
+        min-height: calc(100% - (1.75rem * 2));
+    }
+
+    &-content {
+        padding: rem-calc(56);
+
+        @include respond-to(mobile) {
+            padding: rem-calc(56) rem-calc(16);
+        }
+    }
+
+    &-heading {
+        @include font(main_bold, rem-calc(24), 1.33);
+
+        margin-bottom: rem-calc(24);
+    }
+
+    &_waring-message {
+        @include font(main, rem-calc(12), 1.67);
+
+        margin-bottom: rem-calc(32);
+
+        @include respond-to(mobile) {
+            margin-bottom: rem-calc(24);
+        }
+    }
+
+    &-footer {
+        button {
+            float: right;
+            max-width: rem-calc(212);
+
+            @include respond-to(mobile) {
+                max-width: 100%;
+            }
+        }
+    }
+
+    &-header {
+        margin-bottom: 0;
+    }
+
+    .g-modal-close {
+        @include respond-to(mobile) {
+            right: rem-calc(16);
+        }
+    }
+
+    &-close {
+        width: rem-calc(16);
+        height: rem-calc(16);
+
+        &::before,
+        &::after {
+            width: rem-calc(16);
+        }
+    }
+
+    &_remove-address {
+        .edit-address,
+        .edit-payment,
+        .remove-address,
+        .remove-payment,
+        .icon {
+            display: none !important;
+        }
+
+        .b-account-address_book-option,
+        .b-account-payment_book-option {
+            padding: rem-calc(24);
+            margin-bottom: rem-calc(16);
+            padding-left: rem-calc(40);
+            border: 1px solid $grey3;
+            border-radius: 4px;
+            @include font(main, rem-calc(12), 1.67);
+
+            word-break: break-word;
+
+            .default-bold-child {
+                @include font(main_semi_bold, rem-calc(14), 1.43);
+
+                margin-bottom: rem-calc(12);
+            }
+
+            .bold-child {
+                font-weight: 600;
+            }
+        }
+    }
+}

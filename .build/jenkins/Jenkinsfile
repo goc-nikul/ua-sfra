@@ -1,0 +1,66 @@
+node("sfra") {
+    try {
+        if (env.SLACK_NOTIFY_START && env.SLACK_NOTIFY_CHANNEL && env.SLACK_NOTIFY_CHANNEL != "") {
+            slackSend (color: '#FFFF00', channel: "${env.SLACK_NOTIFY_CHANNEL}", message: "STARTED: ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} (${env.BUILD_URL})")
+        }
+        stage("Checkout") {
+            dir("src") {
+                checkout scm
+            }
+        }
+        builder=load('src/.build/jenkins/build.groovy')
+        builder {}
+        if (env.POST_BUILD_SCRIPT && env.POST_BUILD_SCRIPT != "") {
+            sh env.POST_BUILD_SCRIPT
+        }
+    }
+    catch(e) {
+        currentBuild.result = "FAILED"
+        throw e
+    }
+    finally {
+        buildStatus = currentBuild.currentResult;
+        if (env.SLACK_NOTIFY_CHANNEL && env.SLACK_NOTIFY_CHANNEL != "") {
+            if (buildStatus == "SUCCESS") {
+                colorCode= "#00FF00"
+            } else {
+                colorCode = "#FF0000"
+            }
+            slackSend (color: colorCode, channel: "${env.SLACK_NOTIFY_CHANNEL}", message: "${buildStatus}: ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} (${env.BUILD_URL})")
+        }
+        if (env.NOTIFY_EMAIL_RECIPIENTS && env.NOTIFY_EMAIL_RECIPIENTS != "") {
+            emailext (
+                to: "${env.NOTIFY_EMAIL_RECIPIENTS}",
+                subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - ${buildStatus}!",
+                body: """<p>${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - ${buildStatus}!</p>'
+    <p>Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>"</p>"""
+            )
+        }
+    }
+    if (env.NPMRC_FILE && env.NPMRC_FILE != "" && env.GCLOUD_JSONKEY && env.GCLOUD_JSONKEY != "") {
+        stage( "Run UACAPI tests") {
+            timeout(30) {
+                try {
+                    withCredentials([file(credentialsId: "${NPMRC_FILE}", variable: "npmrc" )]) {
+                        withCredentials([file(credentialsId: "${GCLOUD_JSONKEY}", variable: "jsonkey" )]) {
+                            sh """#!/bin/bash -e
+                            sudo docker login -u _json_key --password-stdin https://gcr.io < ${jsonkey}
+                            sudo docker pull gcr.io/ua-ecm/ua-commerce-api:latest
+                            sudo docker run -e UA_ENV=integration -v ${npmrc}:/root/.npmrc --rm gcr.io/ua-ecm/ua-commerce-api:latest bash -c 'npm ci && npm run jest -- --ci -i --testTimeout=60000 --silent'
+                            """
+                        }
+                    }
+                    if (env.SLACK_NOTIFY_CHANNEL && env.SLACK_NOTIFY_CHANNEL != "") {
+                        slackSend (color: "#00FF00", channel: "${env.SLACK_NOTIFY_CHANNEL}", message: "UACAPI TESTS PASSED: ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} (${env.BUILD_URL})")
+                    }
+                } catch (e) {
+                    if (env.SLACK_NOTIFY_CHANNEL && env.SLACK_NOTIFY_CHANNEL != "") {
+                        slackSend (color: "#FF0000", channel: "${env.SLACK_NOTIFY_CHANNEL}", message: "UACAPI TESTS FAILED: ${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} (${env.BUILD_URL})")
+                    }
+                    throw e;
+                }
+            }
+        }
+    }
+}
+

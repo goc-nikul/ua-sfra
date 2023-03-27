@@ -1,0 +1,9 @@
+@mixin media-check($media) {
+    @if type-of($media) == list or type-of($media) == string {
+        @include respond-to($media) {
+            @content;
+        }
+    } @else {
+        @content;
+    }
+}

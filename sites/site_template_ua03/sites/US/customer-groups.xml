@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<customer-groups xmlns="http://www.demandware.com/xml/impex/customergroup/2007-06-30">
+    <customer-group group-id="Employee">
+        <description>Employee Customer Group</description>
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>customer.profile.custom.isEmployee</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>customer.profile.email</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>ua.auto.phx+employee@gmail.com</string>
+                    </condition>
+                </condition-group>
+            </included-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+
+    <customer-group group-id="IDmeVerified">
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>session.custom.idmeVerified</attribute-path>
+                        <operator>exists</operator>
+                    </condition>
+                </condition-group>
+            </included-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+        
+    <customer-group group-id="ResponderID">
+        <description>Represents the Responder customers authorized by IDME</description>
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>session.custom.IDmeVerifiedResponder</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>Verified</string>
+                    </condition>
+                </condition-group>
+            </included-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+
+    <customer-group group-id="TroopID">
+        <description>Represents the Military customers authorized by IDME</description>
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>session.custom.IDmeVerifiedMilitary</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>Verified</string>
+                    </condition>
+                </condition-group>
+            </included-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+    
+    <customer-group group-id="TeacherID">
+        <description>Represents the Teacher customers authorized by IDME</description>
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>session.custom.IDmeVerifiedTeacher</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>Verified</string>
+                    </condition>
+                </condition-group>
+            </included-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+
+    <customer-group group-id="NurseID">
+        <description>Represents the Nurse customers authorized by IDME</description>
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>session.custom.IDmeVerifiedNurse</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>Verified</string>
+                    </condition>
+                </condition-group>
+            </included-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+
+     <customer-group group-id="MedicalProviderID">
+        <description>Represents the Medical Provider customers authorized by IDME</description>
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>session.custom.IDmeVerifiedMedicalProvider</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>Verified</string>
+                    </condition>
+                </condition-group>
+            </included-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+
+        <customer-group group-id="UA_ATHLETE_20">
+        <description>UA Athlete promo group</description>
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>customer.profile.custom.promoGroup</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>UA_ATHLETE_20</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>session.custom.insufficientVipPoints</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>true</string>
+                    </condition>
+                </condition-group>
+            </included-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+
+    <customer-group group-id="UA_ATHLETE_30">
+        <description>UA Athlete promo group</description>
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>customer.profile.custom.promoGroup</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>UA_ATHLETE_30</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>session.custom.insufficientVipPoints</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>true</string>
+                    </condition>
+                </condition-group>
+            </included-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+
+    <customer-group group-id="UA_ATHLETE_10">
+        <description>UA Athlete promo group</description>
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>customer.profile.custom.promoGroup</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>UA_ATHLETE_10</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>session.custom.insufficientVipPoints</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>true</string>
+                    </condition>
+                </condition-group>
+            </included-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+
+    <customer-group group-id="UA_ATHLETE_40">
+        <description>UA Athlete promo group</description>
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>customer.profile.custom.promoGroup</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>UA_ATHLETE_40</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>session.custom.insufficientVipPoints</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>true</string>
+                    </condition>
+                </condition-group>
+            </included-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+
+    <customer-group group-id="UA_ATHLETE_50">
+        <description>UA Athlete promo group</description>
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>customer.profile.custom.promoGroup</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>UA_ATHLETE_50</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>session.custom.insufficientVipPoints</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>true</string>
+                    </condition>
+                </condition-group>
+            </included-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+
+    <customer-group group-id="Everyone Minus Employee and VIP">
+        <description>Everyone Customer Group to Use for ALL Sitewide Promotions. Excludes VIPs and Employees</description>
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>customer.customerGroups</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>Everyone</string>
+                    </condition>
+                </condition-group>
+            </included-customers>
+            <excluded-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>customer.profile.custom.isEmployee</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>customer.profile.custom.vipAccountId</attribute-path>
+                        <operator>exists</operator>
+                    </condition>
+                </condition-group>
+            </excluded-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+
+    <customer-group group-id="Everyone">
+        <description>Represents all customers of the site, both unregistered and registered.</description>
+        <custom-attributes/>
+    </customer-group>
+
+    <customer-group group-id="Registered">
+        <description>Represents all registered customers of the site.</description>
+        <custom-attributes/>
+    </customer-group>
+
+    <customer-group group-id="Unregistered">
+        <description>Represents all unregistered customers of the site.</description>
+        <custom-attributes/>
+    </customer-group>
+	
+	<customer-group group-id="Loyalty">
+        <description>Loyalty customers</description>
+        <membership-rule>
+            <included-customers>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>customer.profile.custom.loyaltyStatus</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>ENROLLED</string>
+                    </condition>
+                    <condition>
+                        <attribute-path>customer.registered</attribute-path>
+                        <operator>is-true</operator>
+                    </condition>
+                </condition-group>
+            </included-customers>
+        </membership-rule>
+        <custom-attributes/>
+    </customer-group>
+
+</customer-groups>

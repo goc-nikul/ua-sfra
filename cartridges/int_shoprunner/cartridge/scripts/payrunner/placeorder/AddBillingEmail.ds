@@ -1,0 +1,55 @@
+/**
+ * Evaluates and adds customer email to Basket.
+ *
+ * @input Basket : dw.order.Basket Basket to set the email address
+ * @input Email : String The email from BillingJSON Object
+ * @input jsonPRCart : String
+
+ * @output jsonPRCart : String
+ */
+
+var SRStatusCode = require("~/cartridge/scripts/util/srGlobals").SRStatusCode;
+
+function execute (args) {
+	var basket = args.Basket;
+	var email = args.Email;
+	var cartJSON = JSON.parse(args.jsonPRCart);
+	var result = addEmail();
+	return result.pipeletReturnValue;
+}
+
+function addEmail(basket, email, cartJSON) {
+	var patternString = "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,13})+$";
+	var PIPELET_RETURN_VALUE = PIPELET_NEXT;
+	try {
+		var pattern = new RegExp( patternString );
+		if( !email.match( pattern ) )
+		{
+			cartJSON.status = SRStatusCode.CREDIT_CARD_AUTH_FAILURE;
+			cartJSON.message = "Invalid Billing Email Address Found";
+			Logger.getLogger('ShopRunner', 'ShopRunner').error('ShopRunner: Billing email cannot be validated.');	
+  			PIPELET_RETURN_VALUE = PIPELET_ERROR;
+  		}
+	}
+	catch(e) {
+		var ex = e;
+		cartJSON.status = SRStatusCode.CREDIT_CARD_AUTH_FAILURE;
+		cartJSON.message = e.toString();
+			
+		Logger.getLogger('ShopRunner', 'ShopRunner').error('ShopRunner: Billing email pattern cannot be validated. ' + e.message);	
+		PIPELET_RETURN_VALUE = PIPELET_ERROR;
+	}
+
+	basket.setCustomerEmail(email);
+	return PIPELET_RETURN_VALUE;
+
+	return {
+		pipeletReturnValue: PIPELET_RETURN_VALUE,
+		jsonPRCart: JSON.stringify(cartJSON)
+	};
+}
+
+module.exports = {
+    execute: execute,
+	addEmail: addEmail
+};

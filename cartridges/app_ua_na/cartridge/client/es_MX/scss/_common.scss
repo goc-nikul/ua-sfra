@@ -1,0 +1,421 @@
+
+$light-grey: #0d0d0d;
+$disable-grey: #717171;
+
+.g-welcome-mat-modal-container {
+    &.geolocation-mat-modal {
+        li {
+            &.flag {
+                .second-flag {
+                    float: left;
+                }
+
+                span {
+                    display: block;
+                    color: $black;
+                    margin-top: rem-calc(10);
+                }
+            }
+        }
+    }
+}
+
+.salesTax {
+    display: none;
+}
+
+.order-summary_items {
+    &.sales-tax-item {
+        display: none;
+    }
+}
+
+.sf-page__silho {
+    li {
+        width: auto;
+    }
+}
+
+.b-checkout_main {
+    .dateOfBirth {
+        margin-bottom: 1rem;
+
+        .invalid-feedback {
+            display: block;
+        }
+    }
+}
+
+.date-format {
+    text-align: start;
+    color: $grey5;
+    font-size: rem-calc(12);
+}
+
+.b-size_pdp {
+    .b-select-size-outer {
+        ul {
+            li {
+                a,
+                a.f-unisex_sizechips {
+                    width: rem-calc(130);
+                    max-width: rem-calc(130);
+
+                    @include respond-to(mobile) {
+                        margin-right: rem-calc(6);
+                    }
+
+                    &::before {
+                        width: rem-calc(132);
+                        max-width: rem-calc(132);
+                        transform: rotate(12deg);
+                    }
+                }
+            }
+        }
+    }
+}
+
+.b-product_actions-inner {
+    .bfx-remove-element {
+        width: auto;
+    }
+}
+
+.b-cart_checkoutcontinue {
+    @include respond-to(mobile) {
+        .b-cart_button-paypal {
+            display: block !important;
+        }
+    }
+}
+
+.contact-information {
+    @include respond-to(mobile) {
+        .support-info {
+            a {
+                white-space: break-spaces !important;
+            }
+        }
+    }
+}
+
+.b-billing-rfc_fields {
+    .tax-billing {
+        padding-top: rem-calc(20);
+    }
+
+    .b-contact_heading {
+        padding-top: rem-calc(20);
+    }
+
+    .digital-tax-rfc {
+        padding-top: rem-calc(20);
+
+        .dwfrm_billing_addressFields_rfc_usoCFDI {
+
+            @include icon('caret-down', 'before', 16, rem-calc(16));
+
+            position: relative;
+            flex-grow: 1;
+
+            &::before {
+                position: absolute;
+                top: rem-calc(22);
+                right: rem-calc(22);
+                transform: translateY(-50%);
+                pointer-events: none;
+            }
+        }
+    }
+}
+
+.rfc-checkbox-label {
+    position: relative;
+    padding-left: rem-calc(32);
+    cursor: pointer;
+
+    &::after,
+    &::before {
+        content: '';
+        position: absolute;
+    }
+
+    &::after {
+        top: 0;
+        left: 0;
+        z-index: 1;
+        width: rem-calc(16);
+        height: rem-calc(16);
+        border: rem-calc(1) solid $black;
+    }
+
+    &::before {
+        content: '\e911';
+        font-family: 'icomoon' !important;
+        font-size: rem-calc(16);
+        font-style: normal;
+        font-weight: normal;
+        line-height: 1;
+        font-variant: normal;
+        color: inherit;
+        speak: none;
+        text-transform: none;
+
+        /* Better Font Rendering =========== */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        top: rem-calc(8);
+        left: rem-calc(8);
+        display: none;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.rfc-checkbox-input:checked ~ .rfc-checkbox-label {
+    &::before {
+        display: block;
+    }
+}
+
+.rfc-checkbox-input[type='checkbox'] {
+    display: none;
+}
+
+.b-checkout {
+    &_product-summary {
+        &.order-product-summary {
+            @include respond-to(mobile) {
+                margin-top: 3.8rem;
+            }
+        }
+    }
+}
+
+.b-shipping_form-row {
+    &.b-shipping_country {
+        &.showCountryForMX {
+            display: block;
+        }
+    }
+}
+
+.saved-payment-instrument {
+    &.selected-payment {
+        margin: 0;
+    }
+}
+
+.saved-payment-instrument {
+    margin: 0 !important;
+    margin-bottom: rem-calc(20) !important;
+
+    @include respond-to(mobile) {
+        margin-right: rem-calc(20) !important;
+    }
+}
+
+.card-header-custom {
+    &.b-order-confirmation_subheader {
+        @include respond-to(phones) {
+            position: relative;
+        }
+    }
+}
+
+.b-order-confirmation_subheader {
+    .register-box-icon span {
+        @include respond-to(phones) {
+            position: absolute;
+            top: rem-calc(-2);
+        }
+    }
+}
+
+.summary-details {
+    &.b-payment-summary_billing {
+        &.summary-billing-section {
+            flex-basis: 20rem;
+            word-break: break-all;
+        }
+    }
+
+    &.b-shipping-summary_summary-details {
+        padding-bottom: 1rem;
+    }
+}
+
+.b-account-address_book-containerNew {
+    .b-account_form-column-mobile_adjust {
+        @include respond-to(phones) {
+            padding-left: 0;
+            margin-top: rem-calc(10);
+        }
+    }
+}
+
+.b-account_form-column-mobile_adjust {
+    @include respond-to(mobile) {
+        padding-left: 0 !important;
+    }
+}
+
+.addressHelpText {
+    font-size: rem-calc(12);
+    margin: rem-calc(4) rem-calc(4) 0 rem-calc(4);
+}
+
+.credit-card-images {
+    &.hide {
+        &.credit-card-showblock {
+            display: block !important;
+        }
+    }
+}
+
+#rfc-cfdi-details {
+    margin-top: rem-calc(10);
+}
+
+.restrict-mouse-action {
+    color: $disable-grey;
+    cursor: default;
+    pointer-events: none;
+
+    // &.b-input_row-input:hover,
+    // &.b-input_row-input:focus {
+    //     border-color: $grey3;
+    // }
+}
+
+.address-state-bottom {
+    margin-bottom: 2rem;
+
+    @include respond-to(mobile) {
+        margin-bottom: 1rem;
+    }
+}
+
+.b-product-quickview-detail-panel {
+    .b-swatches_circle {
+        &.swiper-wrapper {
+            &.js-swiper-wrapper {
+                flex-wrap: initial;
+            }
+        }
+    }
+}
+
+.summary-details {
+    @include respond-to(desktop) {
+        width: 40%;
+    }
+}
+
+.l-plp-sidebar-filter {
+    .b-refinements_swatch-btn {
+        color: $light-grey;
+        text-decoration: none;
+    }
+}
+
+.checkout-card-header {
+    margin-top: rem-calc(20);
+    display: block;
+}
+
+.w2gi-backbone {
+    .instore-online-wrapper {
+        ul li span {
+            @include respond-to(mobile) {
+                line-height: rem-calc(30);
+                margin: rem-calc(30) 0;
+                display: block;
+            }
+        }
+    }
+}
+
+.b-account-dashboard_history img {
+    @include respond-to(mobile) {
+        height: auto;
+    }
+}
+
+.b-refinements_attributes-list {
+    &.b-swatches {
+        &.b-show_more-list {
+
+            @include respond-to(desktop) {
+                margin-left: rem-calc(10);
+            }
+        }
+    }
+}
+
+#refinement-talla {
+    .b-swatches {
+        &.b-show_more-list {
+            display: block;
+        }
+    }
+}
+
+.b-refinements_attributes-item {
+    &.m-size {
+        &.b-show_more-item {
+            min-width: rem-calc(60);
+            margin: 0 rem-calc(7) rem-calc(10) 0;
+            position: relative;
+            cursor: pointer;
+            padding: 0 rem-calc(5);
+            border: rem-calc(1) solid $grey4;
+            display: inline-block;
+            height: rem-calc(35);
+
+            a {
+                border: none;
+                font-size: rem-calc(13);
+                line-height: rem-calc(33);
+                color: $black;
+                display: block;
+                text-align: center;
+            }
+        }
+    }
+}
+
+.checkout-privacy-links {
+    .b-promo-tooltip-content {
+        .g-tooltip-text {
+            width: 17rem;
+            @include respond-to(desktop) {
+                left: calc(100% - 5rem);
+            }
+        }
+    }
+}
+
+#rfc-cfdi-details {
+    margin-top: rem-calc(10);
+}
+
+#oxxoImg,
+#safetypayButton {
+    text-align: left !important;
+
+    img {
+        width: 15% !important;
+    }
+}
+
+.b-account-address_book-section,
+.b-account-payment_book-section {
+    .remove-payment {
+        &.adjust-space {
+            margin-left: 0;
+            position: relative;
+            z-index: 1;
+        }
+    }
+}

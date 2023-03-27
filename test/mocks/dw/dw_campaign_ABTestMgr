@@ -1,0 +1,16 @@
+'use strict';
+
+const ABTestSegment = require('./dw_campaign_ABTestSegment');
+var Collection = require('./dw_util_Collection');
+
+class ABTestMgr {
+    constructor() {
+        this.assignedTestSegments = new Collection(new ABTestSegment());;
+    }
+
+    getAssignedTestSegments() {
+        return this.assignedTestSegments;
+    }
+}
+
+module.exports = new ABTestMgr();

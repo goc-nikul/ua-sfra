@@ -1,0 +1,76 @@
+/* md
+
+# Accordion
+
+You must save the presented sequence of elements
+
+```html
+    <div class="g-accordion">
+        <div class="g-accordion-item">
+            <button class="g-accordion-header collapsed"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="#acc1"
+                    aria-expanded="false"
+                    aria-controls="acc1">
+               header text
+            </button>
+            <div class="g-accordion-content collapse" id="acc1">
+                Content
+            </div>
+        </div>
+    </div>
+```
+
+Additionaly you can change wrapper class ```g-accordion``` to ```g-accordion--desktop``` or ```g-accordion--mobile``` to enable accordion functionality only for special breakpoints
+
+## Default
+
+```html_example
+    <div class="g-accordion" id="accordion-parent">
+        <div class="g-accordion-item">
+            <button id="accordionHead1" class="g-accordion-header" type="button" data-toggle="collapse" data-target="#acc1"
+                aria-expanded="true" aria-controls="acc1">
+                Defaults
+            </button>
+            <div class="g-accordion-content collapse show" id="acc1" data-parent="#accordion-parent" aria-labelledby="accordionHead1">
+                <p class="t-text-2">If you are looking for something to wear as the weather warms up, this tunic will be
+                    perfect.</p>
+            </div>
+        </div>
+        <div class="g-accordion-item">
+            <button id="accordionHead2" class="g-accordion-header collapsed" type="button" data-toggle="collapse" data-target="#acc2"
+                aria-expanded="true" aria-controls="acc2">
+                Delivery
+            </button>
+            <div class="g-accordion-content collapse" id="acc2" data-parent="#accordion-parent" aria-labelledby="accordionHead2">
+                <p class="t-text-2">If you are looking for something to wear as the weather warms up, this tunic will be
+                    perfect.</p>
+            </div>
+        </div>
+        <div class="g-accordion-item">
+            <button id="accordionHead3" class="g-accordion-header collapsed" type="button" data-toggle="collapse" data-target="#acc3"
+                aria-expanded="true" aria-controls="acc3">
+                Returns
+            </button>
+            <div class="g-accordion-content collapse" id="acc3" data-parent="#accordion-parent" aria-labelledby="accordionHead3">
+                <p class="t-text-2">If you are looking for something to wear as the weather warms up, this tunic will be
+                    perfect.</p>
+            </div>
+        </div>
+    </div>
+```
+
+*/
+
+$useCases: ('desktop', 'mobile');
+
+.g-accordion {
+    $blockClass: &;
+    @include accordion;
+    @each $breakpoint in $useCases {
+        &--#{$breakpoint} {
+            @include accordion($blockClass, $breakpoint);
+        }
+    }
+}

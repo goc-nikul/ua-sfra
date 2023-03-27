@@ -1,0 +1,70 @@
+/* md
+
+# Tabs
+
+You must save the presented sequence of elements
+
+```html
+    <div class="g-tabs">
+        <ul class="g-tabs-chips nav nav-tabs" role="tablist">
+            <li class="g-tabs-chip nav-item">
+                <a
+                    class="g-tabs-link nav-link active"
+                    role="tab"
+                    data-toggle="tab"
+                    href="${'#'}tab-1"
+                    aria-controls="tab-1"
+                    aria-selected="true"
+                >
+                    --- TAB 1 TITLE ---
+                </a>
+            </li>
+
+            <li class="g-tabs-chip nav-item">
+                <a
+                    class="g-tabs-link nav-link"
+                    role="tab"
+                    data-toggle="tab"
+                    href="${'#'}tab-2"
+                    aria-controls="tab-2"
+                    aria-selected="false"
+                >
+                    --- TAB 2 TITLE ---
+                </a>
+            </li>
+        </ul>
+
+        <div class="g-tabs-content">
+            <div
+                id="tab-1"
+                class="g-tabs-pane tab-pane show active"
+                role="tabpanel"
+                aria-labelledby="tab-1-tab"
+            >
+                --- TAB 1 CONTENT ---
+            </div>
+
+            <div
+                id="tab-2"
+                class="g-tabs-pane tab-pane"
+                role="tabpanel"
+                aria-labelledby="tab-2-tab"
+            >
+                --- TAB 2 CONTENT ---
+            </div>
+        </div>
+    </div>
+```
+*/
+
+$useCases: ('desktop', 'mobile');
+
+.g-tabs {
+    $blockClass: &;
+    @include g-tabs;
+    @each $breakpoint in $useCases {
+        &--#{$breakpoint} {
+            @include g-tabs($blockClass, $breakpoint);
+        }
+    }
+}

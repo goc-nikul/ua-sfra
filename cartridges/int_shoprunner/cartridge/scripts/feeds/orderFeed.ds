@@ -1,0 +1,173 @@
+/**
+ * Demandware Script File
+ * This files exports Orders to ShopRunner
+ *
+ */
+importPackage(dw.system);
+importPackage(dw.io);
+importPackage(dw.order);
+importPackage(dw.util);
+importPackage(dw.value);
+importPackage(dw.catalog);
+
+var FeedUtil = require("~/cartridge/scripts/feeds/FeedUtil");
+var SRFeedVersionNumber = require("~/cartridge/scripts/feeds/feedconstants").SRFeedVersionNumber;
+
+function createTimestampRecord(logger : Log, startTime: Number): Number {
+    var currentTimeMs: Number = new Date().getTime();
+    logger.info('Elapsed time (ms): ' + (currentTimeMs - startTime));
+
+    return currentTimeMs;
+}
+
+function execute(args: PipelineDictionary): Number {
+	var partnerCode: String = Site.getCurrent().getCustomPreferenceValue('sr_retailerID');
+	var srLogger: Log = Logger.getLogger('ShopRunner', 'ShopRunner');
+	var feedDateFmt: string = "MM/dd/YYYY H:MM:ss";
+	// check if the order sFTP feed is enabled
+	var srFtp: Boolean = FeedUtil.checkFeedSwitchByType('daily');
+	// order sFTP feed is NOT enabled
+	if (srFtp != true) {
+		srLogger.debug('ShopRunner: Order SFTP feed is NOT enabled');
+		return PIPELET_NEXT;
+	}
+	// else sFTP feed is enabled
+	if (empty(partnerCode)) {
+		srLogger.error('Order Feed script: Partner code is empty.');
+		return PIPELET_ERROR;
+	}
+	
+    var startTimeMs: Number = new Date().getTime();
+	srLogger.info('Selecting Orders for Export...');
+	var dwSQL : String = "(custom.sr_exported = {0} OR custom.sr_exported = {1}) AND custom.sr_token != {2} AND (status = {3} OR status = {4})";
+    var orders: SeekableIterator = OrderMgr.searchOrders(dwSQL, "custom.sr_exported asc", null, false, null, Order.ORDER_STATUS_OPEN, Order.ORDER_STATUS_NEW);
+    startTimeMs = createTimestampRecord(srLogger, startTimeMs);
+	var numOrders: Number = orders.getCount();
+	srLogger.info('Selected Orders for Export: ' + numOrders);
+
+	if (numOrders < 1) {
+		orders.close();
+		return PIPELET_NEXT;
+	}
+
+	srLogger.info('Starting Orders Processing...');
+	var exportOrders: Array = [];
+	for each(var dayOrder: Order in orders) {
+		if (empty(dayOrder.custom.sr_token)) {
+			//don't sent non-sr member orders.
+			continue;
+		}
+		var order: Object = new Object();
+		order.orderNo = dayOrder.orderNo.toString();
+		order.orderDate = StringUtils.formatCalendar(Calendar(dayOrder.creationDate), feedDateFmt); //  MM/DD/YYYY HH:MI:SS
+		order.adjustmentDate = StringUtils.formatCalendar(Calendar(dayOrder.lastModified), feedDateFmt); //  05/21/2014 13:05:05
+		order.totalNumberOfItems = dayOrder.productQuantityTotal.toString();
+		var srItems: Number = 0;
+		var srSubTotal: Number = 0;
+		for each(var productLineItem: ProductLineItem in dayOrder.productLineItems) {
+			if (productLineItem.product.getCustom()['sr_eligible'].value == 'true') {
+				// srItems will be the sum of quantities for each eligibleProductLineItem
+				srItems += productLineItem.getQuantity().getValue();
+				srSubTotal += productLineItem.getAdjustedNetPrice().getValue();
+			}
+		}
+		order.totaNumberOfSRItems = srItems.toString();
+		order.currencyCode = dayOrder.getAdjustedMerchandizeTotalGrossPrice().getCurrencyCode();
+		order.orderTotal = dayOrder.getTotalGrossPrice().getValue().toFixed(2);
+		order.orderSubTotal = dayOrder.getAdjustedMerchandizeTotalNetPrice().getValue().toFixed(2);
+		order.srSubTotal = srSubTotal.toFixed(2);
+		order.SRAuthenticationToken = dayOrder.custom.sr_token.toString();
+		order.PaymentTenderType = FeedUtil.deduceTenderType(dayOrder.paymentInstruments);
+		exportOrders.push(order);
+	}
+    startTimeMs = createTimestampRecord(srLogger, startTimeMs);
+	srLogger.info('Finished Orders Processing. Orders To be Exported: ' + exportOrders.length);
+
+	if (exportOrders.length < 1) {
+		orders.close();
+		return PIPELET_NEXT;
+	}
+
+	srLogger.info('Creating Orders Feed...');
+
+	// write XML file
+	var file: File = FeedUtil.createOrderFeedFile();
+	var fw: FileWriter = new FileWriter(file, false);
+	var xsw: XMLStreamWriter = new XMLIndentingStreamWriter(fw);
+	// START WRITING XML FILE 
+	xsw.writeStartDocument('UTF-8', '1.0');
+	xsw.writeStartElement("Orders");
+	xsw.writeStartElement("Partner");
+	xsw.writeCharacters(partnerCode);
+	xsw.writeEndElement(); // Partner
+	xsw.writeStartElement("VersionNumber");
+	xsw.writeCharacters(SRFeedVersionNumber);
+	xsw.writeEndElement(); //VersionNumber
+	for each(var exportOrder in exportOrders) {
+		xsw.writeStartElement("Order");
+		xsw.writeStartElement("OrderNumber");
+		xsw.writeCharacters(exportOrder.orderNo);
+		xsw.writeEndElement(); // OrderNumber
+		xsw.writeStartElement("OrderDate");
+		xsw.writeCharacters(exportOrder.orderDate);
+		xsw.writeEndElement(); // OrderDate
+		if (!empty(exportOrder.SRAuthenticationToken)) {
+			xsw.writeStartElement("SRAuthenticationToken");
+			xsw.writeCharacters(exportOrder.SRAuthenticationToken);
+			xsw.writeEndElement(); // SRAuthenticationToken
+		}
+		xsw.writeStartElement("TotalNumberOfItems");
+		xsw.writeCharacters(exportOrder.totalNumberOfItems);
+		xsw.writeEndElement(); // TotalNumberOfItems
+		xsw.writeStartElement("TotalNumberOfShopRunnerItems");
+		xsw.writeCharacters(exportOrder.totaNumberOfSRItems);
+		xsw.writeEndElement(); // TotalNumberOfShopRunnerItems
+		xsw.writeStartElement("CurrencyCode");
+		xsw.writeCharacters(exportOrder.currencyCode);
+		xsw.writeEndElement(); // CurrencyCode
+		xsw.writeStartElement("OrderTotal");
+		xsw.writeCharacters(exportOrder.orderTotal);
+		xsw.writeEndElement(); // OrderTotal
+		xsw.writeStartElement("BillingSubTotal");
+		xsw.writeCharacters(exportOrder.orderSubTotal);
+		xsw.writeEndElement(); // OrderSubTotal
+		xsw.writeStartElement("PaymentTenderType");
+		xsw.writeCharacters(exportOrder.PaymentTenderType);
+		xsw.writeEndElement(); // PaymentTenderType
+		xsw.writeEndElement(); // Order
+	}
+	xsw.writeEndElement(); // Orders
+	fw.flush();
+	xsw.close();
+	// close open iterators
+	fw.close();
+	orders.close();
+
+    startTimeMs = createTimestampRecord(srLogger, startTimeMs);
+	srLogger.info('Orders Feed Created.');
+	srLogger.info('Sending Orders Feed to SFTP...');
+
+	// send file to ShopRunner
+	var sendStatus : Boolean = require('~/cartridge/scripts/feeds/srFTP').ftpToSR(file, Site.getCurrent());
+    startTimeMs = createTimestampRecord(srLogger, startTimeMs);
+	if (sendStatus) {
+		srLogger.info('Orders Feed Sent to SFTP.');
+		srLogger.info('Updating SR Order Export Statuses...');
+		// update the status if the export was sucessfull
+		for each(var eOrder in exportOrders) {
+			var dOrder: Order = OrderMgr.getOrder(eOrder.orderNo);
+			dOrder.getCustom()['sr_exported'] = true;
+			srLogger.info('SR Export Status Updated. Order: ' + eOrder.orderNo);
+		}
+        createTimestampRecord(srLogger, startTimeMs);
+		srLogger.info('SR Order Export Statuses Updated.');
+		return PIPELET_NEXT;
+	} else {
+		srLogger.error('Order Feed script: The feed could not be sent to SFTP.');
+		return PIPELET_ERROR;
+	}
+}
+
+module.exports = {
+	execute: execute
+};

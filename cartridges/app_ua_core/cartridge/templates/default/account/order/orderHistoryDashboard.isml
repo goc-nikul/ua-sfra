@@ -1,0 +1,16 @@
+<div class="card">
+   <isif condition="${order && order.length > 0}">
+      <div class="card-body account-recent-orderhistory-container">
+         <isset name="orderdeliveredCount" value="${0}" scope="page" />      
+         <isif condition="${order.length == 1}">
+         	<isinclude template="account/order/oneordersdashboardTiles"/>
+         <iselse>
+         	<isinclude template="account/order/twoordersdashboardTiles"/>
+         </isif>         
+      </div>
+    <iselse>
+      <div class="card-body">
+         <isslot id="my-account-no-order-history" context="global" description="Configure the asset for empty orders dashboard" />
+      </div>
+   </isif>
+</div>

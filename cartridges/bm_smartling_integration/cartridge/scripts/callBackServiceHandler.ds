@@ -1,0 +1,52 @@
+/**
+* Handle CallbackService request
+*
+*   @input fileUri : String submission file URI
+*   @input smartlingLocale : String Smartling locale
+*   @input token : String callback token
+*   @output errorCode : String HTTP Error Code
+*   @output errorMessage : String Error message for response
+*
+*/
+importPackage( dw.object );
+importPackage( dw.system );
+importPackage( dw.crypto );
+importPackage( dw.util );
+importScript( "helpFunctions.ds" );
+importScript( "/utils/ExceptionLog.ds" );
+
+var LOGGER : ExceptionLog = new ExceptionLog(Logger.getLogger("smartling", "callbackService"));
+
+/**
+* Check token for received parameters, check locale and check existanse of the submission for given fileUri and locale
+*/
+function execute( pdict : PipelineDictionary ) : Number
+{
+    LOGGER.info('Received callback request for fileUri="{0} smartlingLocale="{1}"', pdict.fileUri, pdict.smartlingLocale)
+    
+    if (pdict.token != generateToken(pdict.fileUri))
+    {
+        LOGGER.error('Invalid token: fileUri="{0}", smartlingLocale="{1}", token="{2}"', pdict.fileUri, pdict.smartlingLocale, pdict.token);
+        pdict.errorCode = "401";
+        pdict.errorMessage = "Invalid token";
+        return PIPELET_ERROR;
+    }
+
+    var demandwareLocale : String = getDemandwareLocale(pdict.smartlingLocale);
+    if (demandwareLocale == "")
+    {
+        pdict.errorCode = "404";
+        pdict.errorMessage = "Locale not found";
+        return PIPELET_ERROR;
+    }
+
+    var submission : CustomObject = CustomObjectMgr.queryCustomObject('SMARTLING_SUBMISSION', "custom.fileUri = '" + pdict.fileUri + "' AND custom.locale = '" + demandwareLocale + "'", null );
+    if (submission == null)
+    {
+        pdict.errorCode = "404";
+        pdict.errorMessage = "Submission not found";
+        return PIPELET_ERROR;
+    }
+
+   return PIPELET_NEXT;
+}

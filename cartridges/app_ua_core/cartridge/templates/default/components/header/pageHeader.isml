@@ -1,0 +1,99 @@
+<isset name="customerCountry" value="${pdict.CurrentSession !=null && pdict.CurrentSession.custom.customerCountry || (request.getLocale().slice(-2).toUpperCase())}" scope="page" />
+<header class="l-body-page_header l-header b-header js-header" data-json-config='{"initOnDevice": [null, null, "large", "extra-large"]}'>
+    <isinclude template="/components/header/skipNav" />
+    <div class="l-header-section_top">
+        <div class="l-header-inner l-header-inner_top">
+            <div class="b-header-banner">
+                <isslot id="header-banner" description="Slot above the site header" context="global" />
+            </div>
+            <div class="b-header-utility b-header_utility">
+			<iscomment>Borderfree JS snippet</iscomment>
+			 <isif condition="${'bfxIsEnabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bfxIsEnabled}">
+			    <div class="flag-placement"></div>
+				<isinclude template="common/welcome_mat"/>
+			</isif> 
+	        <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('bfxIsEnabled') && dw.system.Site.getCurrent().getCustomPreferenceValue('bfxisWelcomeMatEnabled')}">
+	            <isinclude url="${URLUtils.url('BorderFree-ShowWelcomeMat') + '?' + (pdict.queryString)}" />
+	        </isif>
+            <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('geoLocationModelEnabled')}">
+                <isinclude url="${URLUtils.url('CountrySelector-ShowWelcomeMat') + '?' + (pdict.queryString)}" />
+            </isif>
+                <span class="borderfree-content"></span>
+                <isif condition="${'isCountrySelectorEnabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.isCountrySelectorEnabled}">
+                    <isinclude url="${URLUtils.url('Page-Locale')}" />
+                </isif>
+                <isinclude url="${URLUtils.url('Account-Header')}" />
+            </div>
+        </div>
+    </div>
+    <hr class="l-header-divider" />
+    <div class="l-header-section_bottom">
+        <div class="l-header-inner l-header-inner_bottom">
+            <div class="l-header-toggle l-header-utility">
+                <button class="b-header-nav_toggle js-hamburger" type="button" aria-label="Menu"
+                    data-analytics-nav-track="mobile|hamburger|n/a"
+                >
+                    <span class="h-hide">${Resource.msg('global.header.menu', 'common', null)}</span>
+                </button>
+                <isinclude url="${URLUtils.url('Account-MobileLoginDetails')}" />
+            </div>
+
+            <div class="l-header-logo b-logo">
+                <a class="b-logo-link" href="${URLUtils.url('Home-Show')}"
+                    title="${Resource.msgf('global.home', 'common', null, customerCountry)}">
+                    <img class="b-logo-image" src="${URLUtils.staticURL('/images/logo.svg')}"
+                        title="${Resource.msg('global.storename', 'common', null)}"
+                        alt="${Resource.msg('global.logo', 'common', null)}" />
+                </a>
+            </div>
+
+            <div class="l-header-nav" data-cmp="headerMobileMenu"
+                data-json-config='{"initOnDevice": ["extraSmall", "small", "medium", "large", null]}'>
+                <isinclude url="${URLUtils.url('Page-IncludeHeaderMenu')}" />
+            </div>
+
+            <div class="l-header-utility">
+                <button class="b-search-toggle js-search-toggle" type="button" aria-label="Search">
+                    <i class="b-search-icon"></i>
+                </button>
+                <div class="b-header-search" data-cmp="searchMobile"
+                    data-json-config='{"initOnDevice": ["extraSmall", "small", "medium", "large", null]}'>
+                    <div class="b-search-header_mobile js-header-search">
+                        <div class="b-search-logo b-logo">
+                            <a class="b-logo-link" href="${URLUtils.url('Home-Show')}"
+                                title="${Resource.msgf('global.home', 'common', null, customerCountry)}">
+                                <img class="b-logo-image" src="${URLUtils.staticURL('/images/menulogo.svg')}"
+                                     title="${Resource.msg('global.storename', 'common', null)}"
+                                     alt="${Resource.msg('global.logo', 'common', null)}" />
+                            </a>
+                        </div>
+                        <div class="b-search-close">
+                            <button class="b-search-close_button js-search-close" type="button" aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+                        </div>
+                    </div>
+                    <isinclude template="components/header/search" />
+                </div>
+                <isinclude url="${URLUtils.url('Wishlist-Link')}" />
+                <div class="minicart b-header-minicart"
+                     data-action-url="${URLUtils.url('Cart-MiniCartShow')}"
+                     data-cmp="miniCart"
+                >
+                    <isinclude url="${URLUtils.url('Cart-MiniCart')}" />
+                </div>
+            </div>
+        </div>
+    </div> 
+</header>
+
+<isslot id="global-message-banner" context="global" description="Message banner for global site promotions" />
+
+<isif condition="${pdict.CurrentHttpParameterMap !=null && pdict.CurrentHttpParameterMap.promobanner.value != null}">
+    <div class="b-global-promo-banner" data-cmp="headerMenuAccessibility">
+        <div class="b-global-promo-banner-exit">
+            <button class="b-navigation-close js-banner-close" type="button" aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+        </div>
+        <div class="b-global-promo-banner-message">
+            <isslot id="global-promo-banner" context="global" description="Promotional banner for email campaigns" />
+        </div>
+    </div>
+</isif>

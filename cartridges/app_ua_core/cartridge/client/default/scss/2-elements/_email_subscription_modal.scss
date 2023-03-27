@@ -1,0 +1,261 @@
+.g-email-pop-modal {
+    &-dialog {
+        max-width: rem-calc(448);
+        margin: rem-calc(40) auto;
+        min-height: calc(100% - (2.5rem * 2));
+        text-align: center;
+
+        @include respond-to(phones) {
+            max-width: 92%;
+            width: 100%;
+        }
+    }
+
+    &-content {
+        padding: 0;
+        box-shadow: none !important;
+        border-radius: rem-calc(4);
+    }
+
+    &-header {
+        margin: 0;
+
+        .g-modal-close {
+            box-shadow: none !important;
+            position: absolute;
+            top: rem-calc(-14);
+            right: rem-calc(-8);
+            border-radius: 50%;
+
+            .g-modal-close-button {
+                width: rem-calc(40);
+                height: rem-calc(40);
+                background-color: $red;
+                border-radius: 50%;
+
+                &::after,
+                &::before {
+                    background-color: $white;
+                    height: rem-calc(2);
+                    top: 50%;
+                    left: 50%;
+                    width: rem-calc(20);
+                    border-radius: rem-calc(2);
+                }
+
+                &::before {
+                    transform: translate(-50%, -50%) rotate(45deg);
+                }
+
+                &::after {
+                    transform: translate(-50%, -50%) rotate(135deg);
+                }
+            }
+        }
+    }
+
+    &-body {
+        .hide-desktop {
+            display: none;
+
+            @include respond-to(phones) {
+                display: block;
+            }
+        }
+
+        .hide-mobile {
+            display: block;
+
+            @include respond-to(phones) {
+                display: none;
+            }
+        }
+
+        .b-logo-image {
+            width: auto;
+            margin: rem-calc(48) 0 rem-calc(19);
+            display: block;
+
+            @include icon(mail);
+
+            &::before {
+                font-size: rem-calc(36);
+            }
+        }
+
+        .email-pop-heading {
+            background: $black;
+            border-top-left-radius: rem-calc(4);
+            border-top-right-radius: rem-calc(4);
+            padding-bottom: rem-calc(32);
+
+            @include respond-to(phones) {
+                padding-bottom: rem-calc(32);
+            }
+
+            h3 {
+                @include font(main_bold, rem-calc(40), 1);
+
+                margin-bottom: rem-calc(16);
+                color: $white;
+                font-stretch: condensed;
+                letter-spacing: rem-calc(1);
+                padding: rem-calc(48) rem-calc(40) 0;
+
+                @include respond-to(phones) {
+                    padding: rem-calc(32) rem-calc(16) 0;
+                    @include font(main_bold, rem-calc(32), 1);
+                }
+            }
+        }
+
+        .email-pop-subheading {
+            @include font(main_med, rem-calc(14), rem-calc(20));
+
+            color: $white;
+            max-width: rem-calc(320);
+            margin: 0 auto;
+
+            @include respond-to(phones) {
+                padding: 0 rem-calc(24);
+            }
+        }
+
+        .email-pop-up_signup-container {
+            padding: rem-calc(32) rem-calc(40) rem-calc(14);
+
+            &.data-success {
+                padding: rem-calc(0) rem-calc(40) rem-calc(12);
+                @include font(main, rem-calc(14), rem-calc(20));
+
+                color: $black;
+                letter-spacing: 0;
+
+                @include respond-to(phones) {
+                    padding: rem-calc(0) rem-calc(32) rem-calc(9);
+                }
+            }
+
+            @include respond-to(phones) {
+                padding: rem-calc(24) rem-calc(16) rem-calc(10);
+            }
+
+            button {
+                width: 100%;
+                max-width: none;
+            }
+        }
+
+        .email-pop-heading-mobile {
+            @include font(main_med, rem-calc(10), rem-calc(16));
+
+            margin: rem-calc(12) 0 rem-calc(34);
+            color: $black;
+            text-align: left;
+
+            @include respond-to(phones) {
+                margin: rem-calc(12) 0 rem-calc(22);
+            }
+        }
+
+        .b-input_row {
+            margin-bottom: rem-calc(24);
+
+            input {
+                border: none;
+                border-bottom: 1px solid $grey5;
+                color: $black;
+                @include font(main_semi_bold, rem-calc(14), 1.43);
+
+                border-radius: 0;
+                height: rem-calc(32);
+                padding: 0;
+
+                &[data-entered=""] ~ label {
+                    display: block;
+                }
+
+                &:not([data-entered=""]) ~ label,
+                &:focus ~ label {
+                    display: none;
+                }
+
+                &.is-invalid {
+                    border-color: $red;
+                }
+            }
+
+            .email-pop-up-label {
+                color: $grey6;
+                padding: 0;
+                top: rem-calc(18);
+                left: 0;
+                background: transparent;
+                @include font(main_med, rem-calc(14), 1.43);
+            }
+
+            .invalid-feedback,
+            .g-input-error_message {
+                padding-left: 0;
+            }
+
+            @include respond-to(phones) {
+                flex-basis: 100%;
+            }
+        }
+    }
+}
+
+.b-continue_shop-button {
+    margin: rem-calc(8) 0 rem-calc(48);
+
+    @include respond-to(phones) {
+        text-align: center;
+        margin-bottom: rem-calc(40);
+    }
+
+    button {
+        position: static;
+        background-color: $black;
+
+        @include respond-to(phones) {
+            max-width: rem-calc(256);
+            width: calc(100% - 32px);
+        }
+    }
+}
+
+.email-pop-up_signup-success-container {
+    img {
+        width: auto;
+        margin: rem-calc(48) 0 rem-calc(19);
+
+        @include respond-to(phones) {
+            margin-top: rem-calc(48);
+        }
+    }
+
+    h2 {
+        @include font(main_bold, rem-calc(32), 1);
+
+        text-transform: uppercase;
+        color: $black;
+        font-stretch: condensed;
+        letter-spacing: rem-calc(1);
+        margin-bottom: rem-calc(2);
+
+        @include respond-to(desktop) {
+            margin-top: rem-calc(21);
+        }
+
+        @include respond-to(phones) {
+            max-width: rem-calc(250);
+            margin: 0 auto rem-calc(17);
+            margin-top: rem-calc(22);
+        }
+
+        @include respond-to(tablets) {
+            margin-top: rem-calc(22);
+        }
+    }
+}

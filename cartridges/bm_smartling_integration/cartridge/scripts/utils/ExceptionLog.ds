@@ -1,0 +1,135 @@
+"use strict";
+
+var Site = require ("dw/system").Site;
+/**
+* @constructor ExceptionLog
+*
+* Wrapper for the dw.sytem.Log class which implements all methods provided by the dw.system.Log class.
+* Extends the original class with method for logging erros caught in a try catch block.
+* Adds JS stack trace instead of Java one.
+* @param {Log} log  instance of dw.sytem.Log to be wrapped
+*/
+var ExceptionLog = function (log) {
+
+    this.site = Site.getCurrent().getName();
+    this.log = log;
+    this.debugEnabled = this.log.debugEnabled;
+    this.errorEnabled = this.log.errorEnabled;
+    this.infoEnabled = this.log.infoEnabled;
+    this.warnEnabled = this.log.warnEnabled;
+    this.NDC = this.log.NDC;
+};
+
+/**
+* @function warnException
+* @memberof ExceptionLog
+*
+* Logs an error caught in a try catch block
+*
+* @param {!string} msg Message to be logged
+*/
+ExceptionLog.prototype.warnException = function(msg) {
+    var args = Array.prototype.slice.call(arguments, 1, arguments.length - 1);
+    var message = msg;
+    var error = arguments[arguments.length - 1];
+
+    if (!empty(error)) {
+        message += ': ' + error.message + '\n' + error.stack;
+    }
+
+    return this.log.warn(message, args);
+};
+
+/**
+* @function errorException
+* @memberof ExceptionLogger
+*
+* Logs an error caught in a try catch block
+*
+* @param {!string} msg Message to be logged
+*/
+ExceptionLog.prototype.errorException = function(msg) {
+    var args = Array.prototype.slice.call(arguments, 1, arguments.length - 1);
+    var message = msg;
+    var error = arguments[arguments.length - 1];
+
+    if (!empty(error)) {
+        message = this.site + ": " + message +  ': ' + error.message + '\n' + error.stack;
+    }
+
+    return this.log.error(message, args);
+};
+
+/**
+* @function fatalException
+* @memberof ExceptionLog
+*
+* Logs an error caught in a try catch block
+*
+* @param {!string} msg Message to be logged
+*/
+ExceptionLog.prototype.fatalException = function(msg) {
+    var args = Array.prototype.slice.call(arguments, 1, arguments.length - 1);
+    var message = msg;
+    var error = arguments[arguments.length - 1];
+
+    if (!empty(error)) {
+        message += ': ' + error.message + '\n' + error.stack;
+    }
+
+    return this.log.fatal(message, args);
+};
+
+ExceptionLog.prototype.getNDC = function() {
+    return Log.getNDC();
+};
+
+ExceptionLog.prototype.debug = function(msg) {
+    var args = Array.prototype.slice.call(arguments, 1);
+
+    this.log.debug(this.site + ": " + msg, args);
+};
+
+ExceptionLog.prototype.error = function(msg) {
+    var args = Array.prototype.slice.call(arguments, 1);
+
+    this.log.error(this.site + ": " + msg, args);
+};
+
+ExceptionLog.prototype.fatal = function(msg) {
+    var args = Array.prototype.slice.call(arguments, 1);
+
+    this.log.fatal(this.site + ": " + msg, args);
+};
+
+ExceptionLog.prototype.info = function(msg) {
+    var args = Array.prototype.slice.call(arguments, 1);
+
+    this.log.info(this.site + ": " + msg, args);
+};
+
+ExceptionLog.prototype.warn = function(msg) {
+    var args = Array.prototype.slice.call(arguments, 1);
+
+    this.log.warn(this.site + ": " + msg, args);
+};
+
+ExceptionLog.prototype.isDebugEnabled = function() {
+    return this.log.isDebugEnabled();
+};
+
+ExceptionLog.prototype.isErrorEnabled = function() {
+    return this.log.isErrorEnabled();
+};
+
+ExceptionLog.prototype.isInfoEnabled = function() {
+    return this.log.isInfoEnabled();
+};
+
+ExceptionLog.prototype.isWarnEnabled = function() {
+    return this.log.isInfoEnabled();
+};
+
+if (typeof (exports) !== 'undefined') {
+    exports.ExceptionLog = ExceptionLog;
+}

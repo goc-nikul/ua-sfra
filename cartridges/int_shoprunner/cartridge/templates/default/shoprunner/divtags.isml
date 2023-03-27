@@ -1,0 +1,54 @@
+<iscomment>
+	Render the given ShopRunner tag if conditions are met
+
+    Parameters:
+    p_divname : the div name of the shoprunner element to optionally be rendered
+    p_pid : product id if available (optional)
+</iscomment>
+<isscript>
+	importScript( "util/srErrorUtils.ds" );
+	toggleSRHeaderDivByEligiblity(pdict);
+	var showdiv : Boolean = false;
+	if (!empty(pdict.Product))
+	{
+		if (pdict.Product.custom.sr_eligible.value == 'true')
+		{
+			if (pdict.Product.isProduct() || pdict.Product.isMaster())
+		    {
+		   		showdiv = true;
+		    } else if (pdict.Product.isVariant() && pdict.Product.masterProduct.custom.sr_eligible.value == 'true') {
+				showdiv = true;
+			}
+		}
+	}
+	if(!empty(pdict.p_pid) && dw.catalog.ProductMgr.getProduct(pdict.p_pid) != null)
+	{
+		var custom = dw.catalog.ProductMgr.getProduct(pdict.p_pid).getCustom();
+
+		var srEligible = custom != null ?  custom['sr_eligible'] : custom;
+		showdiv = srEligible != null && srEligible.getValue().toString() == 'true' ? true : false;
+	}
+</isscript>
+<script>
+	sr_pageRefreshes = true;
+</script>
+
+<isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_enabled')}">
+
+	<isset name="divname" value="${pdict.p_divname}" scope="page"/>
+
+	<isif condition="${divname=='sr_catalogProductGridDiv' && showdiv}">
+		<div name="<isprint value="${divname}" />"></div>
+	<iselseif condition="${divname=='sr_dualEligibilityDiv' && pdict.ShopRunnerStatus == 'MIXED'}">
+		<div name="<isprint value="${divname}" />"></div>
+	<iselseif condition="${divname=='sr_productDetailDiv'}">
+		<div name="<isprint value="${divname}" />"></div>
+	<iselseif condition="${divname == 'sr_cartProductDiv'}">
+		<div name="<isprint value="${divname}" />"></div>
+	<iscomment>checking both DIV names for backward portability </iscomment>
+	<iselseif condition="${divname == 'sr_payRunnerCartDiv' || divname == 'sr_expressCheckoutCartDiv'}">
+		<div name="sr_expressCheckoutCartDiv"></div>
+	<iselseif condition="${divname != 'sr_productDetailDiv' && divname != 'sr_catalogProductGridDiv' && divname != 'sr_cartProductDiv' && divname != 'sr_dualEligibilityDiv'}">
+		<div name="<isprint value="${divname}" />"></div>
+	</isif>
+</isif>

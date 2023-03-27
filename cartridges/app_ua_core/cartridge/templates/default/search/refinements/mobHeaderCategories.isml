@@ -1,0 +1,38 @@
+<section class="l-plp-mob_header b-mob_header">
+    <isscript>
+        var CatalogMgr = require('dw/catalog/CatalogMgr'),
+            URLUtils = require('dw/web/URLUtils'),
+            CategoryHelper = require('*/cartridge/scripts/helpers/categoryHelper'),
+            category = CatalogMgr.getCategory(CategoryHelper.getCurrentCategory(pdict)),
+            parent,
+            displayName,
+            hasHideSubCategoriesInCategoryMenu;
+
+        if (category && !empty(category)) {
+            parent = category.getParent();
+            displayName = category.getDisplayName() ? category.getDisplayName() : category.getPageTitle();
+            hasHideSubCategoriesInCategoryMenu = category.custom.hideSubCategoriesInCategoryMenu;
+
+            if (!category.hasOnlineSubCategories() && 'hideFromBreadCrumbs' in parent.custom && parent.custom.hideFromBreadCrumbs && parent.getParent() && !parent.getParent().root) {
+                displayName = parent.getParent() && parent.getParent().getDisplayName() ? parent.getParent().getDisplayName() : parent.getPageTitle();
+            } else if (!category.hasOnlineSubCategories()) {
+                displayName = parent.getDisplayName() ? parent.getDisplayName() : parent.getPageTitle();
+            }
+       }
+    </isscript>
+
+    <isif condition="${pdict.productSearch.isCategorySearch}">
+        <div class="b-sort js-cmp-inited js-cmp-sortMobile" data-cmp="sortMobile">
+            <label for="sort-order" class="b-sort-label js-sort-label js-categories-label">${displayName}</label>
+            <isif condition="${!hasHideSubCategoriesInCategoryMenu}">
+                <div class="b-sort-content js-mob_sort js-categories-content">
+                    <isinclude template="search/refinements/categories" />
+                </div>
+            </isif>
+        </div>
+    </isif>
+
+    <button class="b-mob_header-filter js-open-filter">
+        ${Resource.msg('label.filtersort', 'search', null)}
+    </button>
+</section>

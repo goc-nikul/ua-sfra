@@ -1,0 +1,136 @@
+{
+   "step-types": {
+       "script-module-step": [
+           {
+               "@type-id": "custom.processEGiftCard",
+               "@support-parallel-execution": "false",
+               "@support-site-context": "true",
+               "@support-organization-context": "false",
+               "description": "Process eGift Card",
+               "module": "app_ua_core/cartridge/scripts/giftcard/job/eGiftCard.js",
+               "function": "Process",
+               "transactional":"false",
+               "parameters": {},
+               "status-codes": {
+                   "status": [
+                       {
+                           "@code":"ERROR",
+                           "description":"Used when an error occurred."
+                       },
+                       {
+                           "@code":"OK",
+                           "description":"Used when everything went well."
+                       },
+                       {
+                           "@code":"WARN",
+                           "description":"Used when small, but acceptable problems occurred."
+                       }
+                   ]
+               }
+           },
+           {
+            "@type-id": "custom.refreshAccessTokens",
+            "module": "app_ua_core/cartridge/scripts/jobs/refreshAccessTokens",
+            "function": "execute",
+            "transactional":"false",
+            "parameters": {
+                "parameter": [{
+                        "@name": "tokenRefreshTime",
+                        "description": "Refresh the token if it's going to expire in next {n} minutes",
+                        "@type": "string",
+                        "@required": "false",
+                        "@trim": "true"
+                    }
+                ]
+            },
+            "status-codes": {
+                "status": [{
+                        "@code": "ERROR",
+                        "description": "Used when an error occurred."
+                    },
+                    {
+                        "@code": "OK",
+                        "description": "Used when everything went well."
+                    },
+                    {
+                        "@code": "WARN",
+                        "description": "Used when small, but acceptable problems occurred."
+                    }
+                ]
+              }
+           },
+           {
+            "@type-id": "custom.analyticsSalesDataFeedExport",
+            "module": "app_ua_core/cartridge/scripts/jobs/feeds/salesDataFeed",
+            "function": "process",
+            "parameters": {
+                "parameter": [
+                {
+                    "@name": "exportFileName",
+                    "@type": "string",
+                    "@required": "true",
+                    "@trim": "true",
+                    "description": "Datetime will be added to the filename automatically",
+                    "default-value": "salesData.csv"
+                },
+                {
+                    "@name": "targetDirectoryPath",
+                    "@type": "string",
+                    "@required": "true",
+                    "@trim": "true",
+                    "description": "Relatively to IMPEX / Site ID will be added at the end of the path automatically",
+                    "default-value": "src/feeds/analytics"
+                },
+                {
+                    "@name": "archiveDirectoryPath",
+                    "@type": "string",
+                    "@required": "true",
+                    "@trim": "true",
+                    "description": "Relatively to IMPEX / Site ID will be added at the end of the path automatically",
+                    "default-value": "src/archive/analytics"
+                },
+                {
+                    "@name": "delimiter",
+                    "@type": "string",
+                    "@required": "true",
+                    "description": "Delimiter character.",
+                    "default-value": ",",
+                    "enum-values":
+                    {
+                        "value":
+                        [
+                            "|",
+                            ","
+                        ]
+                    }
+                },
+                {
+                    "@name": "date",
+                    "@type": "date-string",
+                    "@required": "false",
+                    "description": "Leave empty to use the current date"
+                },
+                {
+                    "@name": "endDate",
+                    "@type": "date-string",
+                    "@required": "false",
+                    "description": "Leave empty to use the current date"
+                }
+              ]
+            },
+            "status-codes": {
+                "status": [
+                    {
+                        "@code": "ERROR",
+                        "description": "Used when the step failed with an error."
+                    },
+                    {
+                        "@code": "OK",
+                        "description": "Used when the step finished successfully."
+                    }
+                ]
+            }
+        }
+       ]
+   }
+}

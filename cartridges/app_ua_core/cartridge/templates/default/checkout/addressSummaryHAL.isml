@@ -1,0 +1,34 @@
+<div class="address-summary">
+    <isset name="GoogleMapsEndpoint" value="${dw.system.Site.current.getCustomPreferenceValue('halGoogleMapsEndpoint')}" scope="page"/>
+    <isset name="GoogleMapsString" value="${(address.address1 + ' ' + address.address2 + ' ' + address.city+ ' ' + address.stateCode + ' ' + address.postalCode).toString().replace(' ', '+').replace('&', '+')}" scope="page"/>
+    
+    <isif condition="${GoogleMapsEndpoint !== null && GoogleMapsEndpoint.length > 0}">
+        <a href="${GoogleMapsEndpoint + GoogleMapsString}" target="_blank" rel="noreferrer" class="hal-shipping-link">
+    </isif>
+            <div class="address1">
+                <isif condition="${typeof address !== 'undefined' && address && address.address1}"><isprint value="${address.address1}" /></isif>
+            </div>
+
+            <div class="address2">
+                <isif condition="${typeof address !== 'undefined' && address && address.address2}"><isprint value="${address.address2}" /></isif>
+            </div>
+
+            <span class="city">
+                <isif condition="${typeof address !== 'undefined' && address && address.city}"><isprint value="${address.city}" />,</isif>
+            </span>
+            <span class="stateCode">
+            <isif condition="${typeof address !== 'undefined' && address && address.stateCode}"><isprint value="${address.stateCode}" /></isif>
+            </span>
+            <span class="postalCode">
+            <isif condition="${typeof address !== 'undefined' && address && address.postalCode}"><isprint value="${address.postalCode}" /></isif>
+            </span>
+    <isif condition="${GoogleMapsEndpoint !== null && GoogleMapsEndpoint.length > 0}">
+        </a>
+    </isif>
+
+    <isif condition="${typeof shippingModel !== 'undefined' && shippingModel && shippingModel.productLineItems && shippingModel.productLineItems.items && shippingModel.productLineItems.items[0].fromStoreId}">
+        <isloop items="${shippingModel.productLineItems.items}" var="lineItem" >
+            <isinclude template="checkout/shipping/PickUpContactData" />
+        </isloop>
+    </isif>
+</div>

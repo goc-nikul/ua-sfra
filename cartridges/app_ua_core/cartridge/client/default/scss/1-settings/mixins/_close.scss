@@ -1,0 +1,29 @@
+// сlose icon
+
+@mixin closeIcon($position: left, $size: rem-calc(24)) {
+    width: $size;
+    height: $size;
+    padding: 0;
+    border: 0;
+    background-color: transparent;
+    cursor: pointer;
+    -webkit-appearance: none;
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        #{$position}: 0;
+        width: $size;
+        height: 1px;
+        background-color: $black;
+    }
+
+    &::before {
+        transform: rotate(45deg);
+    }
+
+    &::after {
+        transform: rotate(135deg);
+    }
+}

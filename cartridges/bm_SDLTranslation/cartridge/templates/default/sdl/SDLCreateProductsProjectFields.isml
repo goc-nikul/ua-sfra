@@ -1,0 +1,56 @@
+<div class="row sdlCatalogList">
+    <div class="form-group col-md-6">
+        <label>
+            ${Resource.msg('msg.sdl.select.catalog', 'SDLTranslation', null)}
+            <sup>${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}</sup>
+            <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="${Resource.msg('msg.sdl.select.catalog.tooltip','SDLTranslation',null)}"></span>
+        </label>
+        <select class="form-control" id="sdlCatalogList" name="sdlCatalogList" required>
+            <isloop items="${pdict.CatalogList.catalogIDs}" var="catalog">
+                <option value="${catalog}">
+                    ${catalog}
+                </option>
+            </isloop>
+        </select>
+    </div>
+</div>
+
+<div class="sdlProductTableContainer">
+    <label class="tableHeading">
+        ${Resource.msg('msg.sdl.product.select', 'SDLTranslation', null)}
+        <sup>${Resource.msg('msg.sdl.required.star', 'SDLTranslation', null)}</sup>
+    </label>
+    <table id="sdlProductTable" class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th class="sdlHidingSort"><input type="checkbox" id="sdlProductCheckAll" /></th>
+                <th>${Resource.msg('msg.sdl.product.thumbnail', 'SDLTranslation', null)}</th>
+                <th>${Resource.msg('msg.sdl.product.id', 'SDLTranslation', null)}</th>
+                <th>${Resource.msg('msg.sdl.product.name', 'SDLTranslation', null)}</th>
+                <th>${Resource.msg('msg.sdl.product.longdesc', 'SDLTranslation', null)}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <isloop items="${pdict.ProductArray}" var="product">
+                <tr id="${product.ID}">
+                    <td>
+                        <input
+                        type="checkbox"
+                        class="sdlProdCheckbox"
+                        id="pt_${product.ID.replace(/[^1-9a-zA-Z]/g, '_')}"
+                        data-prodID="${product.ID.replace(/[^1-9a-zA-Z]/g, '_')}"
+                        data-prodoriginalid="${product.ID}"
+                        data-prodName="${escape(product.name)}"
+                        onclick="sdlProductMatrix('pt_${product.ID.replace(/[^1-9a-zA-Z]/g, '_')}','${escape(product.name)}', '${product.ID.replace(/[^1-9a-zA-Z]/g, '_')}', '${product.ID}')" />
+                    </td>
+                    <td>
+                        <img class="product-image" alt="${product.name}" src="${product.getImage('small') != null ? product.getImage('small').URL : URLUtils.staticURL('/images/SDL_Logo.png')}" />
+                    </td>
+                    <td class="sdlProdID"><isif condition="${product.ID !== null}" >${product.ID}</isif></td>
+                    <td><isif condition="${product.name !== null}" >${product.name}</isif></td>
+                    <td><isif condition="${product.longDescription !== null}" >${product.longDescription}</isif></td>
+                </tr>
+            </isloop>
+        </tbody>
+    </table>
+</div>

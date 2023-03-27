@@ -1,0 +1,50 @@
+.b-account-maintenance {
+    .b-account-container {
+        &-top {
+            @include respond-to(desktop) {
+                opacity: 0;
+            }
+        }
+
+        &-bottom {
+            .b-account-right {
+                max-width: rem-calc(400);
+                text-align: center;
+                margin: auto;
+
+                @include respond-to(desktop) {
+                    margin-top: 0;
+                }
+            }
+        }
+    }
+}
+
+.b-mao-maintenance-card {
+    &-title {
+        font-size: rem-calc(32);
+        font-weight: $font-title;
+        margin: rem-calc(15) 0 rem-calc(16);
+        line-height: 1.25;
+        @include respond-to(mobile) {
+            font-size: rem-calc(24);
+            margin-bottom: rem-calc(8);
+        }
+    }
+
+    &-sub-title {
+        margin-bottom: rem-calc(32);
+        font-size: rem-calc(14);
+        @include respond-to(mobile) {
+            font-size: rem-calc(12);
+            max-width: rem-calc(400);
+            margin: 0 auto rem-calc(32);
+        }
+    }
+
+    @include respond-to(mobile) {
+        text-align: center;
+        margin-bottom: rem-calc(48);
+        margin-top: rem-calc(32);
+    }
+}

@@ -1,0 +1,115 @@
+var Collection = require('dw/util/Collection');
+var ShippingMgr = require('dw/order/ShippingMgr');
+
+/**
+* Given an array of objects with productID and quantity for a shoprunner order:
+* build a new basket with just those items, 
+* assign the ShopRunner shippipng method to the default shipment
+* copy the shipping and billing address from the MainOrder that was already placed
+* copy the copy the payment instrument from the MainOrder
+*
+*
+* 	@input Basket : dw.order.Basket -The basket to build
+*   @input SrOrderItems : Array -objects containing productID and quantities for adding to the basket 
+*	@input MainOrder : dw.order.Order -Pull shipping information and reference from the main order
+*
+*/
+
+function execute(args) {
+	var srBasket : Basket = args.Basket;
+	var srOrderItems : Array = args.SrOrderItems;
+	var mainOrder : Order = args.MainOrder;
+
+	buildBasket();
+
+	return PIPELET_NEXT;
+}
+
+function buildBasket(srBasket, srOrderItems, mainOrder) {
+
+	var defaultShipment = srBasket.getDefaultShipment();
+	var cartShipAddress = defaultShipment.createShippingAddress();
+	var cartBillAddress = srBasket.getBillingAddress();
+	var shipAddress = mainOrder.getDefaultShipment().getShippingAddress();
+	var billAddress = mainOrder.getBillingAddress();
+	
+	// add all items to the new basket
+	for (var index in srOrderItems)
+	{
+		var newPLI = srBasket.createProductLineItem(srOrderItems[index].productID, defaultShipment);
+		if(!empty(newPLI)) 
+		{
+			newPLI.setQuantityValue( srOrderItems[index].quantity.value );
+		}
+	}
+	
+	// copy the customer number over
+	srBasket.setCustomerNo(mainOrder.getCustomerNo());
+	srBasket.setCustomerEmail(mainOrder.getCustomerEmail());
+	srBasket.setCustomerName(mainOrder.getCustomerName()); 
+	
+	// Retrieve the list of applicable shipping methods for the given shipment and address.
+	var shippingModel = ShippingMgr.getShipmentShippingModel(defaultShipment);
+	var ret = new ArrayList();
+    
+	// Construct an address that can be used in getApplicableShippingMethods
+	// because it doesn't use the DW OrderAddress object
+	var addressObj = new Object();
+	addressObj.countryCode = shipAddress.countryCode.value;
+	addressObj.stateCode = shipAddress.stateCode;
+	addressObj.postalCode = shipAddress.postalCode;
+	addressObj.city = shipAddress.city;
+	ret = shippingModel.getApplicableShippingMethods(addressObj);
+	
+	var shoprunnerMethod = null;
+	for (var index in ret)
+	{ 
+		if (ret[index].ID == "shoprunner") 
+		{
+			shoprunnerMethod = ret[index]; 
+		}
+	}
+	
+	if (!empty(shoprunnerMethod)) 
+	{
+		defaultShipment.setShippingMethod(shoprunnerMethod);//send in a shipping method
+	}
+    
+    //set the shipping address on the new basket
+    if (!empty(shipAddress)) 
+    {
+    	copyAddress(shipAddress, cartShipAddress);
+	}
+	if (!empty(billAddress)) 
+	{
+		copyAddress(billAddress, cartBillAddress);
+	}
+    
+}
+
+
+function copyAddress(sourceAddress, destAddress) 
+{
+	destAddress.setAddress1(sourceAddress.getAddress1());
+	destAddress.setAddress2(sourceAddress.getAddress2());
+	destAddress.setCity(sourceAddress.getCity());
+	destAddress.setCompanyName(sourceAddress.getCompanyName());
+	destAddress.setCountryCode(sourceAddress.getCountryCode());
+	destAddress.setFirstName(sourceAddress.getFirstName());
+	destAddress.setJobTitle(sourceAddress.getJobTitle());
+	destAddress.setLastName(sourceAddress.getLastName());
+	destAddress.setPhone(sourceAddress.getPhone());
+	destAddress.setPostalCode(sourceAddress.getPostalCode());
+	destAddress.setPostBox(sourceAddress.getPostBox());
+	destAddress.setSalutation(sourceAddress.getSalutation());
+	destAddress.setSecondName(sourceAddress.getSecondName());
+	destAddress.setStateCode(sourceAddress.getStateCode());
+	destAddress.setSuffix(sourceAddress.getSuffix());
+	destAddress.setSuite(sourceAddress.getSuite());
+	destAddress.setTitle(sourceAddress.getTitle());
+}
+
+module.exports = {
+    execute: execute,
+	buildBasket: buildBasket
+};

@@ -1,0 +1,18 @@
+<isif condition="${product.swatches && product.swatches.count > 0}">
+    <ul class="b-swatches_text">
+        <isloop items="${attr.values}" var="swatch" status="loopState">
+            <li class="b-swatches_text-item">
+                <a href="${swatch.url}"
+                    data-index="${loopState.count-1}"
+                    aria-label="${swatch.id}"
+                    data-attr-value="${swatch.value}"
+                    class="
+                        b-swatches_text-link
+                        ${swatch.selected ? 'm-active' : ''}
+                        ${swatch.selectable ? '' : 'm-disabled'}">
+                    <span class="b-swatches_text-value js-size-link"></span>
+                </a>
+            </li>
+        </isloop>
+    </ul>
+</isif>

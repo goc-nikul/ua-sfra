@@ -1,0 +1,22 @@
+/**
+* Demandware Script File
+* Deletes a ShopRunner cookie.
+*
+*/
+importScript ( "checkout/Utils.ds" );
+
+function execute (args) {
+  	setSRSignOut();
+    return PIPELET_NEXT;
+}
+
+function deleteCookie() {
+    // delete sr_token from cookies
+  	setSRSignOut();
+    return;
+}
+
+module.exports = {
+    execute: execute,
+	deleteCookie: deleteCookie
+};

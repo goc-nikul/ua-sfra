@@ -1,0 +1,19 @@
+name: Mark stale pull requests
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v6
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-pr-message: "This PR is considered stale because it has been open without activity for 14 days.  It will be closed in 7 days unless some activity occurs before then."
+          close-pr-message: 'This pr was closed because it has been inactive for 14 days since being marked as stale.'
+          stale-pr-label: "stale"
+          exempt-pr-labels: "stale-exempt"
+          days-before-stale: 30

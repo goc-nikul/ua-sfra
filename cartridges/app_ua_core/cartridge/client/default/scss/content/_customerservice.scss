@@ -1,0 +1,355 @@
+.pt_customer-service {
+    padding: rem-calc(25) rem-calc(20);
+
+    .ua-returns-container.return-label-div {
+        .alert.alert-danger {
+            margin-bottom: rem-calc(12);
+        }
+    }
+
+    a {
+        color: #014261;
+
+        &:active,
+        &:hover {
+            color: #014261;
+        }
+    }
+
+    .customer-service-links {
+        @include respond-to(phones) {
+            margin-bottom: -30px;
+        }
+
+        li {
+            margin-bottom: rem-calc(25);
+
+            @include respond-to(phones) {
+                border-bottom: solid $grey9 rem-calc(1);
+                margin-bottom: 0;
+                padding: rem-calc(15) 0 rem-calc(15) rem-calc(20);
+
+                &:first-child {
+                    padding-top: 0;
+                }
+            }
+        }
+
+        a {
+            background: url("../images/icons-customerservice.png") top left no-repeat scroll;
+            color: black;
+            display: block;
+            font-size: rem-calc(18);
+            font-weight: bold;
+            line-height: rem-calc(71);
+            min-height: rem-calc(71);
+            padding-left: rem-calc(90);
+            text-transform: uppercase;
+            text-decoration: none;
+
+            @include respond-to(phones) {
+                background-size: rem-calc(55) !important;
+                line-height: rem-calc(55);
+                min-height: rem-calc(55);
+                padding-left: rem-calc(75);
+            }
+
+            &.contact-us {
+                background-position: 0 0;
+
+                &:hover {
+                    background-position: 0 53.55%;
+                }
+            }
+
+            &.returns-and-exchanges {
+                background-position: 0 7.7%;
+
+                &:hover {
+                    background-position: 0 61.24%;
+                }
+            }
+
+            &.shipping-info {
+                background-position: 0 15.43%;
+
+                &:hover {
+                    background-position: 0 68.98%;
+                }
+            }
+
+            &.security-privacy {
+                background-position: 0 23.14%;
+
+                &:hover {
+                    background-position: 0 76.7%;
+                }
+            }
+
+            &.terms-conditions {
+                background-position: 0 30.85%;
+
+                &:hover {
+                    background-position: 0 84.4%;
+                }
+            }
+
+            &.track-order {
+                background-position: 0 38.55%;
+
+                &:hover {
+                    background-position: 0 92.1%;
+                }
+            }
+        }
+    }
+
+    h1 {
+        font-size: rem-calc(38);
+        margin: 0;
+        border-bottom: none;
+        padding-bottom: 0;
+        text-align: left;
+        color: $black;
+        text-transform: uppercase;
+        font-weight: $font-bold;
+        line-height: rem-calc(43);
+
+        @include respond-to(phones) {
+            font-size: rem-calc(26);
+            line-height: rem-calc(31);
+        }
+    }
+
+    .b-breadcrumbs,
+    .b-breadcrumbs a {
+        padding: 0;
+        color: $silver-chalice;
+        font-size: rem-calc(13);
+        font-style: normal;
+        text-transform: none;
+        margin-bottom: rem-calc(10);
+
+        &:hover {
+            color: $grey6;
+        }
+    }
+
+    .heading-row {
+        padding-bottom: rem-calc(20);
+        margin-bottom: rem-calc(30);
+        border-bottom: solid $alto-gray 1px;
+    }
+
+    .left-nav {
+        background-color: $grey2;
+        width: 90%;
+        padding: rem-calc(20) rem-calc(10);
+
+        @media screen and (min-width: 992px) {
+            width: 80%;
+            padding: rem-calc(20);
+        }
+
+        h3 {
+            color: $black;
+            font-size: rem-calc(20);
+            font-weight: $font-bold;
+            margin: rem-calc(15) 0 rem-calc(20);
+            padding: 0 rem-calc(15);
+            text-transform: uppercase;
+        }
+
+        a {
+            color: $black;
+            display: block;
+            font-size: rem-calc(14);
+            font-weight: $font-bold;
+            padding: 0 rem-calc(15);
+            text-decoration: none;
+
+            &:hover {
+                color: $red;
+            }
+        }
+
+        ul li {
+            padding: rem-calc(10) 0;
+        }
+
+        ul .selected {
+            background-color: $white;
+            color: $black;
+        }
+    }
+
+    .customer-service-content {
+        h2 {
+            font-size: rem-calc(38);
+            text-transform: uppercase;
+            display: block;
+            margin-block-start: rem-calc(13);
+            margin-block-end: rem-calc(13);
+            font-weight: $font-bold;
+            line-height: rem-calc(43);
+
+            @include respond-to(tablet-landscape) {
+                font-size: rem-calc(24);
+                line-height: rem-calc(28);
+            }
+
+            @include respond-to(phones) {
+                font-size: rem-calc(22);
+                line-height: rem-calc(26);
+            }
+        }
+
+        p {
+            line-height: rem-calc(26);
+            margin: rem-calc(16) 0;
+            font-size: rem-calc(16);
+        }
+
+        b,
+        strong {
+            font-weight: $font-bold;
+        }
+    }
+
+    .contact-information {
+        border-left: solid $grey9 1px;
+        font-size: rem-calc(12);
+        line-height: rem-calc(22);
+        padding-left: rem-calc(15);
+
+        @include respond-to(phones) {
+            background: $grey1;
+            border-left: none;
+            font-size: rem-calc(14);
+            margin-left: -10px;
+            margin-right: -10px;
+            margin-top: rem-calc(30);
+            max-width: none;
+            padding: rem-calc(15) rem-calc(10);
+        }
+
+        .support-info {
+            display: grid;
+            line-height: rem-calc(17);
+
+            a {
+                display: block;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                color: $black;
+            }
+        }
+    }
+
+    .b-customer-returns {
+        .b-rx {
+            width: 94%;
+            font-size: rem-calc(13);
+
+            strong {
+                font-weight: $font-bold;
+            }
+
+            tbody {
+                display: table-row-group;
+                vertical-align: middle;
+                border-color: inherit;
+
+                tr {
+                    display: table-row;
+                    vertical-align: inherit;
+                    border-color: inherit;
+                }
+            }
+
+            td,
+            th {
+                padding: 0;
+            }
+
+            td {
+                padding: rem-calc(16) rem-calc(16) rem-calc(16) 0;
+                vertical-align: top;
+
+                &:last-child {
+                    padding-right: 0;
+                }
+            }
+
+            th {
+                font-style: normal;
+                font-weight: $font-regular;
+                text-align: left;
+            }
+
+            p {
+                margin: 0;
+                padding: 0 0 rem-calc(20);
+                line-height: rem-calc(21);
+            }
+        }
+
+        .b-order_track-container {
+            margin-bottom: 0;
+            padding: 0;
+            padding-left: rem-calc(2);
+
+            .b-return-wrap {
+                padding: 0;
+
+                @media screen and (max-width: 1023px) {
+                    margin-bottom: 0;
+                }
+            }
+        }
+
+        img {
+            height: auto;
+            max-width: 100%;
+            vertical-align: bottom;
+            border: 0;
+        }
+    }
+}
+
+.border-free .icon__circle svg {
+    width: 50%;
+    height: 50%;
+    stroke: #fff;
+    margin-left: -25%;
+    margin-top: -26%;
+}
+
+.border-free .icon__circle,
+.email-support .icon__circle,
+.phone-support .icon__circle {
+    width: rem-calc(30);
+    height: rem-calc(30);
+    background-color: $black;
+    fill: $white;
+}
+
+.icon__circle,
+.icon__close--circle {
+    display: inline-block;
+    position: relative;
+    stroke-width: 25;
+    border-radius: 50%;
+
+    svg {
+        position: absolute;
+        width: 60%;
+        height: 60%;
+        margin-top: -30%;
+        margin-left: -30%;
+        top: 50%;
+        left: 50%;
+    }
+}
+

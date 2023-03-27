@@ -1,0 +1,82 @@
+{
+  "_v" : "4",
+  "data": {
+      "attributes": {
+        "gift_message": {
+          "read": {
+            "resource": "DefaultShipment",
+            "path": "gift_message"
+          }
+        }, "gift": {
+          "read": {
+            "resource": "DefaultShipment",
+            "path": "gift"
+          }
+        }
+      }
+  },
+  "layout" : [ {
+    "layout" : [ {
+      "id" : "column1",
+      "width" : 3
+    }, {
+      "id" : "column2",
+      "width" : 3
+    }, {
+      "id" : "column3",
+      "layout" : [ {
+        "id" : "status_title",
+        "width" : 12
+      }, {
+        "id" : "status_listing",
+        "width" : 12
+      } ],
+      "width" : 6
+    } ]
+  } ],
+  "widgets" : {
+    "status_title" : {
+      "type" : "text",
+      "data" : {
+        "template" : {
+          "default" : "Order Status:"
+        }
+      }
+    },
+    "status_listing" : {
+      "type" : "attribute_listing",
+      "config" : {
+        "attributes" : [ "status", "export_status", "confirmation_status",  "shipping_status", "payment_status", "gift", "gift_message" ],
+        "columns" : 1,
+        "orientation" : "horizontal",
+        "show_empty" : false
+      }
+    },
+    "column1" : {
+      "type" : "attribute_listing",
+      "config" : {
+        "attributes" : [ "order_no" ],
+        "columns" : 1,
+        "show_empty" : true
+      }
+    },
+    "column2" : {
+      "type" : "attribute_listing",
+      "config" : {
+        "attributes" : [ "creation_date", "source_code" ],
+        "columns" : 1,
+        "meta" : {
+          "source_code" : {
+            "label" : {
+              "default" : "Source Code"
+            }
+          }
+        },
+        "show_empty" : true
+      }
+    },
+    "column3" : {
+      "type" : "attribute_layout"
+    }
+  }
+}

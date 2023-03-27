@@ -1,0 +1,8 @@
+<isloop items="${order}" var="currentOrder" status="outerloopstate">
+   <isset name="orderStatus" value="${currentOrder.status}" scope="page" />
+   <isif condition="${currentOrder.orderItems.length == 1}">
+      <isinclude template="account/order/oneproductdashboardTiles"/>
+   <iselse>
+     <isinclude template="account/order/oneorderproductsdashboardTiles"/> 
+   </isif>
+</isloop>

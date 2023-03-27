@@ -1,0 +1,11 @@
+<isset name="klarnaThresholdPreference" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('klarnaMinimumThreshold')}" scope="page" />
+<isset name="klarnaMinimumThreshold" value="${klarnaThresholdPreference ? klarnaThresholdPreference * 100 : 1000}" scope="page" />
+<isset name="klarnaMaxPreference" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('klarnaMaximumThreshold')}" scope="page" />
+<isset name="klarnaMaximumThreshold" value="${klarnaMaxPreference ? klarnaMaxPreference * 100 : 100000}" scope="page" />
+<isset name="klarnaPaymentType" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('Aurus_klarnaPaymentType')}" scope="page" />
+
+<li class="g-tabs-chip nav-item klarna-payment-item ${pdict.eligiblePaymentMethods && pdict.eligiblePaymentMethods.klarna ? '' : 'hide'}" data-method-id="klarna_${klarnaPaymentType}">
+    <a class="g-tabs-link nav-link js-klarna-payments-link klarna-payments-${klarnaPaymentType}-tab ${pdict.selectedPaymentMethod == paymentOption.ID ? 'active' : ''} ${pdict.order.totals && pdict.order.totals.klarnaTotal && (pdict.order.totals.klarnaTotal < klarnaMinimumThreshold || pdict.order.totals.klarnaTotal > klarnaMaximumThreshold) ? 'hide' : ''}" data-toggle="tab" href="${'#klarna_payments_' + klarnaPaymentType}" role="tab">
+        <isprint value="${Resource.msg('klarna.payment.tab','checkout',null)}" />
+    </a>
+</li>

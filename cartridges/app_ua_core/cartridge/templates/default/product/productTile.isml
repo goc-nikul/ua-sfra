@@ -1,0 +1,101 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isset name="disableProductLink" value="${false}" scope="page" />
+<isif condition="${pdict.display && pdict.display.isGiftItem}">
+    <isset name="disableProductLink" value="${true}" scope="page" />
+</isif>
+<div class="b-tile bfx-price-product ${!product.images || product.images.desktop.main.title === 'No Image' ? 'hide' : ''}" data-cmp="productTile" data-json-config='{"initOnDevice": [null, null, null, "large", "extra-large"]}'>
+    <!-- dwMarker="product" dwContentID="${product.uuid}" -->
+    <div class="b-tile-variations_container" data-product="${product.id}">
+        <div class="b-tile-images_outer">
+          <isif condition="${!pdict.isShopThisLookModel}">
+              <isif condition="${product.productTileUpperLeftFlameIconBadge && product.productTileUpperLeftFlameIconBadge.value && !pdict.experienceType}">
+                  <div class="b-tile-badge_top_left b-flameIcon">
+                      <span class="b-flameIcon-sec">
+                          <img class="img-flameIcon" alt="${Resource.msg('badge.flameIcon.text','common',null)}" src="${URLUtils.staticURL('/images/iconimages/flame.png')}">
+                          <span class="flameIcon-text">${product.productTileUpperLeftFlameIconBadge.displayValue}</span>
+                     </span>
+                 </div>
+              <iselseif condition="${pdict.experienceType && product.outletProductTileUpperLeftBadge.value}" >
+                  <div class="b-tile-badge_top_left hide-top_left_badge">${product.outletProductTileUpperLeftBadge.displayValue}</div>
+              </iselseif>
+                 <iselseif condition="${product.productTileUpperLeftBadge && product.productTileUpperLeftBadge.value}">
+                     <div class="b-tile-badge_top_left hide-top_left_badge">${product.productTileUpperLeftBadge.displayValue}</div>
+                 </iselseif>
+              </isif>
+              <div class="b-tile-badge_top_left b-tile_badge-recently-viewed">${Resource.msg('badge.recently.viewed','common',null)}</div>
+              <isif condition="${product.productTileBottomLeftBadge}">
+                  <div class="b-tile-badge_bottom_left">
+                      <iscontentasset aid="${product.productTileBottomLeftBadge}" />
+                  </div>
+              </isif>
+           </isif>
+           <isif condition="${product && !empty(product.custom) && product.custom.giftCard !== 'EGIFT_CARD'}">
+               <button class="b-tile-fav_defultButton wishlistTile product" remove-href="${URLUtils.url('Wishlist-RemoveProduct')}" href="${URLUtils.url('Wishlist-AddProduct')}" aria-label="${Resource.msg('button.addto.wishlist','common',null)}" data-pid="${pdict.mid}" type="button" data-analytics-style="${product.custom !== 'undefined' ? product.custom.style : ''}">
+                   <span class="js-whislist-icon ${pdict.isItemExistsInWishList ? 'product-added b-tile-fav_selectButton' : 'b-tile-fav_button'}"></span>
+               </button>
+           </isif>
+           <isinclude template="product/components/productTileImage" />
+        </div>
+
+    </div>
+
+    <div class="b-tile-info">
+        <div class="b-tile-gift-container">
+            <isif condition="${pdict.display && pdict.display.swatches !== false && product.swatches && product.swatches.count > 0}">
+                <div class="b-tile-swatches_container">
+                    <div class="b-tile-swatches js-tile-swatches">
+                        <isset name="productSwatches" value="${product.swatches.values}" scope="page"/>
+
+                        <isinclude template="product/components/swatchesCarousel" />
+                    </div>
+                    <a href="${pdict.urls.product}" class="b-tile-swatches_count">
+                        ${Resource.msgf('label.colors', 'search', null, product.swatches.count)}
+                    </a>
+                </div>
+            </isif>
+
+            <isif condition="${pdict.display && pdict.display.isGiftItem}">
+                <isset name="productURL" value="" scope="page" />
+            </isif>
+            <isinclude template="product/components/productTileName" />
+            <isset name="price" value="${product.price}" scope="page" />
+
+            <isif condition="${product.productType === 'set'}">
+                <isinclude template="product/components/pricing/setPrice" />
+
+            <iselse>
+                <isinclude template="product/components/pricing/main" />
+            </isif>
+        </div>
+        <isif condition="${!pdict.isShopThisLookModel}">
+            <isif condition="${!(pdict.display && pdict.display.isGiftItem)}">
+                <div class="plp-outofstock">
+                    <isif condition="${!!product.exclusive && product.exclusive.value == 'out-of-stock'}"><div>${Resource.msg('label.outofstock.soldOut','common', null)}</div></isif>
+                </div>
+            </isif>
+            <div class="plp-outofstock">
+                <isif condition="${!!product.exclusive && product.exclusive.value == 'coming-soon'}"><div>${product.custom.comingSoonMessage}</div></isif>
+            </div>
+            <div class="b-product_promo b-promo-tooltip-information">
+                <isinclude template="product/components/promotions" />
+            </div>
+        </isif>
+        <isif condition="${product.id && pdict.display && pdict.display.isGiftItem && !pdict.display.availabilityStatus}">
+            <div class="g-checkbox">
+                <isif condition="${pdict.display.inBasket}">
+                    <input class="g-checkbox-input gift-item selected" type="checkbox" id="isGift-item-${product.id}" data-pid="${product.id}" data-qty="${1}" checked="checked">
+                <iselse>
+                    <input class="g-checkbox-input gift-item" type="checkbox" id="isGift-item-${product.id}" data-pid="${product.id}" data-qty="${1}">
+                </isif>
+
+                <label class="g-checkbox-label" for="isGift-item-${product.id}"></label>
+            </div>
+       </isif>
+       <isif condition="${product.id && pdict.display && pdict.display.isGiftItem && pdict.display.availabilityStatus}">
+            <div class="gift-outofstock">
+                <div>${Resource.msg('label.outofstock.soldOut','common', null)}</div>
+            </div>
+       </isif>
+    </div>
+    <!-- END_dwmarker -->
+</div>

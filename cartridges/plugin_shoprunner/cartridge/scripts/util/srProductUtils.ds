@@ -1,0 +1,180 @@
+importPackage( dw.system );
+importPackage( dw.catalog );
+importPackage( dw.campaign );
+importPackage( dw.util );
+importPackage( dw.value );
+importPackage( dw.web );
+
+function SRProductUtils(pdict : PipelineDictionary) {
+
+}
+
+SRProductUtils.getPricing = function(item : Product) : Object {
+	/* product pricing
+	*
+	* There is currently no way to check if the list pricebook is actually
+	* assigned to the site.  Therefore, we do a sanity check:  If the
+	* product has no price according to standard price lookup rules,
+	* then we know the list price book is not assigned to the site.
+	* (The converse is not true so this check is not perfect.)
+	*
+	* Todo:  Improve this logic.
+	*/
+
+	var priceModel = item.getPriceModel();
+	var standardPrice = null;
+
+	if (!priceModel.getPrice().available)
+	{
+		standardPrice = Money.NOT_AVAILABLE;
+	}
+	else if (('listPriceDefault' in Site.current.preferences.custom) && !empty(Site.current.preferences.custom.listPriceDefault))
+	{
+		standardPrice = priceModel.getPriceBookPrice(Site.current.preferences.custom.listPriceDefault);
+	}
+	else
+	{
+		standardPrice = priceModel.getPriceBookPrice('list-prices');
+	}
+	var standardDefaultPrice = standardPrice;
+
+	var salesPrice = priceModel.getPrice();
+	// if there is no standard price set in the priceBook
+	if (empty(standardPrice.valueOrNull))
+	{
+		standardPrice = salesPrice;
+		standardDefaultPrice = salesPrice;
+	}
+	var showStdPrice = standardPrice.available && salesPrice.available && standardPrice.compareTo(salesPrice) == 1;
+	var promoPrice = Money.NOT_AVAILABLE;
+	var isPromoPrice = false;
+	var discountSalePrice : number = 0;
+	var promos = PromotionMgr.activeCustomerPromotions.getProductPromotions(item);
+	//check if are more promotions active for this product
+	var promoCount : Number = 0;
+	for each (var prm in promos)
+	{
+		promoCount++;
+	}
+	var discountArray : Array = [];
+	//put each promo price in array
+	if (!(empty(promos)))
+	{
+		for (var i = 0; i < promoCount; i++)
+		{
+			var promo = promos[i];
+			var promoClass = promo.getPromotionClass();
+			if (promoClass && promoClass.equals(Promotion.PROMOTION_CLASS_PRODUCT))
+			{
+				if (item.optionProduct)
+				{
+					promoPrice = promo.getPromotionalPrice(item, item.getOptionModel());
+				}
+				else
+				{
+					promoPrice = promo.getPromotionalPrice(item);
+				}
+			}
+			discountArray.push(promoPrice.value);
+			break;
+		}
+		var finalPrice : Number = salesPrice.value;
+		var discountedValue : Number = 0;
+		for each (var disc in discountArray)
+		{
+			if (disc == 0)
+			{
+				continue;
+			}
+			discountedValue = salesPrice.value - disc;
+			finalPrice -= discountedValue;
+			discountedValue = 0;
+		}
+		//get the final Price and then convert to Money.
+		var discountTotal = new Money(finalPrice, Site.getCurrent().getDefaultCurrency());
+
+		if (promoPrice.available && salesPrice.compareTo(promoPrice) != 0)
+		{
+			showStdPrice = isPromoPrice = true;
+			discountSalePrice = discountTotal;
+		}
+	}
+
+	// if the sale price is promotional
+	if (isPromoPrice && !salesPrice.decimalValue.equals(discountSalePrice.decimalValue))
+	{
+		standardPrice = salesPrice;
+		salesPrice = discountSalePrice;
+	}
+
+	var pricing = {
+		showStandardPrice : showStdPrice,
+		isPromoPrice : isPromoPrice,
+		standard : standardPrice.value.toFixed(2),
+		standardDefault : standardDefaultPrice.value.toFixed(2),
+		formattedStandard : dw.util.StringUtils.formatMoney(standardPrice),
+		discountSalePrice : discountSalePrice.value,
+		discountSalePriceMoney : discountSalePrice,
+		sale : salesPrice.value,
+		formattedSale : dw.util.StringUtils.formatMoney(salesPrice),
+		salePriceMoney : salesPrice,
+		standardPriceMoney : standardPrice,
+		standardDefaultPriceMoney : standardDefaultPrice,
+		quantities : []
+	};
+
+	var priceTable = priceModel.getPriceTable();
+	for (var qty in priceTable.getQuantities())
+	{
+		pricing.quantities.push({unit:empty(qty.unit) ? "" : qty.unit, value:empty(qty.value) ? 0 : qty.value.toFixed()});
+	}
+
+	return 	pricing;
+};
+
+SRProductUtils.checkCartEligibility = function(productLineItems : Collection) : String {
+	var status : String = '';
+	var thisProduct : Product = null;
+	for (var index in productLineItems)
+	{
+		thisProduct = productLineItems[index].product;
+		// skip null product line items
+		if (empty(thisProduct))
+		{
+			continue;
+		}
+		if (!('sr_eligible' in thisProduct.custom) || thisProduct.custom.sr_eligible.value == 'false')
+		{
+			if ( status == 'ALL_SR' )
+			{
+				status = 'MIXED';
+			}
+			if ( status == '' )
+			{
+				status = 'NO_SR';
+			}
+		}
+		else if (thisProduct.custom.sr_eligible.value == 'true')
+		{
+			if ( status == 'NO_SR' )
+			{
+				status = 'MIXED';
+			}
+			if ( status == '' )
+			{
+				status = 'ALL_SR';
+			}
+		}
+	}
+	return status;
+};
+
+SRProductUtils.checkSRProductEligibility = function(thisProduct : Product) : Boolean {
+	var showdiv : Boolean = false;
+	if (thisProduct.isProduct())
+	{
+		var isSREligible = thisProduct.getCustom()['sr_eligible'].getValue().toString();
+		showdiv = isSREligible == 'true' ? true : false;
+	}
+	return showdiv;
+};

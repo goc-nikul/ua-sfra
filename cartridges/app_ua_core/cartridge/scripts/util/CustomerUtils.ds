@@ -1,0 +1,182 @@
+/**
+ * Customer utils contai some customer help functions 
+ * 
+ */
+importPackage(dw.system);
+importPackage(dw.util);
+importPackage(dw.customer);
+
+var CustomerMgr = require('dw/customer/CustomerMgr');
+var AuthenticationStatus = require('dw/customer/AuthenticationStatus');
+
+var CustomerUtils = function() {
+
+};
+
+CustomerUtils.prototype = {
+
+    _isEmployee: function(customer: Customer, sitePrefKey, skipAuth) {
+
+        var isEmployeeFlag = false,
+            employeeGroupsPrefs = Site.getCurrent().getCustomPreferenceValue(sitePrefKey),
+            employeeGroups = !empty(employeeGroupsPrefs) ? employeeGroupsPrefs.replace(/ /g, '').toLowerCase().split(',') : [],
+            authenticated = skipAuth ? skipAuth : customer.authenticated;
+
+        if (authenticated && employeeGroups.length > 0) {
+
+            var groups: Collection = customer.getCustomerGroups();
+
+            for (let i = 0; i < groups.length; i++) {
+                let currentCustomerGroupId = groups[i].ID.toLowerCase();
+
+                if (employeeGroups.indexOf(currentCustomerGroupId) > -1) {
+                    isEmployeeFlag = true;
+                    break;
+                }
+
+            }
+        }
+        return isEmployeeFlag;
+
+    },
+
+    _countryHasEmployees: function(countryCode) {
+        var countryHasEmployees = true,
+            employeeLineItemQtyLimitJSON = dw.system.Site.getCurrent().getCustomPreferenceValue("employeeLineItemQtyLimit"),
+            customerCountry = countryCode || session.custom.customerCountry && session.custom.customerCountry.toUpperCase();
+
+        if (!empty(employeeLineItemQtyLimitJSON)) {
+            try {
+                var employeeLineItemQtyLimitData = JSON.parse(employeeLineItemQtyLimitJSON);
+
+                if (!empty(employeeLineItemQtyLimitData[customerCountry]) && /N\/A/i.test(employeeLineItemQtyLimitData[customerCountry])) {
+                    countryHasEmployees = false;
+                }
+            } catch (e) {
+                Logger.error("CustomerUtils.ds _countryHasEmployees function error: JSON parse failed. Can not parse site custom preference'employeeLineItemQtyLimit'. Error: {0}", e);
+                return false;
+            }
+
+        }
+
+        return countryHasEmployees;
+    },
+
+    isEmployeeDiscount: function(customer, countryCode) {
+        if (empty(customer)) return false;
+        return this._countryHasEmployees(countryCode) && this._isEmployee(customer, 'employeeDiscountGroups', false);
+    },
+
+    isEmployeeFreeShipping: function(customer, countryCode) {
+        if (empty(customer)) return false;
+        return this._countryHasEmployees(countryCode) && this._isEmployee(customer, 'employeeFreeShippingCustomerGroup', false);
+    },
+
+    isEmployeeDiscountSkipAuth: function(customer) {
+        return this._isEmployee(customer, 'employeeDiscountGroups', true);
+    },
+
+    isEmployeeFreeShippingSkipAuth: function(customer) {
+        return this._isEmployee(customer, 'employeeFreeShippingCustomerGroup', true);
+    },
+
+    isEmployeeCustomer: function(Customer, countryCode) {
+        // if "Customer" is not passed to this function then use dw.customer for checking
+        var verifiableCustomer = Customer || customer;
+        return this._countryHasEmployees(countryCode) && (this.isEmployeeDiscountSkipAuth(verifiableCustomer) || this.isEmployeeFreeShippingSkipAuth(verifiableCustomer));
+    },
+
+    getEmployeeOfficeAddress: function(customer, customerCountryCode) {
+
+        var address: Object = null;
+
+        if (this.isEmployeeFreeShipping(customer)) {
+
+            var officeAddresses = [],
+                CountryHelper = require("underarmour_storefront/cartridge/scripts/util/CountryHelper"),
+                countryHelper = new CountryHelper();
+
+
+            try {
+                officeAddresses = JSON.parse(Site.getCurrent().getCustomPreferenceValue('officeAddresses'));
+            } catch (e) {
+                Logger.error("CustomerUtils.ds: Can't parse JSON config from site preference <officeAddresses>: " + e.message);
+            }
+
+            if (officeAddresses.length > 0) {
+                for (let i = 0; i < officeAddresses.length; i++) {
+                    if (officeAddresses[i].countryCode == customerCountryCode) {
+                        address = officeAddresses[i];
+                        address.ID = address.name;
+                        address.firstName = customer.profile.firstName;
+                        address.lastName = customer.profile.lastName;
+                        address.phone = !empty(address.phone) ? address.phone : '';
+                        address.address1 = !empty(address.address1) ? address.address1 : '';
+                        address.address2 = !empty(address.address2) ? address.address2 : '';
+                        address.exteriorNumber = !empty(address.exteriorNumber) ? address.exteriorNumber : '';
+                        address.interiorNumber = !empty(address.interiorNumber) ? address.interiorNumber : '';
+                        address.additionalInformation = !empty(address.additionalInformation) ? address.additionalInformation : '';
+                        address.colony = !empty(address.colony) ? address.colony : '';
+                        address.taxnumber = !empty(customer.profile.custom.taxnumber) ? customer.profile.custom.taxnumber : '';
+                        address.dob = !empty(customer.profile.custom.dob) ? customer.profile.custom.dob : '';
+                        address.dependentLocality = !empty(address.dependentLocality) ? address.dependentLocality : '';
+                        address.state = !empty(address.state) ? address.state : '';
+                        address.officeAddress = true;
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        return address;
+    },
+
+    /**
+     * @description 
+     * @param {String} login name
+     * @param {String} password
+     * @param {Boolean} value indicating if the customer wants to be remembered on the current computer
+     * @return {dw.customer.Customer} customer
+     */
+    loginCustomer: function(login, password, rememberMe) {
+        let authStatus = CustomerMgr.authenticateCustomer(login, password);
+        if (authStatus.status === AuthenticationStatus.AUTH_OK) {
+            CustomerMgr.loginCustomer(authStatus, rememberMe || false);
+            return true;
+        }
+        return false;
+    },
+
+
+    /*
+     * @description Finds line item qty limit for customer with customer groups 
+     * @return {Number} line item qty limit
+     */
+    getCustomerGroupLineItemQtyLimit: function(countryCode) {
+        var customerCountry = countryCode,
+            lineItemQtyLimit = 0;
+        if ('customerCountry' in session.custom && session.custom.customerCountry != null && !empty(session.custom.customerCountry)) {
+            customerCountry = session.custom.customerCountry.toUpperCase();
+        }
+
+        if (customer.customerGroups && customer.customerGroups.length > 0) {
+            let groups = customer.customerGroups;
+            for (let i = 0; i < groups.length; i++) {
+                try {
+                    if ('lineItemQtyLimit' in groups[i].custom && !empty(groups[i].custom.lineItemQtyLimit)) {
+                        let lineItemQtyLimitData = JSON.parse(groups[i].custom.lineItemQtyLimit);
+                        if (!empty(lineItemQtyLimitData[customerCountry])) {
+                            lineItemQtyLimit = parseInt(lineItemQtyLimitData[customerCountry]);
+                        }
+                    }
+                } catch (e) {
+                    Logger.error("CustomerUtils.ds getCustomerGroupLineItemQtyLimit function. Error: {0}", e);
+                }
+            }
+        }
+        return lineItemQtyLimit;
+    }
+}
+
+module.exports = CustomerUtils;

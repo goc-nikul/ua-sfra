@@ -1,0 +1,100 @@
+.b-promo {
+    &-line-item {
+        @include t-text-4;
+
+        color: $scarlet;
+        font-size: rem-calc(11);
+    }
+
+    &-order {
+        .b-promotion-information {
+            @include font(main_med, rem-calc(12), 1.67);
+
+            color: $green;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+
+    &-tooltip-content {
+        width: 100%;
+        position: relative;
+
+        .hide-desktop {
+            display: none;
+        }
+
+        .hide-mobile {
+            display: block;
+        }
+
+        @include respond-to(mobile) {
+            position: relative;
+            display: inline-block;
+
+            .hide-mobile {
+                display: none;
+            }
+
+            .hide-desktop {
+                display: block;
+            }
+        }
+
+        .g-tooltip-text {
+            width: rem-calc(240);
+            padding: rem-calc(12) rem-calc(16) rem-calc(16);
+            border-radius: 1px;
+            top: calc(100% + 7px);
+            line-height: 1.5;
+
+            @include respond-to(mobile) {
+                width: 100%;
+                min-width: rem-calc(200);
+
+                &::after {
+                    display: none;
+                }
+            }
+        }
+
+        .g-tooltip-icon {
+            @include icon(question);
+
+            vertical-align: middle;
+            cursor: pointer;
+
+            &::before {
+                font-size: rem-calc(14);
+            }
+        }
+
+        .g-tooltip-arrow {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+
+            &::after {
+                content: '';
+                border-color: transparent transparent $black transparent;
+                border-style: solid;
+                border-width: rem-calc(8);
+            }
+        }
+
+        &-text {
+            @include font(main_med, rem-calc(12), 1.67);
+
+            color: $green;
+            margin-right: rem-calc(7);
+            vertical-align: top;
+        }
+    }
+
+    .coupon-missing-error {
+        padding-left: 0;
+    }
+}

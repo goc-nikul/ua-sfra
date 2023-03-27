@@ -1,0 +1,36 @@
+<div class="form-group ${pdict.mandatory ? 'required' : ''}" >
+    <input type="${pdict.inputtype || 'text'}"
+        class="${pdict.fieldclass || '' + ' form-control'}"
+        name="${pdict.inputname}"
+        autocomplete="${pdict.autocomplete || 'off'}"
+        data-missing-error="${pdict.missing_error || Resource.msg('error.message.required', 'forms', '')}"
+        data-pattern-mismatch="${pdict.pattern_mismatch || ''}"
+        data-range-error="${pdict.range_error || ''}"
+        <isif condition="${pdict.fieldid}">
+            id="${pdict.fieldid}"
+        </isif>
+        <isif condition="${pdict.placeholder}">
+            placeholder="${pdict.placeholder}"
+        </isif>
+        <isif condition="${pdict.arialabel}">
+            aria-label="${pdict.arialabel}"
+        </isif>
+        <isif condition="${pdict.mandatory}">
+            required
+        </isif>
+        <isif condition="${pdict.attributes}">
+            <isprint value="${pdict.attributes}" encoding="off" />
+        </isif>
+        <isif condition="${pdict.regexp}">
+            pattern="${pdict.regexp}"
+        </isif>
+    />
+
+    <isif condition="${pdict.label}">
+        <label class="${pdict.labelclass}" for="${pdict.fieldid}">
+            <isprint value="${pdict.label}" encoding="htmlcontent" />
+        </label>
+    </isif>
+
+    <div class="invalid-feedback"></div>
+</div>

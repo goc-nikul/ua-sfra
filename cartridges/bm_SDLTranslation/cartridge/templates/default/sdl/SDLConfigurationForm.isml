@@ -1,0 +1,48 @@
+<div class="col-xs-12 col-sm-6">
+    <div class="form-group">
+        <label>${Resource.msg('msg.sdl.configure.form.username', 'SDLTranslation', null)}<sup>*</sup></label>
+        <input id="sdlConfigUsername" type="text" class="form-control" <isif condition="${JSON.parse(pdict.ConfigObj.TMSCredentials).username != null}">value="${JSON.parse(pdict.ConfigObj.TMSCredentials).username}"</isif> />
+    </div>
+</div>
+
+<div class="col-xs-12 col-sm-6">
+    <div class="form-group">
+        <label>${Resource.msg('msg.sdl.configure.form.password', 'SDLTranslation', null)}<sup>*</sup></label>
+        <input id="sdlConfigPassword" type="password" class="form-control" <isif condition="${JSON.parse(pdict.ConfigObj.TMSCredentials).password != null}">value="${JSON.parse(pdict.ConfigObj.TMSCredentials).password}"</isif> />
+    </div>
+</div>
+
+<div class="col-xs-12 col-sm-6">
+    <div class="form-group">
+        <label>${Resource.msg('msg.sdl.configure.form.client', 'SDLTranslation', null)}<sup>*</sup></label>
+        <input id="sdlConfigClientID" type="text" class="form-control" <isif condition="${JSON.parse(pdict.ConfigObj.TMSCredentials).clientID != null}">value="${JSON.parse(pdict.ConfigObj.TMSCredentials).clientID}"</isif> />
+    </div>
+</div>
+
+<div class="col-xs-12 col-sm-6">
+    <div class="form-group">
+        <label>${Resource.msg('msg.sdl.configure.form.secret', 'SDLTranslation', null)}<sup>*</sup></label>
+        <input id="sdlConfigClientSecret" type="text" class="form-control" <isif condition="${JSON.parse(pdict.ConfigObj.TMSCredentials).clientSecret != null}">value="${JSON.parse(pdict.ConfigObj.TMSCredentials).clientSecret}"</isif> />
+    </div>
+</div>
+
+<div class="col-xs-12 col-sm-6">
+    <div class="form-group">
+        <label>${Resource.msg('msg.sdl.configure.form.base.url', 'SDLTranslation', null)}<sup>*</sup></label>
+        <input id="sdlConfigBaseurl" type="text" class="form-control" <isif condition="${JSON.parse(pdict.ConfigObj.TMSCredentials).Base_url != null}">value="${JSON.parse(pdict.ConfigObj.TMSCredentials).Base_url}"</isif> />
+    </div>
+</div>
+
+<div class="col-xs-12">
+    <div class="form-group">
+        <label>${Resource.msg('msg.sdl.configure.form.catalog.id', 'SDLTranslation', null)}<sup>*</sup> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="List all the catalogs nameâ€‚with comma separation, from your environment"></span></label>
+        <textarea id="sdlConfigCatalogIds" class="form-control"><isif condition="${pdict.ConfigObj.SiteCatalogs != null}">${pdict.ConfigObj.SiteCatalogs}</isif></textarea>
+    </div>
+</div>
+
+<div class="col-xs-12">
+    <div class="form-group">
+        <label>${Resource.msg('msg.sdl.configure.form.lib.id', 'SDLTranslation', null)}<sup>*</sup> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="bottom" title="List all the Library Idsâ€‚with comma separation, from your environment"></span></label>
+        <textarea id="sdlConfigLibraryIds" class="form-control"><isif condition="${pdict.ConfigObj.SiteLibraries != null}">${pdict.ConfigObj.SiteLibraries}</isif></textarea>
+    </div>
+</div>

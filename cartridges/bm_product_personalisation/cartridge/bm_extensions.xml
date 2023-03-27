@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<extensions xmlns="http://www.demandware.com/xml/bmmodules/2007-12-11"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.demandware.com/xml/bmmodules/2007-12-11 bmext.xsd">
+	<!-- =============================================================== -->
+	<!-- ==                                                           == -->
+	<!-- == SITE MENU EXTENSIONS                            == -->
+	<!-- ==                                                           == -->
+	<!-- =============================================================== -->
+	<menuaction id="personalization" menupath="prod-cat" position="750" site="true">
+		<name xml:lang="x-default">Product Personalization</name>
+		<short_description xml:lang="x-default">Product Personalization.</short_description>
+		<description xml:lang="x-default">Product Personalization.</description>
+		<exec pipeline="ProductPersonalization" node="Show"/>
+		<sub-pipelines>
+			<pipeline name="ProductPersonalization-Show" />
+			<pipeline name="ProductPersonalization-GetProducts" />
+			<pipeline name="ProductPersonalization-EditPage" />
+			<pipeline name="ProductPersonalization-UpdatePersonalization" />
+			<pipeline name="ProductPersonalization-RemovePersonalization" />
+		</sub-pipelines>
+		<parameters>
+		</parameters>
+		<icon>icons/catalog_reducer_icon.gif</icon>
+	</menuaction>
+</extensions>

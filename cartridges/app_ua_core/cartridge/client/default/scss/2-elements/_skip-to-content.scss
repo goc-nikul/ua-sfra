@@ -1,0 +1,21 @@
+.g-skip-to_content {
+    @include link('medium');
+
+    position: absolute;
+    top: rem-calc(-1000);
+    left: rem-calc(-1000);
+    z-index: 1;
+    height: rem-calc(40);
+    padding: spacing(xs2) spacing(xs);
+    background: $white;
+    line-height: rem-calc(24);
+    overflow: hidden;
+    transition: all 0.2s ease-in-out;
+
+    &:hover,
+    &:active,
+    &:focus {
+        top: 0;
+        left: 0;
+    }
+}

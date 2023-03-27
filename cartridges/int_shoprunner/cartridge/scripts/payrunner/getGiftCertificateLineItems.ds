@@ -1,0 +1,59 @@
+var GiftCertificateMgr = require('dw/order/GiftCertificateMgr');
+
+/**
+*	This script is used to calculate gift certification redeem amount
+*	It will be used in all the methods except getPRCart
+*
+*	@input Basket : dw.order.Basket
+*   @output GiftCertificatesLineItems : Object
+*
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+
+function execute(args){
+	var outputGc = getGCLineItems(args.Basket);
+	args.GiftCertificatesLineItems = outputGc;
+	return PIPELET_NEXT;
+}
+
+function getGCLineItems(basket) {
+	// get the giftCertificatesInstrument from basket
+	var giftCertificatesInstruments = basket.getGiftCertificatePaymentInstruments();
+	// this array will be used to get all the giftCertificates
+	var outputGc = [];
+	// loop through giftCertificates
+	if(!empty(giftCertificatesInstruments))
+	{	
+		for each (var giftCertificate : OrderPaymentInstrument in giftCertificatesInstruments)
+		{
+			if (giftCertificate.getPaymentMethod() == OrderPaymentInstrument.METHOD_GIFT_CERTIFICATE)
+			{
+				
+				// declare the objectContainer that will be include in giftCertificateLineItems
+				var giftCertificateContainer = {};
+				
+				// get the giftCertificate Number
+				var gcNumber = giftCertificate.getGiftCertificateCode();
+				
+				// use GiftCertificateMgr in order to get the GiftCertificate
+				var gc = GiftCertificateMgr.getGiftCertificateByCode(gcNumber);
+				
+				// get the merchantID for the specified gc
+				var gcCode  = gc.getMerchantID();
+				
+				// assign to gcContainre the values
+				giftCertificateContainer.code = gcCode;
+				giftCertificateContainer.number = gcNumber;
+				outputGc.push(giftCertificateContainer); 
+			}
+		}
+	}
+	return outputGc;
+}
+
+module.exports = {
+    execute: execute,
+	getGCLineItems: getGCLineItems
+};

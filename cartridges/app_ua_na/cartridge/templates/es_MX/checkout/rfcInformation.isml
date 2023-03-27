@@ -1,0 +1,44 @@
+<isset name="isHideRfcValues" value="${require('*/cartridge/scripts/checkout/checkoutHelpers').isHideRfcValues(address)}" scope="page" />
+<isset name="enableRFCsection" value="${false}" scope="page" />
+<isif condition="${!empty(address.rfc && address.razonsocial)}">
+    <isset name="enableRFCsection" value="${true}" scope="page" />
+<iselseif condition="${!empty(address.usoCFDI && address.regimenFiscal && address.codigoPostal)}" />
+    <isset name="enableRFCsection" value="${true}" scope="page" />
+</isif>
+<isif condition="${isHideRfcValues}" />
+    <isset name="enableRFCsection" value="${false}" scope="page" />
+</isif>
+<div id="rfc-cfdi-details" class="${ enableRFCsection ? '' : 'hide'}">
+    <div class= "rfc-details ${!empty(address.rfc && address.razonsocial && address.usoCFDI) ? '' : 'hide'}">
+        <p class="rfc">
+            ${Resource.msg('forms.rfc','forms',null)} : <span class="rfc-value"><isprint value="${address.rfc}" /></span>,
+        </p>
+        <p class="razonsocial">
+            ${Resource.msg('forms.razonsocial','forms',null)}: <span class="razonsocial-value"><isprint value="${address.razonsocial}" /></span>
+        </p>
+    </div>
+
+    <div class="cfdi-details ${!empty(address.usoCFDI && address.regimenFiscal && address.codigoPostal) ? '' : 'hide'}">
+        <p class="usoCFDI">
+            ${Resource.msg('forms.CFDI','forms',null)} : <span class="usoCFDI-value">
+                <isif condition="${typeof address !== 'undefined' && address && address.usoCFDI}">
+                    <isprint value="${Resource.msg(('usoCFDI.' + address.usoCFDI), 'forms', null)}" />,
+                </isif>
+            </span>
+        </p>
+        <p class="regimenFiscal">
+                ${Resource.msg('forms.regimenFiscal','forms',null)} : <span class="regimenFiscal-value">
+                    <isif condition="${typeof address !== 'undefined' && address && address.regimenFiscal}">
+                        <isprint value="${Resource.msg(('regimenFiscal.' + address.regimenFiscal), 'forms', null)}" />,
+                    </isif>
+                </span>
+        </p>
+        <p class="codigoPostal">
+            ${Resource.msg('label.input.zippostalcode','forms',null)} : <span class="codigoPostal-value">
+                <isif condition="${typeof address !== 'undefined' && address && address.codigoPostal}">
+                    <isprint value="${address.codigoPostal}" />
+                </isif>
+            </span>
+        </p>
+    </div>
+</div>

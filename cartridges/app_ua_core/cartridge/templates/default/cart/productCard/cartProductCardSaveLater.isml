@@ -1,0 +1,12 @@
+<isif condition="${empty(lineItem.custom.giftCard) || lineItem.custom.giftCard !== 'EGIFT_CARD'}" />
+    <div class="b-product_savelater">
+        <a href="${URLUtils.url('Cart-SaveForLater')}" class="edit-link js-save-later"
+            data-msg="${Resource.msg('msg.exists.savedItem', 'cart', null)}"
+            data-pid="${lineItem.id}" data-uuid="${lineItem.UUID}" data-wishlistexist = "${URLUtils.url('Cart-IsWishListItem')}"
+        aria-label="${Resource.msgf('text.edit.line.item','cart', null, lineItem.productName)}"
+        title="${Resource.msg('link.savelater.item', 'cart',null)}">
+            ${Resource.msg('link.savelater.item', 'cart', null)}
+        </a>
+        <span class="is-wishlist-item"></span>
+    </div>
+</isif>

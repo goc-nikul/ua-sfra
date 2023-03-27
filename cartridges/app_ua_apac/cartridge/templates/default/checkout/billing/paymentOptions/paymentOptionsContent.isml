@@ -1,0 +1,32 @@
+<isset name="AdyenHelper" value="${require('*/cartridge/scripts/util/adyenHelper')}" scope="pdict"/>
+<isset name="TemplateHelpers" value="${require('*/cartridge/scripts/util/template')}" scope="page"/>
+<script src="${pdict.AdyenHelper.getCheckoutUrl()}" type="text/javascript"></script>
+<isset name="adyenPaymentFields" value="${pdict.forms.billingForm.adyenPaymentFields}" scope="page"/>
+<isloop items="${pdict.order.billing.payment.applicablePaymentMethods}" var="paymentOption">
+    <isif condition="${paymentOption.ID === 'CREDIT_CARD'}">
+        <isinclude template="checkout/billing/paymentOptions/creditCardContent" />
+    <iselseif condition="${paymentOption.ID === Resource.msg(paymentOption.ID.toLowerCase() + '.payment.id', 'payment', '')}">
+        <isinclude template="${Resource.msg(paymentOption.ID.toLowerCase() + '.payment.template.content', 'payment', '')}" />
+    <iselseif condition="${paymentOption.ID === 'DW_APPLE_PAY'}">
+        <isif condition="${pdict.CurrentSession.custom.currentCountry === 'AU'}">
+            <isinclude template="checkout/billing/paymentOptions/applePayContent" />
+        </isif>
+    <iselseif condition="${paymentOption.ID === 'AdyenComponent'}">
+        <isinclude template="checkout/billing/paymentOptions/adyenComponentContent"/>
+    <iselseif condition="${paymentOption.ID === 'AdyenPOS'}">
+        <isinclude template="checkout/billing/paymentOptions/adyenPosContent"/>
+    <iselseif condition="${TemplateHelpers.isPaymentMethodZip(paymentOption.ID)}">
+        <isinclude template="checkout/billing/paymentOptions/zipContent" />
+    <iselseif condition="${paymentOption.ID === 'COD'}">
+        <isinclude template="checkout/billing/paymentOptions/cashOnDeliveryContent"/>
+    <iselseif condition="${paymentOption.ID === '2c2'}">
+        <isinclude template="checkout/billing/paymentOptions/2c2Content" />
+    <iselseif condition="${paymentOption.ID === 'ATOME_PAYMENT'}">
+        <isinclude template="checkout/billing/paymentOptions/atomePaymentContent"/>
+    <iselseif condition="${paymentOption.ID === 'TOSS_PAYMENTS_CARD'}">
+        <isinclude template="checkout/billing/paymentOptions/tossContent"/>
+    <iselseif condition="${paymentOption.ID === 'NAVERPAY'}">
+        <isinclude template="checkout/billing/paymentOptions/naverPayContent"/>
+    </isif>
+    
+</isloop>

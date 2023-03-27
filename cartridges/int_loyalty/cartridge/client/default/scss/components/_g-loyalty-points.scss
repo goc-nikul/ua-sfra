@@ -1,0 +1,29 @@
+.g-loyalty-points {
+    position: relative;
+    color: $white;
+    text-transform: uppercase;
+    padding: rem-calc(20) rem-calc(40);
+    @include font(main, rem-calc(45), rem-calc(35));
+
+    &_styled {
+        &::after,
+        &::before {
+            content: "";
+            position: absolute;
+            width: rem-calc(35);
+            height: rem-calc(40);
+        }
+
+        &::after {
+            background: url('../../images/rewards-bracket-left.svg') center / cover no-repeat;
+            left: 0;
+            bottom: 0;
+        }
+
+        &::before {
+            background: url('../../images/rewards-bracket-right.svg') center / cover no-repeat;
+            right: 0;
+            top: 0;
+        }
+    }
+}

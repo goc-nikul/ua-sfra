@@ -1,0 +1,54 @@
+.b-product_name {
+    @include t-title-5;
+
+    position: relative;
+    padding-top: spacing(xs2);
+    @include respond-to(desktop) {
+        line-height: 2rem;
+    }
+
+    &-wording {
+        padding-right: rem-calc(45);
+    }
+
+    &-fav_defultButton {
+        display: inline-block;
+        cursor: pointer;
+        position: absolute;
+        top: rem-calc(4);
+        right: rem-calc(10);
+        z-index: 1;
+        background: transparent;
+        color: $black;
+        border: 0;
+        border-radius: 50%;
+        -webkit-box-shadow: 0 -1px 11px -3px rgba(148, 148, 148, 0.57);
+        -moz-box-shadow: 0 -1px 11px -3px rgba(148, 148, 148, 0.57);
+        box-shadow: 0 -1px 11px -3px rgba(148, 148, 148, 0.57);
+        @include respond-to(phones) {
+            top: spacing(xs2);
+            right: spacing(xs2);
+        }
+
+        &:focus {
+            box-shadow: 0 0 5px $grey4 !important;
+        }
+    }
+
+    &-fav_button,
+    &-fav_selectButton {
+        width: rem-calc(32);
+        height: rem-calc(32);
+        @include button-to-link;
+        @include icon(fav-default);
+
+        &::before {
+            padding: rem-calc(8);
+            display: inline-block;
+        }
+    }
+
+    &-fav_selectButton {
+        @include icon(fav-selected);
+    }
+}

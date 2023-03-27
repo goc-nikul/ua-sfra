@@ -1,0 +1,8 @@
+<iscomment>This template should be included on cart and billing pages</iscomment>
+<isif condition="${!empty(session.custom.paypalErrorMessage) && pdict.CurrentHttpParameterMap.get('showPaypalError').booleanValue === true}">
+    <div class="b-header_minicart-item-check">
+        <p class="b-header_minicart-check-icon cart-icon paypalErrorMsg"></p>
+        <p class="line-item-attributes"><isprint value="${session.custom.paypalErrorMessage}"/></p>
+    </div>
+</isif>
+

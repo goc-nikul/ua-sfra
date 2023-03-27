@@ -1,0 +1,78 @@
+<isinclude template="components/modules"/>
+<isset name="miniCart" value="${false}" scope="page" />
+<isset name="isBOPISEnabled" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('isBOPISEnabled')}" scope="page" />
+<isset name="basketHasBopisItems" value="${isBOPISEnabled && pdict.order.hasBopisItems}" scope="page" />
+<div class="card order-product-summary b-checkout_product-summary">
+    <div class="card-body">
+        <div class="row">
+            <div class="start-lines">
+                <isif condition="${pdict.pageContext !=null && pdict.pageContext.ns === 'order.confirmation'}">
+                    <h2 class="order-summary_title bag-items">${Resource.msg('heading.orderproduct.summary.confirmation', 'confirmation', null)}</h2>
+                <iselse>
+                    <h2 class="order-summary_title bag-items">${Resource.msg('heading.orderproduct.summary', 'checkout', null)}
+                    <span class="order-receipt-label grand-total-label">(${parseInt(pdict.order.items.totalQuantity) === 1 ? Resource.msgf('label.number.item.in.cart','cart', null, pdict.order.items.totalQuantity) : Resource.msgf('label.number.items.in.cart','cart', null, pdict.order.items.totalQuantity)})</span>
+                    </h2>    
+                </isif>
+            </div>
+        </div>
+
+        <div class="product-summary-block">
+        <isif condition="${basketHasBopisItems}">
+        <div class="b-store-pickup-order-summary">
+        <div class="b-store-pickup-heading">
+            <span class="store-pickup-title">${Resource.msg('heading.pick.up.in.store', 'checkout',null)}</span>
+            <span class="store-pickup-total-items">(<isprint value="${pdict.order.numberOfBopisItems.toFixed()}" />)</span>
+        </div>
+        <isloop items="${pdict.order.shipping}" var="shippingModel">
+            <isloop items="${shippingModel.productLineItems.items}" var="lineItem" status="loopstate" >
+                <isif condition="${lineItem.custom.fromStoreId}">
+                    <isinclude template="checkout/productCard/productCard" />
+                </isif>
+            </isloop>
+        </isloop>
+        </div>
+        </isif>
+        <isif condition="${basketHasBopisItems && !pdict.order.hasOnlyBopisItems}">
+        <div class="b-shipping-summary-heading">
+            <span class="b-shipping-title">${Resource.msg('heading.shipping.default', 'checkout',null)}</span>
+            <span class="b-shipping-total-items">(<isprint value="${pdict.order.numberOfNonBopisItems.toFixed()}" />)</span>
+        </div>
+       </isif>
+            <isloop items="${pdict.order.shipping}" var="shippingModel">
+                <isif condition="${pdict.order.shipping.length > 1}">
+                    <div class="shipment-block">
+                </isif>
+				 	
+                <isloop items="${shippingModel.productLineItems.items}" var="lineItem" status="loopstate" >
+                    <isif condition="${!lineItem.custom.fromStoreId && lineItem.bonusProductLineItemUUID === 'bonus'}">
+                        <div class="card ${miniCart ? 'bonus-product-line-item' : ''} uuid-${lineItem.UUID}">
+                            <div class="card-body">
+                                <isinclude template="checkout/productCard/bonusProductCard" />
+                            </div>
+                        </div>
+                    <iselseif condition="${!lineItem.custom.fromStoreId}">
+                        <isinclude template="checkout/productCard/productCard" />
+                    </isif>
+                </isloop>
+				
+                <isif condition="${pdict.order.shipping.length > 1}">
+                    <div class="multi-shipping-summary">
+                        <isinclude template="checkout/shipping/shippingCard" />
+                    </div>
+                    </div>
+                </isif>
+            </isloop>
+        </div>
+        <div class="checkout-privacy-links">
+            <span class="checkout-content-links"><iscontentasset aid="checkout-privacy-links" /></span>
+            <span class="b-promo-tooltip-content js-tooltip-content">
+                <span class="g-tooltip-icon g-tooltip js-tooltip-icon">
+                   <span class="g-tooltip-arrow"></span>
+                </span>
+                <span class="g-tooltip-text js-tooltip-text">
+                   <isprint value="${Resource.msg('label.policy.tooltip.text', 'checkout', null)}"/>
+                </span>
+            </span>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,111 @@
+<isdecorate template="application/MenuFrame">
+<iscontent type="text/html" charset="UTF-8"/>
+<isinclude template="inc/Modules"/>
+
+<table border="0" cellspacing="0" cellpadding="0">
+    <tbody>
+        <tr>
+            <td class="breadcrumb">
+                <a class="breadcrumb" href="${URLUtils.url('ViewApplication-CompressMenuGroup', 'MenuGroupID', 'SiteMenu', 'OverviewPage', 'SiteNavigationBar-ShowSiteOverview')}">Site</a>
+                &nbsp>&nbsp
+                <a class="breadcrumb" href="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', 'smartling')}">Smartling</a>
+                &nbsp>&nbsp
+                <a id="content_assets_list" class="breadcrumb" href="">Content Assets List </a>
+                &nbsp>&nbsp ${pdict.name}
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<isscript>
+var util = require("~/cartridge/scripts/util");
+</isscript>
+
+<h1>${pdict.name}</h1>
+<form name="CustomPreferenceForm" onsubmit="return submitForm()" action="${URLUtils.url('ContentAsset-SaveLanguageItem', 'item', pdict.CurrentHttpParameterMap.item.stringValue, 'type', 'content')}" method="post">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+            <td class="table_header w e s" width="30px"></td>
+            <td class="table_header e s">Locale</td>
+            <td class="table_header e s">Progress</td>
+        </tr>
+
+         <isloop items="${pdict.localesList}" var="locale">
+            <tr>
+                <td class=" w e s" width="10px"><input type="checkbox"  name="language" value="${locale.get(2)}"></input></td>
+                <td class="e s" width="50px">${locale.get(1)}</td>
+                <td class="e s" width="50px">
+                <isif condition="${util.checkLocale(pdict.CurrentHttpParameterMap.item.stringValue, locale.get(0))}">
+                    ${util.getProgress(pdict.CurrentHttpParameterMap.item.stringValue, locale.get(0))} %
+                <iselse>
+                    not translate
+                </isif></td>
+            </tr>
+        </isloop>
+        </table>
+
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+            <tbody>
+                <tr>
+                    <td class="aldi" align="right">
+                        <table border="0" cellspacing="4" cellpadding="0">
+                            <tbody>
+                                <tr>
+                                    <td class="button">
+                                        <button type="resend" name="resend" class="button">Resend</button>
+                                        <button type="download" name="download" class="button">Download</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <input type="hidden" value="${pdict.CurrentRequest['httpReferer']}" name="input_back"/>
+        <input type="hidden" value="${pdict.CurrentHttpParameterMap['input_back']}" name="input_back2"/>
+    </form>
+
+    <table class="bottombuttons">
+        <tbody>
+            <tr>
+                <td>
+                    <button type="button" onclick="back()" name="back" class="button">&lt;&lt; Back</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+<script type="text/javascript">
+function submitForm()
+{
+    var languageCheckbox = jQuery("[name='language']");
+    var languages = new Array();
+
+    languageCheckbox.each(function(index, value) {
+        if(jQuery(this).prop( "checked" )) {
+            languages.push(jQuery(this).val());
+        }
+    });
+
+    if (languages.size() == 0 ) {
+        alert("Please select language.")
+        return false;
+    }
+
+    return true;
+}
+
+function back()
+{
+    window.location.href = jQuery("[name='input_back']").val();
+}
+
+jQuery(document).ready(function(){
+    if (jQuery("[name='input_back2']").val() != 'null' && jQuery("[name='input_back2']").val() != '') {
+        jQuery("[name='input_back']").val(jQuery("[name='input_back2']").val())
+    }
+    jQuery("${'#content_assets_list'}").attr('href', jQuery("[name='input_back']").val())
+});
+</script>
+
+</isdecorate>

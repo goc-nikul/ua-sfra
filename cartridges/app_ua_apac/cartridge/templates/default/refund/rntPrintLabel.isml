@@ -1,0 +1,109 @@
+<isset name="Order" value="${pdict.order}" scope="page"/>
+<div class="print-summary">
+	<div id="returns-packing-slip" class="returns-packing-slip">
+		<div class="summary-info">
+			<div class="summary-print-heading clearfix">
+                <div class="header-text">
+                    <span>${Resource.msg('returnprint.returnsummary','components',null)}</span>
+                    <span>${Resource.msg('returnprint.includetext','components',null)}</span>
+                </div>
+                <div class="brand-logo">
+				    <img class="logo" alt="Under Armour" src="${URLUtils.httpsStatic(URLUtils.CONTEXT_LIBRARY, '', 'images/shipLabel/ualogo.png')}" />
+                </div>
+			</div>
+
+			<div class="summary-print-table">
+                <table>
+                    <tr>
+                        <th>${Resource.msg('returnprint.orderinfo','components',null)}</th>
+                        <th>${Resource.msg('returnprint.billing','components',null)}</th>
+                        <th>${Resource.msg('returnprint.shipping','components',null)}</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>${Resource.msg('returnprint.ordernumber','components',null)}</div>
+						    <div><strong>${Order.orderNo}</strong></div>
+                        </td>
+                        <td>
+                            <div class="billing-add1">
+                                ${Order.billingAddress.address1}
+                            </div>
+                            <div class="billing-add2">
+                                ${Order.billingAddress.address2}
+                            </div>
+                            <div class="billing-customerName">
+                                ${Order.billingAddress.fullName}
+                            </div>
+						    <div class="addr-phone">
+                                ${Resource.msg('returnprint.phone','components',null)} <isprint value="${Order.billingAddress.phone}"/>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="shipp-add1">
+                                ${Order.getShipments()[0].shippingAddress.address1}
+                            </div>
+                            <div class="shipp-add2">
+                                ${Order.getShipments()[0].shippingAddress.address2}
+                            </div>
+                            <div class="shipp-customerName">
+                                ${Order.getShipments()[0].shippingAddress.fullName}
+                            </div>
+						    <div class="addr-phone">
+                                ${Resource.msg('returnprint.phone','components',null)} <isprint value="${Order.getShipments()[0].shippingAddress.phone}"/>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+			</div>
+		</div>
+		<div class="return-info">
+			<h2>${Resource.msg('returnprint.returneditems','components',null)}</h2>
+			<div class="table">
+                <table>
+                    <tr>
+                        <th>${Resource.msg('returnprint.item','components',null)}</th>
+                        <th class='text-center'>${Resource.msg('returnprint.reason','components',null)}</th>
+                        <th class='text-center'>${Resource.msg('returnprint.styleno','components',null)}</th>
+                        <th class='text-center'>${Resource.msg('returnprint.color','components',null)}</th>
+                        <th class='text-center'>${Resource.msg('returnprint.size','components',null)}</th>
+                        <th class='text-center'>${Resource.msg('returnprint.qty','components',null)}</th>
+                    </tr>
+                    <isloop items="${pdict.ReturnCase.getItems()}" var="returnItem" status="shipmentloopstate">
+						<isscript>
+							var product = returnItem.lineItem.product;
+
+							var colorAttr = product.variationModel.getProductVariationAttribute("color");
+							var colorAttrValue = product.variationModel.getSelectedValue(colorAttr) ? product.variationModel.getSelectedValue(colorAttr).value : '';
+
+							var sizeAttr = product.variationModel.getProductVariationAttribute("size");
+							var sizeAttrValue = product.variationModel.getSelectedValue(sizeAttr) ? product.variationModel.getSelectedValue(sizeAttr).displayValue : '';
+						</isscript>
+                        <tr>
+                            <td><div>${returnItem.lineItem.productName}</div></td>
+                            <td class='text-center'>
+                                <div calss="reason-value">${Resource.msg('return.reason.' + returnItem.reasonCode.value,'account',null)}</div>
+								<div calss="reason-code">( ${returnItem.reasonCode.value} )</div>
+                            </td>
+                            <td class='text-center'>
+                                <div>${product.custom.style}</div>
+                            </td>
+                            <td class='text-center'>
+                                <div class="column column--4 color">
+								    ${colorAttrValue}
+							    </div>
+                            </td>
+                            <td class='text-center'>
+                                <div class="column column--5 size">
+								    ${Resource.msg('addtobag.size.' + sizeAttrValue,'checkout', sizeAttrValue)}
+							    </div>
+                            </td>
+                            <td class='text-center no-border'>
+                                <div class="column column--6 qty">${returnItem instanceof dw.order.ReturnCaseItem ? returnItem.authorizedQuantity.value.toFixed() : returnItem.returnedQuantity.value.toFixed()}</div>
+                            </td>
+                        </tr>
+                    </isloop>
+                </table>
+			</div>
+		</div>
+	</div>
+</div>

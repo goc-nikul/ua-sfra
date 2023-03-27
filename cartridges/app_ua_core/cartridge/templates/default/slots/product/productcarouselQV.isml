@@ -1,0 +1,40 @@
+<isinclude template="/components/modules" />
+
+<isset name="slotConfigurationJSON" value="${require('~/cartridge/scripts/utils/JsonUtils').parse(slotcontent.custom.JSONData)}" scope="page" />
+<isset name="showSwatches" value="${!empty(slotConfigurationJSON.swatches) ? slotConfigurationJSON.swatches : true}" scope="page" />
+<isset name="showRatings" value="${!empty(slotConfigurationJSON.ratings) ? slotConfigurationJSON.ratings : true}" scope="page" />
+
+<isif condition="${slotcontent.custom.slotTitle || slotcontent.custom.viewAllLink}">
+    <div class="g-carousel-heading">
+        <isif condition="${slotcontent.custom.slotTitle}">
+            <span class="g-carousel-title">
+                <isprint value="${slotcontent.custom.slotTitle}" />
+            </span>
+        </isif>
+        <isif condition="${slotcontent.custom.viewAllLink}">
+            <a href="${slotcontent.custom.viewAllLink}" class="g-carousel-link">
+                ${Resource.msg('global.viewall', 'common', null)}
+            </a>
+        </isif>
+    </div>
+</isif>
+<div class="g-carousel js-recommendation-wrapper recommendations-section recommendations-section--quickview">
+    <div class="product-listing recommended-products js-carousel swiper-container"
+        data-cmp="carousel"
+        <isif condition="${slotConfigurationJSON.carouselConfiguration}">
+            data-json-config="${JSON.stringify(slotConfigurationJSON.carouselConfiguration)}"
+        </isif>
+    >
+        <div class="g-carousel-wrapper swiper-wrapper js-swiper-wrapper ${slotcontent.content.length > 1 ? 'm-more-one' : ''}">
+            <isloop items="${slotcontent.content}" var="product" status="loopState">
+                <isobject object="${product}" view="recommendation">
+                    <div class="g-carousel-slide swiper-slide">
+                        <isinclude url="${URLUtils.url('Tile-Show', 'pid', product.ID, 'swatches', showSwatches, 'ratings', showRatings, 'quickview', true, 'source', 'recommendation')}" />
+                    </div>
+                </isobject>
+            </isloop>
+        </div>
+        <div class="g-carousel-control m-next js-swiper-button js-swiper-button-next"></div>
+        <div class="g-carousel-control m-prev js-swiper-button js-swiper-button-prev"></div>
+    </div>
+</div>

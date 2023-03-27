@@ -1,0 +1,24 @@
+<isif condition="${pdict.order.shipping[0].shippingAddress}">
+    <isset name="ShipToCollection" value="${pdict.isCommercialPickup}" scope="page" />
+    <isloop items="${pdict.order.shipping}" var="aShippingModel">
+        <isif condition="${!empty(aShippingModel.selectedShippingMethod) && aShippingModel.selectedShippingMethod.ID !== 'eGift_Card' && !aShippingModel.selectedShippingMethod.storePickupEnabled && !ShipToCollection}">
+	        <div class="billing-address-section${aShippingModel.UUID === pdict.order.billing.matchingAddressId ? ' default-address' : ''}">
+	            <div value="${aShippingModel.UUID}" class="billing-address-option"
+	                data-addr-id=""
+	                ${aShippingModel.UUID === pdict.order.billing.matchingAddressId ? selected="selected" : ''}
+	                data-first-name="${aShippingModel.shippingAddress.firstName||''}" data-last-name="${aShippingModel.shippingAddress.lastName||''}" data-business-name="${aShippingModel.shippingAddress.businessName||''}"
+	                data-address1="${aShippingModel.shippingAddress.address1||''}" data-address2="${aShippingModel.shippingAddress.address2||''}"
+	                data-suburb="${aShippingModel.shippingAddress.suburb}" data-district="${aShippingModel.shippingAddress.district}" data-city="${aShippingModel.shippingAddress.city || ''}" data-state-code="${aShippingModel.shippingAddress.stateCode || ''}" data-state="${aShippingModel.shippingAddress.stateCode || ''}"
+	                data-country-code="${aShippingModel.shippingAddress.countryCode.value}" data-postal-code="${aShippingModel.shippingAddress.postalCode}"
+	                data-phone="${aShippingModel.shippingAddress.phone}"
+	                data-sameAsShipping="true">
+	                <div>${aShippingModel.shippingAddress.firstName || ''} ${aShippingModel.shippingAddress.lastName || ''}, ${aShippingModel.shippingAddress.businessName || ''}</div>
+	                <div>${aShippingModel.shippingAddress.address1 || ''}</div>
+					<div>${aShippingModel.shippingAddress.address2 || ''}</div>
+	                <div><isif condition="${aShippingModel.shippingAddress.suburb && aShippingModel.shippingAddress.suburb !== 'undefined' }"> ${aShippingModel.shippingAddress.suburb + ','}</isif> <isif condition="${aShippingModel.shippingAddress.district && aShippingModel.shippingAddress.district !== 'undefined' }"> ${aShippingModel.shippingAddress.district + ','}</isif> <isif condition="${aShippingModel.shippingAddress.city && aShippingModel.shippingAddress.city !== 'undefined' && !aShippingModel.shippingAddress.hideCityAndPostalCode}"> ${aShippingModel.shippingAddress.cityLabel ? aShippingModel.shippingAddress.cityLabel + ',' : aShippingModel.shippingAddress.city + ',' || ''}</isif> ${aShippingModel.shippingAddress.stateCodeLabel ? aShippingModel.shippingAddress.stateCodeLabel : aShippingModel.shippingAddress.stateCode || ''} ${!aShippingModel.shippingAddress.hideCityAndPostalCode ? aShippingModel.shippingAddress.postalCode: ''}</div>
+	                <span class="icon"></span>
+	            </div>
+	        </div>
+        </isif>
+    </isloop>
+</isif>

@@ -1,0 +1,64 @@
+'use strict';
+
+var URLUtils = require('dw/web/URLUtils');
+
+var API_GET_CART 		 = "getPRCart";
+var API_START_CHECKOUT 	 = "startPRCheckout";
+var API_ABANDON_CART 	 = "abandonPRCart";
+var API_UPDATE_CART 	 = "updatePRCart";
+var API_PROCESS_CHECKOUT = "processPROrder";
+var API_REVIEW_ORDER 	 = "reviewOrder";
+var API_APPLY_GIFT_CARD  = "applyPRGiftCard";
+
+
+/******************************************************
+ * function getReviewPRCart
+ *
+ * implements the response of reviewOrder
+ *
+ * output: string representing a JSON object
+ *
+ ******************************************************/
+
+function getReviewECCart() {
+	return  {
+		'redirectURL': URLUtils.https('Cart-Show').toString(),
+		'status': 0
+	}
+}
+
+function applyScriptOK(apiMethod : String, responseJSON : Object) : String {
+	if( apiMethod === API_GET_CART || (apiMethod == API_PROCESS_CHECKOUT && responseJSON.status == 0) ) {
+		return JSON.stringify(responseJSON);
+	}
+
+	if( apiMethod == API_REVIEW_ORDER ) {
+		responseJSON = getReviewECCart(); // Reconstruct for ReviewOrder
+	}
+	return 'sr_$.script.ok("response",' +  JSON.stringify(responseJSON) + ');';
+}
+
+function SRRequestValidator()  {}
+
+SRRequestValidator.validateAddress = function(address : Object) : Object {
+	if (!address || empty(address.address1) || empty(address.city) ||
+		empty(address.country) || empty(address.state) || empty(address.zip)) {
+		return {
+			'status': false,
+			'message': 'empty address or attribute(s) found'
+		};
+	}
+	return { 'status' : true };
+}
+
+exports.API_GET_CART 		 = API_GET_CART;
+exports.API_START_CHECKOUT 	 = API_START_CHECKOUT;
+exports.API_ABANDON_CART 	 = API_ABANDON_CART;
+exports.API_UPDATE_CART 	 = API_UPDATE_CART;
+exports.API_PROCESS_CHECKOUT = API_PROCESS_CHECKOUT;
+exports.API_REVIEW_ORDER 	 = API_REVIEW_ORDER;
+exports.API_APPLY_GIFT_CARD  = API_APPLY_GIFT_CARD;
+
+
+exports.applyScriptOK = applyScriptOK;
+exports.SRRequestValidator = SRRequestValidator;

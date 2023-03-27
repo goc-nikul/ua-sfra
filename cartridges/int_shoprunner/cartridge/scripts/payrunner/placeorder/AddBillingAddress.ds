@@ -1,0 +1,45 @@
+var Logger = require('dw/system/Logger');
+var Status = require('dw/system/Status');
+
+/**
+ * Creates a billing address
+ *
+ * @input BillingAddress : dw.order.OrderAddress The address to add.
+ * @input BillingObj : Object The shipment to create the address for.
+ * 
+ */
+
+function execute(args) {
+	var billingAddress = args.BillingAddress;
+	var billingObj = args.BillingObj;
+	var result = addAddress(billingAddress, billingObj);
+	if (result.status === Status.OK) {
+		return PIPELET_NEXT;
+	} else {
+		return PIPELET_ERROR;
+	}
+
+}
+
+function addAddress(billingAddress, billingObj) {
+	try {
+		billingAddress.setFirstName( billingObj.billingfirstName );
+		billingAddress.setLastName( billingObj.billinglastName );
+		billingAddress.setAddress1( billingObj.billingAddress1 );
+		billingAddress.setCity( billingObj.billingCity );
+		billingAddress.setPostalCode( billingObj.billingPostalCode );
+		billingAddress.setStateCode( billingObj.billingStateCode );
+		billingAddress.setCountryCode( billingObj.billingCountryCode );
+		billingAddress.setPhone( billingObj.billingPhone );	
+	} 
+	catch (e) {
+		Logger.getLogger('ShopRunner', 'ShopRunner').error('ShopRunner: Billing address cannot be validated. ' + e.message);	
+		return new Status(Status.ERROR);
+	}
+	return new Status(Status.OK);
+}
+
+module.exports = {
+    execute: execute,
+	addAddress: addAddress
+};
