@@ -51,7 +51,12 @@ describe('int_ocapi/cartridge/scripts/paymentHelper.js', () => {
                 return {};
             }
         },
-        'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction')
+        'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction'),
+        '*/cartridge/scripts/util/loggerHelper': {
+            logException: function () {
+                return {};
+            }
+        }
     });
 
     it('Testing updatePaymentInstrument', () => {
@@ -88,7 +93,12 @@ describe('int_ocapi/cartridge/scripts/paymentHelper.js', () => {
             },
             '*/cartridge/scripts/checkout/checkoutHelpers': {},
             '*/cartridge/scripts/giftcard/giftcardHelper': {},
-            'dw/system/Transaction': {}
+            'dw/system/Transaction': {},
+            '*/cartridge/scripts/util/loggerHelper': {
+                logException: function () {
+                    return {};
+                }
+            }
         });
         var paymentInstrumentRequest = {
             paymentMethodId: 'paymentMethodId'
@@ -130,7 +140,12 @@ describe('int_ocapi/cartridge/scripts/paymentHelper.js', () => {
             },
             '*/cartridge/scripts/checkout/checkoutHelpers': {},
             '*/cartridge/scripts/giftcard/giftcardHelper': {},
-            'dw/system/Transaction': {}
+            'dw/system/Transaction': {},
+            '*/cartridge/scripts/util/loggerHelper': {
+                logException: function () {
+                    return {};
+                }
+            }
         });
         var paymentInstrumentRequest = {
             paymentMethodId: 'paymentMethodId'
@@ -165,7 +180,12 @@ describe('int_ocapi/cartridge/scripts/paymentHelper.js', () => {
             },
             '*/cartridge/scripts/checkout/checkoutHelpers': {},
             '*/cartridge/scripts/giftcard/giftcardHelper': {},
-            'dw/system/Transaction': {}
+            'dw/system/Transaction': {},
+            '*/cartridge/scripts/util/loggerHelper': {
+                logException: function () {
+                    return {};
+                }
+            }
         });
         var paymentInstrumentRequest = {
             paymentMethodId: 'paymentMethodId'
@@ -207,7 +227,12 @@ describe('int_ocapi/cartridge/scripts/paymentHelper.js', () => {
             },
             '*/cartridge/scripts/checkout/checkoutHelpers': {},
             '*/cartridge/scripts/giftcard/giftcardHelper': {},
-            'dw/system/Transaction': {}
+            'dw/system/Transaction': {},
+            '*/cartridge/scripts/util/loggerHelper': {
+                logException: function () {
+                    return {};
+                }
+            }
         });
         var paymentInstrumentRequest = {
             paymentMethodId: 'paymentMethodId'
@@ -259,7 +284,12 @@ describe('int_ocapi/cartridge/scripts/paymentHelper.js', () => {
                     return {};
                 }
             },
-            'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction')
+            'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction'),
+            '*/cartridge/scripts/util/loggerHelper': {
+                logException: function () {
+                    return {};
+                }
+            }
         });
         var Money = require('../../../mocks/dw/dw_value_Money');
         var PaymentInstrument = require('../../../mocks/dw/dw_order_PaymentInstrument');
@@ -327,7 +357,12 @@ describe('int_ocapi/cartridge/scripts/paymentHelper.js', () => {
                     return {};
                 }
             },
-            'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction')
+            'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction'),
+            '*/cartridge/scripts/util/loggerHelper': {
+                logException: function () {
+                    return {};
+                }
+            }
         });
         var Money = require('../../../mocks/dw/dw_value_Money');
         var PaymentInstrument = require('../../../mocks/dw/dw_order_PaymentInstrument');
@@ -399,7 +434,12 @@ describe('int_ocapi/cartridge/scripts/paymentHelper.js', () => {
                     return {};
                 }
             },
-            'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction')
+            'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction'),
+            '*/cartridge/scripts/util/loggerHelper': {
+                logException: function () {
+                    return {};
+                }
+            }
         });
         var result = paymentHelper.updateRemainingBalance({}, {});
         assert.isNotNull(result);
@@ -451,7 +491,12 @@ describe('int_ocapi/cartridge/scripts/paymentHelper.js', () => {
                     return {};
                 }
             },
-            'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction')
+            'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction'),
+            '*/cartridge/scripts/util/loggerHelper': {
+                logException: function () {
+                    return {};
+                }
+            }
         });
         var paymentInstrumentRequest = {
             paymentMethodId: 'paymentMethodId'
@@ -506,7 +551,12 @@ describe('int_ocapi/cartridge/scripts/paymentHelper.js', () => {
                     return {};
                 }
             },
-            'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction')
+            'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction'),
+            '*/cartridge/scripts/util/loggerHelper': {
+                logException: function () {
+                    return {};
+                }
+            }
         });
         var paymentInstrumentRequest = {
             paymentMethodId: 'paymentMethodId'

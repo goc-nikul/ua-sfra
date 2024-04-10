@@ -75,7 +75,9 @@ server.get('SelectStore', function (req, res, next) {
         atsActionUrl: URLUtils.url('Stores-getAtsValue').toString(),
         enabled: 'isBOPISEnabled' in Site.current.preferences.custom && Site.current.getCustomPreferenceValue('isBOPISEnabled') && product.custom.availableForInStorePickup !== false,
         readyToOrder: requestData.readyToOrder,
-        productAvailability: requestData.productAvailabilityMsg
+        productAvailability: requestData.productAvailabilityMsg,
+        productAvailabile: product.getAvailabilityModel().isInStock(),
+        productId: requestData.pid
     };
 
     res.render('inStorePickUp/pdpPickUpInStore');
@@ -111,7 +113,9 @@ server.get('selectStoreByCoordinates', function (req, res, next) {
         enabled: 'isBOPISEnabled' in Site.current.preferences.custom && Site.current.getCustomPreferenceValue('isBOPISEnabled') && !empty(product) && product.custom.availableForInStorePickup !== false,
         readyToOrder: req.querystring.readyToOrder,
         searchRadius: storeHelpers.getDefaultRadius(),
-        quickViewEnable: quickViewEnable
+        quickViewEnable: quickViewEnable,
+        productAvailabile: product.getAvailabilityModel().isInStock(),
+        productId: pid
     };
     var htmlContent = renderTemplateHelper.getRenderedHtml(viewData, 'inStorePickUp/pdpChoosePickUpInStore');
     if (preSelectedStoreCookie) {

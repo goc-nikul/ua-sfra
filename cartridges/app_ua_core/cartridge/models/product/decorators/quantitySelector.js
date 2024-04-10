@@ -14,9 +14,10 @@ var ProductMgr = require('dw/catalog/ProductMgr');
  * @param {string} pid - Product ID
  * @param {Object} attributes - Variation attribute query params
  * @param {ProductOptions[]} options - Product options query params
+ * @param {string} PDPSelectedPID - Selected Product ID
  * @return {Array} - Quantity options for PDP pull-down menu
  */
-function getQuantities(apiProduct, minOrderQty, maxOrderQty, stepQuantity, selectedQty, pid, attributes, options) {
+function getQuantities(apiProduct, minOrderQty, maxOrderQty, stepQuantity, selectedQty, pid, attributes, options, PDPSelectedPID) {
     var listSize = maxOrderQty;
     var productObj = apiProduct;
     var productStepQty = stepQuantity;
@@ -29,7 +30,8 @@ function getQuantities(apiProduct, minOrderQty, maxOrderQty, stepQuantity, selec
     var quantities = [];
     var compareQty = parseInt(selectedQty, 10) || minOrderQty;
     var endpoint = 'Product-Variation';
-    var baseUrl = URLUtils.url(endpoint, 'pid', pid).relative().toString();
+    var basePid = PDPSelectedPID || pid;
+    var baseUrl = URLUtils.url(endpoint, 'pid', basePid).relative().toString();
     var params = {
         options: options || [],
         variables: attributes || {}
@@ -51,9 +53,9 @@ function getQuantities(apiProduct, minOrderQty, maxOrderQty, stepQuantity, selec
     return quantities;
 }
 
-module.exports = function (object, productObj, productStepQty, attributes, options) {
+module.exports = function (object, productObj, productStepQty, attributes, options, PDPSelectedPID) {
     Object.defineProperty(object, 'quantities', {
         enumerable: true,
-        value: getQuantities(productObj, object.minOrderQuantity, object.maxOrderQuantity, productStepQty, object.selectedQuantity, object.id, attributes, options)
+        value: getQuantities(productObj, object.minOrderQuantity, object.maxOrderQuantity, productStepQty, object.selectedQuantity, object.id, attributes, options, PDPSelectedPID)
     });
 };

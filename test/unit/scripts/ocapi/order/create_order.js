@@ -125,6 +125,11 @@ describe('validate order', function () {
                 return { error: false };
             }
         },
+        '*/cartridge/scripts/giftcard/giftcardHelper': {
+            removeEmptyShipments: () => {
+                return true;
+            }
+        },
         '*/cartridge/scripts/errorLogHelper': {
             handleOcapiHookErrorStatus: function (e) {
                 return e;
@@ -364,6 +369,11 @@ describe('validate order', function () {
                 manageKlarnaSession: () => {
                     return;
                 }
+            },
+            '*/cartridge/scripts/giftcard/giftcardHelper': {
+                removeEmptyShipments: () => {
+                    return true;
+                }
             }
         });
         var result = validateOrderHook.beforePOST(lineItemContainer);
@@ -446,6 +456,11 @@ describe('validate order', function () {
             '~/cartridge/scripts/basketHelper': {
                 manageKlarnaSession: () => {
                     return;
+                }
+            },
+            '*/cartridge/scripts/giftcard/giftcardHelper': {
+                removeEmptyShipments: () => {
+                    return true;
                 }
             }
         });
@@ -530,6 +545,11 @@ describe('validate order', function () {
                 manageKlarnaSession: () => {
                     return;
                 }
+            },
+            '*/cartridge/scripts/giftcard/giftcardHelper': {
+                removeEmptyShipments: () => {
+                    return true;
+                }
             }
         });
         var result = validateOrderHook.beforePOST(lineItemContainer, false);
@@ -613,6 +633,11 @@ describe('validate order', function () {
                 manageKlarnaSession: () => {
                     return;
                 }
+            },
+            '*/cartridge/scripts/giftcard/giftcardHelper': {
+                removeEmptyShipments: () => {
+                    return true;
+                }
             }
         });
         var result = validateOrderHook.beforePOST(lineItemContainer, false);
@@ -695,6 +720,11 @@ describe('validate order', function () {
             '~/cartridge/scripts/basketHelper': {
                 manageKlarnaSession: () => {
                     return;
+                }
+            },
+            '*/cartridge/scripts/giftcard/giftcardHelper': {
+                removeEmptyShipments: () => {
+                    return true;
                 }
             }
         });
@@ -801,6 +831,11 @@ describe('validate order', function () {
             '~/cartridge/scripts/basketHelper': {
                 manageKlarnaSession: () => {
                     return;
+                }
+            },
+            '*/cartridge/scripts/giftcard/giftcardHelper': {
+                removeEmptyShipments: () => {
+                    return true;
                 }
             }
         });

@@ -1,0 +1,35 @@
+<isif condition="${'enableDatadogRUM' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.enableDatadogRUM}">
+
+    <isset name="rumClientToken" value="${require('*/cartridge/scripts/utils/PreferencesUtil').getValue('rumClientToken')}" scope="page" />
+    <isset name="rumApplicationId" value="${require('*/cartridge/scripts/utils/PreferencesUtil').getValue('rumApplicationId')}" scope="page" />
+    <isset name="rumService" value="${require('*/cartridge/scripts/utils/PreferencesUtil').getValue('rumService')}" scope="page" />
+    <isset name="rumEnv" value="${require('*/cartridge/scripts/utils/PreferencesUtil').getValue('rumEnv')}" scope="page" />
+    <isset name="rumSessionSampleRate" value="${require('*/cartridge/scripts/utils/PreferencesUtil').getValue('rumSessionSampleRate')}" scope="page" />
+    <isset name="rumSessionReplaySampleRate" value="${require('*/cartridge/scripts/utils/PreferencesUtil').getValue('rumSessionReplaySampleRate')}" scope="page" />
+
+    <script>
+    (function(h,o,u,n,d) {
+        h=h[d]=h[d]||{q:[],onReady:function(c){h.q.push(c)}}
+        d=o.createElement(u);d.async=1;d.src=n
+        n=o.getElementsByTagName(u)[0];n.parentNode.insertBefore(d,n)
+    })(window,document,'script','https://www.datadoghq-browser-agent.com/us1/v4/datadog-rum.js','DD_RUM')
+    window.DD_RUM.onReady(function() {
+        window.DD_RUM.init({
+        clientToken: '${rumClientToken}',
+        applicationId: '${rumApplicationId}',
+        site: 'datadoghq.com',
+        service: '${rumService}',
+        env: '${rumEnv}',
+        version: '1.0.0',
+        sessionSampleRate: ${!empty(rumSessionSampleRate) ? rumSessionSampleRate.toFixed() : 100},
+        sessionReplaySampleRate: ${!empty(rumSessionReplaySampleRate) ? rumSessionReplaySampleRate.toFixed() : 0},
+        trackUserInteractions: true,
+        trackResources: true,
+        trackLongTasks: true,
+        defaultPrivacyLevel: 'mask-user-input',
+        });
+
+        window.DD_RUM.startSessionReplayRecording();
+    })
+    </script>
+</isif>

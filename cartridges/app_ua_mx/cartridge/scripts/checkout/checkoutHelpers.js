@@ -82,9 +82,7 @@ function copyShippingAddressToShipment(shippingData, shipmentOrNull, type) {
     var shippingAddress = shipment.shippingAddress;
 
     Transaction.wrap(function () {
-        if ((!empty(form.shippingAddress.addressFields.additionalInformation) && !empty(form.shippingAddress.addressFields.additionalInformation.value))) {
-            shippingAddress.custom.additionalInformation = form.shippingAddress.addressFields.additionalInformation.value;
-        }
+        shippingAddress.custom.additionalInformation = form.shippingAddress.addressFields.additionalInformation.value;
         if ((!empty(form.shippingAddress.addressFields.colony) && !empty(form.shippingAddress.addressFields.colony.value))) {
             shippingAddress.custom.colony = form.shippingAddress.addressFields.colony.value;
         }
@@ -94,8 +92,11 @@ function copyShippingAddressToShipment(shippingData, shipmentOrNull, type) {
         if ((!empty(form.shippingAddress.addressFields.exteriorNumber) && !empty(form.shippingAddress.addressFields.exteriorNumber.value))) {
             shippingAddress.custom.exteriorNumber = form.shippingAddress.addressFields.exteriorNumber.value;
         }
-        if ((!empty(form.shippingAddress.addressFields.interiorNumber) && !empty(form.shippingAddress.addressFields.interiorNumber.value))) {
-            shippingAddress.custom.interiorNumber = form.shippingAddress.addressFields.interiorNumber.value;
+        shippingAddress.custom.interiorNumber = form.shippingAddress.addressFields.interiorNumber.value;
+
+        // Remove comma from city field if it is in the first position
+        if (!empty(form.shippingAddress.addressFields.city) && !empty(form.shippingAddress.addressFields.city.value) && form.shippingAddress.addressFields.city.value.trim().indexOf(',') === 0) {
+            shippingAddress.city = form.shippingAddress.addressFields.city.value.replace(/^,*/, '');
         }
     });
 }
@@ -244,6 +245,50 @@ function isHideRfcValues(address) {
     return address && address.rfc && rfcDefaultValuesJson !== '{}' && rfcDefaultValues.RFC_DEFAULT === address.rfc;
 }
 
+/**
+ * Save Oxxo Details to the Order
+ * @param {dw.order.Order} order - order
+ * @param {Object} oxxoDetailsResponse - oxxoDetailsResponse
+ */
+function saveOxxoDetails(order, oxxoDetailsResponse) {
+    if (order && oxxoDetailsResponse) {
+        var Calendar = require('dw/util/Calendar');
+        var Money = require('dw/value/Money');
+        var StringUtils = require('dw/util/StringUtils');
+
+        var oxxoDetails = {
+            alternativeReference: oxxoDetailsResponse.alternativeReference || '',
+            downloadUrl: oxxoDetailsResponse.downloadUrl || '',
+            expiresAt: oxxoDetailsResponse.expiresAt || '',
+            initialAmount: {
+                currency: oxxoDetailsResponse.initialAmount ? oxxoDetailsResponse.initialAmount.currency : 'MXN',
+                value: oxxoDetailsResponse.initialAmount ? oxxoDetailsResponse.initialAmount.value : 0
+            },
+            instructionsUrl: oxxoDetailsResponse.instructionsUrl || '',
+            merchantName: oxxoDetailsResponse.merchantName || '',
+            merchantReference: oxxoDetailsResponse.merchantReference || '',
+            reference: oxxoDetailsResponse.reference || '',
+            shopperEmail: oxxoDetailsResponse.shopperEmail || '',
+            shopperName: oxxoDetailsResponse.shopperName || '',
+            totalAmount: {
+                currency: oxxoDetailsResponse.totalAmount ? oxxoDetailsResponse.totalAmount.currency : 'MXN',
+                value: oxxoDetailsResponse.totalAmount ? oxxoDetailsResponse.totalAmount.value : 0
+            },
+            type: oxxoDetailsResponse.type || ''
+        };
+
+        var expiryDate = new Date(oxxoDetails.expiresAt);
+        var expiryCalendar = new Calendar(expiryDate);
+        oxxoDetails.formattedExpiryDate = StringUtils.formatCalendar(expiryCalendar, 'dd/MM/yyyy');
+
+        oxxoDetails.formattedAmount = new Money(oxxoDetails.totalAmount.value / 100, oxxoDetails.totalAmount.currency).toFormattedString();
+
+        Transaction.wrap(function () {
+            order.custom.oxxoDetails = JSON.stringify(oxxoDetails); // eslint-disable-line
+        });
+    }
+}
+
 coreCheckoutHelper.isHideRfcValues = isHideRfcValues;
 coreCheckoutHelper.sendConfirmationEmail = sendConfirmationEmail;
 coreCheckoutHelper.copyCustomerAddressToShipment = copyCustomerAddressToShipment;
@@ -252,5 +297,6 @@ coreCheckoutHelper.copyBillingAddressToBasket = copyBillingAddressToBasket;
 coreCheckoutHelper.copyCustomerAddressToBilling = copyCustomerAddressToBilling;
 coreCheckoutHelper.copyCustomerAddressToBasket = copyCustomerAddressToBasket;
 coreCheckoutHelper.getMxTaxMap = getMxTaxMap;
+coreCheckoutHelper.saveOxxoDetails = saveOxxoDetails;
 
 module.exports = coreCheckoutHelper;

@@ -43,8 +43,8 @@ function fetchAllOptions(postalCode) {
         var town = [], city = [], state = [], colonies = []; //eslint-disable-line
         resp.data.forEach((item) => {
             if (colonies.indexOf(item.Name) === -1) colonies.push(item.Name);
-            if (item.Town && town.indexOf(item.Town.Name) === -1) town.push(item.Town.Name);
-            if (item.Town && city.indexOf(item.Town.CityName) === -1) city.push(item.Town.CityName);
+            if (item.Town && !empty(item.Town.Name) && town.indexOf(item.Town.Name) === -1) town.push(item.Town.Name);
+            if (item.Town && !empty(item.Town.CityName) && city.indexOf(item.Town.CityName) === -1) city.push(item.Town.CityName);
             if (item.Town && item.Town.State) {
                 var stateCode = require('*/cartridge/scripts/config/statemap')[item.Town.State.Code];
                 if (stateCode) stateCode = stateCode.split('|')[0];

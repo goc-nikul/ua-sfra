@@ -365,6 +365,7 @@ server.append('Begin', function (req, res, next) {
         viewData.order &&
         viewData.order.billing &&
         viewData.order.shipping &&
+        viewData.order.billing.matchingAddressId &&
         (viewData.order.billing.matchingAddressId === viewData.order.shipping[0].matchingAddressId ||
             viewData.order.billing.matchingAddressId === viewData.order.shipping[0].UUID) && !isHALbasket) {
         billingForm.shippingAddressUseAsBillingAddress.value = true;

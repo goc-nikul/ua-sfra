@@ -4,6 +4,7 @@ var addressHelpers = require('./address');
 var cleave = require('base/components/cleave');
 var hasOnlyEGiftCards = false;
 var isRegistered;
+var selectStateDataMissingerror;
 
 /**
  * updates the billing address selector within billing forms
@@ -34,7 +35,7 @@ function updateBillingAddressSelector(order, customer) {
 
         var InCustAddressbookAvailable = false;
         var custAddressIDSelectedinShipping = '';
-        if (customer.addresses && customer.addresses.length > 0) {
+        if (customer && customer.addresses && customer.addresses.length > 0) {
             customer.addresses.forEach(function (address) {
                 if (shippings[0].matchingAddressId === address.ID) {
                     InCustAddressbookAvailable = true;
@@ -70,7 +71,7 @@ function updateBillingAddressSelector(order, customer) {
                 }
             });
         }
-        if (customer.addresses && customer.addresses.length > 0) {
+        if (customer && customer.addresses && customer.addresses.length > 0) {
             $('.make-ship-as-bill').removeClass('hide');
             // to remove option values getting updated as a duplicate address
             // $billingAddressSelector.append(addressHelpers.methods.optionValueForAddress(order.resources.accountAddresses, false, order));
@@ -266,7 +267,7 @@ function updatePaymentInformation(order) {
             if (payment.paymentMethod === 'Paymetric' && payment.type) {
                 htmlToAppend += `
         	 <span>
-        	    ${payment.type} 
+        	    ${payment.type}
         	 </span>
         	 <div>
         	     ${payment.maskedCreditCardNumber}
@@ -320,6 +321,9 @@ function updateStateOptions() {
         var $formState = $form.find('select[id$="billingState"]');
         var stVal = $formState.val();
         var country = $country.val();
+        if ($formState.length > 0) {
+            selectStateDataMissingerror = $formState.data('missing-error');
+        }
         var countryObj;
         if (country !== undefined && $('.countryRegion').data('countryregion') !== null) {
             countryObj = $('.countryRegion').data('countryregion')[country]; // eslint-disable-line
@@ -339,7 +343,7 @@ function updateStateOptions() {
             selectName = 'name="' + $form.find('[name$="_states_stateCode"]').attr('name') + '"';
             inputField = $('<input class="form-control b-input_row-input" type="text" ' + selectID + ' ' + selectName + ' />');
             arrayHtml = '<option value=""></option>';
-            var dataMissingError = 'data-missing-error="' + $form.find('[name$="_states_stateCode"]').attr('data-missing-error') + '"';
+            var dataMissingError = 'data-missing-error="' + selectStateDataMissingerror + '"';
 
             for (var stateValue in countryObj.regions) { // eslint-disable-line
                 arrayHtml += '<option value="' + stateValue + '">' + countryObj.regions[stateValue] + '</option>';
@@ -486,6 +490,13 @@ module.exports = {
             $(this).closest('.payment-form-fields').find('.js-payment-selection-error').addClass('hide');
             $('.payment-information').attr('data-is-new-payment', false);
         });
+
+         // if no default credit card is selected then select first credit card
+        if ($('.saved-payment-instrument').length > 0 && $('.saved-payment-instrument.selected-payment').length <= 0) {
+            if ($('.payment-information').attr('data-payment-method-id') === 'CREDIT_CARD' || $('.payment-information').attr('data-payment-method-id') === 'Paymetric') {
+                $('.saved-payment-instrument:first').trigger('click');
+            }
+        }
     },
 
     addNewPaymentInstrument: function () {

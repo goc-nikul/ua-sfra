@@ -2,7 +2,7 @@
 
 var processInclude = require('base/util');
 
-var adyenCheckout = require('adyen/adyenCheckout');
+var adyenCheckout = require('./adyen_checkout/adyenCheckout');
 
 $(document).ready(function () {
   // eslint-disable-line

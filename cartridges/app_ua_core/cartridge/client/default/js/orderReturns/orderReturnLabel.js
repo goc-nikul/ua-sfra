@@ -2,6 +2,8 @@
 
 var clientSideValidation = require('../components/common/clientSideValidation');
 var pdfjsLib = window['pdfjs-dist/build/pdf'];
+var layout = require('../layout').init();
+var util = require('../util');
 
 module.exports = {
     onBackToReturns: function () {
@@ -108,20 +110,24 @@ module.exports = {
                                         pdf.getPage(pageNumber).then(function (page) {
                                             console.log('Page loaded');
                                             var scale = 1;
-                                            var heightFactor = 1;
-                                            var widthFactor = 1;
                                             if ($('.return-label-UACAPIimg').length > 0) {
-                                                scale = 7.5;
-                                                heightFactor = 0.72;
-                                                widthFactor = 0.6;
+                                                scale = 3;
                                             }
                                             var viewport = page.getViewport({ scale: scale });
 
                                             // Prepare canvas using PDF page dimensions
                                             var canvas = document.getElementById('return-label-pdf');
                                             var context = canvas.getContext('2d');
-                                            canvas.height = viewport.height * heightFactor;
-                                            canvas.width = viewport.width * widthFactor;
+                                            if (layout.isMobileView()) {
+                                                var size = util.limitMobileCanvasSize(viewport.width, viewport.height);
+                                                canvas.height = size.height;
+                                                canvas.width = size.width;
+                                                viewport = page.getViewport({ scale: scale * size.scalar });
+                                            } else {
+                                                canvas.height = viewport.height;
+                                                canvas.width = viewport.width;
+                                            }
+
                                             // Render PDF page into canvas context
                                             var renderContext = {
                                                 canvasContext: context,

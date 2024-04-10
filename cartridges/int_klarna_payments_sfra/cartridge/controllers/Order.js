@@ -10,19 +10,27 @@ server.replace('Confirm', function (req, res, next) {
     var OrderMgr = require('dw/order/OrderMgr');
     var OrderModel = require('*/cartridge/models/order');
     var Locale = require('dw/util/Locale');
+    var order;
 
-    var order = OrderMgr.getOrder(req.querystring.ID);
-
-    if (!order || order.customer.ID !== req.currentCustomer.raw.ID
-    ) {
+    if (!req.form.orderToken || !req.form.orderID) {
         res.render('/error', {
             message: Resource.msg('error.confirmation.error', 'confirmation', null)
         });
 
         return next();
     }
+
+    order = OrderMgr.getOrder(req.form.orderID, req.form.orderToken);
+
+    if (!order || order.customer.ID !== req.currentCustomer.raw.ID
+    ) {
+        res.setStatusCode(404);
+        res.render('error/notFound');
+
+        return next();
+    }
     var lastOrderID = Object.prototype.hasOwnProperty.call(req.session.raw.custom, 'orderID') ? req.session.raw.custom.orderID : null;
-    if (lastOrderID === req.querystring.ID) {
+    if (lastOrderID === req.form.orderID) {
         res.redirect(URLUtils.url('Home-Show'));
         return next();
     }
@@ -64,7 +72,7 @@ server.replace('Confirm', function (req, res, next) {
             orderUUID: order.getUUID()
         });
     }
-    req.session.raw.custom.orderID = req.querystring.ID; // eslint-disable-line no-param-reassign
+    req.session.raw.custom.orderID = req.form.orderID; // eslint-disable-line no-param-reassign
 
     return next();
 });

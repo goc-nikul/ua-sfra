@@ -1,5 +1,3 @@
-'use strict';
-
 var proxyquire = require('proxyquire').noCallThru().noPreserveCache();
 var collections = require('../util/collections');
 
@@ -32,10 +30,6 @@ function proxyModel() {
                                 cardType: 'Amex',
                                 name: 'American Express',
                                 UUID: 'some UUID'
-                            },
-                            {
-                                cardType: 'Master Card',
-                                name: 'MasterCard'
                             },
                             {
                                 cardType: 'Discover',

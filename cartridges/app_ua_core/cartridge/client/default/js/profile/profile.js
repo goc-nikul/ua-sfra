@@ -2,6 +2,7 @@
 
 var formValidation = require('base/components/formValidation');
 var clientSideValidation = require('../components/common/clientSideValidation');
+var location = window.location;
 
 /**
  * Populate the days present in a month
@@ -16,6 +17,34 @@ function getKeyByValue(object, value) { // eslint-disable-line
         }
     }
 }
+
+/**
+ * Toggle password visibility
+ * @param {Object} element - jQuery element
+ * @param {Object} flag - show/hide flag
+ */
+function togglePasswordHandler(element, flag) {
+    var $inputField = element.parent().find('input');
+    var hideLabel = element.attr('data-hide');
+    var showLabel = element.attr('data-show');
+    var inputFieldType = $inputField.attr('type');
+    var show;
+
+    if (flag) {
+        show = flag === 'show';
+    } else {
+        show = inputFieldType === 'password';
+    }
+
+    if (show) {
+        $inputField.attr('type', 'text');
+        element.html(hideLabel);
+    } else {
+        $inputField.attr('type', 'password');
+        element.html(showLabel);
+    }
+}
+
 module.exports = {
     submitProfile: function () {
         $('body').on('click', '.account-save-button', function (e) {
@@ -166,6 +195,9 @@ module.exports = {
             $('.js-email-details').hide();
             $('.js-account_form-column-hide').removeClass('hide');
             $('.js-password-details, .js-change-email').show();
+            $('.edit-profile-form .js-profile-show-password').each(function () {
+                togglePasswordHandler($(this), 'hide');
+            });
         });
     },
 
@@ -229,18 +261,7 @@ module.exports = {
 
     showPassword: function () {
         $('body').on('click', '.edit-profile-form .js-profile-show-password', function () {
-            var $this = $(this);
-            var $inputField = $this.parent().find('input');
-            var hideLabel = $this.attr('data-hide');
-            var showLabel = $this.attr('data-show');
-            var inputFieldType = $inputField.attr('type');
-            if (inputFieldType === 'password') {
-                $inputField.attr('type', 'text');
-                $this.html(hideLabel);
-            } else {
-                $inputField.attr('type', 'password');
-                $this.html(showLabel);
-            }
+            togglePasswordHandler($(this));
         });
     },
 

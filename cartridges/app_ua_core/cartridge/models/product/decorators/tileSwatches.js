@@ -57,9 +57,10 @@ var getVariationUrl = function (productId, colorValue) {
  * @param {string} sizeModeViewPref, model size view pref
  * @param {boolean} isFilterByTeam, check if filter by team and PLP page
  * @param {string} filterTeam, filter by team
+ * @param {string} selectedColor, filter by color
  * @returns {Object} swatches object
  */
-var getSwatches = function (hit, outletColors, experienceType, sizeModeViewPref, isFilterByTeam, filterTeam) {
+var getSwatches = function (hit, outletColors, experienceType, sizeModeViewPref, isFilterByTeam, filterTeam, selectedColor) {
     if (!hit) {
         return null;
     }
@@ -67,7 +68,7 @@ var getSwatches = function (hit, outletColors, experienceType, sizeModeViewPref,
     var colors = hit.getRepresentedVariationValues(ATTRIBUTE_NAME).iterator();
     var variationModel = hit.getProduct().getVariationModel();
     var masterProudct = variationModel.getMaster();
-    var isFanWear = !empty(masterProudct.custom.enduse) ? true : false; // eslint-disable-line no-unneeded-ternary
+    var isFanWear = typeof masterProudct !== 'undefined' && masterProudct !== null && !empty(masterProudct.custom.enduse) ? true : false; // eslint-disable-line no-unneeded-ternary
     var sizeModelSwatchImage = [];
     var imageViewType = null;
     var fitModelEnable = 'enableFitModels' in Site.current.preferences.custom ? Site.current.getCustomPreferenceValue('enableFitModels') : false;
@@ -98,6 +99,11 @@ var getSwatches = function (hit, outletColors, experienceType, sizeModeViewPref,
                         continue; // eslint-disable-line no-continue
                     }
                 }
+
+                var earlyAccessSwatchHide = colorVariants.toArray().every(cVariant =>'earlyAccessConfigs' in cVariant.custom && cVariant.custom.earlyAccessConfigs.value === 'HIDE');
+                if (earlyAccessSwatchHide) {
+                    continue; // eslint-disable-line no-continue
+                }
             }
             var desktopImages = variationModel.getImages('gridTileDesktop').toArray();
             if (fitModelEnable && !empty(imageViewType)) {
@@ -115,6 +121,7 @@ var getSwatches = function (hit, outletColors, experienceType, sizeModeViewPref,
                     displayValue: colorItem.displayValue,
                     value: colorItem.value,
                     selectable: true,
+                    selected: colorItem.value === selectedColor,
                     type: type,
                     url: getVariationUrl(hit.productID, colorItem.value),
                     color: {
@@ -146,9 +153,9 @@ var getSwatches = function (hit, outletColors, experienceType, sizeModeViewPref,
     return retObj;
 };
 
-module.exports = function (object, hit, outletColors, experienceType, sizeModeViewPref, isFilterByTeam, filterTeam) {
+module.exports = function (object, hit, outletColors, experienceType, sizeModeViewPref, isFilterByTeam, filterTeam, selectedColor) {
     Object.defineProperty(object, 'swatches', {
         enumerable: true,
-        value: getSwatches(hit, outletColors, experienceType, sizeModeViewPref, isFilterByTeam, filterTeam)
+        value: getSwatches(hit, outletColors, experienceType, sizeModeViewPref, isFilterByTeam, filterTeam, selectedColor)
     });
 };

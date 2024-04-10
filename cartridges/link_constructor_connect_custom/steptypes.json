@@ -1,0 +1,285 @@
+{
+  "step-types": {
+    "chunk-script-module-step": [
+      {
+        "@type-id": "custom.constructor.syncProducts",
+        "@supports-parallel-execution": "true",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "module": "link_constructor_connect_custom/cartridge/scripts/jobs/syncProducts",
+        "transactional": "false",
+        "timeout-in-seconds": "180000",
+        "before-step-function": "beforeStep",
+        "total-count-function": "getTotalCount",
+        "read-function": "read",
+        "process-function": "process",
+        "write-function": "write",
+        "after-step-function": "afterStep",
+        "chunk-size": 1000,
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "PartialByLastSyncDate",
+              "description": "Determines if the feed should only contain products that have been modified since the last sync date (without filters). Defaults to false. Note that this can improve performance.",
+              "@type": "boolean",
+              "@required": true,
+              "default-value": false
+            },
+            {
+              "@name": "SendOfflineVariants",
+              "description": "Determines if variants that are not online should be sent if the master product or any of its other variants are online. Note that this will affect performance.",
+              "@type": "boolean",
+              "@required": true,
+              "default-value": false
+            },
+            {
+              "@name": "IncludeMasterProductsOutOfStock",
+              "description": "Determines if master products that are online but with all variants out of stock should be included. Note that this will affect performance.",
+              "@type": "boolean",
+              "@required": true,
+              "default-value": false
+            },
+            {
+              "@name": "IncludeSlicedProducts",
+              "description": "Determines to include sliced products or not",
+              "@type": "boolean",
+              "@required": true,
+              "default-value": false
+            },
+            {
+              "@name": "IngestionStrategy",
+              "description": "The ingestion strategy to use when sending data to the index.",
+              "@type": "string",
+              "@required": true,
+              "default-value": "FULL",
+              "enum-values": {
+                "value": [
+                  "FULL",
+                  "DELTA",
+                  "PATCH_DELTA_FAIL",
+                  "PATCH_DELTA_CREATE",
+                  "PATCH_DELTA_IGNORE"
+                ]
+              }
+            },
+            {
+              "@name": "ApiKeyOverride",
+              "description": "Allows overriding the API key defined in the site preferences. Useful to send data to multiple indexes from the same site (e.g. different locales).",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            },
+            {
+              "@name": "Locale",
+              "description": "The locale ID to use when fetching data (e.g. `en_US`). Will fallback to the default catalog locale if not provided.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            },
+            {
+              "@name": "Section",
+              "description": "Defines which section of the index to write the data to.",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "Products"
+            },
+            {
+              "@name": "Filters.Ids",
+              "description": "The list of ids to filter records by. Needs to be separated by commas (,). Example: `1, 2, 3`. Can be a the product id, variation id or variation group id. Note that there is a maximum of 30 IDs that can be specified.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true,
+              "default-value": ""
+            },
+            {
+              "@name": "Filters.CategoryId",
+              "description": "The category id that will be used to filter the products. Defaults to the root category if not provided.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true,
+              "default-value": ""
+            },
+            {
+              "@name": "Filters.SearchPhrase",
+              "description": "The search phrase that can be used to filter the products.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true,
+              "default-value": ""
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.constructor.patchProducts",
+        "@supports-parallel-execution": "true",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "module": "link_constructor_connect_custom/cartridge/scripts/jobs/patchProducts",
+        "transactional": "false",
+        "timeout-in-seconds": "180000",
+        "before-step-function": "beforeStep",
+        "total-count-function": "getTotalCount",
+        "read-function": "read",
+        "process-function": "process",
+        "write-function": "write",
+        "after-step-function": "afterStep",
+        "chunk-size": 1000,
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "PartialByLastSyncDate",
+              "description": "Determines if the feed should only contain products that have been modified since the last sync date (without filters). Defaults to false. Note that this can improve performance.",
+              "@type": "boolean",
+              "@required": true,
+              "default-value": false
+            },
+            {
+              "@name": "SendOfflineVariants",
+              "description": "Determines if variants that are not online should be sent if the master product or any of its other variants are online. Note that this will affect performance.",
+              "@type": "boolean",
+              "@required": true,
+              "default-value": false
+            },
+            {
+              "@name": "IncludeMasterProductsOutOfStock",
+              "description": "Determines if master products that are online but with all variants out of stock should be included. Note that this will affect performance.",
+              "@type": "boolean",
+              "@required": true,
+              "default-value": false
+            },
+            {
+              "@name": "IngestionStrategy",
+              "description": "The ingestion strategy to use when sending data to the index.",
+              "@type": "string",
+              "@required": true,
+              "default-value": "PATCH_DELTA_FAIL",
+              "enum-values": {
+                "value": [
+                  "PATCH_DELTA_FAIL",
+                  "PATCH_DELTA_CREATE",
+                  "PATCH_DELTA_IGNORE"
+                ]
+              }
+            },
+            {
+              "@name": "ApiKeyOverride",
+              "description": "Allows overriding the API key defined in the site preferences. Useful to send data to multiple indexes from the same site (e.g. different locales).",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            },
+            {
+              "@name": "Locale",
+              "description": "The locale ID to use when fetching data (e.g. `en_US`). Will fallback to the default catalog locale if not provided.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            },
+            {
+              "@name": "Section",
+              "description": "Defines which section of the index to write the data to.",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "Products"
+            },
+            {
+              "@name": "Filters.Ids",
+              "description": "The list of ids to filter records by. Needs to be separated by commas (,). Example: `1, 2, 3`. Can be a the product id, variation id or variation group id. Note that there is a maximum of 30 IDs that can be specified.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true,
+              "default-value": ""
+            },
+            {
+              "@name": "Filters.CategoryId",
+              "description": "The category id that will be used to filter the products. Defaults to the root category if not provided.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true,
+              "default-value": ""
+            },
+            {
+              "@name": "Filters.SearchPhrase",
+              "description": "The search phrase that can be used to filter the products.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true,
+              "default-value": ""
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.constructor.syncCategories",
+        "@supports-parallel-execution": "true",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "module": "link_constructor_connect/cartridge/scripts/jobs/syncCategories",
+        "transactional": "false",
+        "timeout-in-seconds": "180000",
+        "before-step-function": "beforeStep",
+        "total-count-function": "getTotalCount",
+        "read-function": "read",
+        "process-function": "process",
+        "write-function": "write",
+        "after-step-function": "afterStep",
+        "chunk-size": 1000,
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "ApiKeyOverride",
+              "description": "Allows overriding the API key defined in the site preferences. Useful to send data to multiple indexes from the same site (e.g. different locales).",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            },
+            {
+              "@name": "Locale",
+              "description": "The locale ID to use when fetching data (e.g. `en_US`). Will fallback to the default catalog locale if not provided.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.constructor.syncCategoriesSection",
+        "@supports-parallel-execution": "true",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "module": "link_constructor_connect_custom/cartridge/scripts/jobs/syncCategoriesSection",
+        "transactional": "false",
+        "timeout-in-seconds": "180000",
+        "before-step-function": "beforeStep",
+        "total-count-function": "getTotalCount",
+        "read-function": "read",
+        "process-function": "process",
+        "write-function": "write",
+        "after-step-function": "afterStep",
+        "chunk-size": 1000,
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "ApiKeyOverride",
+              "description": "Allows overriding the API key defined in the site preferences. Useful to send data to multiple indexes from the same site (e.g. different locales).",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            },
+            {
+              "@name": "Locale",
+              "description": "The locale ID to use when fetching data (e.g. `en_US`). Will fallback to the default catalog locale if not provided.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

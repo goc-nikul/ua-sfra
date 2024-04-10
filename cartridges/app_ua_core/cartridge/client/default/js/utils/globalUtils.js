@@ -1,6 +1,17 @@
 'use strict';
 
 /**
+ * @description estend global classes
+ */
+function init() {
+    // extend String in order to use resources with {0} {1} etc.
+    // eslint-disable-next-line no-extend-native
+    String.prototype.supplant = function (obj) {
+        return this.replace(/{([^{}]*)}/g, (a, b) => ['string', 'number'].indexOf(typeof obj[b]) > -1 ? obj[b] : a);
+    };
+}
+
+/**
  * @description Check if element is visible.
  * @param {string} element - selector
  * @return {boolean} Returns boolean based on if element is visible
@@ -15,5 +26,6 @@ function isInViewPort(element) {
     );
 }
 module.exports = {
+    init: init,
     viewPort: isInViewPort
 };

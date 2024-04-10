@@ -24,7 +24,9 @@
 	                <div class="b-shipping-method_label">
 		                <div class="b-shipping-method_name b-shipping-method_subheading display-name">${shippingMethod.displayName}</div>
 		                <isif condition="${shippingMethod.shippingDeliveryDates && !pdict.preOrderProductTileMessage}">
-		                    <div class="b-shipping-method_time b-shipping-method_subheadingText text-muted arrival-time">${shippingMethod.shippingDeliveryDates}</div>
+							<isif condition="${dw.system.Site.getCurrent().getID() !== 'KR'}">
+		                    	<div class="b-shipping-method_time b-shipping-method_subheadingText text-muted arrival-time">${shippingMethod.shippingDeliveryDates}</div>
+							</isif>
 		                </isif>
 		            </div>
 		            <div class="b-shipping-method_pricing shipping-method-pricing">
@@ -62,7 +64,7 @@
 	        <label class="form-check-label b-shipping-method_check-label shipping-method-option" for="shippingMethodRadioButton">
 	            <div class="b-shipping-method_label">
 		            <div class="b-shipping-method_name b-shipping-method_subheading display-name"></div>
-		            <isif condition="${!pdict.preOrderProductTileMessage}">
+		            <isif condition="${!pdict.preOrderProductTileMessage && dw.system.Site.getCurrent().getID() !== 'KR'}">
 		                <div class="b-shipping-method_time b-shipping-method_subheadingText text-muted arrival-time" style="display:none"></div>
 		            </isif>
 	            </div>

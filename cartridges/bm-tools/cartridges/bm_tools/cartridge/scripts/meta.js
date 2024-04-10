@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use strict';
 /**
  * @module meta
@@ -5,7 +6,7 @@
 
 var HOME_BREADCRUMB = {
     name: dw.web.Resource.msg('global.home', 'locale', null),
-    url: "oops" //dw.web.URLUtils.httpHome()
+    url: 'oops' // require('int_emp/cartridge/scripts/util/URLUtils').httpHome()
 };
 
 /**
@@ -83,7 +84,7 @@ Meta.prototype = {
                 this.data.breadcrumbs.unshift(HOME_BREADCRUMB);
                 this.data.breadcrumbs.push({
                     name: object.name,
-                    url: dw.web.URLUtils.url('Page-Show', 'cid', object.ID)
+                    url: require('dw/web/URLUtils').url('Page-Show', 'cid', object.ID)
                 });
                 dw.system.Logger.debug('Content breadcrumbs calculated: ' + JSON.stringify(this.data.breadcrumbs));
             }

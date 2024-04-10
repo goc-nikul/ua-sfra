@@ -2,8 +2,4 @@
 <isset name="product" value="${pdict.product}" scope="page" />
 <isset name="productURL" value="${pdict.urls.product}" scope="page"/>
 
-<isif condition="${'recTileQuickViewEnabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.getCustomPreferenceValue('recTileQuickViewEnabled') && pdict.display && pdict.display.quickview}">
-    <isinclude template="product/productTileQuickView" />
-<iselse/>
-    <isinclude template="product/productTile" />
-</isif>
+<isinclude template="product/productTile" />

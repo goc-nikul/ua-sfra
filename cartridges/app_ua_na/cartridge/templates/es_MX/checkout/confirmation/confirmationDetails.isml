@@ -1,9 +1,14 @@
 <isset name="paymentMethod" value="${!empty(pdict.order.billing.payment.selectedPaymentInstruments) ? pdict.order.billing.payment.selectedPaymentInstruments[0].paymentMethod : null}" scope="page" />
+<isset name="selectedAdyenPM" value="${!empty(pdict.order.billing.payment.selectedPaymentInstruments) ? pdict.order.billing.payment.selectedPaymentInstruments[0].selectedAdyenPM : null}" scope="page" />
 <isif condition="${paymentMethod === 'AdyenComponent'}">
 	<isinclude template="checkout/billing/adyenGivingComponent" />
 </isif>
 <div class="card confirm-details">
     <div class="card-body">
+        <isif condition="${paymentMethod === 'AdyenComponent' && selectedAdyenPM == 'Oxxo' && pdict.order.oxxoDetails}">
+            <isinclude template="components/oxxoVoucher" />
+        </isif>
+
         <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('isLoyaltyEnable') && !customer.isMemberOfCustomerGroup('Loyalty')}">
             <isset name="loyaltyHelper" value="${require('*/cartridge/scripts/helpers/loyaltyHelper')}" scope="page" />
             <isset name="postalCode" value="${pdict.order.billing.billingAddress.address.postalCode}" scope="page">

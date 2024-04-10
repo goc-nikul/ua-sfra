@@ -52,14 +52,13 @@ var storeMgr = {
             }
         };
 
-
         if (storeId === 'store1') {
             return store1;
-        } else if (storeId === 'store2') {
+        } if (storeId === 'store2') {
             return store2;
-        } else if (storeId === 'storeWithNoInventory') {
+        } if (storeId === 'storeWithNoInventory') {
             return storeWithNoInventory;
-        } else if (storeId === 'storeWithNoRecord') {
+        } if (storeId === 'storeWithNoRecord') {
             return storeWithNoRecord;
         }
 

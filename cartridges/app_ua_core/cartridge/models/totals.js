@@ -249,29 +249,59 @@ function getProductTotalDiscount(lineItemContainer) {
     var currencyCode = lineItemContainer.currencyCode;
     var productTotalDiscount = new Money(0, currencyCode);
     collections.forEach(lineItemContainer.getAllProductLineItems(), function (pli) {
-        var diffPrice = new Money(0, currencyCode);
-        if (pli.product && pli.product.priceModel) {
-            var listPrice = priceFactory.getListPrice(pli.product.priceModel);
-            if (listPrice) {
-                diffPrice = pli.price.subtract(listPrice.multiply(pli.quantity));
-            }
-        }
-        var promotionDiscount = new Money(0, currencyCode);
-        if (pli.priceAdjustments.length > 0) {
-            collections.forEach(pli.priceAdjustments, function (priceAdjustment) {
-                if (!priceAdjustment.basedOnCoupon) {
-                    promotionDiscount = promotionDiscount.add(priceAdjustment.price);
+        if (pli.product && pli.product.custom && (!('giftCard' in pli.product.custom) || (pli.product.custom.giftCard.value !== 'EGIFT_CARD'))) {
+            var diffPrice = new Money(0, currencyCode);
+            if (pli.product && pli.product.priceModel) {
+                var listPrice = priceFactory.getListPrice(pli.product.priceModel);
+                if (listPrice) {
+                    diffPrice = pli.price.subtract(listPrice.multiply(pli.quantity));
                 }
-            });
+            }
+            var promotionDiscount = new Money(0, currencyCode);
+            if (pli.priceAdjustments.length > 0) {
+                collections.forEach(pli.priceAdjustments, function (priceAdjustment) {
+                    if (!priceAdjustment.basedOnCoupon) {
+                        promotionDiscount = promotionDiscount.add(priceAdjustment.price);
+                    }
+                });
+            }
+            promotionDiscount = promotionDiscount.add(diffPrice);
+            productTotalDiscount = productTotalDiscount.add(promotionDiscount);
         }
-        promotionDiscount = promotionDiscount.add(diffPrice);
-        productTotalDiscount = productTotalDiscount.add(promotionDiscount);
     });
     return {
         value: productTotalDiscount.value,
         formatted: formatMoney(productTotalDiscount)
     };
 }
+
+/**
+ * calculate the total product coupon discount
+ * @param {dw.order.LineItemCtnr} lineItemContainer - the current line item container
+ * @returns {Object} an object containing product coupon discount
+ */
+function getProductTotalCouponDiscount(lineItemContainer) {
+    var currencyCode = lineItemContainer.currencyCode;
+    var productTotalCouponDiscount = new Money(0, currencyCode);
+    collections.forEach(lineItemContainer.getAllProductLineItems(), function (pli) {
+        if (pli.product && pli.product.custom && (!('giftCard' in pli.product.custom) || (pli.product.custom.giftCard.value !== 'EGIFT_CARD'))) {
+            var promotionDiscount = new Money(0, currencyCode);
+            if (pli.priceAdjustments.length > 0) {
+                collections.forEach(pli.priceAdjustments, function (priceAdjustment) {
+                    if (priceAdjustment.basedOnCoupon) {
+                        promotionDiscount = promotionDiscount.add(priceAdjustment.price);
+                    }
+                });
+            }
+            productTotalCouponDiscount = productTotalCouponDiscount.add(promotionDiscount);
+        }
+    });
+    return {
+        value: productTotalCouponDiscount.value,
+        formatted: formatMoney(productTotalCouponDiscount)
+    };
+}
+
 /**
  * calculate save total which incude order discount, shipping discount, product promotional discount
  * @param {dw.order.LineItemCtnr} lineItemContainer - the current line item container
@@ -338,14 +368,13 @@ function getCouponsSavedAmount(lineItemContainer) {
  * @returns {Object} an object containing promotion
  */
 function getEmployeeTotalDiscounts(lineItemContainer) {
-    var total = new Money(0, lineItemContainer.currencyCode);
-    collections.forEach(lineItemContainer.getAllProductLineItems(), function (pli) {
-        total = total.add(pli.getPrice().subtract(pli.getAdjustedNetPrice()));
-    });
+    var totalExcludingOrderDiscount = lineItemContainer.getAdjustedMerchandizeTotalPrice(false);
+    var totalIncludingOrderDiscount = lineItemContainer.getAdjustedMerchandizeTotalPrice(true);
+    var orderDiscount = totalExcludingOrderDiscount.subtract(totalIncludingOrderDiscount);
 
     return {
-        value: total.value,
-        formatted: formatMoney(total)
+        value: orderDiscount,
+        formatted: formatMoney(orderDiscount)
     };
 }
 
@@ -402,6 +431,22 @@ function getDiscountDistribution(discounts, lineItemContainer) {
     };
 }
 
+/**
+ * calculate total list price of all PLI in the basket.
+ * @param {dw.order.LineItemCtnr} lineItemContainer - the current line item container
+ * @param {Object} prodDiscount - product promotional discount except coupon discount
+ * @returns {Object} an object containing total list price
+ */
+function getSubtotalWithoutDiscounts(lineItemContainer, prodDiscount) {
+    var total = new Money(0, lineItemContainer.currencyCode);
+    var prodDiscountValue = makePositiveValue(prodDiscount.value);
+    total = lineItemContainer.getAdjustedMerchandizeTotalPrice(false).add(new Money(prodDiscountValue, lineItemContainer.currencyCode));
+
+    return {
+        value: total.value,
+        formatted: formatMoney(total)
+    };
+}
 
 /**
  * @constructor
@@ -424,12 +469,15 @@ function totals(lineItemContainer) {
         this.estimatedLoyaltyPoints = getEstimatedLoyaltyPoints(lineItemContainer);
         this.totalpromoDiscount = lineItemContainer.getAdjustedMerchandizeTotalPrice() ? getTotals(lineItemContainer.getAdjustedMerchandizeTotalPrice()) : '';
         this.promotionalDiscount = getProductTotalDiscount(lineItemContainer);
+        this.totalListPrice = getSubtotalWithoutDiscounts(lineItemContainer, this.promotionalDiscount);
+        this.productTotalCouponDiscount = getProductTotalCouponDiscount(lineItemContainer);
+        this.newSubTotalWithoutCoupon = getSubtotalWithoutDiscounts(lineItemContainer, this.productTotalCouponDiscount);
         if (COHelpers.isKlarnaPaymentEnabled()) {
             this.klarnaTotal = getKlarnaTotal(lineItemContainer);
         }
         this.saveTotal = getTotalSavedAmount(lineItemContainer, this.orderLevelDiscountTotal, this.shippingLevelDiscountTotal, this.discounts, this.promotionalDiscount);
         var siteId = Site.getCurrent().getID();
-        if (siteId === 'US' || siteId === 'CA') {
+        if (siteId === 'US' || siteId === 'CA' || siteId === 'MX') {
             this.couponsSavedAmount = getCouponsSavedAmount(lineItemContainer);
             this.orderLevelDiscountTotal = getPromotionDiscount(this.discounts, lineItemContainer.currencyCode, this.orderLevelDiscountTotal.value, 'ORDER');
             this.shippingLevelDiscountTotal = getPromotionDiscount(this.discounts, lineItemContainer.currencyCode, this.shippingLevelDiscountTotal.value, 'SHIPPING');

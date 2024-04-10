@@ -26,6 +26,7 @@ server.replace(
         var OrderModel = require('*/cartridge/models/order');
         var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
         var currentBasket = BasketMgr.getCurrentBasket();
+        var addressHelpers = require('*/cartridge/scripts/helpers/addressHelpers');
 
         // DO NOT remove this as it creates issues with fraud
         if (currentBasket && 'paypalAlreadyHandledPayerID' in currentBasket.custom && currentBasket.custom.paypalAlreadyHandledPayerID) {
@@ -289,8 +290,48 @@ server.replace(
                         gcResults = giftCardFormData.gcResults;
                     }
 
-                    COHelpers.recalculateBasket(currentBasket);
                     var currentLocale = Locale.getLocale(req.locale.id);
+                    // save customer address in profile if the customer addess list is empty
+                    if (req.currentCustomer.raw.authenticated) {
+                        var addressBook = req.currentCustomer.raw.addressBook;
+                        var addressLength = addressBook.getAddresses().size();
+                        var currentCountryCode = currentLocale.country;
+                        var countryAddress = null;
+                        countryAddress = collections.find(addressBook.getAddresses(), function (address) {
+                            return address.countryCode.value === currentCountryCode;
+                        });
+                        if (addressLength === 0 || !countryAddress) {
+                            var address = {
+                                firstName: (form.shippingAddress.addressFields.firstName) ? form.shippingAddress.addressFields.firstName.value : '',
+                                lastName: (form.shippingAddress.addressFields.lastName) ? form.shippingAddress.addressFields.lastName.value : '',
+                                address1: (form.shippingAddress.addressFields.address1) ? form.shippingAddress.addressFields.address1.value : '',
+                                address2: (form.shippingAddress.addressFields.address2) ? form.shippingAddress.addressFields.address2.value : '',
+                                suburb: (form.shippingAddress.addressFields.suburb) ? form.shippingAddress.addressFields.suburb.value : '',
+                                district: (form.shippingAddress.addressFields.district) ? form.shippingAddress.addressFields.district.value : '',
+                                businessName: (form.shippingAddress.addressFields.businessName) ? form.shippingAddress.addressFields.businessName.value : '',
+                                city: (form.shippingAddress.addressFields.city) ? form.shippingAddress.addressFields.city.value : '',
+                                postalCode: (form.shippingAddress.addressFields.postalCode) ? form.shippingAddress.addressFields.postalCode.value : '',
+                                country: (form.shippingAddress.addressFields.country) ? form.shippingAddress.addressFields.country.value : '',
+                                phone: (form.shippingAddress.addressFields.phone) ? form.shippingAddress.addressFields.phone.value : '',
+                                phone1: (form.shippingAddress.addressFields.phone1) ? form.shippingAddress.addressFields.phone1.value : '',
+                                phone2: (form.shippingAddress.addressFields.phone2) ? form.shippingAddress.addressFields.phone2.value : '',
+                                phone3: (form.shippingAddress.addressFields.phone3) ? form.shippingAddress.addressFields.phone3.value : '',
+                                exteriorNumber: (form.shippingAddress.addressFields.exteriorNumber) ? form.shippingAddress.addressFields.exteriorNumber.value : '',
+                                interiorNumber: (form.shippingAddress.addressFields.interiorNumber) ? form.shippingAddress.addressFields.interiorNumber.value : '',
+                                colony: (form.shippingAddress.addressFields.colony) ? form.shippingAddress.addressFields.colony.value : '',
+                                dependentLocality: (form.shippingAddress.addressFields.dependentLocality) ? form.shippingAddress.addressFields.dependentLocality.value : '',
+                                additionalInformation: (form.shippingAddress.addressFields.additionalInformation) ? form.shippingAddress.addressFields.additionalInformation.value : ''
+                            };
+
+                            // set state code for HK
+                            address.state = (form.shippingAddress.addressFields.state) ? form.shippingAddress.addressFields.state.value : '';
+                            // set state code from forms
+                            address.states = {};
+                            address.states.stateCode = (form.shippingAddress.addressFields.states) ? form.shippingAddress.addressFields.states.stateCode.value : '';
+                            addressHelpers.saveAddress(address, req.currentCustomer, addressHelpers.generateRandomAddressId(addressBook));
+                        }
+                    }
+                    COHelpers.recalculateBasket(currentBasket);
                     var basketModelObject = new OrderModel(
                         currentBasket,
                         {

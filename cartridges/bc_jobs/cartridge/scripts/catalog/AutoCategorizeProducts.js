@@ -1607,9 +1607,6 @@ function autoCategorizeProducts(args) {
         var useNewCategoryRules = args.useNewCategoryRules || false;
         var classificationProducts = [];
         var primaryCats = getPrimaryCategories(),
-            newCategories = [],
-            newCollectionCategories = [],
-            primary = false,
             xsw,
             dir = new File(File.IMPEX + "/src/feeds/categoryAssociation/");
 
@@ -1636,6 +1633,10 @@ function autoCategorizeProducts(args) {
             var product = products.next();
 
             if (!product.master) continue;
+            
+            var newCategories = [],
+            newCollectionCategories = [],
+            primary = false;
 
             if (useNewCategoryRules) {    
                 var newCategoriesV2 = autoCatRules.getNewCategories(product);
@@ -1652,7 +1653,9 @@ function autoCategorizeProducts(args) {
                         // write primary ID
                         writeCategoryDataToXML(productID, primaryID, xsw, true)
                         // write category assignment for classification ID
-                        writeCategoryDataToXML(productID, classificationID, xsw, false)
+                        if (!empty(classificationID)) {   
+                            writeCategoryDataToXML(productID, classificationID, xsw, false);
+                        }
                     }
                     if (!empty(classificationID)) {   
                         classificationProducts.push({'pid':productID,'cid': classificationID});
@@ -1688,8 +1691,16 @@ function autoCategorizeProducts(args) {
                         break;
                     case 'Unisex':
                     case 'adult_unisex':
+                    case 'Adult Unisex':
+                    case 'AdultUnisex':
+                    case 'Adultunisex':
                     case 'youth_unisex':
+                    case 'Youth Unisex':
+                    case 'YouthUnisex':
+                    case 'Youthunisex':
                         newCategories = getUnisexCategories(product);
+                    default: 
+                        Logger.warn("AutoCategorizeProducts - Unrecognized Gender Value: " + product.custom.gender);
                         break;
                 }
                 // Special Collection and Sports Categories

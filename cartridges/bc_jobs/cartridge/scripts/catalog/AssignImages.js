@@ -62,6 +62,7 @@ function execute(params) {
         let product = products.next();
 
         if (!product.master) continue;
+        params.enableFanGearSwatchImage = empty(params.teamFanGearCategoryForSwatchImage) ? false : checkProductInFanGearCategory(product, params.teamFanGearCategoryForSwatchImage)
         xsw.writeStartElement('product');
         xsw.writeAttribute('product-id', product.getID());
         xsw.writeStartElement('images');
@@ -102,7 +103,7 @@ function execute(params) {
                         generateFootwearImages(variant, xsw);
                     }
                     else {
-                        generateNewFormatImages(variant, xsw, S7);
+                        generateNewFormatImages(variant, xsw, S7, params);
                     }
                     continue;
                 }
@@ -148,6 +149,12 @@ function updateColorVariation(xsw, colorValue) {
     xsw.writeEndElement();
 }
 
+function udpateTeamFanGearLogo(xsw, product){
+    var recipeDefinition = CustomObjectMgr.getCustomObject('RecipeDefinitions', 'team-logo-standard-0pad|swatch');
+    updateColorVariation(xsw, product.custom.color);
+    writeDataToXML(product, recipeDefinition.custom.RECIPE, 'LOGO', '', xsw);
+}
+
 function parsedJsonCodes(imageCode) {
 	var parsedJSON = false;
 	if (imageCode) {
@@ -163,7 +170,7 @@ function parsedJsonCodes(imageCode) {
     return parsedJSON
 }
 
-function generateNewFormatImages(product, xsw, S7) {
+function generateNewFormatImages(product, xsw, S7, params) {
     let exists = S7[0],
         existPosition = -1,
         prefixes = S7[1],
@@ -685,6 +692,14 @@ function generateNewFormatImages(product, xsw, S7) {
     writeSwatchColor(product, xsw);
     xsw.writeEndElement(); //</image-group>
 
+    // generate team fan gear swatch image
+    if (params.enableFanGearSwatchImage && !empty(product.custom.team)) {
+        xsw.writeStartElement('image-group');
+        xsw.writeAttribute('view-type', 'swatch');
+        udpateTeamFanGearLogo(xsw, product);
+        xsw.writeEndElement(); //</image-group>
+    }
+
     //SINGLE IMAGE VIEWTYPES FOR GRID, CART, and MINI-CART
     //IMAGE PRIORITY ORDER
 
@@ -840,6 +855,13 @@ function generateApparalImages(product, xsw, params) {
     writeSwatchColor(product, xsw);
     xsw.writeEndElement(); //</image-group>     
 
+    // generate team fan gear swatch image
+    if (params.enableFanGearSwatchImage && !empty(product.custom.team)) {
+        xsw.writeStartElement('image-group');
+        xsw.writeAttribute('view-type', 'swatch');
+        udpateTeamFanGearLogo(xsw, product);
+        xsw.writeEndElement(); //</image-group>
+    }
     //SINGLE IMAGE VIEWTYPES WITH HTF
     existPosition = checkRegionalImagesCodes(exists, 'HTF');
     if (existPosition != -1) {
@@ -1501,6 +1523,9 @@ function writeDataToXML(product, recipeDefinition, code, prefix, xsw) {
     let path;
     if (code === 'ALT') {
         path = '/' + prefix + SKU + '_' + code + recipeDefinition;
+    } else if (code === 'LOGO') {
+        let team = product.custom.team.replace(/,/g, '').replace(/\./g, '').replace(/ /g, '_');
+        path = '/' + code + '_' + team + recipeDefinition;
     } else {
         if (SKU === code) {
             path = '/' + SKU + recipeDefinition;
@@ -1776,13 +1801,29 @@ function fitModelImageExistsCheck(codes, exists) { // This is a minial version o
 
 function braSizeTable(size) {
     let braSizeMap = {
-        'XS': ['XS', '30AA', '30A', '30B', '32AA', '32A', '32B'],
-        'SM': ['SM', '32C', '32D', '34AA', '34A','34B'],
-        'MD': ['MD', '32DD', '34C', '34D', '36A', '36B'],
-        'LG': ['LG', '34DD', '34DDD', '36C', '36D', '38B', '38C'],
-        'XL': ['XL', '36DD', '36DDD', '38D', '40C'],
-        'XXL': [ 'XXL', '38DD', '38DDD', '40D', '40DD', '40DDD', '42C', '42D', '42DD', '42DDD', '44DD', '44DDD', '1X', '2X', '3X']
+        'XS': ['XS', '30AA', '30A', '30B', '32AA', '32A', '32B', 'XS%20A-C', 'XS%20D-DD'],
+        'SM': ['SM', '32C', '32D', '34AA', '34A','34B', 'S%20A-C', 'S%20D-DD'],
+        'MD': ['MD', '32DD', '34C', '34D', '36A', '36B', 'M%20A-C', 'M%20D-DD'],
+        'LG': ['LG', '34DD', '34DDD', '36C', '36D', '38B', '38C', 'L%20A-C', 'L%20D-DD'],
+        'XL': ['XL', '36DD', '36DDD', '38D', '40C','XL%20D-DD', 'XL%20DDD', 'XL%20D-DD', 'XL%20A-C'],
+        'XXL': [ 'XXL', '38DD', '38DDD', '40D', '40DD', '40DDD', '42C', '42D', '42DD', '42DDD', '44DD', '44DDD', '1X', '2X', '3X', 'XXL%20DDD', 'XXL%20D-DD']
     };
     return braSizeMap[size];
 }
+
+function checkProductInFanGearCategory(product, teamFanGearCategoryIds) {
+    var isAssigned = false;
+    var categories = product.getCategories();
+    // Split the teamFanGearCategoryIds string into an array of category IDs
+    var categoryIDs = teamFanGearCategoryIds.split(',');
+    for (let i = 0; i < categories.length; i++) {
+        // Check if the category ID is included in the categoryIDs array
+        if (categoryIDs.includes(categories[i].getID())) {
+            isAssigned = true;
+            break;
+        }
+    }
+    return isAssigned;
+}
+
 module.exports.execute = execute;

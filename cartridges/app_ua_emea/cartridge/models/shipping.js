@@ -87,6 +87,9 @@ function ShippingModel(shipment, address, customer, containerView) {
             }
             var PaazlShippingMethodModel = require('*/cartridge/models/shipping/paazlShippingMethod');
             this.selectedShippingMethod = new PaazlShippingMethodModel(paazlDeliveryInfo);
+            if (paazlDeliveryInfo && paazlDeliveryInfo.name) {
+                this.selectedShippingMethod.displayName = paazlDeliveryInfo.name;
+            }
         } else if (shipment && shipment.shippingMethodID === currentPaazlShippingMethodID && shipment.custom.paazlSelectedShippingMethod) {
             this.selectedShippingMethod.displayName = shipment.custom.paazlSelectedShippingMethod;
         }

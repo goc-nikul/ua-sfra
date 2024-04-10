@@ -82,8 +82,20 @@ export default class CartTile extends ParentCartTile {
         }
 
         var qtySelector = `.js-quantity-select[data-uuid="${uuid}"]`;
+        if (lineItem.quantity > 10) {
+            $(qtySelector).empty();
+            for (var optionNum = 0; optionNum < lineItem.quantity; optionNum++) {
+                $(qtySelector).append('<option>' + (optionNum + 1) + '</option>');
+            }
+        }
         $(qtySelector).val(lineItem.quantity);
         $(qtySelector).data('pid', data.newProductId);
+
+        var $updatedSpanQuantity = $('.js-quantity-' + uuid);
+        $updatedSpanQuantity.empty().html(lineItem.quantity);
+        if (lineItem.quantity > 1) {
+            $('.b-cartlineitem_quantity-update').removeClass('hide');
+        }
 
         $(`.remove-product-item[data-uuid="${uuid}"]`).attr('data-pid', data.newProductId);
         $(`.edit-link.js-save-later[data-uuid="${uuid}"]`).attr('data-pid', data.newProductId);

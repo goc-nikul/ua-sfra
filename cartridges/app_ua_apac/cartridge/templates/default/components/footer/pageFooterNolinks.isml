@@ -32,10 +32,13 @@
     <isif condition="${!empty(pdict.showSplitPhoneMobileField)}">
         window.sitePreferences.showSplitPhoneMobileField = <isprint value="${pdict.showSplitPhoneMobileField}" encoding="off"/>;
     </isif>
+    <isif condition="${'adyenBlockPayPalPayLaterButton' in dw.system.Site.current.preferences.custom && dw.system.Site.current.getCustomPreferenceValue('adyenBlockPayPalPayLaterButton')}">
+       window.sitePreferences.blockPayPalPayLaterButton = <isprint value="${true}" encoding="off"/>;
+    <iselse/>
+       window.sitePreferences.blockPayPalPayLaterButton = <isprint value="${false}" encoding="off"/>;
+    </isif>
 </script>
 
-<!-- mpulse script -->
 <input type="hidden" id="qasToken" value="${pdict.qasToken}"/>
-<isinclude url="${URLUtils.url('AkamaimPulse-RenderScript')}"/>
 <isinclude url="${URLUtils.url('TrustArc-RenderScript')}"/>
 <isinclude template="components/heartbeat" />

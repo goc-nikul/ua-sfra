@@ -91,9 +91,9 @@ FieldMapper.getField = function(product, field, format, currency) {
         }
 
         if (field === 'name' && product.master) {
-            return master.getName();
+            return ProductUtils.sanitizeInvisibleSpaces(master.getName());
         } else if (field === 'name') {
-            return master.getName();
+            return ProductUtils.sanitizeInvisibleSpaces(master.getName());
         }
 
         if (field === 'longDescription' && product.master) {
@@ -691,6 +691,14 @@ FieldMapper.getField = function(product, field, format, currency) {
              }
             variantSKUList += "</SKUS>";
             return variantSKUList;
+        }
+
+        if (field === 'onlineFlag') {
+            return product.onlineFlag;
+        }
+
+        if (field === 'shipmentstartdate') {
+            return 'shipmentstartdate' in product.custom && product.custom.shipmentstartdate ? product.custom.shipmentstartdate : null;
         }
 
         // now handle generic attributes

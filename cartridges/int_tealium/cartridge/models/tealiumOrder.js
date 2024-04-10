@@ -13,6 +13,7 @@ module.exports.buildOrderObject = function buildOrderObject(logicArgs) {
     const OrderMgr = require('dw/order/OrderMgr');
     const Locale = require('dw/util/Locale');
     const OrderModel = require('*/cartridge/models/order');
+    const ArrayList = require('dw/util/ArrayList');
 
     const ORDER = OrderMgr.getOrder(orderNumber);
     if (!ORDER) {
@@ -28,6 +29,15 @@ module.exports.buildOrderObject = function buildOrderObject(logicArgs) {
         ORDER,
         { config: config, countryCode: currentLocale.country, containerView: 'order' }
     );
+    
+    //Fetch the product level price adjustments to add to Tealium promo order object 
+    var pliPriceAdjustmentsList = new ArrayList();
+    for each(let pli in ORDER.allProductLineItems) {
+        for each(var adjustment in pli.priceAdjustments) {
+            pliPriceAdjustmentsList.push(adjustment);
+        }
+    }
+
     return {
         // used for client side mapping
         // TODO: filter for security?
@@ -71,6 +81,7 @@ module.exports.buildOrderObject = function buildOrderObject(logicArgs) {
             allProductLineItems: collections.map(ORDER.allProductLineItems, utils.mapProductLineItem),
             couponLineItems: collections.map(ORDER.couponLineItems, utils.mapCouponLineItem),
             priceAdjustments: collections.map(ORDER.priceAdjustments, utils.mapPriceAdjustment),
+            pliPriceAdjustments: collections.map(pliPriceAdjustmentsList.iterator(), utils.mapPriceAdjustment),
             shippingPriceAdjustments: collections.map(ORDER.shippingPriceAdjustments, utils.mapPriceAdjustment),
             allShippingPriceAdjustments: collections.map(ORDER.allShippingPriceAdjustments, utils.mapPriceAdjustment),
             adjustedMerchandizeTotalTaxValue: utils.priceValue(ORDER.adjustedMerchandizeTotalTax),

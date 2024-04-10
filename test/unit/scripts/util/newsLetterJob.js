@@ -20,6 +20,12 @@ class NewsletterProvider {
         return this;
     }
 
+    status() {
+        return {
+            MerkleCode: 10
+        };
+    }
+
     subscribe() {
         return {
             MerkleCode: 10
@@ -47,6 +53,15 @@ describe('app_ua_core/cartridge/scripts/util/newsLetterJob', function() {
                             return cnt === 1;
                         },
                         next: () => customObj[0]
+                    };
+                }
+            },
+        'dw/system/Site': {
+                getCurrent: function () {
+                    return {
+                        getCustomPreferenceValue: function (key) {
+                            if (key === 'isMarketingAutoOptInEnabled') return false;
+                        }
                     };
                 }
             },
@@ -88,6 +103,15 @@ describe('app_ua_core/cartridge/scripts/util/newsLetterJob', function() {
                     return 'removed'
                 }
             },
+        'dw/system/Site': {
+            getCurrent: function () {
+                return {
+                    getCustomPreferenceValue: function (key) {
+                        if (key === 'isMarketingAutoOptInEnabled') return true;
+                    }
+                };
+            }
+        },
         '*/cartridge/modules/providers': new NewsletterProvider(),
         '*/cartridge/scripts/utils/PreferencesUtil': {
 				getJsonValue: function () { return { emailWebSourceCodesJSON: {checkout : ''} }; }

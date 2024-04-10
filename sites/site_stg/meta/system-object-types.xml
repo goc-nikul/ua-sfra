@@ -511,7 +511,21 @@
 				<min-length>0</min-length>
 				<field-length>0</field-length>
 			</attribute-definition>
-			 <attribute-definition attribute-id="Adyen_API_Key">
+			<attribute-definition attribute-id="Adyen_disableCaptureCall">
+                <display-name xml:lang="x-default">Disable Capture Call</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_showActionModalAsPopupFor2FA">
+                <display-name xml:lang="x-default">Enable Adyen Modal as Popup for 2FA</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_API_Key">
 				<display-name xml:lang="x-default">X-API-KEY of Web service</display-name>
 				<description xml:lang="x-default">X-API-KEY of Web service</description>
 				<type>password</type>
@@ -849,6 +863,8 @@
 				<attribute attribute-id="OrderNumberPrefix"/>
                 <attribute attribute-id="adyenAdditionalData"/>
                 <attribute attribute-id="cashPaymentMethods"/>
+                <attribute attribute-id="Adyen_disableCaptureCall"/>
+                <attribute attribute-id="Adyen_showActionModalAsPopupFor2FA"/>
             </attribute-group>
             <attribute-group group-id="UA IDM">
                 <display-name xml:lang="x-default">UA IDM authentication settings</display-name>

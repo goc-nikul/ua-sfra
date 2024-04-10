@@ -1,0 +1,201 @@
+.b-swatches_circle {
+    width: 100%;
+    display: flex;
+
+    &-link {
+        @include button-to-link;
+        @include swatch-circle;
+
+        display: block;
+        margin: calc(spacing(xs2) / 2);
+
+        &.m-active,
+        &:active {
+            margin: calc(spacing(xs2) / 2);
+        }
+
+        &:disabled,
+        &.disabled,
+        &.m-disabled {
+            &:hover {
+                border-color: $black;
+            }
+
+            &::after {
+                width: rem-calc(34);
+                max-width: rem-calc(34);
+            }
+        }
+    }
+
+    &-value {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        border-radius: 50%;
+    }
+
+    .b-swatches_circle-item {
+        margin: rem-calc(3);
+        margin-left: rem-calc(0);
+    }
+
+    .b-swatch_image {
+        .b-swatches_circle-link {
+            border-radius: rem-calc(3);
+            width: rem-calc(64);
+            height: rem-calc(40);
+            border-color: $grey3;
+            padding: rem-calc(7) spacing(xs2);
+
+            &::before {
+                border-radius: rem-calc(3);
+                width: rem-calc(64);
+                height: rem-calc(40);
+            }
+
+            &:hover {
+                @include respond-to(desktop) {
+                    box-shadow: inset 0 0 0 0.03125rem $black;
+                    border-color: $black;
+                }
+            }
+
+            &.m-active,
+            &:active,
+            &:focus {
+                border-color: $black;
+                box-shadow: inset 0 0 0 0.03125rem $black !important;
+            }
+
+            &.m-disabled,
+            &.disabled {
+                &:hover {
+                    border-color: $black;
+                }
+
+                &::after {
+                    max-width: rem-calc(73);
+                    transform: rotate(31deg);
+                    width: rem-calc(73);
+                }
+            }
+        }
+
+        .b-swatches_circle-value {
+            border-radius: 0;
+            background-repeat: no-repeat;
+            background-color: transparent !important;
+        }
+    }
+}
+
+// styling for color swatches show-more link pdp
+.l-pdp-info {
+    .b-product_attribute {
+        .b-swatches_circle {
+            display: inline-block;
+            width: auto;
+
+            .b-swatches_circle-item {
+                float: left;
+            }
+
+            .b-color-more_less {
+                float: right;
+                position: relative;
+                top: rem-calc(14);
+            }
+        }
+
+        &.m-color {
+            .b-color-more_less {
+                align-items: center;
+                margin-left: auto;
+                float: none;
+                min-height: 40px;
+                top: auto;
+            }
+
+            .l-show-more,
+            .l-show-less {
+                border: none;
+                background: transparent;
+            }
+
+            .b-swatches_circle-item {
+                float: none;
+                margin: 0;
+            }
+
+            .last-visible {
+                ~ .b-color-more_less {
+                    display: inline-flex;
+                }
+            }
+
+            .b-swatches_circle-link {
+                margin: 5px;
+
+                &.m-active {
+                    border-color: black;
+                }
+            }
+
+            .b-swatches_circle {
+                $swatchH: 40px;
+                $gap: 5px;
+                $rows: 3;
+
+                display: flex;
+                gap: $gap;
+                overflow: hidden;
+                max-height: #{$swatchH * $rows + $gap * ($rows - 1)};
+
+                @include respond-to(desktop) {
+                    $rows: 4;
+
+                    max-height: #{$swatchH * $rows + $gap * ($rows - 1)};
+                }
+            }
+
+            .b-swatches_image {
+                $swatchH: 100px;
+                $gap: 5px;
+                $rows: 3;
+
+                gap: $gap;
+                max-height: #{$swatchH * $rows + $gap * ($rows - 1)};
+
+                @include respond-to(desktop) {
+                    $rows: 4;
+
+                    max-height: #{$swatchH * $rows + $gap * ($rows - 1)};
+                }
+            }
+
+            &:not(.show-all) {
+                .last-visible {
+                    ~ .b-swatches_circle-item {
+                        display: none;
+                    }
+                }
+            }
+
+            &.show-all {
+                .b-swatches_circle {
+                    max-height: unset;
+                }
+
+                .l-show-more {
+                    display: none;
+                }
+
+                .l-show-less {
+                    display: inline-block;
+                }
+            }
+        }
+    }
+}

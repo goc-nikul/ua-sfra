@@ -4,10 +4,12 @@
             <label class="b-input_row-label form-control-label" for="registration-form-phoneMobile1">
                 <isprint value=${pdict.profileForm.customer.phone.label} encoding="off" />
             </label>
-            <select class="phoneMobile1 b-input_row-input pad b-phone-select" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}"
+            <select class="phoneMobile1 b-input_row-input pad b-phone-select"
+            ${pdict.mobileAuthDisableRegistrationFields ? 'disabled': ''}
+            data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}"
                 <isprint value="${pdict.profileForm.customer.phoneMobile1.attributes}" encoding="off" />>
                 <isloop items=${pdict.profileForm.customer.phoneMobile1.options} var="phoneMobile1Select">
-                    <option id="${phoneMobile1Select.id}" value="${phoneMobile1Select.htmlValue}" <isif condition="${pdict.profileForm.customer.phoneMobile1.value === phoneMobile1Select.htmlValue}">selected</isif>>${phoneMobile1Select.label || ' '}</option>
+                    <option id="${phoneMobile1Select.id}" value="${phoneMobile1Select.htmlValue}" <isif condition="${phoneMobile1Select.selected || pdict.profileForm.customer.phoneMobile1.value === phoneMobile1Select.htmlValue}">selected</isif>>${phoneMobile1Select.label || ' '}</option>
                 </isloop>
             </select>
             <div class="invalid-feedback"></div>
@@ -17,7 +19,9 @@
             <div class="b-account_form-column-phoneMobile-2-content">
                 <input type="text"
                 id="registration-form-phoneMobile2"
+                value="${pdict.profileForm.customer.phoneMobile2.htmlValue}"
                 class="phoneMobile2 form-control order-return-form-input b-input_row-input js-custom-input js-email-field"
+                ${pdict.mobileAuthDisableRegistrationFields ? 'readonly': ''}
                 data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid.apac','forms',null)}" data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
                 required
                 <isprint value="${pdict.profileForm.customer.phoneMobile2.attributes}" encoding="off" /> />
@@ -28,6 +32,8 @@
         <div class="form-group b-account_form-column required b-account_form-column-mobile">
             <input type="text"
                 class="phoneMobile3 form-control order-return-form-input b-input_row-input"
+                value="${pdict.profileForm.customer.phoneMobile3.htmlValue}"
+                ${pdict.mobileAuthDisableRegistrationFields ? 'readonly': ''}
                 data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid.apac','forms',null)}" data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
                 required
                 <isprint value="${pdict.profileForm.customer.phoneMobile3.attributes}" encoding="off" /> />

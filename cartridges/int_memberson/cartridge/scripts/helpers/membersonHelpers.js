@@ -1,7 +1,8 @@
 'use strict';
 
 // API includes
-var LOGGER = dw.system.Logger.getLogger('UAMembersonAPIs', 'UAMembersonAPIs');
+var Logger = require('dw/system/Logger');
+var LOGGER = Logger.getLogger('UAMembersonAPIs', 'UAMembersonAPIs');
 var Site = require('dw/system/Site');
 var Transaction = require('dw/system/Transaction');
 var URLUtils = require('dw/web/URLUtils');
@@ -861,6 +862,7 @@ function updateProfileAttributes(customerNo, profileObj) {
     }
 }
 
+/* istanbul ignore next */
 /**
  * Gets voucher number for current customer against voucher code. Returns the first expiring voucher.
  * @param {string} customerNo Memberson Customer Number
@@ -915,52 +917,68 @@ function getVoucherNumber(customerNo, voucherCode) {
     };
 }
 
+/* istanbul ignore next */
 /**
- * fucntion to check if memberson coupon is applied and update custom attribute
- * @param {Object} currentCustomer - customer profile
+ * Empty the loyalty voucher name attribute
+ * @param {Object} lineItemCtnr order or basket
  */
-function checkIfMembersonCouponApplied(currentCustomer) {
+function emptyLoyaltyVoucherName(lineItemCtnr) {
+    Transaction.wrap(function () {
+        lineItemCtnr.custom['Loyalty-VoucherName'] = ''; // eslint-disable-line
+    });
+}
+
+/* istanbul ignore next */
+/**
+ * function to check if memberson coupon is applied and update custom attribute
+ * @param {Object} lineItemCtnr - order or basket
+ * @param {Object} currentCustomer - customer profile
+ * @returns {boolean} boolean checking whether memberson voucher is applied
+ */
+function checkIfMembersonCouponApplied(lineItemCtnr, currentCustomer) {
     var CouponMgr = require('dw/campaign/CouponMgr');
-    var BasketMgr = require('dw/order/BasketMgr');
     var couponObj;
     var membersonPromotion = null;
-    var currentBasket = BasketMgr.getCurrentBasket();
+    var isLoyaltyCouponInCart = false;
     // Remove the voucherNumber on the cart level if it is not empty
-    if (!empty(currentCustomer) && currentCustomer.authenticated && !empty(currentCustomer.profile)) {
-        var membersonCustomerNo = currentCustomer.profile.custom['Loyalty-ID'];
-        if (!empty(membersonCustomerNo)) {
-            var isLoyaltyCouponInCart = false;
-            var couponsIterator = currentBasket.getCouponLineItems().iterator();
-            if (!empty(couponsIterator)) {
-                while (couponsIterator.hasNext()) {
-                    // this will loop through all the coupons applied
-                    var couponLineItem = couponsIterator.next();
-                    if (couponLineItem.isApplied()) {
-                        var couponCode = couponLineItem.getCouponCode();
-                        couponObj = CouponMgr.getCouponByCode(couponCode);
-                        membersonPromotion = getMembersonPromotion(couponObj.promotions);
-                        if (!empty(membersonPromotion)) {
-                            isLoyaltyCouponInCart = true;
+    var couponsIterator = lineItemCtnr.getCouponLineItems().iterator();
+    if (!empty(couponsIterator)) {
+        while (couponsIterator.hasNext()) {
+            // this will loop through all the coupons applied
+            var couponLineItem = couponsIterator.next();
+            if (couponLineItem.isApplied()) {
+                var couponCode = couponLineItem.getCouponCode();
+                couponObj = CouponMgr.getCouponByCode(couponCode);
+                membersonPromotion = getMembersonPromotion(couponObj.promotions);
+                if (!empty(membersonPromotion)) {
+                    isLoyaltyCouponInCart = true;
+                    if (!empty(currentCustomer) && currentCustomer.authenticated && !empty(currentCustomer.profile)) {
+                        var membersonCustomerNo = currentCustomer.profile.custom['Loyalty-ID'];
+                        if (!empty(membersonCustomerNo)) {
                             var voucherDetails = getVoucherNumber(membersonCustomerNo, couponCode);
                             if (!voucherDetails.error && voucherDetails.voucherFound) {
                                 // Store the voucherNumber on the cart level
                                 Transaction.begin();
-                                currentBasket.custom['Loyalty-VoucherName'] = voucherDetails.voucherCode + '=' + voucherDetails.voucherNumber;
+                                lineItemCtnr.custom['Loyalty-VoucherName'] = voucherDetails.voucherCode + '=' + voucherDetails.voucherNumber; // eslint-disable-line
                                 Transaction.commit();
 
-                                return;
+                                return isLoyaltyCouponInCart;
                             }
                         }
                     }
+                    if (!empty(lineItemCtnr.custom['Loyalty-VoucherName'])) {
+                        // Memberson voucher is applied but either customer or voucher was not found.
+                        // Emptying this attribute will fail this order as isLoyaltyCouponInCart is true
+                        emptyLoyaltyVoucherName(lineItemCtnr);
+                    }
                 }
-            }
-            if (!isLoyaltyCouponInCart) {
-                Transaction.wrap(function () {
-                    currentBasket.custom['Loyalty-VoucherName'] = '';
-                });
             }
         }
     }
+    if (!isLoyaltyCouponInCart) {
+        emptyLoyaltyVoucherName(lineItemCtnr);
+    }
+    return isLoyaltyCouponInCart;
 }
 
 /**
@@ -1006,6 +1024,7 @@ function removemembersonVouchers(couponsIterator, currentBasket) {
             couponObj = CouponMgr.getCouponByCode(couponCode);
             membersonPromotion = getMembersonPromotion(couponObj.promotions);
             if (!empty(membersonPromotion)) {
+                LOGGER.error('membersonHelpers.js removemembersonVouchers - Removing coupon code ' + couponCode);
                 currentBasket.removeCouponLineItem(couponLineItem);
             }
         }

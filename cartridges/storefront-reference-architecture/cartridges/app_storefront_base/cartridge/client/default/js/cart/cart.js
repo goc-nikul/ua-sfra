@@ -2,6 +2,7 @@
 
 var base = require('../product/base');
 var focusHelper = require('../components/focus');
+var location = window.location;
 
 /**
  * appends params to a url
@@ -26,20 +27,19 @@ function appendToUrl(url, params) {
 function validateBasket(data) {
     if (data.valid.error) {
         if (data.valid.message) {
-            var errorHtml = '<div class="alert alert-danger alert-dismissible valid-cart-error ' +
-                'fade show" role="alert">' +
-                '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-                '<span aria-hidden="true">&times;</span>' +
-                '</button>' + data.valid.message + '</div>';
+            var errorHtml = '<div class="alert alert-danger alert-dismissible valid-cart-error '
+                + 'fade show" role="alert">'
+                + '<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+                + '<span aria-hidden="true">&times;</span>'
+                + '</button>' + data.valid.message + '</div>';
 
             $('.cart-error').append(errorHtml);
         } else {
-            $('.cart').empty().append('<div class="row"> ' +
-                '<div class="col-12 text-center"> ' +
-                '<h1>' + data.resources.emptyCartMsg + '</h1> ' +
-                '</div> ' +
-                '</div>'
-            );
+            $('.cart').empty().append('<div class="row"> '
+                + '<div class="col-12 text-center"> '
+                + '<h1>' + data.resources.emptyCartMsg + '</h1> '
+                + '</div> '
+                + '</div>');
             $('.number-of-items').empty().append(data.resources.numberOfItems);
             $('.minicart-quantity').empty().append(data.numItems);
             $('.minicart-link').attr({
@@ -81,8 +81,8 @@ function updateCartTotals(data) {
 
     if (data.totals.shippingLevelDiscountTotal.value > 0) {
         $('.shipping-discount').removeClass('hide-shipping-discount');
-        $('.shipping-discount-total').empty().append('- ' +
-            data.totals.shippingLevelDiscountTotal.formatted);
+        $('.shipping-discount-total').empty().append('- '
+            + data.totals.shippingLevelDiscountTotal.formatted);
     } else {
         $('.shipping-discount').addClass('hide-shipping-discount');
     }
@@ -107,11 +107,11 @@ function updateCartTotals(data) {
  * @param {Object} message - Error message to display
  */
 function createErrorNotification(message) {
-    var errorHtml = '<div class="alert alert-danger alert-dismissible valid-cart-error ' +
-        'fade show" role="alert">' +
-        '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-        '<span aria-hidden="true">&times;</span>' +
-        '</button>' + message + '</div>';
+    var errorHtml = '<div class="alert alert-danger alert-dismissible valid-cart-error '
+        + 'fade show" role="alert">'
+        + '<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+        + '<span aria-hidden="true">&times;</span>'
+        + '</button>' + message + '</div>';
 
     $('.cart-error').append(errorHtml);
 }
@@ -319,18 +319,20 @@ module.exports = function () {
         $('body > .modal-backdrop').remove();
 
         $.spinner().start();
+
+        $('body').trigger('cart:beforeUpdate');
+
         $.ajax({
             url: url,
             type: 'get',
             dataType: 'json',
             success: function (data) {
                 if (data.basket.items.length === 0) {
-                    $('.cart').empty().append('<div class="row"> ' +
-                        '<div class="col-12 text-center"> ' +
-                        '<h1>' + data.basket.resources.emptyCartMsg + '</h1> ' +
-                        '</div> ' +
-                        '</div>'
-                    );
+                    $('.cart').empty().append('<div class="row"> '
+                        + '<div class="col-12 text-center"> '
+                        + '<h1>' + data.basket.resources.emptyCartMsg + '</h1> '
+                        + '</div> '
+                        + '</div>');
                     $('.number-of-items').empty().append(data.basket.resources.numberOfItems);
                     $('.minicart-quantity').empty().append(data.basket.numItems);
                     $('.minicart-link').attr({
@@ -358,7 +360,7 @@ module.exports = function () {
                     validateBasket(data.basket);
                 }
 
-                $('body').trigger('cart:update');
+                $('body').trigger('cart:update', data);
 
                 $.spinner().stop();
             },
@@ -389,6 +391,8 @@ module.exports = function () {
 
         $(this).parents('.card').spinner().start();
 
+        $('body').trigger('cart:beforeUpdate');
+
         $.ajax({
             url: url,
             type: 'get',
@@ -403,7 +407,7 @@ module.exports = function () {
                 validateBasket(data);
                 $(this).data('pre-select-qty', quantity);
 
-                $('body').trigger('cart:update');
+                $('body').trigger('cart:update', data);
 
                 $.spinner().stop();
                 if ($(this).parents('.product-info').hasClass('bonus-product-line-item') && $('.cart-page').length) {
@@ -430,6 +434,7 @@ module.exports = function () {
         // url = appendToUrl(url, urlParams);
 
         $('.totals').spinner().start();
+        $('body').trigger('cart:beforeShippingMethodSelected');
         $.ajax({
             url: url,
             type: 'post',
@@ -444,6 +449,8 @@ module.exports = function () {
                     updateApproachingDiscounts(data.approachingDiscounts);
                     validateBasket(data);
                 }
+
+                $('body').trigger('cart:shippingMethodSelected', data);
                 $.spinner().stop();
             },
             error: function (err) {
@@ -472,6 +479,7 @@ module.exports = function () {
         var $form = $('.promo-code-form');
         $('.promo-code-form .form-control').removeClass('is-invalid');
         $('.coupon-error-message').empty();
+        $('body').trigger('promotion:beforeUpdate');
 
         $.ajax({
             url: $form.attr('action'),
@@ -537,6 +545,7 @@ module.exports = function () {
         $('body > .modal-backdrop').remove();
 
         $.spinner().start();
+        $('body').trigger('promotion:beforeUpdate');
         $.ajax({
             url: url,
             type: 'get',
@@ -623,7 +632,8 @@ module.exports = function () {
         var dialog = $(response.$productContainer)
             .closest('.quick-view-dialog');
 
-        $('.update-cart-product-global', dialog).attr('disabled',
+        $('.update-cart-product-global', dialog).attr(
+            'disabled',
             !$('.global-availability', dialog).data('ready-to-order')
             || !$('.global-availability', dialog).data('available')
         );
@@ -637,7 +647,6 @@ module.exports = function () {
             .find('.availability-msg')
             .empty()
             .html(response.message);
-
 
         var dialog = $(response.$productContainer)
             .closest('.quick-view-dialog');
@@ -702,6 +711,9 @@ module.exports = function () {
         };
 
         $(this).parents('.card').spinner().start();
+
+        $('body').trigger('cart:beforeUpdate');
+
         if (updateProductUrl) {
             $.ajax({
                 url: updateProductUrl,
@@ -724,7 +736,7 @@ module.exports = function () {
 
                     validateBasket(data.cartModel);
 
-                    $('body').trigger('cart:update');
+                    $('body').trigger('cart:update', data);
 
                     $.spinner().stop();
                 },

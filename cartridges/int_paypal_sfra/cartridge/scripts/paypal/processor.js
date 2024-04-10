@@ -254,6 +254,7 @@ function authorize(order, orderNo, inpPaymentInstrument) {
             return {
                 error: true,
                 paypalErrorMessage: paypalErrorMessage,
+                errorCode: doExpressCheckoutPaymentResult.responseData.l_errorcode0,
                 redirectUrl: URLUtils.https(prefs.checkoutBillingPageEndpoint, 'showPaypalError', true, 'stage', 'payment').toString()
             };
         } else if (doExpressCheckoutPaymentResult.responseData.l_errorcode0 === '11607') {
@@ -261,12 +262,14 @@ function authorize(order, orderNo, inpPaymentInstrument) {
             return {
                 error: true,
                 paypalErrorMessage: paypalErrorMessage,
+                errorCode: doExpressCheckoutPaymentResult.responseData.l_errorcode0,
                 redirectUrl: URLUtils.https(prefs.checkoutBillingPageEndpoint, 'showPaypalError', true, 'stage', 'payment').toString()
             };
         }
         return {
             error: true,
-            paypalErrorMessage: paypalErrorMessage
+            paypalErrorMessage: paypalErrorMessage,
+            errorCode: doExpressCheckoutPaymentResult.responseData.l_errorcode0 || null
         };
     }
 

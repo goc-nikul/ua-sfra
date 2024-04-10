@@ -125,6 +125,13 @@
                 <div class="b-header_minicart-item-total-${typeof lineItem !=='undefined' ? lineItem.UUID : null} item-total-${typeof lineItem !=='undefined' ? lineItem.UUID : null}">
                     <isinclude template="checkout/productCard/productCardProductTotalPriceNew" />
                 </div>
+
+                <!-- Member Price badge -->
+                <div class="minicart-member-price">
+                    <isif condition="${lineItem.memberPricing && lineItem.memberPricing.hasMemberPrice && lineItem.memberPricing.memberPromoApplied}">
+                        <isprint value="${lineItem.memberPricing.pricing.badgeHtml}" encoding="off" />
+                    </isif>
+                </div>
             </div>
         </isif>
     </div>

@@ -9,6 +9,7 @@ function updatePaymentInstrument(paymentInstrumentRequest) {
     var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
     var BasketMgr = require('dw/order/BasketMgr');
     var basket = BasketMgr.getCurrentBasket();
+    var Transaction = require('dw/system/Transaction');
 
     // Remove the existing payment instruments
     if (!empty(basket)) {
@@ -16,8 +17,10 @@ function updatePaymentInstrument(paymentInstrumentRequest) {
         if (paymentInstruments.size() > 0) {
             var paymentInstrumentsIt = paymentInstruments.iterator();
             while (paymentInstrumentsIt.hasNext()) {
-                var paymentInstrument = paymentInstrumentsIt.next();
-                basket.removePaymentInstrument(paymentInstrument);
+                Transaction.wrap(function () {
+                    var paymentInstrument = paymentInstrumentsIt.next();
+                    basket.removePaymentInstrument(paymentInstrument);
+                });
             }
         }
     }

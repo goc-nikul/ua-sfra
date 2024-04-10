@@ -58,6 +58,10 @@ function pageTypeNameLogic(logicArgs) {
             pageType = 'cart';
             siteSection = 'Checkout';
             break;
+        case Boolean(action === 'SinglePageCheckout-Begin'):
+            pageType = pageName = 'checkout';
+            siteSection = 'Checkout';
+            break;
         case Boolean(action === 'Checkout-Begin'):
             pageType = pageName = 'checkout';
             siteSection = 'Checkout';

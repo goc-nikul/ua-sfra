@@ -32,10 +32,10 @@
         }
     }
     // Site Modals
-    var body = $('body');
+    var $body = $('body');
     var newVisitorModalFired = false;
     var newVistorModalName = 'new-visitor-modal';
-    $('body').on('modalShown', function (jqEv, data) {
+    $body.on('modalShown', function (jqEv, data) {
       var name = data && data.name;
       var errorName = data && data.errorName;
       var errorMessage = data && data.errorMessage;
@@ -63,10 +63,10 @@
     if ($('.l-consent_banner').is(':visible')) {
         actionModal('privacy info banner');
       }
-    $('body').on('click', '[data-analytics-track="data-qualtrics"]', function () {
+    $body.on('click', '[data-analytics-track="data-qualtrics"]', function () {
         actionModal('pdp: qualtrics');
       });
-    $('body').on('click', '[data-analytics-track="data-privacy"]', function () {
+    $body.on('click', '[data-analytics-track="data-privacy"]', function () {
         var pageName = uaDatalayer.getPageData().page_name;
         uaDatalayer.action('genericLink', {
           internal_campaign_module : 'banner',
@@ -88,7 +88,7 @@
     }
     var pageData = uaDatalayer.getPageData() || {};
     if (pageData.page_type === 'product-detail') {
-      $('body').on('product:showMoreFired', function (jqEv, data) {
+      $body.on('product:showMoreFired', function (jqEv, data) {
         var name = data && data.name;
         actionModal(name);
         var type = data && data.type || 'unknown';
@@ -97,33 +97,31 @@
         });
       });
     }
-    $('body').on('bopis:storepicker', function (jqEv,data) {
+    $body.on('bopis:storepicker', function (jqEv,data) {
       safetyFirst(function storeSearch() {
         var stores = data.storeObj.stores;
         var dist = data.storeObj.radius && (data.storeObj.radius).toString();
         if (stores.length) {
-        var minDist = Math.min.apply(null, stores.map(function (store) {
-          return store.distance && (store.distance).split(' ')[0];
-        }));
-          
-        var nearestStoreID = stores.filter(store => {
-          return store.distance && (store.distance).split(' ')[0] == minDist 
-        })[0].ID;
-          
-        var storesID = '';
-          
-        stores.forEach(function (store) {
-          storesID = storesID + ':' + store.ID; 
-        });
-          
-        storesID = storesID.substring(1);
-          
-        var results = dist + 'mi>' + storesID;
+          var minDist = Math.min.apply(null, stores.map(function (store) {
+            return store.distance && (store.distance).split(' ')[0];
+          }));
+
+          var nearestStoreID = stores.filter(store => {
+            return store.distance && (store.distance).split(' ')[0] == minDist
+          })[0].ID;
+          var storesID = '';
+          stores.forEach(function (store) {
+            storesID = storesID + ':' + store.ID;
+          });
+
+          storesID = storesID.substring(1);
+
+          var results = dist + 'mi>' + storesID;
         }
         if (!data.storeObj.searchKey.postalCode) {
             uaDatalayer.action('modalOpened', {
                 site_modal: 'bopis:select a store'
-              }); 
+              });
         } else if (data.storeObj.searchKey.postalCode && stores.length === 0) {
             uaDatalayer.action('modalOpened', {
                 site_modal: 'bopis:select a store',
@@ -152,13 +150,13 @@
       }
       });
     });
-    $('body').on('bopis:storepicker:continue', function (jqEv,data) {
+    $body.on('bopis:storepicker:continue', function (jqEv,data) {
         uaDatalayer.action('modalOpened', {
             site_modal: 'bopis:select a store',
             store_id: data.storeId
         });
     });
-    $('body').on('loyalty:pilot:zipcode', function (jqEv,data) {
+    $body.on('loyalty:pilot:zipcode', function (jqEv,data) {
         uaDatalayer.action('genericLink', {
             loyalty : {
               loyalty : true,
@@ -167,7 +165,7 @@
           }
         });
     });
-    $('body').on('click', '[data-analytics-track="loyalty-waitlist"]', function () {
+    $body.on('click', '[data-analytics-track="loyalty-waitlist"]', function () {
       uaDatalayer.action('genericLink', {
         loyalty : {
           loyalty : true,
@@ -175,7 +173,7 @@
         }
       });
     });
-    $('body').on('loyalty:enroll', function (jqEv,data) {
+    $body.on('loyalty:enroll', function (jqEv,data) {
         uaDatalayer.action(data.type, {
             loyalty : {
               loyalty : data.loyalty,
@@ -185,7 +183,7 @@
           }
         });
     });
-    $('body').on('click', '[data-analytics-track="loyalty-learn-more"]', function () {
+    $body.on('click', '[data-analytics-track="loyalty-learn-more"]', function () {
       uaDatalayer.action('genericLink', {
         loyalty : {
           loyalty : true,
@@ -193,27 +191,172 @@
         }
       });
     });
-    body.on('click', '.js-swatch-link', function () {
-      var product = uaDatalayer.getPageData().products[0];
-      var size = $('.b-product_attribute.m-size .js-size-select.selected').data("attr-value");
-      var newColor = $(this).data("attr-value");
-      product.product_sku = product.product_style + '-' + newColor + '-' + size;
-      product.product_color = product.product_style + '-' + newColor;
+    $body.on('product:afterAttributeSelect', function (e, response) {
+      var page = response.container.data('cmp');
+      var option = response.data.option;
+      var DLproduct = uaDatalayer.getPageData().products[0];
+      if (DLproduct && (option == 'color'|| option == 'size') && (page === "productDetail" || page ===  "productQuickView")) {
+        var product = response.data.product;
+        var inventoryRecord = response.data.inventoryATSValue;
+        var variantColor = product.custom.color;
+        var variantSize = product.custom.size;
+        DLproduct.product_sku = DLproduct.product_style + '-' + variantColor + '-' + variantSize;
+        DLproduct.product_color = DLproduct.product_style + '-' + variantColor;
+        var isNotifyMeEnabled = response.data.isNotifyMeEnabled != null && response.data.isNotifyMeEnabled && !product.available;
+        var uaDLobj = {
+          products: [DLproduct]
+        }
+        if (isNotifyMeEnabled &&  page !==  "productQuickView") {
+          uaDLobj.notify_me = {
+            event: null,
+            button_state: 'enabled',
+            data: null
+          };
+        }
+        if (inventoryRecord) {
+          uaDLobj.products[0].product_inventory_stock_level = inventoryRecord;
+        } else {
+            uaDLobj.products[0].product_inventory_stock_level = 0;
+        }
+        uaDatalayer.action('genericLink', uaDLobj);
+      }
+    });
+   
+    // Quick view modal is clicked for a product on PLP
+    $body.on('quickview:show', function (e) { 
+      var $tile = $(e.target).closest('.js-cmp-productTile');
       uaDatalayer.action('genericLink', {
-        products: [product]
+        products: [{
+          product_name: $tile.find('.b-tile-name').text(),
+          product_style: $tile.find('.b-tile-variations_container').data('product').toString(),
+        }],
+        quick_atb: {
+          state: 'clicked'
+        }
       });
     });
-    body.on('click', '.js-size-select', function () {
-      if ($(this).closest('.b-product_attribute').hasClass('m-length')) {
-        return;
+
+    // Quick view modal is visible
+    $body.on('quickview:ready', function (e, data) { 
+      if (data.isQuickAdd) {
+        var actualListPrice = data.product.price.actualListPrice != undefined  ? data.product.price.actualListPrice.decimalPrice : '';
+        if ((actualListPrice == undefined) && (data.product.price.min != undefined)) {
+          if ((data.product.price.min.actualListPrice != undefined)) {
+            actualListPrice = data.product.price.min.actualListPrice.decimalPrice;
+           } else {
+            actualListPrice = data.product.price.min.sales.decimalPrice;
+           }
+        }
+        var salesPrice = data.product.price.sales != undefined ? data.product.price.sales.decimalPrice : '';
+        if ((salesPrice == undefined) && (data.product.price.min != undefined)) {
+          if ((data.product.price.min.sales != undefined)) {
+            salesPrice = data.product.price.min.sales.decimalPrice;
+           }
+        }
+        uaDatalayer.action('genericLink', {
+          products: [{
+            product_color: data.product.custom.color,
+            product_gender: data.product.custom.gender,
+            product_id: data.product.id,
+            product_msrp: actualListPrice,
+            product_name: data.product.productName,
+            product_price: salesPrice,
+            product_sku: data.product.custom.sku,
+            product_style: data.product.custom.style
+          }],
+          quick_atb: {
+            state: 'viewed'
+          }
+        });
       }
-      var product = uaDatalayer.getPageData().products[0];
-      var color = $('.js-swatch-link.m-active').data("attr-value");
-      var newSize = $(this).data("attr-value");
-      product.product_sku = product.product_style + '-' + color + '-' +  newSize;
+    });
+
+    // Quick view modal is closed
+    $body.on('hide.bs.modal', '#quickViewModal', function (e) {
+      var $productQuickView = $(this).find('.product-quickview');
       uaDatalayer.action('genericLink', {
-        products: [product]
+        products: [{
+          product_name: $productQuickView.find('.product-name').text(),
+          product_id: $productQuickView.data('pid').toString(),
+          product_style: $productQuickView.data('mpid').toString()
+        }],
+        quick_atb: {
+          state: 'closed'
+        }
       });
+    });
+
+    // Quick view Redirects to the pdp
+    $body.on('click touchstart', '.b-product-quickview-link', function (e) { 
+      var $productQuickView = $(this).closest('.product-quickview');
+      uaDatalayer.action('genericLink', {
+        products: [{
+          product_name: $productQuickView.find('.product-name').text(),
+          product_id: $productQuickView.data('pid'),
+          product_style: $productQuickView.data('mpid')
+        }],
+        quick_atb: {
+          state: 'pdpRedirect',
+        }
+      });
+    })
+
+    // NotifyMe view modal is opened
+    $body.on('click', '.b-notify-cta', function (e) {
+      var product = uaDatalayer.getPageData().products[0];
+      if(product) {
+        uaDatalayer.action('genericLink', {
+          products: [product],
+          notify_me: {
+            event: 'clicked',
+            button_state: 'enabled',
+            data: null
+          }
+        });
+      } 
+    });
+
+    // NotifyMe view modal data submitted
+    $body.on('after.NotifyMe.FormSubmit', function (e, form) {
+    if (!$(this).find('input.is-invalid').length) {
+      var product = uaDatalayer.getPageData().products[0];
+      if(product) {
+        var data = form.data.split("&");
+        var dataObj={};
+        for(var key in data)
+        {
+          dataObj[data[key].split("=")[0]] = data[key].split("=")[1];
+        }
+        var notifyName = decodeURIComponent(dataObj.productNotifyMeFirstName);
+        var notifyEmail = decodeURIComponent(dataObj.productNotifyMeEmail);
+        uaDatalayer.action('genericLink', {
+          products: [product],
+              notify_me: {
+                event: 'submitted',
+                button_state: 'enabled',
+                data: {
+                first_name : notifyName,
+                email : notifyEmail
+              }
+            }
+          });
+        }
+      }
+    });
+
+    // NotifyMe view modal is closed
+    $body.on('hide.bs.modal', '.b-product-notify-me-modal:not(.complete)', function (e) {
+      var product = uaDatalayer.getPageData().products[0];
+      if(product) {
+        uaDatalayer.action('genericLink', {
+          products: [product],
+          notify_me: {
+            event: 'closed',
+            button_state: 'enabled',
+            data: null
+          }
+        });
+      }
     });
   });
 </script>

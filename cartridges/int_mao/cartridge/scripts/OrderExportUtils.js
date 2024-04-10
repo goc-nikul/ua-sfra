@@ -202,7 +202,7 @@ function getShippingAddress(shipment) {
             Address1: shippingAddress.address1,
             Address2: shippingAddress.address2,
             City: shippingAddress.city,
-            Country: shippingAddress.countryCode.value,
+            Country: shippingAddress.countryCode.value.toUpperCase(),
             FirstName: shippingAddress.firstName,
             LastName: shippingAddress.lastName,
             Phone: shippingAddress.phone,
@@ -522,6 +522,7 @@ function getPerItemPromoObject(order, productLineItem) {
     var promoDesc = null;
     var priceAdjustmentUUID = null;
     var itemPromoDetailsObject = {};
+    var pointsPerUnit = 0;
     /**
      * As Discussed with UA team, there will not be multiple promotion applicable on
      * single product line item so we are not keeping the array of Promo info
@@ -553,6 +554,11 @@ function getPerItemPromoObject(order, productLineItem) {
         unitQtyTotalDiscValue = unitQtyTotalDisc.toNumberString();
     }
 
+    // Loyalty Points
+    if ('estimatedItemLoyaltyPoints' in productLineItem.custom && productLineItem.custom.estimatedItemLoyaltyPoints > 0) {
+        pointsPerUnit = Math.round(productLineItem.custom.estimatedItemLoyaltyPoints / productLineItem.quantity.value);
+    }
+
     if (promoDesc && promoDesc.length > 100) {
         promoDesc = promoDesc.substring(0, 100);
     }
@@ -560,7 +566,8 @@ function getPerItemPromoObject(order, productLineItem) {
         totalPromoPrice: unitQtyTotalDiscValue,
         discountID: discountID,
         promoDesc: promoDesc,
-        priceAdjustmentUUID: priceAdjustmentUUID
+        priceAdjustmentUUID: priceAdjustmentUUID,
+        LoyaltyPointsPerUnit: pointsPerUnit
     };
     return itemPromoDetailsObject;
 }
@@ -696,7 +703,8 @@ function getProductLineItemExtendedData(order, productLineItem, shipment) {
             promotionalCode: itemPromoObject.discountID,
             promotionalDesc: itemPromoObject.promoDesc,
             sapDeliveryPriority: deliveryPriority,
-            perItemDiscount: itemPromoObject.totalPromoPrice
+            perItemDiscount: itemPromoObject.totalPromoPrice,
+            LoyaltyPointsPerUnit: itemPromoObject.LoyaltyPointsPerUnit
         };
 
         var isAurusEnabled = require('*/cartridge/scripts/helpers/sitePreferencesHelper').isAurusEnabled();
@@ -956,7 +964,7 @@ function getBillingAddress(order) {
         Address1: orderBillingAddress.address1,
         Address2: orderBillingAddress.address2,
         City: orderBillingAddress.city,
-        Country: orderBillingAddress.countryCode.value,
+        Country: orderBillingAddress.countryCode.value.toUpperCase(),
         Email: order.customerEmail,
         FirstName: orderBillingAddress.firstName,
         LastName: orderBillingAddress.lastName,
@@ -1019,6 +1027,8 @@ function getPaymentTypeId(paymentInstrument) {
             paymentTypeId = MaoConstants.PaymentType.PaymentTypeId.applepayPaymentTypeId;
         } else if (paymentMethod.equalsIgnoreCase('PayPal')) {
             paymentTypeId = MaoConstants.PaymentType.PaymentTypeId.paypalPaymentTypeId;
+        } else if (paymentMethod.equalsIgnoreCase('GIFT_CARD')) {
+            paymentTypeId = MaoConstants.PaymentType.PaymentTypeId.giftCardTypeId;
         }
     }
     return paymentTypeId;
@@ -1060,6 +1070,7 @@ function getCardType(paymentCardType) {
         var paymetricToAurusMapping = {
             VISA: 'VIC',
             MC: 'MCC',
+            MAST: 'MCC',
             DISC: 'NVC',
             AMEX: 'AXC'
         };
@@ -1088,7 +1099,7 @@ function getCardTypeId(paymentInstrument) {
             cardTypeId = 'PP';
             break;
         case 'DW_APPLE_PAY':
-            cardTypeId = (siteID === 'EU' || siteID === 'UKIE') ? null : (paymentInstrument.creditCardType || '');
+            cardTypeId = (siteID === 'EU' || siteID === 'UKIE') ? 'APAY' : (paymentInstrument.creditCardType || '');
             break;
         case creditCard:
             if (creditCard === 'AURUS_CREDIT_CARD') {
@@ -1152,13 +1163,6 @@ function getGiftCardType(paymentInstrument) {
     return gcType;
 }
 
-/**
- * Create a string of 10 digits random number.
- * @return {string} string of random number
- */
-function generateRandomNumber() {
-    return String(Math.floor(1000000000 + (Math.random() * 9000000000)));
-}
 
 /**
  * Extracts payment details from order object and returns JSON object.
@@ -1250,10 +1254,10 @@ function getPaymentDetails(Order, PaymentInstrument, Count, isGCPayment) {
         };
 
         paymentMethod.PaymentTransaction[0].ExternalResponseId = isGCPayment ? gcExternalResponseId : paymentInstrument.custom.ExternalResponseId || '';
-        paymentMethod.PaymentTransaction[0].PaymentTransactionId = isGCPayment ? generateRandomNumber() : paymentInstrument.custom.PaymentTransactionId || '';
+        paymentMethod.PaymentTransaction[0].PaymentTransactionId = isGCPayment ? paymentInstrument.custom.gcPin || '' : paymentInstrument.custom.PaymentTransactionId || '';
         // paymentMethod.PaymentTransaction[0].RemainingBalance = paymentInstrument.custom.RemainingBalance || '';
-        paymentMethod.PaymentTransaction[0].RequestId = isGCPayment ? generateRandomNumber() : paymentInstrument.custom.RequestId || '';
-        paymentMethod.PaymentTransaction[0].RequestToken = isGCPayment ? generateRandomNumber() : paymentInstrument.custom.RequestToken || '';
+        paymentMethod.PaymentTransaction[0].RequestId = isGCPayment ? paymentInstrument.custom.gcPin || '' : paymentInstrument.custom.RequestId || '';
+        paymentMethod.PaymentTransaction[0].RequestToken = isGCPayment ? paymentInstrument.custom.gcPin || '' : paymentInstrument.custom.RequestToken || '';
         paymentMethod.PaymentTransaction[0].RequestedAmount = isGCPayment ? CurrentAuthAmount : paymentInstrument.custom.RequestedAmount || '';
         paymentMethod.PaymentTransaction[0].TransactionType.PaymentTransactionTypeId = 'Authorization';
         paymentMethod.PaymentTransaction[0].Extended = {
@@ -1506,7 +1510,7 @@ function getCustomerSource(order) {
         customerSource = MaoConstants.Extended.customerSource.Employee;
     } else if ('isVipOrder' in order.custom && order.custom.isVipOrder) {
         customerSource = MaoConstants.Extended.customerSource.Athlete;
-    } else if ('bfxMerchantOrderRef' in order.custom && !empty(order.custom.bfxMerchantOrderRef)) {
+    } else if (('bfxMerchantOrderRef' in order.custom && !empty(order.custom.bfxMerchantOrderRef)) || ('bfxOrderId' in order.custom && !empty(order.custom.bfxOrderId))) {
         customerSource = MaoConstants.Extended.customerSource.E4X;
     }
     return customerSource;
@@ -1605,6 +1609,16 @@ function getOrderExtendedData(order) {
     } else if (klarnaPaymentInstruments.length > 0) {
         orderExtendedData.pspReference = getTransactionId(order, 'KLARNA_PAYMENTS');
     }
+
+    if ('isOptedInToNotifications' in order.custom && order.custom.isOptedInToNotifications) {
+        let phone = order.billingAddress.phone;
+        if (siteID === 'US') {
+            phone = '1' + phone;
+        }
+        orderExtendedData.HasConsented = order.custom.isOptedInToNotifications;
+        orderExtendedData.Phone = phone;
+    }
+
     return orderExtendedData;
 }
 
@@ -1669,6 +1683,7 @@ module.exports.getOrderJSON = function (order) {
             CurrencyCode: order.currencyCode,
             CustomerFirstName: customerName.firstName,
             CustomerLastName: customerName.lastName,
+            CustomerPhone: !empty(order.billingAddress) && !empty(order.billingAddress.phone) ? order.billingAddress.phone : '',
             DocType: MaoConstants.DocType,
             Extended: getOrderExtendedData(order),
             IsConfirmed: !order.custom.onHold,

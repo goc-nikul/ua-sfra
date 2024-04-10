@@ -1,5 +1,7 @@
 'use strict';
 
+var ContentMgr = require('dw/content/ContentMgr');
+
 var baseHelper = require('app_ua_core/cartridge/scripts/helpers/contentHelpers');
 /**
  * validate and parse content asset
@@ -14,7 +16,6 @@ function parseContent(contentText) {
  * @returns {Object} guestReturns content assets
  */
 function provideExchangeAndReturnsContent() {
-    var ContentMgr = require('dw/content/ContentMgr');
     var Content = require('*/cartridge/models/content');
     var guestReturnsText = new Content(ContentMgr.getContent('returns-and-exchanges'));
     var guestReturnsTextBelow = new Content(ContentMgr.getContent('returns-and-exchanges-2'));
@@ -29,5 +30,26 @@ function provideExchangeAndReturnsContent() {
     };
 }
 
+/**
+ * Checks if the body of a content asset is available.
+ * @param {string} contentAssetID - The ID of the content asset to check.
+ * @returns {boolean} - Returns true if the content asset's body is available, otherwise false.
+ */
+function isContentAssetBodyAvailable(contentAssetID) {
+    var content = ContentMgr.getContent(contentAssetID);
+    var contentAvailable = false;
+
+    if (content
+        && content.online
+        && content.custom
+        && content.custom.body
+        && content.custom.body.markup) {
+        contentAvailable = true;
+    }
+
+    return contentAvailable;
+}
+
 baseHelper.provideExchangeAndReturnsContent = provideExchangeAndReturnsContent;
+baseHelper.isContentAssetBodyAvailable = isContentAssetBodyAvailable;
 module.exports = baseHelper;

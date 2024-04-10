@@ -21,8 +21,10 @@ function updateAvailability(element) {
     }
 
     if ($('.bundle-items', $productContainer).length === 0) {
-        base.attributeSelect($(element).find('option:selected').data('url'),
-            $productContainer);
+        base.attributeSelect(
+            $(element).find('option:selected').data('url'),
+            $productContainer
+        );
     }
 }
 

@@ -1,5 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
+
+    <custom-type type-id="constructorIOSettings">
+        <display-name xml:lang="x-default">Constructor IO Settings</display-name>
+        <staging-mode>source-to-target</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="ID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="constructorIOSortOptionsMap">
+                <display-name xml:lang="x-default">ConstructorIO Sort Options Map</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="defaultCutoffThreshold">
+                <display-name xml:lang="x-default">Default Cutoff Threshold</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="displayableRefinementCategories">
+                <display-name xml:lang="x-default">Displayable Refinement Categories</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="routeRefinements">
+                <display-name xml:lang="x-default">Route Refinements</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="sizeRangeMap">
+                <display-name xml:lang="x-default">Size Range Map</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="sizeSortRules">
+                <display-name xml:lang="x-default">Size Sort Rules</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="sortOptionsURLMap">
+                <display-name xml:lang="x-default">Sort Options URL Map</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="variationMap">
+                <display-name xml:lang="x-default">Variation Map</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="constructorIOSettings">
+                <display-name xml:lang="x-default">Constructor Io Settings</display-name>
+                <attribute attribute-id="ID"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="constructorIOSortOptionsMap"/>
+                <attribute attribute-id="defaultCutoffThreshold"/>
+                <attribute attribute-id="displayableRefinementCategories"/>
+                <attribute attribute-id="routeRefinements"/>
+                <attribute attribute-id="sizeRangeMap"/>
+                <attribute attribute-id="sizeSortRules"/>
+                <attribute attribute-id="sortOptionsURLMap"/>
+                <attribute attribute-id="variationMap"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
     <custom-type type-id="SiteData">
         <display-name xml:lang="x-default">Site Data</display-name>
         <staging-mode>no-staging</staging-mode>
@@ -1151,6 +1244,20 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="returnShipmentProvider">
+                <display-name xml:lang="x-default">Return Shipment Provider</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="trackingLink">
+                <display-name xml:lang="x-default">Tracking Link</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
         </attribute-definitions>
         <group-definitions>
             <attribute-group group-id="general">
@@ -1163,6 +1270,8 @@
                 <attribute attribute-id="returnSkusJson"/>
                 <attribute attribute-id="invoiceSapId"/>
                 <attribute attribute-id="trackingNumber"/>
+                <attribute attribute-id="returnShipmentProvider"/>
+                <attribute attribute-id="trackingLink"/>
                 <attribute attribute-id="transactionReference"/>
                 <attribute attribute-id="consignmentId"/>
                 <attribute attribute-id="currencyCode"/>
@@ -1175,6 +1284,7 @@
         <display-name xml:lang="x-default">ID</display-name>
         <staging-mode>no-staging</staging-mode>
         <storage-scope>site</storage-scope>
+        <retention-days>30</retention-days>
         <key-definition attribute-id="ID">
             <type>string</type>
             <min-length>0</min-length>
@@ -2855,6 +2965,184 @@
                 <attribute attribute-id="live"/>
                 <attribute attribute-id="eventDate"/>
                 <attribute attribute-id="Adyen_log"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+    <custom-type type-id="MarketingCloudAuthTokenDataEvents">
+        <display-name xml:lang="x-default">Marketing Cloud Auth Token Data Events</display-name>
+        <description xml:lang="x-default">Marketing Cloud Auth Token Data Events</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <retention-days>1</retention-days>
+        <key-definition attribute-id="siteID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="token">
+                <display-name xml:lang="x-default">Token</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="default">
+                <display-name xml:lang="x-default">Default</display-name>
+                <attribute attribute-id="siteID"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="token"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+    <custom-type type-id="ConstructorIO">
+        <display-name xml:lang="x-default">Constructor IO</display-name>
+        <description xml:lang="x-default">Constructor IO Inventory Deltas</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="ID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="products">
+                <display-name xml:lang="x-default">Products</display-name>
+                <description xml:lang="x-default">JSON object of product and variant inventory</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="constructorMAODeltas">
+                <display-name xml:lang="x-default">Constructor IO / MAO Deltas</display-name>
+                <attribute attribute-id="products"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+    <custom-type type-id="ConstructorIOFeedData">
+        <display-name xml:lang="x-default">Constructor IO Feed Data</display-name>
+        <description xml:lang="x-default">Unmodified data for products and categories that we send to Constructor</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="sfccAttribute">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="constructorDataType">
+                <display-name xml:lang="x-default">Type of Data</display-name>
+                <description xml:lang="x-default">The type of data, e.g. Facet or Metadata, on Constructor</description>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <select-multiple-flag>true</select-multiple-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Facet</display>
+                        <value>facet</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Metadata</display>
+                        <value>metadata</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="constructorFeedType">
+                <display-name xml:lang="x-default">Constructor Feed Type</display-name>
+                <description xml:lang="x-default">The type of Constructor feed&#13;
+* master(item) OR&#13;
+* variation(variant)</description>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <select-multiple-flag>true</select-multiple-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Master (parent product or stand-alone) feed</display>
+                        <value>master</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Variation product feed</display>
+                        <value>variation</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="constructorKey">
+                <display-name xml:lang="x-default">Constructor Key</display-name>
+                <description xml:lang="x-default">Name of the field in Constructor</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="constructorFeedData">
+                <display-name xml:lang="x-default">Constructor Feed Data</display-name>
+                <attribute attribute-id="constructorKey"/>
+                <attribute attribute-id="constructorDataType"/>
+                <attribute attribute-id="constructorFeedType"/>
+                <attribute attribute-id="sfccAttribute"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+    <custom-type type-id="CombineProduct">
+        <display-name xml:lang="x-default">CombineProduct</display-name>
+        <description xml:lang="x-default">Create a combine product xml for import. Product IDs and attribute definition to be defined manuall.</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="ID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="colorVariationAttribute">
+                <display-name xml:lang="x-default">Color Variation Attribute</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="masterProductID">
+                <display-name xml:lang="x-default">Master Product ID</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="sizeVariationAttribute">
+                <display-name xml:lang="x-default">Size Variation Attribute</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="variantProductIDs">
+                <display-name xml:lang="x-default">Variant Product IDs</display-name>
+                <description xml:lang="x-default">In comma separated format: pid001,pid002,pid003,pid004</description>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="Default">
+                <display-name xml:lang="x-default">Default</display-name>
+                <attribute attribute-id="ID"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="variantProductIDs"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="masterProductID"/>
+                <attribute attribute-id="colorVariationAttribute"/>
+                <attribute attribute-id="sizeVariationAttribute"/>
             </attribute-group>
         </group-definitions>
     </custom-type>

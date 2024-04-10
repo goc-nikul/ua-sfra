@@ -37,7 +37,7 @@
                                         <input type="text"
                                             id="email2"
                                             class="emailaddressName2 form-control order-return-form-input b-input_row-input js-custom-input js-email-field"
-                                            pattern="^([A-Za-z]|[0-9]|[!$%&'*+-/=?_`{|}~])+$"
+                                            pattern="^[a-zA-Z0-9.+_\-]*$"
                                             value="${(pdict.customer && pdict.customer.customerData && pdict.customer.customerData.emailaddressName2) || (pdict.customer && pdict.customer.customerData && pdict.customer.customerData.emailaddressName) || ''}" data-missing-error="${Resource.msg('error.card.info.missing.email', 'forms', null)}" data-pattern-mismatch="${Resource.msg('error.message.parse.email.profile.form','forms',null)}" <isif condition="${!empty(pdict.customer.profile) && !naverSSOLogin}" >readonly</isif> required
                                             <isprint value="${primaryContact.emailaddressName2.attributes}" encoding="off" /> />
                                         <div class="invalid-feedback"></div>

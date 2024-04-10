@@ -2,6 +2,7 @@
 
 // To Do - write logic to handle below hooks
 const firstDataHelper = require('int_first_data/cartridge/scripts/firstDataHelper');
+const errorLogger = require('dw/system/Logger').getLogger('OrderFail', 'OrderFail');
 
 /**
  * Verifies if entered gift cards information is a valid.
@@ -78,8 +79,10 @@ function reverseGiftCardsAmount(currentBasket) {
         success: false
     };
     var appliedGCList = giftcardHelper.getAppliedGiftCards(currentBasket, true);
+    errorLogger.error('appliedGCList {0}', appliedGCList);
     if (appliedGCList && appliedGCList.length > 0) {
         results = firstDataHelper.reverseGiftCardsAmount(appliedGCList);
+        errorLogger.error('appliedGCList results {0}', JSON.stringify(results));
     }
 
     return results;

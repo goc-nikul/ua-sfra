@@ -162,7 +162,7 @@ function getImagesForMaterial(variants) {
 
     while (variants.hasNext()) {
         let variant = variants.next();
-        images = variant.getImages('pdpMainDesktop');
+        images = variant.getImages('pdpZoomDesktop');
 
         if (images.getLength()) {
             break;

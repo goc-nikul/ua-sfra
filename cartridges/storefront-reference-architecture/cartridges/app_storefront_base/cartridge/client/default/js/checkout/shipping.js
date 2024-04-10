@@ -52,9 +52,7 @@ function updateShippingAddressSelector(productLineItem, shipping, order, custome
             });
         }
         // Separator -
-        $shippingAddressSelector.append(addressHelpers.methods.optionValueForAddress(
-            order.resources.shippingAddresses, false, order, { className: 'multi-shipping' }
-        ));
+        $shippingAddressSelector.append(addressHelpers.methods.optionValueForAddress(order.resources.shippingAddresses, false, order, { className: 'multi-shipping' }));
         shippings.forEach(function (aShipping) {
             var isSelected = shipping.UUID === aShipping.UUID;
             hasSelectedAddress = hasSelectedAddress || isSelected;
@@ -167,15 +165,21 @@ function updateShippingMethods(shipping) {
                 //
                 $.each(shippingMethods, function (methodIndex, shippingMethod) {
                     var tmpl = $('#shipping-method-template').clone();
+                    var lineItemUUIDPart = '';
+
+                    if ($(el).parents('.multi-shipping').length) {
+                        lineItemUUIDPart = '-' + shipping.productLineItems.items[0].UUID;
+                    }
+
                     // set input
                     $('input', tmpl)
-                        .prop('id', 'shippingMethod-' + shippingMethod.ID + '-' + shipping.UUID)
+                        .prop('id', 'shippingMethod-' + shippingMethod.ID + '-' + shipping.UUID + lineItemUUIDPart)
                         .prop('name', shippingMethodFormID)
                         .prop('value', shippingMethod.ID)
                         .attr('checked', shippingMethod.ID === selected.ID);
 
                     $('label', tmpl)
-                        .prop('for', 'shippingMethod-' + shippingMethod.ID + '-' + shipping.UUID);
+                        .prop('for', 'shippingMethod-' + shippingMethod.ID + '-' + shipping.UUID + lineItemUUIDPart);
                     // set shipping method name
                     $('.display-name', tmpl).text(shippingMethod.displayName);
                     // set or hide arrival time
@@ -218,12 +222,14 @@ function updateShippingMethodList($shippingForm) {
                 if (data.error) {
                     window.location.href = data.redirectUrl;
                 } else {
-                    $('body').trigger('checkout:updateCheckoutView',
+                    $('body').trigger(
+                        'checkout:updateCheckoutView',
                         {
                             order: data.order,
                             customer: data.customer,
                             options: { keepOpen: true }
-                        });
+                        }
+                    );
 
                     $shippingMethodList.spinner().stop();
                 }
@@ -263,8 +269,10 @@ function updateShippingSummaryInformation(shipping, order) {
         }
 
         if (selectedShippingMethod) {
-            $('body').trigger('shipping:updateAddressLabelText',
-                { selectedShippingMethod: selectedShippingMethod, resources: order.resources, shippingAddressLabel: $shippingAddressLabel });
+            $('body').trigger(
+                'shipping:updateAddressLabelText',
+                { selectedShippingMethod: selectedShippingMethod, resources: order.resources, shippingAddressLabel: $shippingAddressLabel }
+            );
             $shippingSummaryLabel.show();
             $summaryDetails.show();
             $methodTitle.text(selectedShippingMethod.displayName);
@@ -357,8 +365,10 @@ function updatePLIShippingSummaryInformation(productLineItem, shipping, order, o
     }
     // checking h5 title shipping to or pickup
     var $shippingAddressLabel = $('.shipping-header-text', tmpl);
-    $('body').trigger('shipping:updateAddressLabelText',
-        { selectedShippingMethod: selectedMethod, resources: order.resources, shippingAddressLabel: $shippingAddressLabel });
+    $('body').trigger(
+        'shipping:updateAddressLabelText',
+        { selectedShippingMethod: selectedMethod, resources: order.resources, shippingAddressLabel: $shippingAddressLabel }
+    );
 
     $viewBlock.html(tmpl.html());
 
@@ -452,11 +462,11 @@ function updateMultiShipInformation(order) {
   * @param {Object} message - Error message to display
   */
 function createErrorNotification(message) {
-    var errorHtml = '<div class="alert alert-danger alert-dismissible valid-cart-error ' +
-    'fade show" role="alert">' +
-    '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-    '<span aria-hidden="true">&times;</span>' +
-    '</button>' + message + '</div>';
+    var errorHtml = '<div class="alert alert-danger alert-dismissible valid-cart-error '
+    + 'fade show" role="alert">'
+    + '<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+    + '<span aria-hidden="true">&times;</span>'
+    + '</button>' + message + '</div>';
 
     $('.shipping-error').append(errorHtml);
     scrollAnimate($('.shipping-error'));
@@ -566,6 +576,7 @@ function createNewShipment(url, shipmentData) {
  */
 function selectShippingMethodAjax(url, urlParams, el) {
     $.spinner().start();
+    $('body').trigger('checkout:beforeShippingMethodSelected');
     $.ajax({
         url: url,
         type: 'post',
@@ -576,7 +587,8 @@ function selectShippingMethodAjax(url, urlParams, el) {
             if (data.error) {
                 window.location.href = data.redirectUrl;
             } else {
-                $('body').trigger('checkout:updateCheckoutView',
+                $('body').trigger(
+                    'checkout:updateCheckoutView',
                     {
                         order: data.order,
                         customer: data.customer,
@@ -584,12 +596,14 @@ function selectShippingMethodAjax(url, urlParams, el) {
                         urlParams: urlParams
                     }
                 );
-                $('body').trigger('checkout:postUpdateCheckoutView',
+                $('body').trigger(
+                    'checkout:postUpdateCheckoutView',
                     {
                         el: el
                     }
                 );
             }
+            $('body').trigger('checkout:shippingMethodSelected', data);
             $.spinner().stop();
         })
         .fail(function () {
@@ -864,7 +878,8 @@ module.exports = {
                             return;
                         }
 
-                        $('body').trigger('checkout:updateCheckoutView',
+                        $('body').trigger(
+                            'checkout:updateCheckoutView',
                             {
                                 order: response.order,
                                 customer: response.customer,
@@ -893,7 +908,8 @@ module.exports = {
                             return;
                         }
 
-                        $('body').trigger('checkout:updateCheckoutView',
+                        $('body').trigger(
+                            'checkout:updateCheckoutView',
                             {
                                 order: response.order,
                                 customer: response.customer,
@@ -921,7 +937,8 @@ module.exports = {
                             return;
                         }
 
-                        $('body').trigger('checkout:updateCheckoutView',
+                        $('body').trigger(
+                            'checkout:updateCheckoutView',
                             {
                                 order: response.order,
                                 customer: response.customer,
@@ -1022,7 +1039,8 @@ module.exports = {
                         }
                     } else {
                         // Update UI from response
-                        $('body').trigger('checkout:updateCheckoutView',
+                        $('body').trigger(
+                            'checkout:updateCheckoutView',
                             {
                                 order: response.order,
                                 customer: response.customer

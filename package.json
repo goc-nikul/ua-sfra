@@ -19,7 +19,7 @@
     "test:functional": "node bin/Makefile functional -- ",
     "test:functional:docker": "bin/test-functional-docker.sh",
     "test:functional:sauce": "./node_modules/.bin/wdio test/functional/webdriver/wdio.conf.js ",
-    "cover": "node build_tools/build --cover && istanbul check-coverage --statements 77 --branches 65 --functions 78 --lines 77",
+    "cover": "node build_tools/build --cover && istanbul check-coverage --statements 78 --branches 64 --functions 79 --lines 78",
     "cover:integration": "node ./bin/IntegrationCoverage.js",
     "compile:js": "webpack --config build_tools/tasks/compile.js --mode=development --config-name js",
     "compile:scss": "webpack --config build_tools/tasks/compile.js --mode=development --config-name scss",
@@ -74,13 +74,15 @@
   ],
   "homepage": "https://github.com/ua-digital-commerce/ua-sfra",
   "devDependencies": {
-    "@babel/core": "^7.13.10",
-    "@babel/plugin-proposal-class-properties": "^7.13.0",
-    "@babel/plugin-proposal-decorators": "^7.13.5",
-    "@babel/plugin-proposal-object-rest-spread": "^7.13.8",
-    "@babel/preset-env": "^7.13.10",
+    "@babel/core": "^7.24.0",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-proposal-decorators": "^7.24.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
+    "@babel/preset-env": "^7.24.0",
+    "@babel/runtime-corejs3": "^7.24.0",
     "@tridnguyen/config": "^2.3.1",
-    "babel-loader": "^8.0.5",
+    "autoprefixer": "^9.7.4",
+    "babel-loader": "^8.3.0",
     "cache-loader": "^1.2.5",
     "chai": "^3.5.0",
     "chai-subset": "^1.5.0",
@@ -88,9 +90,12 @@
     "cheerio": "0.22.0",
     "cldr-data": "^31.0.2",
     "clean-webpack-plugin": "^1.0.0",
+    "core-js": "^3.36.0",
     "css-loader": "^1.0.0",
     "del": "^3.0.0",
+    "dw-api-mock": "git+https://github.com/SalesforceCommerceCloud/dw-api-mock.git",
     "dwupload": "^3.8.0",
+    "easyqrcodejs": "^4.6.0",
     "eslint": "^3.2.2",
     "eslint-config-airbnb-base": "^5.0.1",
     "eslint-plugin-import": "^1.12.0",
@@ -101,6 +106,7 @@
     "husky": "^1.3.1",
     "imagesloaded": "^4.1.4",
     "istanbul": "^0.4.4",
+    "js-cookie": "^3.0.5",
     "jsonlint": "^1.6.3",
     "lint-staged": "^10.5.3",
     "lodash": "^4.14.2",
@@ -120,32 +126,35 @@
     "properties-parser": "^0.3.0",
     "proxyquire": "1.7.4",
     "q": "^1.5.1",
+    "regenerator-runtime": "^0.14.1",
     "request": "^2.88.2",
     "request-promise": "^4.2.2",
     "request-promise-native": "^1.0.9",
-    "sass-loader": "^7.0.3",
+    "sass": "^1.71.0",
+    "sass-loader": "^7.3.1",
     "selenium-standalone": "^5.9.0",
     "sfcc-ci": "^2.7.3",
-    "sgmf-scripts": "~1.1.2",
-    "shelljs": "^0.7.0",
+    "sgmf-scripts": "2.4.2",
+    "shelljs": "^0.8.5",
     "sinon": "^1.17.4",
     "sticky-kit": "^1.1.3",
     "stylelint": "^8.2.0",
     "stylelint-config-standard": "^17.0.0",
     "stylelint-scss": "^2.1.0",
-    "swiper": "^6.3.5",
+    "swiper": "6.3.5",
     "url": "^0.11.0",
     "wdio-sauce-service": "^0.4.14",
     "webdriverio": "^3.3.0",
-    "webpack": "4.12.0",
-    "webpack-cli": "^3.1.2",
+    "webpack": "4.47.0",
+    "webpack-cli": "^3.3.12",
     "xml2js": "^0.4.23"
   },
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
+    "@constructor-io/constructorio-client-javascript": "2.35.10",
     "audit": "0.0.6",
     "babel-preset-env": "^1.7.0",
-    "bootstrap": "^4.5.3",
+    "bootstrap": "^4.6.2",
     "branch-sdk": "^2.59.0",
     "cleave.js": "^1.4.2",
     "flag-icon-css": "^2.3.0",
@@ -166,6 +175,17 @@
     "last 2 versions",
     "ie >= 10"
   ],
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "useBuiltIns": "usage",
+          "corejs": "3.36"
+        }
+      ]
+    ]
+  },
   "sites": [
     {
       "region": "na",
@@ -192,8 +212,8 @@
           "name": "app_storefront_base"
         },
         {
-          "alias": "bc_bazaarvoice",
-          "name": "bc_bazaarvoice"
+          "alias": "bm_bazaarvoice",
+          "name": "bm_bazaarvoice"
         },
         {
           "alias": "bc_job_components",
@@ -215,6 +235,10 @@
           "alias": "bm_tools",
           "subPath": "bm-tools/cartridges",
           "name": "bm_tools"
+        },
+        {
+          "alias": "adobe_target",
+          "name": "int_adobe_target"
         },
         {
           "alias": "accertify",
@@ -283,6 +307,10 @@
         {
           "alias": "merkle",
           "name": "int_merkle"
+        },
+        {
+          "alias": "narvar",
+          "name": "int_narvar"
         },
         {
           "alias": "ocapi",
@@ -425,17 +453,32 @@
           "name": "int_socialfeeds"
         },
         {
-          "alias": "bm_catalogreducer",
-          "subPath": "catalog-reducer-extension",
-          "name": "bm_catalogreducer"
-        },
-        {
           "alias": "adyen",
           "name": "int_adyen_SFRA"
         },
         {
           "alias": "int_adyen_overlay",
           "name": "int_adyen_overlay"
+        },
+        {
+          "alias": "link_constructor_connect_legacy",
+          "name": "link_constructor_connect_legacy"
+        },
+        {
+          "alias": "int_constructor_custom_legacy",
+          "name": "int_constructor_custom_legacy"
+        },
+        {
+          "alias": "bm_catalogreducer_custom",
+          "name": "bm_catalogreducer_custom"
+        },
+        {
+          "alias": "link_constructor_connect",
+          "name": "link_constructor_connect"
+        },
+        {
+          "alias": "link_constructor_connect_custom",
+          "name": "link_constructor_connect_custom"
         }
       ]
     },
@@ -460,8 +503,8 @@
           "name": "int_googlesitemap"
         },
         {
-          "alias": "bc_bazaarvoice",
-          "name": "bc_bazaarvoice"
+          "alias": "bm_bazaarvoice",
+          "name": "bm_bazaarvoice"
         },
         {
           "alias": "bc_job_components",
@@ -545,6 +588,14 @@
           "name": "int_ups"
         },
         {
+          "alias": "DHL",
+          "name": "int_dhl"
+        },
+        {
+          "alias": "fedex_rest",
+          "name": "int_fedex_rest"
+        },
+        {
           "alias": "QAS",
           "name": "int_QAS"
         },
@@ -626,9 +677,28 @@
           "name": "int_aurus_custom"
         },
         {
-          "alias": "bm_catalogreducer",
-          "subPath": "catalog-reducer-extension",
-          "name": "bm_catalogreducer"
+          "alias": "adobe_target",
+          "name": "int_adobe_target"
+        },
+        {
+          "alias": "bm_catalogreducer_custom",
+          "name": "bm_catalogreducer_custom"
+        },
+        {
+          "alias": "link_constructor_connect_legacy",
+          "name": "link_constructor_connect_legacy"
+        },
+        {
+          "alias": "int_constructor_custom_legacy",
+          "name": "int_constructor_custom_legacy"
+        },
+        {
+          "alias": "link_constructor_connect",
+          "name": "link_constructor_connect"
+        },
+        {
+          "alias": "link_constructor_connect_custom",
+          "name": "link_constructor_connect_custom"
         }
       ]
     },
@@ -640,227 +710,238 @@
           "name": "app_ua_apac"
         },
         {
-            "alias": "falcon",
-            "name": "app_ua_emea"
-          },
-          {
-            "alias": "sf_productpersonalize",
-            "name": "plugin_productpersonalize"
-          },
-          {
-            "alias": "org",
-            "name": "app_ua_core"
-          },
-          {
-            "alias": "base",
-            "subPath": "storefront-reference-architecture/cartridges",
-            "name": "app_storefront_base"
-          },
-          {
-            "alias": "int_googlesitemap",
-            "name": "int_googlesitemap"
-          },
-          {
-            "alias": "bc_bazaarvoice",
-            "name": "bc_bazaarvoice"
-          },
-          {
-            "alias": "bc_job_components",
-            "name": "bc_job_components"
-          },
-          {
-            "alias": "bc_jobs",
-            "name": "bc_jobs"
-          },
-          {
-            "alias": "bm_tools",
-            "subPath": "bm-tools/cartridges",
-            "name": "bm_tools"
-          },
-          {
-            "alias": "bazaarvoice",
-            "name": "int_bazaarvoice"
-          },
-          {
-            "alias": "bazaarvoice_sfra",
-            "name": "int_bazaarvoice_sfra"
-          },
-          {
-            "alias": "coremedia",
-            "name": "int_coremedia"
-          },
-          {
-            "alias": "customfeeds",
-            "name": "int_customfeeds"
-          },
-          {
-            "alias": "fedex",
-            "name": "int_fedex"
-          },
-          {
-            "alias": "handlerframework",
-            "name": "int_handlerframework"
-          },
-          {
-            "alias": "marketing_cloud",
-            "name": "int_marketing_cloud"
-          },
-          {
-            "alias": "merkle",
-            "name": "int_merkle"
-          },
-          {
-            "alias": "ocapi",
-            "name": "int_ocapi"
-          },
-          {
-            "alias": "perimeterx",
-            "name": "int_perimeterx"
-          },
-          {
-            "alias": "perimeterx_sfra",
-            "name": "int_perimeterx_SFRA"
-          },
-          {
-            "alias": "QAS",
-            "name": "int_QAS"
-          },
-          {
-            "alias": "s3",
-            "name": "int_s3"
-          },
-          {
-            "alias": "tealium",
-            "name": "int_tealium"
-          },
-          {
-            "alias": "lib_productlist",
-            "subPath": "lib_productlist/cartridges",
-            "name": "lib_productlist"
-          },
-          {
-            "alias": "modules",
-            "subPath": "storefront-reference-architecture/cartridges",
-            "name": "modules"
-          },
-          {
-            "alias": "plugin_instorepickup",
-            "subPath": "plugin_instorepickup/cartridges",
-            "name": "plugin_instorepickup"
-          },
-          {
-            "alias": "loyalty",
-            "name": "plugin_loyalty"
-          },
-          {
-            "alias": "plugin_sitemap",
-            "subPath": "plugin_sitemap/cartridges",
-            "name": "plugin_sitemap"
-          },
-          {
-            "alias": "plugin_ua_idm",
-            "name": "plugin_ua_idm"
-          },
-          {
-            "alias": "plugin_wishlists",
-            "subPath": "plugin_wishlists/cartridges",
-            "name": "plugin_wishlists"
-          },
-          {
-            "alias": "UAS7",
-            "name": "UAS7"
-          },
-          {
-            "alias": "int_talkoot",
-            "name": "int_talkoot"
-          },
-          {
-            "alias": "adyen",
-            "name": "int_adyen_SFRA"
-          },
-          {
-            "alias": "int_adyen_overlay",
-            "name": "int_adyen_overlay"
-          },
-          {
-            "alias": "bm_SDLTranslation",
-            "name": "bm_SDLTranslation"
-          },
-          {
-            "alias": "zipmoney",
-            "subPath": "link_zipmoney/cartridges",
-            "name": "int_zippay"
-          },
-          {
-            "alias": "zipmoney",
-            "subPath": "link_zipmoney/cartridges",
-            "name": "int_zippay_sfra"
-          },
-		  {
-            "alias": "int_cashondelivery",
-            "name": "int_cashondelivery"
-          },
-          {
-            "alias": "zipmoneybm",
-            "subPath": "link_zipmoney/cartridges",
-            "name": "bm_zippay"
-          },
-          {
-            "alias": "int_aupost",
-            "name": "int_aupost"
-          },
-          {
-            "alias": "nzpost",
-            "subPath": "int_nzpost",
-            "name": "int_nzpost"
-          },
-          {
-            "alias": "product_personalisation",
-            "name": "bm_product_personalisation"
-          },
-          {
-            "alias": "2c2p",
-            "name": "int_2c2p"
-          },
-          {
-            "alias": "atome",
-            "name": "int_atome_SFRA"
-          },
-          {
-            "alias": "int_loyalty",
-            "name": "int_loyalty"
-          },
-          {
-            "alias": "int_aurus_custom",
-            "name": "int_aurus_custom"
-          },
-          {
-            "alias": "int_memberson",
-            "name": "int_memberson"
-          },
-          {
-            "alias": "int_shoplinker",
-            "name": "int_shoplinker"
-          },
-          {
-            "alias": "plugin_sleepingaccount",
-            "name": "plugin_sleepingaccount"
-          },
-          {
-            "alias": "int_custom_tosspayments",
-            "name": "int_custom_tosspayments"
-          },
-          {
-            "alias": "int_naverpay",
-            "name": "int_naverpay"
-          },
-          {
-              "alias": "bm_catalogreducer",
-              "subPath": "catalog-reducer-extension",
-              "name": "bm_catalogreducer"
-          }
-        ]
-      }
+          "alias": "falcon",
+          "name": "app_ua_emea"
+        },
+        {
+          "alias": "sf_productpersonalize",
+          "name": "plugin_productpersonalize"
+        },
+        {
+          "alias": "org",
+          "name": "app_ua_core"
+        },
+        {
+          "alias": "base",
+          "subPath": "storefront-reference-architecture/cartridges",
+          "name": "app_storefront_base"
+        },
+        {
+          "alias": "int_googlesitemap",
+          "name": "int_googlesitemap"
+        },
+        {
+          "alias": "bm_bazaarvoice",
+          "name": "bm_bazaarvoice"
+        },
+        {
+          "alias": "bc_job_components",
+          "name": "bc_job_components"
+        },
+        {
+          "alias": "bc_jobs",
+          "name": "bc_jobs"
+        },
+        {
+          "alias": "bm_tools",
+          "subPath": "bm-tools/cartridges",
+          "name": "bm_tools"
+        },
+        {
+          "alias": "bm_underarmour",
+          "name": "bm_underarmour"
+        },
+        {
+          "alias": "bazaarvoice",
+          "name": "int_bazaarvoice"
+        },
+        {
+          "alias": "bazaarvoice_sfra",
+          "name": "int_bazaarvoice_sfra"
+        },
+        {
+          "alias": "coremedia",
+          "name": "int_coremedia"
+        },
+        {
+          "alias": "customfeeds",
+          "name": "int_customfeeds"
+        },
+        {
+          "alias": "fedex",
+          "name": "int_fedex"
+        },
+        {
+          "alias": "handlerframework",
+          "name": "int_handlerframework"
+        },
+        {
+          "alias": "marketing_cloud",
+          "name": "int_marketing_cloud"
+        },
+        {
+          "alias": "merkle",
+          "name": "int_merkle"
+        },
+        {
+          "alias": "ocapi",
+          "name": "int_ocapi"
+        },
+        {
+          "alias": "perimeterx",
+          "name": "int_perimeterx"
+        },
+        {
+          "alias": "perimeterx_sfra",
+          "name": "int_perimeterx_SFRA"
+        },
+        {
+          "alias": "QAS",
+          "name": "int_QAS"
+        },
+        {
+          "alias": "s3",
+          "name": "int_s3"
+        },
+        {
+          "alias": "tealium",
+          "name": "int_tealium"
+        },
+        {
+          "alias": "lib_productlist",
+          "subPath": "lib_productlist/cartridges",
+          "name": "lib_productlist"
+        },
+        {
+          "alias": "modules",
+          "subPath": "storefront-reference-architecture/cartridges",
+          "name": "modules"
+        },
+        {
+          "alias": "plugin_instorepickup",
+          "subPath": "plugin_instorepickup/cartridges",
+          "name": "plugin_instorepickup"
+        },
+        {
+          "alias": "loyalty",
+          "name": "plugin_loyalty"
+        },
+        {
+          "alias": "plugin_sitemap",
+          "subPath": "plugin_sitemap/cartridges",
+          "name": "plugin_sitemap"
+        },
+        {
+          "alias": "plugin_ua_idm",
+          "name": "plugin_ua_idm"
+        },
+        {
+          "alias": "plugin_wishlists",
+          "subPath": "plugin_wishlists/cartridges",
+          "name": "plugin_wishlists"
+        },
+        {
+          "alias": "UAS7",
+          "name": "UAS7"
+        },
+        {
+          "alias": "int_talkoot",
+          "name": "int_talkoot"
+        },
+        {
+          "alias": "adyen",
+          "name": "int_adyen_SFRA"
+        },
+        {
+          "alias": "int_adyen_overlay",
+          "name": "int_adyen_overlay"
+        },
+        {
+          "alias": "bm_SDLTranslation",
+          "name": "bm_SDLTranslation"
+        },
+        {
+          "alias": "zipmoney",
+          "subPath": "link_zipmoney/cartridges",
+          "name": "int_zippay"
+        },
+        {
+          "alias": "zipmoney",
+          "subPath": "link_zipmoney/cartridges",
+          "name": "int_zippay_sfra"
+        },
+        {
+          "alias": "int_cashondelivery",
+          "name": "int_cashondelivery"
+        },
+        {
+          "alias": "zipmoneybm",
+          "subPath": "link_zipmoney/cartridges",
+          "name": "bm_zippay"
+        },
+        {
+          "alias": "int_aupost",
+          "name": "int_aupost"
+        },
+        {
+          "alias": "nzpost",
+          "subPath": "int_nzpost",
+          "name": "int_nzpost"
+        },
+        {
+          "alias": "product_personalisation",
+          "name": "bm_product_personalisation"
+        },
+        {
+          "alias": "2c2p",
+          "name": "int_2c2p"
+        },
+        {
+          "alias": "atome",
+          "name": "int_atome_SFRA"
+        },
+        {
+          "alias": "int_loyalty",
+          "name": "int_loyalty"
+        },
+        {
+          "alias": "int_aurus_custom",
+          "name": "int_aurus_custom"
+        },
+        {
+          "alias": "int_memberson",
+          "name": "int_memberson"
+        },
+        {
+          "alias": "int_shoplinker",
+          "name": "int_shoplinker"
+        },
+        {
+          "alias": "plugin_sleepingaccount",
+          "name": "plugin_sleepingaccount"
+        },
+        {
+          "alias": "int_custom_tosspayments",
+          "name": "int_custom_tosspayments"
+        },
+        {
+          "alias": "int_naverpay",
+          "name": "int_naverpay"
+        },
+        {
+          "alias": "adobe_target",
+          "name": "int_adobe_target"
+        },
+        {
+          "alias": "bm_catalogreducer_custom",
+          "name": "bm_catalogreducer_custom"
+        },
+        {
+          "alias": "int_earlyaccess",
+          "name": "int_earlyaccess"
+        }
+      ]
+    }
   ],
   "buildEnvironment": {
     "development": {

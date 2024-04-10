@@ -4,7 +4,38 @@
     <isif condition="${attr.id == 'color'}">
         <iscontinue/>
     </isif>
-    <div class="b-product_attrs-item" data-attr="${attr.id}" data-error-label="${Resource.msg('error.message.required.' + attr.id,'product',null) ? Resource.msg('error.message.required.' + attr.id,'product',null) : Resource.msg('error.message.required.default','product',null)}">
+    <div class="b-product_attrs-item variation_attr" data-attr="${attr.id}" data-error-label="${Resource.msg('error.message.required.' + attr.id,'product',null) ? Resource.msg('error.message.required.' + attr.id,'product',null) : Resource.msg('error.message.required.default','product',null)}">
         <isinclude template="product/components/variationAttribute" />
     </div>
 </isloop>
+<div class="pdp-mobile-auth d-none" data-mobileauth-enabled="${pdict.mobileAuthEnabled}" data-mobileauth-pending="${pdict.mobileAuthPending}"></div>
+<isif condition="${'earlyAccess' in product.custom}">
+    <isset name="earlyAccessObject" value="${product.custom.earlyAccess}" scope="page" />
+    <div
+        class="ua-early-access d-none"
+        data-is-ea-product="${earlyAccessObject.isEarlyAccessProduct}"
+        data-hide-ea-product="${earlyAccessObject.hideProduct}"
+        data-chk-ea-url="${earlyAccessObject.earlyAccessUrl}"
+        <isif condition="${earlyAccessObject.isEarlyAccessProduct}">
+            data-is-ea-customer="${earlyAccessObject.isEarlyAccessCustomer}"
+            data-is-loggedin="${earlyAccessObject.isLoggedIn}"
+        </isif>
+        <isif condition="${pdict.earlyAccessSelectedVarAttrs}">
+            <isloop items="${Object.keys(pdict.earlyAccessSelectedVarAttrs)}" var="eaSelectedVariantKey" status="eaLoopstatus">
+                data-${eaSelectedVariantKey}="${pdict.earlyAccessSelectedVarAttrs[eaSelectedVariantKey]}"
+            </isloop>
+        </isif>
+    >
+        <isif condition="${'eaContent' in earlyAccessObject}">
+            <isprint value="${earlyAccessObject.eaContent}" encoding="off" />
+        </isif>
+    </div>
+</isif>
+<isinclude template="product/earlyAccess/earlyAccessModal" />
+<div class="d-none member-price-guest-modal-content">
+    <isinclude template="product/memberPricing/guestModal" />
+</div>
+<div class="d-none member-price-ineligible-modal-content">
+    <isinclude template="product/memberPricing/ineligibleModal" />
+</div>
+

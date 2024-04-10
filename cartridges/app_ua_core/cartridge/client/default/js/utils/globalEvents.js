@@ -1,5 +1,9 @@
 'use strict';
 
+const browserSpescificEvents = require('./browserSpescificEvents');
+const scrollBlock = require('./scrollBlock');
+const bootstrap = require('./bootstrap');
+
 var $cache = {};
 
 /**
@@ -41,5 +45,8 @@ module.exports = {
     init: function () {
         initializeCache();
         initializeAccessibilityListeners();
+        browserSpescificEvents.init();
+        scrollBlock.init();
+        bootstrap.modalEvents();
     }
 };

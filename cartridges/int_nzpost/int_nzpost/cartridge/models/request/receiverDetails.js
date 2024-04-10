@@ -9,7 +9,7 @@ function receiverDetails(orderAddressMap, email) {
     if (!orderAddressMap || !email) return;
     this.name = orderAddressMap.name;
     this.phone = orderAddressMap.phone;
-    this.email = email;
+    this.email = 'customerservicenz@underarmour.com';
 }
 
 module.exports = receiverDetails;

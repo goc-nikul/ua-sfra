@@ -19,7 +19,8 @@ var MAX_ARRAY_SIZE = 10000;
  * @param {Object} day - day of the month
  * @return {Object} - returns formated date
  */
-function getDayKeyValue(day) {	// do not change format "MM-dd-yyyy" because it will break Custom object management (CRU)
+function getDayKeyValue(day) {
+    // do not change format "MM-dd-yyyy" because it will break Custom object management (CRU)
     return !empty(day) ? StringUtils.formatCalendar(day, 'MM-dd-yyyy') : '';
 }
 
@@ -28,7 +29,8 @@ function getDayKeyValue(day) {	// do not change format "MM-dd-yyyy" because it w
  * @param {Object} day - day of the month
  * @return {Object} - returns custom objectID
  */
-function getCustomObjectID(day) {	// calculate object id for specified day
+function getCustomObjectID(day) {
+    // calculate object id for specified day
     // return format "YYYY-MM", YYYY - the date year, NN - the number of month (a value between 0 and 11)
     return !empty(day) ? StringUtils.formatCalendar(day, 'yyyy-MM') : '';
 }
@@ -42,7 +44,9 @@ function findDayData(day) {
     let objectID = getCustomObjectID(day);
     let co = CustomObjectMgr.getCustomObject(EODCustomObjectType, objectID);
 
-    return !empty(co) && !empty(co.custom.data) ? JSONUtils.getValue(co.custom.data, getDayKeyValue(day)) : {};
+    return !empty(co) && !empty(co.custom.data)
+        ? JSONUtils.getValue(co.custom.data, getDayKeyValue(day))
+        : {};
 }
 
 /**
@@ -73,6 +77,17 @@ function getSimpleReportData(report) {
 
     if (report.orders instanceof SeekableIterator) {
         report.orders.close();
+    }
+
+    if (report.moreOrders) {
+        while (report.moreOrders.hasNext()) {
+            order = report.moreOrders.next();
+            data.orders.push(order.getOrderNo());
+        }
+
+        if (report.moreOrders instanceof SeekableIterator) {
+            report.moreOrders.close();
+        }
     }
 
     return data;
@@ -109,6 +124,26 @@ function getMultipleReportData(report) {
         report.orders.close();
     }
 
+    if (report.moreOrders) {
+        while (report.moreOrders.hasNext()) {
+            if (i === 0) {
+                data.orders.push([]);
+            } else if (i >= MAX_ARRAY_SIZE) {
+                i = 0;
+                // eslint-disable-next-line no-continue
+                continue;
+            }
+
+            order = report.moreOrders.next();
+            data.orders[data.orders.length - 1].push(order.getOrderNo());
+            i++;
+        }
+
+        if (report.moreOrders instanceof SeekableIterator) {
+            report.moreOrders.close();
+        }
+    }
+
     return data;
 }
 
@@ -125,16 +160,29 @@ module.exports = {
             objectID = incDec || getCustomObjectID(day);
             co = CustomObjectMgr.getCustomObject(EODCustomObjectType, objectID);
         } catch (e) {
-            Logger.debug('EODReportMgr.ds: Can not find custom object with id {0}, type of custom object {1}. Error: {2}.', objectID, EODCustomObjectType, e);
+            Logger.debug(
+                'EODReportMgr.ds: Can not find custom object with id {0}, type of custom object {1}. Error: {2}.',
+                objectID,
+                EODCustomObjectType,
+                e
+            );
         }
 
         if (empty(co)) {
             try {
                 Transaction.wrap(function () {
-                    co = CustomObjectMgr.createCustomObject(EODCustomObjectType, objectID);
+                    co = CustomObjectMgr.createCustomObject(
+                        EODCustomObjectType,
+                        objectID
+                    );
                 });
             } catch (e) {
-                Logger.error('EODReportMgr.ds: Can not create custom object with id {0}, type of custom object {1}. Error: {2}.', objectID, EODCustomObjectType, e);
+                Logger.error(
+                    'EODReportMgr.ds: Can not create custom object with id {0}, type of custom object {1}. Error: {2}.',
+                    objectID,
+                    EODCustomObjectType,
+                    e
+                );
                 return {};
             }
         }
@@ -149,12 +197,14 @@ module.exports = {
 
     setReportValue: function (day, reportType, value, incDec) {
         if (empty(day) || empty(reportType) || empty(value)) {
-            Logger.error('EODReportMgr.ds: Some of arguments were not defined for function \'setReportValue()\'. This function requires all arguments to be defined.');
+            Logger.error(
+                "EODReportMgr.ds: Some of arguments were not defined for function 'setReportValue()'. This function requires all arguments to be defined."
+            );
             return false;
         }
 
         var isIncDec = function () {
-            return (incDec) ? queue + value.order + (+new Date()) : false;
+            return incDec ? queue + value.order + +new Date() : false;
         };
 
         var co = this.getCustomObjectForEdit(day, isIncDec());
@@ -170,14 +220,20 @@ module.exports = {
             coData[dayKeyVal] = {};
         }
 
-        if (value.orders && value.orders instanceof SeekableIterator) {
-            coData[dayKeyVal][reportType] = value.count < MAX_ARRAY_SIZE
-                                                        ? getSimpleReportData(value)
-                                                        : getMultipleReportData(value);
+        if (
+            (value.orders && value.orders instanceof SeekableIterator) ||
+            (value.moreOrders && value.moreOrders instanceof SeekableIterator)
+        ) {
+            coData[dayKeyVal][reportType] =
+                value.count < MAX_ARRAY_SIZE
+                    ? getSimpleReportData(value)
+                    : getMultipleReportData(value);
         } else if (value.order) {
             coData[dayKeyVal][reportType] = value;
         } else {
-            Logger.error('EODReportMgr.ds: value is invalid for setReportValue');
+            Logger.error(
+                'EODReportMgr.ds: value is invalid for setReportValue'
+            );
             return false;
         }
 
@@ -186,7 +242,10 @@ module.exports = {
                 co.custom.data = JSON.stringify(coData);
             });
         } catch (e) {
-            Logger.error('EODReportMgr.ds: JSON stringify custom object failed. Error:', e);
+            Logger.error(
+                'EODReportMgr.ds: JSON stringify custom object failed. Error:',
+                e
+            );
             return false;
         }
         return true;
@@ -195,11 +254,15 @@ module.exports = {
     incrementReportValue: function (reportType, day, order) {
         if (empty(day) && !empty(order)) {
             // eslint-disable-next-line no-param-reassign
-            day = !empty(order.replacedOrder) ? new Calendar(order.replacedOrder.getCreationDate()) : new Calendar(order.getCreationDate());
+            day = !empty(order.replacedOrder)
+                ? new Calendar(order.replacedOrder.getCreationDate())
+                : new Calendar(order.getCreationDate());
         }
 
         if (empty(day) || empty(reportType)) {
-            Logger.error('EODReportMgr.ds: Some of arguments were not defined for function \'incrementReportValue()\'. This function requires 2 arguments to be defined: \'day\' and \'reportType\'');
+            Logger.error(
+                "EODReportMgr.ds: Some of arguments were not defined for function 'incrementReportValue()'. This function requires 2 arguments to be defined: 'day' and 'reportType'"
+            );
             return false;
         }
         var reportValue = this.getReportValue(day, reportType);
@@ -219,11 +282,15 @@ module.exports = {
     decrementReportValue: function (reportType, day, order) {
         if (empty(day) && !empty(order)) {
             // eslint-disable-next-line no-param-reassign
-            day = !empty(order.replacedOrder) ? new Calendar(order.replacedOrder.getCreationDate()) : new Calendar(order.getCreationDate());
+            day = !empty(order.replacedOrder)
+                ? new Calendar(order.replacedOrder.getCreationDate())
+                : new Calendar(order.getCreationDate());
         }
 
         if (empty(day) || empty(reportType)) {
-            Logger.error('EODReportMgr.ds: Some of arguments were not defined for function \'incrementReportValue()\'. This function requires 2 arguments to be defined: \'day\' and \'reportType\'');
+            Logger.error(
+                "EODReportMgr.ds: Some of arguments were not defined for function 'incrementReportValue()'. This function requires 2 arguments to be defined: 'day' and 'reportType'"
+            );
             return false;
         }
         var reportValue = this.getReportValue(day, reportType);
@@ -246,6 +313,12 @@ module.exports = {
         sortString = sortString || '';
         // eslint-disable-next-line no-param-reassign
         queryString = queryString || '';
-        return CustomObjectMgr.queryCustomObjects(EODCustomObj, queryString, sortString).asList(0, limitedArrayLength).toArray();
+        return CustomObjectMgr.queryCustomObjects(
+            EODCustomObj,
+            queryString,
+            sortString
+        )
+            .asList(0, limitedArrayLength)
+            .toArray();
     }
 };

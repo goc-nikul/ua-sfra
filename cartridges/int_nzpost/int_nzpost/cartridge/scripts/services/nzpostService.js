@@ -41,6 +41,8 @@ function getParcelLabelService(oAuthToken) {
             svc.addHeader('user_name', JSON.parse(nzConfig.nzpostConfigurations).username);
             svc.addHeader('Authorization', 'Bearer ' + oAuthToken);
             svc.addHeader('Content-Type', 'application/json');
+            svc.addHeader('grant_type', 'client_credentials');
+            svc.addHeader('account_number', JSON.parse(nzConfig.nzpostConfigurations).account_number);
             // Add request body if exists
             return requestBody ? JSON.stringify(requestBody) : null;
         },

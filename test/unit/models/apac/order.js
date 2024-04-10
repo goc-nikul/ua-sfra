@@ -76,6 +76,11 @@ var lineItemContainer = {
         return {
             value: 2
         };
+    },
+    defaultShipment: {
+        shippingAddress: {
+            countryCode: 'SG'
+        }
     }
 };
 
@@ -116,6 +121,10 @@ describe('app_ua_apac/cartridge/models/order', () => {
                 }
             }
         });
+
+        global.request = {
+            getLocale: () => 'en_SG'
+        };
 
         var options = { containerView: 'order' };
         var order = new OrderModel(lineItemContainer, options);
@@ -183,7 +192,12 @@ describe('app_ua_apac/cartridge/models/order', () => {
             'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
             'dw/web/Resource': require('../../../mocks/dw/dw_web_Resource'),
             'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
-            'dw/util/Calendar': require('../../../mocks/dw/dw_util_Calendar')
+            'dw/util/Calendar': require('../../../mocks/dw/dw_util_Calendar'),
+            '*/cartridge/scripts/helpers/holidaySeasonHelper': {
+                getReturnPeriod: () => {
+                    return 60;
+                }
+            }
         });
 
         var options = { containerView: 'orderDetails' };

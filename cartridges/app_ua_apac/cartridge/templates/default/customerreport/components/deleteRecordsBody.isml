@@ -1,0 +1,27 @@
+<isif condition="${pdict.customerReportData.success}">
+    <isloop items="${pdict.customerReportData.customerReportDataBody}" var="row" status="loopstatus">
+        <tr data-report-customer="${row.custom.CustomerNo}">
+            <td class="cell-row" data-accountlinks="${row.custom.AccountLinks}">${row.custom.AccountLinks}</td>
+            <td class="cell-row" data-customerno="${row.custom.CustomerNo}">${row.custom.CustomerNo}</td>
+            <td class="cell-row" data-jiraticket="${row.custom.JiraTicket ? row.custom.JiraTicket : ''}">
+                ${row.custom.JiraTicket ? row.custom.JiraTicket : ''}</td>
+
+            <iscomment> logic to convert GMT to KST</iscomment>
+            <isset name="date" value="${new dw.util.Calendar(row.creationDate)}" scope="page" />
+            <isscript>
+                date.setTimeZone('Asia/Seoul')
+            </isscript>
+            <isset name="dateObj" value="${new Date(require('dw/util/StringUtils').formatCalendar(date, " MM/dd/yyyy h:mm:ss a"))}" scope="page" />
+            <iscomment> logic to convert GMT to KST</iscomment>
+
+            <td class="cell-row" data-test="${date.timeZone}" data-creationdate="${dateObj.toLocaleDateString()}">
+                ${dateObj.toLocaleDateString()}</td>
+            <td class="cell-row" data-creationtime="${dateObj.toLocaleTimeString().replace('GMT', 'KST')}">
+                ${dateObj.toLocaleTimeString().replace('GMT', 'KST')}</td>
+        </tr>
+    </isloop>
+<iselse/>
+    <div class="error-msg">
+        <h1 class="error-msg-text">${Resource.msg('customerreport.techincalerror', 'customerreport', null)}</h1>
+    </div>
+</isif>

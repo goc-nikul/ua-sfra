@@ -7,6 +7,7 @@ var references = {
     carousel: require('../components/common/Carousel').default,
     backToTop: require('../components/common/BackToTop').default,
     quickView: require('../components/product/QuickView').default,
+    notifyMe: require('org/components/product/NotifyMe').default,
     productDetail: require('../components/product/ProductDetail').default,
     productQuickView: require('../components/product/ProductQuickView').default,
     loadProducts: require('../components/common/LoadProducts').default,
@@ -68,6 +69,8 @@ var configuration = {
             carousel: {},
             backToTop: {},
             quickView: {},
+            formGeneric: {},
+            notifyMe: {},
             productQuickView: {},
             loadProducts: {},
             cartTile: {},
@@ -90,6 +93,7 @@ var configuration = {
     },
     product: {
         components: {
+            notifyMe: {},
             productDetail: {},
             detailBonusProductModal: {},
             formGeneric: {}
@@ -97,8 +101,11 @@ var configuration = {
     },
     cart: {
         components: {
+            formGeneric: {},
+            notifyMe: {},
             editBasketProduct: {},
-            cartBonusProductModal: {}
+            cartBonusProductModal: {},
+            idme: {}
         }
     },
     'order.confirmation': {

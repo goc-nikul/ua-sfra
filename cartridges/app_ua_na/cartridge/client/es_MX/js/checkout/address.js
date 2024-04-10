@@ -294,11 +294,14 @@ addressHelpersCore.sameAsShipping = function () {
             }
         } else {
             legendSoft.updateFieldsBackToNormal();
+            $('.billing-address-section.default-address').removeClass('default-address');
+            $('.billing-address-option[data-sameAsShipping=true]').closest('.billing-address-section').addClass('default-address');
+            $('.billing-address-option[data-sameAsShipping=true]').trigger('click');
             $billingFields.find('.billing-address-block').removeClass('display-billing-fields');
             $billingFields.find('.b-billing_heading_line').removeClass('display-required-text');
             $billingFields.attr('data-address-mode', 'edit');
             if ($billingFields.length > 0) {
-                $('.billing-address-block .addressSelector').find('.billing-address-option[data-addr-id=""]').trigger('click');
+                $('.billing-address-block .addressSelector').find('.billing-address-option[data-sameasshipping="true"]').trigger('click');
             }
             if (window.sitePreferences.qasAddressSuggestion) {
                 addressSuggestion();

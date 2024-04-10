@@ -1,14 +1,14 @@
 .g-modal {
     &-size-chart {
-        max-width: rem-calc(856);
-        margin-top: rem-calc(28);
+        max-width: 1032px;
+        margin-top: 160px;
 
         @include respond-to(mobile) {
             margin: spacing(xs2);
         }
 
         &-content {
-            padding: rem-calc(24) rem-calc(36) rem-calc(70) rem-calc(56);
+            padding: 56px;
 
             @include respond-to(mobile) {
                 padding: rem-calc(20) rem-calc(20)  rem-calc(75);
@@ -17,17 +17,24 @@
 
         &-header {
             margin-bottom: rem-calc(17);
+            display: flex;
+            flex-wrap: nowrap;
 
-            button {
+            .close {
+                @include icon(exit);
+
                 background: transparent;
                 border: 0;
+                margin-left: auto;
                 width: 16px;
                 height: 16px;
                 float: right;
-                @include icon(exit);
-
                 cursor: pointer;
                 color: $black;
+
+                @include respond-to(desktop) {
+                    margin-top: -24px;
+                }
             }
 
             .sr-only {

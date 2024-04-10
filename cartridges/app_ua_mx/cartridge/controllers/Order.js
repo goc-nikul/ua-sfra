@@ -22,6 +22,29 @@ if (countrySupportedReturnBox.includes(country)) {
 
 server.extend(module.superModule);
 
+/**
+ * Order-Confirm : Append this method to show the customer a 404 page if the order is past expiration
+ * @name Base/Order-Confirm
+ * @function
+ * @memberof Order
+ * @param {category} - sensitive
+ * @param {serverfunction} - append
+ */
+server.append('Confirm', function (req, res, next) {
+    var order = OrderMgr.getOrder(req.form.orderID, req.form.orderToken);
+
+    var token = req.form.orderToken ? req.form.orderToken : null;
+    if (!order
+        || !token
+        || token !== order.orderToken
+        || order.customer.ID !== req.currentCustomer.raw.ID
+    ) {
+        res.setStatusCode(404);
+        res.render('error/notFound');
+    }
+    return next();
+});
+
 server.replace(
     'RMAHistory',
     server.middleware.https,
@@ -141,7 +164,7 @@ server.replace(
             var exitLinkText = Resource.msg('link.orderdetails.orderhistory', 'account', null);
             var exitLinkUrl = URLUtils.https('Order-History', 'orderFilter', req.querystring.orderFilter);
             var viewData = res.getViewData();
-            var BVHelper = require('bc_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
+            var BVHelper = require('bm_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
             if (BVHelper.isRREnabled() || BVHelper.isQAEnabled()) {
                 viewData.bvScout = BVHelper.getBvLoaderUrl();
             }
@@ -297,7 +320,7 @@ server.replace(
             next();
         } else {
             var viewData = res.getViewData();
-            var BVHelper = require('bc_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
+            var BVHelper = require('bm_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
             if (BVHelper.isRREnabled() || BVHelper.isQAEnabled()) {
                 viewData.bvScout = BVHelper.getBvLoaderUrl();
             }

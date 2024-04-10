@@ -1,0 +1,271 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+    <isscript>
+        request.setLocale(pdict.Order.customerLocaleID);
+        var helper = require('*/cartridge/scripts/helpers/printOrder');
+        var localeResources = helper.getLocaleResources(pdict.Order.customerLocaleID)
+        var footerContent = helper.getFooterContent(pdict.Order.customerLocaleID);
+    </isscript>
+    <head>
+        <title>${localeResources.tabTitle}<isprint value="${pdict.Order.orderNo}"/></title>
+        <link rel="STYLESHEET" type="text/css" href="${URLUtils.staticURL('/css/enterprisesite.css')}"/>
+        <ismodule template = "inc/AddressInfoSmall_52.isml" name="AddressInfo" attribute="address"/>
+        <link rel="shortcut icon" href="${URLUtils.webRoot()}/images/favicon.ico" />
+    </head>
+
+    <body id="print_order" onload="window.print();">
+    <style>
+        .d-flex {
+           display: flex;
+        }
+        .bg-gray {
+            background-color: #bfbfbf;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .invoice {
+            margin: auto;
+            width: 80%;
+            font-family: sans-serif;
+            font-size: 14px;
+        }
+
+        .invoice-top {
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .invoice-top-left {
+            width: 30%;
+        }
+
+        .brand-logo {
+            width: 100px;
+        }
+
+        .logo-text {
+            font-size: 13px;
+        }
+
+        .invoice-txt {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 41px;
+            font-weight: 700;
+        }
+
+        .bill-ship {
+            justify-content: space-between;
+            width: 80%;
+            margin-bottom: 30px;
+        }
+        
+        .bill-to,
+        .ship-to {
+            width: 40%;
+        }
+
+        .bill-h,
+        .ship-h {
+            padding-right: 1rem;
+            font-weight: bold;
+        }
+
+        .invoice-table-1,
+        .invoice-table-2 {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .invoice-table-1 td,
+        .invoice-table-1 th {
+           text-align: center;
+        }
+        
+        .invoice-table-1 td,
+        .invoice-table-1 th,
+        .invoice-table-2 td,
+        .invoice-table-2 th{
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        .invoice-table-2 .text-left {
+            text-align: left;
+        }
+
+        .invoice-table-2 .text-right {
+            text-align: right;
+        }
+
+        .invoice-table-2 .unit-price,
+        .invoice-table-2 .vat,
+        .invoice-table-2 .sum
+        {
+            width: 5%
+        }
+
+        .invoice-table-2 .size {
+            width: 13%
+        }
+
+        .invoice-table-2 .article {
+            width: 13%;
+        }
+
+        .invoice-table-2 .vatPercent {
+            width: 8%
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .invoice-table-1 td, .invoice-table-1 th, .invoice-table-1,
+        .invoice-table-2 td, .invoice-table-2 th, .invoice-table-2 {
+            border: 1px solid black;
+            border-collapse: collapse;
+            font-size: 9px;
+        }
+
+        .strike {
+            display: block;
+            text-decoration: line-through;
+            padding-bottom: 3px;
+        }
+
+        .item-details td {
+            border-bottom-style: hidden;
+        }
+
+        .w-100-p {
+            width: 100px;
+        }
+        .font-w-bold {
+            font-weight: 700;
+        }
+
+        .page-break {
+            page-break-after: always;
+        }
+    
+        footer {
+            position: fixed;
+            bottom: 0;
+        }
+
+        @media print {
+            .invoice {
+                width: 100%;
+            }
+
+            .brand-logo {
+                width: 80px;
+            }
+
+            .invoice-txt {
+                font-size: 30px;
+            }
+
+            .brand-logo .logo {
+                width: 100%;
+            }
+
+            .bill-h {
+                padding-right: 1rem;
+                text-wrap: nowrap;
+            }
+
+            .bill-txt {
+                width: 70%;
+            }
+
+             .ship-h {
+                padding-right: 1rem;
+                text-wrap: nowrap;
+            }
+
+            .ship-txt {
+                width: 77%;
+            }
+        }
+    </style>
+    <div class="invoice">
+        <div class="invoice-top">
+            <div class="invoice-top-left">
+                <div class="brand-logo">
+                    <img class="logo" alt="${Resource.msg('forms.underArmour','forms',null)}"
+                        src="${URLUtils.staticURL('/images/favicons/favicon-16x16.svg')}" color='#000'>
+                </div>
+                <div class="logo-text font-w-bold">
+                <isprint value="${dw.system.Site.getCurrent().getCustomPreferenceValue('invoiceTaxInformation')}" encoding="off" />
+                </div>
+            </div>
+            <div class="invoice-txt">${localeResources.invoiceTitle}</div>
+        </div>
+
+        <div class="bill-ship d-flex">
+            <div class="bill-to d-flex">
+                <div class="bill-h">${localeResources.addressBillTo}</div>
+                <div>
+                    <div><isprint value="${pdict.Order.billingAddress.firstName}"/> <isprint value="${pdict.Order.billingAddress.lastName}"/></div>
+                    <div><isprint value="${pdict.Order.billingAddress.address1}"/> </div>
+                    <div><isprint value="${pdict.Order.billingAddress.address2}"/></div>
+                    <div>
+                        <isprint value="${pdict.Order.billingAddress.city + ','}"/>
+                        <isprint value="${pdict.Order.billingAddress.stateCode}"/>
+                        <isprint value="${pdict.Order.billingAddress.postalCode}"/>
+                    </div>
+                    <div><isprint value="${pdict.Order.billingAddress.countryCode.value}"/></div>
+                </div>
+            </div>
+
+            <div class="ship-to d-flex">
+                <div class="ship-h">${localeResources.addressShipTo}</div>
+                <div>
+                    <isloop iterator="${pdict.Order.shipments}" alias="Group">
+                    <div> <isprint value="${Group.shippingAddress.firstName}"/> <isprint value="${Group.shippingAddress.lastName}"/></div>
+                    <div><isprint value="${Group.shippingAddress.address1}"/></div>
+                    <div><isprint value="${Group.shippingAddress.address2}"/></div>
+                    <div>
+                        <isprint value="${Group.shippingAddress.city  + ','}"/>
+                        <isprint value="${Group.shippingAddress.stateCode}"/>
+                        <isprint value="${Group.shippingAddress.postalCode}"/>
+                    </div>
+                    <div><isprint value="${Group.shippingAddress.countryCode.value}"/></div>
+                </isloop>
+                </div>
+            </div>
+        </div>
+        <table class="invoice-table-1">
+            <tr>
+                <th class="bg-gray">${localeResources.invoiceNumber}</th>
+                <th class="bg-gray">${localeResources.orderNumber}</th>
+                <th class="bg-gray">${localeResources.currency}</th>
+                <th class="bg-gray">${localeResources.invoiceDate}</th>
+            </tr>
+            <tr>
+              <td><isprint value="${pdict.Order.invoiceNo}"/></td>
+              <td><isprint value="${pdict.Order.orderNo}"/></td>
+                <td><isprint value="${pdict.Order.currencyCode}"/></td>
+                <td><isprint value="${dw.util.StringUtils.formatCalendar(new dw.util.Calendar(new Date(pdict.Order.creationDate)), 'dd.MM.yyyy')}"/></td>
+            </tr>
+         </table>
+        <isinclude template="order/orderdetails"/>
+        <footer>
+            <isloop items="${footerContent}" var="content">
+                <isif condition="${!empty(content)}">
+                    <span><isprint value="${content}" encoding="on" /></span>
+                </isif>
+            </isloop>
+        </footer>
+    </div>
+    </body>
+</html>

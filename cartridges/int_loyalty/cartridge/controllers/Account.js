@@ -46,7 +46,7 @@ server.prepend('Login', function (req, res, next) {
 server.append('SubmitRegistration', function (req, res, next) {
     var isEnrollLoyalty = 'enrollloyalty' in req.form ? req.form.enrollloyalty : false;
     var isMarketingModal = 'marketingModal' in req.form ? req.form.marketingModal : false;
-    if (!loyaltyHelper.isLoyaltyEnabled() || !customer.authenticated || !isMarketingModal) {
+    if (!loyaltyHelper.isLoyaltyEnabled() || !customer.authenticated) {
         return next();
     }
     var enrollFailed = false;
@@ -57,11 +57,13 @@ server.append('SubmitRegistration', function (req, res, next) {
         enrollResponse = loyaltyHelper.enroll(req);
         enrollFailed = !enrollResponse.enrolled;
     }
-    var marketingLandingContentID = loyaltyHelper.getMarketingLandingContentID();
-    let responseJSON = res.viewData;
-    responseJSON.redirectUrl = URLUtils.url('Page-Show', 'cid', marketingLandingContentID, 'loyaltyGatedModal', enrollResponse.enrolled, 'enrollFailed', enrollFailed, 'member', 'new_member').toString();
-    responseJSON.loyaltyGatedModal = enrollResponse.enrolled;
-    res.json(responseJSON);
+    if (isMarketingModal) {
+        var marketingLandingContentID = loyaltyHelper.getMarketingLandingContentID();
+        let responseJSON = res.viewData;
+        responseJSON.redirectUrl = URLUtils.url('Page-Show', 'cid', marketingLandingContentID, 'loyaltyGatedModal', enrollResponse.enrolled, 'enrollFailed', enrollFailed, 'member', 'new_member').toString();
+        responseJSON.loyaltyGatedModal = enrollResponse.enrolled;
+        res.json(responseJSON);
+    }
 
     return next();
 });

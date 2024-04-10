@@ -21,6 +21,7 @@ function getOrderType(logicArgs) {
 function mapAppliedPromos(logicArgs) {
     const mappedOrderModel = logicArgs.orderData && logicArgs.orderData.mapped || {};
     const allPriceAdjustments = [].concat(
+        mappedOrderModel.pliPriceAdjustments || [],
         mappedOrderModel.priceAdjustments || [],
         mappedOrderModel.allShippingPriceAdjustments || []
     );

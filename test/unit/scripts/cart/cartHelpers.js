@@ -240,6 +240,31 @@ describe('app_ua_core/cartridge/scripts/cartHelpers test', () => {
         assert.equal(1, lineItemCtnr.getProductLineItems().length);
     });
 
+    it('Testing addProductToCart method with missing isPickupItem and missing storeID vartiable in queryString ', function () {
+        var lineItemCtnr = new LineItemCtnr();
+        global.req.form = {}
+        var result = cartHelpers.addProductToCart(lineItemCtnr, '883814258849', 1000, [], {}, null, global.req, true, 'Happy New year');
+        assert.equal(false, result.error);
+    });
+
+    it('Testing addProductToCart method with isPickupItem and missing storeID vartiable in queryString ', function () {
+        var lineItemCtnr = new LineItemCtnr();
+        global.req.form = {
+            isPickupItem : true
+        }
+        var result = cartHelpers.addProductToCart(lineItemCtnr, '883814258849', 1000, [], {}, null, global.req, true, 'Happy New year');
+        assert.equal(false, result.error);
+    });
+
+    it('Testing addProductToCart method with isPickupItem and storeID vartiable in queryString ', function () {
+        var lineItemCtnr = new LineItemCtnr();
+        global.req.form = {
+            isPickupItem : true
+        }
+        var result = cartHelpers.addProductToCart(lineItemCtnr, '883814258849', 1000, [], {}, '10011', global.req, true, 'Happy New year');
+        assert.equal(false, result.error);
+    });
+
     it('Testing getInventoryMessages: method', function () {
         var uuid = 'a676fd4366815425012af45074';
         var availableToSell = 0;
@@ -769,7 +794,7 @@ describe('app_ua_core/cartridge/scripts/cartHelpers test', () => {
                     };
                 }
             },
-            'dw/order/ShippingMgr': require('../../../mocks/dw/dw_order_ShippingMgr'),
+            'dw/order/ShippingMgr': require('../../mocks/dw/dw_order_ShippingMgr'),
             'dw/catalog/StoreMgr': {
                 getStore: function () {
                     return {
@@ -1138,5 +1163,45 @@ describe('app_ua_core/cartridge/scripts/cartHelpers test', () => {
         };
         cartHelpers.addProductToCart(lineItemCtnr, '883814258849', 1, [], {}, null, global.req, true, 'Happy New year', false);
         assert.equal(1, lineItemCtnr.getProductLineItems().length);
+    });
+    it('Testing method: setBasketPurchaseSite', function () {
+        var cartHelpers = proxyquire('../../../../cartridges/app_ua_core/cartridge/scripts/cart/cartHelpers', {
+            'app_storefront_base/cartridge/scripts/cart/cartHelpers': {},
+            '*/cartridge/scripts/util/array': require('../../../mocks/scripts/util/collections'),
+            '*/cartridge/scripts/util/collections': require('../../../mocks/scripts/util/collections'),
+            '*/cartridge/scripts/helpers/productHelpers': {},
+            'dw/catalog/StoreMgr': {},
+            '*/cartridge/scripts/checkout/checkoutHelpers': {},
+            '*/cartridge/scripts/helpers/instorePickupStoreHelpers': {},
+            'dw/catalog/ProductMgr': require('../../../mocks/dw/dw_catalog_ProductMgr'),
+            'dw/web/Resource': require('../../../mocks/dw/dw_web_Resource'),
+            'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction'),
+            'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
+            'dw/util/UUIDUtils': require('../../../mocks/dw/dw_util_UUIDUtils'),
+            'dw/order/ShippingMgr': require('../../../mocks/dw/dw_order_ShippingMgr'),
+            'dw/system/Site': {
+                getCurrent: function () {
+                    return {
+                        getID: function () {
+                            return 'US';
+                        }
+                    };
+                }
+            }
+        });
+        currentBasket = {
+            custom: {
+                purchaseSite: 'US'
+            }
+        };
+
+        cartHelpers.setBasketPurchaseSite(currentBasket);
+    });
+
+    it('Testing method: removeStoreInfoFromBasket', function () {
+        var currentBasket = new LineItemCtnr();
+        cartHelpers.removeStoreInfoFromBasket(currentBasket);
+        assert.isUndefined(currentBasket.shipments.get(0).custom.fromStoreId, 'fromStoreId was not removed from shipment');
+        assert.isUndefined(currentBasket.shipments.get(0).custom.shipmentType, 'shipmentType was not removed from shipment');
     });
 });

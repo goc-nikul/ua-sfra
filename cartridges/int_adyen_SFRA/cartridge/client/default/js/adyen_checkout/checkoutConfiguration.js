@@ -45,9 +45,13 @@ function getPaypalConfig() {
     },
     onError: function onError(error, component) {
       store.paypalTerminatedEarly = false;
+      if (error == 'CANCEL'){
+        document.querySelector('#cancelTransaction').value = true;
+      }
       if (component) {
         component.setStatus('ready');
       }
+      
       document.querySelector('#showConfirmationForm').submit();
     },
     onAdditionalDetails: function onAdditionalDetails(state) {
@@ -70,6 +74,7 @@ function getPaypalConfig() {
       if (store.formErrorsExist) {
         var clientSideValidation = require('org/components/common/clientSideValidation');
         clientSideValidation.checkMandatoryField($('#dwfrm_billing'));
+        store.paypalTerminatedEarly = false;
         return actions.reject();
       }
       return null;

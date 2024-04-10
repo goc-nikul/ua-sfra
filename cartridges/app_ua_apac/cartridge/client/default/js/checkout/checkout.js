@@ -5,9 +5,11 @@ var shippingHelpers = require('falcon/checkout/shipping');
 var shippingHelpersAPAC = require('./shipping');
 var availabilityHelper = require('org/checkout/availability');
 var billingHelpers = require('./billing');
-var summaryHelpers = require('falcon/checkout/summary');
+var summaryHelpers = require('site/checkout/summary');
 var formHelpers = require('org/checkout/formErrors');
 var scrollAnimate = require('org/components/scrollAnimate');
+var location = window.location;
+var history = window.history;
 var addressSuggestionHelpers = require('./qasAddressSuggesstion');
 var clientSideValidation = require('org/components/common/clientSideValidation');
 
@@ -243,6 +245,11 @@ var clientSideValidation = require('org/components/common/clientSideValidation')
                                     defer.reject();
                                 }
                             });
+                        } else {
+                            // Errors on form re-enable next-step-button
+                            $('.next-step-button button').removeAttr('data-clicked');
+                            $('.next-step-button button').removeAttr('disabled');
+                            $('.checkout-card-header').removeClass('pe-none');
                         }
                     } else {
                         $('#shippingAddressUseAsBillingAddress').val($('#shippingAsBilling').is(':checked'));
@@ -322,6 +329,7 @@ var clientSideValidation = require('org/components/common/clientSideValidation')
                                                 if (data && data.order) {
                                                     $('.b-checkout_right_summary_container').empty().html(response);
                                                     summaryHelpers.updateTotals(data.order.totals);
+                                                    summaryHelpers.updateDiscountTotals(data.order);
                                                     summaryHelpers.updatePromotionSummaryInformation(data.order);
                                                     summaryHelpers.updateOrderProductSummaryInformation(data.order, data.options);
                                                     availabilityHelper.updateOrderProductSummaryInformation(data.order, data.options);
@@ -409,6 +417,11 @@ var clientSideValidation = require('org/components/common/clientSideValidation')
                                     defer.reject(err.responseJSON);
                                 }
                             });
+                        } else {
+                            // Errors on form re-enable next-step-button
+                            $('.next-step-button button').removeAttr('data-clicked');
+                            $('.next-step-button button').removeAttr('disabled');
+                            $('.checkout-card-header').removeClass('pe-none');
                         }
                     }
                     return defer;
@@ -489,6 +502,9 @@ var clientSideValidation = require('org/components/common/clientSideValidation')
                                         if (data.fieldErrors.length) {
                                             data.fieldErrors.forEach(function (error) {
                                                 if (Object.keys(error).length) {
+                                                    if ($formBilling.attr('data-address-mode') !== 'details' && $formBilling.attr('data-address-mode') !== 'new') {
+                                                        $formBilling.attr('data-address-mode', 'details');
+                                                    }
                                                     formHelpers.loadFormErrors('.payment-form', error);
                                                 }
                                             });
@@ -506,6 +522,11 @@ var clientSideValidation = require('org/components/common/clientSideValidation')
                                 }
                             });
                         }
+                    } else {
+                        // Errors on form re-enable next-step-button
+                        $('.next-step-button button').removeAttr('data-clicked');
+                        $('.next-step-button button').removeAttr('disabled');
+                        $('.checkout-card-header').removeClass('pe-none');
                     }
 
                     if ($('.data-checkout-stage').data('customer-type') === 'registered') {
@@ -694,6 +715,7 @@ var clientSideValidation = require('org/components/common/clientSideValidation')
                                     availabilityHelper.getModalHtmlElement();
                                     availabilityHelper.fillModalElement(data.renderedTemplate);
                                     summaryHelpers.updateTotals(data.order.totals);
+                                    summaryHelpers.updateDiscountTotals(data.order);
                                     summaryHelpers.updatePromotionSummaryInformation(data.order);
                                     availabilityHelper.updateOrderProductSummaryInformation(data.order, data.options);
                                     $button.find('.b-cart-loader').addClass('hide');
@@ -713,6 +735,7 @@ var clientSideValidation = require('org/components/common/clientSideValidation')
                                         if ($('.coupons-and-promos .coupon-price-adjustment').length) {
                                             $('.coupons-and-promos').empty().append(data.updatedTotals.discountsHtml);
                                             summaryHelpers.updateTotals(data.updatedTotals);
+                                            summaryHelpers.updateDiscountTotals(data.order);
                                         }
                                     }
 
@@ -735,9 +758,13 @@ var clientSideValidation = require('org/components/common/clientSideValidation')
                                 // Adyen hpp case
                                 } else if (data.adyenAction) {
                                     window.orderToken = data.orderToken;
-                                    require('adyen/adyenCheckout').actionHandler(data.adyenAction);
+                                    require('falcon/adyen_checkout/adyenCheckout').actionHandler(data.adyenAction);
                                     defer.resolve(data);
-                                } else {
+                                } else if (data.continueUrl &&
+                                    (data.continueUrl.toLowerCase().indexOf('tosspay') !== -1 ||
+                                    data.continueUrl.toLowerCase().indexOf('naverpay') !== -1 ||
+                                    data.continueUrl.toLowerCase().indexOf('2c2p') !== -1)) {                                    // Due to SFRA upgrade to v6.3 place order requires post
+                                    // Toss & Naver cartridges use get and haven't been upgraded yet.
                                     var continueUrl = data.continueUrl;
                                     var urlParams = '';
                                     if (data.orderID != null && data.orderToken != null) {
@@ -754,6 +781,38 @@ var clientSideValidation = require('org/components/common/clientSideValidation')
                                         }).join('&');
 
                                     window.location.href = continueUrl;
+                                    defer.resolve(data);
+                                } else {
+                                    // Changes due to SFRA cartridge upgrade!
+                                    let redirect = $('<form>')
+                                            .appendTo(document.body)
+                                            .attr({
+                                                method: 'POST',
+                                                action: data.continueUrl
+                                            });
+                                    $('<input>')
+                                    .appendTo(redirect)
+                                    .attr({
+                                        name: 'orderID',
+                                        value: data.orderID,
+                                        type: 'hidden'
+                                    });
+
+                                    $('<input>')
+                                        .appendTo(redirect)
+                                        .attr({
+                                            name: 'orderToken',
+                                            value: data.orderToken,
+                                            type: 'hidden'
+                                        });
+                                    $('<input>')
+                                        .appendTo(redirect)
+                                        .attr({
+                                            name: 'order_checkout_optin',
+                                            value: data.order_checkout_optin,
+                                            type: 'hidden'
+                                        });
+                                    redirect.trigger('submit');
                                     defer.resolve(data);
                                 }
                             },
@@ -783,6 +842,11 @@ var clientSideValidation = require('org/components/common/clientSideValidation')
                 // set the initial state of checkout
                 members.currentStage = checkoutStages
                     .indexOf($('.data-checkout-stage').data('checkout-stage'));
+                // v6.3.0 has a new stage called 'customer' which is passed in by default during Checkout-Begin
+                // UA has not upgraded the extended cartridges from the upgrade yet.
+                if (members.currentStage < 0) {
+                    members.currentStage = 0;
+                }
                 $(plugin).attr('data-checkout-stage', checkoutStages[members.currentStage]);
 
                 //
@@ -797,6 +861,8 @@ var clientSideValidation = require('org/components/common/clientSideValidation')
                 //
                 $(plugin).on('click', '.next-step-button button', function () {
                     $('.next-step-button button').attr('data-clicked', 'true');
+                    $('.next-step-button button').attr('disabled', 'disabled');
+                    $('.checkout-card-header').addClass('pe-none');
                     members.nextStage();
                 });
                 // attach DropDown Lists Events
@@ -982,10 +1048,14 @@ var clientSideValidation = require('org/components/common/clientSideValidation')
                     // Update UI with new stage
                     members.handleNextStage(true);
                     $('.next-step-button button').removeAttr('data-clicked');
+                    $('.next-step-button button').removeAttr('disabled');
+                    $('.checkout-card-header').removeClass('pe-none');
                 });
 
                 promise.fail(function (data) {
                     $('.next-step-button button').removeAttr('data-clicked');
+                    $('.next-step-button button').removeAttr('disabled');
+                    $('.checkout-card-header').removeClass('pe-none');
                     // show errors
                     if (data) {
                         if (data.errorStage) {
@@ -1148,6 +1218,7 @@ var exports = {
         $('body').on('checkout:updateCheckoutView', function (e, data) {
             shippingHelpers.methods.updateMultiShipInformation(data.order);
             summaryHelpers.updateTotals(data.order.totals);
+            summaryHelpers.updateDiscountTotals(data.order);
             summaryHelpers.updatePromotionSummaryInformation(data.order);
             summaryHelpers.updateShippingSummarySection(data.order.shipping);
             var shipping = data.order.shipping[0];
@@ -1168,7 +1239,7 @@ var exports = {
             );
 
             if (currentStage === 'shipping' && $('div#adyen-component-content').length > 0) {
-                require('adyen/adyenCheckout').renderGenericComponent();
+                require('falcon/adyen_checkout/adyenCheckout').renderGenericComponent();
             }
             billingHelpers.methods.updateBillingInformation(
                 data.order,

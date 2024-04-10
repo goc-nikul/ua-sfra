@@ -59,18 +59,18 @@ describe('app_ua_core/cartridge/models/categories', function () {
     it('Testing method: categories (with subcategories)', () => {
         let topCategory = new Category();
         topCategory.custom.showInMenu = {
-            value: 'True'
+            value: 'true'
         };
         topCategory.custom.isCategoryOnline = {
-            value: 'True'
+            value: 'true'
         };
 
         let subCategory = new Category();
         subCategory.custom.showInMenu = {
-            value: 'True'
+            value: 'true'
         };
         subCategory.custom.isCategoryOnline = {
-            value: 'True'
+            value: 'true'
         };
         subCategory.ID = 'testID2';
 
@@ -87,18 +87,18 @@ describe('app_ua_core/cartridge/models/categories', function () {
     it('Testing method: categories (with subcategories)', () => {
         let topCategory = new Category();
         topCategory.custom.showInMenu = {
-            value: 'True'
+            value: 'true'
         };
         topCategory.custom.isCategoryOnline = {
-            value: 'True'
+            value: 'true'
         };
 
         let subCategory = new Category();
         subCategory.custom.showInMenu = {
-            value: 'True'
+            value: 'true'
         };
         subCategory.custom.isCategoryOnline = {
-            value: 'True'
+            value: 'true'
         };
         subCategory.ID = 'testID2';
 
@@ -115,18 +115,18 @@ describe('app_ua_core/cartridge/models/categories', function () {
     it('Testing method: categories (with subcategories)', () => {
         let topCategory = new Category();
         topCategory.custom.showInMenu = {
-            value: 'True'
+            value: 'true'
         };
         topCategory.custom.isCategoryOnline = {
-            value: 'True'
+            value: 'true'
         };
 
         let subCategory = new Category();
         subCategory.custom.showInMenu = {
-            value: 'True'
+            value: 'true'
         };
         subCategory.custom.isCategoryOnline = {
-            value: 'True'
+            value: 'true'
         };
         subCategory.custom.mobileHideParentCategory = true;
         subCategory.ID = 'testID2';
@@ -134,10 +134,10 @@ describe('app_ua_core/cartridge/models/categories', function () {
         let noProductsCategory = new Category();
         noProductsCategory.ID = 'noProductsCategory';
         noProductsCategory.custom.showInMenu = {
-            value: 'True'
+            value: 'true'
         };
         noProductsCategory.custom.isCategoryOnline = {
-            value: 'True'
+            value: 'true'
         };
         noProductsCategory.hasOnlineProducts = function () { return false };
         subCategory.subcategories.add(noProductsCategory);
@@ -145,10 +145,10 @@ describe('app_ua_core/cartridge/models/categories', function () {
         let mobileCategory = new Category();
         mobileCategory.ID = 'mobileCategory';
         mobileCategory.custom.showInMenu = {
-            value: 'True'
+            value: 'true'
         };
         mobileCategory.custom.isCategoryOnline = {
-            value: 'True'
+            value: 'true'
         };
         mobileCategory.hasOnlineSubCategories = function () { return true };
         subCategory.subcategories.add(mobileCategory);
@@ -166,10 +166,10 @@ describe('app_ua_core/cartridge/models/categories', function () {
     it('Testing method: extended custom attributes', () => {
         let topCategory = new Category();
         topCategory.custom.showInMenu = {
-            value: 'True'
+            value: 'true'
         };
         topCategory.custom.isCategoryOnline = {
-            value: 'True'
+            value: 'true'
         };
         topCategory.custom.alternativeUrl = 'Alternative URL Test';
         topCategory.custom.expandMobileCategory = true;

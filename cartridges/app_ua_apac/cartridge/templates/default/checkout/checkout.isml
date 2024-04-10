@@ -103,6 +103,14 @@
 	                           <button data-href="${URLUtils.https('Login-Show','rurl','2')}" class="g-button_secondary--black js-login g-button_base b-checkout_subheader-button">
 	                                ${Resource.msg('button.faster.login', 'checkout', null)}
 	                           </button>
+
+                            <isif condition="${pdict.mobileAuthEnabled}">
+                                <button data-href="${URLUtils.https('Login-CreateAccountModal')}" class="d-none b-header_account-link js-register">
+                                    ${Resource.msg('link.header.register', 'account', null)}
+                                </button>
+                                <span class="d-none js-init-mobileauth-login" data-href="${URLUtils.https('Login-InitiateMobileAuth', 'login', 'true')}">
+                                </span>
+                            </isif>
 	                        </div>
 					    </isif>
 				    </div>

@@ -8,9 +8,13 @@
         <isset name="robotMetaData" value="${currentSite.getCustomPreferenceValue('robotMetaData')}" scope="page"/>
         <isset name="noIndexMeta" value="${'noIndexMeta' in currentSite.preferences.custom && currentSite.getCustomPreferenceValue('noIndexMeta') ? currentSite.getCustomPreferenceValue('noIndexMeta') : ''}" scope="page"/>
         <isset name="allowCanonicalUrl" value="${currentSite.getCustomPreferenceValue('allowCanonicalUrl')}" scope="page"/>
-        <isif condition="${(!empty(pdict.productSearch) && (pdict.productSearch.count <= 2))}" >
+        <isset name="isCatLanding" value="${(!empty(pdict.category) && !empty(pdict.category.template) && pdict.category.template.indexOf('catLanding') > -1)}" scope="page"/>
+
+        <isif condition="${isCatLanding}">
+             <isset name="robotMetaData" value="${''}" scope="page"/>
+        <iselseif condition="${(!empty(pdict.productSearch) && (pdict.productSearch.count <= 2))}" />
             <isset name="robotMetaData" value="${noIndexMeta}" scope="page"/>
-        <iselseif condition="${!empty(pdict.QueryParams)}" >
+        <iselseif condition="${!empty(pdict.QueryParams)}" />
             <isloop items="${pdict.QueryParams}" var="queryParams">
                 <isif condition="${!empty(queryParams.key) && ['colorgroup', 'enduse', 'gender', 'division', 'subsilhouette', 'size', 'length', 'fittype', 'merchCollection', 'gearline', 'agegroup'].indexOf(queryParams.key) !== -1}">
                     <isif condition="${!empty(queryParams.value) && (queryParams.value.split('|').length > 1) || !empty(queryParams.value) && queryParams.key === "size" }">
@@ -24,9 +28,9 @@
             <isif condition="${((pdict.canonicalUrl).toString()).indexOf('?') > -1}" >
                 <isif condition="${(((pdict.canonicalUrl).toString()).indexOf('start') > -1 && ((pdict.canonicalUrl).toString()).indexOf('&') === -1)}" >
                     <link rel="canonical" href="${pdict.canonicalUrl}"/>
-                <iselseif condition="${((pdict.canonicalUrl).toString()).indexOf('start') > -1 && ((pdict.canonicalUrl).toString()).indexOf('&') > -1 && ((pdict.canonicalUrl).toString()).indexOf('sz') > -1}" >
+                <iselseif condition="${((pdict.canonicalUrl).toString()).indexOf('start') > -1 && ((pdict.canonicalUrl).toString()).indexOf('&') > -1 && ((pdict.canonicalUrl).toString()).indexOf('sz') > -1}" />
                     <link rel="canonical" href="${pdict.canonicalUrl}"/>
-                <iselseif condition="${(((pdict.canonicalUrl).toString()).indexOf('start') > -1 && ((pdict.canonicalUrl).toString()).indexOf('&') > -1)}" >
+                <iselseif condition="${(((pdict.canonicalUrl).toString()).indexOf('start') > -1 && ((pdict.canonicalUrl).toString()).indexOf('&') > -1)}" />
                      <isset name="refinedurl" value="${((pdict.canonicalUrl).toString()).split('&')[0]}" scope="page" />
                     <link rel="canonical" href="${refinedurl}"/>
                 <iselse/>
@@ -39,10 +43,22 @@
                 <iselse/>
                     <isif condition="${pdict.canonicalUrl.toString().lastIndexOf('/') !== pdict.canonicalUrl.toString().length-1 && !pdict.canonicalUrl.toString().includes('.html')}">
                         <link rel="canonical" href="${pdict.canonicalUrl}/"/>
-                    <iselse>
+                    <iselse/>
                         <link rel="canonical" href="${pdict.canonicalUrl}"/>
                     </isif>
                 </isif>
+            </isif>
+        </isif>
+
+        <iscomment>ConstructorIO custom search</iscomment>
+        <isset name="constructorIOHelper" value="${require('app_ua_core/cartridge/scripts/helpers/constructorIOHelper')}" scope="page"/>
+        <isset name="cio_search_enabled" value="${constructorIOHelper.isConstructorEnabled()}" scope="page"/>
+        <isset name="cio_browse_enabled" value="${'Category_Data_Source' in currentSite.preferences.custom && (currentSite.getCustomPreferenceValue('Category_Data_Source') === 1 || currentSite.getCustomPreferenceValue('Category_Data_Source') === 2)}" scope="page"/>
+        <isif condition="${(cio_search_enabled || cio_browse_enabled)}">
+            <isinclude template="/common/constructorIO" />
+            <isif condition="${typeof pdict.initialSearchParams !== 'undefined' && pdict.initialSearchParams !== ''}">
+                <link rel="preload" as="script" href="${URLUtils.staticURL('/js/constructorIOSearch.js')}"/>
+                <script async src="${URLUtils.staticURL('/js/constructorIOSearch.js')}"></script>
             </isif>
         </isif>
 
@@ -55,12 +71,14 @@
         </isif>
     </head>
     <body id="l-body" class="l-body ${require('*/cartridge/scripts/util/branchBannerCookie.js').cookieValue() === 'first' || pdict.cartRoute === 'hideBanner' ? 'hide-branch-banner' : ''}">
+        ${dw.system.HookMgr.callHook('app.template.gaEvent', 'gaEvent', pdict) || ''}
         <isinclude template="/components/header/svgLibrary" />
 
-        <div id="bodyPage" class="l-body-page js-page" data-action="${pdict.action}" data-querystring="${pdict.queryString}">
+        <div id="bodyPage" class="l-body-page js-page" data-action="${pdict.action}" data-querystring="${pdict.queryString}" data-wishlist="${URLUtils.url('Wishlist-ItemsAjax').toString()}">
             <isset name="currentSite" value="${dw.system.Site.current}" scope="page"/>
             <isset name="branchSDKKey" value="${'branchSDKKey' in currentSite.preferences.custom && currentSite.getCustomPreferenceValue('branchSDKKey') ? currentSite.getCustomPreferenceValue('branchSDKKey') : ''}" scope="page"/>
             <div class="branch-journeys-top" data-branchkey="${branchSDKKey}"></div>
+
             <div class="bfx-price-container bfx-disable-element-containter">
                 <isinclude template="/components/header/pageHeader" />
             </div>

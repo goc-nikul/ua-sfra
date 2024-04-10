@@ -1,4 +1,4 @@
-<isif condition="${'bvEnableRR_C2013' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR_C2013}">
+<isif condition="${'bvEnableRR' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR}">
 <isscript>
 var assets = require('*/cartridge/scripts/assets');
 if (pdict.bvScout){
@@ -37,6 +37,12 @@ if (pdict.bvScout){
                     <isif condition="${!(pdict.CurrentCustomer && pdict.CurrentCustomer.authenticated)}">
                         <isinclude template="cart/accountCreationSection" />
                     </isif>
+					<isif condition="${pdict.cartError}">
+						<div class="alert alert-danger error-message" role="alert">
+						<span class="error-icon"></span>
+						<p>${pdict.cartError}</p>
+						</div>
+					</isif>
                     <div class="b-cart-inner-content_left">
                         <h1 class="b-cart-page_title">${Resource.msg('title.your.shopping.cart','cart',null)}</h1>
                         <div class="b-cart-pli-content empty-pli">
@@ -76,6 +82,12 @@ if (pdict.bvScout){
 		                            </div>
 		                        </div>
 		                    <div class="b-cart-inner-content_left cart-left-inner">
+								<isif condition="${pdict.cartError}">
+									<div class="alert alert-danger error-message" role="alert">
+									<span class="error-icon"></span>
+									<p>${pdict.cartError}</p>
+									</div>
+								</isif>
 		                        <div class="valid-cart-error-msg"></div>
 			                    <h1 class="b-cart-page_title">
 			                    <span class="b-cart-content_spanno">${Resource.msg('title.your.shopping.cart','cart',null)}</span>
@@ -223,18 +235,20 @@ if (pdict.bvScout){
         <div class="b-cart-content_row">
 		    <div class="b-cart-content_left">
 		        <div class="b-cart-inner-content_left">
-		           <isif condition="${!pdict.items || pdict.items.length === 0}">
-		            <isslot id="cart-empty-m" description="Recommended products" context="global" />
-		           <iselse/>
-					<div class="cart-recommendations-slot-1 m-slot_4" data-styleid="${(pdict.items[0].custom && 'style' in pdict.items[0].custom && pdict.items[0].custom.style) ? pdict.items[0].custom.style: ''}">
-		             <isslot id="cart-recommendations-m" description="Cart recommended products" context="global" />
-					</div>
-					<div class="cart-recommendations-slot-2">
-					 <isif condition= "${('productCollection' in pdict) && pdict.productCollection !== null && pdict.productCollection.length > 0}">
-						<isslot id="cart-recommendations-2" description="Cart recommended products" context="global" context-object="${pdict.productCollection}" />
-					 </isif>
-					</div>
-		           </isif>
+					<isif condition="${!pdict.items || pdict.items.length === 0}">
+						<div class="cart-recommendations-slot-1 m-slot_4">
+							<isslot id="cart-empty-m" description="Recommended products" context="global" />
+						</div>
+					<iselse/>
+						<div class="cart-recommendations-slot-1 m-slot_4" data-styleid="${(pdict.items[0].custom && 'style' in pdict.items[0].custom && pdict.items[0].custom.style) ? pdict.items[0].custom.style: ''}">
+							<isslot id="cart-recommendations-m" description="Cart recommended products" context="global" />
+						</div>
+						<div class="cart-recommendations-slot-2">
+							<isif condition= "${('productCollection' in pdict) && pdict.productCollection !== null && pdict.productCollection.length > 0}">
+								<isslot id="cart-recommendations-2" description="Cart recommended products" context="global" context-object="${pdict.productCollection}" />
+							</isif>
+						</div>
+					</isif>
 		        </div>
 		    </div>
 		    <div class="b-cart-content_right"></div>

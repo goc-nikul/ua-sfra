@@ -34,12 +34,19 @@ describe('ProductSortOption model', function() {
     var sortingOption1 = {
         displayName: 'Sort Option 1',
         ID: 'abc',
-        sortingRule: 'rule1'
+        sortingRule: 'rule1',
+        sortingRule: {
+            ID: 'sortingRule1'
+        }
     };
     var sortingOption2 ={
         displayName: 'Sort Option 2',
         ID: 'cde',
-        sortingRule: 'rule2'
+        sortingRuleId: 'sotringRule2',
+        sortingRule: 'rule2',
+        sortingRule: {
+            ID: 'sortingRule2'
+        }
     };
     var sortingOptions = [sortingOption1, sortingOption2];
     var rootCategory = {
@@ -93,11 +100,13 @@ describe('ProductSortOption model', function() {
             assert.deepEqual(productSortOptions.options, [{
                 displayName: sortingOption1.displayName,
                 id: sortingOption1.ID,
+                sortingRuleId: sortingOption1.sortingRule.ID,
                 pageUrl: sortRuleUrlWithParams,
                 url: sortRuleUrlWithParams
             }, {
                 displayName: sortingOption2.displayName,
                 id: sortingOption2.ID,
+                sortingRuleId: sortingOption2.sortingRule.ID,
                 pageUrl: sortRuleUrlWithParams,
                 url: sortRuleUrlWithParams
             }]);

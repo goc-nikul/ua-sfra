@@ -32,7 +32,21 @@ ReturnsUtils.prototype = {
         var currentLocale = Locale.getLocale(request.locale);
         var countryCode = !empty(orderCustomerLocale) ? orderCustomerLocale.split('_')[1] : !empty(currentLocale) ? currentLocale.getCountry() : null;
 
-        if (empty(countryOverride) || empty(countryCode)) {
+        if (empty(countryCode)) {
+            return PreferencesUtil.getValue(preferenceName);
+        }
+
+        var carrierName;
+        var accountNumber;
+
+        var returnCountryOverride = PreferencesUtil.getJsonValue('returnCountryOverride');
+        var countrySpecificReturnConfig = !empty(returnCountryOverride) ? returnCountryOverride[countryCode] : null;
+        if (!empty(countrySpecificReturnConfig) && countrySpecificReturnConfig.carrierName) {
+            carrierName = countrySpecificReturnConfig.carrierName;
+            accountNumber = countrySpecificReturnConfig.accountNumber;
+        }
+
+        if (empty(countryOverride)) {
             return PreferencesUtil.getValue(preferenceName);
         }
 
@@ -40,8 +54,27 @@ ReturnsUtils.prototype = {
 
         if (empty(preferenceValue)) {
             preferenceValue = PreferencesUtil.getValue(preferenceName);
+            var preferenceJsonValue = PreferencesUtil.getJsonValue(preferenceName);
+
+            if (carrierName && accountNumber && !empty(preferenceJsonValue) && typeof preferenceJsonValue === 'object' && Object.keys(preferenceJsonValue).length > 0) {
+                preferenceJsonValue.carrierName = carrierName;
+                preferenceJsonValue.accountNumber = accountNumber;
+                preferenceValue = JSON.stringify(preferenceJsonValue);
+            }
+
+            if (!empty(preferenceValue) && !empty(preferenceValue.value)) {
+                preferenceValue = preferenceValue.value;
+                if (!empty(carrierName) && preferenceName === 'returnService') {
+                    // overwrite the returnService with given carrier name
+                    preferenceValue = carrierName;
+                }
+            }
         } else if (preferenceName === 'returnAddress' || preferenceName === 'returnFromAddress' || preferenceName === 'returnShipperAddress') {
             // returnAddress and returnFromAddress and returnShipperAddress are expected to be returned as JSON objects
+            if (typeof preferenceValue === 'object') {
+                preferenceValue.carrierName = carrierName;
+                preferenceValue.accountNumber = accountNumber;
+            }
             preferenceValue = JSON.stringify(preferenceValue);
         }
 
@@ -446,18 +479,32 @@ ReturnsUtils.prototype = {
             } catch (e) {
                 Logger.error('ReturnUtils.ds error. Cannot format tracking link parameters:  ' + e);
             }
-            if ((Site.current.ID === 'UKIE' || Site.current.ID === 'EU') && (!empty(order.custom.sapCarrierCode) && !empty(serviceParam)) && (order.custom.sapCarrierCode === 'DHL-BBX' || order.custom.sapCarrierCode === 'FED-PUP' || order.custom.sapCarrierCode === 'DHL-ECX')) {
+            if ((Site.current.ID === 'UKIE' || Site.current.ID === 'EU') && (!empty(order.custom.sapCarrierCode) && !empty(serviceParam)) && (order.custom.sapCarrierCode === 'DHL-BBX' || order.custom.sapCarrierCode === 'FED-PUP' || order.custom.sapCarrierCode === 'DHL-ECX' || order.custom.sapCarrierCode === 'DHLM' || order.custom.sapCarrierCode === 'DHLG' || order.custom.sapCarrierCode === 'DHL1' || order.custom.sapCarrierCode === 'DHL-PUP' || order.custom.sapCarrierCode === 'FEG1' || order.custom.sapCarrierCode === 'FED-EXP' || order.custom.sapCarrierCode === 'DHL-P01' || order.custom.sapCarrierCode === 'DHPG' || order.custom.sapCarrierCode === 'DHPX' || order.custom.sapCarrierCode === 'DHL-P03')) {
                 var trackURL = 'https://' + Site.getCurrent().getCustomPreferenceValue('narvarRetailerName') + '.narvar.com/' + Site.getCurrent().getCustomPreferenceValue('narvarRetailerName') + '/tracking';
-                if (order.custom.sapCarrierCode === 'DHL-BBX' || order.custom.sapCarrierCode === 'DHL-ECX') {
+                if (order.custom.sapCarrierCode === 'DHL-BBX' || order.custom.sapCarrierCode === 'DHL-ECX' || order.custom.sapCarrierCode === 'DHLM' || order.custom.sapCarrierCode === 'DHL-PUP' || order.custom.sapCarrierCode === 'DHLG' || order.custom.sapCarrierCode === 'DHL1') {
                     trackURL += '/dhlexpresseu';
                     if (order.custom.sapCarrierCode === 'DHL-BBX') {
                         serviceParam = '65';
-                    } else if (order.custom.sapCarrierCode === 'DHL-ECX') {
+                    } else if (order.custom.sapCarrierCode === 'DHL-ECX' || order.custom.sapCarrierCode === 'DHL1') {
                         serviceParam = 'EX';
+                    } else if (order.custom.sapCarrierCode === 'DHLM') {
+                        serviceParam = 'E1';
+                    } else if (order.custom.sapCarrierCode === 'DHL-PUP' || order.custom.sapCarrierCode === 'DHLG') {
+                        serviceParam = 'dhlesu';
                     }
-                } else if (order.custom.sapCarrierCode === 'FED-PUP') {
+                } else if (order.custom.sapCarrierCode === 'FED-PUP' || order.custom.sapCarrierCode === 'FEG1' || order.custom.sapCarrierCode === 'FED-EXP') {
                     trackURL += '/fedex';
-                    serviceParam = 'FG';
+                    if (order.custom.sapCarrierCode === 'FED-PUP' || order.custom.sapCarrierCode === 'FEG1') {
+                        serviceParam = 'IG';
+                    } else if (order.custom.sapCarrierCode === 'FED-EXP') {
+                        serviceParam = 'E1';
+                    }
+                } else if (order.custom.sapCarrierCode === 'DHL-P01' || order.custom.sapCarrierCode === 'DHPG') {
+                    trackURL += '/dhlpbenelux';
+                    serviceParam = '4U';
+                } else if (order.custom.sapCarrierCode === 'DHPX' || order.custom.sapCarrierCode === 'DHL-P03') {
+                    trackURL += '/dhlparcel';
+                    serviceParam = 'PC';
                 }
                 trackingLink = trackURL;
             }
@@ -668,7 +715,7 @@ ReturnsUtils.prototype = {
     failNotProcessedReturnCases: function (order) {
         var returnCases = order.getReturnCases();
         collections.forEach(returnCases, function (orderRetCase) {
-            if (orderRetCase.returns.empty && orderRetCase.status === dw.order.ReturnCase.STATUS_NEW) {
+            if (orderRetCase.returns.empty && orderRetCase.status.value === dw.order.ReturnCase.STATUS_NEW) {
                 collections.forEach(orderRetCase.items, function (item) {
                     item.setStatus(item.STATUS_CANCELLED);
                 });
@@ -691,7 +738,7 @@ ReturnsUtils.prototype = {
         var returnCases = order.getReturnCases();
         collections.forEach(returnCases, function (orderRetCase) {
             if (!empty(pliReason)) return;
-            if (orderRetCase.status === dw.order.ReturnCase.STATUS_NEW && orderRetCase.returns.empty) {
+            if (orderRetCase.status.value === dw.order.ReturnCase.STATUS_NEW && orderRetCase.returns.empty) {
                 var returnRefundItems = orderRetCase.custom.refundItems;
                 if (!empty(returnRefundItems) && returnRefundItems.indexOf(lineItem.sku + '-' + lineItem.qty) !== -1) {
                     collections.forEach(orderRetCase.items, function (retItem) {
@@ -706,7 +753,7 @@ ReturnsUtils.prototype = {
         if (empty(pliReason)) {
             collections.forEach(returnCases, function (orderRetCase) {
                 if (!empty(pliReason)) return;
-                if (orderRetCase.status === dw.order.ReturnCase.STATUS_NEW && orderRetCase.returns.empty) {
+                if (orderRetCase.status.value === dw.order.ReturnCase.STATUS_NEW && orderRetCase.returns.empty) {
                     var returnRefundItems = orderRetCase.custom.refundItems;
                     if (!empty(returnRefundItems) && returnRefundItems.indexOf(lineItem.sku) !== -1) {
                         collections.forEach(orderRetCase.items, function (retItem) {
@@ -748,7 +795,7 @@ ReturnsUtils.prototype = {
                 return;
             }
             var returnRefundItems = orderRetCase.custom.refundItems;
-            if (!empty(returnRefundItems) && returnRefundItems.length === lineItems.length && orderRetCase.status === dw.order.ReturnCase.STATUS_NEW) {
+            if (!empty(returnRefundItems) && returnRefundItems.length === lineItems.length && orderRetCase.status.value === dw.order.ReturnCase.STATUS_NEW) {
                 for (let i = 0; i < lineItems.length; i++) {
                     if (returnRefundItems.indexOf(lineItems[i].sku + '-' + lineItems[i].qty) < 0) {
                         return; // if ReturnCase has no one of refund items then break;
@@ -865,7 +912,7 @@ ReturnsUtils.prototype = {
     },
 
     failReturn: function (Return) {
-        if (!empty(Return)) {
+        if (!empty(Return) && Return.status && Return.status.value !== Return.STATUS_COMPLETED) {
             Return.setNote('Return can not be created. There is no needed returnable quantity for return items.');
             Return.setStatus(Return.STATUS_COMPLETED);
             var invoice = Return.createInvoice();

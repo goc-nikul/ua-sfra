@@ -110,8 +110,9 @@ server.replace('GetSuggestions', cache.applyPromotionSensitiveCache, function (r
         const suggestions = getSuggestions(req.querystring.q, req.querystring.isMobilePortraitView);
         const productHelper = require('*/cartridge/scripts/helpers/ProductHelper');
         const enableAvailablePerLocale = productHelper.enableAvailablePerLocale();
+        const showPLPImageSlider = productHelper.enablePLPImageSlider();
         if (Object.keys(suggestions).length > 0) {
-            res.render('search/suggestions', { suggestions: suggestions, personalized: res.personalized, enableAvailablePerLocale: enableAvailablePerLocale });
+            res.render('search/suggestions', { suggestions: suggestions, personalized: res.personalized, enableAvailablePerLocale: enableAvailablePerLocale, showPLPImageSlider: showPLPImageSlider });
         } else {
             res.json({});
         }

@@ -63,7 +63,9 @@ server.get('GetPaypalConsumerObj', server.middleware.https, function (req, res, 
     var consumerObject;
     try {
         var basket = BasketMgr.getCurrentBasket();
-        consumerObject = aurusPayHelper.getPaypalConsumerObject(req, basket);
+        if (basket && basket.totalGrossPrice && basket.totalGrossPrice.value) {
+            consumerObject = aurusPayHelper.getPaypalConsumerObject(req, basket);
+        }
     } catch (error) {
         Logger.error('ERROR: Error while executing Aurus-GetPaypalConsumerObj :: error message : {0} :: customer browser details : {1} :: customer authenticated : {2}', error.message, request.httpUserAgent, session.customerAuthenticated);
     }
@@ -147,7 +149,7 @@ server.replace('GetBillerToken', server.middleware.https, function (req, res, ne
             Logger.error('ERROR: Error while executing Aurus-GetBillerToken :: {0}', error.message);
         }
 
-        if (session.ok) {
+        if (session && session.ok) {
             session = session.object.text;
         } else {
             session = null;

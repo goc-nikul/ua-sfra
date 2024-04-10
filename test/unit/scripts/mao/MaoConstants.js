@@ -8,6 +8,7 @@ const proxyquire = require('proxyquire').noCallThru().noPreserveCache();
 
 describe('int_mao/cartridge/scripts/MaoConstants.js', () => {
     var MaoConstants = proxyquire('../../../../cartridges/int_mao/cartridge/scripts/MaoConstants.js', {
+        'dw/system/Site': require('../../../mocks/dw/dw_system_Site')
     });
 
     it('MessageHeader Constant is defined', () => {

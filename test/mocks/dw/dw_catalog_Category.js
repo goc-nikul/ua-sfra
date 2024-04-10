@@ -5,7 +5,8 @@ var Collection = require('./dw_util_Collection');
 class Category {
     constructor() {
         this.custom = {
-            hideInMobileNavigation: false
+            hideInMobileNavigation: false,
+            showInMenu: true
         };
         this.ID = 'testID';
         this.displayName = 'testDisplayName';

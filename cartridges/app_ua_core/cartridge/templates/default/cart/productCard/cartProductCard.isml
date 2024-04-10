@@ -21,12 +21,17 @@
             <a href="${prodURL}">
                 <img src="${typeof lineItem.images.cartFullDesktop[0] !== 'undefined' ? lineItem.images.cartFullDesktop[0].url : null}" title="${typeof lineItem.images.cartFullDesktop[0] !== 'undefined' ? lineItem.images.cartFullDesktop[0].title : null}" class="line-item-product-image bfx-product-image" alt="${typeof lineItem.images.cartFullDesktop[0] !== 'undefined' ? lineItem.images.cartFullDesktop[0].alt : null} image number ${typeof lineItem.images.cartFullDesktop[0] !== 'undefined' ? lineItem.images.cartFullDesktop[0].index :null}" itemprop="image" />
             </a>
+            <isif condition="${'masterQtyLimit' in lineItem.custom && lineItem.custom.masterQtyLimit}">
+                ${Resource.msgf('error.alert.master.quantity.limit.reached', 'product',  null, lineItem.custom.masterQtyLimit)}
+            </isif>
             <isif condition="${(!dw.system.Site.current.getCustomPreferenceValue('isBOPISEnabled') || typeof shipment !== "undefined" && !'fromStoreId' in shipment.custom || typeof shipment !== "undefined" && !shipment.custom.fromStoreId) && isUrgentMessageEnabled && 'atsValue' in lineItem.custom && lineItem.custom.atsValue > 0 && lineItem.custom.atsValue <= inventoryThreshold}">
                 <span class="b-urgent-message">${Resource.msg('msg.cart.inventory.urgency', 'cart', null)}</span>
             </isif>
         </div>
-        <isif condition="${!pdict.isVIP && dw.system.Site.getCurrent().getCustomPreferenceValue('isBOPISEnabled')}">
-        <span class="b-cartlineitem_right-content">
+        <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('isBOPISEnabled')}">
+         <span class="b-cartlineitem_right-content">
+         <iselse>
+          <span class="b-cartlineitem_right-content-nobopis">
         </isif>
         <div class="b-cartlineitem_details">
             <isinclude template="cart/productCard/cartProductCardHeader" />
@@ -42,6 +47,30 @@
                     <p class="t-lineitem_attributes gcrecipientemail"><span><isprint value="${Resource.msg('giftcard.details.email', 'cart', null) + ': '}"/></span><span class="egiftcard-value"><isprint value="${lineItem.custom.gcRecipientEmail}"/></span></p>
                     <p class="t-lineitem_attributes gcfrom"><span><isprint value="${Resource.msg('giftcard.details.from', 'cart', null) + ': '}"/></span><span class="egiftcard-value"><isprint value="${lineItem.custom.gcFrom}"/></span></p>
                     <p class="t-lineitem_attributes gcdeliverydate"><span><isprint value="${Resource.msg('giftcard.details.delivery', 'cart', null) + ': '}"/></span><span class="egiftcard-value"><isprint value="${lineItem.custom.gcDeliveryDate}" formatter="MM/dd/yyyy" timezone="utc"/></span></p>
+                    <isif condition="${!lineItem.isBonusProductLineItem}"/>
+			            <div class="b-cartlineitem_price price-mobile gcpricemobile">			                
+			                <div class="b-productcard_total_price line-item-total-price gcprice">   
+                                <div class="item-total-${typeof lineItem !=='undefined' ? lineItem.UUID : ''} price">
+			                        <span class="bfx-original-price ${lineItem.priceTotal.strikeThroughPrice ? 'highlighted strike-through' : ''}
+                                    <isif condition=${!lineItem.priceTotal.strikeThroughPrice}>non-adjusted-price</isif>">
+                                        <isprint value=${lineItem.priceTotal.strikeThroughPrice} encoding="off" />
+                                    </span>
+                                    <span class="${lineItem.priceTotal.strikeThroughPrice ? 'highlighted' : ''} pricing line-item-total-price-amount bfx-product-subtotal item-total-${typeof lineItem !== 'undefined' ? lineItem.UUID : null}">
+                                        <isprint value=${lineItem.priceTotal.price} encoding="off" />
+                                    </span> 
+			                    </div>
+			                    <isif condition="${lineItem.bfPriceTotal && !empty(lineItem.bfPriceTotal.adjustedUnitPrice)}"> 
+                                    <span class="cart-item-list-${typeof lineItem !=='undefined' ? lineItem.UUID :''} bfx-price bfx-list-price hide">${lineItem.custom.giftCard === 'EGIFT_CARD' ? lineItem.priceTotal.price : lineItem.bfPriceTotal.adjustedUnitPrice}</span>
+                                <iselse>
+                                    <isif condition="${lineItem.price.sales}">
+                                        <span class="cart-item-list-${typeof lineItem !=='undefined' ? lineItem.UUID :''}  bfx-list-price hide">${lineItem.custom.giftCard === 'EGIFT_CARD' ? lineItem.priceTotal.price : (lineItem.price.sales && lineItem.price.sales.formatted) ? lineItem.price.sales.formatted : ''}</span>
+                                    <iselse>
+                                        <span class="cart-item-list-${typeof lineItem !=='undefined' ? lineItem.UUID :''}  bfx-list-price hide">${lineItem.custom.giftCard === 'EGIFT_CARD' ? lineItem.priceTotal.price : ''}</span>
+                                    </isif>
+                                </isif>
+			                </div>
+			            </div>
+			        </isif>
                 <iselse/>
                     <isloop items="${lineItem.variationAttributes}" var="attribute">
                         <isif condition="${attribute.attributeId == 'color'}">
@@ -79,6 +108,14 @@
                                         <span class="cart-item-list-${typeof lineItem !=='undefined' ? lineItem.UUID :''} bfx-price bfx-list-price hide">${lineItem.custom.giftCard === 'EGIFT_CARD' ? lineItem.priceTotal.price : ''}</span>
                                     </isif>
                                 </isif>
+
+                                <!-- Member Price badge -->
+                                <div class="cart-member-price">
+                                    <isif condition="${lineItem.memberPricing && lineItem.memberPricing.hasMemberPrice && lineItem.memberPricing.memberPromoApplied}">
+                                        <isprint value="${lineItem.memberPricing.pricing.badgeHtml}" encoding="off" />
+                                    </isif>
+                                </div>
+
 			                </div>
 			            </div>
 			        </isif>
@@ -133,9 +170,19 @@
                         <span class="cart-item-list-${typeof lineItem !=='undefined' ? lineItem.UUID :''} bfx-price bfx-list-price hide">${lineItem.custom.giftCard === 'EGIFT_CARD' ? lineItem.priceTotal.price : formattedSalesPrice}</span>
                     </isif>
                 </div>
+
+                <!-- Member Price badge -->
+                <div class="cart-member-price">
+                    <isif condition="${lineItem.memberPricing && lineItem.memberPricing.hasMemberPrice && lineItem.memberPricing.memberPromoApplied}">
+                        <isprint value="${lineItem.memberPricing.pricing.badgeHtml}" encoding="off" />
+                    </isif>
+                </div>
             </div>
         </isif>
         <div class="b-cartlineitem_remove_edit ${isEGiftCardProduct || isGiftCardProduct ? '' : 'b-no_egiftcard'} ${dw.system.Site.getCurrent().getCustomPreferenceValue('isBOPISEnabled') && lineItem.custom.availableForInStorePickup !== false && !pdict.isBorderFreeUser ? '' : 'b-cartlineitem_remove_edit-right'}">
+            <div class="b-product_promoCallout ${isEGiftCardProduct ? 'b-is_egiftcard' : ''}">
+             <isinclude template="cart/productCard/cartProductPromoCalloutMessage"/>
+            </div>
             <isif condition="${!pdict.isVIP && dw.system.Site.getCurrent().getCustomPreferenceValue('isBOPISEnabled') && lineItem.custom.availableForInStorePickup !== false && !pdict.isBorderFreeUser}">
                 <div class="b-cartlineitem_shipments js-instorepickup" data-modal-close-text="${Resource.msg('label.modal.close.text','instorePickup',null)}">
                     <isinclude template="cart/productCard/cartProductCardShipment" />
@@ -154,7 +201,9 @@
             </div>
         </div>
         <isif condition="${!pdict.isVIP && dw.system.Site.getCurrent().getCustomPreferenceValue('isBOPISEnabled')}">
-        </span>
+            </span>
+        <iselse>
+            </span>
         </isif>
     </div>
      <isif condition="${lineItem.bonusProductLineItemUUID === 'bonus'}">

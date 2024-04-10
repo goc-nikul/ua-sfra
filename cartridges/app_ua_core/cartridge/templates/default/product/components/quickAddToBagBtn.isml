@@ -1,0 +1,41 @@
+<iscontent type="text/html" charset="UTF-8" compact="true" />
+
+<isset name="product" value="${typeof product != 'undefined' ? product : item}" scope="page" />
+<isset name="isQATBEnabled" value="${'isQuickATCenabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.getCustomPreferenceValue('isQuickATCenabled')}" scope="page" />
+<isset name="isNotGiftCard" value="${product.custom === 'undefined' || empty(product.custom.giftCard) || (!empty(product.custom.giftCard) && product.custom.giftCard !== 'EGIFT_CARD')}" scope="page" />
+
+<isset name="isOrderable" value="${pdict.orderable}" scope="page" />
+<isset name="quantity" value="${pdict.quantity}" scope="page" />
+
+<isset name="singleVariationID" value="${pdict.singleVariationID}" scope="page" />
+<isset name="masterProductID" value="${pdict.masterProductID}" scope="page" />
+
+<isset name="quickViewUrl" value="${pdict.urls ? pdict.urls.quickView : URLUtils.url('Product-ShowQuickView', 'pid', masterProductID, 'source', '', 'quickAdd', isQATBEnabled)}" scope="page" />
+<isset name="earlyAccessObject" value="${'earlyAccess' in product.custom ? product.custom.earlyAccess : false}" scope="page" />
+<isset name="hasMemberPrice" value="${pdict.variantProductModel && pdict.variantProductModel.memberPricing.hasMemberPrice}" scope="page" />
+<isif condition="${isQATBEnabled && isNotGiftCard}">
+    <div class="b-tile-badge_bottom_right">
+        <isif condition="${(earlyAccessObject && earlyAccessObject.isEarlyAccessProduct) || hasMemberPrice}">
+            <a href="${productURL}">
+                <i class="icon-qatc"></i>
+            </a>
+        <iselseif condition="${!empty(singleVariationID) && !empty(masterProductID)}">
+            <isif condition="${dw.system.Site.current.getCustomPreferenceValue('IsNotifyMeEnabled')}">
+                <a href="javascript:void(0)" data-href="${URLUtils.url('Notifyme-Modal')}" data-cmp="notifyMe" class="b-notify-cta${isOrderable ? ' hide' : ''}" data-pid="${singleVariationID}">
+                    <i class="icon-qatc"></i>
+                </a>
+            </isif>
+            <a data-url="${URLUtils.url('Cart-AddProduct', 'source', 'quickadd').relative().toString()}" data-confirmation-modal-url="${URLUtils.url('Cart-cartAddedConfirmationModal')}" href="javascript:void(0)" data-mpid="${masterProductID}" data-pid="${singleVariationID}" data-qty="${quantity.toFixed(0)}" class="b-tile-quickAdd-cta js-tile-quickAdd_button"  data-quickadd="${isQATBEnabled}"
+            >
+                <i class="icon-qatc"></i>
+            </a>
+        <iselse/>
+            <a href="${productURL}" data-href="${quickViewUrl}" class="b-tile-quickView-cta js-tile-quickView_button quickview"
+                data-toggle="modal"
+                data-target="#quickViewModal"
+            >
+                <i class="icon-qatc"></i>
+            </a>
+        </isif>
+    </div>
+</isif>

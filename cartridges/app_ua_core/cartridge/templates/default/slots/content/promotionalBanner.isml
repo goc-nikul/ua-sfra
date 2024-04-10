@@ -1,11 +1,22 @@
 <isif condition="${slotcontent != null}">
+<isinclude template="/components/modules" />
 
-<isif condition="${slotcontent.slotID == "global-message-banner"}"><div class="b-global-message-banner__wrapper"></isif>
-	<div class="promo-banner__wrapper" data-assets="${slotcontent.content.length}">
-		<div class="promo-banner-slider">
+<isset name="slotConfigurationJSON" value="${require('~/cartridge/scripts/utils/JsonUtils').parse(slotcontent.custom.JSONData)}" scope="page" />
+<isset name="globalMessageBanner" value="${slotcontent.slotID == "global-message-banner" ? true : false}" scope="page" />
+
+<isif condition="${globalMessageBanner}"><div class="b-global-message-banner__wrapper g-carousel"></isif>
+	<div class="promo-banner__wrapper <isif condition="${globalMessageBanner}">js-carousel swiper-container</isif>" data-assets="${slotcontent.content.length}"
+		<isif condition="${globalMessageBanner}">
+			data-cmp="carousel"
+			<isif condition="${slotConfigurationJSON.carouselConfiguration}">
+				data-json-config="${JSON.stringify(slotConfigurationJSON.carouselConfiguration)}"
+			</isif>
+		</isif>
+	>
+		<div class="promo-banner-slider <isif condition="${globalMessageBanner}">g-carousel-wrapper swiper-wrapper js-swiper-wrapper m-more-one</isif>">
 			<isloop items="${slotcontent.content}" var="contentAsset" status="loopState">
 				<isif condition="${loopState.index < 3}">
-					<div class="js-promo-header-banner promo-banner__slide-${loopState.index}" data-analytics-type="bm-header-text-link" 
+					<div class="js-promo-header-banner <isif condition="${globalMessageBanner}">g-carousel-slide swiper-slide</isif> promo-banner__slide-${loopState.index}" data-analytics-type="bm-header-text-link" 
 				    data-analytics-id="${contentAsset.ID}" data-analytics-variant="${slotcontent.slotID}">
 
 						<div class="promo-desktop-layout">
@@ -53,5 +64,27 @@
 		</isloop>
 
 	</div>
-	<isif condition="${slotcontent.slotID == "global-message-banner"}"></div></isif>
+	<isif condition="${slotcontent.slotID == "global-message-banner"}">
+		</div>
+		<script>
+			if (typeof triggerComponentInitEvent === 'function') {
+					triggerComponentInitEvent();
+			} else {
+				var triggerComponentInitEvent = function() {
+					const event = new Event('components:init');
+					document.body.dispatchEvent(event);
+					setTimeout(function() {
+						const carouselReinitEvent = new Event('carousel:reinit');
+						document.body.dispatchEvent(carouselReinitEvent);
+					}, 5000);
+				};
+
+				if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement.doScroll)) {
+					triggerComponentInitEvent();
+				} else {
+					document.addEventListener("DOMContentLoaded", triggerComponentInitEvent);
+				}
+			}
+		</script>
+	</isif>
 </isif>

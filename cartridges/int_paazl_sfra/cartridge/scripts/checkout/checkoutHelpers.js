@@ -30,6 +30,8 @@ function placeOrder (order, fraudDetectionStatus) {
                 Transaction.wrap(function () {
                     order.custom.notSavedInPaazl = true;
                     order.custom.failedAttempts = 0;
+                    order.custom.notSavedPaazlShipping = true;
+                    order.custom.failedShipmentAttempts = 0;
                 });
             }
         }

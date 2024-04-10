@@ -50,10 +50,25 @@
     &-container {
         padding-left: 1rem;
         padding-right: 1rem;
+
         @include respond-to(desktop) {
             padding: 0 3.5rem;
             margin: 0 auto;
             max-width: 1440px;
+        }
+
+        &.constructor-loading {
+            height: 312px;
+            opacity: 0;
+            cursor: wait;
+
+            @include respond-to(desktop) {
+                height: 283px;
+            }
+
+            > * {
+                pointer-events: none;
+            }
         }
     }
 

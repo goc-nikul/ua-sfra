@@ -38,7 +38,7 @@
         <div class="invalid-feedback" id="form-password-error"></div>
     </div>
 
-    <div class="b-invalid-cred"></div>
+    <div class="b-invalid-cred" data-blocked-msg="${Resource.msg('login.blocked.msg', 'login', null)}"></div>
 
     <div class="b-input_row-combine">
         <div class="g-checkbox form-group custom-control custom-checkbox pull-left remember-me">
@@ -76,6 +76,8 @@
     <isif condition="${pdict.returnUrl}">
         <input type="hidden" name="returnUrl" value="${pdict.returnUrl}"/>
     </isif>
+    <div class="login-button-container">
+        <button type="submit" class="btn btn-block g-button_primary--black g-button_base b-checkout-login_button js-login-button">${Resource.msg('link.header.login', 'account', null)}</button>
+    </div>
 
-    <button type="submit" class="btn btn-block g-button_primary--black g-button_base b-checkout-login_button js-login-button">${Resource.msg('link.header.login', 'account', null)}</button>
 </form>

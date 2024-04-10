@@ -3,6 +3,7 @@
 var formValidation = require('base/components/formValidation');
 var cleave = require('base/components/cleave');
 var url;
+var location = window.location;
 var width = $(window).width();
 var height = $(window).height();
 

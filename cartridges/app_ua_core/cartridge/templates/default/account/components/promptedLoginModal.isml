@@ -1,0 +1,93 @@
+<div class="g-modal-header g-login-modal-header g-prompted-login-modal-header">
+    <h2 class="g-modal-title g-password-modal-title request-password-title before-continue">${Resource.msg('msg.heading.account.create.prompted','checkout',null)}</h2>
+    <h2 class="g-modal-title g-password-modal-title request-password-title after-continue d-none">${Resource.msg('msg.heading.account.welcome.back','checkout',null)}</h2>
+    <div class="g-password-modal-close">
+        <button type="button" class="g-password-modal-close_button close" data-dismiss="modal" aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+    </div>
+    <div class="free-shipping-promotion before-continue">
+        <isslot id="login-modal-promo-message" context="global" description="Message Banner In Login Modal" />
+    </div>
+</div>
+<div class="g-modal-body g-prompted-login-modal-body">
+    <div class="row justify-content-center">
+        <div class="card">
+            <div class="login-form-nav">
+                <div class="tab-content">
+                    <div class="tab-pane ${pdict.navTabValue === 'login' ? 'active' : ''}" id="login" role="tabpanel" aria-labelledby="login-tab">
+                        <isinclude template="account/components/promptedLoginForm" />
+                        <isinclude template="account/password/requestPasswordResetModal"/>
+                        <isinclude template="account/password/forcePasswordresetModal"/>
+                        
+                        <iscomment> <isif condition="${dw.system.Site.current.getCustomPreferenceValue('facebookLoginEnabled')}">
+                            <isinclude template="account/components/oauth" />
+                        </isif> </iscomment>
+                        <div class="b-login-forminfo">
+                            <div class="b-login-formmessage after-continue d-none">
+                                <span>${Resource.msg('login.text.login.info', 'login', null)}</span>
+                                <span class="b-login-tooltip-content">
+                                    <span class="g-tooltip">
+                                        <span class="g-tooltip-icon">
+                                            <span class="g-tooltip-arrow"></span>
+                                        </span>
+                                    </span>
+                                    <span class="g-tooltip-text">
+                                        ${Resource.msg('login.text.infotooltip', 'login', null)}
+                                    </span>
+                                </span>
+                            </div>
+                            <iscomment> <div class="register-policy">
+                                <span>
+                                    <isif condition="${'showLoyaltyEnroll' in pdict && !!pdict.showLoyaltyEnroll}">
+                                        <iscontentasset aid="loyalty-login-register-policy" />
+                                    <iselse/>
+                                        <iscontentasset aid="login-register-policy" />
+                                    </isif>
+                                </span>
+                            </div> </iscomment>
+                            <div class="b-registerlink-login before-continue">
+                            <isif condition="${'showLoyaltyEnroll' in pdict && !!pdict.showLoyaltyEnroll}">
+                                <isset name="CreateAccountModalURL" value="${URLUtils.https('Login-CreateAccountModal', 'pilotEnroll', 'true', 'channel', pdict.channel, 'subChannel', pdict.subChannel, 'subChannelDetail', pdict.subChannelDetail, 'promptedLogin', 'true')}" scope="page"/>
+                            <iselse/>
+                                <isset name="CreateAccountModalURL" value="${URLUtils.https('Login-CreateAccountModal', 'promptedLogin', 'true')}" scope="page"/>
+                            </isif>
+                                <span>${Resource.msg('login.text.new.user.prompted', 'login', null)}</span>
+	                            <a class="b-header_account-link js-register" href="javascript:void(0);" data-href="${CreateAccountModalURL}" role="button"
+	                                aria-label="${Resource.msg('label.header.registerbutton', 'account', null)}">
+	                                ${Resource.msg('link.header.register.prompted', 'account', null)}
+	                            </a>
+                            </div>
+
+                            <div class="forgot-password after-continue d-none">
+                                <iscomment>
+                                <a class="hide-password password-reset" href="${URLUtils.url('Account-PasswordReset')}" title="${Resource.msg('link.login.forgotpassword', 'login', null)}">
+                                    ${Resource.msg('link.login.forgotpassword', 'login', null)}
+                                </a>
+                                </iscomment>
+                            <isif condition="${!!pdict.showLoyaltyEnroll}">
+                                <a class="password-reset js-reset-password" isLoyalty="true">
+                            <iselse/>
+                                <a class="password-reset js-reset-password">
+                            </isif>
+                                    ${Resource.msg('label.forgotpassword.prompted', 'login', null)}
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="continue-as-guest before-continue">
+        <div class="g-prompted-login-modal-header g-login-modal-header">
+            <h2 class="g-modal-title">${Resource.msg('heading.guest.checkout','checkout',null)}</h2>
+        </div>
+        <div class="cag-component">
+            <div class="cag-component-msg">
+                ${Resource.msg('msg.checkout.as.guest', 'checkout', null)}
+            </div>
+            <button type="button" class="btn btn-block g-button_primary--white g-button_base js-checkoutguest-button">${Resource.msg('button.checkout.as.guest', 'checkout', null)}</button>
+        </div>
+    </div>
+</div>

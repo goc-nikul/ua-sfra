@@ -9,8 +9,9 @@ function productIsClearance(sfraProductModel) {
 }
 function pdpExperienceType(sfraProductModel) {
     const productHelpers = require('*/cartridge/scripts/helpers/productHelpers.js');
-    const experienceType = sfraProductModel.custom.experienceType;
-    return upsellType = productHelpers.getUpsellType(sfraProductModel.variationAttributes[0].values, sfraProductModel, experienceType, 'tealium');
+    const experienceType = (!empty(sfraProductModel.custom) && 'experienceType' in sfraProductModel.custom) ? sfraProductModel.custom.experienceType : '';
+    var sourceValues = !empty(sfraProductModel.variationAttributes) ? sfraProductModel.variationAttributes[0].values : [];
+    return upsellType = productHelpers.getUpsellType(sourceValues, sfraProductModel, experienceType, 'tealium');
 }
 
 function exchangeRates(qValue, pliPrice, pliTax) {

@@ -6,6 +6,8 @@ var logger = require('*/cartridge/scripts/logs/2c2p');
 var twoCp2Pref = require('*/cartridge/scripts/config/2c2Prefs');
 var c2pHelper = require('*/cartridge/scripts/helpers/2c2pHelper');
 var OrderMgr = require('dw/order/OrderMgr');
+var Order = require('dw/order/Order');
+var Site = require('dw/system/Site');
 
 server.post('HandleReturnResponse', function (req, res, next) {
     var order = null;
@@ -26,7 +28,21 @@ server.post('HandleReturnResponse', function (req, res, next) {
 
         var redirectURL = c2pHelper.getRedirectURL(order);
         if (!redirectURL) throw new Error('Unknown order status');
-        res.redirect(redirectURL);
+        // SFRA v6 only supports post
+        // redirectURL is of type dw/web/URL so need to convert to String
+        if (Site.getCurrent().getCustomPreferenceValue('2c2p_SFRA6_Compatibility') &&
+            redirectURL.toString().toLowerCase().indexOf('token') &&
+            redirectURL.toString().toLowerCase().indexOf('id') &&
+            (order.status.value === Order.ORDER_STATUS_CREATED ||
+             order.status.value === Order.ORDER_STATUS_OPEN ||
+             order.status.value === Order.ORDER_STATUS_NEW)) {
+            res.render('orderConfirmForm', {
+                orderID: order.orderNo,
+                orderToken: order.orderToken
+            });
+        } else {
+            res.redirect(redirectURL);
+        }
     } catch (e) {
         logger.writelog(logger.LOG_TYPE.ERROR, e.message + '\n' + e.stack);
     }

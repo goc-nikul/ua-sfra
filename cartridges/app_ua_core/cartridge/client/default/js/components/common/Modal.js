@@ -22,16 +22,16 @@ export default class Modal extends Component {
     openModal(event) {
         event.preventDefault();
 
-        this.beforeOpenModal();
+        this.beforeOpenModal.bind(this)();
 
-        if (this.$target) {
+        if (this.$target && this.$target.length > 0) {
             this.$target.modal('show');
         } else {
             this.createTarget();
             this.fillModalElement();
             this.$target.modal('show');
-            this.afterOpenModal();
         }
+        this.afterOpenModal.bind(this)();
 
         if (this.analyticsName) {
             $('body').trigger('modalShown', {
@@ -46,35 +46,85 @@ export default class Modal extends Component {
     }
 
     createTarget() {
+        $('#' + this.targetID).remove();
         $('body').append(this.modalWrapperHTML);
         this.$target = $('#' + this.targetID);
         this.$el.attr('data-target-id', this.targetID);
     }
 
+    getURL() {
+        return this.$el.attr('href') || this.$el.attr('data-url') || this.$el.attr('data-href');
+    }
+
     fillModalElement() {
-        if (this.$el.attr('href') !== undefined && this.$el.attr('href') !== '' && this.$el.attr('href') !== null) {
-            this.$target.find('.g-modal-content').spinner().start();
+        var url = this.getURL.bind(this)();
+        if (url) {
+            if (this.config) {
+                if (this.config.isSubmodal) {
+                    this.$target.addClass('g-modal-submodal');
+
+                    if (this.config.parentModal) {
+                        this.$target.attr('data-parent-modal', this.config.parentModal).data('parentModal', this.config.parentModal);
+
+                        const $parentModal = $(this.config.parentModal);
+                        this.$target.on('shown.bs.modal', () => {
+                            $parentModal.trigger('submodal:shown', { submodal: this.$target });
+                        });
+                        this.$target.on('hide.bs.modal', () => {
+                            $parentModal.trigger('submodal:hide', { submodal: this.$target });
+                        });
+
+                        this.$backCTA = $('<button class="g-modal-back" type="button"/>').attr('aria-label', this.config.backLabel || '');
+                        this.$backCTA.on('click', () => {
+                            this.$target.modal('hide');
+                            $parentModal.trigger('submodal:back', { submodal: this.$target });
+                        });
+                    }
+                }
+            }
+
             $.ajax({
-                url: this.$el.attr('href'),
+                url: url,
                 method: 'GET',
                 dataType: 'json',
+                beforeSend: this.beforeSend.bind(this),
                 success: this.onAJAXSuccess.bind(this),
-                error: function () {
-                    $.spinner().stop();
-                }
+                complete: this.complete.bind(this)
             });
         }
     }
 
+    beforeSend() {
+        this.$target.find('.g-modal-content').spinner().start();
+    }
+
+    complete() {
+        this.$target.find('.g-modal-content').spinner().stop();
+    }
+
     onAJAXSuccess(data) {
-        this.$target.append(this.parseHtml(data.renderedTemplate)).modal('show');
-        $.spinner().stop();
+        this.contentUpdate.bind(this)(data);
+
+        if (this.config.customTitle) {
+            this.$target.find('.g-modal-title').html(this.config.customTitle);
+        }
+        if (this.$backCTA) {
+            this.$backCTA.prependTo(this.$target.find('.g-modal-header'));
+        }
+
+        this.$target.modal('show');
     }
 
     onClose() {
         this.$target.modal('hide');
         $('body > .modal-backdrop').remove();
         this.afterClose();
+    }
+
+    contentUpdate(data) {
+        if (data.renderedTemplate) {
+            this.$target.append(this.parseHtml(data.renderedTemplate));
+        }
     }
 
     afterClose() {}

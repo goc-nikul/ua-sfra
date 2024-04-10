@@ -519,7 +519,7 @@
         </flow>
         <rules/>
         <triggers>
-            <run-recurring enabled="true">
+            <run-recurring enabled="false">
                 <recurrence>
                     <date-from>2019-01-01Z</date-from>
                     <start-time>05:00:00.000Z</start-time>
@@ -1207,41 +1207,47 @@
             </run-recurring>
         </triggers>
     </job>
-
     <job job-id="Bazaarvoice Inline Ratings Import" priority="0">
         <description/>
         <parameters/>
-        <split sequential="false">
-            <contexts template-ref="template_298">
-                <context site-id="US"/>
-            </contexts>
-            <flow-template template-id="template_298">
-                <step step-id="Download Rating Feed" type="custom.Bazaarvoice-Download" enforce-restart="false">
-                    <description/>
-                    <parameters>
-                        <parameter name="Enabled">true</parameter>
-                    </parameters>
-                </step>
-            </flow-template>
-        </split>
-        <split sequential="false">
-            <contexts template-ref="template_299">
-                <context site-id="US"/>
-            </contexts>
-            <flow-template template-id="template_299">
-                <step step-id="Import Ratings" type="custom.Bazaarvoice-Rating-Import" enforce-restart="false">
-                    <description/>
-                    <parameters>
-                        <parameter name="Enabled">true</parameter>
-                    </parameters>
-                    <rules>
-                        <on-exit status="ERROR">
-                            <stop-job/>
-                        </on-exit>
-                    </rules>
-                </step>
-            </flow-template>
-        </split>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="Download Rating Feed" type="custom.Bazaarvoice-Download" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Enabled">true</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="Import Ratings" type="custom.Bazaarvoice-Rating-Import" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Enabled">true</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Move File to Archive" type="custom.CSComponents.MoveFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FilePattern">^bv_underarmour_incremental_.*.gz</parameter>
+                    <parameter name="SourceFolder">/TEMP/bv/ratings</parameter>
+                    <parameter name="TargetFolder">IMPEX/src/archive/bv/</parameter>
+                    <parameter name="CopyOnly">false</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="Overwrite">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+        </flow>
         <rules>
             <on-running runtime-threshold="60m" enabled="true">
                 <mark-job-as-hanging/>
@@ -1264,12 +1270,13 @@
             </on-exit>
         </rules>
         <triggers>
-            <run-once enabled="false">
+            <run-once enabled="true">
                 <date>2020-04-17Z</date>
-                <time>20:15:54.000Z</time>
+                <time>20:15:00.000Z</time>
             </run-once>
         </triggers>
     </job>
+
 	<job job-id="Size Preferences Tokenization" priority="0">
         <description>Size Preferences Tokenization based on product custom attribute</description>
         <parameters/>
@@ -1305,7 +1312,6 @@
             </run-once>
         </triggers>
     </job>
-
     <job job-id="SROrderFeed" priority="0">
         <description/>
         <parameters/>
@@ -1694,5 +1700,177 @@
             </run-once>
         </triggers>
     </job>
-
+    <job job-id="Post data replication tasks" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="Download promotions XML file from AWS S3 US" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_NA</parameter>
+                    <parameter name="KeyAlias">na04-ecomm-staging</parameter>
+                    <parameter name="FilePattern">qa_team_promotions_us.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/qa_team_promotions/na</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/na</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Promotions US" type="ImportPromotions" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/na</parameter>
+                    <parameter name="FileNamePattern">qa_team_promotions_us.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+            <step step-id="Download coupons XML file from AWS S3 US" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_NA</parameter>
+                    <parameter name="KeyAlias">na04-ecomm-staging</parameter>
+                    <parameter name="FilePattern">qa_team_coupons_us.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/qa_team_promotions/na</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/na</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Coupons US" type="ImportCoupons" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/na</parameter>
+                    <parameter name="FileNamePattern">qa_team_coupons_us.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="CA"/>
+            <step step-id="Download promotions XML file from AWS S3 CA" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_NA</parameter>
+                    <parameter name="KeyAlias">na04-ecomm-staging</parameter>
+                    <parameter name="FilePattern">qa_team_promotions_ca.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/qa_team_promotions/na</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/na</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Promotions CA" type="ImportPromotions" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/na</parameter>
+                    <parameter name="FileNamePattern">qa_team_promotions_ca.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+            <step step-id="Download coupons XML file from AWS S3 CA" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_NA</parameter>
+                    <parameter name="KeyAlias">na04-ecomm-staging</parameter>
+                    <parameter name="FilePattern">qa_team_coupons_ca.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/qa_team_promotions/na</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/na</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Coupons CA" type="ImportCoupons" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/na</parameter>
+                    <parameter name="FileNamePattern">qa_team_coupons_ca.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="MX"/>
+            <step step-id="Download promotions XML file from AWS S3 MX" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_NA</parameter>
+                    <parameter name="KeyAlias">na04-ecomm-staging</parameter>
+                    <parameter name="FilePattern">qa_team_promotions_mx.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/qa_team_promotions/na</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/na</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Promotions MX" type="ImportPromotions" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/na</parameter>
+                    <parameter name="FileNamePattern">qa_team_promotions_mx.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+            <step step-id="Download coupons XML file from AWS S3 MX" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_NA</parameter>
+                    <parameter name="KeyAlias">na04-ecomm-staging</parameter>
+                    <parameter name="FilePattern">qa_team_coupons_mx.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/qa_team_promotions/na</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/na</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Coupons MX" type="ImportCoupons" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/na</parameter>
+                    <parameter name="FileNamePattern">qa_team_coupons_mx.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2024-02-23Z</date-from>
+                    <start-time>07:00:00.000Z</start-time>
+                    <interval>24h</interval>
+                    <day-of-week>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
 </jobs>

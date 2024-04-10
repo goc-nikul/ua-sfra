@@ -1,14 +1,18 @@
 /* eslint-disable no-console */
+'use strict';
 
-require('@babel/polyfill');
+require('core-js');
+require('regenerator-runtime/runtime');
 
 var processInclude = require('base/util');
 var pageData = require('org/utils/pageData');
 var globalEvents = require('org/utils/globalEvents');
 var globalBrowserCheck = require('org/utils/globalBrowserCheck');
+var globalUtils = require('org/utils/globalUtils');
 
 $(document).ready(function () {
     pageData.init();
+    globalUtils.init();
     globalEvents.init();
     globalBrowserCheck.init();
 

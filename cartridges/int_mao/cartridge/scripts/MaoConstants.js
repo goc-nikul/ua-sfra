@@ -1,4 +1,6 @@
 /* eslint-disable spellcheck/spell-checker */
+const Site = require('dw/system/Site');
+
 const maoConstants = {
     MessageHeader: {
         MSG_TYPE: 'SaveOrderMSGType'
@@ -11,7 +13,7 @@ const maoConstants = {
         IsAlreadyCharged: true,
         IsAlreadyTaxed: true,
         IsReturnFeeApplied: false,
-        IsImport: true
+        IsImport: !(Site.getCurrent().getID() === 'CA')
     },
     OrderLine: {
         UOM: 'EA',
@@ -62,7 +64,8 @@ const maoConstants = {
         PaymentTypeId: {
             creditcardPaymentTypeId: 'Credit Card',
             applepayPaymentTypeId: '01',
-            paypalPaymentTypeId: '02'
+            paypalPaymentTypeId: '02',
+            giftCardTypeId: 'Gift Card'
         }
     },
     AurusPaymentType: {

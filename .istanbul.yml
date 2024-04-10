@@ -20,6 +20,7 @@ instrumentation:
         "**/hooks/taxes.js", # Basic SFRA code
         "**/payment/processor/*", # Those are payment processor files, we don't test them
         "**/bc_jobs/**", # Not refactored job scripts, could be done as TODO
+        "**/bm_underarmour/**", # Not refactored job scripts, could be done as TODO
         "**/bm_paypal/**", # link cartridge is OOS
         "**/bm_smartling_integration/**", # link cartridge is OOS
         "**/int_accertify/**", # link cartridge is OOS
@@ -43,7 +44,7 @@ instrumentation:
         "**/int_borderfree/**", # Borderfree link cartridge
         "**/int_bazaarvoice_sfra/**", # Bazaarvoice link cartridge
         "**/int_bazaarvoice/**", # Bazaarvoice link cartridge
-        "**/bc_bazaarvoice/**", # Bazaarvoicelink cartridge
+        "**/bm_bazaarvoice/**", # Bazaarvoicelink cartridge
         "**/int_adyen_SFRA/**", # Adyen link cartridge
         "**/int_adyen_overlay/**", # Adyen link cartridge
         "**/bc_job_components/**", # Community Job Components cartridge
@@ -58,7 +59,9 @@ instrumentation:
         "**/bm_SDLTranslation/**", # SDL Translation
         "**/int_klarna_payments_sfra/**", #Klarna link cartridge
         "**/int_klarna_payments/**", #Klarna link cartridge
-        "**/int_klarna_payments_custom/**", #Klarna custom cartridge
+        "**/link_constructor_connect_custom/**", #constructor.io link custom cartridge
+        "**/link_constructor_connect_legacy/**", #constructor.io legacy link cartridge
+        "**/int_constructor_custom_legacy/**", #constructor.io legacy custom cartridge
         "**/storefront-reference-architecture/**", #SFRA base cartridge
         "**/plugin_instorepickup/**", #In-store pickup plugin
         "**/plugin_shoprunner/**", #Shoprunner link cartridge
@@ -69,6 +72,9 @@ instrumentation:
         "**/plugin_ua_idm/cartridge/scripts/jsrsasign/lib/**", # excluding lib
         "**/int_QAS/cartridge/scripts/services/QASService.js",
         "**/bm_catalogreducer/**",
-        "**/social_channel_integrations/**"
+        "**/bm_catalogreducer_custom/**",
+        "**/social_channel_integrations/**",
+        "**/bm-tools/**",
+        "**/test_console/**"
     ]
     include-all-sources: true

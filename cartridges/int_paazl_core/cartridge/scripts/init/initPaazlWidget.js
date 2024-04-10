@@ -2,6 +2,8 @@ var Site = require('dw/system/Site');
 var BasketMgr = require('dw/order/BasketMgr');
 var Locale = require('dw/util/Locale');
 
+var paazlHelper = require('*/cartridge/scripts/helpers/paazlHelper');
+
 /**
  * Plain JS object that represents a Paazl widget ShipmentParameters object
  * @param {dw.order.Basket} basket - the current basket
@@ -48,6 +50,7 @@ function getShipmentParameters(basket) {
  */
 function initPaazlWidget() {
     var currentBasket = BasketMgr.getCurrentBasket();
+    paazlHelper.updateTokenInBasket(currentBasket, true);
     var shippingAddress = currentBasket.defaultShipment.shippingAddress;
     var billingAddress = currentBasket.billingAddress;
     var token = (currentBasket && currentBasket.custom.paazlAPIToken) || '';
@@ -112,6 +115,22 @@ function initPaazlWidget() {
     var separatorsFormat = !empty(currentLocale) && currentLocale.ID === 'en_GB' ? 'DECIMAL_POINT' : 'DECIMAL_COMMA';
     var logLevel = Site.current.getCustomPreferenceValue('paazlWidgetLogLevel');
 
+    // sortingModel for each tab
+    var sortingModel = [];
+    for (var i = 0; i < availableTabs.length; i++) {
+        var tab = availableTabs[i];
+        var orderBy = Site.current.getCustomPreferenceValue('paazlWidgetSortingModelOrderBy' + tab);
+        var sortOrder = Site.current.getCustomPreferenceValue('paazlWidgetSortingModelSortOrder' + tab);
+        var sortOption = {
+            tab: tab,
+            orderBy: orderBy ? orderBy.value : tab === 'DELIVERY' ? 'PRICE' : 'DISTANCE', // eslint-disable-line no-nested-ternary
+            sortOrder: sortOrder ? sortOrder.value : 'ASC'
+        };
+        if (sortOption.orderBy === 'CARRIER') {
+            sortOption.distributor = Site.current.getCustomPreferenceValue('paazlWidgetSortingModelDistributor' + tab);
+        }
+        sortingModel.push(sortOption);
+    }
 
     // This is a example of a possible initialization of the Widget
     // In this example few of the info are set dynamically or configurable using Site preferences and some are hard coded
@@ -140,10 +159,7 @@ function initPaazlWidget() {
         pickupOptionDateFormat: 'ddd DD MMM',
         pickupEstimateDateFormat: 'dddd DD MMMM',
 
-        sortingModel: {
-            orderBy: 'PRICE',
-            sortOrder: 'ASC'
-        },
+        sortingModel: sortingModel,
 
         shipmentParameters: currentBasket ? getShipmentParameters(currentBasket) : {},
 
@@ -154,6 +170,7 @@ function initPaazlWidget() {
 
         logLevel: logLevel ? logLevel.value : "NONE"
     };
+
     return paazlWidget;
 }
 

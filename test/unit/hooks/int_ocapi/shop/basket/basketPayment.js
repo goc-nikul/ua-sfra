@@ -4,9 +4,9 @@ const assert = require('chai').assert;
 const proxyquire = require('proxyquire').noCallThru().noPreserveCache();
 
 describe('int_ocapi/cartridge/hooks/shop/basket/basketPayment.js', () => {
-
+    var Status = require('../../../../../mocks/dw/dw_system_Status');
     var basketPayment = proxyquire('../../../../../../cartridges/int_ocapi/cartridge/hooks/shop/basket/basketPayment.js', {
-        'dw/system/Status': require('../../../../../mocks/dw/dw_system_Status'),
+        'dw/system/Status': Status,
         '~/cartridge/scripts/paymentHelper': {
             updatePaymentInstrument: () => true,
             patchPaymentInstrument: () => true,
@@ -17,7 +17,8 @@ describe('int_ocapi/cartridge/hooks/shop/basket/basketPayment.js', () => {
             manageKlarnaSession: () => true,
             updateResponse: () => true,
             isCCPaymentInstrumentRequest: () => true,
-            removeCCPaymentInstruments: () => true
+            removeCCPaymentInstruments: () => true,
+            removeApplePayPI: () => true
         },
         '*/cartridge/scripts/helpers/sitePreferencesHelper': {
             isAurusEnabled: () => true
@@ -44,7 +45,7 @@ describe('int_ocapi/cartridge/hooks/shop/basket/basketPayment.js', () => {
     });
 
     it('Testing method: afterPATCH', () => {
-        assert.deepEqual(basketPayment.afterPATCH(), {});
+        assert.deepEqual(basketPayment.afterPATCH().status, Status.OK);
     });
 
     it('Testing method: modifyPOSTResponse', () => {

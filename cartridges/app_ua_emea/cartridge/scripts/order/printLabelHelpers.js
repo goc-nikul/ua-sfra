@@ -1,6 +1,5 @@
 'use strict';
 
-var Site = require('dw/system/Site');
 var Logger = require('dw/system/Logger');
 var Resource = require('dw/web/Resource');
 var HookManager = require('dw/system/HookMgr');
@@ -20,16 +19,9 @@ function getReturnInstructionText(order) {
     var returnInstructionText = '';
     try {
         var returnService = '';
-        returnService = Site.getCurrent().getCustomPreferenceValue('returnService') || ''; // FedEx OR CanadaPost
-        if (!empty(returnService) && !empty(returnService.value)) {
-            returnService = returnService.value;
-        } else {
-            var returnsUtil = new ReturnsUtils();
-            returnService = returnsUtil.getPreferenceValue('returnService', order.custom.customerLocale);
-            if (!empty(returnService) && !empty(returnService.value)) {
-                returnService = returnService.value;
-            }
-        }
+        var returnsUtil = new ReturnsUtils();
+        returnService = returnsUtil.getPreferenceValue('returnService', order.custom.customerLocale);
+
         var serviceType = '';
         var resourceKey = 'order.return.instruction';
 
@@ -47,6 +39,54 @@ function getReturnInstructionText(order) {
 }
 
 /**
+ * Generates the return tracking link
+ * @param {string} serviceValue - Return service provider
+ * @param {string} trackingNumber - Tracking number
+ * @param {string} customerLocale - customer locale
+ * @returns {string} - Tracking Link
+ */
+function generateTrackingLink(serviceValue, trackingNumber, customerLocale) {
+    const allowedServices = ['ups', 'fedex', 'dhlparcel'];
+    const locale = customerLocale || 'en_DE';
+    let trackingLink = '';
+    if (allowedServices.indexOf(serviceValue) > -1) {
+        var modifiedLocale = '';
+        switch (serviceValue) {
+            case 'ups':
+                // same format as SFCC, en_NL, nl_NL meaning lang_countryCode
+                trackingLink = 'https://www.ups.com/track?loc={0}&tracknum={1}'.replace('{0}', locale).replace('{1}', trackingNumber);
+                break;
+            case 'fedex':
+                // same format as SFCC, en_NL, nl_NL meaning lang_countryCode
+                trackingLink = 'https://www.fedex.com/fedextrack/?cntry_code={0}&trknbr={1}'.replace('{0}', locale).replace('{1}', trackingNumber);
+                break;
+            case 'dhlparcel':
+                modifiedLocale = locale.toLowerCase().split('_').reverse().join('-');
+                // de-de, de-en meaning countrycode-lang
+                trackingLink = 'https://www.dhl.com/{0}/home/tracking/tracking-parcel.html?submit=1&tracking-id={1}'.replace('{0}', modifiedLocale).replace('{1}', trackingNumber);
+                break;
+            default:
+                break;
+        }
+    }
+
+    return trackingLink;
+}
+
+/**
+ * Modify Return Provider Value to Show User Friendly Information
+ * @param {string} provider - return service provider, e.g. FedEx, DHLParcel, UPS
+ * @returns {string} - modified service provider, e.g. DHLParcel > DHL
+ */
+function modifyReturnProviderValue(provider) {
+    if (provider.toLowerCase().indexOf('dhl') > -1) {
+        return 'DHL';
+    }
+
+    return provider;
+}
+
+/**
  * Main function of the script to start order export process.
  * @param {dw.order.Order} order - retrieve respective order info
  * @param {Object} returnObj - return items info
@@ -55,24 +95,40 @@ function getReturnInstructionText(order) {
 function getPDF(order, returnObj) {
     var result = {
         errorInResponse: true,
-        errorMessage: Resource.msg('label.print.error', 'account', null),
+        errorMessage: Resource.msg('label.print.generic.error', 'account', null),
         renderedTemplate: ''
     };
     var returnItemsInfo = returnObj.returnArray;
-    if ('returnService' in Site.getCurrent().getPreferences().getCustom() && !empty(Site.getCurrent().getCustomPreferenceValue('returnService'))) {
-        var returnService = Site.getCurrent().getCustomPreferenceValue('returnService');
-        returnService = typeof (returnService) === 'string' ? returnService : returnService.value;
-        if (HookManager.hasHook('app.shipment.label.' + returnService.toLowerCase())) {
+    var returnsUtil = new ReturnsUtils();
+    var returnServiceValue = returnsUtil.getPreferenceValue('returnService', order.custom.customerLocale);
+    if (!empty(returnServiceValue)) {
+        var retServiceValue = returnServiceValue.toLowerCase();
+        if (HookManager.hasHook('app.shipment.label.' + retServiceValue)) {
             var createReturnCase = require('*/cartridge/scripts/orders/CreateReturnCase');
-            var returnCaseNew = createReturnCase.create({
-                Order: order,
-                ReturnItemsInfo: returnItemsInfo,
-                PrintLabel: true
-            });
-            var pdfObject = HookManager.callHook('app.shipment.label.' + returnService.toLowerCase(), 'shippingLabelAndTrackingNumber', order);
-            if (pdfObject.trackingNumber && pdfObject.shipLabel) {
-                var imageObj = 'data:image/png;base64,' + pdfObject.shipLabel;
-                var returnInstructionText = getReturnInstructionText();
+            var returnCaseNew;
+            if (retServiceValue === 'ups') {
+                returnCaseNew = createReturnCase.create({
+                    Order: order,
+                    ReturnItemsInfo: returnItemsInfo,
+                    PrintLabel: true
+                });
+            }
+            var pdfObject = HookManager.callHook('app.shipment.label.' + retServiceValue, 'shippingLabelAndTrackingNumber', order);
+            if (pdfObject && pdfObject.trackingNumber && pdfObject.shipLabel) {
+                if (retServiceValue !== 'ups') {
+                    returnCaseNew = createReturnCase.create({
+                        Order: order,
+                        ReturnItemsInfo: returnItemsInfo,
+                        PrintLabel: true
+                    });
+                }
+                var imageObj;
+                if (['dhlparcel', 'fedex'].indexOf(retServiceValue) > -1) {
+                    imageObj = 'data:application/pdf;base64,' + pdfObject.shipLabel;
+                } else {
+                    imageObj = 'data:image/png;base64,' + pdfObject.shipLabel;
+                }
+                var returnInstructionText = getReturnInstructionText(order);
                 let TrackingNumber = 'trackingNumber' in pdfObject && !empty(pdfObject.trackingNumber) ? pdfObject.trackingNumber : '';
                 let caseItems = order.getReturnCaseItems().asMap().values();
 
@@ -111,6 +167,8 @@ function getPDF(order, returnObj) {
                 Transaction.wrap(function () {
                     returnCase.custom.trackingNumber = TrackingNumber;
                     returnCase.custom.consignmentId = ConsignmentID;
+                    returnCase.custom.returnShipmentProvider = modifyReturnProviderValue(returnServiceValue);
+                    returnCase.custom.trackingLink = generateTrackingLink(retServiceValue, TrackingNumber, order.custom.customerLocale);
 
                     if (!empty(ShipLabel) && typeof (ShipLabel) === 'string') {
                         returnCase.custom.shipmentLabel = ShipLabel;
@@ -141,19 +199,27 @@ function getPDF(order, returnObj) {
                     }
 
                     var authFormObject = returnHelpers.createAuthFormObj(returnCase);
-                    result.renderedTemplate = renderTemplateHelper.getRenderedHtml({ pdfObject: pdfObject, authFormObject: authFormObject, imageObj: imageObj, returnInstructionText: returnInstructionText }, '/refund/printlabel');
+                    result.renderedTemplate = renderTemplateHelper.getRenderedHtml({
+                        pdfObject: pdfObject,
+                        authFormObject: authFormObject,
+                        imageObj: imageObj,
+                        returnInstructionText: returnInstructionText,
+                        returnServiceValue: retServiceValue,
+                        isPDF: imageObj.indexOf('application/pdf;base64') > -1
+                    }, '/refund/printlabel');
                     result.errorInResponse = false;
                     result.errorMessage = '';
                 }
             } else {
-                Logger.error('Order.js:' + pdfObject.errorDescription);
-                result.errorMessage = pdfObject.errorDescription;
+                var errorDesc = (pdfObject && pdfObject.errorDescription);
+                Logger.error('emea/printLabelHelpers.js:' + errorDesc);
+                result.errorMessage = errorDesc || Resource.msg('label.print.generic.error', 'account', null);
             }
         } else {
-            Logger.error('Order.js: Empty hook extension point');
+            Logger.error('emea/printLabelHelpers.js: Empty hook extension point');
         }
     } else {
-        Logger.error('Order.js: Site Preference not configured');
+        Logger.error('emea/printLabelHelpers.js: Site Preference not configured');
     }
 
     return result;

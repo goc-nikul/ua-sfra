@@ -1,0 +1,47 @@
+.b-promo {
+    &_checkout {
+        .b-promo {
+            .display-promo-code-form-btn {
+                display: none;
+            }
+
+            .b-promo_code {
+                &.hidden {
+                    display: block;
+                }
+            }
+        }
+    }
+
+    &_code {
+        &.hidden {
+            display: none;
+        }
+    }
+
+    .display-promo-code-form-btn {
+        display: flex;
+        color: $grey5;
+        margin-top: rem-calc(32);
+        cursor: pointer;
+        max-width: fit-content;
+
+        &-prefix {
+            font-size: rem-calc(14);
+            margin: rem-calc(2) rem-calc(4) 0 0;
+        }
+
+        &-text {
+            font-size: rem-calc(12);
+            border-bottom: 1px solid $grey5;
+        }
+
+        @include respond-to(mobile) {
+            margin-top: 0;
+        }
+
+        &.hidden {
+            display: none;
+        }
+    }
+}

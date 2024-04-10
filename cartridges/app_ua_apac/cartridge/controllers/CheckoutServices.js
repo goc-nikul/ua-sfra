@@ -126,6 +126,14 @@ server.append(
         var OrderMgr = require('dw/order/OrderMgr');
         var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
         var viewData = res.getViewData();
+        // Change ordr confirmation status to not confirmed, so that order acknowledment job will update the order
+        var currentOrder = OrderMgr.getOrder(viewData.orderID);
+        if (currentOrder) {
+            Transaction.wrap(() => {
+                currentOrder.setConfirmationStatus(require('dw/order/Order').CONFIRMATION_STATUS_NOTCONFIRMED);
+                require('*/cartridge/scripts/checkout/checkoutHelpers').setAdyenOrderStatusToNotExported(currentOrder);
+            });
+        }
         if (zippayEnabled && !empty(session.privacy.ZipErrorCode)) {
             viewData.zipError = session.privacy.ZipErrorCode;
 
@@ -301,6 +309,7 @@ server.append(
         if (dw.system.Site.getCurrent().getCustomPreferenceValue('atomeEnabled') && order && order.getPaymentInstruments('ATOME_PAYMENT').length > 0) {
             var atomeApis = require('*/cartridge/scripts/service/atomeApis');
             var logger = dw.system.Logger.getLogger('AtomeService');
+            var orderInfoLogger = dw.system.Logger.getLogger('orderInfo', 'orderInfo');
             // Creates a new order.
             // var order = COHelpers.createOrder(currentBasket);
             if (!order) {
@@ -360,6 +369,10 @@ server.append(
                 Transaction.wrap(function () {
                     OrderMgr.failOrder(order, true);
                 });
+                // log the order details for dataDog.
+                if (dw.system.Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+                    orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+                }
                 this.emit('route:Complete', req, res);
                 return true;
             }
@@ -482,141 +495,142 @@ server.append(
             });
             viewData.hasZipToken = hasZipToken;
         }
-        viewData.countryDialingCode = { value: paymentForm.contactInfoFields.countryDialingCode.value };
-        if (!paymentForm.contactInfoFields.countryDialingCode.value && customer.profile && customer.profile.custom.countryDialingCode) {
-            viewData.countryDialingCode = { value: customer.profile.custom.countryDialingCode };
-        }
-        var basket = BasketMgr.getCurrentBasket();
-        var billingAddr = basket.billingAddress;
-        var isKRCustomCheckoutEnabled = require('*/cartridge/config/preferences').isKRCustomCheckoutEnabled;
-        var showSplitPhoneMobileField = require('*/cartridge/config/preferences').isShowSplitPhoneMobileField;
-        var showSplitEmailField = require('*/cartridge/config/preferences').isShowSplitEmailField;
-        if (isKRCustomCheckoutEnabled) {
-            Transaction.wrap(function () {
-                session.custom.sameasship = paymentForm.shippingAddressUseAsBillingAddress.checked || false;
-                if (showSplitPhoneMobileField) {
-                    billingAddr.custom.phone1 = paymentForm.addressFields.phone1.value;
-                    billingAddr.custom.phone2 = paymentForm.addressFields.phone2.value;
-                    billingAddr.custom.phone3 = paymentForm.addressFields.phone3.value;
-                    billingAddr.setPhone(billingAddr.custom.phone1 + '-' + billingAddr.custom.phone2 + '-' + billingAddr.custom.phone3);
-                } else {
-                    billingAddr.setPhone(paymentForm.addressFields.phone.value);
+        if (!viewData.error) {
+            viewData.countryDialingCode = { value: paymentForm.contactInfoFields.countryDialingCode.value };
+            if (!paymentForm.contactInfoFields.countryDialingCode.value && customer.profile && customer.profile.custom.countryDialingCode) {
+                viewData.countryDialingCode = { value: customer.profile.custom.countryDialingCode };
+            }
+            var basket = BasketMgr.getCurrentBasket();
+            var billingAddr = basket.billingAddress;
+            var isKRCustomCheckoutEnabled = require('*/cartridge/config/preferences').isKRCustomCheckoutEnabled;
+            var showSplitPhoneMobileField = require('*/cartridge/config/preferences').isShowSplitPhoneMobileField;
+            var showSplitEmailField = require('*/cartridge/config/preferences').isShowSplitEmailField;
+            if (isKRCustomCheckoutEnabled) {
+                Transaction.wrap(function () {
+                    session.custom.sameasship = paymentForm.shippingAddressUseAsBillingAddress.checked || false;
+                    if (showSplitPhoneMobileField) {
+                        billingAddr.custom.phone1 = paymentForm.addressFields.phone1.value;
+                        billingAddr.custom.phone2 = paymentForm.addressFields.phone2.value;
+                        billingAddr.custom.phone3 = paymentForm.addressFields.phone3.value;
+                        billingAddr.setPhone(billingAddr.custom.phone1 + '-' + billingAddr.custom.phone2 + '-' + billingAddr.custom.phone3);
+                    } else {
+                        billingAddr.setPhone(paymentForm.addressFields.phone.value);
+                    }
+
+                    viewData.phone.value = billingAddr.phone;
+
+                    if (showSplitEmailField) {
+                        basket.custom.emailaddressName = paymentForm.emailaddressName.value;
+                        basket.custom.emailaddressDomainSelect = paymentForm.emailaddressDomainSelect.value;
+                        basket.custom.emailaddressDomain = paymentForm.emailaddressDomain.value;
+                        basket.setCustomerEmail(basket.custom.emailaddressName + '@' + basket.custom.emailaddressDomain);
+                    } else {
+                        basket.setCustomerEmail(paymentForm.billEmail.value);
+                    }
+                    viewData.email.value = basket.customerEmail;
+                });
+            } else {
+                Transaction.wrap(function () {
+                    if (viewData.storedPaymentUUID) {
+                        billingAddr.setPhone(req.currentCustomer.profile.phone);
+                    } else {
+                        billingAddr.setPhone(viewData.phone.value);
+                    }
+                });
+            }
+            this.on('route:BeforeComplete', function (req, res) { // eslint-disable-line no-shadow
+                var billingData = res.getViewData();
+                var currentBasket = BasketMgr.getCurrentBasket();
+                var billingAddress = currentBasket.billingAddress;
+                var billingForm = server.forms.getForm('billing');
+                var OrderModel = require('*/cartridge/models/order');
+                var Locale = require('dw/util/Locale');
+                var Site = require('dw/system/Site');
+                Transaction.wrap(function () {
+                    if (zippayEnabled) {
+                        var collections = require('*/cartridge/scripts/util/collections');
+
+                        var paymentInstruments = currentBasket.getPaymentInstruments(billingData.paymentMethod.value);
+                        collections.forEach(paymentInstruments, function (paymentInstrument) {
+                            paymentInstrument.custom.zipEmail = currentBasket.getCustomerEmail(); // eslint-disable-line no-param-reassign
+                            paymentInstrument.custom.zipPhone = billingAddress.getPhone(); // eslint-disable-line no-param-reassign
+                        });
+                    }
+
+                    if (billingAddress) {
+                        billingAddress.custom.suburb = (!empty(billingData.address) && 'suburb' in billingData.address && !empty(billingData.address.suburb.value) && billingData.address.suburb.value !== undefined) ? billingData.address.suburb.value : '';
+                        billingAddress.custom.businessName = (!empty(billingData.address) && 'businessName' in billingData.address && !empty(billingData.address.businessName.value) && billingData.address.businessName.value !== undefined) ? billingData.address.businessName.value : '';
+                        billingAddress.custom.district = (!empty(billingData.address) && 'district' in billingData.address && !empty(billingData.address.district.value) && billingData.address.district.value !== undefined) ? billingData.address.district.value : '';
+                        if (billingData.address && billingData.address.countryCode && billingData.address.countryCode.value === 'HK') {
+                            billingAddress.city = ('hkCityValue' in Site.current.preferences.custom) && Site.current.getCustomPreferenceValue('hkCityValue') ? Site.current.getCustomPreferenceValue('hkCityValue') : '';
+                            billingAddress.postalCode = ('hkCityValue' in Site.current.preferences.custom) && Site.current.getCustomPreferenceValue('hkpostalCodeValue') ? Site.current.getCustomPreferenceValue('hkpostalCodeValue') : '';
+                        }
+                    }
+                });
+                if (req.currentCustomer.profile) {
+                    if (billingForm.addressFields.saveToAccount && billingForm.addressFields.saveToAccount.checked) {
+                        var CustomerMgr = require('dw/customer/CustomerMgr');
+                        var addressId = req.querystring.addressID;
+                        var customer = CustomerMgr.getCustomerByCustomerNumber(
+                            req.currentCustomer.profile.customerNo
+                        );
+                        var addressBook = customer.getProfile().getAddressBook();
+                        if (typeof addressId === undefined || !addressId) {
+                            var customerAddressIDArray = billingData.customerAddressIDArray;
+                            var allAddressList = addressBook.addresses;
+                            for (var i = 0; i < allAddressList.length; i++) {
+                                var addressID = allAddressList[i].ID;
+                                if (customerAddressIDArray.indexOf(addressID) < 0) {
+                                    addressId = addressID;
+                                }
+                            }
+                        }
+                        Transaction.wrap(function () {
+                            var address;
+                            if (addressId) {
+                                address = addressBook.getAddress(addressId);
+                                if (!empty(billingData.address) && 'suburb' in billingData.address && !empty(billingData.address.suburb.value)) {
+                                    address.custom.suburb = billingData.address.suburb.value;
+                                }
+                                if (!empty(billingData.address) && 'businessName' in billingData.address && !empty(billingData.address.businessName.value)) {
+                                    address.custom.businessName = billingData.address.businessName.value;
+                                }
+                                if (!empty(billingData.address) && 'district' in billingData.address && !empty(billingData.address.district.value)) {
+                                    address.custom.district = billingData.address.district.value;
+                                }
+                            }
+                        });
+                    }
                 }
 
-                viewData.phone.value = billingAddr.phone;
-
-                if (showSplitEmailField) {
-                    basket.custom.emailaddressName = paymentForm.emailaddressName.value;
-                    basket.custom.emailaddressDomainSelect = paymentForm.emailaddressDomainSelect.value;
-                    basket.custom.emailaddressDomain = paymentForm.emailaddressDomain.value;
-                    basket.setCustomerEmail(basket.custom.emailaddressName + '@' + basket.custom.emailaddressDomain);
-                } else {
-                    basket.setCustomerEmail(paymentForm.billEmail.value);
-                }
-                viewData.email.value = basket.customerEmail;
-            });
-        } else {
-            Transaction.wrap(function () {
-                if (viewData.storedPaymentUUID) {
-                    billingAddr.setPhone(req.currentCustomer.profile.phone);
-                } else {
-                    billingAddr.setPhone(viewData.phone.value);
-                }
-            });
-        }
-        this.on('route:BeforeComplete', function (req, res) { // eslint-disable-line no-shadow
-            var billingData = res.getViewData();
-            var currentBasket = BasketMgr.getCurrentBasket();
-            var billingAddress = currentBasket.billingAddress;
-            var billingForm = server.forms.getForm('billing');
-            var OrderModel = require('*/cartridge/models/order');
-            var Locale = require('dw/util/Locale');
-            var Site = require('dw/system/Site');
-            Transaction.wrap(function () {
                 if (zippayEnabled) {
-                    var collections = require('*/cartridge/scripts/util/collections');
-
-                    var paymentInstruments = currentBasket.getPaymentInstruments(billingData.paymentMethod.value);
-                    collections.forEach(paymentInstruments, function (paymentInstrument) {
-                        paymentInstrument.custom.zipEmail = currentBasket.getCustomerEmail(); // eslint-disable-line no-param-reassign
-                        paymentInstrument.custom.zipPhone = billingAddress.getPhone(); // eslint-disable-line no-param-reassign
-                    });
-                }
-
-                if (billingAddress) {
-                    billingAddress.custom.suburb = (!empty(billingData.address) && 'suburb' in billingData.address && !empty(billingData.address.suburb.value) && billingData.address.suburb.value !== undefined) ? billingData.address.suburb.value : '';
-                    billingAddress.custom.businessName = (!empty(billingData.address) && 'businessName' in billingData.address && !empty(billingData.address.businessName.value) && billingData.address.businessName.value !== undefined) ? billingData.address.businessName.value : '';
-                    billingAddress.custom.district = (!empty(billingData.address) && 'district' in billingData.address && !empty(billingData.address.district.value) && billingData.address.district.value !== undefined) ? billingData.address.district.value : '';
-                    if (billingData.address && billingData.address.countryCode && billingData.address.countryCode.value === 'HK') {
-                        billingAddress.city = ('hkCityValue' in Site.current.preferences.custom) && Site.current.getCustomPreferenceValue('hkCityValue') ? Site.current.getCustomPreferenceValue('hkCityValue') : '';
-                        billingAddress.postalCode = ('hkCityValue' in Site.current.preferences.custom) && Site.current.getCustomPreferenceValue('hkpostalCodeValue') ? Site.current.getCustomPreferenceValue('hkpostalCodeValue') : '';
+                    if (empty(billingData.customer)) {
+                        billingData.customer = {};
                     }
+
+                    billingData.customer.zip = {
+                        hasZipToken: billingData.hasZipToken
+                    };
                 }
-            });
-            if (req.currentCustomer.profile) {
-                if (billingForm.addressFields.saveToAccount && billingForm.addressFields.saveToAccount.checked) {
-                    var CustomerMgr = require('dw/customer/CustomerMgr');
-                    var addressId = req.querystring.addressID;
-                    var customer = CustomerMgr.getCustomerByCustomerNumber(
-                        req.currentCustomer.profile.customerNo
+                var usingMultiShipping = req.session.privacyCache.get('usingMultiShipping');
+                if (usingMultiShipping === true && currentBasket.shipments.length < 2) {
+                    req.session.privacyCache.set('usingMultiShipping', false);
+                    usingMultiShipping = false;
+                }
+
+                var currentLocale = Locale.getLocale(req.locale.id);
+                var basketModelObject = new OrderModel(
+                    currentBasket,
+                        { usingMultiShipping: usingMultiShipping, countryCode: currentLocale.country, containerView: 'basket' }
                     );
-                    var addressBook = customer.getProfile().getAddressBook();
-                    if (typeof addressId === undefined || !addressId) {
-                        var customerAddressIDArray = billingData.customerAddressIDArray;
-                        var allAddressList = addressBook.addresses;
-                        for (var i = 0; i < allAddressList.length; i++) {
-                            var addressID = allAddressList[i].ID;
-                            if (customerAddressIDArray.indexOf(addressID) < 0) {
-                                addressId = addressID;
-                            }
-                        }
-                    }
-                    Transaction.wrap(function () {
-                        var address;
-                        if (addressId) {
-                            address = addressBook.getAddress(addressId);
-                            if (!empty(billingData.address) && 'suburb' in billingData.address && !empty(billingData.address.suburb.value)) {
-                                address.custom.suburb = billingData.address.suburb.value;
-                            }
-                            if (!empty(billingData.address) && 'businessName' in billingData.address && !empty(billingData.address.businessName.value)) {
-                                address.custom.businessName = billingData.address.businessName.value;
-                            }
-                            if (!empty(billingData.address) && 'district' in billingData.address && !empty(billingData.address.district.value)) {
-                                address.custom.district = billingData.address.district.value;
-                            }
-                        }
-                    });
-                }
-            }
 
-            if (zippayEnabled) {
-                if (empty(billingData.customer)) {
-                    billingData.customer = {};
-                }
-
-                billingData.customer.zip = {
-                    hasZipToken: billingData.hasZipToken
-                };
-            }
-            var usingMultiShipping = req.session.privacyCache.get('usingMultiShipping');
-            if (usingMultiShipping === true && currentBasket.shipments.length < 2) {
-                req.session.privacyCache.set('usingMultiShipping', false);
-                usingMultiShipping = false;
-            }
-
-            var currentLocale = Locale.getLocale(req.locale.id);
-            var basketModelObject = new OrderModel(
-                currentBasket,
-                    { usingMultiShipping: usingMultiShipping, countryCode: currentLocale.country, containerView: 'basket' }
-                );
-
-            res.json({
-                order: basketModelObject,
-                form: billingForm,
-                error: false
+                res.json({
+                    order: basketModelObject,
+                    form: billingForm,
+                    error: false
+                });
             });
-        });
-
+        }
         return next();
     }
 );

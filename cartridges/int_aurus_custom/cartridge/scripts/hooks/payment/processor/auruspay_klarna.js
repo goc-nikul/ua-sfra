@@ -2,7 +2,10 @@
 var Transaction = require('dw/system/Transaction');
 var server = require('server');
 var Site = require('dw/system/Site');
+var errorLogger = require('dw/system/Logger').getLogger('OrderFail', 'OrderFail');
 var Logger = require('dw/system/Logger').getLogger('AurusPayHelper', 'AurusPayHelper');
+var aurusPayHelper = require('*/cartridge/scripts/util/aurusPayHelper');
+var LogHelper = require('*/cartridge/scripts/util/loggerHelper');
 
 /**
  * Handle entry point for SG integration
@@ -28,25 +31,37 @@ function Handle(basket) {
 /**
 * This function handles the auth call
 * @param {Object} params contains shipping, billing, and OTT
-* @returns {Object} Pre auth object from service call
+ * @param {dw.order} order - the current order
+* @returns {Object|null} Pre auth object from service call
 */
-function aurusKlarnaPreAuth(params) {
+function aurusKlarnaPreAuth(params, order) {
     // Custom Scripts for Auth call
     var aurusPaySvc = require('*/cartridge/scripts/services/aurusPayServices');
-    var aurusPayHelper = require('*/cartridge/scripts/util/aurusPayHelper');
-    var auth;
+    var auth = null;
     try {
         var reqBody = aurusPayHelper.createKlarnaAuthReqBody(params);
         auth = aurusPaySvc.getAuthService().call(reqBody);
+
+        if (auth.ok) {
+            auth = JSON.parse(auth.object.text);
+        } else {
+            if (auth && auth.errorMessage && order) {
+                Transaction.wrap(function () {
+                    order.trackOrderChange('Klarna Authorization Issue: ' + auth.errorMessage);
+                });
+            }
+            auth = null;
+        }
     } catch (error) {
+        errorLogger.error('aurusKlarnaPreAuth {0} : {1}', JSON.stringify(error), LogHelper.getLoggingObject());
         Logger.error('ERROR: Error while executing klarna pre auth :: {0}', error.message);
+        if (order) {
+            Transaction.wrap(function () {
+                order.addNote('Authorization Issue', JSON.stringify(error).substring(0, 4000));
+            });
+        }
     }
 
-    if (auth.ok) {
-        auth = JSON.parse(auth.object.text);
-    } else {
-        auth = null;
-    }
     return auth;
 }
 
@@ -58,16 +73,16 @@ function aurusKlarnaPreAuth(params) {
 function getSessionToken(params) {
     // Custom Scripts for Auth call
     var aurusPaySvc = require('*/cartridge/scripts/services/aurusPayServices');
-    var aurusPayHelper = require('*/cartridge/scripts/util/aurusPayHelper');
     var sessionTokenRes;
     try {
         var reqBody = aurusPayHelper.createKlarnaSessionTokenReqBody(params);
         sessionTokenRes = aurusPaySvc.getSessionTokenService().call(reqBody);
     } catch (error) {
+        errorLogger.error('getSessionToken {0} : {1}', JSON.stringify(error), LogHelper.getLoggingObject());
         Logger.error('ERROR: Error while executing pre auth.', error);
     }
 
-    if (sessionTokenRes.ok) {
+    if (sessionTokenRes && sessionTokenRes.ok) {
         sessionTokenRes = JSON.parse(sessionTokenRes.object.text);
     } else {
         sessionTokenRes = null;
@@ -86,7 +101,6 @@ function getSessionToken(params) {
 function Authorize(orderNumber, paymentInstrument, paymentProcessor, scope) {
     // Models for Auth call
     var BillingAddressModel = require('*/cartridge/models/billingAddressPayPal');
-    var aurusPayHelper = require('*/cartridge/scripts/util/aurusPayHelper');
     var ShippingAddressModel = require('*/cartridge/models/shippingAddress');
     var EcommInfoModel = require('*/cartridge/models/ecommInfo');
     var TransAmountDetails = require('*/cartridge/models/transactionDetails');
@@ -111,6 +125,7 @@ function Authorize(orderNumber, paymentInstrument, paymentProcessor, scope) {
 
         // Handle Session Token Respnse Errors
         if (sessionTokenResponse == null) {
+            errorLogger.error('Authorize sessionTokenResponse {0}', LogHelper.getLoggingObject(order));
             Logger.error('ERROR: Error while executing getSessionToken for Klarna');
             return {
                 error: true
@@ -119,6 +134,7 @@ function Authorize(orderNumber, paymentInstrument, paymentProcessor, scope) {
 
         if (sessionTokenResponse.GetSessionTokenResponse && (sessionTokenResponse.GetSessionTokenResponse.ResponseText === 'INVALID SESSION ID' || sessionTokenResponse.GetSessionTokenResponse.ResponseText === 'UNABLE TO PROCESS REQUEST' || sessionTokenResponse.GetSessionTokenResponse.ResponseText === 'INVALID_REQUEST_SESSION_ID')) {
             // Handle Session Token Respnse Errors
+            errorLogger.error('Authorize ResponseText {0}', LogHelper.getLoggingObject(order));
             if (sessionTokenResponse.GetSessionTokenResponse.ResponseText) {
                 Logger.error('ERROR: Error while executing getSessionToken for Klarna, {0}', sessionTokenResponse.GetSessionTokenResponse.ResponseText);
             }
@@ -181,10 +197,11 @@ function Authorize(orderNumber, paymentInstrument, paymentProcessor, scope) {
         orderNo: aurusInvoiceNumber,
         currencyCode: order.currencyCode,
         Level3ProductsData: aurusProducts
-    });
+    }, order);
 
     if (empty(authResult) || empty(authResult.TransResponse) || empty(authResult.TransResponse.TransDetailsData) || empty(authResult.TransResponse.TransDetailsData.TransDetailData)) {
         Logger.error('ERROR: Error in Klarna Pre-Auth response object');
+        errorLogger.error('Authorize TransResponse {0}', LogHelper.getLoggingObject(order));
         return {
             error: true
         };
@@ -196,6 +213,7 @@ function Authorize(orderNumber, paymentInstrument, paymentProcessor, scope) {
     if (scope && scope === 'OCAPI') {
         var aurusPayProcessorResponseCode = authResult.TransResponse.TransDetailsData.TransDetailData.ProcessorResponseCode;
         if (sessionTokenResponse.GetSessionTokenResponse.ResponseCode > 0) {
+            errorLogger.error('Authorize ResponseCode {0}', LogHelper.getLoggingObject(order));
             return {
                 error: true,
                 errorCode: aurusPayResponseCode
@@ -210,12 +228,14 @@ function Authorize(orderNumber, paymentInstrument, paymentProcessor, scope) {
                 /* eslint-enable no-param-reassign */
             });
         } catch (e) {
+            errorLogger.error('Authorize 1 {0} : {1}', JSON.stringify(e), LogHelper.getLoggingObject(order));
             Logger.error('ERROR: Error in executing Pre-Auth OCAPI call for Klarna :: {0}', e.message);
         }
     }
 
     if (aurusPayResponseCode > 0) {
         // Response code not 0000
+        errorLogger.error('Authorize aurusPayResponseCode {0}', LogHelper.getLoggingObject(order));
         session.privacy.apResponseCode = aurusPayResponseCode;
         return {
             error: true,
@@ -239,6 +259,7 @@ function Authorize(orderNumber, paymentInstrument, paymentProcessor, scope) {
         });
     } catch (e) {
         session.privacy.apResponseCode = aurusPayResponseCode;
+        errorLogger.error('Authorize 2 {0} : {1}', JSON.stringify(e), LogHelper.getLoggingObject());
         Logger.error('ERROR: Error while setting payment Instruments custom attributes :: {0}', e.message);
     }
 

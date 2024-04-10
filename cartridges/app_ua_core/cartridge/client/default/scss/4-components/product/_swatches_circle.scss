@@ -7,11 +7,11 @@
         @include swatch-circle;
 
         display: block;
-        margin: spacing(xs2) / 2;
+        margin: calc(spacing(xs2) / 2);
 
         &.m-active,
         &:active {
-            margin: spacing(xs2) / 2;
+            margin: calc(spacing(xs2) / 2);
         }
 
         &:disabled,
@@ -106,6 +106,91 @@
                 float: right;
                 position: relative;
                 top: rem-calc(14);
+            }
+        }
+
+        &.m-color {
+            .b-color-more_less {
+                align-items: center;
+                margin-left: auto;
+                float: none;
+                min-height: 40px;
+                top: auto;
+            }
+
+            .l-show-more,
+            .l-show-less {
+                border: none;
+                background: transparent;
+            }
+
+            .b-swatches_circle-item {
+                float: none;
+                margin: 0;
+            }
+
+            .last-visible {
+                ~ .b-color-more_less {
+                    display: inline-flex;
+                }
+            }
+
+            .b-swatches_circle-link {
+                margin: 5px;
+            }
+
+            .b-swatches_circle {
+                $swatchH: 40px;
+                $gap: 5px;
+                $rows: 3;
+
+                display: flex;
+                gap: $gap;
+                overflow: hidden;
+                max-height: #{$swatchH * $rows + $gap * ($rows - 1)};
+
+                @include respond-to(desktop) {
+                    $rows: 4;
+
+                    max-height: #{$swatchH * $rows + $gap * ($rows - 1)};
+                }
+            }
+
+            .b-swatches_image {
+                $swatchH: 100px;
+                $gap: 5px;
+                $rows: 3;
+
+                gap: $gap;
+                max-height: #{$swatchH * $rows + $gap * ($rows - 1)};
+
+                @include respond-to(desktop) {
+                    $rows: 4;
+
+                    max-height: #{$swatchH * $rows + $gap * ($rows - 1)};
+                }
+            }
+
+            &:not(.show-all) {
+                .last-visible {
+                    ~ .b-swatches_circle-item {
+                        display: none;
+                    }
+                }
+            }
+
+            &.show-all {
+                .b-swatches_circle {
+                    max-height: unset;
+                }
+
+                .l-show-more {
+                    display: none;
+                }
+
+                .l-show-less {
+                    display: inline-block;
+                }
             }
         }
     }

@@ -40,8 +40,10 @@ function createOrder(currentBasket, orderNo) {
                             });
                         }
                     }
+                    var membersonHelpers = require('*/cartridge/scripts/helpers/membersonHelpers');
+                    var membersonCouponInCart = membersonHelpers.checkIfMembersonCouponApplied(order, currentCustomer);
                     // Check if orderId is created or not, if yes then call the Utilize voucher API if any applied to basket
-                    if (!empty(currentBasket) && !empty(currentBasket.custom['Loyalty-VoucherName'])) {
+                    if (!empty(order.custom['Loyalty-VoucherName'])) {
                         var loyaltyVoucherName = order.custom['Loyalty-VoucherName'].split('=')[1];
                         if (HookMgr.hasHook('app.memberson.UtilizeMemberVoucher')) {
                             utilizeMemberVouchers = HookMgr.callHook('app.memberson.UtilizeMemberVoucher', 'utilizeMemberVoucher', order, loyaltyVoucherName, countryConfig.ecommLocation);
@@ -54,7 +56,7 @@ function createOrder(currentBasket, orderNo) {
                             });
                         } else {
                             // Remove the coupon and display the error message
-                            var membersonCoupon = currentBasket.custom['Loyalty-VoucherName'].split('=')[0];
+                            var membersonCoupon = order.custom['Loyalty-VoucherName'].split('=')[0];
                             var couponLineItem = order.getCouponLineItem(membersonCoupon);
                             if (!empty(couponLineItem)) {
                                 Transaction.begin();
@@ -69,6 +71,15 @@ function createOrder(currentBasket, orderNo) {
                                 }
                             }
                         }
+                    } else if (membersonCouponInCart) {
+                        // If memberson coupon is applied in basket but there are no available vouchers in memberson.
+                        var Logger = require('dw/system/Logger');
+                        var LOGGER = Logger.getLogger('UAMembersonAPIs', 'UAMembersonAPIs');
+                        LOGGER.error('Memberson - Voucher unavailable in Memberson');
+                        Transaction.begin();
+                        OrderMgr.failOrder(order, true);
+                        Transaction.commit();
+                        session.custom.membersonOrderFailedError = Resource.msg('memberson.msg.utilizevoucher.cart', 'membersonGlobal', null);
                     }
                 }
             }

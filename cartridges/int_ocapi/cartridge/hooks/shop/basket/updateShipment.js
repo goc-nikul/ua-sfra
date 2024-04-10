@@ -41,7 +41,6 @@ function afterPUT(basket, shipment) {
                 session.custom.srtoken = '';
                 basket.getDefaultShipment().shippingMethod = null; // eslint-disable-line
             });
-            throw new Error('Error validating ShopRunner token on Basket');
         }
     }
     var paymentHelper = require('~/cartridge/scripts/paymentHelper');

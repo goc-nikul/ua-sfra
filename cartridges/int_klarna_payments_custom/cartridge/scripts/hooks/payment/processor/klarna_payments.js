@@ -14,7 +14,8 @@ var KlarnaPaymentsProcessor = require('*/cartridge/scripts/payments/processor');
  * @returns {Object} processor result
  */
 superMdl.Authorize = function (orderNumber, paymentInstrument, paymentProcessor, scope) {
-    var order = dw.order.OrderMgr.getOrder(orderNumber);
+    var OrderMgr = require('dw/order/OrderMgr');
+    var order = OrderMgr.getOrder(orderNumber);
     var result = KlarnaPaymentsProcessor.authorize(order, orderNumber, paymentInstrument, scope);
     return result;
 };

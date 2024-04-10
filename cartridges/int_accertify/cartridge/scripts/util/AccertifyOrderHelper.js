@@ -27,9 +27,7 @@ var AccertifyOrderHelper = function () {
     this.addNotificationData = function (order, object) {
         Transaction.wrap(function () {
             Object.keys(object).forEach(function (key) {
-                if (key === 'remarks') {
-                    order.addNote('remarks', object[key]);
-                } else {
+                if (key !== 'remarks') {
                     order.custom[key] = object[key];
                 }
             });
@@ -50,7 +48,6 @@ var AccertifyOrderHelper = function () {
                 order.custom.accertifyScore = object.accertifyScore;
                 order.custom.accertifyRecCode = object.accertifyActionType;
                 order.custom.accertifyActionType = object.accertifyRecCode;
-                order.addNote('remarks', object.remarks);
             });
         } catch (e) {
             Log.error('Can not set order custom value: {0}', e.message);
@@ -105,7 +102,14 @@ var AccertifyOrderHelper = function () {
      */
     this.changeOrderStatus = function (order) {
         var accertifyRecCode = order.custom && Object.prototype.hasOwnProperty.call(order.custom, 'accertifyRecCode') ? Resource.msg('accertify.accertifyRecCode.' + order.custom.accertifyRecCode.toLowerCase(), 'accertify', null) : '';
-
+        var adyenClientKey = Site.current.getCustomPreferenceValue('Adyen_ClientKey');
+        var AdyenConfigs = adyenClientKey ? require('*/cartridge/scripts/util/adyenConfigs') : {};
+        var AdyenHelper = adyenClientKey ? require('*/cartridge/scripts/util/adyenHelper') : {};
+        var constants = adyenClientKey ? require('*/cartridge/adyenConstants/constants') : {};
+        var adyenComponentPaymentInstruments;
+        var adyenComponentPaymentInstrument;
+        var pspReference;
+        var paymentRequest;
         if (accertifyRecCode === Resource.msg('accertify.accertifyRecCode.accept', 'accertify', null)) {
             // Initializing eGift order level status attribute
             var eGiftCardLineItems = giftCardHelper.getEGiftCardLineItems(order);
@@ -118,11 +122,30 @@ var AccertifyOrderHelper = function () {
 
             COHelpers.placeOrder(order, accertifyRecCode);
             COHelpers.handleHoldStatus(order, false, 'fraudCheck');
+            if (adyenClientKey) {
+                adyenComponentPaymentInstruments = order.getPaymentInstruments('AdyenComponent');
+                adyenComponentPaymentInstrument = adyenComponentPaymentInstruments && adyenComponentPaymentInstruments.length > 0 ? adyenComponentPaymentInstruments[0] : null;
+                var disableCaptureCall = Site.current.getCustomPreferenceValue('Adyen_disableCaptureCall');
+                if (adyenComponentPaymentInstrument && !disableCaptureCall) {
+                    pspReference = adyenComponentPaymentInstrument.paymentTransaction && adyenComponentPaymentInstrument.paymentTransaction.custom.Adyen_pspReference;
+                    var adyenAmount = adyenComponentPaymentInstrument.paymentTransaction ? AdyenHelper.getCurrencyValueForApi(adyenComponentPaymentInstrument.paymentTransaction.amount) : null;
+                    if (pspReference && adyenAmount) {
+                        paymentRequest = {
+                            merchantAccount: AdyenConfigs.getAdyenMerchantAccount(),
+                            amount: {
+                                value: adyenAmount.value,
+                                currency: adyenAmount.currencyCode
+                            },
+                            reference: order.orderNo
+                        };
+                        AdyenHelper.executeCall(constants.SERVICE.CAPTURE, paymentRequest, pspReference);
+                    }
+                }
+            }
         } else if (accertifyRecCode === Resource.msg('accertify.accertifyRecCode.reject', 'accertify', null)) {
             // Aurus Legacy Check
             var isAurusEnabled = require('*/cartridge/scripts/helpers/sitePreferencesHelper').isAurusEnabled();
             if (!isAurusEnabled) {
-                var adyenClientKey = Site.current.getCustomPreferenceValue('Adyen_ClientKey');
                 if (empty(adyenClientKey)) {
                     // Make a call to XiPay to do void authorization if secondary authorization site preference is enabled for PayPal
                     // "isEnabled" site preference and valid payment instrument check is already there in "doVoidAuthorization" method. So no need to put additional checks here.
@@ -133,15 +156,12 @@ var AccertifyOrderHelper = function () {
                         paymetricXiPayHelper.doVoidAuthorization(order, 'Paymetric');
                     }
                 } else {
-                    var adyenComponentPaymentInstruments = order.getPaymentInstruments('AdyenComponent');
-                    var adyenComponentPaymentInstrument = adyenComponentPaymentInstruments && adyenComponentPaymentInstruments.length > 0 ? adyenComponentPaymentInstruments[0] : null;
+                    adyenComponentPaymentInstruments = order.getPaymentInstruments('AdyenComponent');
+                    adyenComponentPaymentInstrument = adyenComponentPaymentInstruments && adyenComponentPaymentInstruments.length > 0 ? adyenComponentPaymentInstruments[0] : null;
                     if (adyenComponentPaymentInstrument) {
-                        var pspReference = adyenComponentPaymentInstrument.paymentTransaction && adyenComponentPaymentInstrument.paymentTransaction.custom.Adyen_pspReference;
-                        var constants = require('*/cartridge/adyenConstants/constants');
-                        var AdyenConfigs = require('*/cartridge/scripts/util/adyenConfigs');
-                        var AdyenHelper = require('*/cartridge/scripts/util/adyenHelper');
+                        pspReference = adyenComponentPaymentInstrument.paymentTransaction && adyenComponentPaymentInstrument.paymentTransaction.custom.Adyen_pspReference;
                         if (pspReference) {
-                            var paymentRequest = {
+                            paymentRequest = {
                                 merchantAccount: AdyenConfigs.getAdyenMerchantAccount()
                             };
                             AdyenHelper.executeCall(constants.SERVICE.PAYMENTREVERSAL, paymentRequest, pspReference);

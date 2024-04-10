@@ -1,3 +1,5 @@
+'use strict';
+
 var assert = require('chai').assert;
 var searchHelperPath = '../../../../../cartridges/app_storefront_base/cartridge/scripts/helpers/searchHelpers';
 var searchHelpers = require(searchHelperPath);
@@ -37,7 +39,7 @@ describe('search helpers', function () {
             catalogMgrMock.getCategory.returns(categoryMock);
 
             pageMgrMock = {
-                getPage: sinon.stub()
+                getPageByCategory: sinon.stub()
             };
             searchHelpersMock = proxyquire(searchHelperPath, {
                 'dw/catalog/CatalogMgr': catalogMgrMock,
@@ -49,31 +51,31 @@ describe('search helpers', function () {
         });
 
         it('should return an object with null values, if no suitable page can be found', function () {
-            pageMgrMock.getPage.returns(null);
+            pageMgrMock.getPageByCategory.returns(null);
 
             var result = searchHelpersMock.getPageDesignerCategoryPage('someId');
             assert.isNotNull(result);
             assert.isNull(result.page);
             assert.isNull(result.invisiblePage);
             assert.isNull(result.aspectAttributes);
-            assert.isTrue(pageMgrMock.getPage.calledTwice);
+            assert.isTrue(pageMgrMock.getPageByCategory.calledTwice);
         });
 
         it('should return only invisible page if no visible page can be found', function () {
             var invisibleMockPage = { isVisible: function () { return false; }, ID: 'invisible' };
-            pageMgrMock.getPage.withArgs(categoryMock, false, 'plp').returns(invisibleMockPage);
+            pageMgrMock.getPageByCategory.withArgs(categoryMock, false, 'plp').returns(invisibleMockPage);
 
             var result = searchHelpersMock.getPageDesignerCategoryPage('someId');
             assert.isNotNull(result);
             assert.isNull(result.page);
             assert.strictEqual(result.invisiblePage, invisibleMockPage);
             assert.isNull(result.aspectAttributes);
-            assert.isTrue(pageMgrMock.getPage.calledTwice);
+            assert.isTrue(pageMgrMock.getPageByCategory.calledTwice);
         });
 
         it('should return only a visible page and aspect attributes when it is the only page found', function () {
             var mockPage = { ID: 'mockPageId', isVisible: function () { return true; } };
-            pageMgrMock.getPage.returns(mockPage);
+            pageMgrMock.getPageByCategory.returns(mockPage);
 
             var result = searchHelpersMock.getPageDesignerCategoryPage('someId');
             assert.isNotNull(result);
@@ -82,14 +84,14 @@ describe('search helpers', function () {
             assert.isNotNull(result.aspectAttributes);
             assert.equal(result.aspectAttributes.category, categoryMock);
             assert.isTrue(result.aspectAttributes.isHashMap);
-            assert.isTrue(pageMgrMock.getPage.calledTwice);
+            assert.isTrue(pageMgrMock.getPageByCategory.calledTwice);
         });
 
         it('should return both a visible page and invisible page and aspect attributes when the pages are different', function () {
             var mockPage = { ID: 'mockPageId', isVisible: function () { return true; } };
-            pageMgrMock.getPage.returns(mockPage);
+            pageMgrMock.getPageByCategory.returns(mockPage);
             var invisibleMockPage = { isVisible: function () { return false; }, ID: 'invisible' };
-            pageMgrMock.getPage.withArgs(categoryMock, false, 'plp').returns(invisibleMockPage);
+            pageMgrMock.getPageByCategory.withArgs(categoryMock, false, 'plp').returns(invisibleMockPage);
 
             var result = searchHelpersMock.getPageDesignerCategoryPage('someId');
             assert.isNotNull(result);
@@ -98,7 +100,7 @@ describe('search helpers', function () {
             assert.isNotNull(result.aspectAttributes);
             assert.equal(result.aspectAttributes.category, categoryMock);
             assert.isTrue(result.aspectAttributes.isHashMap);
-            assert.isTrue(pageMgrMock.getPage.calledTwice);
+            assert.isTrue(pageMgrMock.getPageByCategory.calledTwice);
         });
     });
 
@@ -125,7 +127,6 @@ describe('search helpers', function () {
                 addRefinementValues: addRefinementValuesSpy
             }
         });
-
 
         it('should call setProductProperties', function () {
             searchHelpersMock.setupSearch(mockApiProductSearch, mockParams1);
@@ -221,10 +222,10 @@ describe('search helpers', function () {
         var searchHelpersMock3 = proxyquire(searchHelperPath, {
             'dw/catalog/CatalogMgr': {
                 getSortingOptions: function () {
-                    return;
+
                 },
                 getSiteCatalog: function () {
-                    return { getRoot: function () { return; } };
+                    return { getRoot: function () { } };
                 },
                 getSortingRule: function (rule) {
                     return rule;
@@ -247,10 +248,10 @@ describe('search helpers', function () {
             },
             '*/cartridge/scripts/helpers/pageMetaHelper': {
                 setPageMetaTags: function () {
-                    return;
+
                 },
                 setPageMetaData: function () {
-                    return;
+
                 }
             },
             '*/cartridge/scripts/helpers/structuredDataHelper': {
@@ -266,10 +267,10 @@ describe('search helpers', function () {
             },
             '*/cartridge/scripts/search/search': {
                 setProductProperties: function () {
-                    return;
+
                 },
                 addRefinementValues: function () {
-                    return;
+
                 }
             }
         });
@@ -283,11 +284,15 @@ describe('search helpers', function () {
             querystring: {}
         };
         var mockRequest2 = { querystring: { q: 'someValue' } };
-        var mockRequest3 = { querystring: { cgid: 'someCategory', preferences: 'preferences', pmin: 'pmin', pmax: 'pmax' } };
+        var mockRequest3 = {
+            querystring: {
+                cgid: 'someCategory', preferences: 'preferences', pmin: 'pmin', pmax: 'pmax'
+            }
+        };
 
         afterEach(function () {
             productSearchStub.reset();
-            searchSpy.reset();
+            searchSpy.resetHistory();
         });
 
         it('should category search', function () {

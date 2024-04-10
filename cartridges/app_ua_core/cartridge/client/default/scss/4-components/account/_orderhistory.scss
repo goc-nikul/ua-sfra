@@ -268,6 +268,13 @@
                             font-weight: $font-regular !important;
                         }
                     }
+
+                    .label-text {
+                        display: flex;
+                        text-align: left;
+                        align-items: flex-start;
+                        flex-direction: column;
+                    }
                 }
 
                 .b-card-status,
@@ -774,17 +781,16 @@
                                             }
 
                                             .g-tooltip {
-                                                p {
-                                                    border: 1px solid $black;
-                                                    border-radius: rem-calc(16);
-                                                    width: rem-calc(16);
-                                                    height: rem-calc(16);
-                                                    @include font(main, rem-calc(10), 1.6);
+                                                .g-tooltip-icon {
+                                                    @include icon(question);
 
-                                                    text-align: center;
-                                                    margin-left: rem-calc(5);
-                                                    line-height: rem-calc(18);
+                                                    vertical-align: middle;
                                                     cursor: pointer;
+
+                                                    &::before {
+                                                        margin-left: rem-calc(5);
+                                                        font-size: rem-calc(14);
+                                                    }
                                                 }
 
                                                 .g-tooltip-text {
@@ -1035,6 +1041,9 @@
                                         }
 
                                         .item-not-eligible {
+                                            display: flex;
+                                            align-items: center;
+
                                             p {
                                                 @include font(main_bold, rem-calc(10), 1.6);
 
@@ -1042,28 +1051,28 @@
                                             }
 
                                             .g-tooltip {
-                                                p {
-                                                    border: 1px solid $black;
-                                                    border-radius: rem-calc(22);
-                                                    width: rem-calc(18);
-                                                    height: rem-calc(18);
-                                                    @include font(main, rem-calc(10), 1.6);
+                                                .g-tooltip-icon {
+                                                    @include icon(question);
 
-                                                    text-align: center;
-                                                    margin-left: rem-calc(10);
-                                                    line-height: initial;
+                                                    vertical-align: middle;
                                                     cursor: pointer;
+
+                                                    &::before {
+                                                        margin-left: rem-calc(5);
+                                                        font-size: rem-calc(14);
+                                                    }
                                                 }
 
                                                 .g-tooltip-text {
-                                                    width: rem-calc(290);
+                                                    width: rem-calc(258);
                                                     left: 0;
                                                     padding: rem-calc(16) rem-calc(12);
                                                     text-align: center;
                                                     transform: translateX(-22%);
+                                                    top: calc(100% + 5px);
 
                                                     &::after {
-                                                        left: 28%;
+                                                        left: 26%;
                                                     }
                                                 }
                                             }
@@ -1264,6 +1273,10 @@
                 @include respond-to(mobile) {
                     flex-basis: 100%;
                     order: 2;
+                }
+
+                .oxxo-voucher-link {
+                    margin-top: rem-calc(14);
                 }
 
                 .order-summary_title {
@@ -1870,5 +1883,13 @@
 
     @include respond-to(mobile) {
         margin-top: rem-calc(6);
+    }
+}
+
+.emea-track-status {
+    .b-card-track-status {
+        &-heading {
+            text-transform: capitalize;
+        }
     }
 }

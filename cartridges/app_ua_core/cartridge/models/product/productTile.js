@@ -16,9 +16,9 @@ var ProductHelper = require('~/cartridge/scripts/helpers/ProductHelper');
 module.exports = function productTile(product, apiProduct, productType, options) {
     var productSearchHit = ProductHelper.getProductSearchHit(apiProduct);
     decorators.base(product, apiProduct, productType);
-    decorators.searchPrice(product, productSearchHit, promotionCache.promotions, ProductHelper.getProductSearchHit, options.experienceType, apiProduct);
+    decorators.searchPrice(product, productSearchHit, promotionCache.promotions, ProductHelper.getProductSearchHit, options.experienceType, ProductHelper.getVariantForColor, apiProduct, options.viewPreference);
     decorators.tileImages(product, apiProduct, productSearchHit, options.viewPreference, options.experienceType);
-    decorators.tileSwatches(product, productSearchHit, options.outletColors, options.experienceType, options.viewPreference, options.isFilterByTeam, options.team);
+    decorators.tileSwatches(product, productSearchHit, options.outletColors, options.experienceType, options.viewPreference, options.isFilterByTeam, options.team, product && product.images && product.images.selectedColor ? product.images.selectedColor.color : '');
     decorators.badges(product, apiProduct);
     decorators.customAttributes(product, apiProduct);
     decorators.promotions(product, options.promotions);

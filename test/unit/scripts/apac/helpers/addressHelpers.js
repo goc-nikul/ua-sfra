@@ -348,7 +348,9 @@ describe('app_ua_apac/cartridge/scripts/helpers/addressHelpers', function() {
 
     it('Testing method: getCountriesDefinition => should return empty object when  country.options is empty', () => {
         // Test function with TH country Data to cover all cases
-
+        global.request.getLocale = function () {
+            return 'en_TH';
+        };
         let addressForm = {
             country: {
                 options: ''

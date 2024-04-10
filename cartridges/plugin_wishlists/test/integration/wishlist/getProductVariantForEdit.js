@@ -1,3 +1,4 @@
+'use strict';
 
 var assert = require('chai').assert;
 var request = require('request-promise');
@@ -6,7 +7,7 @@ var config = require('../it.config');
 describe('Wishlist: Get product variant in wishlist for edit', function () {
     this.timeout(45000);
 
-    var variantPid1 = '701643421084M';   // 3/4 Sleeve V-Neck Top: icy mint, XS
+    var variantPid1 = '701643421084M'; // 3/4 Sleeve V-Neck Top: icy mint, XS
 
     var cookieJar = request.jar();
     var myRequest = {

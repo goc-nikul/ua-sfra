@@ -87,6 +87,11 @@ function Authorize(orderNumber, paymentInstrument, paymentProcessor) {
             if (Site.getCurrent().getCustomPreferenceValue('isSetOrderConfirmationEmailStatusForJob')) {
                 order.custom.orderConfirmationEmailStatus = 'READY_FOR_PROCESSING'; // eslint-disable-line no-undef
             }
+            if (Site.getCurrent().getCustomPreferenceValue('enableCODOrdersLimit') && request.session.customer.authenticated) {
+                var customerProfile = request.session.customer.profile;
+                var codOrderCount = customerProfile.custom.codOrderCount;
+                customerProfile.custom.codOrderCount = codOrderCount + 1;
+            }
         });
     } catch (e) {
         error = true;

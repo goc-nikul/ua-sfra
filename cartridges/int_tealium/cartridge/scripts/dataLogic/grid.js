@@ -24,6 +24,7 @@ module.exports = function gridLogic(logicArgs) {
         grid_sort_order: 'Top Sellers', // sort value
         grid_paging_offset: PAGING_OFFSET.toString(), // if url took shopper to a pagination offset, the start product number
         grid_top_content: 'no', // yes, no if has header content
-        sfTestVariants : logicArgs.ABTestData
+        sfTestVariants : logicArgs.ABTestData,
+        features: logicArgs.features
     };
 };

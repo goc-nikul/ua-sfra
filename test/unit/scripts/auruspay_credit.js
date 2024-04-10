@@ -76,6 +76,9 @@ describe('Aurus: hooks/payment/processor/auruspay_credit test', () => {
         'dw/order/Order': require(pathToCoreMock + 'dw/dw_order_Order'),
         'dw/util/StringUtils': require(pathToCoreMock + 'dw/dw_util_StringUtils'),
         'dw/util/Calendar': Calendar,
+        '*/cartridge/scripts/util/loggerHelper': {
+            getLoggingObject: () => ''
+        },
         'server': server,
         '*/cartridge/models/billingAddress': require(pathToCartridges + 'int_aurus_sfra/cartridge/models/billingAddress'),
         '*/cartridge/models/shippingAddress': require(pathToCartridges + 'int_aurus_sfra/cartridge/models/shippingAddress'),
@@ -161,6 +164,9 @@ describe('Aurus: hooks/payment/processor/auruspay_credit test', () => {
                 }
             },
             'dw/util/Calendar': Calendar,
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
             '*/cartridge/scripts/util/loggerHelper.js': {
                 maskPIIAuruspayInfo: () => ''
             }

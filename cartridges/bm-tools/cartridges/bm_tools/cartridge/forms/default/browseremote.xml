@@ -1,8 +1,20 @@
-<?xml version="1.0"?>	
+<?xml version="1.0"?>
 <form xmlns="http://www.demandware.com/xml/form/2008-04-19">
 	<group formid="http">
-		<field formid="url" type="string" label="URL" mandatory="true" missing-error="URL is missing!" /> 
-		<field formid="encode" type="boolean" label="encode Response" mandatory="false" default-value="true"/> 
+		<field formid="url" type="string" label="URL" mandatory="true" missing-error="URL is missing!" />
+		<field formid="method" label="HTTP Method" type="string" mandatory="true" default-value="GET">
+			<options>
+				<option label="GET"	value="GET" />
+				<option label="POST" value="POST" />
+				<option label="PUT" value="PUT" />
+				<option label="PATCH" value="PATCH" />
+			</options>
+		</field>
+		<field formid="body" type="string" label="Payload" mandatory="false"/>
+		<field formid="key" type="string" label="Key Alias" mandatory="false"/>
+		<field formid="serviceID" type="string" label="Service ID" mandatory="false" />
+		<field formid="encode" type="boolean" label="encode Response" mandatory="false" default-value="true"/>
+		<field formid="usejwt" type="boolean" label="Use JWT" mandatory="false" default-value="false"/>
 	</group>
 	<group formid="filesystem">
 		<field formid="protocol" label="Protocol" type="string" mandatory="true" default-value="SFTP">
@@ -11,13 +23,14 @@
 				<option label="SFTP"		value="sftp"/>
 				<option label="WEBDAV_HTTP"	value="http"/>
 				<option label="WEBDAV_HTTPS"	value="https"/>
-			</options>	
+			</options>
 		</field>
-		<field formid="host" type="string" label="Host" mandatory="true" missing-error="URL is missing!" /> 
-		<field formid="port" type="string" label="Port" mandatory="false"/> 
-		<field formid="user" type="string" label="User" mandatory="true"/> 
-		<field formid="password" type="string" label="Password" mandatory="true"/> 
-		<field formid="path" type="string" label="Path" mandatory="false" default-value="/"/> 
-		<field formid="url" type="string" label="URL" mandatory="false"/> 
+		<field formid="host" type="string" label="Host" mandatory="true" missing-error="URL is missing!" />
+		<field formid="port" type="string" label="Port" mandatory="false"/>
+		<field formid="user" type="string" label="User" mandatory="true"/>
+		<field formid="password" type="string" label="Password" mandatory="true"/>
+		<field formid="path" type="string" label="Path" mandatory="false" default-value="/"/>
+		<field formid="key" type="string" label="Key Alias (only SFTP)" mandatory="false"/>
+		<field formid="url" type="string" label="URL" mandatory="false"/>
 	</group>
 </form>

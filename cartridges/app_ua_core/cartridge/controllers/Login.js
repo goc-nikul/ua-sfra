@@ -23,6 +23,7 @@ server.get(
         var profileForm = server.forms.getForm('profile');
         profileForm.clear();
         var idmPreferences = require('*/cartridge/scripts/idmPreferences');
+        var promptedLogin = req.querystring.promptedLogin || false;
         if (idmPreferences.isIdmEnabled && !idmPreferences.uaidmEnableRegisterFEValidation) {
             var Transaction = require('dw/system/Transaction');
             Transaction.wrap(function () {
@@ -32,6 +33,10 @@ server.get(
         }
         var isFacebookLoginEnabledInRegisterModal = PreferencesUtil.isCountryEnabled('facebookLoginEnabledInRegisterModal');
         var showRegisterModal = req.querystring.showregistermodal;
+        var userName = '';
+        if (req.currentCustomer.raw && req.currentCustomer.raw.profile) {
+            userName = req.currentCustomer.raw.profile.email;
+        }
         if (showRegisterModal) {
             res.redirect(URLUtils.url('Home-Show', 'showRegisterModal', showRegisterModal));
         } else {
@@ -42,10 +47,11 @@ server.get(
                 isFacebookLoginEnabledInRegisterModal: isFacebookLoginEnabledInRegisterModal,
                 passwordRules: passwordRequirements,
                 format: req.querystring.format ? req.querystring.format : '',
-                userName: req.currentCustomer.raw.profile ? req.currentCustomer.raw.profile.email : '',
+                userName: userName,
                 actionUrl: actionUrl,
                 canonicalUrl: URLUtils.abs('Login-CreateAccountModal'),
-                pageRef: req.querystring.pageRef
+                pageRef: req.querystring.pageRef,
+                promptedLogin: promptedLogin
             });
         }
         next();
@@ -143,34 +149,32 @@ server.append('Show', function (req, res, next) {
     if (contentObj) {
         pageMetaHelper.setPageMetaData(req.pageMetaData, contentObj);
     }
+
+    var promptedLogin = req.querystring.promptedLogin || false;
+    if (promptedLogin) {
+        session.custom.promptedLoginShowed = true;
+    }
+    var userName = '';
+    if (req.currentCustomer.raw && req.currentCustomer.raw.profile) {
+        userName = req.currentCustomer.raw.profile.email;
+    }
+
     res.setViewData({
         isIdmEnabled: require('*/cartridge/scripts/idmPreferences').isIdmEnabled,
-        userName: req.currentCustomer.raw.profile ? req.currentCustomer.raw.profile.email : '',
+        userName: userName,
         format: req.querystring.format,
         canonicalUrl: URLUtils.abs('Login-Show'),
         returnUrl: req.querystring.returnUrl,
-        pageRef: req.querystring.pageRef
+        pageRef: req.querystring.pageRef,
+        promptedLogin: promptedLogin
     });
     next();
 }, pageMetaData.computedPageMetaData);
 
 server.replace('Logout', function (req, res, next) {
     // Wipe UA IDM Cookies that extend session
-    var cookieHelper = require('*/cartridge/scripts/helpers/cookieHelpers');
-    var idmID = cookieHelper.read('UAExternalID');
-    var sizePreferences = cookieHelper.read('UAExternalSizePreferences0');
-    if (idmID !== undefined || sizePreferences !== undefined) {
-        for (var i = 0; i < i + 1; i++) {
-            var uaExternalSizePreferences = cookieHelper.read('UAExternalSizePreferences' + i);
-            if (uaExternalSizePreferences !== undefined) {
-                cookieHelper.deleteCookie('UAExternalSizePreferences' + i);
-            } else {
-                break;
-            }
-        }
-        cookieHelper.deleteCookie('UAExternalID');
-        cookieHelper.deleteCookie('UAActiveSession');
-    }
+    require('*/cartridge/scripts/helpers/accountHelpers').deleteIDMCookies();
+
     var CustomerMgr = require('dw/customer/CustomerMgr');
     CustomerMgr.logoutCustomer(req.session.privacyCache.get('remember_me') || false);
     res.redirect(URLUtils.url('Home-Show'));

@@ -95,6 +95,22 @@ RestService.prototype = {
     },
 
     /**
+     * Inserts auth token into request header for dataEvents
+     * @param {dw.svc.HTTPService} svc
+     * @return {boolean|Object} False or token object
+     * @throws {Error} Throws error when no valid auth token is available (i.e.- service error, service down)
+     */
+    setAuthHeaderDataEvents: function setAuthHeaderDataEvents(svc) {
+        var helper = require('./helper');
+        if (!this.token) {
+            this.token = helper.getValidTokenDataEvents();
+        }
+
+        svc.setAuthentication('NONE');
+        svc.addHeader('Authorization', 'Bearer ' + this.token.accessToken);
+    },
+
+    /**
      * Documentation: https://developer.salesforce.com/docs/atlas.en-us.mc-app-development.meta/mc-app-development/access-token-s2s.htm
      * Endpoint: https://YOUR_SUBDOMAIN.auth.marketingcloudapis.com/v2/token
      * Method: POST
@@ -104,6 +120,106 @@ RestService.prototype = {
      */
     auth: function auth() {
         return LocalServiceRegistry.createService('marketingcloud.rest.auth', {
+            /**
+             * Create request for service authentication
+             * @param {dw.svc.HTTPService} svc
+             * @throws {Error} Throws error when service credentials are missing
+             */
+            createRequest: function(svc /*, params*/) {
+                var origCredentialID = svc.getCredentialID() || svc.getConfiguration().getID(),
+                    credArr = origCredentialID.split('-'),
+                    credArrSiteID = credArr[credArr.length-1],
+                    currentSite = require('dw/system/Site').current,
+                    siteID = currentSite.ID;
+                if (credArrSiteID !== siteID) {
+                    // Attempt to set to site-specific credential
+                    try {
+                        svc.setCredentialID(credArr[0] + '-' + siteID);
+                    } catch(e) {
+                        // site-specific credential doesn't exist, reset
+                        svc.setCredentialID(origCredentialID);
+                    }
+                }
+                Logger.debug('MC Connector credential ID: {0}', svc.getCredentialID());
+
+                var svcCredential = svc.getConfiguration().credential;
+                if (empty(svcCredential.user) || empty(svcCredential.password)) {
+                    throw new Error('Service configuration requires valid client ID (user) and secret (password)');
+                }
+
+                var requestBody = {//Changing the request body to incorporate the additional fields required by OAUTH2.0 based API.
+                    client_id: svcCredential.user,
+                    client_secret: svcCredential.password,
+                    grant_type: "client_credentials"
+                };
+
+                svc.setAuthentication('NONE');
+                svc.addHeader('Accept', 'application/json');
+
+                return JSON.stringify(requestBody);
+            },
+            /**
+             * @param {dw.svc.HTTPService} svc
+             * @param {dw.net.HTTPClient} client
+             * @returns {Object}
+             */
+            parseResponse : function(svc, client) {
+                var responseObj;
+
+                try {
+                    responseObj = JSON.parse(client.text);
+                    if (responseObj && responseObj.access_token && responseObj.expires_in) {
+                        var responseDate = new Date(client.getResponseHeader('Date') || null); // Ensure we pass valid string or null
+
+                        // Set the millisecond timestamp values
+                        responseObj.issued = responseDate.valueOf();
+                        responseObj.expires = responseDate.valueOf() + (responseObj.expires_in * 1000);
+                    }
+                } catch(e) {
+                    responseObj = client.text;
+                    Logger.error('Unable to Authenticate. Error: {0} ;; Response: {1} ;; Client: {2}', e.message, responseObj, JSON.stringify(client));
+                }
+
+                return responseObj;
+            },
+            mockCall: function (svc/*, requestBody*/) {
+                var url = svc.URL.match(/https:\/\/[^/]+\//)[0];
+                var obj = {
+                    "access_token": "7Gcb2QiDuMUhuTpZ5kv88o4W",
+                    "expires_in": 3479,
+                    "token_type": "Bearer",
+                    "scope": "email_send",
+                    "soap_instance_url": url.replace('auth', 'soap'),
+                    "rest_instance_url": url.replace('auth', 'rest')
+                };
+                return {
+                    statusCode: 200,
+                    statusMessage: 'Success',
+                    text: JSON.stringify(obj),
+                    getResponseHeader: function(header){
+                        var val = '';
+                        switch (header) {
+                            case 'Date':
+                                val = (new Date()).toUTCString();
+                                break;
+                        }
+                        return val;
+                    }
+                };
+            }
+        });
+    },
+
+    /**
+     * Documentation: https://developer.salesforce.com/docs/atlas.en-us.mc-app-development.meta/mc-app-development/access-token-s2s.htm
+     * Endpoint: https://YOUR_SUBDOMAIN.auth.marketingcloudapis.com/v2/token
+     * Method: POST
+     * Content Type: JSON
+     * Request Headers: -
+     * Request Args: clientId, clientSecret, grant_type
+     */
+    authDataEvents: function authDataEvents() {
+        return LocalServiceRegistry.createService('marketingcloud.notifyme.rest.auth', {
             /**
              * Create request for service authentication
              * @param {dw.svc.HTTPService} svc
@@ -567,6 +683,53 @@ RestService.prototype = {
                 return {
                     statusCode: 202,
                     statusMessage: 'Accepted',
+                    text: JSON.stringify(obj)
+                };
+            }
+        });
+    },
+    dataEvents: function dataEvents() {
+        var restSvc = this;
+        return LocalServiceRegistry.createService('marketingcloud.notifyme.rest.dataevents', {
+            /**
+             * Create request for posting an event
+             * @param {dw.svc.HTTPService} svc
+             * @param {module:models/event~Event} event An event model instance to be sent to Marketing Cloud
+             * @returns {string} Request body
+             */
+            createRequest: function(svc, dataEventsKey, data) {
+                restSvc.setAuthHeaderDataEvents(svc);
+
+                var svcURL = restSvc.token.restInstanceURL,
+                svcPath = '/hub/v1/dataevents/{key}/rowset';
+
+                if (!empty(dataEventsKey)) {
+                    svcPath = svcPath.replace('{key}', 'key:'+ dataEventsKey);
+                }                
+
+                svc.setURL(svcURL + svcPath);
+
+                return JSON.stringify([data]);
+            },
+            parseResponse : parseResponse,
+            mockCall: function (/*svc, requestBody*/) {
+                var obj = [{
+                    "keys":{
+                            "Email": "someone@example.com",
+                            "DateRequested": "Friday, November 11, 2022 9:00 AM"
+                            },
+                    "values":{
+                            "FirstName": "Example",
+                            "Email": "someone@example.com",
+                            "DateRequested": "Friday, November 11, 2022 9:00 AM",
+                            "PhoneNumber": "19253948395",
+                            "HasConsented": "true",
+                            "SKUID": "12345_12_BLK"
+                            }
+                }];
+                return {
+                    statusCode: 200,
+                    statusMessage: 'SUCCESS',
                     text: JSON.stringify(obj)
                 };
             }

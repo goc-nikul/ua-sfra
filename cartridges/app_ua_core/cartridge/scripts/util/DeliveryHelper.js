@@ -1,113 +1,143 @@
 /* eslint-disable spellcheck/spell-checker */
 'use script';
 
+/* API Includes */
 var Calendar = require('dw/util/Calendar');
-var JSONUtils = require('int_customfeeds/cartridge/scripts/util/JSONUtils');
+var DateUtils = require('dw/util/DateUtils');
 var Logger = require('dw/system/Logger');
 var Resource = require('dw/web/Resource');
 var Site = require('dw/system/Site');
 var StringUtils = require('dw/util/StringUtils');
-var TimezoneHelper = require('*/cartridge/scripts/util/TimezoneHelper');
+var SystemCompat = require('dw/system/System');
 
+/* Script Includes */
+var JSONUtils = require('int_customfeeds/cartridge/scripts/util/JSONUtils');
+const isRequestTransactional = require('*/cartridge/scripts/helpers/requestHelpers').isRequestTransactional(request);
+// Date: Number = 5, Represents Date adding 1 to date
+// Day_Of_Month = 5, Represents a day of the month
+const CALENDAR_DAY_OF_MONTH = 5;
+// Set HOUR_OF_DAY: Number = 11, Represents an hour of the day
+const CALENDAR_HOUR_OF_DAY = 11;
+const CALENDAR_DAY_OF_WEEK = 7;
+const CALENDAR_MINUTE = 12;
+const CALENDAR_SECOND = 13;
+// DAY OF WEEK for Sunday: 1
+const CALENDAR_SUNDAY = 1;
+const CALENDAR_SATURDAY = 7;
+const COMPATIBILITYMODE_VERSION = SystemCompat.compatibilityMode;
+const SITE_TIMEZONE_OFFSET = Site.getCurrent().timezoneOffset;
 
+/* All Internal Only Scripts in Upper Section */
 /**
- * Return Min number of Delivery Days from Shipping Method
- * @param {Object} shippingMethod shipping methods
- * @return {Object} - Returns delivery preferences object
+ * Return Minimum or Maximum number of Delivery Days from Shipping Method
+ * @param {Object} shippingMethod shipping Methods under Merchant Tools > Ordering > Shipment Methods
+ * @param {string} minOrMax Pass 'min' or 'max'
+ * @returns {int} - Returns a Min or Max Number of delivery days from the ShippingMethods object
  */
-function getMinDeliveryDays(shippingMethod) {
-    var minDeliveryDays = (!empty(shippingMethod) && 'minDeliveryDays' in shippingMethod.custom) ? shippingMethod.custom.minDeliveryDays : 0;
-    return minDeliveryDays;
+function getDeliveryDays(shippingMethod, minOrMax) {
+    let deliveryDays = 0;
+    if (minOrMax === 'min') {
+        deliveryDays = (!empty(shippingMethod) && 'minDeliveryDays' in shippingMethod.custom) ? shippingMethod.custom.minDeliveryDays : 0;
+    } else {
+        deliveryDays = (!empty(shippingMethod) && 'maxDeliveryDays' in shippingMethod.custom) ? shippingMethod.custom.maxDeliveryDays : 0;
+    }
+    if (deliveryDays === 0) {
+        if (minOrMax === 'min') {
+            Logger.warn("DeliveryHelper.js: ShippingMethod custom preference 'minDeliveryDays' is empty or not defined. Using 0 for ShippingMethod.ID: {0}", shippingMethod.ID);
+        } else {
+            Logger.warn("DeliveryHelper.js: ShippingMethod custom preference 'maxDeliveryDays' is empty or not defined. Using 0 for ShippingMethod.ID: {0}", shippingMethod.ID);
+        }
+    }
+    return deliveryDays;
 }
 
 /**
- * Return Max number of Delivery Days from Shipping Method
- * @param {Object} shippingMethod shipping methods
- * @return {Object} - Returns delivery preferences object
- */
-function getMaxDeliveryDays(shippingMethod) {
-    var maxDeliveryDays = (!empty(shippingMethod) && 'maxDeliveryDays' in shippingMethod.custom) ? shippingMethod.custom.maxDeliveryDays : 0;
-    return maxDeliveryDays;
-}
-
-/**
- * Return the shipping cutoff time from the site preferece
+ * Return the shipping cutoff time from the site preferece stored in Storefront Configs
  * @return {Object} - Returns delivery preferences object
  */
 function getShippingCutOffTime() {
-    var shippingCutOffTime = Site.getCurrent().getCustomPreferenceValue('shippingCutOffTime');
+    let shippingCutOffTime = 13.0;
+    //  If the preference does not exist the method returns null. Test for that
+    if (Site.getCurrent().getCustomPreferenceValue('shippingCutOffTime')) {
+        shippingCutOffTime = Site.getCurrent().getCustomPreferenceValue('shippingCutOffTime');
+    } else {
+        // Log message stating value not set...
+        Logger.warn('DeliveryHelper.js: getShippingCutOffTime is empty or not defined. Using 13.0');
+    }
     return shippingCutOffTime;
 }
 
 /**
  * Return JSON parsed scheduledDeliveryDateMapping text from storefront configuration
- *
+ *  This currently contains the following information:
+ *    startDateOffset: 30
+ *    endDateOffset: 60
+ *    holidays:  array of strings looking like day-month 01-01, 21-04 etc...
  * @return {Object} - Returns delivery preferences object
  */
 function getScheduledDeliveryPreference() {
-    var scheduledDeliveryPreferenceJson = Site.getCurrent().getCustomPreferenceValue('scheduledDeliveryDateMapping');
+    let scheduledDeliveryPreferenceJson = {};
+    if (Site.getCurrent().getCustomPreferenceValue('scheduledDeliveryDateMapping')) {
+        scheduledDeliveryPreferenceJson = Site.getCurrent().getCustomPreferenceValue('scheduledDeliveryDateMapping');
+    } else {
+        // Scheduled Delivery Date Mapping is empty or doesn't exist!
+        Logger.warn('DeliveryHelper.js: getScheduledDeliveryPreference is empty or not defined.');
+    }
     return JSONUtils.parse(scheduledDeliveryPreferenceJson, {});
 }
 
 /**
- * Return startDateOffset from storefront preferences
- *   if the preferences are empty, return the property 'scheduleddelivery.startdateoffset' configuration
- *   if the backup is empty, return 30
- * @return {number} - Delivery start date offset
+ * Returns a value or array from the storefront configs custom preference scheduledDeliveryDateMapping JSON object
+ * based on key that you are looking for within that Object
+ * If key doesn't exist it will log error and return null
+ * If valueName passed is valid it will return the value otherwise it will provide a default value
+ * startdateoffset (default value): 30
+ * enddateoffset (default value): 60
+ * blackoutdates (default value): []  empty array
+ * @param {string} valueName - key wanting information for valid keys are (startdateoffset, enddateoffset, blackoutdates)
+ * @return {Object} - Returns number value for start and end date offset and array of blackout dates
  */
-function getDeliveryStartDateOffset() {
-    var deliveryDateMapping = getScheduledDeliveryPreference();
+function getScheduledDeliveryPreferenceValue(valueName) {
+    let deliveryDateMapping = getScheduledDeliveryPreference();
 
-    if (empty(deliveryDateMapping) || empty(deliveryDateMapping.startDateOffset)) {
-        Logger.warn("DeliveryHelper.ds: site custom preference 'startDateOffset' is empty or not defined. Using config.properties value.");
+    if (valueName.toLowerCase() === 'startdateoffset') {
+        if (empty(deliveryDateMapping) || empty(deliveryDateMapping.startDateOffset)) {
+            Logger.warn("DeliveryHelper.js: site custom preference (scheduledDeliveryDateMapping) key: 'startDateOffset' is empty or not defined. Using config.properties value.");
 
-        return parseInt(Resource.msg('scheduleddelivery.startdateoffset', 'config', 30), 10);
+            // Otherwise looks at properties file first if doesn't exists defaults to 30
+            // The , 10 assumes that this is a decimal value!
+            return parseInt(Resource.msg('scheduleddelivery.startdateoffset', 'config', 30), 10);
+        }
+        return deliveryDateMapping.startDateOffset;
+    } else if (valueName.toLowerCase() === 'enddateoffset') {
+        if (empty(deliveryDateMapping) || empty(deliveryDateMapping.endDateOffset)) {
+            Logger.warn("DeliveryHelper.js: site custom preference (scheduledDeliveryDateMapping) key: 'endDateOffset' is empty or not defined. Using config.properties value.");
+
+            // Otherwise looks at properties file first if doesn't exists defaults to 30
+            // The , 10 assumes that this is a decimal value!
+            return parseInt(Resource.msg('scheduleddelivery.enddateoffset', 'config', 60), 10);
+        }
+
+        return deliveryDateMapping.endDateOffset;
+    } else if (valueName.toLowerCase() === 'blackoutdates') {
+        if (empty(deliveryDateMapping) || empty(deliveryDateMapping.holidays)) {
+            Logger.warn("DeliveryHelper.js: site custom preference (scheduledDeliveryDateMapping) key: 'holidays' is empty or not defined. Using empty Array");
+
+            var configValue = [];
+
+            return configValue;
+        }
+        return deliveryDateMapping.holidays;
     }
-
-    return deliveryDateMapping.startDateOffset;
+    // Log and return an error.  Not called with correct value name
+    Logger.warn("DeliveryHelper.js: site custom preference (scheduledDeliveryDateMapping) key:'{0}' is empty or not defined. Please pass a valid key name.", valueName);
+    return null;
 }
 
 /**
- * Return endDateOffset from storefront preferences
- *   if the preferences are empty, return the property 'scheduleddelivery.enddateoffset' configuration
- *   if the backup is empty, return 60
- * @return {number} - Returns delivery end offset date
- */
-function getDeliveryEndDateOffset() {
-    var deliveryDateMapping = getScheduledDeliveryPreference();
-
-    if (empty(deliveryDateMapping) || empty(deliveryDateMapping.endDateOffset)) {
-        Logger.warn("DeliveryHelper.ds: site custom preference 'endDateOffset' is empty or not defined. Using config.properties value.");
-
-        return parseInt(Resource.msg('scheduleddelivery.enddateoffset', 'config', 60), 10);
-    }
-
-    return deliveryDateMapping.endDateOffset;
-}
-
-/**
- * Return endDateOffset from storefront preferences
- *   if the preferences are empty, return the property 'scheduleddelivery.enddateoffset' configuration
- *   if the backup is empty, return 60
- * @return {number} - Returns holidays
- */
-function getDeliveryBlackoutDates() {
-    var deliveryDateMapping = getScheduledDeliveryPreference();
-
-    if (empty(deliveryDateMapping) || empty(deliveryDateMapping.holidays)) {
-        Logger.warn("DeliveryHelper.ds: site custom preference 'holidays' is empty or not defined. Using empty Array");
-
-        var configValue = [];
-
-        return configValue;
-    }
-
-    return deliveryDateMapping.holidays;
-}
-
-/**
- * Return the available date value to loop through
- *   test to make sure date range is positive
+ * Return the available date range value
+ *  This takes endDateOffset - startDateOffset
+ *    (** Note: typically these values are coming from storefront configs scheduledDeliveryDateMapping property)
  *   if not, set to config values
  * @param {number} startDateOffset - Startdateoofset
  * @param {number} endDateOffset - endDateOffset
@@ -120,83 +150,32 @@ function getAvailableDateRange(startDateOffset, endDateOffset) {
         availableDateRange = parseInt(Resource.msg('scheduleddelivery.defaultrange', 'config', 30), 10);
     }
 
-    // subtract one day to offset adding one immediately during date loop
-    availableDateRange--;
-
     return availableDateRange;
 }
-/**
- * Return an array of date for possible delivery
- * @return {Object} - Returns delivery preferences object
- */
-function getAvailableDeliveryDates() {
-    var timezoneHelper = new TimezoneHelper();
-    var calendar = new Calendar(timezoneHelper.getCurrentSiteTime());
-    var startDateOffset = getDeliveryStartDateOffset();
-    var endDateOffset = getDeliveryEndDateOffset();
-    var blackoutDates = getDeliveryBlackoutDates();
-    var availableDateRange = getAvailableDateRange(startDateOffset, endDateOffset);
-    var availableDates = [];
-
-        // array of dates in string format to send to isloop
-
-        // add the start date offset to the calendar object
-    calendar.add(calendar.DATE, startDateOffset);
-
-        /*
-         * loop through the difference of start and end days
-         * need to offset the date by one to deal with the increment
-         */
-    for (let x = 0; x <= availableDateRange; x++) {
-            // set default show date value
-        let showDate = true;
-
-            // increment the date by one
-        calendar.add(calendar.DATE, 1);
-
-            // check if this day is a weekend
-        const dayOfWeek = calendar.get(calendar.DAY_OF_WEEK);
-        if (dayOfWeek === calendar.SATURDAY || dayOfWeek === calendar.SUNDAY) {
-            showDate = false;
-        }
-
-            // check if this day is a holiday or blackout date
-        const blackoutDateToTest = StringUtils.formatCalendar(calendar, 'dd-MM');
-        if (blackoutDates.indexOf(blackoutDateToTest) > -1) {
-            showDate = false;
-        }
-
-            // add the date to the date array
-        if (showDate) {
-            const dateToPush = {};
-            dateToPush.value = StringUtils.formatCalendar(calendar, 'yyy-MM-dd');
-            dateToPush.label = StringUtils.formatCalendar(calendar, 'dd/MM/yyy - EEE');
-            availableDates.push(dateToPush);
-        }
-    }
-    return availableDates;
-}
 
 /**
  * Return an array of date for possible delivery
- * @param {Object} objectID - shippingMethod ID
+ * Get the ShippingMethodDeliveryDate Custom Object and looks for key entries within that Object
+ * If one doesn't exist but we want to modifyGetResponse and the Request is Transactional then create the new
+ * key.
+ * @param {Object} shippingMethodID - shippingMethod ID
  * @param {boolean} modifyGetResponse - from modifyGetResponse method
  * @return {Object} - Returns delivery preferences object
  */
-function getCustomObject(objectID, modifyGetResponse) {
+function getShippingMethodDeliveryDateCO(shippingMethodID, modifyGetResponse) {
     var com = require('dw/object/CustomObjectMgr');
     const customObjectName = 'ShippingMethodDeliveryDate';
     var siteId = Site.getCurrent().ID;
-    var keyId = objectID + '_' + siteId;
+    var keyId = shippingMethodID + '_' + siteId;
     var objectDefinition = com.getCustomObject(customObjectName, keyId);
     try {
-        if ((empty(objectDefinition) && !modifyGetResponse)) {
+        if ((empty(objectDefinition) && !modifyGetResponse && isRequestTransactional)) {
             require('dw/system/Transaction').wrap(function () {
                 objectDefinition = com.createCustomObject(customObjectName, keyId);
             });
         }
     } catch (e) {
-        Logger.error('DeliveryHelper.js error in createCustomObject : {0}', e.message);
+        Logger.error('DeliveryHelper.js error in createCustomObject {0}: {1}', keyId, e.message);
     }
     return objectDefinition ? objectDefinition.getCustom() : null;
 }
@@ -208,34 +187,52 @@ function getCustomObject(objectID, modifyGetResponse) {
  * @param {boolean} modifyGetResponse - from modifyGetResponse method
  */
 function setDeliveryDateCustomObj(shippingMethod, availableDates, modifyGetResponse) {
-    var shippingDeliveryDateObj = getCustomObject(shippingMethod.ID, modifyGetResponse);
+    var shippingDeliveryDateObj = getShippingMethodDeliveryDateCO(shippingMethod.ID, modifyGetResponse);
+    // This is typically in military time (24 hour basis)
+    // Default is typical 13.0
     var customObjExpiryHour = getShippingCutOffTime();
 
     if (shippingDeliveryDateObj === null || availableDates.length === 0) {
         return;
     }
 
-    var timezoneHelper = new TimezoneHelper();
-    var currentTime = timezoneHelper.getCurrentSiteTime();
-    var cutoffTime = timezoneHelper.getCurrentSiteTime();
-
-    cutoffTime.setHours(customObjExpiryHour);
-    cutoffTime.setMinutes(0);
-    cutoffTime.setSeconds(0, 0);
-
-    var currentTimeCalendar = new Calendar(currentTime);
-    var cutoffTimeCalendar = new Calendar(cutoffTime);
+    // Use Site's Calendar which takes into account Time Zone
+    // getCalendar: Returns a new Calendar object in the time zone of the current site.
+    let currentSiteTime;
+    let cutoffSiteTime;
+    if (COMPATIBILITYMODE_VERSION >= 2310) {
+        currentSiteTime = Site.getCalendar();
+        cutoffSiteTime = Site.getCalendar();
+    } else {
+        // Time is always in GMT
+        // DateUtils.nowForSite(): Returns the current timestamp in the time zone of the current site.
+        // However, Calendar displays in GMT Only
+        currentSiteTime = new Calendar(DateUtils.nowForSite());
+        cutoffSiteTime = new Calendar(DateUtils.nowForSite());
+    }
+    // Set it to 1 second before the cutoff time!
+    cutoffSiteTime.set(CALENDAR_HOUR_OF_DAY, (customObjExpiryHour - 1));
+    cutoffSiteTime.set(CALENDAR_MINUTE, 59);
+    cutoffSiteTime.set(CALENDAR_SECOND, 59);
 
     // For Ex. If in case cutoff time is 06/16 9pm EST and this method executes at 06/16 10pm EST
     // then we should set the cutoff time by increasing the day by 1 so that it should not set
     // again 06/16 9pm, it should be 06/17 9pm. else save the cutoff time without incrementing the Date.
-    if (cutoffTimeCalendar.before(currentTimeCalendar)) {
-        cutoffTimeCalendar.add(cutoffTimeCalendar.DATE, 1);
+    if (cutoffSiteTime.before(currentSiteTime)) {
+        cutoffSiteTime.add(CALENDAR_DAY_OF_MONTH, 1);
+        // May need to revisit availableDates because they should have been checked for weekends!
     }
-    if (!modifyGetResponse) {
+
+    // Since we want to store it into the Database and make sure it is utilizing the correct
+    // Timezone during the store we need to adjust the timezone on the cutoffSiteTime
+    if (COMPATIBILITYMODE_VERSION < 2310) {
+        cutoffSiteTime.set(15, SITE_TIMEZONE_OFFSET);
+    }
+
+    if (!modifyGetResponse && isRequestTransactional) {
         try {
             require('dw/system/Transaction').wrap(function () {
-                shippingDeliveryDateObj.expiryTime = cutoffTimeCalendar.getTime();
+                shippingDeliveryDateObj.expiryTime = cutoffSiteTime.getTime();
                 shippingDeliveryDateObj.minDeliveryDate = availableDates[0].getTime();
                 shippingDeliveryDateObj.maxDeliveryDate = availableDates[1].getTime();
             });
@@ -253,58 +250,220 @@ function setDeliveryDateCustomObj(shippingMethod, availableDates, modifyGetRespo
  * @return {Object} - Returns cached delivery dates
  */
 function getCachedDeliveryDate(shippingMethod, modifyGetResponse) {
-    var caschedAvailableDates = {};
-    var customObj = getCustomObject(shippingMethod.ID, modifyGetResponse);
+    var cachedAvailableDates = {};
+    var customObj = getShippingMethodDeliveryDateCO(shippingMethod.ID, modifyGetResponse);
 
     if (customObj === null) {
-        return caschedAvailableDates;
+        return cachedAvailableDates;
     }
 
-    var timezoneHelper = new TimezoneHelper();
-    var currentTime = new Calendar(timezoneHelper.getCurrentSiteTime());
-    var expiryTime = customObj.expiryTime ?
-        new Calendar(customObj.expiryTime) : null;
+    let currentSiteTime;
+    let expirySiteTime;
+    if (COMPATIBILITYMODE_VERSION >= 2310) {
+        // Use Site's Calendar which takes into account Time Zone
+        // getCalendar: Returns a new Calendar object in the time zone of the current site.
+        currentSiteTime = Site.getCalendar();
+        expirySiteTime = Site.getCalendar();
+    } else {
+        // DateUtils.nowForSite(): Returns the current timestamp in the time zone of the current site.
+        // However, Calendar displays in GMT Only
+        currentSiteTime = new Calendar(DateUtils.nowForSite());
+        expirySiteTime = new Calendar(DateUtils.nowForSite());
+    }
 
-    if (expiryTime &&
-        currentTime.before(expiryTime) &&
+    if (COMPATIBILITYMODE_VERSION >= 2310) {
+        expirySiteTime = customObj.expiryTime ? Site.getCalendar().getTime(customObj.expiryTime) : null;
+    } else {
+        expirySiteTime = customObj.expiryTime ? new Calendar(customObj.expiryTime) : null;
+        if (expirySiteTime !== null) {
+            // In Database the expiryTime was increased by offset.  We need to remove that out
+            // When pulling it back out so it is inline with currentSiteTime to compare correctly
+            // Whether we want to use cached version or not.
+            // Get it back to standard GMT Time Zone....
+            expirySiteTime.set(15, -SITE_TIMEZONE_OFFSET);
+        }
+    }
+
+    if (expirySiteTime &&
+        currentSiteTime.before(expirySiteTime) &&
         customObj.minDeliveryDate &&
         customObj.maxDeliveryDate) {
-        caschedAvailableDates.minDeliveryDate = new Calendar(customObj.minDeliveryDate);
-        caschedAvailableDates.maxDeliveryDate = new Calendar(customObj.maxDeliveryDate);
+        if (COMPATIBILITYMODE_VERSION >= 2310) {
+            cachedAvailableDates.minDeliveryDate = Site.getCalendar().setTime(customObj.minDeliveryDate);
+            cachedAvailableDates.maxDeliveryDate = Site.getCalendar().setTime(customObj.maxDeliveryDate);
+        } else {
+            cachedAvailableDates.minDeliveryDate = new Calendar(customObj.minDeliveryDate);
+            cachedAvailableDates.maxDeliveryDate = new Calendar(customObj.maxDeliveryDate);
+        }
     }
 
-    return caschedAvailableDates;
+    return cachedAvailableDates;
 }
+
 /**
- * Calculate the blackout dated
- * @param {string} devDate - delivery Date
- * @param {string} typeDate - delivery Date Type
- * @param {Object} blackoutDates - blackout dates
- * @param {Object} minDeliveryDate - minimum delivery date
- * @param {Object} maxDeliveryDate - maximum delivery date
- * @return {void} - Returns void
+ * This method determines how many days should be added to passed in date based on
+ * 1. Did the date make the CutoffTime
+ * 2. Did this date land on a blackout date
+ * 3. Is this date on a weekend
+ * @param {Object} calendarDate - This is dw/system/Site getCalendar() object
+ * @param {Object} blackoutDates - Array of Strings of blackout dates dd-MM
+ * @param {boolean} checkCutOffTime - True if you want this set of code to run
+ * @param {boolean} checkBlackoutDates - True if you want this set of code to run
+ * @param {boolean} checkWeekends - True if you want this set of code to run
+ * @param {boolean} loopCall - True if this methods is being called within a loop, numberOfDays to add will change
+ *                             for blackout and weekend check
+ * @returns {number} Returns the number of days to be added to passed in date
  */
-function blackOutDaYTest(devDate, typeDate, blackoutDates, minDeliveryDate, maxDeliveryDate) {
-    var dateMax = new Date(devDate);
-    var dateCurrent = new Date();
-    var differenceInTime = dateMax.getTime() - dateCurrent.getTime();
-    var differenceInDays = differenceInTime / (1000 * 3600 * 24);
+function determineNumDaysToAdd(calendarDate, blackoutDates, checkCutOffTime, checkBlackoutDates, checkWeekends, loopCall) {
+    let numDaysToAdd = 0;
+    let workingDate;
+    if (COMPATIBILITYMODE_VERSION >= 2310) {
+        workingDate = Site.getCalendar().getTime(calendarDate);
+    } else {
+        workingDate = new Calendar(calendarDate.getTime());
+    }
+    // let workingDate = new Calendar(calendarDate);
+    // 1. Is this date after the cutoff time?
+    //    Then Add 1 Day
+    if (checkCutOffTime && workingDate.get(CALENDAR_HOUR_OF_DAY) >= getShippingCutOffTime()) {
+        // Time is after CutOffTime Add 1 Day to dates
+        workingDate.add(CALENDAR_DAY_OF_MONTH, 1);
+        numDaysToAdd += 1;
+    }
+
+    if (checkBlackoutDates) {
+        // 2. Is this Date one of the Blackout Dates
+        //    Add a day
+        // This was changed.  You only ever want to add only 1 day for blackout day
+        // Even if you have multiple blackout days back to back.
+        let blackDateToTest = StringUtils.formatCalendar(workingDate, 'dd-MM');
+        if (blackoutDates.indexOf(blackDateToTest) > -1) {
+            // Found it in the List
+            workingDate.add(CALENDAR_DAY_OF_MONTH, 1);
+            numDaysToAdd += 1;
+        }
+    }
+
+    if (checkWeekends) {
+        // 3. Is this date on a Saturday or Sunday
+        //    Then add 1 if Sunday add 2 if Saturday
+        if (workingDate.get(CALENDAR_DAY_OF_WEEK) === CALENDAR_SUNDAY || workingDate.get(CALENDAR_DAY_OF_WEEK) === CALENDAR_SATURDAY) {
+            if (workingDate.get(CALENDAR_DAY_OF_WEEK) === CALENDAR_SATURDAY) {
+                if (loopCall) {
+                    numDaysToAdd += 1;
+                } else {
+                    numDaysToAdd += 2;
+                }
+            } else {
+                numDaysToAdd += 1;
+            }
+        }
+    }
+
+    return numDaysToAdd;
+}
+
+/**
+ * This method determines if delivery date falls between a blackout time.
+ * It will iterate over all days between date passed in and current or min date
+ * It will only add a max of 1 day to any of the dates.
+ * @param {Object} deliveryDate - This is min or max delivery date we want to test against
+ * @param {Object} blackoutDates - These are the blackout Date array we are testing against
+ * @param {Object} startingDate - This is the date we want to compare against if null use current
+ * @return {Object} - returns the number of days to add back to calling method
+ */
+function iterateBlackoutRangeTest(deliveryDate, blackoutDates, startingDate) {
+    let numDaysToAdd = 0;
+    let workingDate;
+    let currentCalendarSite;
+    let currentCalendarDate;
+    if (COMPATIBILITYMODE_VERSION >= 2310) {
+        workingDate = Site.getCalendar().getTime(deliveryDate);
+        currentCalendarSite = Site.getCalendar().getTime(new Calendar());
+        currentCalendarDate = Site.getCalendar();
+    } else {
+        workingDate = new Calendar(deliveryDate.getTime());
+        if (startingDate === null || startingDate === undefined) {
+            currentCalendarSite = new Calendar(DateUtils.nowForSite());
+            currentCalendarDate = new Calendar(DateUtils.nowForSite());
+        } else {
+            currentCalendarSite = new Calendar(startingDate.getTime());
+            currentCalendarDate = new Calendar(startingDate.getTime());
+            // Subtract 1 from both days because index below is starting at 1 not zero!
+            // Need to account for starting date
+            currentCalendarSite.add(CALENDAR_DAY_OF_MONTH, -1);
+            currentCalendarDate.add(CALENDAR_DAY_OF_MONTH, -1);
+        }
+    }
+    let differenceInTime = workingDate.getTime() - currentCalendarSite.getTime();
+    let differenceInDays = differenceInTime / (1000 * 3600 * 24);
+
     for (var index = 1; index <= differenceInDays; index++) {
-        var numberOfDaysToAdd = index;
-        var currDate = new Date();
-        currDate.setDate(currDate.getDate() + numberOfDaysToAdd);
-        var blackDateToTest = new Calendar(currDate);
-        blackDateToTest = StringUtils.formatCalendar(blackDateToTest, 'dd-MM');
-        if (blackoutDates.indexOf(blackDateToTest) > -1 && typeDate === 'minDate') {
-            minDeliveryDate.add(minDeliveryDate.DATE, 1);
-            break;
-        } else if (blackoutDates.indexOf(blackDateToTest) > -1 && typeDate === 'maxDate') {
-            maxDeliveryDate.add(maxDeliveryDate.DATE, 1);
+        currentCalendarDate.add(CALENDAR_DAY_OF_MONTH, 1);
+        // Is any date in between a weekend
+        numDaysToAdd = determineNumDaysToAdd(currentCalendarDate, blackoutDates, false, true, false, false);
+        if (numDaysToAdd > 0) {
             break;
         }
     }
-    return;
+    return numDaysToAdd;
 }
+
+/* All Scripts that are able to be called from External Routines */
+
+/**
+ * Return an array of date for possible delivery
+ * @return {Object} - Returns delivery preferences object
+ */
+function getAvailableDeliveryDates() {
+    let calendar;
+    if (COMPATIBILITYMODE_VERSION >= 2310) {
+        calendar = Site.getCalender();
+    } else {
+        // DateUtils.nowForSite(): Returns the current timestamp in the time zone of the current site.
+        // However, Calendar displays in GMT Only
+        calendar = new Calendar(DateUtils.nowForSite());
+    }
+    let startDateOffset = getScheduledDeliveryPreferenceValue('startDateOffset');
+    let endDateOffset = getScheduledDeliveryPreferenceValue('endDateOffset');
+    let blackoutDates = getScheduledDeliveryPreferenceValue('blackoutdates');
+    let availableDateRange = getAvailableDateRange(startDateOffset, endDateOffset);
+    let availableDates = [];
+
+    // array of dates in string format to send to isloop
+    // add the start date offset to the calendar object
+    calendar.add(CALENDAR_DAY_OF_MONTH, startDateOffset);
+        /*
+         * loop through the difference of start and end days
+         * need to offset the date by one to deal with the increment
+         * Removed the <= sign because availableDateRange method was subtracting 1 from itself previously so removed that from method
+         */
+    for (let x = 0; x < availableDateRange; x++) {
+            // set default show date value
+        let showDate = true;
+
+            // increment the date by one
+        calendar.add(CALENDAR_DAY_OF_MONTH, 1);
+        let blackoutDateToTest = StringUtils.formatCalendar(calendar, 'dd-MM');
+        // Is this a weekend.
+        if (calendar.get(CALENDAR_DAY_OF_WEEK) === CALENDAR_SUNDAY || calendar.get(CALENDAR_DAY_OF_WEEK) === CALENDAR_SATURDAY) {
+            // This is a weekend.
+            showDate = false;
+        } else if (blackoutDates.indexOf(blackoutDateToTest) > -1) {
+            // This is a blackout date
+            showDate = false;
+        }
+            // add the date to the date array
+        if (showDate) {
+            const dateToPush = {};
+            dateToPush.value = StringUtils.formatCalendar(calendar, 'yyy-MM-dd');
+            dateToPush.label = StringUtils.formatCalendar(calendar, 'dd/MM/yyy - EEE');
+            availableDates.push(dateToPush);
+        }
+    }
+    return availableDates;
+}
+
 /**
  * Return the date range for deliveries
  * @param {Object} shippingMethod shipping methods
@@ -317,9 +476,9 @@ function getShippingDeliveryDates(shippingMethod, modifyGetResponse) {
     if (empty(shippingMethod)) {
         return availableDates;
     }
-
     var cachedDeliveryDate = getCachedDeliveryDate(shippingMethod, modifyGetResponse);
 
+    // Do we have a cached Object and is it before the shipping cutoff time?
     if ((Object.keys(cachedDeliveryDate).length > 0) &&
         cachedDeliveryDate.minDeliveryDate &&
         cachedDeliveryDate.maxDeliveryDate) {
@@ -327,133 +486,111 @@ function getShippingDeliveryDates(shippingMethod, modifyGetResponse) {
         availableDates.push(cachedDeliveryDate.maxDeliveryDate);
         return availableDates;
     }
+    let shippingCalendarSite;
+    let minDeliveryDate;
+    let maxDeliveryDate;
+    if (COMPATIBILITYMODE_VERSION >= 2310) {
+        shippingCalendarSite = Site.getCalendar();
+        minDeliveryDate = Site.getCalendar();
+        maxDeliveryDate = Site.getCalendar();
+    } else {
+        // DateUtils.nowForSite(): Returns the current timestamp in the time zone of the current site.
+        // However, Calendar displays in GMT Only
+        shippingCalendarSite = new Calendar(DateUtils.nowForSite());
+        minDeliveryDate = new Calendar(DateUtils.nowForSite());
+        maxDeliveryDate = new Calendar(DateUtils.nowForSite());
+    }
+    // Get Values from Site > Custom Object > scheduleDeliveryDateMapping
+    let blackoutDates = getScheduledDeliveryPreferenceValue('blackoutdates');
+    // Get Values from actual Shipping Method
+    let maxDeliveryDays = getDeliveryDays(shippingMethod, 'max');
+    let minDeliveryDays = getDeliveryDays(shippingMethod, 'min');
 
-    var timezoneHelper = new TimezoneHelper();
-    var calendar = new Calendar(timezoneHelper.getCurrentSiteTime());
-    var shippingCalendar = new Date(timezoneHelper.getCurrentSiteTime());
-
-    var minDeliveryDate = new Calendar(timezoneHelper.getCurrentSiteTime());
-    var maxDeliveryDate = new Calendar(timezoneHelper.getCurrentSiteTime());
-    var currentDate = minDeliveryDate.time;
-    var dateMin = new Date(currentDate);
-    var blackoutDates = getDeliveryBlackoutDates();
-    var maxDeliveryDays = getMaxDeliveryDays(shippingMethod);
-    var minDeliveryDays = getMinDeliveryDays(shippingMethod);
-    var currentDay = new Date();
-    var blackDateToTest = StringUtils.formatCalendar(minDeliveryDate, 'dd-MM');
-    currentDay = currentDay.getDay();
-    // Check the time and if we are after the cut off add a day :TODO this isnt counting mins. -1 hour, adding one day extra if order place on saturday or sunday
-    if (shippingCalendar.getHours() >= getShippingCutOffTime() || (currentDay === 0 || currentDay === 6)) {
-        if (blackoutDates.indexOf(blackDateToTest) === -1) {
-            minDeliveryDate.add(minDeliveryDate.DATE, 1);
-            maxDeliveryDate.add(maxDeliveryDate.DATE, 1);
+    // Take Current Date and determine number of days to add to it
+    // Determine if Current Date past cutoff time, in blackout date, and/or on a weekend.
+    let numOfDaysAdd = determineNumDaysToAdd(shippingCalendarSite, blackoutDates, true, true, true, false);
+    if (numOfDaysAdd > 0) {
+        minDeliveryDate.add(CALENDAR_DAY_OF_MONTH, numOfDaysAdd);
+        maxDeliveryDate.add(CALENDAR_DAY_OF_MONTH, numOfDaysAdd);
+    }
+    // Now Add on the Min and Max Delivery Days from Shipping Method.
+    // Example US, Standard Shipping Method Min Delivery Days 4 Max Delivery Days 6
+    minDeliveryDate.add(CALENDAR_DAY_OF_MONTH, minDeliveryDays);
+    maxDeliveryDate.add(CALENDAR_DAY_OF_MONTH, maxDeliveryDays);
+    // Check if Min Date falls on Weekend
+    let fallsOnWeekend = false;
+    numOfDaysAdd = determineNumDaysToAdd(minDeliveryDate, blackoutDates, false, false, true, false);
+    if (numOfDaysAdd > 0) {
+        minDeliveryDate.add(CALENDAR_DAY_OF_MONTH, numOfDaysAdd);
+        maxDeliveryDate.add(CALENDAR_DAY_OF_MONTH, numOfDaysAdd);
+        fallsOnWeekend = true;
+    }
+    // If Min Date fell on weekend above, don't rerun checks here
+    // If it didn't look at all days in between
+    if (!fallsOnWeekend) {
+        // Disagree with additional loop here because seems like we are padding the delivery dates but
+        // This is based on following tickets:
+        // https://underarmour.atlassian.net/browse/PHX-4137
+        // https://underarmour.atlassian.net/browse/EPMD-13190
+        // Now we have our Min and Max Date Range for Delivery
+        // Iterate over every date between that range and if it is a Saturday, Sunday
+        let differenceInTime = maxDeliveryDate.getTime() - minDeliveryDate.getTime();
+        let differenceInDays = differenceInTime / (1000 * 3600 * 24);
+        let startingFinalDate;
+        if (COMPATIBILITYMODE_VERSION >= 2310) {
+            startingFinalDate = Site.getCalendar();
+        } else {
+            startingFinalDate = new Calendar(minDeliveryDate.getTime());
+        }
+        numOfDaysAdd = 0;
+        for (var index = 0; index <= differenceInDays; index++) {
+            startingFinalDate.add(CALENDAR_DAY_OF_MONTH, index);
+            // Is any date in between a weekend
+            numOfDaysAdd += determineNumDaysToAdd(startingFinalDate, blackoutDates, false, false, true, true);
+        }
+        if (numOfDaysAdd > 0) {
+            minDeliveryDate.add(CALENDAR_DAY_OF_MONTH, numOfDaysAdd);
+            maxDeliveryDate.add(CALENDAR_DAY_OF_MONTH, numOfDaysAdd);
         }
     }
-    if (blackoutDates.indexOf(blackDateToTest) > -1) {
-        minDeliveryDate.add(minDeliveryDate.DATE, 1);
-        maxDeliveryDate.add(maxDeliveryDate.DATE, 1);
+    // One more time through... This seems like overkill for estimated Delivery Date.
+    // STAGE 2: CHECK for MINIMUM DELIVERY DATE (Should not be on a weekend)
+    numOfDaysAdd = determineNumDaysToAdd(minDeliveryDate, blackoutDates, false, false, true, false);
+    if (numOfDaysAdd > 0) {
+        minDeliveryDate.add(CALENDAR_DAY_OF_MONTH, numOfDaysAdd);
+        maxDeliveryDate.add(CALENDAR_DAY_OF_MONTH, numOfDaysAdd);
     }
-        // add days for the min range
-    minDeliveryDate.add(minDeliveryDate.DATE, minDeliveryDays);
-    maxDeliveryDate.add(maxDeliveryDate.DATE, maxDeliveryDays);
-    var conditionCheck = false;
-    var minDeliveryDateDayOfWeek = minDeliveryDate.get(calendar.DAY_OF_WEEK);
-    // If weekends push dates by 2 days.
-    if (minDeliveryDateDayOfWeek === minDeliveryDate.SATURDAY) {
-        minDeliveryDate.add(minDeliveryDate.DATE, 2);
-        maxDeliveryDate.add(maxDeliveryDate.DATE, 2);
-        conditionCheck = true;
+    // STAGE 2: CHECK for MAXIMUM DELIVERY DATE (Should not be on a weekend)
+    numOfDaysAdd = determineNumDaysToAdd(maxDeliveryDate, blackoutDates, false, false, true, false);
+    if (numOfDaysAdd > 0) {
+        maxDeliveryDate.add(CALENDAR_DAY_OF_MONTH, numOfDaysAdd);
     }
-
-    if (minDeliveryDateDayOfWeek === minDeliveryDate.SUNDAY) {
-        minDeliveryDate.add(minDeliveryDate.DATE, 2);
-        maxDeliveryDate.add(maxDeliveryDate.DATE, 2);
-        conditionCheck = true;
-    }
-    var minDevDate;
-    if (!conditionCheck) {
-        minDevDate = minDeliveryDate.time;
-        var dateMax = new Date(minDevDate);
-        var differenceInTime = dateMax.getTime() - dateMin.getTime();
-        var differenceInDays = differenceInTime / (1000 * 3600 * 24);
-        for (var index = 1; index <= differenceInDays; index++) {
-            var numberOfDaysToAdd = index;
-            var currDate = new Date();
-            currDate.setDate(currDate.getDate() + numberOfDaysToAdd);
-            if (currDate.getDay() === 6 || currDate.getDay() === 0) { // Logic to add buffer days if there are saturday or sunday between the Min and Max Delivery day
-                minDeliveryDate.add(minDeliveryDate.DATE, 1);     // Example : Min delivery day Friday and Max Delivery day Monday
-                maxDeliveryDate.add(maxDeliveryDate.DATE, 1);
-            }
+    // BLACKOUT LOOP ADDITION FOR BOTH MIN AND MAX DATES
+    // MINIMUM DELIVERY DATE BLACKOUT
+    // If Logic hits for Min it will definitely hit for Max so don't rerun loop
+    numOfDaysAdd = iterateBlackoutRangeTest(minDeliveryDate, blackoutDates, null);
+    if (numOfDaysAdd > 0) {
+        minDeliveryDate.add(CALENDAR_DAY_OF_MONTH, numOfDaysAdd);
+        maxDeliveryDate.add(CALENDAR_DAY_OF_MONTH, numOfDaysAdd);
+    } else {
+        // MAXIMUM DELIVERY DATE BLACKOUT
+        // Logic didn't hit for Min just rerun between min and max dates now!
+        numOfDaysAdd = iterateBlackoutRangeTest(maxDeliveryDate, blackoutDates, minDeliveryDate);
+        if (numOfDaysAdd > 0) {
+            maxDeliveryDate.add(CALENDAR_DAY_OF_MONTH, numOfDaysAdd);
         }
     }
-    var minDilvTime = minDeliveryDate.time; // Final Check for min delievry dates should not be sat or sun day
-    var minDilvDate = new Date(minDilvTime);
-    var minDilvDay = minDilvDate.getDay();
-    if ((minDilvDay === 6) || (minDilvDay === 0)) {
-        minDeliveryDate.add(minDeliveryDate.DATE, 2);
-        maxDeliveryDate.add(maxDeliveryDate.DATE, 2);
+    // FINAL: CHECK for MINIMUM DELIVERY DATE (Should not be on a weekend)
+    numOfDaysAdd = determineNumDaysToAdd(minDeliveryDate, blackoutDates, false, false, true, false);
+    if (numOfDaysAdd > 0) {
+        minDeliveryDate.add(CALENDAR_DAY_OF_MONTH, numOfDaysAdd);
+    }
+    // FINAL: CHECK for MAXIMUM DELIVERY DATE (Should not be on a weekend)
+    numOfDaysAdd = determineNumDaysToAdd(maxDeliveryDate, blackoutDates, false, false, true, false);
+    if (numOfDaysAdd > 0) {
+        maxDeliveryDate.add(CALENDAR_DAY_OF_MONTH, numOfDaysAdd);
     }
 
-    var maxDilvTime = maxDeliveryDate.time; // Final Check for min delievry dates should not be sat or sun day
-    var maxDilvDate = new Date(maxDilvTime);
-    var maxDilvDay = maxDilvDate.getDay();
-    if ((maxDilvDay === 6) || (maxDilvDay === 0)) {
-        maxDeliveryDate.add(maxDeliveryDate.DATE, 2);
-    }
-    minDevDate = minDeliveryDate.time;
-    var dateType = 'minDate';
-    blackOutDaYTest(minDevDate, dateType, blackoutDates, minDeliveryDate, null);
-    var maxDevDate = maxDeliveryDate.time;
-    dateType = 'maxDate';
-    blackOutDaYTest(maxDevDate, dateType, blackoutDates, null, maxDeliveryDate);
-    minDilvTime = minDeliveryDate.time; // Final Check for min delievry dates should not be sat or sun day
-    minDilvDate = new Date(minDilvTime);
-    minDilvDay = minDilvDate.getDay();
-    if ((minDilvDay === 6) || (minDilvDay === 0)) {
-        minDeliveryDate.add(minDeliveryDate.DATE, 2);
-    }
-
-    maxDilvTime = maxDeliveryDate.time; // Final Check for min delievry dates should not be sat or sun day
-    maxDilvDate = new Date(maxDilvTime);
-    maxDilvDay = maxDilvDate.getDay();
-    if ((maxDilvDay === 6) || (maxDilvDay === 0)) {
-        maxDeliveryDate.add(maxDeliveryDate.DATE, 2);
-    }
-
-    // Updated the logic to calculate the delivery days in a dynamic way
-    var weekendBlackout = [6, 0];
-
-    for (var i = 0; i < blackoutDates.length; i++) {
-        var minDayToCheck = StringUtils.formatCalendar(minDeliveryDate, 'dd-MM');
-        if (minDayToCheck === blackoutDates[i]) {
-            minDeliveryDate.add(minDeliveryDate.DATE, 1);
-
-            minDilvTime = minDeliveryDate.time;
-            minDilvDate = new Date(minDilvTime);
-            minDilvDay = minDilvDate.getDay();
-
-            for (var j = 0; j < weekendBlackout.length; j++) {
-                if (minDilvDay === weekendBlackout[j]) {
-                    minDeliveryDate.add(minDeliveryDate.DATE, 2);
-                }
-            }
-        }
-
-        var maxDayToCheck = StringUtils.formatCalendar(maxDeliveryDate, 'dd-MM');
-        if (maxDayToCheck === blackoutDates[i]) {
-            maxDeliveryDate.add(maxDeliveryDate.DATE, 1);
-
-            maxDilvTime = maxDeliveryDate.time;
-            maxDilvDate = new Date(maxDilvTime);
-            maxDilvDay = maxDilvDate.getDay();
-
-            for (var p = 0; p < weekendBlackout.length; p++) {
-                if (maxDilvDay === weekendBlackout[p]) {
-                    maxDeliveryDate.add(maxDeliveryDate.DATE, 2);
-                }
-            }
-        }
-    }
 
     availableDates.push(minDeliveryDate);
     availableDates.push(maxDeliveryDate);

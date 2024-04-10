@@ -1,35 +1,95 @@
-<div class="b-wishlist-products_tile uuid-${item.UUID} ${typeof item.imageObj.gridTileDesktop[0] !=='undefined' && item.imageObj.gridTileDesktop[0].title === 'No image' ? 'product_tile-noimage' : ''}
-    ${((item.master && !item.available) || ('productAvailability' in item.custom && item.custom.productAvailability === false)) ? 'b-wishlist-products_tile-outofstock' : ''}">
+
+<div
+    class="b-wishlist-products_tile uuid-${item.UUID} ${typeof item.imageObj.gridTileDesktop[0] !== 'undefined' && item.imageObj.gridTileDesktop[0].title === 'No image' ? 'product_tile-noimage' : ''}
+    ${((item.master && !item.available) || ('productAvailability' in item.custom && item.custom.productAvailability ===
+    false)) ? 'b-wishlist-products_tile-outofstock' : ''}">
     <!--- image, attributes, availability --->
-           <div class="item-image"> 
-               <isif condition="${item.custom.style}">
-                   <isset name="styleCode" value="${item.custom.style}" scope="page" />
-               <iselse>
-                   <isset name="mainProduct" value="${require('dw/catalog/ProductMgr').getProduct(item.pid)}" scope="page">
-                   <isset name="styleCode" value="${mainProduct.isMaster() ? mainProduct.ID : mainProduct.getVariationModel().getMaster().ID}" scope="page" />
-               </isif>
-               <a href="${URLUtils.url('Product-Show', 'pid', item.pid)}"><img class="b-wishlist-products_img" src="${typeof item.imageObj.gridTileDesktop !=='undefined' ? item.imageObj.gridTileDesktop[0].url: null}" alt="${typeof item.imageObj.gridTileDesktop !=='undefined' ? item.imageObj.gridTileDesktop[0].url : null}" title="${typeof item.imageObj.gridTileDesktop[0] !=='undefined' ? item.imageObj.gridTileDesktop[0].title : null}"></a>
-               <isif condition=${!pdict.wishlist.publicView}>
-			        <!--- remove wishlist icon--->
-			        <button type="button" class="b-wishlist_tile-fav_defultButton remove-btn remove-from-wishlist btn btn-light"
-			            data-url="${URLUtils.url('Wishlist-RemoveProduct','pid', item.pid)}"
-			            data-style="${styleCode}"
-			            aria-label="remove">
-			            <span class="b-wishlist_tile-fav_selectButton" aria-hidden=""></span>
-			        </button>
-			    </isif>
-			    <isif condition="${(item.master && !item.available) || ('productAvailability' in item.custom && item.custom.productAvailability === false)}">
-			        <span class="outofstock-message">${Resource.msg('label.not.available', 'common', null)}</span>
-			    </isif>
-           </div>
+    <div class="item-image">
+        <isif condition="${item.custom.style}">
+            <isset name="styleCode" value="${item.custom.style}" scope="page" />
+        <iselse/>
+            <isset name="mainProduct" value="${require('dw/catalog/ProductMgr').getProduct(item.pid)}" scope="page"/>
+            <isset name="styleCode" value="${mainProduct.isMaster() ? mainProduct.ID : mainProduct.getVariationModel().getMaster().ID}" scope="page" />
+        </isif>
+        <a href="${URLUtils.url('Product-Show', 'pid', item.pid)}"><img class="b-wishlist-products_img" src="${typeof item.imageObj.gridTileDesktop !=='undefined' ? item.imageObj.gridTileDesktop[0].url: null}" alt="${typeof item.imageObj.gridTileDesktop !=='undefined' ? item.imageObj.gridTileDesktop[0].url : null}" title="${typeof item.imageObj.gridTileDesktop[0] !=='undefined' ? item.imageObj.gridTileDesktop[0].title : null}"></a>
+        <isif condition="${!pdict.wishlist.publicView}">
+            <!--- remove wishlist icon--->
+            <button type="button" class="b-wishlist_tile-fav_defultButton remove-btn remove-from-wishlist btn btn-light"
+                data-url="${URLUtils.url('Wishlist-RemoveProduct','pid', item.pid)}"
+                data-style="${styleCode}"
+                aria-label="remove">
+                <span class="b-wishlist_tile-fav_selectButton" aria-hidden=""></span>
+            </button>
+        </isif>
+        <isif condition="${'isQuickATCenabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.getCustomPreferenceValue('isQuickATCenabled')}">
+            <isif condition="${item.custom === 'undefined' || empty(item.custom.giftCard) || (!empty(item.custom.giftCard) && item.custom.giftCard !== 'EGIFT_CARD')}">
+                <div class="b-tile-badge_bottom_right">
+                    <isif condition="${!item.master && item.available && (item.inCartQuantity < item.maxOrderQuantity)}">
+                        <isset name="earlyAccessObject" value="${'earlyAccess' in item.custom ? item.custom.earlyAccess : false}" scope="page" />                      
+                        <a data-url="${URLUtils.url('Cart-AddProduct')}" href="javascript:void(0)" data-mpid="${item.custom.masterID}" data-pid="${item.pid}" data-qty="${item.qty.toFixed(0)}" data-is-ea-product="${earlyAccessObject ? earlyAccessObject.isEarlyAccessProduct : false}" data-redirect="${URLUtils.url('Product-Show', 'pid', item.pid)}" class="b-tile-quickAdd-cta js-wishlist-tile-quickAdd_button"
+                        >
+                            <i class="icon-qatc"></i>
+                        </a>
+                    </isif>
+                </div>
+            </isif>
+        </isif>
+        <isif condition="${(item.master && !item.available) || ('productAvailability' in item.custom && item.custom.productAvailability === false)}">
+            <span class="outofstock-message">${Resource.msg('label.not.available', 'common', null)}</span>
+        </isif>
+    </div>
     <div class="b-tile-info">
         <div class="b-tile-gift-container">
-            <isinclude template="wishlist/components/wishlistProductCardHeader">
-        <!---unit price and quantity --->
+            <isinclude template="wishlist/components/wishlistProductCardHeader"/>
+
+            <iscomment> To show selected attribute valies for Variation product </iscomment>
+            <div class="variation-attr">
+                <isif condition="${item.custom.giftCard == 'EGIFT_CARD'}">
+                    <p class="t-lineitem_attributes gcrecipientname" data-gcrecipientname="${item.custom.gcRecipientName}"><span><isprint value="${Resource.msg('giftcard.details.recipient', 'cart', null) + ': '}"/></span><span><isprint value="${item.custom.gcRecipientName}"/></span></p>
+                    <p class="t-lineitem_attributes gcrecipientemail" data-gcrecipientemail="${item.custom.gcRecipientEmail}"><span><isprint value="${Resource.msg('giftcard.details.email', 'cart', null) + ': '}"/></span><span><isprint value="${item.custom.gcRecipientEmail}"/></span></p>
+                    <p class="t-lineitem_attributes gcfrom" data-gcfrom="${item.custom.gcFrom}"><span><isprint value="${Resource.msg('giftcard.details.from', 'cart', null) + ': '}"/></span><span><isprint value="${item.custom.gcFrom}"/></span></p>
+                    <p class="t-lineitem_attributes gcdeliverydate" data-gcdeliverydate="${item.custom.gcDeliveryDate.toISOString().split('T')[0]}"><span><isprint value="${Resource.msg('giftcard.details.delivery', 'cart', null) + ': '}"/></span><span><isprint value="${item.custom.gcDeliveryDate}" formatter="MM/dd/yyyy" timezone="utc"/></span></p>
+                    <input type="hidden" class="gcmessage" data-gcmessage="${item.custom.gcMessage}" />
+                <iselseif condition="${!item.master}" />
+                    <isloop items="${item.variationAttributes}" var="attribute">
+                        <isif condition="${attribute.attributeId == 'color'}">
+                            <p class="t-lineitem_attributes ${attribute.displayName}-${typeof lineItem !=='undefined' ? lineItem.UUID :''}">
+                                <isset name="productHelpers" value="${require('*/cartridge/scripts/helpers/productHelpers')}" scope="page"/>
+                                <isset name="colorway" value="${item.custom.colorway}" scope="page" />
+                                <isset name="fixProductColorNames" value="${colorway ? productHelpers.fixProductColorNames(colorway) : null}" scope="page"/>
+                                <isif condition="${item.custom.color || colorway}">${attribute.displayName}: <isif condition="${colorway}"> <span> ${fixProductColorNames} </span></isif><span> - <isprint value="${item.custom.color}"/></span><iselse/><isprint value="${Resource.msgf('label.select.attribute', 'cart', null, attribute.displayName)}"/></isif>
+                            </p>
+                        <iselseif condition="${attribute.attributeId == 'size'}" />
+                            <p class="t-lineitem_attributes ${attribute.displayName}-${typeof lineItem !=='undefined' ? lineItem.UUID :''}"><isif condition="${item.custom.size}">${attribute.displayName}: <span>${attribute.displayValue ? attribute.displayValue :item.custom.size}</span><iselse/><isprint value="${Resource.msgf('label.select.attribute', 'cart', null, attribute.displayName)}"/></isif></p>
+                        <iselse/>
+                            <p class="t-lineitem_attributes ${attribute.displayName}-${typeof lineItem !=='undefined' ? lineItem.UUID :''}">
+                                <isif condition="${typeof attribute.displayValue !=='undefined' && attribute.displayValue}">
+                                    <isprint value="${attribute.displayName + ': '}"/><span><isprint value="${attribute.displayValue}"/></span>
+                                <iselseif condition="${typeof attribute.values[0] !=='undefined' && attribute.values[0].displayValue}" />
+                                    <isprint value="${attribute.displayName + ': '}"/><span><isprint value="${attribute.values[0].displayValue}"/></span>
+                                <iselse/>
+                                    <isprint value="${Resource.msgf('label.select.attribute', 'cart', null, attribute.displayName)}"/>
+                                </isif>
+                            </p>
+                        </isif>
+                    </isloop>
+                    <isif condition="${item.options}">
+                        <isloop items="${item.options}" var="option">
+                            <isif condition="${!!option}" >
+                                <div class="lineItem-options-values" data-option-id="${option.optionId}" data-value-id="${option.selectedValueId}">
+                                    <p class="t-lineitem_attributes">${option.displayName}</p>
+                                </div>
+                            </isif>
+                        </isloop>
+                    </isif>
+                </isif>
+            </div>
+
+            <!---unit price and quantity --->
             <isinclude template="wishlist/components/productListItemProductPrice" />
         </div>
     </div>
     <isif condition="${(item.custom.exclusive === 'coming-soon')}">
-	    <p class="b-product_preorder-maskpdp">${item.custom.comingSoonMessage}</p>
-	</isif>
+        <p class="b-product_preorder-maskpdp">${item.custom.comingSoonMessage}</p>
+    </isif>
 </div>

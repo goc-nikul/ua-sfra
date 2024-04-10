@@ -56,8 +56,8 @@ function getLineItemInventory(product, checkInventoryInStockLevel, maoAvailabili
     // Line item limitation
     // eslint-disable-next-line no-undef
     var customerCountry = request.getLocale().slice(-2).toUpperCase();
-    var isEmployeeCustomer = !empty(customer.profile) && 'isEmployee' in customer.profile.custom && customer.profile.custom.isEmployee;
-    var qtyLimitType = customer.isAuthenticated() && isEmployeeCustomer ? 'employeeLineItemQtyLimit' : 'customerLineItemQtyLimit';
+    var isEmployeeCustomer = typeof customer !== 'undefined' && customer !== null && !empty(customer.profile) && 'isEmployee' in customer.profile.custom && customer.profile.custom.isEmployee;
+    var qtyLimitType = typeof customer !== 'undefined' && customer !== null && customer.isAuthenticated() && isEmployeeCustomer ? 'employeeLineItemQtyLimit' : 'customerLineItemQtyLimit';
     var lineItemQtyLimit = (qtyLimitType in product.custom) && !empty(product.custom[qtyLimitType]) ? product.custom[qtyLimitType] : 0;
     // customer group limitation
     if (lineItemQtyLimit === 0) {
@@ -138,6 +138,10 @@ function getLineItemInventory(product, checkInventoryInStockLevel, maoAvailabili
     } catch (e) {
         Logger.error('Error while setting the inventory record :: ', e.message);
         return 0;
+    }
+    // customer style limitation
+    if (product.custom.masterQtyLimit) {
+        lineItemQtyLimit = lineItemQtyLimit > product.custom.masterQtyLimit ? product.custom.masterQtyLimit : lineItemQtyLimit;
     }
     return lineItemQtyLimit;
 }

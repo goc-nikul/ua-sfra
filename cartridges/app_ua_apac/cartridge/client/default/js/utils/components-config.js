@@ -43,6 +43,8 @@ var configuration = {
             carousel: {},
             backToTop: {},
             quickView: {},
+            formGeneric: {},
+            notifyMe: {},
             productQuickView: {},
             loadProducts: {},
             cartTile: {},
@@ -72,6 +74,8 @@ var configuration = {
     },
     cart: {
         components: {
+            formGeneric: {},
+            notifyMe: {},
             editBasketProduct: {},
             cartBonusProductModal: {},
             afterPayModal: {}

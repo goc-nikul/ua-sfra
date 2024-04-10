@@ -50,26 +50,30 @@ module.exports = function fullProduct(product, apiProduct, options, exchangeOrde
     // Updating the parameter of qtySelector decorator, as this is required for fetching the qty for Employee and regular customer.
     // We need to make this change for bonusProduct and productBundle model by over riding the scripts from base to include this change.
     // Not committing now because we don't have this as of 04/02 to validate the change.
-    decorators.quantitySelector(product, apiProduct, apiProduct.stepQuantity.value, options.variables, options.options);
+    decorators.quantitySelector(product, apiProduct, apiProduct.stepQuantity.value, options.variables, options.options, options.PDPSelectedPID);
 
-    var category = apiProduct.getClassificationCategory();
-    if (!category && options.productType !== 'master') {
-        category = apiProduct.getMasterProduct().getClassificationCategory();
-    }
-    if (!empty(category) && category.custom && category.custom.sizeChartID === null) {
-        category = apiProduct.getPrimaryCategory();
-        if (!category && options.productType !== 'master') {
-            category = apiProduct.getMasterProduct().getPrimaryCategory();
+    if (apiProduct.custom.sizeChartID) {
+        decorators.sizeChart(product, apiProduct.custom.sizeChartID);
+    } else {
+        var category = apiProduct.getClassificationCategory();
+        if (!category && (options.productType === 'variant' || options.productType === 'variationGroup')) {
+            category = apiProduct.getMasterProduct().getClassificationCategory();
         }
-    }
-    if (!category) {
-        category = apiProduct.getPrimaryCategory();
-        if (!category && options.productType !== 'master') {
-            category = apiProduct.getMasterProduct().getPrimaryCategory();
+        if (!empty(category) && category.custom && category.custom.sizeChartID === null) {
+            category = apiProduct.getPrimaryCategory();
+            if (!category && (options.productType === 'variant' || options.productType === 'variationGroup')) {
+                category = apiProduct.getMasterProduct().getPrimaryCategory();
+            }
         }
-    }
-    if (category) {
-        decorators.sizeChart(product, category.custom.sizeChartID);
+        if (!category) {
+            category = apiProduct.getPrimaryCategory();
+            if (!category && (options.productType === 'variant' || options.productType === 'variationGroup')) {
+                category = apiProduct.getMasterProduct().getPrimaryCategory();
+            }
+        }
+        if (category) {
+            decorators.sizeChart(product, category.custom.sizeChartID);
+        }
     }
 
     decorators.currentUrl(product, options.variationModel, options.optionModel, 'Product-Show', apiProduct.ID, options.quantity);

@@ -1,0 +1,79 @@
+{
+    "step-types": {
+        "script-module-step": [
+            {
+                "@type-id": "custom.Narvar.CommitOrders",
+                "module": "int_narvar/cartridge/scripts/jobs/commitOrderNarvarJob.js",
+                "function": "exportOrders",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "orderProcessLimit",
+                            "@type": "long",
+                            "@required": "false",
+                            "@description": "Limit for the number of orders to be processed. Limit should not be more than 1000"
+                        },
+                        {
+                            "@name": "orderPastDaysLimit",
+                            "@type": "long",
+                            "@required": "false",
+                            "@description": "Limit for the number of Days passed for Order to processed"
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "DISABLED",
+                            "description": "This step was disabled."
+                        },
+                        {
+                            "@code": "ERROR",
+                            "description": "Processing failed."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Order Successfully committed in system."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.Narvar.CommitShippedOrders",
+                "module": "int_narvar/cartridge/scripts/jobs/commitShippedOrderToNarvar.js",
+                "function": "exportShippedOrders",
+                "parameters": {
+                    "parameter": [{
+                            "@name": "orderProcessLimit",
+                            "@type": "long",
+                            "@required": "false",
+                            "@description": "Limit for the number of orders to be processed. Limit should not be more than 1000"
+                        },
+                        {
+                            "@name": "orderPastDaysLimit",
+                            "@type": "long",
+                            "@required": "false",
+                            "@description": "Limit for the number of Days passed for Order to processed"
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "DISABLED",
+                            "description": "This step was disabled."
+                        },
+                        {
+                            "@code": "ERROR",
+                            "description": "Processing failed."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Order Successfully committed in system."
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

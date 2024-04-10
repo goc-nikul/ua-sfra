@@ -7,5 +7,6 @@ module.exports = {
     returnFromAddress: 'returnFromAddress' in sitePrefrences ? sitePrefrences.returnFromAddress : null,
     returnShipperAddress: 'returnShipperAddress' in sitePrefrences ? sitePrefrences.returnShipperAddress : null,
     countryOverride: 'countryOverride' in sitePrefrences ? sitePrefrences.countryOverride : null,
-    showOrderReference: 'showOrderReference' in sitePrefrences ? sitePrefrences.showOrderReference : []
+    showOrderReference: 'showOrderReference' in sitePrefrences ? sitePrefrences.showOrderReference : [],
+    returnCountryOverride: 'returnCountryOverride' in sitePrefrences ? sitePrefrences.returnCountryOverride : {}
 };

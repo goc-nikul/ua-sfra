@@ -19,7 +19,11 @@
             <a href="${prodURL}">
                 <img src="${typeof lineItem.images.cartFullDesktop[0] !== 'undefined' ? lineItem.images.cartFullDesktop[0].url : null}" title="${typeof lineItem.images.cartFullDesktop[0] !== 'undefined' ? lineItem.images.cartFullDesktop[0].title : null}" class="line-item-product-image bfx-product-image" alt="${typeof lineItem.images.cartFullDesktop[0] !== 'undefined' ? lineItem.images.cartFullDesktop[0].alt : null} image number ${typeof lineItem.images.cartFullDesktop[0] !== 'undefined' ? lineItem.images.cartFullDesktop[0].index :null}" itemprop="image" />
             </a>
+            <isif condition="${'masterQtyLimit' in lineItem.custom && lineItem.custom.masterQtyLimit}">
+                ${Resource.msgf('error.alert.master.quantity.limit.reached', 'product',  null, lineItem.custom.masterQtyLimit)}
+            </isif>
         </div>
+        <span class="b-cartlineitem_right-content-nobopis">
         <div class="b-cartlineitem_details">
             <isinclude template="cart/productCard/cartProductCardHeader" />
             <p class="hide visually-hidden bfx-sku">${lineItem.custom.sku}</p>
@@ -83,10 +87,6 @@
                     <isinclude template="cart/productCard/cartProductCardProductPrice" />
                 </isif>
 
-                <isif condition="${lineItem.bonusProductLineItemUUID === 'bonus'}">
-                    <isinclude template="cart/productCard/cartEmbeddedBonusProducts" />
-                </isif>
-
                 <isif condition="${lineItem.custom.fromStoreId}">
                     <isset name="storeID" value="${lineItem.custom.fromStoreId}" scope="page" />
                     <isinclude url="${URLUtils.url('Stores-GetStoreById', 'storeId', lineItem.custom.fromStoreId)}"/>
@@ -134,7 +134,10 @@
                 </div>
             </div>
         </isif>
-        <div class="b-cartlineitem_remove_edit">
+        <div class="b-cartlineitem_remove_edit b-cartlineitem_remove_edit-right">
+             <div class="b-product_promoCallout ${isEGiftCardProduct ? 'b-is_egiftcard' : ''}">
+                <isinclude template="cart/productCard/cartProductPromoCalloutMessage"/>
+            </div>
             <div class="b-cartlineitem_togetherbutton">
                 <isif condition="${!(pdict.CurrentCustomer && pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR'))}">
                     <isinclude template="cart/productCard/cartProductCardSaveLater" />
@@ -147,6 +150,10 @@
                 </isif>
             </div>
         </div>
+        </span>
     </div>
+     <isif condition="${lineItem.bonusProductLineItemUUID === 'bonus'}">
+		 <isinclude template="cart/productCard/embeddedCartBonusProducts" />
+   	 </isif>
 </div>
 

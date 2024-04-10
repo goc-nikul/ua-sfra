@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<promotions xmlns="http://www.demandware.com/xml/impex/promotion/2008-01-31">
+    <campaign campaign-id="THB-member">
+        <enabled-flag>true</enabled-flag>
+        <campaign-scope>
+            <applicable-online/>
+        </campaign-scope>
+        <customer-groups match-mode="any">
+            <customer-group group-id="Registered"/>
+        </customer-groups>
+    </campaign>
+
+    <promotion promotion-id="THB-member">
+        <enabled-flag>true</enabled-flag>
+        <archived-flag>false</archived-flag>
+        <searchable-flag>false</searchable-flag>
+        <refinable-flag>false</refinable-flag>
+        <prevent-requalifying-flag>false</prevent-requalifying-flag>
+        <prorate-across-eligible-items-flag>false</prorate-across-eligible-items-flag>
+        <exclusivity>global</exclusivity>
+        <name xml:lang="x-default">THB-member</name>
+        <custom-attributes>
+            <custom-attribute attribute-id="Loyalty-Voucher">false</custom-attribute>
+            <custom-attribute attribute-id="approachedPromotion">false</custom-attribute>
+            <custom-attribute attribute-id="isEmployeeDiscount">false</custom-attribute>
+            <custom-attribute attribute-id="isFreeShipping">false</custom-attribute>
+            <custom-attribute attribute-id="isIdmeDiscount">false</custom-attribute>
+            <custom-attribute attribute-id="isMemberPricingPromo">true</custom-attribute>
+        </custom-attributes>
+        <product-promotion-rule>
+            <discounted-products>
+                <included-products>
+                    <condition-group>
+                        <product-id-condition operator="is equal">
+                            <product-id>1353821</product-id>
+                            <product-id>1366363</product-id>
+                            <product-id>1357925</product-id>
+                            <product-id>1363372</product-id>
+                            <product-id>1361539</product-id>
+                            <product-id>1363281</product-id>
+                            <product-id>1356297</product-id>
+                            <product-id>1364836</product-id>
+                            <product-id>1361772</product-id>
+                        </product-id-condition>
+                    </condition-group>
+                </included-products>
+            </discounted-products>
+            <simple-discount>
+                <price-book-price>
+                    <pricebook-id>THB-member</pricebook-id>
+                </price-book-price>
+            </simple-discount>
+        </product-promotion-rule>
+    </promotion>
+
+    <promotion-campaign-assignment promotion-id="THB-member" campaign-id="THB-member">
+        <qualifiers match-mode="all">
+            <customer-groups/>
+            <source-codes/>
+            <coupons/>
+        </qualifiers>
+    </promotion-campaign-assignment>
+
+</promotions>

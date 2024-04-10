@@ -44,12 +44,14 @@ function refund(referenceNo, amount, currency, returnReference, order, reason, n
             var returnsUtils = new ReturnsUtils();
             var Money = require('dw/value/Money');
             returnsUtils.processReturnToBeRefunded(order, newReturn, true, new Money(amount, currency));
+            returnsUtils.SetRefundsCountInfo(false, null, order);
         } else if (refundOrder && refundOrder.error) {
             var errorMessage = JSON.parse(refundOrder.errorMessage);
             result = {
                 error: true,
                 message: errorMessage.message
             };
+            returnsUtils.SetRefundsCountInfo(true, null, order);
         }
     }
     return {

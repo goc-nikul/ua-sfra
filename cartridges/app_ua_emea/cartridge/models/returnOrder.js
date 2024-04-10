@@ -174,6 +174,8 @@ function returnOrderModel(returnCase, options) {
         this.orderNo = lineItemContainer.orderNo;
         var refundsJson = 'refundsJson' in lineItemContainer.custom && lineItemContainer.custom.refundsJson ? lineItemContainer.custom.refundsJson : '';
         var refundInfo = !empty(refundsJson) ? returnsUtils.getRefundInfoForOrderDetail(this.rmaNumber, refundsJson) : '';
+        // Order status is displayed according to current selected locale setting
+        request.setLocale(requestLocale); // eslint-disable-line no-undef
         if (refundInfo) {
             this.status = Resource.msg('order.status.processed', 'account', null);
             this.displayStatus = Resource.msg('order.status.processed', 'account', null);
@@ -184,6 +186,9 @@ function returnOrderModel(returnCase, options) {
             this.creationDate = Object.hasOwnProperty.call(returnCase, 'creationDate')
                 ? StringUtils.formatCalendar(new Calendar(returnCase.creationDate), 'dd/MM') : null;
         }
+        // Setting back to Order Locale to get price based on order locale.
+        request.setLocale(lineItemContainer.customerLocaleID); // eslint-disable-line no-undef
+
         options.refundInfo = refundInfo; // eslint-disable-line no-param-reassign
         options.currencyCode = currencyCode; // eslint-disable-line no-param-reassign
         this.orderItems = [];

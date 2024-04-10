@@ -3,9 +3,40 @@
 const proxyquire = require('proxyquire').noCallThru().noPreserveCache();
 var assert = require('chai').assert;
 
+var productHookMocks = {
+    'dw/system/Site': {
+        current: {
+            preferences: {
+                custom: {
+                    processCurrencyBasedOnCurrencyParam: true
+                }
+            }
+        },
+        getCurrent() {
+            return {
+                getID: function () {
+                    return 'US';
+                }
+            };
+        }
+    },
+    'dw/web/URLUtils': {
+        url: function () {
+            return '';
+        }
+    }
+};
+
 describe('int_ocapi/cartridge/hooks/shop/product/product.js', () => {
+    beforeEach(() => {
+        global.request = {
+            getLocale: function () {
+                return '';
+            }
+        };
+    });
     var product = proxyquire('../../../../../../../cartridges/int_ocapi/cartridge/hooks/shop/product/product.js', {
-        'dw/system/Status': function () {},
+        'dw/system/Status': function () { },
         'dw/util': {
             HashMap: function () {
                 return {
@@ -81,11 +112,7 @@ describe('int_ocapi/cartridge/hooks/shop/product/product.js', () => {
                 };
             }
         },
-        './productHookUtils': {
-            getProductUrl: function () {
-                return 'url';
-            }
-        },
+        './productHookUtils': proxyquire('../../../../../../../cartridges/int_ocapi/cartridge/hooks/shop/product/productHookUtils', productHookMocks),
         '*/cartridge/scripts/utils/PreferencesUtil': {
             getValue: function () {
                 return {};
@@ -103,6 +130,11 @@ describe('int_ocapi/cartridge/hooks/shop/product/product.js', () => {
         'dw/util/Currency': {
             getCurrency: function () {
                 return 'USD';
+            }
+        },
+        '*/cartridge/scripts/util/collections': {
+            map: function () {
+                return []
             }
         }
     });
@@ -152,6 +184,9 @@ describe('int_ocapi/cartridge/hooks/shop/product/product.js', () => {
                 maxPrice: {
                     value: 1
                 }
+            },
+            isMaster: function () {
+                return {};
             }
         };
         var productResponse = {
@@ -169,7 +204,7 @@ describe('int_ocapi/cartridge/hooks/shop/product/product.js', () => {
     it('Testing modifyGETResponse --> isPriceRange return false', () => {
 
         product = proxyquire('../../../../../../../cartridges/int_ocapi/cartridge/hooks/shop/product/product.js', {
-            'dw/system/Status': function () {},
+            'dw/system/Status': function () { },
             'dw/util': {
                 HashMap: function () {
                     return {
@@ -279,11 +314,7 @@ describe('int_ocapi/cartridge/hooks/shop/product/product.js', () => {
                     };
                 }
             },
-            './productHookUtils': {
-                getProductUrl: function () {
-                    return 'url';
-                }
-            },
+            './productHookUtils': proxyquire('../../../../../../../cartridges/int_ocapi/cartridge/hooks/shop/product/productHookUtils', productHookMocks),
             '*/cartridge/scripts/utils/PreferencesUtil': {
                 getValue: function () {
                     return {};
@@ -301,6 +332,11 @@ describe('int_ocapi/cartridge/hooks/shop/product/product.js', () => {
             'dw/util/Currency': {
                 getCurrency: function () {
                     return 'USD';
+                }
+            },
+            '*/cartridge/scripts/util/collections': {
+                map: function () {
+                    return []
                 }
             }
         });

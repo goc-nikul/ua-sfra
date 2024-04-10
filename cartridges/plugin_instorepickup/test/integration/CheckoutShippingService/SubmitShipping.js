@@ -1,3 +1,5 @@
+'use strict';
+
 var assert = require('chai').assert;
 var request = require('request-promise');
 var config = require('../it.config');
@@ -47,9 +49,9 @@ describe('Submit the shipping form with store attached', function () {
             .then(function (csrfResponse) {
                 var csrfJsonResponse = JSON.parse(csrfResponse.body);
                 // step3 : submit shipping request with token acquired in step 2
-                myRequest.url = config.baseUrl + '/CheckoutShippingServices-SubmitShipping?' +
-                    csrfJsonResponse.csrf.tokenName + '=' +
-                    csrfJsonResponse.csrf.token;
+                myRequest.url = config.baseUrl + '/CheckoutShippingServices-SubmitShipping?'
+                    + csrfJsonResponse.csrf.tokenName + '='
+                    + csrfJsonResponse.csrf.token;
                 myRequest.form = {
                     shipmentUUID: shipmentUUID,
                     dwfrm_shipping_shippingAddress_shippingMethodID: '005',
@@ -120,9 +122,9 @@ describe('Submit the shipping form without store attached', function () {
             .then(function (csrfResponse) {
                 var csrfJsonResponse = JSON.parse(csrfResponse.body);
                 // step3 : submit shipping request with token acquired in step 2
-                myRequest.url = config.baseUrl + '/CheckoutShippingServices-SubmitShipping?' +
-                    csrfJsonResponse.csrf.tokenName + '=' +
-                    csrfJsonResponse.csrf.token;
+                myRequest.url = config.baseUrl + '/CheckoutShippingServices-SubmitShipping?'
+                    + csrfJsonResponse.csrf.tokenName + '='
+                    + csrfJsonResponse.csrf.token;
                 myRequest.form = {
                     shipmentUUID: shipmentUUID,
                     dwfrm_shipping_shippingAddress_shippingMethodID: '001',

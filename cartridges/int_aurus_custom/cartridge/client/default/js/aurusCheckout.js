@@ -34,7 +34,9 @@ function getAltPaymentsConsumerObject(sessionID, orderNoNeeded) {
                 /* needed by Aurus */
                 var payLoad = data.consumerObject;
                 /* eslint-disable no-undef */
-                Aurus.aurusInit(payLoad, $);
+                if (window.Aurus) {
+                    window.Aurus.aurusInit(payLoad, $);
+                }
                 var paymentMethodID = $('.payment-information').attr('data-payment-method-id');
                 var currentStage = $('.data-checkout-stage').attr('data-checkout-stage');
                 if (paymentMethodID === 'AURUS_OXXO' && currentStage === 'placeOrder') {
@@ -540,7 +542,9 @@ function getAltPaymentsConsumerObjectForExpressPayPal(sessionID, orderNoNeeded) 
                 /* needed by Aurus */
                 var payLoad = data.consumerObject;
                 /* eslint-disable no-undef */
-                Aurus.aurusInit(payLoad, $);
+                if (window.Aurus) {
+                    window.Aurus.aurusInit(payLoad, $);
+                }
                 var paymentMethodID = $('.payment-information').attr('data-payment-method-id');
                 var currentStage = $('.data-checkout-stage').attr('data-checkout-stage');
                 if (paymentMethodID === 'AURUS_OXXO' && currentStage === 'placeOrder') {

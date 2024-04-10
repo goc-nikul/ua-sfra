@@ -1,0 +1,27 @@
+<isif condition="${pdict.triggerError}">
+    <body>
+        <div class="mobile-auth-error" data-disable-outer-close="${pdict.authenticationPending}" style="display: none">
+            <isinclude template="account/mobileAuth/mobileAuthError" />
+        </div>
+        <script>
+            window.addEventListener('load', function() {
+                window.opener.postMessage({
+                    containerHTML: document.querySelector('.mobile-auth-error').innerHTML,
+                    disableOuterClose: document.querySelector('.mobile-auth-error').dataset.disableOuterClose === 'true'
+                }, window.location.origin);
+            });
+        </script>
+    </body>
+<iselse/>
+    <body onload="document['nice-id-form'].submit()">
+        <form name="nice-id-form" action="${pdict.url}">
+            <input type="hidden" id="m" name="m" value="service" />
+            <input type="hidden" id="token_version_id" name="token_version_id"
+                value="${pdict.encryptedData.token_version_id}" />
+            <input type="hidden" id="enc_data" name="enc_data" value="${pdict.encryptedData.enc_data}" />
+            <input type="hidden" id="integrity_value" name="integrity_value"
+                value="${pdict.encryptedData.integrity_value}" />
+            <input type="submit" value="Submit" style="display: none" />
+        </form>
+    </body>
+</isif>

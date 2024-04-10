@@ -2,7 +2,10 @@
 
 var Transaction = require('dw/system/Transaction');
 var Site = require('dw/system/Site');
+var errorLogger = require('dw/system/Logger').getLogger('OrderFail', 'OrderFail');
+var aurusPayHelper = require('*/cartridge/scripts/util/aurusPayHelper');
 var Logger = require('dw/system/Logger').getLogger('AurusPayHelper', 'AurusPayHelper');
+var LogHelper = require('*/cartridge/scripts/util/loggerHelper');
 
 /**
  * Updates basket address from aurus response
@@ -19,11 +22,11 @@ function updateShippingAddress(basket, address) {
         shippingAddress.setFirstName(address.ShippingFirstName);
         shippingAddress.setLastName(address.ShippingLastName);
         shippingAddress.setAddress1(address.ShippingAddressLine1);
-        shippingAddress.setAddress2(address.ShippingAddressLine2);
+        shippingAddress.setAddress2(address.ShippingAddressLine2 !== 'null' ? address.ShippingAddressLine2 : '');
         shippingAddress.setCity(address.ShippingCity);
         shippingAddress.setPostalCode(address.ShippingZip);
         shippingAddress.setStateCode(address.ShippingState);
-        shippingAddress.setCountryCode(address.ShippingCountry);
+        shippingAddress.setCountryCode(address.ShippingCountry.toUpperCase());
     });
 }
 
@@ -42,11 +45,11 @@ function updateBillingAddress(basket, address) {
         billingAddress.setFirstName(address.BillingFirstName);
         billingAddress.setLastName(address.BillingLastName);
         billingAddress.setAddress1(address.BillingAddressLine1);
-        billingAddress.setAddress2(address.BillingAddressLine2);
+        billingAddress.setAddress2(address.BillingAddressLine2 !== 'null' ? address.BillingAddressLine2 : '');
         billingAddress.setCity(address.BillingCity);
         billingAddress.setPostalCode(address.BillingZip);
         billingAddress.setStateCode(address.BillingState);
-        billingAddress.setCountryCode(address.BillingCountry);
+        billingAddress.setCountryCode(address.BillingCountry.toUpperCase());
         billingAddress.setPhone(address.BillingMobileNumber);
     });
 }
@@ -74,7 +77,6 @@ function Handle(basket) {
 function Authorize(orderNumber, paymentInstrument, paymentProcessor, scope) {
     // Models for Auth call
     var BillingAddressModel = require('*/cartridge/models/billingAddress');
-    var aurusPayHelper = require('*/cartridge/scripts/util/aurusPayHelper');
     var ShippingAddressModel = require('*/cartridge/models/shippingAddress');
     var EcommInfoModel = require('*/cartridge/models/ecommInfo');
     var TransAmountDetails = require('*/cartridge/models/transactionDetails');
@@ -131,7 +133,7 @@ function Authorize(orderNumber, paymentInstrument, paymentProcessor, scope) {
                 orderNo: aurusInvoiceNumber,
                 Level3ProductsData: aurusProducts,
                 currencyCode: order.currencyCode
-            });
+            }, order);
 
             if (empty(authResult) || empty(authResult.TransResponse) || empty(authResult.TransResponse.TransDetailsData) || empty(authResult.TransResponse.TransDetailsData.TransDetailData)) {
                 Logger.error('ERROR: Error in auruspay Applepay Pre-Auth response object');
@@ -172,6 +174,7 @@ function Authorize(orderNumber, paymentInstrument, paymentProcessor, scope) {
             });
         } catch (e) {
             error = true;
+            errorLogger.error('Authorize {0} : {1}', JSON.stringify(e), LogHelper.getLoggingObject(order));
             Logger.error('ERROR: Error while setting payment Instruments custom attributes :: {0}', JSON.stringify(e));
         }
     }
@@ -213,7 +216,7 @@ function OOTAuthorize(basket, paymentInstrument, paymentInstrumentRequest) { // 
 
     try {
         var sessionObj = aurusAuthorizeApplepay.getSession();
-        Logger.error('sessionObj: ' + JSON.stringify(sessionObj));
+        Logger.info('sessionObj: ' + JSON.stringify(sessionObj));
 
         if (sessionObj && sessionObj.SessionResponse && sessionObj.SessionResponse.ResponseText === 'APPROVAL') {
             sessionId = sessionObj.SessionResponse.SessionId;
@@ -234,7 +237,7 @@ function OOTAuthorize(basket, paymentInstrument, paymentInstrumentRequest) { // 
                 }
             }
         };
-        Logger.error('event: ' + JSON.stringify(event));
+        Logger.info('event: ' + JSON.stringify(event));
         var tokenObject;
         if (sessionId !== '') {
             tokenObject = aurusAuthorizeApplepay.getSessionToken({ order: basket, event: event, templateId: '1', sessionId: sessionId });
@@ -259,6 +262,7 @@ function OOTAuthorize(basket, paymentInstrument, paymentInstrumentRequest) { // 
 
         if (!OneTimeToken) {
             serverErrors.push('OneTimeToken is missing');
+            errorLogger.error('OneTimeToken is missing : {0}', LogHelper.getLoggingObject());
 
             return {
                 serverErrors: serverErrors,
@@ -288,6 +292,7 @@ function OOTAuthorize(basket, paymentInstrument, paymentInstrumentRequest) { // 
                     }
                 }
             } catch (e) {
+                errorLogger.error('OOTAuthorize 1 {0} : {1}', JSON.stringify(e), LogHelper.getLoggingObject());
                 Logger.error(JSON.stringify(e));
             }
         }
@@ -308,6 +313,7 @@ function OOTAuthorize(basket, paymentInstrument, paymentInstrumentRequest) { // 
                     }
                 }
             } catch (e) {
+                errorLogger.error('OOTAuthorize 2 {0} : {1}', JSON.stringify(e), LogHelper.getLoggingObject());
                 Logger.error(JSON.stringify(e));
             }
         }
@@ -333,6 +339,7 @@ function OOTAuthorize(basket, paymentInstrument, paymentInstrumentRequest) { // 
             });
         }
     } catch (e) {
+        errorLogger.error('OOTAuthorize 3 {0} : {1}', JSON.stringify(e), LogHelper.getLoggingObject());
         Logger.error(JSON.stringify(e));
         error = true;
         serverErrors.push(e.message);

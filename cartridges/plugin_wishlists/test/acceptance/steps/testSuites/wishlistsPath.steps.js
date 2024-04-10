@@ -1,3 +1,5 @@
+'use strict';
+
 const { I, data, pluginWishlists } = inject();
 
 When('shopper selects yes or no for tracking consent', () => {

@@ -34,7 +34,7 @@
     <!-- Tealium -->
     <isscript>var pageContext={title:'Checkout',type:'checkout',ns:'checkout'};</isscript>
 
-    <div id="checkout-main" data-enter-manually="${Resource.msg('enter.manually.address', 'forms', null)}" data-onlyBopisitemExist= "${pdict.order.hasOnlyBopisItems}" data-hasbopisitems= "${pdict.order.hasBopisItems}" data-customer-address="${pdict.customer.addresses.length ? 'true' : 'false'}" data-productLineItemExist="${pdict.productLineItemExist}" class="b-checkout_main container data-checkout-stage ${pdict.shipToCollectionPoint ? 'hal-active' : ''} ${pdict.isBOPISEnabled ? 'bopis-active' : ''} <isif condition="${pdict.order.usingMultiShipping && pdict.order.shipping.length > 1}">multi-ship</isif>" data-customer-type="${!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer.registeredUser ? 'registered' : 'guest'}" data-checkout-stage="${pdict.currentStage}" data-replace-shipping-url="${URLUtils.https('Checkout-ReplaceShippingContent')}" data-checkout-get-url="${URLUtils.https('CheckoutServices-Get')}" data-placeorder="${Resource.msg('button.place.order', 'checkout', null)}" data-klarna-placeorder="${Resource.msg('checkout.klarna.placeorder', 'checkout', null)}" data-oxxo-placeorder="${Resource.msg('checkout.oxxo.placeorder', 'checkout', null)}" data-safetypay-placeorder="${Resource.msg('checkout.safetypay.placeorder', 'checkout', null)}" data-cart-url="${URLUtils.https('Cart-Show')}" data-is-legendsoft="${pdict.isLegendSoftEnable}" data-legendsoft-url="${URLUtils.url('LegendSoft-GetAllOptionsByPostalCode')}">
+    <div id="checkout-main" data-enter-manually="${Resource.msg('enter.manually.address', 'forms', null)}" data-onlyBopisitemExist= "${pdict.order.hasOnlyBopisItems}" data-hasbopisitems= "${pdict.order.hasBopisItems}" data-customer-address="${pdict.customer.addresses.length ? 'true' : 'false'}" data-productLineItemExist="${pdict.productLineItemExist}" class="b-checkout_main container data-checkout-stage ${pdict.shipToCollectionPoint ? 'hal-active' : ''} ${pdict.isBOPISEnabled ? 'bopis-active' : ''} <isif condition="${pdict.order.usingMultiShipping && pdict.order.shipping.length > 1}">multi-ship</isif>" data-customer-type="${!pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && pdict.customer.registeredUser ? 'registered' : 'guest'}" data-checkout-stage="${pdict.currentStage}" data-replace-shipping-url="${URLUtils.https('Checkout-ReplaceShippingContent')}" data-checkout-get-url="${URLUtils.https('CheckoutServices-Get')}" data-placeorder="${Resource.msg('button.place.order', 'checkout', null)}" data-klarna-placeorder="${Resource.msg('checkout.klarna.placeorder', 'checkout', null)}" data-oxxo-info="${Resource.msg('checkout.oxxo.info', 'checkout', null)}" data-oxxo-placeorder="${Resource.msg('checkout.oxxo.placeorder', 'checkout', null)}" data-safetypay-placeorder="${Resource.msg('checkout.safetypay.placeorder', 'checkout', null)}" data-cart-url="${URLUtils.https('Cart-Show')}" data-is-legendsoft="${pdict.isLegendSoftEnable}" data-legendsoft-url="${URLUtils.url('LegendSoft-GetAllOptionsByPostalCode')}">
         <!----------------------------------------------------------------------------------->
         <!-- Help and Phone -->
         <!----------------------------------------------------------------------------------->
@@ -103,6 +103,11 @@
 	                           <button data-href="${URLUtils.https('Login-Show','rurl','2')}" class="g-button_secondary--black js-login g-button_base b-checkout_subheader-button">
 	                                ${Resource.msg('button.faster.login', 'checkout', null)}
 	                           </button>
+                                <isif condition="${('promptedLogin' in dw.system.Site.current.preferences.custom && dw.system.Site.current.getCustomPreferenceValue('promptedLogin')) && !session.custom.promptedLoginShowed}">
+                                    <button data-href="${URLUtils.https('Login-Show','rurl','2','promptedLogin', 'true')}" class="g-button_secondary--black js-login g-button_base b-checkout_subheader-button prompted-login-button" hidden type="button">
+                                        ${Resource.msg('button.faster.login', 'checkout', null)}
+                                    </button>
+                                </isif>
 	                        </div>
 					    </isif>
 				    </div>
@@ -127,7 +132,7 @@
 	                <isset name="isExpressPaypalEnabled" value="${dw.system.Site.current.getCustomPreferenceValue('PP_ShowExpressCheckoutButton') && pdict.eligiblePaymentMethods.payPal}" scope="page" />
 	                <isset name="isExpressApplePayEnabled" value="${dw.system.Site.current.getCustomPreferenceValue('isExpressApplePayEnabled') && pdict.eligiblePaymentMethods.applePay}" scope="page" />
 	                <isset name="isEnabledExpressKlarna" value="${dw.system.Site.current.getCustomPreferenceValue('isEnabledExpressKlarna') && pdict.eligiblePaymentMethods.klarna}" scope="page" />
-                    <isset name="isKlarnaThresholdFall" value="${pdict.order.totals && pdict.order.totals.klarnaTotal && (pdict.order.totals.klarnaTotal < klarnaMinimumThreshold || pdict.order.totals.klarnaTotal > klarnaMaximumThreshold)}" scope="page" />
+                    <isset name="isKlarnaThresholdFall" value="${ pdict.isKlarnaEnabled && pdict.order.totals && pdict.order.totals.klarnaTotal && (pdict.order.totals.klarnaTotal < klarnaMinimumThreshold || pdict.order.totals.klarnaTotal > klarnaMaximumThreshold)}" scope="page" />
                     <input type="hidden" class="applepay-enabled" value="${isExpressApplePayEnabled && !pdict.isVIP && !pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR')}"/>
                     <input type="hidden" class="klarna-enabled" value="${!isExpressPaypalEnabled && isEnabledExpressKlarna}"/>
                     <input type="hidden" class="vip-account" value="${pdict.isVIP && !pdict.order.isVIPOrder}"/>

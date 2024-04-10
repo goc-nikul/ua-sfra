@@ -1,0 +1,89 @@
+<table class="invoice-table-2">
+    <tr>
+        <th class="bg-gray article">${localeResources.article}</th>
+        <th class="bg-gray">${localeResources.description}</th>
+        <th class="bg-gray size">${localeResources.size}</th>
+        <th class="bg-gray size color">${localeResources.color}</th>
+        <th class="bg-gray">${localeResources.quantity}</th>
+        <th class="bg-gray unit-price">${localeResources.unitPrice}</th>
+        <th class="bg-gray vatPercent">${localeResources.vat}</th>
+        <th class="bg-gray vat">${localeResources.valValue}</th>
+        <th class="bg-gray sum">${localeResources.itemTotalPaid}</th>
+    </tr>
+    <isloop items="${pdict.Order.shipments}" var="shipment" status="shipmentloopstate">
+        <isloop items="${shipment.productLineItems}" var="productLineItem" status="pliloopstate">
+            <tr class="${pliloopstate.last ? '' : 'item-details'} ${pliloopstate.index > 5 && (pliloopstate.index%11 == 0) ? 'page-break' : ''}">
+                <td class="text-center">
+                    <isprint value="${productLineItem.custom.sku}" />
+                </td>
+                <td>
+                    <isprint value="${productLineItem.productName}" />
+                </td>
+                <isset name="variationModel" value="${productLineItem.product.variationModel}" scope="page" />
+                <isset name="productVariationAttributes" value="${variationModel.productVariationAttributes}"
+                    scope="page" />
+                <isloop items="${productVariationAttributes}" var="attr" status="loopstatus">
+                    <isif condition="${attr.ID === 'size'}">
+                        <td class="text-center">
+                            <isprint value="${variationModel.getSelectedValue(attr).displayValue}" />
+                        </td>
+                    </isif>
+                </isloop>
+                <isscript>
+                    var fixProductColorNames = helper.fixProductColorNames(productLineItem.product.custom.colorway);
+                </isscript>
+                <td class="text-center">
+                    <isif condition="${productLineItem.product.custom.colorway}"> <isprint value="${!empty(fixProductColorNames) ? fixProductColorNames : productLineItem.product.custom.colorway}"/> - </isif> <isprint value="${productLineItem.product.custom.color}"/>
+                </td>
+                <td class="text-center">
+                    <isprint value="${productLineItem.quantity}" />
+                </td>
+                <td class="text-center">
+                    <isif condition="${(productLineItem.basePrice.value*productLineItem.quantity) > productLineItem.taxBasis.value}">
+                        <span class="strike"><isprint  value="${productLineItem.basePrice.value}"/></span>
+                    </isif>
+
+                    <isprint value="${productLineItem.taxBasis.value / productLineItem.quantity}" />
+                </td>
+                <td class="text-center">
+                    <isprint value="${productLineItem.getTaxRate() * 100}" /> %</td>
+                <td class="text-center">
+                    <isprint value="${productLineItem.adjustedTax.value}" />
+                </td>
+                <td class="text-right">
+                    <isprint value="${productLineItem.taxBasis.value}" />
+                </td>
+            </tr>
+        </isloop>
+    </isloop>
+    <tr>
+        <th colspan="8" class="text-right">${localeResources.subTotal}</th>
+        <td colspan="1" class="text-right w-100-p">
+            <isprint value="${pdict.Order.adjustedMerchandizeTotalGrossPrice.value}" />
+        </td>
+    </tr>
+    <tr>
+        <th colspan="8" class="text-right">${localeResources.valValue}</th>
+        <td colspan="1" class="text-right w-100-p">
+            <isprint value="${pdict.Order.getAdjustedMerchandizeTotalTax().value}" />
+        </td>
+    </tr>
+    <tr>
+        <th colspan="8" class="text-right">${localeResources.delivery}</th>
+        <td colspan="1" class="text-right w-100-p">
+            <isprint value="${pdict.Order.adjustedShippingTotalPrice.value || '00.00'}" encoding="on" />
+        </td>
+    </tr>
+    <tr>
+        <th colspan="8" class="text-right">${localeResources.totalPaid}</th>
+        <td colspan="1" class="text-right w-100-p">
+            <isprint value="${pdict.Order.totalGrossPrice.value}" />
+        </td>
+    </tr>
+    <tr>
+        <th colspan="8" class="text-right">${localeResources.total}</th>
+        <td colspan="1" class="text-right w-100-p">
+            <isprint value="${pdict.Order.totalGrossPrice.value - pdict.Order.getAdjustedMerchandizeTotalTax().value}" />
+        </td>
+    </tr>
+</table>

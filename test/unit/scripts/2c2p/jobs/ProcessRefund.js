@@ -155,7 +155,12 @@ var ProcessRefunds = proxyquire('../../../../../cartridges/int_2c2p/cartridge/sc
             return field(pli);
         }
     },
-    'dw/system/Logger': require('../../../../mocks/dw/dw_system_Logger')
+    'dw/system/Logger': require('../../../../mocks/dw/dw_system_Logger'),
+    '*/cartridge/scripts/orders/ReturnsUtils': function () {
+        this.SetRefundsCountInfo = () => {
+            return true;
+        };
+    }
 });
 
 class XML {
@@ -249,7 +254,12 @@ describe('int_2c2p/cartridge/scripts/jobs/ProcessRefunds.js', function () {
                     return field(pli);
                 }
             },
-            'dw/system/Logger': require('../../../../mocks/dw/dw_system_Logger')
+            'dw/system/Logger': require('../../../../mocks/dw/dw_system_Logger'),
+            '*/cartridge/scripts/orders/ReturnsUtils': function () {
+                this.SetRefundsCountInfo = () => {
+                    return true;
+                };
+            }
         });
         pli.custom.refundsJson = '[{"emailSent":true,"refundDate":"2022-03-15T12:28:00.025Z","refundAmount":"230.00","refundCurrency":"PLN","refundReason":"","items":{"3023533-001-6":"1"},"itemAmounts":{"3023533-001-6":"230.00"},"returnNumber":"DEVEU-00020652-R1"}]';
         global.XML = XML;

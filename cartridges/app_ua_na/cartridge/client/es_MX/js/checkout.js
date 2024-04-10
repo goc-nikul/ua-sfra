@@ -2,6 +2,7 @@
 
 var processInclude = require('base/util');
 var adyenCheckout = require('adyen/adyenCheckout');
+var clientSideValidation = require('./components/common/clientSideValidation');
 
 $(document).ready(function () {
     processInclude(require('./checkout/checkout'));
@@ -44,28 +45,7 @@ $(document).ready(function () {
         $('.validatePhoneField').trigger('keyup');
     }
     $(document).on('blur', '#dob', function () {
-        var $this = $(this);
-        var dateValue = $(this).val();
-        // eslint-disable-next-line no-useless-escape
-        var regEx = /^(0[1-9]|[12][0-9]|3[01])[\/](0[1-9]|1[012])[\/](19|20)\d\d$/;
-        var errorMsg;
-        if (!dateValue) {
-            errorMsg = $this.data('missing-error');
-        } else if (dateValue.length < 10 || !(regEx.test(dateValue.trim()))) {
-            errorMsg = $this.data('pattern-mismatch');
-        } else {
-            const dateOfBirth = new Date(dateValue.split('/').reverse().join('-'));
-            var date13YrsAgo = new Date();
-            date13YrsAgo.setFullYear(date13YrsAgo.getFullYear() - 13);
-            if (!(dateOfBirth <= date13YrsAgo)) {
-                errorMsg = $this.data('under-age');
-            }
-        }
-        if (errorMsg) {
-            $this.addClass('is-invalid');
-            $this.parents('.form-group').addClass('error-field');
-            $this.parents('.form-group').find('.invalid-feedback').text(errorMsg);
-        }
+        clientSideValidation.validateMinimumAgeRestriction($(this));
     });
 
     // RFC fields toggle

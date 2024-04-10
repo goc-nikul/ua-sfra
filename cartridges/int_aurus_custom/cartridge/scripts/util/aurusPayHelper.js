@@ -4,7 +4,9 @@
 var Site = require('dw/system/Site');
 var URLUtils = require('dw/web/URLUtils');
 var Transaction = require('dw/system/Transaction');
+var errorLogger = require('dw/system/Logger').getLogger('OrderFail', 'OrderFail');
 var Logger = require('dw/system/Logger').getLogger('AurusPayHelper', 'AurusPayHelper');
+var LogHelper = require('*/cartridge/scripts/util/loggerHelper');
 var LoggerHelper = require('*/cartridge/scripts/util/loggerHelper.js');
 var Order = require('dw/order/Order');
 var StringUtils = require('dw/util/StringUtils');
@@ -23,7 +25,6 @@ var tDate = StringUtils.formatCalendar(new Calendar(), 'MMddyyyy');
 var tTime = StringUtils.formatCalendar(new Calendar(), 'HHmmss');
 const ANDROID_TERMINAL_ID = 'ANDROID';
 const IOS_TERMINAL_ID = 'IOS';
-
 
 /**
 * Retrieves Auruspay Currency Code
@@ -47,15 +48,13 @@ function setTerminalIDSession(basket) {
     try {
         var value = request.getHttpHeaders().get('x-uacapi-client-type');
         Transaction.wrap(function () {
-            if (value && value === ANDROID_TERMINAL_ID) {
+            if (value) {
                 // eslint-disable-next-line no-param-reassign
-                basket.custom.aurusTerminalID = ANDROID_TERMINAL_ID;
-            } else if (value && value === IOS_TERMINAL_ID) {
-                // eslint-disable-next-line no-param-reassign
-                basket.custom.aurusTerminalID = IOS_TERMINAL_ID;
+                basket.custom.aurusTerminalID = value;
             }
         });
     } catch (error) {
+        errorLogger.error('setTerminalIDSession updateResponse {0} : {1}', JSON.stringify(error), LogHelper.getLoggingObject());
         Logger.error('setTerminalIDSession updateResponse {0}', JSON.stringify(error));
     }
 }
@@ -74,12 +73,13 @@ function getTerminalID(lineItemCtnr) {
             lineItemCtnr = BasketMgr.getCurrentBasket();
         }
         Logger.info('getTerminalID lineItemCtnr {0}', lineItemCtnr);
-        if (lineItemCtnr.custom.aurusTerminalID === ANDROID_TERMINAL_ID) {
+        if (lineItemCtnr && lineItemCtnr.custom.aurusTerminalID === ANDROID_TERMINAL_ID) {
             terminalID = Site.current.getCustomPreferenceValue('Aurus_terminalId_Android');
-        } else if (lineItemCtnr.custom.aurusTerminalID === IOS_TERMINAL_ID) {
+        } else if (lineItemCtnr && lineItemCtnr.custom.aurusTerminalID === IOS_TERMINAL_ID) {
             terminalID = Site.current.getCustomPreferenceValue('Aurus_terminalId_IOS');
         }
     } catch (error) {
+        errorLogger.error('getTerminalID {0} : {1}', JSON.stringify(error), LogHelper.getLoggingObject());
         Logger.error('getTerminalID updateResponse {0} :: customer browser details : {1} :: customer authenticated : {2}', JSON.stringify(error), request.httpUserAgent, session.customerAuthenticated);
     }
 
@@ -97,6 +97,7 @@ function getTransData(authResult) {
     try {
         transData = authResult.TransResponse.TransDetailsData.TransDetailData;
     } catch (e) {
+        errorLogger.error('getTransData {0} : {1}', JSON.stringify(e), LogHelper.getLoggingObject());
         Logger.error('ERROR: Error in getTransData method :: {0}', e.message);
     }
     return transData || {};
@@ -373,6 +374,20 @@ function getItemsArray(basket) {
 }
 
 /**
+* Validates and returns billing address phone
+* @param {Object} req - current server request
+* @param {Object} basket - current cutomer basket object
+* @returns {string} - phone or empty string
+*/
+function getBillingPhone(req, basket) {
+    var phone = basket.billingAddress && !empty(basket.billingAddress.phone) ? basket.billingAddress.phone : req.querystring.phone || '';
+    if (phone.toString().length < 10) {
+        phone = '';
+    }
+    return phone;
+}
+
+/**
 * Creates Consumer object for Alt payment methods
 * @param {Object} req current server request
 * @param {Object} basket current cutomer basket object
@@ -409,9 +424,9 @@ function getAltPaymentsConsumerObject(req, basket, orderNumber) {
                 street2: basket.billingAddress && !empty(basket.billingAddress.address2) ? basket.billingAddress.address2 : '',
                 city: basket.billingAddress && !empty(basket.billingAddress.city) ? basket.billingAddress.city : '',
                 state: basket.billingAddress && !empty(basket.billingAddress.stateCode) ? basket.billingAddress.stateCode : '',
-                postalCode: basket.billingAddress && !empty(basket.billingAddress.postalCode) ? basket.billingAddress.postalCode : '',
+                postalCode: '', // Pass an empty string as sometimes the email address is passed in this field in Klarna "create_session" calls by Aurus that causes issues. The root cause is unknown.
                 countryCode: basket.billingAddress && !empty(basket.billingAddress.countryCode.value.toUpperCase()) ? basket.billingAddress.countryCode.value.toUpperCase() : '',
-                phoneNumber: basket.billingAddress && !empty(basket.billingAddress.phone) ? basket.billingAddress.phone : req.querystring.phone || ''
+                phoneNumber: getBillingPhone(req, basket)
             },
             shipping_address: {
                 firstName: basket.defaultShipment.shippingAddress.firstName,
@@ -736,8 +751,18 @@ function returnFromPaypal(basket, req) {
         } else {
             basket.setCustomerEmail(payWalletObj.payer.email_address);
         }
+
+        var payerEmail;
+        if (customer.authenticated) {
+            payerEmail = customer.getProfile().getEmail();
+        } else if (payWalletObj.payer && payWalletObj.payer.email_address) {
+            payerEmail = payWalletObj.payer.email_address;
+        } else if (payWalletObj.payee && payWalletObj.payee.email_address) {
+            payerEmail = payWalletObj.payee.email_address;
+        }
+
         paypalPaymentInstrument.custom.paypalPayerID = !empty(payWalletObj.payer.payer_id) ? payWalletObj.payer.payer_id : '';
-        paypalPaymentInstrument.custom.paypalEmail = payWalletObj.payer.email_address;
+        paypalPaymentInstrument.custom.paypalEmail = payerEmail;
         paypalPaymentInstrument.custom.paypalToken = ott;
         paypalPaymentInstrument.custom.paypalPaymentStatus = payWalletObj.status;
 
@@ -745,7 +770,8 @@ function returnFromPaypal(basket, req) {
         basket.custom.paypalAlreadyHandledToken = ott; // eslint-disable-line
         basket.custom.paypalAlreadyHandledEmail = payWalletObj.payer.email_address; // eslint-disable-line
 
-        if (isFromCart) {
+        var ppAPIShippingAddressOverride = Site.getCurrent().getCustomPreferenceValue('PP_API_ShippingAddressOverride');
+        if (!ppAPIShippingAddressOverride || isFromCart) {
             // Set Shipping Address
             var shippingAddress = basket.getDefaultShipment().getShippingAddress();
             Transaction.wrap(function () {
@@ -766,7 +792,9 @@ function returnFromPaypal(basket, req) {
             shippingAddress.setStateCode(sessionTokenResponse.GetSessionTokenResponse.ShippingAddress.ShippingState);
         }
         var billingAddress = basket.getBillingAddress();
-        if (isFromCart || !billingAddress) {
+        var requestBillingAddressFromPayPal = Site.getCurrent().getCustomPreferenceValue('PP_API_RequestBillingAddressFromPayPal');
+        var billingAddressOverride = Site.getCurrent().getCustomPreferenceValue('PP_API_BillingAddressOverride');
+        if (isFromCart || !billingAddress || (requestBillingAddressFromPayPal && billingAddressOverride)) {
             // Set Billing Address
             Transaction.wrap(function () {
                 if (!billingAddress) {
@@ -977,6 +1005,10 @@ function createKlarnaBillerTokenReqBody(params) {
             });
         }
 
+        if (!orderTotal || orderTotal === 0 || orderTotal === '0') {
+            return null;
+        }
+
         if (shippingDiscount) {
             orderLines.push({
                 name: 'shippingDiscount',
@@ -997,6 +1029,7 @@ function createKlarnaBillerTokenReqBody(params) {
 
         Logger.info('orderLines: {0}', JSON.stringify(orderLines));
     } catch (error) {
+        errorLogger.error('createKlarnaBillerTokenReqBody {0} : {1}', JSON.stringify(error), LogHelper.getLoggingObject());
         Logger.error('GetBillerTokenRequest' + JSON.stringify(error));
     }
 
@@ -1026,6 +1059,13 @@ function createKlarnaBillerTokenReqBody(params) {
 
     if (jsBody.GetBillerTokenRequest.WalletObject.purchase_country === 'UNITED STATES') {
         jsBody.GetBillerTokenRequest.WalletObject.purchase_country = 'US';
+    }
+
+    if (!jsBody.GetBillerTokenRequest.WalletObject.purchase_country) {
+        var siteId = Site.getCurrent().getID();
+        if (siteId === 'US' || siteId === 'CA') {
+            jsBody.GetBillerTokenRequest.WalletObject.purchase_country = siteId;
+        }
     }
 
     var jsonbody = JSON.stringify(jsBody);
@@ -1088,7 +1128,12 @@ function getBillingToken(params) {
         reqBody = createKlarnaBillerTokenReqBody(params);
     }
 
-    return aurusPaySvc.getBillingToken().call(reqBody);
+    var serviceResponse;
+    if (reqBody) {
+        serviceResponse = aurusPaySvc.getBillingToken().call(reqBody);
+    }
+
+    return serviceResponse;
 }
 
 /**
@@ -1128,7 +1173,7 @@ function getSessionID() {
 function getBillerToken(params) {
     var billingToken = getBillingToken(params);
 
-    if (billingToken.ok) {
+    if (billingToken && billingToken.ok) {
         var tokenObject = JSON.parse(billingToken.object.text).GetBillerTokenResponse;
 
         if (params.payment === 'paypal' && tokenObject && tokenObject.ResponseText === 'APPROVAL') {
@@ -1189,6 +1234,7 @@ function getSession(basket) {
         // eslint-disable-next-line
         clientToken = getBillerToken(params) || '';
     } catch (e) {
+        errorLogger.error('getSession {0} : {1}', JSON.stringify(e), LogHelper.getLoggingObject());
         Logger.error('ERROR: Error in getSession Method : {0}', JSON.stringify(e));
     }
 
@@ -1230,6 +1276,7 @@ function getTokenID(basket) {
         // eslint-disable-next-line
         tokenID = getBillerToken(params);
     } catch (e) {
+        errorLogger.error('getTokenID {0} : {1}', JSON.stringify(e), LogHelper.getLoggingObject());
         Logger.error('ERROR: Error in getSession Method :: {0}', e.message);
     }
 
@@ -1331,8 +1378,8 @@ function setAurusCreditAttributes(basket, paymentInstrumentRequest) {
         var paymentInstruments = basket.getPaymentInstruments();
         for (var i = 0; i < paymentInstruments.length; i++) {
             var paymentInstrument = paymentInstruments[i];
-
-            if (paymentInstrument.custom.ott || paymentInstrument.custom.paypalToken || paymentInstrument.custom.paymentData) {
+            var isGiftcard = !empty(paymentInstrumentRequest) && typeof paymentInstrumentRequest === 'object' && 'paymentMethodId' in paymentInstrumentRequest && paymentInstrumentRequest.paymentMethodId === 'GIFT_CARD';
+            if (!isGiftcard && (paymentInstrument.custom.ott || paymentInstrument.custom.paypalToken || paymentInstrument.custom.paymentData)) {
                 var paymentProcessor = PaymentMgr
                     .getPaymentMethod(paymentInstrument.paymentMethod)
                     .paymentProcessor;
@@ -1359,7 +1406,9 @@ function setAurusCreditAttributes(basket, paymentInstrumentRequest) {
             }
         }
     } catch (error) {
+        errorLogger.error('setAurusCreditAttributes {0} : {1}', JSON.stringify(error), LogHelper.getLoggingObject());
         Logger.error(JSON.stringify(error));
+        response.error = true;
     }
 
     return response;
@@ -1388,7 +1437,7 @@ function getSessionTokenApplePay(params) {
                         familyName: params.order.billingAddress.lastName,
                         givenName: params.order.billingAddress.firstName,
                         locality: params.order.billingAddress.city,
-                        addressLines: [params.order.billingAddress.address1],
+                        addressLines: [params.order.billingAddress.address1, params.order.billingAddress.address2],
                         administrativeArea: params.order.billingAddress.stateCode
                     },
                     shippingContact: {
@@ -1400,7 +1449,7 @@ function getSessionTokenApplePay(params) {
                         familyName: params.order.defaultShipment.shippingAddress.lastName,
                         givenName: params.order.defaultShipment.shippingAddress.firstName,
                         locality: params.order.defaultShipment.shippingAddress.city,
-                        addressLines: [params.order.defaultShipment.shippingAddress.address1],
+                        addressLines: [params.order.defaultShipment.shippingAddress.address1, params.order.defaultShipment.shippingAddress.address2],
                         administrativeArea: params.order.defaultShipment.shippingAddress.stateCode
                     },
                     token: params.event.payment.token
@@ -1418,6 +1467,7 @@ function getSessionTokenApplePay(params) {
         var jsonbody = JSON.stringify(jsBody);
         return jsonbody;
     } catch (err) {
+        errorLogger.error('getSessionTokenApplePay {0} : {1}', JSON.stringify(err), LogHelper.getLoggingObject());
         Logger.info(JSON.stringify(err));
         return false;
     }
@@ -1656,6 +1706,7 @@ function validateAurusSession() {
             Logger.info('INFO: AurusPay-GetAltPaymentSession isAurusSessionExpired :: {0} :: aurusSessionExpirationTime :: {1}', isAurusSessionExpired, session.privacy.aurusSessionExpirationTime);
         }
     } catch (error) {
+        errorLogger.error('validateAurusSession {0} : {1}', JSON.stringify(error), LogHelper.getLoggingObject());
         Logger.error('ERROR: Error while executing validateAurusSession :: {0}', JSON.stringify(error));
     }
 }

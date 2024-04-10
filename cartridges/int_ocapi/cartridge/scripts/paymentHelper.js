@@ -2,6 +2,8 @@
 
 var HookMgr = require('dw/system/HookMgr');
 var Status = require('dw/system/Status');
+const LoggerHelper = require('*/cartridge/scripts/util/loggerHelper');
+const LOG_TYPE = 'paymentHelper';
 
 /* eslint-disable no-param-reassign */
 
@@ -16,15 +18,29 @@ function updatePaymentInstrument(paymentRequest) {
 
     if (HookMgr.hasHook(hookName)) {
         var result = HookMgr.callHook(hookName, 'updatePaymentInstrument', paymentRequest);
-
+        var errorCode = 'ERROR';
         if (result.error) {
-            return new Status(Status.ERROR, 'ERROR', result.msg);
+            if (result.errorCode) {
+                errorCode = 'INVALID-ADDRESS';
+            }
+            return new Status(Status.ERROR, errorCode, result.msg);
         }
     }
-    // Recalculating the basket
-    var BasketMgr = require('dw/order/BasketMgr');
-    var basket = BasketMgr.getCurrentBasket();
-    HookMgr.callHook('dw.order.calculate', 'calculate', basket);
+
+    var basket;
+
+    try {
+        // Recalculating the basket
+        // In case getCurrentBasket() fails when basket object is locked.
+        var BasketMgr = require('dw/order/BasketMgr');
+        basket = BasketMgr.getCurrentBasket();
+        HookMgr.callHook('dw.order.calculate', 'calculate', basket);
+    } catch (e) {
+        let errorMsg = 'Calculate Failure - Basket ID ' + (basket ? basket.UUID : 'BASKET ID NOT FOUND');
+        LoggerHelper.logException(LOG_TYPE, errorMsg, e);
+        return new Status(Status.ERROR, 'HOOK_FAILURE');
+    }
+
     return new Status(Status.OK);
 }
 
@@ -96,8 +112,10 @@ function autoAdjustBasketPaymentInstruments(basket) {
             Transaction.wrap(function () {
                 while (paymentInstrumentsIt.hasNext()) {
                     var paymentInstrument = paymentInstrumentsIt.next();
-                    if (paymentInstrument.getPaymentMethod().equalsIgnoreCase('Paymetric') || paymentInstrument.getPaymentMethod().equalsIgnoreCase('CREDIT_CARD') || paymentInstrument.getPaymentMethod().equalsIgnoreCase('AURUS_CREDIT_CARD') || paymentInstrument.getPaymentMethod().equalsIgnoreCase('PayPal') || paymentInstrument.getPaymentMethod().equalsIgnoreCase('KLARNA_PAYMENTS')) {
+                    let paymentMethod = paymentInstrument.getPaymentMethod();
+                    if (paymentMethod.equalsIgnoreCase('Paymetric') || paymentMethod.equalsIgnoreCase('CREDIT_CARD') || paymentMethod.equalsIgnoreCase('AURUS_CREDIT_CARD') || paymentMethod.equalsIgnoreCase('PayPal') || paymentMethod.equalsIgnoreCase('KLARNA_PAYMENTS')) {
                         if (nonGiftCertificateAmount.value <= 0) {
+                            require('dw/system/Logger').error('Removing PI with payment method {0} from basket id {1}', paymentMethod, basket.UUID);
                             basket.removePaymentInstrument(paymentInstrument);
                         } else {
                             paymentInstrument.paymentTransaction.setAmount(nonGiftCertificateAmount);

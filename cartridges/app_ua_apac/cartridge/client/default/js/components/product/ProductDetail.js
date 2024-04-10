@@ -1,6 +1,7 @@
 'use strict';
 
 import ProductDetailEMEA from 'falcon/components/product/ProductDetailEMEA';
+import { isEmpty } from 'lodash';
 
 var scrollAnimate = require('org/components/scrollAnimate');
 var savedItem = true;
@@ -8,6 +9,55 @@ var productId;
 var isVisible = require('org/components/isVisible');
 
 export default class ProductDetail extends ProductDetailEMEA {
+    init() {
+        super.init();
+        $(window).on('load', this.checkEarlyAccessProductInURL);
+    }
+/**
+ * Function to select variation attributes values from subsequent params appended in URL. After selection of the attribures removing the params from URL.
+ */
+    checkEarlyAccessProductInURL() {
+        if ($('.js-login').length === 0 && ($('.pdp-mobile-auth').length === 0 || $('.pdp-mobile-auth').attr('data-mobileauth-enabled') !== 'true' || $('.pdp-mobile-auth').attr('data-mobileauth-pending') !== 'true')) { // check if mobile authentication is pending
+            var urlParams = new URLSearchParams(window.location.search);
+            var triggerATC = urlParams.has('triggerATC');
+            if (triggerATC && $('.ua-early-access').length) {
+                var $uaEarlyAccessBlock = $('.ua-early-access');
+                $('.b-product_attrs-item.variation_attr').each(function () {
+                    var varAttr = $(this).attr('data-attr');
+                    if (varAttr === 'color') {
+                        return;
+                    }
+                    var varAttrVal = $uaEarlyAccessBlock.data(varAttr);
+                    if (!isEmpty(varAttrVal)) {
+                        var valLink = $(this).find('.b-product_attribute ul li a[data-attr-value="' + varAttrVal + '"]');
+                        if ((!isEmpty(valLink)) && !valLink.hasClass('selected')) {
+                            valLink.addClass('selected');
+                        }
+                    }
+                    if (urlParams.has('eaQty')) {
+                        var quantityValue = urlParams.get('eaQty');
+                        $('.js-quantity-select').val(quantityValue);
+                    }
+                });
+                if (urlParams.has('earlyAccessPid')) {
+                    var eaPidValue = urlParams.get('earlyAccessPid');
+                    $('.l-pdp.product-detail').data('pid', eaPidValue);
+                }
+                $('.b-product_actions-inner .js-add-to-cart').trigger('click');
+                urlParams.delete('earlyAccessPid');
+                urlParams.delete('triggerATC');
+                urlParams.delete('size');
+                urlParams.delete('eaQty');
+                var hash = '';
+                if (window.location.href.indexOf('#') !== -1) {
+                    hash = '#' + window.location.href.split('#')[1];
+                }
+                var url = window.location.pathname + '?' + urlParams.toString() + hash;
+                history.replaceState({}, '', url);
+            }
+        }
+    }
+
     onupdateAddToCartModal(e, responseData) {
         var url = $('.added-tocart-confirmation-modal-url').val();
         var form = {};
@@ -52,6 +102,12 @@ export default class ProductDetail extends ProductDetailEMEA {
                 }
             });
         }
+    }
+
+    displayEarlyAccessErrorModal(content) {
+        var $modal = $('#nonEACustomerModal');
+        $modal.find('.early-access-modal-container').html(content);
+        $('#nonEACustomerModal').modal('show');
     }
 
     onAddToCart(event) {
@@ -182,34 +238,77 @@ export default class ProductDetail extends ProductDetailEMEA {
                     }
                 });
                 if (missingSelection.length === 0) {
-                    var dateExceeded = $(this.$el).find('.earlierdate').val();
-                    var egcUrl = $(this.$el).find('.js-add-to-cart').data('egc-editurl');
-                    var isTrueSet = (dateExceeded === 'true');
-                    if ((this.$el.hasClass('egiftcardlineitem') || this.$el.hasClass('cart-savelater-product')) && isTrueSet) {
-                        $('.eGCModal').modal('show');
-                        $('.eGCModal').find('.js-edit-saveforlater').attr('href', egcUrl);
-                        savedItem = true;
-                        $.spinner().stop();
-                        $('.b-add_to_bag').spinner().stop();
-                        $('.js-add-to-cart').text($('.js-add-to-cart').data('addto-bag'));
-                    } else {
-                        $.ajax({
-                            url: addToCartUrl,
-                            method: 'POST',
-                            data: form,
-                            context: this,
-                            success: this.onSuccessAddToCart.bind(this),
-                            error: function () {
-                                $.spinner().stop();
-                                $('.js-add-to-cart').text($('.js-add-to-cart').data('has-error'));
-                            }
+                    if ($('.js-login').length > 0 && $('.js-add-to-cart').hasClass('js-unlock-access') && !window.memberPriceATC) {
+                        $('body').trigger('memberpricing:unlock', {
+                            pid: self.$el.data('pid')
                         });
-                        event.stopPropagation();
+                    } else {
+                        if (window.memberPriceATC) {
+                            delete window.memberPriceATC;
+                        }
+                        var dateExceeded = $(this.$el).find('.earlierdate').val();
+                        var egcUrl = $(this.$el).find('.js-add-to-cart').data('egc-editurl');
+                        var isTrueSet = (dateExceeded === 'true');
+                        if ((this.$el.hasClass('egiftcardlineitem') || this.$el.hasClass('cart-savelater-product')) && isTrueSet) {
+                            $('.eGCModal').modal('show');
+                            $('.eGCModal').find('.js-edit-saveforlater').attr('href', egcUrl);
+                            savedItem = true;
+                            $.spinner().stop();
+                            $('.b-add_to_bag').spinner().stop();
+                            $('.js-add-to-cart').text($('.js-add-to-cart').data('addto-bag'));
+                        } else {
+                            if ($('.ua-early-access').length) {
+                                var $uaEarlyAccessBlock = $('.ua-early-access');
+                                // Early Access Product
+                                if ($uaEarlyAccessBlock.attr('data-is-ea-product') === 'true') {
+                                    var addToBagMsg = $('.js-add-to-cart').data('addto-bag');
+                                    if ($uaEarlyAccessBlock.attr('data-is-loggedin') === 'false' && $('.js-login').length) {
+                                        // Trigger login popup
+                                        window.earlyAccessPid = this.$el.data('pid');
+                                        $.spinner().stop();
+                                        $('.b-add_to_bag', this.$el).spinner().stop();
+                                        if (!$('.js-add-to-cart').hasClass('js-unlock-access')) {
+                                            $('.js-add-to-cart', this.$el).text(addToBagMsg);
+                                        } else {
+                                            $('.js-add-to-cart', this.$el).text($('.js-add-to-cart', this.$el).attr('data-memberpricing-text'));
+                                        }
+                                        $('.b-header_account-link.js-login').trigger('click');
+                                        return;
+                                    } else if ($uaEarlyAccessBlock.attr('data-is-loggedin') === 'true' && $uaEarlyAccessBlock.attr('data-is-ea-customer') === 'false') {
+                                        this.displayEarlyAccessErrorModal($uaEarlyAccessBlock.html());
+                                        $.spinner().stop();
+                                        $('.b-add_to_bag', this.$el).spinner().stop();
+                                        $('.js-add-to-cart', this.$el).text(addToBagMsg);
+                                        if (!$('.js-add-to-cart').hasClass('js-unlock-access')) {
+                                            $('.js-add-to-cart').removeClass('g-button_primary--black js-unlock-access').addClass('g-button_tertiary');
+                                        }
+                                        return;
+                                    }
+                                }
+                            }
+
+                            $.ajax({
+                                url: addToCartUrl,
+                                method: 'POST',
+                                data: form,
+                                context: this,
+                                success: this.onSuccessAddToCart.bind(this),
+                                error: function () {
+                                    $.spinner().stop();
+                                    $('.js-add-to-cart').text($('.js-add-to-cart').data('has-error'));
+                                }
+                            });
+                            event.stopPropagation();
+                        }
                     }
                 } else {
                     $.spinner().stop();
                     $('.b-add_to_bag').spinner().stop();
-                    $('.js-add-to-cart').text($('.js-add-to-cart').data('addto-bag'));
+                    if ($('.js-add-to-cart').hasClass('js-unlock-access')) {
+                        $('.js-add-to-cart').text($('.js-add-to-cart').data('memberpricing-text'));
+                    } else {
+                        $('.js-add-to-cart').text($('.js-add-to-cart').data('addto-bag'));
+                    }
                 }
             }
         }

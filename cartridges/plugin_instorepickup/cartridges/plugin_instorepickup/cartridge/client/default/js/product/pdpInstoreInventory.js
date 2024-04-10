@@ -191,9 +191,11 @@ function updateQuantityOptions(searchPID, storeId) {
 module.exports = {
     updateSelectStore: function () {
         $('body').on('product:updateAddToCart', function (e, response) {
-            $('.btn-get-in-store-inventory', response.$productContainer).attr('disabled',
-                (!response.product.readyToOrder || !response.product.available ||
-                !response.product.availableForInStorePickup));
+            $('.btn-get-in-store-inventory', response.$productContainer).attr(
+                'disabled',
+                (!response.product.readyToOrder || !response.product.available
+                || !response.product.availableForInStorePickup)
+            );
         });
     },
     removeSelectedStoreOnAttributeChange: function () {
@@ -207,8 +209,8 @@ module.exports = {
             if (form.pidsObj) {
                 var pidsObj = JSON.parse(form.pidsObj);
                 pidsObj.forEach(function (product) {
-                    var storeElement = $('.product-detail[data-pid="' +
-                        product.pid
+                    var storeElement = $('.product-detail[data-pid="'
+                        + product.pid
                         + '"]').find('.store-name');
                     product.storeId = $(storeElement).length// eslint-disable-line no-param-reassign
                         ? $(storeElement).attr('data-store-id')

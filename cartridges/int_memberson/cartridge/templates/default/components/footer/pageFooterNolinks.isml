@@ -23,6 +23,11 @@
     	window.sitePreferences.qasValidCountries = <isprint value="${pdict.qasValidCountries}" encoding="off"/>;
         window.AddressVerificationCountryEnabled = !!(window.sitePreferences.qasValidCountries["${pdict.CurrentSession.custom.currentCountry}"]);
 	</isif>
+    <isif condition="${'adyenBlockPayPalPayLaterButton' in dw.system.Site.current.preferences.custom && dw.system.Site.current.getCustomPreferenceValue('adyenBlockPayPalPayLaterButton')}">
+        window.sitePreferences.blockPayPalPayLaterButton = <isprint value="${true}" encoding="off"/>;
+    <iselse/>
+        window.sitePreferences.blockPayPalPayLaterButton = <isprint value="${false}" encoding="off"/>;
+    </isif>
 </script>
 
 <isset name="currentCustomer" value="${pdict.CurrentCustomer.profile}" scope="page" />
@@ -30,8 +35,6 @@
     <isinclude url="${URLUtils.url('Memberson-DisplayConsentPopup', 'path', pdict.CurrentRequest.httpURL.toString())}"/>
 </isif>
 
-<!-- mpulse script -->
 <input type="hidden" id="qasToken" value="${pdict.qasToken}"/>
-<isinclude url="${URLUtils.url('AkamaimPulse-RenderScript')}"/>
 <isinclude url="${URLUtils.url('TrustArc-RenderScript')}"/>
 <isinclude template="components/heartbeat" />

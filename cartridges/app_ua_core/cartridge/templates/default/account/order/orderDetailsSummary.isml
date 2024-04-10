@@ -14,6 +14,12 @@
                 </isif>
                 </h2>
                 <isinclude template="account/order/orderTotalSummary" />
+                <isif condition="${order.oxxoDetails && !empty(order.oxxoDetails.downloadUrl)}">
+                    <div class="order-summary_items oxxo-voucher-link">
+                        <p>${Resource.msg('thanks.for.purchase', 'order', null)}</p>
+                        <a href="${order.oxxoDetails.downloadUrl}" class="g-button_base g-button_primary--black" target="_blank" rel="noopener noreferrer">${Resource.msg('order.print.oxxo.voucher', 'order', null)}</a>
+                    </div>
+                </isif>
             </div>
 			<isif condition="${isUACAPIEnabled}">
                 <isinclude template="account/order/orderCancel" />

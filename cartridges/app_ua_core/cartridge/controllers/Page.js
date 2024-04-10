@@ -48,6 +48,9 @@ server.append('Show', function (req, res, next) {
     var contentHelpers = require('*/cartridge/scripts/helpers/contentHelpers');
     var siteMapCategories = contentHelpers.getOnlineSubCategoriesRefactor(dw.catalog.CatalogMgr.getSiteCatalog().getRoot());
     var contentAssetId = req.querystring.cid;
+    if (!empty(contentAssetId)) {
+        viewData.contentAssetId = contentAssetId;
+    }
     if (!empty(contentAssetId) && contentAssetId.indexOf('sizechart') > -1) {
         var isShowBras = false;
         var gender = '';

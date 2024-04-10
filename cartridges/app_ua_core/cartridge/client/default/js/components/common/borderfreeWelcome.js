@@ -44,6 +44,7 @@ function showWelcomeMatModal() {
 
     $('.g-welcome-mat-modal .g-modal-close').on('click', function () {
         $(this).closest('.g-welcome-mat-modal').hide();
+        $('body').removeClass('modal-open');
     });
 }
 

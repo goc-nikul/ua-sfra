@@ -216,10 +216,6 @@
             "script": "./cartridge/hooks/shop/order/create_order.js"
         },
         {
-            "name" : "dw.ocapi.shop.basket.beforePOST",
-            "script": "./cartridge/hooks/shop/basket/basket_hook_scripts.js"
-        },
-        {
             "name" : "dw.ocapi.shop.basket.modifyGETResponse",
             "script": "./cartridge/hooks/shop/basket/basket_hook_scripts.js"
         },
@@ -242,6 +238,10 @@
         {
             "name" : "dw.ocapi.shop.basket.items.afterPOST",
             "script": "./cartridge/hooks/shop/basket/basket_hook_scripts.js"
+        },
+        {
+            "name" : "dw.ocapi.shop.basket.item.beforePATCH",
+            "script": "./cartridge/hooks/shop/basket/basket_item_hook_scripts.js"
         },
         {
             "name" : "dw.ocapi.shop.basket.item.afterPATCH",
@@ -300,10 +300,6 @@
             "script": "./cartridge/hooks/shop/order/order_hook_scripts.js"
         },
         {
-            "name" : "dw.ocapi.shop.order.beforePOST",
-            "script": "./cartridge/hooks/shop/order/order_hook_scripts.js"
-        },
-        {
             "name" : "dw.ocapi.shop.order.modifyPOSTResponse",
             "script": "./cartridge/hooks/shop/order/order_hook_scripts.js"
         },
@@ -346,6 +342,18 @@
         {
             "name" : "dw.ocapi.shop.customer.modifyGETResponse",
             "script": "./cartridge/hooks/shop/customer/customer_hook_scripts.js"
+        },
+        {
+            "name" : "dw.ocapi.shop.customer.beforePATCH",
+            "script": "./cartridge/hooks/shop/customer/customer_hook_scripts.js"
+        },
+        {
+            "name" : "dw.ocapi.shop.customer.addresses.modifyGETResponse",
+            "script": "./cartridge/hooks/shop/customer/customer_address_hook_script.js"
+        },
+        {
+            "name" : "dw.ocapi.shop.customer.addresses.beforePOST",
+            "script": "./cartridge/hooks/shop/customer/customer_address_hook_script.js"
         },
         {
             "name" : "dw.ocapi.shop.auth.modifyPOSTResponse",

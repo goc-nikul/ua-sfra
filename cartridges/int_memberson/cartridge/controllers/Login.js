@@ -47,6 +47,8 @@ server.append('CreateAccountModal', function (req, res, next) {
         membersonEnabled = countryConfig.membersonEnabled;
         if (membersonEnabled) {
             getBirthYearRange(profileForm.customer.birthYear.options);
+        } else {
+            profileForm.customer.birthDay.options[1].selected = false;  //  when Memberson is disabled we need to deselect the pre-selected birthday.
         }
     }
     res.setViewData({

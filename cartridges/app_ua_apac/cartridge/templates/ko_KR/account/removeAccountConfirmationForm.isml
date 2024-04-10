@@ -1,0 +1,33 @@
+<div class="column-6 delete-account-login-form">
+    <form action="${pdict.actionUrl}" class="login" method="GET" name="user-form" target="_self">
+        <div class="b-input_row form-group removeEmailField required">
+            <label class="b-input_row-label form-control-label" for="login-form-email">
+                ${Resource.msg('label.input.login.email', 'login', null)}
+            </label>
+            <input type="email" aria-required="true" required
+                class="b-input_row-input form-control js-custom-input delete-form-email" aria-describedby="form-email-error"
+                name="loginEmail" value="${pdict.email}"
+                readonly>
+            <div class="invalid-feedback" id="form-email-error"></div>
+        </div>
+        <div class="b-input_row form-group removePasswordField required">
+            <label class="b-input_row-label form-control-label" for="login-form-password">
+                ${Resource.msg('label.input.login.password', 'login', null)}
+            </label>
+            <input type="text" id="login-form-password" required aria-required="true"
+                class="b-input_row-input form-control js-custom-input delete-account-password-disc" aria-describedby="form-password-error"
+                name="loginPassword"
+                autocomplete="new-password"
+                data-missing-error="${Resource.msg('error.card.info.missing.password', 'login', null)}"/>
+            <span class="b-account-profile__show-password js-show-password"
+                data-show="${Resource.msg('label.create.account.show', 'login', null)}"
+                data-hide="${Resource.msg('label.create.account.hide', 'login', null)}">${Resource.msg('label.create.account.show', 'login', null)}</span>
+            <div class="invalid-feedback" id="form-password-error"></div>
+        </div>
+
+        <div class="b-invalid-cred"></div>
+        <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}" />
+        <button type="submit"
+            class="btn btn-block g-button_primary--black g-button_base b-checkout-login_button js-account-delete-submit-button">${Resource.msg('button.account.removeconfirm', 'account', null)}</button>
+    </form>
+</div>

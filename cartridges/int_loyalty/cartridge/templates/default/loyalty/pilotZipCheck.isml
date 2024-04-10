@@ -31,7 +31,16 @@
                 <div class="invalid-feedback"></div>
             </div>
         </div>
-        <button type="submit" class="btn btn-block g-button_primary--black g-button_base b-gated-enrollment_submit">${Resource.msg('loyalty.gated.submit','loyalty', null)}</button>
+
+        <button type="submit" class="btn btn-block g-button_primary--black g-button_base b-gated-enrollment_submit b-loyalty-loading-btn" data-loading disabled="disabled">
+            <div class="b-loyalty-btn_icon">
+                <div class="b-loader-icon"></div>
+                <div class="b-loader-icon"></div>
+                <div class="b-loader-icon"></div>
+            </div>
+            <div class="b-loyalty-btn_text">${Resource.msg('loyalty.gated.submit','loyalty', null)}</div>
+
+        </button>
         <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
     </form>
 </div>

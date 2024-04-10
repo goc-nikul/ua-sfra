@@ -1,5 +1,5 @@
 <div class="b-navigation_utility-item js-list-item bfx-remove-element">
-    <isif condition="${empty(pdict.name)}">
+    <isif condition="${pdict.name === null}">
         <a class="b-navigation_utility-link js-login" href="${URLUtils.https('Login-Show')}" role="button"
             aria-label="${Resource.msg('label.header.loginbutton', 'account', null)}">
             <i class="b-navigation_utility-icon m-account" aria-hidden="true"></i>
@@ -13,14 +13,24 @@
             data-cat="${Resource.msg('header.account.name', 'account', null)}">
             <i class="b-navigation_utility-icon m-account" aria-hidden="true"></i>
             <span class="b-navigation_utility-title">
-                ${pdict.name}
+                <isif condition="${empty(pdict.name)}">
+                    ${Resource.msg('header.account.myaccount', 'account', null)}
+                <iselse/>
+                    ${pdict.name}
+                </isif>
             </span>
         </button>
         <ul class="b-navigation_utility-sublist js-list-wrapper b-account-mob" role="menu"
             data-cat="${Resource.msg('header.account.name', 'account', null)}"
             aria-label="${Resource.msg('label.profile.myaccountlink', 'account', null)}">
             <li class="b-navigation-title">
-                <span>${Resource.msgf('header.myaccount.welcome', 'account', null, pdict.name)}</span>
+                <span>
+                    <isif condition="${empty(pdict.name)}">
+                        ${Resource.msg('header.account.myaccount', 'account', null)}
+                    <iselse/>
+                        ${Resource.msgf('header.myaccount.welcomeEMEA', 'account', null, pdict.name)}
+                    </isif>
+                </span>
             </li>
             <li class="b-navigation_utility-subitem" role="presentation">
                 <a class="b-navigation_utility-sublink t-text-hover-state" href="${URLUtils.https('Account-Show')}" role="menuitem"

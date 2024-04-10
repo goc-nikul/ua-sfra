@@ -100,19 +100,11 @@ function displaySelectedMethod(type) {
   // If 'type' input field is present use this as type, otherwise default to function input param
   store.selectedMethod = document.querySelector("#component_".concat(type, " .type")) ? document.querySelector("#component_".concat(type, " .type")).value : type;
   resetPaymentMethod();
-  var submitPaymentButton = document.querySelector('button[value="submit-payment"]');
+  document.querySelector('button[value="submit-payment"]').disabled = ['paypal', 'paywithgoogle', 'googlepay', 'amazonpay'].indexOf(type) > -1;
   if (type === 'oxxo') {
-    // For Oxxo disable/enable submit-payment button & add event handler to oxxo button
-    var oxxoVoucherNotReceived = !document.querySelector('.adyen-checkout__voucher-result--oxxo');
-    submitPaymentButton.disabled = oxxoVoucherNotReceived;
-    var oxxoPayButton = document.querySelector('#component_oxxo .adyen-checkout__button');
-    if (oxxoPayButton) {
-      oxxoPayButton.addEventListener('click', () => {
-        submitPaymentButton.disabled = false;
-      });
-    }
-  } else {
-    submitPaymentButton.disabled = ['paypal', 'paywithgoogle', 'googlepay', 'amazonpay', 'oxxo'].indexOf(type) > -1;
+    var checkoutEl = document.querySelector('#checkout-main');
+    var oxxoInfo = checkoutEl ? checkoutEl.dataset.oxxoInfo : '';
+    document.querySelector("#component_oxxo").innerHTML = oxxoInfo;
   }
   document.querySelector("#component_".concat(type)).setAttribute('style', 'display:block');
   // set brand for giftcards if hidden inputfield is present

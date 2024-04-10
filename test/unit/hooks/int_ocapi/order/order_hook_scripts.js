@@ -89,6 +89,9 @@ describe('int_ocapi/cartridge/hooks/shop/order/order_hook_scripts.js', () => {
             getLoyaltyCouponsFromLineItemCtnr: () => 'bcd',
             updateCoupon: updateCouponStub,
             updateBasketBallance: () => 'bcd'
+        },
+        'dw/order/Order': {
+            ORDER_STATUS_FAILED: 8
         }
     });
 

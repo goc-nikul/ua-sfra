@@ -4,7 +4,9 @@
             <li class="b-refinements_category-item">
                 <isset name="headerCategoryID" value="${pdict.CategoryObject && pdict.CategoryObject.headerCategory ? pdict.CategoryObject.headerCategory.ID : ''}" scope="page" />
                 <isset name="headerCategoryName" value="${pdict.CategoryObject && pdict.CategoryObject.headerCategory ? pdict.CategoryObject.headerCategory.getDisplayName() : ''}" scope="page" />
-                <a href="${URLUtils.url('Search-Show', 'cgid', headerCategoryID)}"
+                <a href="${pdict.CategoryObject && pdict.CategoryObject.headerCategory && pdict.CategoryObject.headerCategory.custom && 'alternativeUrl' in pdict.CategoryObject.headerCategory.custom && pdict.CategoryObject.headerCategory.custom.alternativeUrl
+                ? pdict.CategoryObject.headerCategory.custom.alternativeUrl
+                : URLUtils.url('Search-Show', 'cgid', headerCategoryID)}"
                     data-analytics-plp-filter-value="${headerCategoryName}"
                     class="b-refinements_category-link m-top_level m-selected">
                     ${headerCategoryName}
@@ -19,7 +21,9 @@
                                     <isif condition="${!empty(categoryLocaleCheckEnabled)}">
                                         <isif condition="${(!(secondLevelcategory.custom.hidefromLeftNavigationRefinement.valueOf() && secondLevelcategory.custom.hidefromLeftNavigationRefinement.valueOf().toString() === 'true')) && secondLevelcategory.isOnline() && secondLevelcategory.getDisplayName() !== null && secondLevelcategory.custom.isCategoryOnline.valueOf() === 'true'}">
                                                 <li class="b-refinements_category-item">
-                                                <a href="${URLUtils.url('Search-Show', 'cgid', secondLevelcategory.ID)}"
+                                                <a href="${secondLevelcategory.custom && 'alternativeUrl' in secondLevelcategory.custom && secondLevelcategory.custom.alternativeUrl
+                                                         ? secondLevelcategory.custom.alternativeUrl
+                                                         : URLUtils.url('Search-Show', 'cgid', secondLevelcategory.ID)}"
                                                     data-analytics-plp-filter-value="${secondLevelcategory.getDisplayName()}"
                                                     class="b-refinements_category-link ${category.ID == secondLevelcategory.ID ? 'm-selected' : ''}">
                                                     ${secondLevelcategory.getDisplayName()}
@@ -27,9 +31,11 @@
                                             </li>
                                         </isif>
                                     <iselse/>
-                                        <isif condition="${(!(secondLevelcategory.custom.hidefromLeftNavigationRefinement.valueOf().toString() === 'true')) && secondLevelcategory.isOnline() && secondLevelcategory.getDisplayName() !== null}">
+                                    <isif condition="${(!(secondLevelcategory.custom.hidefromLeftNavigationRefinement.valueOf() && secondLevelcategory.custom.hidefromLeftNavigationRefinement.valueOf().toString() === 'true')) && secondLevelcategory.isOnline() && secondLevelcategory.getDisplayName() !== null}">
                                                 <li class="b-refinements_category-item">
-                                                <a href="${URLUtils.url('Search-Show', 'cgid', secondLevelcategory.ID)}"
+                                                <a href="${secondLevelcategory.custom && 'alternativeUrl' in secondLevelcategory.custom && secondLevelcategory.custom.alternativeUrl
+                                                         ? secondLevelcategory.custom.alternativeUrl
+                                                         : URLUtils.url('Search-Show', 'cgid', secondLevelcategory.ID)}"
                                                     data-analytics-plp-filter-value="${secondLevelcategory.getDisplayName()}"
                                                     class="b-refinements_category-link ${category.ID == secondLevelcategory.ID ? 'm-selected' : ''}">
                                                     ${secondLevelcategory.getDisplayName()}

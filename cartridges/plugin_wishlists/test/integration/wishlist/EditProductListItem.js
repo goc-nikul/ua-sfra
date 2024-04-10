@@ -1,3 +1,5 @@
+'use strict';
+
 var assert = require('chai').assert;
 var request = require('request-promise');
 var config = require('../it.config');
@@ -73,10 +75,10 @@ describe('Wishlist EditProduct', function () {
                                 bodyAsJson = JSON.parse(response3.body);
                                 assert.equal(bodyAsJson.success, true);
                                 return request(myRequest2)
-                                .then(function (response4) {
-                                    bodyAsJson = JSON.parse(response4.body);
-                                    assert.equal(bodyAsJson.list.items[0].pid, pid2);
-                                });
+                                    .then(function (response4) {
+                                        bodyAsJson = JSON.parse(response4.body);
+                                        assert.equal(bodyAsJson.list.items[0].pid, pid2);
+                                    });
                             });
                     });
             });

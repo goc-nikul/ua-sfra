@@ -52,6 +52,9 @@ describe('Aurus: util/aurusPayHelper test', () => {
         'dw/order/Order': require(pathToCoreMock + 'dw/dw_order_Order'),
         'dw/util/StringUtils': require(pathToCoreMock + 'dw/dw_util_StringUtils'),
         'dw/util/Calendar': Calendar,
+        '*/cartridge/scripts/util/loggerHelper': {
+            getLoggingObject: () => ''
+        },
         '*/cartridge/scripts/util/collections': require(pathToCoreMock + 'util/collections'),
         'dw/order/PaymentMgr': require(pathToCoreMock + 'dw/dw_order_PaymentMgr'),
         'dw/system/HookMgr': require(pathToCoreMock + 'dw/dw_system_HookMgr'),

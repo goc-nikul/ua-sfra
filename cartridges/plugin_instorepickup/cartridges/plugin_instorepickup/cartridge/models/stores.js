@@ -13,8 +13,8 @@ function addInventroyList(currentStores, apiStores) {
         var apiStore = apiStores[key];
         currentStores.forEach(function (store) {
             if (apiStore.ID === store.ID) {
-                if (apiStore.inventoryListID ||
-                    (apiStore.custom && apiStore.custom.inventoryListId)) {
+                if (apiStore.inventoryListID
+                    || (apiStore.custom && apiStore.custom.inventoryListId)) {
                     store.inventoryListId = apiStore.inventoryListID ||   // eslint-disable-line
                                             apiStore.custom.inventoryListId;
                 }

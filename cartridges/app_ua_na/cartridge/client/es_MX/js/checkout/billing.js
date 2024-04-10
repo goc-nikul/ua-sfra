@@ -253,8 +253,8 @@ function updatePaymentInformation(order) {
     $('.rfc-details, .cfdi-details, #rfc-cfdi-details').addClass('hide');
     if (fiscalInvoice) {
         $('#rfc-cfdi-details, .rfc-details').removeClass('hide');
-        $rfcWrapper.find('.rfc-value').text($('input[name$=_rfc]').val());
-        $rfcWrapper.find('.razonsocial-value').text($('input[name$=_razonsocial]').val());
+        $rfcWrapper.find('.rfc-value').text(order.billing.billingAddress.address.rfc);
+        $rfcWrapper.find('.razonsocial-value').text(order.billing.billingAddress.address.razonsocial);
         $('#rfc-cfdi-details, .cfdi-details').removeClass('hide');
         $rfcWrapper.find('.usoCFDI-value').text($('select[name$=_usoCFDI] option:selected').text());
         $rfcWrapper.find('.regimenFiscal-value').text($('select[name$=_regimenFiscal] option:selected').text());

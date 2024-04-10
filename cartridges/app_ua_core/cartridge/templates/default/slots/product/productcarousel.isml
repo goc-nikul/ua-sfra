@@ -4,6 +4,7 @@
 <isset name="showSwatches" value="${!empty(slotConfigurationJSON.swatches) ? slotConfigurationJSON.swatches : false}" scope="page" />
 <isset name="showRatings" value="${!empty(slotConfigurationJSON.ratings) ? slotConfigurationJSON.ratings : false}" scope="page" />
 <isset name="quickview" value="${!empty(slotConfigurationJSON.quickview) ? slotConfigurationJSON.quickview : false}" scope="page" />
+<isset name="quickAdd" value="${!empty(slotConfigurationJSON.quickAdd) ? slotConfigurationJSON.quickAdd : false}" scope="page" />
 
 <isif condition="${slotcontent.custom.slotTitle || slotcontent.custom.viewAllLink}">
     <div class="g-carousel-heading">
@@ -32,7 +33,7 @@
 
 <div class="g-carousel js-recommendation-wrapper recommendations-section"
     data-cmp="loadProducts" 
-    data-products-url="${URLUtils.url('Product-GetProductsSlides', 'source', 'recommendation', 'quickview', quickview).toString()}"
+    data-products-url="${URLUtils.url('Product-GetProductsSlides', 'source', 'recommendation', 'quickview', quickview, quickAdd).toString()}"
 
     <isif condition="${slotConfigurationJSON.products || !!productIDs.length}">
         data-products="${productIDs.join(',') || JSON.stringify(slotConfigurationJSON.products)}"

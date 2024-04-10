@@ -90,9 +90,7 @@ describe('app_ua_emea/cartridge/scripts/order/printLabelHelpers', function () {
             getPreferenceValue: function (service, locale) {
                 if (service === 'returnService') {
                     if (locale) {
-                        return {
-                            value: 'UPS'
-                        };
+                        return 'UPS';
                     }
                 } else if (service === 'enableReturnXMLs') {
                     return true;

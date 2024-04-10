@@ -2,7 +2,6 @@ var Logger = require('dw/system/Logger').getLogger('paazlAPI', 'paazl');
 var Site = require('dw/system/Site');
 var Transaction = require('dw/system/Transaction');
 var StringUtils = require('dw/util/StringUtils');
-
 /**
  * Paazl Order Service
  *
@@ -105,6 +104,7 @@ function commitOrderService() {
                     apiOrder.custom.notSavedInPaazl = false;
                     apiOrder.addNote('Paazl-Commit-Order', 'Order successfully committed in paazl system');
                 });
+
             } else {
                 failedAttempts++;
                 Transaction.wrap(function () {

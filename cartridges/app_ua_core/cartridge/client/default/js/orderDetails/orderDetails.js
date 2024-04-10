@@ -4,6 +4,7 @@ var pdfjsLib = window['pdfjs-dist/build/pdf'];
 var util = require('../util');
 var scrollAnimate = require('../components/scrollAnimate');
 var clientSideValidation = require('org/components/common/clientSideValidation');
+var layout = require('../layout').init();
 
 /**
  * Function to fetch and display return label
@@ -37,11 +38,20 @@ function getReturnLabel(url, counter) {
                         $('.b-return-error').html(data.errorMessage);
                         $('.order-return-print-main').hide();
                     }
+                    const header = document.querySelector('header');
+                    const printLabel = document.querySelector('.print-label-error-message');
+                    if (header && printLabel && layout.isMobileView()) {
+                        window.scrollTo({
+                            top: printLabel.offsetTop - header.offsetHeight,
+                            behavior: 'smooth'
+                        });
+                    }
                 }
             } else {
                 $.spinner().stop();
                 $('body').find('.card-body').empty().append(responseHtml);
                 if ($('body').find('.CA-pdfImg-value').length === 1) {
+                    var returnServiceValue = $('[name="returnServiceValue"]').val();
                     var pdfBase64Value = $('body').find('.CA-pdfImg-value').html().replace('data:application/pdf;base64,', '');
                     var pdfData = atob(pdfBase64Value);
                     pdfjsLib.GlobalWorkerOptions.workerSrc = '/lib/pdf.worker';
@@ -52,19 +62,20 @@ function getReturnLabel(url, counter) {
                         pdf.getPage(pageNumber).then(function (page) {
                             console.log('Page loaded');
                             var scale = 3;
-                            var heightFactor = 1;
-                            var widthFactor = 1;
-                            if ($('.return-label-UACAPIimg').length > 0) {
-                                scale = 7.5;
-                                heightFactor = 0.72;
-                                widthFactor = 0.6;
-                            }
                             var viewport = page.getViewport({ scale: scale });
+                            var canvasScale = returnServiceValue === 'fedex' ? 0.65 : 1;
+
                             var canvas = document.getElementById('return-label-pdf');
                             var context = canvas.getContext('2d');
-                            canvas.height = viewport.height * heightFactor;
-                            canvas.width = viewport.width * widthFactor;
-
+                            if (layout.isMobileView()) {
+                                var size = util.limitMobileCanvasSize(viewport.width, viewport.height);
+                                canvas.height = size.height * canvasScale;
+                                canvas.width = size.width * canvasScale;
+                                viewport = page.getViewport({ scale: scale * size.scalar });
+                            } else {
+                                canvas.width = Math.floor(viewport.width * canvasScale);
+                                canvas.height = Math.floor(viewport.height * canvasScale);
+                            }
                             // Render PDF page into canvas context
                             var renderContext = {
                                 canvasContext: context,
@@ -109,7 +120,233 @@ function openLoginModal() {
     $.spinner().stop();
 }
 
+
+/**
+ * Function to load addressfields
+ */
+function loadAddressFeildsDefinition() {
+    var url = $('#definationUrl').data('definition-url');
+    $.ajax({
+        url: url,
+        type: 'get',
+        dataType: 'json',
+        async: true,
+        success: function success(data) {
+            if (!data.error) {
+                window.countryData = data.countryData;
+                $('.dropdownState').trigger('change');
+                $('.addressCityDropdown').trigger('change');
+            }
+        }
+    });
+}
+/**
+ * Filter City DropDown
+ * @param {array} countriesDefinitions - countryData
+ * @param {string} state - the state
+ * @param {string} parentForm - parentForm
+ */
+function filterCityDropDown(countriesDefinitions, state, parentForm) {
+    var selectOption = $('.selectLabel').val();
+    var cityField = parentForm.find('.addressCityDropdown');
+    var cities = countriesDefinitions.states[state].cities;
+    var citiesValues = cities;
+    if ((citiesValues.length === undefined)) {
+        citiesValues = Object.keys(cities);
+    }
+    cityField.empty();
+    cityField.append($('<option value=""></option>').html(selectOption));
+    if ($('#selectedCountry').val() === 'TH') {
+        $(citiesValues).each(function () {
+            $('<option />', {
+                html: cities[this].label,
+                id: this,
+                value: this
+            }).appendTo(cityField);
+        });
+    } else {
+        $(citiesValues).each(function () {
+            $('<option />', {
+                html: this,
+                id: this,
+                value: this
+            }).appendTo(cityField);
+        });
+    }
+    var savedCity = cityField.attr('value');
+    if ($('.default-address .shipping-address-option').length && $('#checkout-main').attr('data-checkout-stage') === 'shipping') {
+        savedCity = $('.default-address .shipping-address-option').data('city');
+    } else if ($('.default-address .billing-address-option').length && $('#checkout-main').attr('data-checkout-stage') === 'payment') {
+        savedCity = $('.default-address .billing-address-option').data('city');
+    }
+    if (savedCity && savedCity !== '') {
+        var option = cityField.find('option[value="' + savedCity + '"]');
+        if (option.length > 0) {
+            option.prop('selected', true);
+        }
+    }
+    if (savedCity === '') {
+        if ($('select.shippingZipCode').is(':visible')) {
+            var $this = parentForm.find('.shippingZipCode');
+            $this.empty();
+            $this.append($('<option value=""></option>').html(selectOption));
+        }
+    }
+}
+
+/**
+ * Filter Postal Code DropDown
+ * @param {array} countriesDefinitions - countryData
+ * @param {string} state - the state
+ * @param {string} dependency - dependency
+ * @param {string} city - city
+ * @param {boolean} isState - isState
+ * @param {string} parentForm - parentForm
+ */
+function filterPostalCodeDropDown(countriesDefinitions, state, dependency, city, isState, parentForm) {
+    var selectOption = $('.selectLabel').val();
+    var PostalCodeField = parentForm.find('.dropdownPostalCode');
+    var postalCodeValues;
+    if (dependency && isState) {
+        postalCodeValues = countriesDefinitions.states[state];
+    } else if (dependency && !isState) {
+        postalCodeValues = countriesDefinitions.states[state].cities[city] ? countriesDefinitions.states[state].cities[city].postalCodes : null;
+    }
+    PostalCodeField.empty();
+    PostalCodeField.append($('<option value=""></option>').html(selectOption).val(''));
+    if (postalCodeValues !== null) {
+        $(postalCodeValues).each(function () {
+            $('<option />', {
+                html: this,
+                id: this,
+                value: this
+            }).appendTo(PostalCodeField);
+        });
+    }
+    var savedPostalCode = PostalCodeField.attr('value');
+    if (savedPostalCode && savedPostalCode !== '') {
+        var option = PostalCodeField.find('option[value="' + savedPostalCode + '"]');
+        if (option.length > 0) {
+            if (!$('#shippingZipCodedefault').is(':visible') && $('#checkout-main').attr('data-checkout-stage') === 'shipping') {
+                $('#shippingZipCodedefault').empty().append($('<option value="' + savedPostalCode + '"></option>').html(savedPostalCode));
+            } else {
+                option.prop('selected', true);
+            }
+        }
+    }
+}
+
+/**
+ * Filter District DropDown
+ * @param {array} countriesDefinitions - countryData
+ * @param {string} state - the state
+ * @param {string} city - city
+ * @param {string} parentForm - parentForm
+ */
+function filterDistrictDropDown(countriesDefinitions, state, city, parentForm) {
+    var selectOption = $('.selectLabel').val();
+    var districtField = parentForm.find('.districtFieldDropdown');
+    var districtValues = countriesDefinitions.states[state].cities[city];
+    districtField.empty();
+    districtField.append($('<option value=""></option>').html(selectOption).val(''));
+    $(districtValues).each(function () {
+        $('<option />', {
+            html: this,
+            id: this,
+            value: this
+        }).appendTo(districtField);
+    });
+    var savedDistrict = districtField.attr('value');
+    if (savedDistrict && savedDistrict !== '') {
+        var option = districtField.find('option[value="' + savedDistrict + '"]');
+        if (option.length > 0) {
+            option.prop('selected', true);
+        }
+    }
+}
+
+/**
+ *attach DropDown ListsEvents
+*/
+function attachDropDownListsEvents() {
+    $('body').on('change', 'select[name $= "return_states_stateCode"]', function () {
+        var selectOption = $('.selectLabel').val();
+        var $form = $(this).closest('form');
+        var stateField = $form.find('.dropdownState');
+        var state = stateField.val();
+        var country = $('#selectedCountry').val();
+        var countriesDefinitions = window.countryData;
+        var dependencyOnState = $('.shippingState').data('dependencyonstate');
+        if (Object.keys(countriesDefinitions).length > 0 && state && country && dependencyOnState !== null) {
+            if (dependencyOnState === 'postalCode') {
+                filterPostalCodeDropDown(countriesDefinitions, state, dependencyOnState, null, true, $form);
+            } else if (dependencyOnState === 'city') {
+                filterCityDropDown(countriesDefinitions, state, $form);
+            }
+        } else if ((state == null || state === '') && $form.find('.dropdownState').children('option').length <= 1) {
+            var allStates = Object.keys(countriesDefinitions.states);
+            $(allStates).each(function () {
+                $('<option />', {
+                    html: this,
+                    id: this,
+                    value: this
+                }).appendTo(stateField);
+            });
+        } else if (state === '' && $(this).closest('form').is('visible')) {
+            $('select:visible').each(function () {
+                var $this = $(this);
+                if (!$this.hasClass('b-country-select') && !$this.hasClass('dropdownState') && !$this.hasClass('b-country-dialing-code') && !$this.hasClass('identification-type')) {
+                    $this.empty();
+                    $this.append($('<option value=""></option>').html(selectOption));
+                }
+            });
+        }
+
+        if (Object.keys(countriesDefinitions).length > 0 && state && country && dependencyOnState !== null) {
+            var savedStateCode;
+
+            if (savedStateCode && savedStateCode !== '') {
+                var option = stateField.find('option[value="' + savedStateCode + '"]');
+                if (option.length > 0) {
+                    option.prop('selected', true);
+                }
+            }
+        }
+    });
+    $('body').on('change', 'select[name $= "return_city"]', function () {
+        var selectOption = $('.selectLabel').val();
+        var $form = $(this).closest('form');
+        var stateField = $form.find('.dropdownState');
+        var state = stateField.val();
+        var cityField = $form.find('.addressCityDropdown');
+        var city = cityField.val();
+        var country = $('#selectedCountry').val();
+        var countriesDefinitions = window.countryData;
+        var dependencyOncity = $('.shippingAddressCity').data('dependencyoncity');
+        if (Object.keys(countriesDefinitions).length > 0 && city && state && country && dependencyOncity !== null) {
+            if (dependencyOncity !== null && dependencyOncity === 'district') {
+                filterDistrictDropDown(countriesDefinitions, state, city, $form);
+            } else if (dependencyOncity !== null && dependencyOncity === 'postalCode') {
+                filterPostalCodeDropDown(countriesDefinitions, state, dependencyOncity, city, false, $form);
+            }
+        }
+
+        if (city === '') {
+            $('select:visible').each(function () {
+                var $this = $(this);
+                if (!$this.hasClass('b-country-select') && !$this.hasClass('dropdownState') && !$this.hasClass('addressCityDropdown') && !$this.hasClass('b-country-dialing-code') && !$this.hasClass('identification-type')) {
+                    $this.empty();
+                    $this.append($('<option value=""></option>').html(selectOption));
+                }
+            });
+        }
+    });
+    $('.dropdownState').trigger('change');
+    $('.addressCityDropdown').trigger('change');
+}
+
 module.exports = function () {
+    attachDropDownListsEvents();
     var orderPidArray = [];
     var orderPidObject = {};
     var checkboxLoop = function (target) {
@@ -227,6 +464,7 @@ module.exports = function () {
     function showWarningPopup() {
         $('#warningpopup').modal('show');
         $('body').on('click', '.closePopUp', function () {
+            $('#warningpopup').modal('hide');
             handleContinueReturn();
         });
     }
@@ -305,7 +543,7 @@ module.exports = function () {
                 $('.js-order-return-items').each(function () {
                     var returnObj = {};
                     returnObj.returnSku = $(this).find('.order-item .order-item-sku').attr('data-sku');
-                    if ($('#returnService') && $('#returnService').data('value') && ($('#returnService').data('value') === 'UPS' || $('#returnService').data('value') === 'aupost' || $('#returnService').data('value') === 'nzpost' || $('#returnService').data('value') === 'SEA' || $('#returnService').data('value') === 'RntEmail' || $('#returnService').data('value') === 'FedEx')) {
+                    if ($('#returnService') && $('#returnService').data('value') && (['UPS', 'aupost', 'nzpost', 'SEA', 'RntEmail', 'FedEx', 'DHLParcel', 'DHLExpress'].indexOf($('#returnService').data('value')) > -1)) {
                         returnObj.returnPid = $(this).find('.orderPid').val();
                         returnObj.returnOrderItemID = $(this).find('.order-return-reason-main').data('orderitem-id');
                     }
@@ -360,6 +598,7 @@ module.exports = function () {
                         } else {
                             $('body').trigger('return:reasonpage', { pageType: 'label' });
                         }
+                        loadAddressFeildsDefinition();
                     }
                 },
                 error: function (error) {
@@ -517,11 +756,7 @@ module.exports = function () {
             var item = {};
             item.pid = (prodId).toString();
             item.qty = qtySelected;
-            if (qtySelected > 1) {
-                item.reasons = $(ele).parents('.order-return-qty').siblings('.order-return-reason').find('.order-return-reason-select').val("OTHER"); //eslint-disable-line
-            } else {
-                item.reasons = $(ele).parents('.order-return-qty').siblings('.order-return-reason').find('.order-return-reason-select').val();  //eslint-disable-line
-            }
+            item.reasons = $(ele).parents('.order-return-qty').siblings('.order-return-reason').find('.order-return-reason-select').val(); //eslint-disable-line
             item.comments = $(ele).parents('.order-return-qty').parents('.b-rr-form-sec').siblings('.order-return-comments').find('.return-comments').val();  //eslint-disable-line
             pidQtyObj.push(item);
         });
@@ -560,7 +795,7 @@ module.exports = function () {
                                 if ($(ele).parents('.order-return-qty').siblings('.order-return-reason').find('.order-return-reason-select.auto-return-reason').length > 0) {
                                     $(ele).parents('.order-return-qty').siblings('.order-return-reason').find('.order-return-reason-select.auto-return-reason').val('');   //eslint-disable-line
                                 } else {
-                                    $(ele).parents('.order-return-qty').siblings('.order-return-reason').find('.order-return-reason-select').val("OTHER"); //eslint-disable-line
+                                    $(ele).parents('.order-return-qty').siblings('.order-return-reason').find('.order-return-reason-select').val(''); //eslint-disable-line
                                 }
                             } else if (pidQuantityObj[j].qty == 1 && $(ele).parents('.order-return-qty').siblings('.order-return-reason').find('.order-return-reason-select').val() === 'OTHER') { //eslint-disable-line
                                 $(ele).parents('.order-return-qty').siblings('.order-return-reason').find('.order-return-reason-select').val(''); //eslint-disable-line
@@ -623,9 +858,16 @@ module.exports = function () {
         window.print();
     });
 
+    $('body').on('click', '.js-orderLabel-printPage-emea', function (e) {
+        e.preventDefault();
+        document.title = 'UA-RET-LABEL';
+        $('.QSISlider').addClass('QSIFeedbackButton');
+        window.print();
+    });
+
     $('body').on('click', '.write-review-link', function (e) {
         e.preventDefault();
-        var $productID = $('.write-review-link').attr('data-product');
+        var $productID = $(this).attr('data-product');
         $BV.ui('rr', 'submit_review', { // eslint-disable-line no-undef
             productId: $productID
         });
@@ -783,7 +1025,11 @@ module.exports = function () {
     });
 
     $('body').on('click', '.cancel-confirmation-modal_formSubmit_technicalErrorButtons .live-chat-button, .order-cancel-text .live-chat', function () {
-        $('#rnowCChatDiv_PersistentFooter').find('a').trigger('click');
+        if ($('#rnowCChatDiv_PersistentFooter').find('a').length > 0) {
+            $('#rnowCChatDiv_PersistentFooter').find('a')[0].click();
+        } else {
+            $('#rnowCChatDiv_PersistentFooter').find('a').trigger('click');
+        }
     });
 
     $('body').on('change', '.g-selectric-container .g-selectric-hide-select select', function () {
@@ -835,6 +1081,7 @@ module.exports = function () {
     $('body').on('click', '.auto-return-section .continue-auto-return', function (e) {
         e.preventDefault();
         var form = $(this).closest('form');
+        form.find('.invalid-feedback').empty();
         clientSideValidation.checkMandatoryField(form);
         if (!form.find('input.is-invalid, select.is-invalid').length) {
             var orderID = $(this).data('orderid');
@@ -860,7 +1107,12 @@ module.exports = function () {
                             formValidation(form, data);
                         }
                     } else {
-                        if (data.redirectUrl) {
+                        if (data.renderedTemplate) {
+                            var responseHtml = $.parseHTML(data.renderedTemplate);
+                            var responseMsg = data.responseMsg;
+                            $('body').find('.section-dv').html(responseMsg);
+                            $('body').find('.auto-return-section').html(responseHtml);
+                        } else if (data.redirectUrl) {
                             location.href = data.redirectUrl;
                         }
                         $.spinner().stop();

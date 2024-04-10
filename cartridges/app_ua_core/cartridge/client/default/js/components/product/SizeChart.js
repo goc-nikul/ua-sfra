@@ -8,12 +8,12 @@ export default class SizeChart extends Modal {
         this.analyticsName = 'product: size chart';
     }
 
-    onAJAXSuccess(data) {
-        $('.g-modal-body.g-modal-size-chart-body').html(data.content);
-        $('.g-modal-body.g-modal-size-chart-body').append('<div class="b-sizechart_right"><div class="b-sizechart_image"><img src=' + data.sizechartImageURL + '></div></div>'); // eslint-disable-line
-        $('.g-modal-body.g-modal-size-chart-body').append(data.sizechartTable); // eslint-disable-line
-        $('.g-modal-body.g-modal-size-chart-body').append(data.sizechartFitGuide); // eslint-disable-line
-        $.spinner().stop();
+    contentUpdate(data) {
+        var $modalBody = this.$target.find('.g-modal-body.g-modal-size-chart-body');
+        $modalBody.html(data.content);
+        $modalBody.append('<div class="b-sizechart_right"><div class="b-sizechart_image"><img src=' + data.sizechartImageURL + '></div></div>'); // eslint-disable-line
+        $modalBody.append(data.sizechartTable); // eslint-disable-line
+        $modalBody.append(data.sizechartFitGuide); // eslint-disable-line
     }
 
     /*eslint-disable */
@@ -23,6 +23,7 @@ export default class SizeChart extends Modal {
             <div class="g-modal-dialog g-modal-size-chart">
             <div class="g-modal-content g-modal-size-chart-content" role="document">
             <div class="g-modal-header g-modal-size-chart-header">
+                <div class="g-modal-title"></div>
                 <button type="button" class="close pull-right" data-dismiss="modal">
                     <span class="sr-only"> </span>
                 </button>

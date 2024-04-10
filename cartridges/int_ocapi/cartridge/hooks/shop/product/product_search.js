@@ -70,7 +70,7 @@ function getSearchHitPricing(productItem, Product) {
     var listPriceBookID = getPricebookID(currencyCode, locale, PRICEBOOK_TYPES.LIST);
     var promotions = PromotionMgr.activeCustomerPromotions.getProductPromotions(Product);
     var promotionPrice = priceHelper.getPromotionPrice(Product, promotions, null);
-    var AllPriceRanges = productUtils.getAllPriceRanges(Product);
+    var AllPriceRanges = productUtils.getAllPriceRanges(productItem);
     if (promotionPrice && promotionPrice.value && !isNaN(promotionPrice.value) && AllPriceRanges.minSalePrice.value > promotionPrice.value) {
         AllPriceRanges.minSalePrice = promotionPrice;
         AllPriceRanges.maxSalePrice = promotionPrice;
@@ -201,22 +201,12 @@ function getPageMetaTags() {
 }
 
 /**
- * @param {Object} entry Product color info
- * @param {Array} arr Array of Product color info
- * @returns {boolean} - arr contains duplicate value of entry
- */
-function isDuplicate(entry, arr) {
-    return arr.some(x => (entry.color === x.color));
-}
-
-/**
 * @param {Object} currentSearch OCAPI response object.
 * @returns {Status} - Status
 */
 exports.modifyGETResponse = function (currentSearch) {
     try {
         const pageMetaTagsPLP = getPageMetaTags();
-
         var ImageModel = require('*/cartridge/models/product/productImages');
         let category;
         const cgid = currentSearch.selected_refinements && currentSearch.selected_refinements.cgid ? currentSearch.selected_refinements.cgid : null;
@@ -228,14 +218,18 @@ exports.modifyGETResponse = function (currentSearch) {
         Object.keys(currentSearch.hits).forEach(function (key) {
             var item = currentSearch.hits[key];
             var productItem = ProductMgr.getProduct(item.product_id);
+            var productExperienceType = productItem.custom && productItem.custom.experienceType ? productItem.custom.experienceType.value : '';
             const outletColors = productItem.custom.outletColors ? productItem.custom.outletColors.split(',') : [];
             item.c_outletColors = productItem.custom.outletColors;
-            if (experienceType === 'outlet') {
-                const colorAttr = item.variationAttributes.toArray().find(attr => attr.id === 'color');
+            if (experienceType === 'outlet' && productExperienceType !== 'allMerchOverride' && productExperienceType !== 'outletMerchOverride') {
+                let colorAttr;
+                if (item.variationAttributes) {
+                    colorAttr = item.variationAttributes.toArray().find(attr => attr.id === 'color');
+                }
 
                 if (!outletColors || !outletColors.length) {
                     colorAttr.values = new dwutil.ArrayList();
-                } else if (colorAttr && 'values' in colorAttr) {
+                } else if (colorAttr && colorAttr.values && colorAttr.values.length) {
                     const colors = colorAttr.values.toArray().filter(color => outletColors.indexOf(color.value) > -1);
                     colorAttr.values = new dwutil.ArrayList(colors);
                 }
@@ -243,26 +237,28 @@ exports.modifyGETResponse = function (currentSearch) {
 
             if (productItem.isMaster()) {
                 if (Object.prototype.hasOwnProperty.call(productItem, 'variants')) {
-                    var productVariants = productItem.variants;
-                    var cVariantColors = [];
-                    for (var x = 0; x < productVariants.length; x++) {
-                        var entry = {
-                            color: productVariants[x].custom.color,
-                            colorway: productVariants[x].custom.colorway,
-                            hex: productVariants[x].custom.hexcolor,
-                            secondaryHex: productVariants[x].custom.secondaryhexcolor,
-                            team: productVariants[x].custom.team
-                        };
-                        if (!isDuplicate(entry, cVariantColors)) {
-                            cVariantColors.push(entry);
-                        }
-                    }
-                    item.c_variantColors = cVariantColors;
+                    item.c_variantColors = productHookUtils.mapVariantColors(productItem.variants);
                 }
+                item.c_style = productItem.custom.style;
+            } else if (productItem.isVariant()) {
+                const masterProductItem = productItem.getMasterProduct();
+                item.c_style = masterProductItem.custom.style;
+                item.c_upc = productItem.UPC;
             }
 
             if (productItem.isVariant() || productItem.isMaster()) {
                 var Product = productItem.isVariant() ? productItem.getMasterProduct() : productItem;
+                item.c_preorderable = Product.custom.isPreOrder;
+                item.c_experienceType = productExperienceType;
+                item.c_preOrderProductTileMessage = Product.custom.preOrderProductTileMessage;
+                item.c_shopTheLookJson = productItem.custom.shopTheLookJson;
+                item.c_shopTheLookDisable = productItem.custom.shopTheLookDisable;
+                item.c_shopTheLookLastUpdate = productItem.custom.shopTheLookLastUpdate;
+                item.c_shopTheLookStatus = productItem.custom.shopTheLookStatus;
+                item.c_comingSoonMessage = productItem.custom.comingSoonMessage;
+                item.c_exclusiveType = productItem.custom.exclusive.value;
+                item.c_isLoyaltyExclusive = productItem.custom.isLoyaltyExclusive;
+
                 // Get all the gridTileDesktop images of the item and pass in the custom attribute c_image
                 var config = { types: ['gridTileDesktop'], quantity: 'all' };
                 var imagesList = new ImageModel(Product.variationModel, config);
@@ -277,7 +273,6 @@ exports.modifyGETResponse = function (currentSearch) {
                 }
 
                 item.c_image = imageArray;
-
                 var productUrl = productHookUtils.getProductUrl(Product);
                 var productTileBottomLeftBadge = Product.custom.productTileBottomLeftBadge;
                 var productTileUpperLeftBadge = Product.custom.productTileUpperLeftBadge;
@@ -313,16 +308,8 @@ exports.modifyGETResponse = function (currentSearch) {
                 item.prices = pricing.prices;
 
                 // add promotion details to response
-                var productPromotions = [];
                 var promotions = PromotionMgr.activeCustomerPromotions.getProductPromotions(Product);
-                for (var j = 0; j < promotions.length; j++) {
-                    productPromotions.push({
-                        _type: promotions[j].promotionClass.toLowerCase() + '_promotion', // product_promotion or order_promotion or shipping_promotion
-                        callout_msg: !empty(promotions[j].calloutMsg) ? promotions[j].calloutMsg.markup : '',
-                        promotion_id: promotions[j].ID,
-                        tooltip: !empty(promotions[j].details) ? promotions[j].details.markup : ''
-                    });
-                }
+                var productPromotions = productHookUtils.mapProductPromotions(promotions);
                 if (productPromotions) {
                     item.c_productPromotions = productPromotions;
                 }

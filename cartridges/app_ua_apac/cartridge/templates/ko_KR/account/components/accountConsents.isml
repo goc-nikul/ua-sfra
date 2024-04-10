@@ -6,6 +6,54 @@
     </label>
 </div>
 <div class="form-group g-checkbox">
+    <input type="checkbox" class="g-checkbox-input form-control" id="agreetopolicy"
+        data-missing-error="${Resource.msg('error.message.agetermserror', 'forms', null)}" <isprint
+        value=${pdict.profileForm.customer.agreetopolicy.attributes} encoding="off" />
+    >
+    <label class="g-checkbox-label" for="agreetopolicy">
+        <isprint value="${Resource.msgf('profile.agreetopolicy', 'forms', null, pdict.minimumAgeRestriction)}"
+            encoding="off" />
+    </label>
+    <div class="d-none" id="js-agree-to-policy-content">
+        <div class="g-modal-header g-login-modal-header">
+            <div class="g-password-modal-close">
+                <button type="button" class="g-password-modal-close_button close" data-dismiss="modal"
+                    aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+            </div>
+        </div>
+    <div>
+        <iscontentasset aid="consents-term-and-condition" />
+    </div>
+    </div>
+    <div class="invalid-feedback">
+        <isprint value="${(typeof(pdict.profileFieldsError.agreetopolicy) !== 'undefined' && !empty(pdict.profileFieldsError.agreetopolicy) && !
+                        empty(pdict.agreetopolicy)) ? pdict.profileFieldsError.agreetopolicy: ''}" />
+    </div>
+</div>
+<div class="form-group g-checkbox">
+    <input type="checkbox" class="g-checkbox-input form-control" id="agree-to-agreetodatatransfer"
+        data-missing-error="${Resource.msg('error.message.datapolicyerror', 'forms', null)}" <isprint
+        value=${pdict.profileForm.customer.agreetodatatransfer.attributes} encoding="off" />
+    >
+    <label class="g-checkbox-label" for="agree-to-agreetodatatransfer">
+        <isprint value="${Resource.msgf('profile.agreetodatatransfer', 'forms', null)}" encoding="off" />
+    </label>
+    <div class="d-none" id="js-agree-to-datatransfer-content">
+        <div class="g-modal-header g-login-modal-header">
+            <div class="g-password-modal-close hello">
+                <button type="button" class="g-password-modal-close_button close" data-dismiss="modal"
+                    aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+            </div>
+        </div>
+        <iscontentasset aid="consent-overseas-data-transfer-policy" />
+    </div>
+    <div class="invalid-feedback">
+        <isprint
+            value="${(typeof(pdict.profileFieldsError.agreetodatatransfer) !== 'undefined' && !empty(pdict.profileFieldsError
+                   .agreetodatatransfer) && !empty(pdict.agreetodatatransfer)) ? pdict.profileFieldsError.agreetodatatransfer: ''}" />
+    </div>
+</div>
+<div class="form-group g-checkbox">
     <input type="checkbox" class="g-checkbox-input form-control" id="add-to-addsmsto-list" <isprint
         value=${pdict.profileForm.customer.smsOptIn.attributes} encoding="off" />
     >
@@ -38,51 +86,5 @@
             </div>
         </div>
         <iscontentasset aid="consent-user-not-subscribed-email" />
-    </div>
-</div>
-<div class="form-group g-checkbox">
-    <input type="checkbox" class="g-checkbox-input form-control" id="agreetopolicy"
-        data-missing-error="${Resource.msg('error.message.agetermserror', 'forms', null)}" <isprint
-        value=${pdict.profileForm.customer.agreetopolicy.attributes} encoding="off" />
-    >
-    <label class="g-checkbox-label" for="agreetopolicy">
-        <isprint value="${Resource.msgf('profile.agreetopolicy', 'forms', null, pdict.minimumAgeRestriction)}"
-            encoding="off" />
-    </label>
-    <div class="d-none" id="js-agree-to-policy-content">
-        <div class="g-modal-header g-login-modal-header">
-            <div class="g-password-modal-close">
-                <button type="button" class="g-password-modal-close_button close" data-dismiss="modal"
-                    aria-label="${Resource.msg('button.close', 'common', null)}"></button>
-            </div>
-        </div>
-        <iscontentasset aid="consents-term-and-condition" />
-    </div>
-    <div class="invalid-feedback">
-        <isprint value="${(typeof(pdict.profileFieldsError.agreetopolicy) !== 'undefined' && !empty(pdict.profileFieldsError.agreetopolicy) && !
-                        empty(pdict.agreetopolicy)) ? pdict.profileFieldsError.agreetopolicy: ''}" />
-    </div>
-</div>
-<div class="form-group g-checkbox">
-    <input type="checkbox" class="g-checkbox-input form-control" id="agree-to-agreetodatatransfer"
-        data-missing-error="${Resource.msg('error.message.datapolicyerror', 'forms', null)}" <isprint
-        value=${pdict.profileForm.customer.agreetodatatransfer.attributes} encoding="off" />
-    >
-    <label class="g-checkbox-label" for="agree-to-agreetodatatransfer">
-        <isprint value="${Resource.msgf('profile.agreetodatatransfer', 'forms', null)}" encoding="off" />
-    </label>
-    <div class="d-none" id="js-agree-to-datatransfer-content">
-        <div class="g-modal-header g-login-modal-header">
-            <div class="g-password-modal-close hello">
-                <button type="button" class="g-password-modal-close_button close" data-dismiss="modal"
-                    aria-label="${Resource.msg('button.close', 'common', null)}"></button>
-            </div>
-        </div>
-        <iscontentasset aid="consent-overseas-data-transfer-policy" />
-    </div>
-    <div class="invalid-feedback">
-        <isprint
-            value="${(typeof(pdict.profileFieldsError.agreetodatatransfer) !== 'undefined' && !empty(pdict.profileFieldsError
-                   .agreetodatatransfer) && !empty(pdict.agreetodatatransfer)) ? pdict.profileFieldsError.agreetodatatransfer: ''}" />
     </div>
 </div>

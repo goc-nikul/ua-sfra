@@ -379,6 +379,10 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
                 currentBasket,
                 { usingMultiShipping: usingMultiShipping, countryCode: currentLocale.country, containerView: 'basket' }
             );
+            // log the order details for dataDog.
+            if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+                orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, true, Resource.msg('error.payment.ordervalue.changed', 'checkout', null)));
+            }
             res.json({
                 error: true,
                 errorStage: {
@@ -516,10 +520,18 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
                 errorMessage: Resource.msg('error.payment.not.valid', 'checkout', null)
             });
             COHelpers.failOrder(order);
+            // log the order details for dataDog.
+            if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+                orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, true, Resource.msg('error.payment.not.valid', 'checkout', null)));
+            }
             return next();
         }
 
         if (adyenPaymentInstrument) {
+            if (handlePaymentResult.action && handlePaymentResult.action.paymentMethodType === 'oxxo') {
+                COHelpers.saveOxxoDetails(order, handlePaymentResult.action);
+            }
+
             var _this = this;
             var _handlePaymentResult$;
 
@@ -546,6 +558,25 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
                     errorMessage: Resource.msg('error.technical', 'checkout', null)
                 });
                 return next();
+            } else if (!isOxxo) {
+                var adyenComponentPaymentInstruments = order.getPaymentInstruments('AdyenComponent');
+                var adyenComponentPaymentInstrument = adyenComponentPaymentInstruments && adyenComponentPaymentInstruments.length > 0 ? adyenComponentPaymentInstruments[0] : null;
+                var disableCaptureCall = Site.current.getCustomPreferenceValue('Adyen_disableCaptureCall');
+                if (adyenComponentPaymentInstrument && !disableCaptureCall) {
+                    pspReference = adyenComponentPaymentInstrument.paymentTransaction && adyenComponentPaymentInstrument.paymentTransaction.custom.Adyen_pspReference;
+                    var adyenAmount = adyenComponentPaymentInstrument.paymentTransaction ? AdyenHelper.getCurrencyValueForApi(adyenComponentPaymentInstrument.paymentTransaction.amount) : null;
+                    if (pspReference && adyenAmount) {
+                        paymentRequest = {
+                            merchantAccount: AdyenConfigs.getAdyenMerchantAccount(),
+                            amount: {
+                                value: adyenAmount.value,
+                                currency: adyenAmount.currencyCode
+                            },
+                            reference: order.orderNo
+                        };
+                        AdyenHelper.executeCall(constants.SERVICE.CAPTURE, paymentRequest, pspReference);
+                    }
+                }
             }
         } else if (fraudDetectionStatus === 'review' || fraudDetectionStatus === 'SERVER_UNAVAILABLE') {
             if (Site.getCurrent().getCustomPreferenceValue('isSetOrderConfirmationEmailStatusForJob')) {
@@ -653,8 +684,31 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
                 errorMessage: Resource.msg('error.payment.not.valid', 'checkout', null)
             });
             COHelpers.failOrder(order);
+            // log the order details for dataDog.
+            if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+                orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, true, Resource.msg('error.payment.not.valid', 'checkout', null)));
+            }
             return next();
         }
+    }
+
+    // Email signup - Checkout
+    var email = paymentForm.contactInfoFields.email.value;
+    if (Site.current.getCustomPreferenceValue('isMarketingAutoOptInEnabled') && !empty(email)) {
+        var com = require('dw/object/CustomObjectMgr');
+        const customObjectName = 'NewsLetterSignUp';
+        var keyId = email;
+        var objectDefinition = com.getCustomObject(customObjectName, keyId);
+        if ((empty(objectDefinition))) {
+            require('dw/system/Transaction').wrap(function () {
+                com.createCustomObject(customObjectName, keyId);
+            });
+        }
+    }
+
+    // log the order details for dataDog.
+    if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+        orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
     }
 
     // Reset usingMultiShip after successful Order placement
@@ -662,11 +716,16 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     // delete vertex hasing session
     req.session.privacyCache.set('taxRequestHash', null);
 
+    var emailSignUp = req.querystring.emailSignUp;
+    if (Site.getCurrent().getCustomPreferenceValue('isMarketingAutoOptInEnabled')) {
+        emailSignUp = true;
+    }
+
     res.json({
         error: false,
         orderID: order.orderNo,
         orderToken: order.orderToken,
-        order_checkout_optin: req.querystring.emailSignUp,
+        order_checkout_optin: emailSignUp,
         continueUrl: URLUtils.url('Order-Confirm').toString()
     });
 

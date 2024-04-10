@@ -28,7 +28,7 @@ var View = Class.extend({
      * @extends module:util/Class~Class
      * @param {Object} params The parameters to pass.
      * @see {@link module:object} for information on the extend function.
-     * @returns {module:views/View~View}
+     * @returns {module:views/View~View} The view
      */
     init: function (params) {
         // Copies all properties of params to the view.
@@ -46,7 +46,7 @@ var View = Class.extend({
      *
      * @abstract
      * @alias module:views/View~View/render
-     * @param {String} templateName - The path and name of the template to render.
+     * @param {string} inboundTemplateName - The path and name of the template to render.
      * The base of the path is assumed to be the templates/default folder in the cartridge, unless a locale is
      * selected, in which case it is templates <i>locale</i>. If the template is not found in the current cartridge,
      * the cartridge path is searched until a cartridge containing it is found.
@@ -55,8 +55,8 @@ var View = Class.extend({
      * @example app.getView().render('account/accountoverview');
      * @return {module:views/View~View} Returns the current view.
      */
-    render: function (templateName) {
-        templateName = templateName || this.template;
+    render: function (inboundTemplateName) {
+        var templateName = inboundTemplateName || this.template;
         // provide reference to View itself
         this.View = this;
         // provide Meta
@@ -71,12 +71,11 @@ var View = Class.extend({
         try {
             ISML.renderTemplate(templateName, this);
         } catch (e) {
-            dw.system.Logger.error('Error while rendering template ' + templateName);
+            require('dw/system/Logger').error('Error while rendering template ' + templateName);
             throw e;
         }
         return this;
-
-}});
+    } });
 
 /** @type {module:views/View~View.prototype} */
 module.exports = View;

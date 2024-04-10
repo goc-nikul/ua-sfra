@@ -504,14 +504,11 @@
 }
 
 .b-store-choose-link {
-    //margin: rem-calc(16) 0;
-
     .b-store-choose-content {
-        // width: 100%;
-        // display: inline-block;
-        // padding: rem-calc(16) 0 rem-calc(24);
-        // border-top: 1px solid $grey3;
-        // border-bottom: 1px solid $grey3;
+        @include respond-to(mobile) {
+            padding: 0 0 rem-calc(22);
+            display: inline-block;
+        }
 
         &-left {
             margin-left: rem-calc(16);
@@ -538,18 +535,19 @@
                 //display: inline-block;
             }
 
+            .b-store-status {
+                color: $green;
+                font-weight: $font-semi-bold;
+                vertical-align: bottom;
+
+                &.unavailable {
+                    color: $grey5;
+                }
+            }
+
             .b-store-selected-content {
                 font-weight: $font-regular;
                 color: $grey5;
-
-                .b-store-status {
-                    color: $green;
-                    font-weight: $font-semi-bold;
-
-                    &.unavailable {
-                        color: $grey5;
-                    }
-                }
 
                 .b-choose-store {
                     font-weight: $font-regular;
@@ -955,38 +953,121 @@
 }
 
 .b-choose-ship-pickup {
-    margin: rem-calc(16) 0;
+    margin: rem-calc(16) 0 0;
     padding: rem-calc(16) 0 rem-calc(24);
     border-top: 1px solid $grey3;
+    position: relative;
 
     ul {
         display: flex;
         flex-wrap: wrap;
         align-items: flex-end;
-        margin: 0 0.1875rem;
+        margin: 0;
         margin-left: rem-calc(0);
         cursor: default;
+        justify-content: space-between;
 
         li {
+            border: solid 1px $grey4;
+            padding: rem-calc(6);
+            flex: 0 0 48.5%;
+            text-align: center;
+            cursor: pointer;
+
+            &:hover {
+                border: solid 1px $black;
+            }
+
+            &.selected {
+                border: 2px solid $black;
+
+                &::after {
+                    content: none;
+                }
+
+                .b-stock-store-heading {
+                    color: $black;
+                }
+
+                &:hover {
+                    border: solid 2px $black;
+                }
+
+                &.disabled {
+                    border: 2px solid $black;
+
+                    .b-stock-store-heading {
+                        color: $grey5;
+                    }
+                }
+            }
+
+            &.disabled {
+                position: relative;
+                border-color: $grey3;
+                color: $grey5;
+
+                &:hover {
+                    border: solid 1px $black;
+                }
+
+                &.notselectable {
+                    pointer-events: none;
+                }
+
+                .b-store-choose-content-sth {
+                    .b-stock-store-heading {
+                        color: $grey5;
+                    }
+                }
+            }
+
+            .b-store-choose-content-sth {
+                display: block !important;
+                margin-top: 0 !important;
+                font-weight: $font-semi-bold;
+                font-size: 0.875rem;
+                line-height: 1.25rem;
+                color: $grey4;
+                margin-left: 0;
+
+                .b-select-ship-online-store {
+                    font-weight: $font-regular;
+                    color: $grey5;
+                }
+
+                .b-stock-store-heading {
+                    color: $black;
+                    display: block;
+                }
+            }
+
+            .b-store-choose-content-select {
+                display: block;
+            }
+
+            .b-store-choose-content-top {
+                display: block;
+            }
+
             a {
                 @include button-to-link;
 
                 color: $black;
                 text-decoration: none;
-                margin: spacing(xs) / 2;
+                margin: 0 !important;
                 text-align: center;
                 font-weight: $font-regular;
                 vertical-align: middle;
                 border-radius: rem-calc(4);
-                margin-left: rem-calc(0);
-                margin-right: rem-calc(16);
                 align-items: center;
-                line-height: 1;
 
-                &:hover {
-                    border-color: $black;
-                    font-size: rem-calc(12);
-                    font-weight: $font-regular;
+                &::before {
+                    content: '';
+                    display: block;
+                    position: absolute;
+                    inset: 0;
+                    opacity: 0;
                 }
 
                 &.selected {

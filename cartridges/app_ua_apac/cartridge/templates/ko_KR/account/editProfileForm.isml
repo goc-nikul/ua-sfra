@@ -1,20 +1,28 @@
 <form action="${URLUtils.url('Account-SaveProfile')}" class="edit-profile-form" method="POST"  <isprint value="${pdict.profileForm.attributes}" encoding="off" />>
     <div class="b-account-dashboard_profile-icon"></div>
+	<isset name="isNaverUser" value="${pdict.isNaverUser}" scope="page" />
     <div class="b-account-edit-profile-pageHeading">
 	    <div class="b-account_form-row">
 	        <isinclude template="account/components/editProfileName" />
 	    </div>
 	    <div class="b-account_form-row">
-			<isinclude template="account/components/editProfilePhone" />
+            <isinclude template="account/components/editProfilePhone" />
+            <isif condition="${pdict.hasSocialSecurityNumber}">
+                <div class="form-group b-account_form-column required b-account_form-column-mobile mobile-update-btn mobile-only">
+                    <button type="button" data-href="${URLUtils.https('Login-InitiateMobileAuth', 'update', 'true')}"
+                        class="g-button_base g-button_primary--black js-account-mobile-update" aria-label="${Resource.msg("button.updatemobile.number", "mobileAuth", null)}">${Resource.msg("button.updatemobile.number", "mobileAuth", null)}
+                    </button>
+                </div>
+            </isif>
 
 		   <isif condition="${pdict.profileForm.customer.postalCode && pdict.profileForm.customer.postalCode.attributes}">
 		        <div class="b-account_form-column">
-		            <div class="form-group b-input_row">
+		            <div class="form-group b-input_row ${isNaverUser ? 'readonly' : ''}">
 		                <label class="form-control-label b-input_row-label" for="zipCode">
 		                    <isprint value="${pdict.profileForm.customer.postalCode.label}" encoding="htmlcontent" />
 		                </label>
 		                <input type="text" class="form-control b-input_row-input" id="zipCode"
-		                    <isprint value="${pdict.profileForm.customer.postalCode.attributes}" encoding="off" />>
+		                    ${(isNaverUser || pdict.hasSocialSecurityNumber) ? 'disabled' : ''} <isprint value="${pdict.profileForm.customer.postalCode.attributes}" encoding="off" />>
 		                <div class="invalid-feedback"></div>
 		            </div>
 		        </div>
@@ -43,12 +51,12 @@
 
 			<isif condition="${dw.system.Site.current.getCustomPreferenceValue('showBirthYearField')}">
 				<div class="b-account_form-column b-account_form-column-mobile">
-					<div class="form-group b-year">
+					<div class="form-group b-year ${(isNaverUser || pdict.hasSocialSecurityNumber) ? 'readonly' : ''}">
 						<label class="form-control-label b-year-label"  for="birthYear">
 							<isprint value="${pdict.profileForm.customer.birthYear.label}" encoding="htmlcontent" />
 						</label>
 						<select class="form-control b-year-select b-input_row-input order-return-form-input" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" id="birthYear"  data-minimum-age="${Resource.msgf('msg.age.validation','forms',null,pdict.minimumAgeRestriction)}"
-							<isprint value="${pdict.profileForm.customer.birthYear.attributes}" encoding="off" />>
+							${(isNaverUser || pdict.hasSocialSecurityNumber) ? 'disabled' : ''} <isprint value="${pdict.profileForm.customer.birthYear.attributes}" encoding="off" />>
 							<isloop items=${pdict.profileForm.customer.birthYear.options} var="birthYear">
 								<option id="${birthYear.id}" value="${birthYear.htmlValue}" <isif condition="${birthYear.selected}">selected</isif>>${birthYear.label || ' '}</option>
 							</isloop>
@@ -60,12 +68,12 @@
 			</isif>
 
 	        <div class="b-account_form-column b-account_form-column-mobile">
-	            <div class="form-group b-month">
+	            <div class="form-group b-month ${(isNaverUser || pdict.hasSocialSecurityNumber) ? 'readonly' : ''}">
 	                <label class="form-control-label b-month-label"  for="birthMonth">
 	                    <isprint value="${pdict.profileForm.customer.birthMonth.label}" encoding="htmlcontent" />
 	                </label>
 	                <select class="form-control b-month-select b-input_row-input" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" id="birthMonth"
-	                    <isprint value="${pdict.profileForm.customer.birthMonth.attributes}" encoding="off" />>
+	                    ${(isNaverUser || pdict.hasSocialSecurityNumber) ? 'disabled' : ''} <isprint value="${pdict.profileForm.customer.birthMonth.attributes}" encoding="off" />>
 	                    <isloop items=${pdict.profileForm.customer.birthMonth.options} var="birthMonth">
 	                        <option id="${birthMonth.id}" value="${birthMonth.htmlValue}" <isif condition="${birthMonth.selected}">selected</isif>>${birthMonth.label || ' '}</option>
 	                    </isloop>
@@ -75,12 +83,12 @@
 	        </div>
 			<div class="b-account_form-row-birth__separator"></div>
 	        <div class="b-account_form-column b-account_form-column-mobile">
-	            <div class="form-group b-day">
+	            <div class="form-group b-day ${(isNaverUser || pdict.hasSocialSecurityNumber) ? 'readonly' : ''}">
 	                <label class="form-control-label b-day-label" for="birthDay">
 	                    <isprint value="${pdict.profileForm.customer.birthDay.label}" encoding="htmlcontent" />
 	                </label>
 	                <select class="form-control b-day-select b-input_row-input" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" id="birthDay"
-	                    <isprint value="${pdict.profileForm.customer.birthDay.attributes}" encoding="off" />>
+	                    ${(isNaverUser || pdict.hasSocialSecurityNumber) ? 'disabled' : ''} <isprint value="${pdict.profileForm.customer.birthDay.attributes}" encoding="off" />>
 	                    <isloop items=${pdict.profileForm.customer.birthDay.options} var="birthDay">
 	                        <option id="${birthDay.id}" value="${birthDay.htmlValue}" <isif condition="${birthDay.selected}">selected</isif>>${birthDay.label || ' '}</option>
 	                    </isloop>
@@ -92,12 +100,12 @@
 			<isif condition="${!dw.system.Site.current.getCustomPreferenceValue('showBirthYearField')}">
 				<div class="b-account_form-row-birth__separator"></div>
 				<div class="b-account_form-column b-account_form-column-mobile">
-					<div class="form-group b-gender">
+					<div class="form-group b-gender ${(isNaverUser || pdict.hasSocialSecurityNumber) ? 'readonly' : ''}">
 						<label class="form-control-label b-gender-label" for="gender">
 							<isprint value="${pdict.profileForm.customer.gender.label}" encoding="htmlcontent" />
 						</label>
 						<select class="form-control b-gender-select" id="gender"
-							<isprint value="${pdict.profileForm.customer.gender.attributes}" encoding="off" />>
+							${(isNaverUser || pdict.hasSocialSecurityNumber) ? 'disabled' : ''} <isprint value="${pdict.profileForm.customer.gender.attributes}" encoding="off" />>
 							<isloop items=${pdict.profileForm.customer.gender.options} var="gender">
 								<option id="${gender.id}" value="${gender.htmlValue}" <isif condition="${gender.selected}">selected</isif>>${gender.label || ' '}</option>
 							</isloop>
@@ -110,12 +118,12 @@
 		<isif condition="${dw.system.Site.current.getCustomPreferenceValue('showBirthYearField')}">
 			<div class="b-account_form-row">
 				<div class="b-account_form-column">
-					<div class="form-group  b-input_row b-address">
+					<div class="form-group  b-input_row b-address ${(isNaverUser || pdict.hasSocialSecurityNumber) ? 'readonly' : ''}">
 						<label class="form-control-label b-input_row-label b-gender-label" for="gender">
 							<isprint value="${pdict.profileForm.customer.gender.label}" encoding="htmlcontent" />
 						</label>
 						<select class="form-control b-gender-select b-input_row-input" id="gender"
-							<isprint value="${pdict.profileForm.customer.gender.attributes}" encoding="off" />>
+							${(isNaverUser || pdict.hasSocialSecurityNumber) ? 'disabled' : ''} <isprint value="${pdict.profileForm.customer.gender.attributes}" encoding="off" />>
 							<isloop items=${pdict.profileForm.customer.gender.options} var="gender">
 								<option id="${gender.id}" value="${gender.htmlValue}" <isif condition="${gender.selected}">selected</isif>>${gender.label || ' '}</option>
 							</isloop>
@@ -128,23 +136,23 @@
 	    <div class="b-account_form-row b-account-profile_form-row js-account-profile_form-row align-center">
 		        <div class="b-account_form-column">
 		            <div class="b-account-profile-subhead">${Resource.msg('sub.heading.emailandpassword','account',null)}</div>
-		            <div class="form-group b-input_row required js-oemail-error">
+		            <div class="form-group b-input_row required js-oemail-error ${isNaverUser ? 'readonly' : ''}">
 		                <label class="form-control-label b-input_row-label" for="email">
 		                    <isprint value="${pdict.profileForm.customer.email.label}" encoding="htmlcontent" />
 		                </label>
 		                <input type="email" class="form-control b-input_row-input js-custom-input js-email-field expand-email" id="email"
-	                        data-missing-error="${Resource.msg('error.card.info.missing.email', 'forms', null)}"
+	                        ${isNaverUser ? 'readonly' : ''}  data-missing-error="${Resource.msg('error.card.info.missing.email', 'forms', null)}"
 		                    <isprint value="${pdict.profileForm.customer.email.attributes}" encoding="off" />>
 		                    <isif condition="${session.customer.registered}">
-		                        <span class="b-account-profile__change-email js-change-email"><isprint value="${Resource.msg('label.change','account',null)}" /> </span> 
+		                        <span class="b-account-profile__change-email ${!isNaverUser ? 'js-change-email' : ''} "><isprint value="${Resource.msg('label.change','account',null)}" /> </span> 
 		                    </isif>
 		                <div class="invalid-feedback"></div>
 		            </div>
 		        </div>
 		
-		        <div class="b-account_form-column">
+		        <div class="b-account_form-column ${isNaverUser ? 'readonly' : ''}">
 	                <isif condition="${session.customer.registered}">
-                        <span class="b-account-profile__change-password js-change-password t-text-hover-state change-pass-kr"><isprint value="${Resource.msg('label.change.password','account',null)}" /> </span> 
+                        <span class="b-account-profile__change-password ${!isNaverUser ? 'js-change-password' : ''}  t-text-hover-state change-pass-kr"><isprint value="${Resource.msg('label.change.password','account',null)}" /> </span> 
                     </isif>
                     <div class="js-account_form-column-hide hide">
 		                <div class="b-account-profile-subhead">${Resource.msg('sub.heading.password','account',null)}</div>
@@ -152,7 +160,7 @@
 		                    <label class="form-control-label b-input_row-label" for="password">
 		                        <isprint value="${pdict.profileForm.login.password.label}" encoding="htmlcontent" />
 		                    </label>
-                            <input type="password" class="form-control b-input_row-input js-custom-input" id="password" 
+                            <input type="password" ${isNaverUser ? 'disabled' : ''} class="form-control b-input_row-input js-custom-input" id="password" 
                                 data-missing-error="${Resource.msg('error.message.login.password', 'forms', null)}"
                                 <isprint value="${pdict.profileForm.login.password.attributes}" encoding="off" />>
 		                    <div class="invalid-feedback"></div>
@@ -213,7 +221,7 @@
 		         </div>
 		     </div>
 
-			 <div class="form-group g-checkbox g-checkbox-kr p-relative d-none emaillist-checkbox <isif condition="${pdict.isSubscribed}">email-disabled</isif>">
+			 <div class="form-group g-checkbox g-checkbox-kr p-relative emaillist-checkbox <isif condition="${pdict.isSubscribed}">email-disabled</isif>">
 				<input type="checkbox" class="g-checkbox-input" id="add-to-email-list" <isif
 					condition="${pdict.isSubscribed}">checked disabled</isif>
 				<isprint value=${pdict.profileForm.customer.addtoemaillist.attributes} encoding="off" />

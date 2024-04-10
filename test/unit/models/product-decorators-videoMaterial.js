@@ -53,7 +53,9 @@ describe('product videoMaterial decorator', function() {
                 ID: 'someID'
             },
             custom: {
-                division: 'Footwear'
+                division: 'Footwear',
+                style: "someID",
+                videoMaterials: "sample064|Underarmour/auto_dim7_someID-sample064-0x480-300k"
             }
         };
 
@@ -87,7 +89,8 @@ describe('product videoMaterial decorator', function() {
                 ID: 'someID'
             },
             custom: {
-                division: 'Footwear'
+                division: 'Footwear',
+                videoMaterials: "sample064|Underarmour/auto_dim7_someID-sample064-0x480-300k"
             }
         };
 
@@ -131,7 +134,8 @@ describe('product videoMaterial decorator', function() {
                 }
             },
             custom: {
-                division: 'Footwear'
+                division: 'Footwear',
+                videoMaterials: "sample064|Underarmour/auto_dim7_someID-sample064-0x480-300k"
             }
         };
 
@@ -175,7 +179,8 @@ describe('product videoMaterial decorator', function() {
                 }
             },
             custom: {
-                division: 'Not Footwear'
+                division: 'Not Footwear',
+                videoMaterials: "sample064|Underarmour/auto_dim7_someID-sample064-0x480-300k"
             }
         };
 
@@ -217,7 +222,8 @@ describe('product videoMaterial decorator', function() {
             },
             ID: 'someID',
             custom: {
-                division: 'Footwear'
+                division: 'Footwear',
+                videoMaterials: "sample064|Underarmour/auto_dim7_someID-sample064-0x480-300k"
             }
         };
 
@@ -262,7 +268,8 @@ describe('product videoMaterial decorator', function() {
                 }
             },
             custom: {
-                division: 'Footwear'
+                division: 'Footwear',
+                videoMaterials: "sample064|Underarmour/auto_dim7_someID-sample064-0x480-300k"
             }
         };
 
@@ -305,7 +312,8 @@ describe('product videoMaterial decorator', function() {
                 }
             },
             custom: {
-                division: 'Footwear'
+                division: 'Footwear',
+                videoMaterials: "sample064|Underarmour/auto_dim7_someID-sample064-0x480-300k"
             }
         };
 
@@ -350,7 +358,8 @@ describe('product videoMaterial decorator', function() {
                 }
             },
             custom: {
-                division: 'Footwear'
+                division: 'Footwear',
+                videoMaterials: "sample064|Underarmour/auto_dim7_someID-sample064-0x480-300k"
             }
         };
 

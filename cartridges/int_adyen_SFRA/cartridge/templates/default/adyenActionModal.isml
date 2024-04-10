@@ -1,7 +1,15 @@
-<div class="modal fade" id="action-modal" role="dialog">
-   <div class="modal-dialog" id="adyenModalDialog">
+<isset name="show2FAAsPopup" value="${dw.system.Site.current.getCustomPreferenceValue('Adyen_showActionModalAsPopupFor2FA')}" scope="page"/>
+
+<div class="${show2FAAsPopup ? 'g-modal g-adyen3ds-verification-modal' : ''} modal fade" id="action-modal" role="dialog">
+   <div class="${show2FAAsPopup ? 'g-modal-dialog g-adyen3ds-verification-modal-dialog': ''} modal-dialog" id="adyenModalDialog">
+        <isif condition="${show2FAAsPopup}">
+            <div class="g-modal-content g-adyen3ds-verification-modal-content">
+        </isif>
         <div id="action-container"></div>
         <div id="amazon-container"></div>
         <div id="giftcard-container"></div>
+        <isif condition="${show2FAAsPopup}">
+            </div>
+        </isif>
    </div>
 </div>

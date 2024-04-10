@@ -34,7 +34,6 @@ var mockStoresModel = {
     storesResultsHtml: 'someString'
 };
 
-
 var BaseStoreHelpers = {
     getStores: function () {
         return mockStoresModel;

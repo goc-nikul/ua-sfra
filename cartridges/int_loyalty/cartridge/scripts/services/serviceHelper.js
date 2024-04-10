@@ -55,14 +55,19 @@ var serviceHelper = {
 
             const ObjectsHelper = require('*/cartridge/scripts/helpers/ObjectsHelper');
             if (ObjectsHelper.hasProp(graphqluser, 'data', 'estimateLoyaltyPoints', 'success') && graphqluser.data.estimateLoyaltyPoints.success &&
-                                ObjectsHelper.hasProp(graphqluser, 'data', 'estimateLoyaltyPoints', 'event', 'estimatedPoints')) {
+                ObjectsHelper.hasProp(graphqluser, 'data', 'estimateLoyaltyPoints', 'event', 'estimatedPoints')
+            ) {
                 result.estimatedPoints = graphqluser.data.estimateLoyaltyPoints.event.estimatedPoints;
+            }
+            if (ObjectsHelper.hasProp(graphqluser, 'data', 'estimateLoyaltyPoints', 'success') && graphqluser.data.estimateLoyaltyPoints.success &&
+                ObjectsHelper.hasProp(graphqluser, 'data', 'estimateLoyaltyPoints', 'event', 'products')
+            ) {
+                result.products = graphqluser.data.estimateLoyaltyPoints.event.products;
             }
             if (ObjectsHelper.hasProp(graphqluser, 'data', 'enrollCustomerIntoLoyalty', 'loyalty')) {
                 result.enrolled = graphqluser.data.enrollCustomerIntoLoyalty.loyalty.status === 'ENROLLED' || false;
                 result.loyaltyID = graphqluser.data.enrollCustomerIntoLoyalty.loyalty.ID;
             }
-            result.updateCoupon = graphqluser.data && graphqluser.data.couponStatus && graphqluser.data.couponStatus.success ? graphqluser.data.couponStatus.success : null;
             if (ObjectsHelper.hasProp(graphqluser, 'data', 'getLoyaltyPointsData', 'success') && graphqluser.data.getLoyaltyPointsData.success &&
                             ObjectsHelper.hasProp(graphqluser, 'data', 'getLoyaltyPointsData', 'loyaltyPointsBalance')) {
                 result.balance = graphqluser.data.getLoyaltyPointsData.loyaltyPointsBalance;
@@ -198,7 +203,7 @@ var serviceHelper = {
                 requestBody.query = 'mutation enrollCustomerIntoLoyalty ( $input : EnrollCustomerIntoLoyaltyInput!) { enrollCustomerIntoLoyalty(input: $input) { clientMutationId viewer { ... on RegisteredCustomer { id } } loyalty { ID status statusDate }}}';
                 break;
             case 'estimation':
-                requestBody.query = 'query estimateLoyaltyPoints($input: EstimateLoyaltyPointsInput!) { estimateLoyaltyPoints(input: $input) { success messages { message } event { estimatedPoints } } }';
+                requestBody.query = 'query estimateLoyaltyPoints($input: EstimateLoyaltyPointsInput!) { estimateLoyaltyPoints(input: $input) { success messages { message } event { estimatedPoints products { points productID } } } }';
                 break;
             case 'confirmedPoints':
                 requestBody.query = 'query ($input1: LoyaltyPointsInput!, $input2: EstimateLoyaltyPointsInput!) { getLoyaltyPointsData(input: $input1) { success loyaltyPointsBalance } estimateLoyaltyPoints(input: $input2) { success messages { message } event { estimatedPoints } } }';
@@ -273,7 +278,7 @@ var serviceHelper = {
                 break;
             case 'confirmedPoints':
                 paramsBody.input1 = {};
-                var customerNo = customer.isAuthenticated() ? customer.profile.customerNo : referenceCustomerNo;
+                var customerNo = (customer && customer.isAuthenticated()) ? customer.profile.customerNo : referenceCustomerNo;
                 paramsBody.input1.customerNo = customerNo;
                 paramsBody.input2 = {};
                 paramsBody.input2.customerNo = customerNo;
@@ -311,7 +316,7 @@ var serviceHelper = {
                 break;
             case 'rejectEvent':
                 paramsBody.input = {};
-                paramsBody.input.customerNo = customer.profile.customerNo;
+                paramsBody.input.customerNo = referenceCustomerNo || customer.profile.customerNo;
                 paramsBody.input.clientMutationId = '';
                 paramsBody.input.redeemedRewardEvent = {};
                 paramsBody.input.redeemedRewardEvent.eventType = 'REWARD';

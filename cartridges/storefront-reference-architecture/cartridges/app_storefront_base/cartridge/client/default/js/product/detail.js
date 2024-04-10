@@ -1,7 +1,20 @@
 'use strict';
+
 var base = require('./base');
 
+/**
+ * Enable/disable UI elements
+ * @param {boolean} enableOrDisable - true or false
+ */
+function updateAddToCartEnableDisableOtherElements(enableOrDisable) {
+    $('button.add-to-cart-global').attr('disabled', enableOrDisable);
+}
+
 module.exports = {
+    methods: {
+        updateAddToCartEnableDisableOtherElements: updateAddToCartEnableDisableOtherElements
+    },
+
     availability: base.availability,
 
     addToCart: base.addToCart,
@@ -60,13 +73,15 @@ module.exports = {
     updateAddToCart: function () {
         $('body').on('product:updateAddToCart', function (e, response) {
             // update local add to cart (for sets)
-            $('button.add-to-cart', response.$productContainer).attr('disabled',
-                (!response.product.readyToOrder || !response.product.available));
+            $('button.add-to-cart', response.$productContainer).attr(
+                'disabled',
+                (!response.product.readyToOrder || !response.product.available)
+            );
 
             var enable = $('.product-availability').toArray().every(function (item) {
                 return $(item).data('available') && $(item).data('ready-to-order');
             });
-            $('button.add-to-cart-global').attr('disabled', !enable);
+            module.exports.methods.updateAddToCartEnableDisableOtherElements(!enable);
         });
     },
     updateAvailability: function () {
@@ -120,7 +135,7 @@ module.exports = {
         });
     },
     copyProductLink: function () {
-        $('body').on('click', '#fa-link', function () {
+        $('body').on('click', '#fa-link', function (event) {
             event.preventDefault();
             var $temp = $('<input>');
             $('body').append($temp);

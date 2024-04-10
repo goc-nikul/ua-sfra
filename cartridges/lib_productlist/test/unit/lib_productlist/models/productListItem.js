@@ -494,4 +494,282 @@ describe('productListItem Model', function () {
 
         assert.isNull(result.productListItem);
     });
+
+    it('variantAttributes: should return an empty string if the product is not a variant', function () {
+        var productListItemObjectMock = {
+            productID: 'some pid',
+            UUID: 'some UUID',
+            product: {
+                name: 'some productName',
+                bundle: false,
+                optionProduct: true,
+                minOrderQuantity: {
+                    value: 'product minOrderQuantity'
+                },
+                availabilityModel: 'product availability model',
+                variant: false
+            },
+            productOptionModel: {
+                options: {
+                    toArray: function () {
+                        return [
+                            {
+                                displayName: 'optionADisplayName',
+                                ID: 'optionID'
+                            }
+                        ];
+                    }
+                },
+                getSelectedOptionValue: function () {
+                    return {
+                        displayValue: 'displayValue',
+                        ID: 'selectedOptionValueID'
+                    };
+                }
+            },
+            quantityValue: 2,
+            public: 'some PublicItem',
+            getLastModified: function () {
+                return {
+                    getTime: function () {
+                        return '1527213625';
+                    }
+                };
+            },
+            getCreationDate: function () {
+                return {
+                    getTime: function () {
+                        return '1527213655';
+                    }
+                };
+            }
+        };
+
+        var result = new ProductListItem(productListItemObjectMock);
+
+        assert.equal(result.productListItem.variantAttributes, '');
+    });
+    it('variantAttributes: should return a single attribute of the product that has one attribute', function () {
+        var attributesArray = [
+            {
+                getDisplayName: function () { return 'Color'; }
+            }
+        ];
+        var productListItemObjectMock = {
+            productID: 'some pid',
+            UUID: 'some UUID',
+            product: {
+                name: 'some productName',
+                bundle: false,
+                optionProduct: true,
+                minOrderQuantity: {
+                    value: 'product minOrderQuantity'
+                },
+                availabilityModel: 'product availability model',
+                variant: true,
+                variationModel: {
+                    getProductVariationAttributes: function () {
+                        return {
+                            toArray: function () {
+                                return attributesArray;
+                            }
+                        };
+                    },
+                    getSelectedValue: function () {
+                        return {
+                            getDisplayValue: function () {
+                                return 'Red';
+                            }
+                        };
+                    }
+                }
+            },
+            productOptionModel: {
+                options: {
+                    toArray: function () {
+                        return [
+                            {
+                                displayName: 'optionADisplayName',
+                                ID: 'optionID'
+                            }
+                        ];
+                    }
+                },
+                getSelectedOptionValue: function () {
+                    return {
+                        displayValue: 'displayValue',
+                        ID: 'selectedOptionValueID'
+                    };
+                }
+            },
+            quantityValue: 2,
+            public: 'some PublicItem',
+            getLastModified: function () {
+                return {
+                    getTime: function () {
+                        return '1527213625';
+                    }
+                };
+            },
+            getCreationDate: function () {
+                return {
+                    getTime: function () {
+                        return '1527213655';
+                    }
+                };
+            }
+        };
+        var result = new ProductListItem(productListItemObjectMock);
+        assert.equal(result.productListItem.variantAttributes, 'Color: Red');
+    });
+    it('variantAttributes: should return the multiple attributes of the product', function () {
+        var attributesArray = [
+            {
+                getDisplayName: function () { return 'Color'; },
+                index: 0
+            },
+            {
+                getDisplayName: function () { return 'Size'; },
+                index: 1
+            }
+        ];
+        var attributeValues = ['Red', 'M'];
+        var productListItemObjectMock = {
+            productID: 'some pid',
+            UUID: 'some UUID',
+            product: {
+                name: 'some productName',
+                bundle: false,
+                optionProduct: true,
+                minOrderQuantity: {
+                    value: 'product minOrderQuantity'
+                },
+                availabilityModel: 'product availability model',
+                variant: true,
+                variationModel: {
+                    getProductVariationAttributes: function () {
+                        return {
+                            toArray: function () {
+                                return attributesArray;
+                            }
+                        };
+                    },
+                    getSelectedValue: function (attribute) {
+                        return {
+                            getDisplayValue: function () {
+                                return attributeValues[attribute.index];
+                            }
+                        };
+                    }
+                }
+            },
+            productOptionModel: {
+                options: {
+                    toArray: function () {
+                        return [
+                            {
+                                displayName: 'optionADisplayName',
+                                ID: 'optionID'
+                            }
+                        ];
+                    }
+                },
+                getSelectedOptionValue: function () {
+                    return {
+                        displayValue: 'displayValue',
+                        ID: 'selectedOptionValueID'
+                    };
+                }
+            },
+            quantityValue: 2,
+            public: 'some PublicItem',
+            getLastModified: function () {
+                return {
+                    getTime: function () {
+                        return '1527213625';
+                    }
+                };
+            },
+            getCreationDate: function () {
+                return {
+                    getTime: function () {
+                        return '1527213655';
+                    }
+                };
+            }
+        };
+        var result = new ProductListItem(productListItemObjectMock);
+        assert.equal(result.productListItem.variantAttributes, 'Color: Red, Size: M');
+    });
+
+    it('variantAttributes: should return an empty string if the product is variant but has no attributes', function () {
+        var attributesArray = [];
+
+        var productListItemObjectMock = {
+            productID: 'some pid',
+            UUID: 'some UUID',
+            product: {
+                name: 'some productName',
+                bundle: false,
+                optionProduct: true,
+                minOrderQuantity: {
+                    value: 'product minOrderQuantity'
+                },
+                availabilityModel: 'product availability model',
+                variant: true,
+                variationModel: {
+                    getProductVariationAttributes: function () {
+                        return {
+                            toArray: function () {
+                                return attributesArray;
+                            }
+                        };
+                    },
+                    getSelectedValue: function () {
+                        return {
+                            getDisplayValue: function () {
+                                return null;
+                            }
+                        };
+                    }
+                }
+            },
+            productOptionModel: {
+                options: {
+                    toArray: function () {
+                        return [
+                            {
+                                displayName: 'optionADisplayName',
+                                ID: 'optionID'
+                            }
+                        ];
+                    }
+                },
+                getSelectedOptionValue: function () {
+                    return {
+                        displayValue: 'displayValue',
+                        ID: 'selectedOptionValueID'
+                    };
+                }
+            },
+            quantityValue: 2,
+            public: 'some PublicItem',
+            getLastModified: function () {
+                return {
+                    getTime: function () {
+                        return '1527213625';
+                    }
+                };
+            },
+            getCreationDate: function () {
+                return {
+                    getTime: function () {
+                        return '1527213655';
+                    }
+                };
+            }
+        };
+        var result = new ProductListItem(productListItemObjectMock);
+        assert.equal(result.productListItem.variantAttributes, '');
+    });
 });

@@ -313,6 +313,17 @@ server.get('UpdateBopisShipments', function(req, res, next) { // eslint-disable-
                     }
                 });
             }
+            var cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
+            var giftcardHelper = require('*/cartridge/scripts/giftcard/giftcardHelper');
+            Transaction.wrap(function () {
+                cartHelper.mergeLineItems(basket);
+                cartHelper.defaultShipToAddressIfAny(basket);
+            });
+            // Below line of code will split the single shipment into multiple shipment if the basket has the e-gift card item.
+            Transaction.wrap(function () {
+                giftcardHelper.updateGiftCardShipments(basket);
+            });
+            giftcardHelper.removeEmptyShipments(basket);
         }
     } catch (e) {
         Logger.error('Store.js - Error while updating shipments: ' + e.message);
@@ -334,7 +345,7 @@ server.get('ShipToAddress', function(req, res, next) { // eslint-disable-line
             return item.productID === pid && item.UUID === UUID;
         });
         var shipment = collections.find(basket.shipments, function (item) {
-            return !item.custom.fromStoreId;
+            return !item.custom.fromStoreId && item.shippingMethodID !== 'eGift_Card';
         });
         Transaction.wrap(function () {
             if (!shipment) {
@@ -356,7 +367,16 @@ server.get('ShipToAddress', function(req, res, next) { // eslint-disable-line
             if ('fromStoreId' in productLi.custom && !empty(productLi.custom.fromStoreId)) {
                 delete productLi.custom.fromStoreId;
             }
+            var cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
+            cartHelper.mergeLineItems(basket);
+            cartHelper.defaultShipToAddressIfAny(basket);
         });
+        var giftcardHelper = require('*/cartridge/scripts/giftcard/giftcardHelper');
+         // Below line of code will split the single shipment into multiple shipment if the basket has the e-gift card item.
+        Transaction.wrap(function () {
+            giftcardHelper.updateGiftCardShipments(basket);
+        });
+        giftcardHelper.removeEmptyShipments(basket);
     } catch (e) {
         Logger.error('Store.js - Error while updating shipments: ' + e.message);
     } finally {

@@ -29,6 +29,23 @@ describe('int_ocapi/cartridge/hooks/shop/product/productHookUtils.j', () => {
         }
     });
 
+    const correctlyFormattedTags = [
+        {
+        ID: 'og:title',
+        content: 'Project Rock Over-Ear Training Headphones',
+        name: false,
+        property: true,
+        title: false
+    },
+    {
+        iD: 'title',
+        content: 'Project Rock Over-Ear Training Headphones | Under Armour',
+        name: false,
+        property: false,
+        title: true
+      }
+    ]
+
     it('Testing product getProductUrl', () => {
         global.request.getLocale = function () {
             return {
@@ -45,4 +62,29 @@ describe('int_ocapi/cartridge/hooks/shop/product/productHookUtils.j', () => {
         var productHook = productHookUtils.getProductUrl(productObj);
         assert.isNotNull(productHook);
     });
+
+    it('Tests the mapAndFormatTags function and returns an array', () => {
+
+        const mockTags = [
+            {
+            ID: 'og:title',
+            content: 'Project Rock Over-Ear Training Headphones',
+            name: false,
+            property: true,
+            title: false
+        },
+        {
+            iD: 'title',
+            content: 'Project Rock Over-Ear Training Headphones | Under Armour',
+            name: false,
+            property: false,
+            title: true
+          }
+        ]
+        const mockFormattedTags = productHookUtils.mapAndFormatTags(mockTags);
+
+        mockFormattedTags.forEach((tag) => {
+            assert.isNotNull(tag)
+        })
+    })
 });

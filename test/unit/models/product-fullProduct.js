@@ -10,19 +10,15 @@ var productMock = {
     minOrderQuantity: { value: 'someValue' },
     availabilityModel: {},
     stepQuantity: { value: 'someOtherValue' },
-    getPrimaryCategory: function () { return { custom: { sizeChartID: 'someID' } }; },
-    getMasterProduct: function () {
-        return {
-            getPrimaryCategory: function () { return { custom: { sizeChartID: 'someID' } }; }
-        };
-    },
     ID: 'someID',
     pageTitle: 'some title',
     pageDescription: 'some description',
     pageKeywords: 'some keywords',
     pageMetaData: [{}],
     template: 'some template',
+    custom: {},
     getClassificationCategory: function () { return { custom: { sizeChartID: 'someID' } }; },
+    getPrimaryCategory: function () { return { custom: { sizeChartID: 'someID' } }; },
     getMasterProduct: function () {
         return {
             getClassificationCategory: function () { return { custom: { sizeChartID: 'someID' } }; }
@@ -183,7 +179,8 @@ describe('Full Product Model', function () {
 
         assert.isTrue(decorators.stubs.stubCurrentUrl.calledOnce);
     });
-     it('should not call sizeChart for full product when no Classification category for api product', function () {
+
+    it('should not call sizeChart for full product when no Classification category for api product', function () {
         var object = {};
         optionsMock.productType = 'master';
         productMock.getClassificationCategory = function () { return null; };
@@ -191,6 +188,7 @@ describe('Full Product Model', function () {
 
         assert.isTrue(decorators.stubs.stubSizeChart.calledOnce);
     });
+
     it('should call sizeChart for full product when no Classification category for api product', function () {
         var object = {};
         optionsMock.productType = 'variant';
@@ -217,7 +215,7 @@ describe('Full Product Model', function () {
 
         assert.isTrue(decorators.stubs.stubSizeChart.calledOnce);
     });
-
+    
     it('should call readyToOrder for full product', function () {
         var object = {};
         productMock.getPrimaryCategory = function () { return null; };

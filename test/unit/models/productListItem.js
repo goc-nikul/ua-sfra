@@ -7,6 +7,15 @@ var sinon = require('sinon').stub();
 var ArrayList = require('../../mocks/scripts/util/dw.util.Collection');
 
 var prodctListItemModel;
+class cartModel {
+    constructor() {
+        this.items =  [{
+                id: 'test',
+                quantity: 2
+            }
+        ]
+    }
+}
 
 var productListItemObjectMock = {
     productID: 'some pid',
@@ -86,6 +95,7 @@ describe('app_ua_core/cartridge/models/productListItem.js', () => {
                 obj.custom = {};
             },
             '*/cartridge/config/preferences': {},
+            '*/cartridge/models/cart': cartModel,
             '*/cartridge/scripts/helpers/ProductHelper': {
                 getOrderableVariant() {
                     return {
@@ -94,6 +104,7 @@ describe('app_ua_core/cartridge/models/productListItem.js', () => {
                 }
             },
             'dw/campaign/PromotionMgr': require('../../mocks/dw/dw_campaign_PromotionMgr'),
+            'dw/order/BasketMgr': require('../../mocks/dw/dw_order_BasketMgr'),
             '*/cartridge/models/product/decorators/variationAttributes': function (obj) {
             }
         });

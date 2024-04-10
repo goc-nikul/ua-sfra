@@ -328,7 +328,6 @@
 
             .b-return-itemselected {
                 flex-basis: 25%;
-                align-items: center;
                 display: flex;
 
                 .t_dashboard-item-count {
@@ -338,7 +337,6 @@
 
             .b-return-selectall {
                 flex-basis: 20%;
-                align-items: center;
                 display: flex;
                 justify-content: flex-end;
                 color: $grey5;
@@ -587,11 +585,24 @@
                 justify-content: flex-end;
                 display: flex;
 
+                &.align-center {
+                    flex-direction: column;
+                    align-self: center;
+                    width: 80%;
+                    @include respond-to(mobile) {
+                        width: 100%;
+                    }
+                }
+
                 button {
                     max-width: 80%;
                     @include respond-to(mobile) {
                         max-width: 100%;
                     }
+                }
+
+                button.print-center {
+                    max-width: 100%;
                 }
             }
 
@@ -911,6 +922,10 @@
         top: rem-calc(4);
         left: rem-calc(-1);
     }
+
+    &.display-full {
+        max-width: 100%;
+    }
 }
 
 .b-return-policy {
@@ -995,6 +1010,7 @@
     .continue-buttons {
         width: 100%;
         display: inline-block;
+        margin-top: 1rem;
 
         button.continue-auto-return {
             float: right;
@@ -1005,14 +1021,47 @@
         }
     }
 
+    .returns-heading {
+        letter-spacing: rem-calc(0.25);
+        margin-bottom: rem-calc(12);
+        @include font(main_bold, rem-calc(16), 1.5);
+    }
+
+    .buttons-bottom {
+        padding-top: rem-calc(30);
+    }
+
     .tabs {
         display: flex;
         flex-wrap: wrap;
         align-items: baseline;
 
         .return-method {
+            margin-top: 1px;
+        }
+
+        @include respond-to(mobile) {
+            flex-direction: column;
+
+            .return-method-title {
+                margin-bottom: rem-calc(10);
+            }
+        }
+
+        .return-method-title {
+            display: flex;
+            align-items: flex-start;
+
             @include respond-to(mobile) {
-                margin-top: 2px;
+                @supports (-webkit-appearance: none) and (stroke-color:transparent) {
+                    align-items: center;
+                }
+            }
+
+            @include respond-to(desktop) {
+                @supports (-webkit-appearance: none) and (stroke-color:transparent) {
+                    align-items: center;
+                }
             }
         }
     }
@@ -1024,6 +1073,10 @@
     }
 
     .tabs > input[type=radio]:checked + label + section {
+        display: unset;
+    }
+
+    .tabs > span.return-method-title.checked + section {
         display: unset;
     }
 
@@ -1065,5 +1118,14 @@
     .print-label,
     .return-store-label {
         margin-bottom: 2.5rem;
+    }
+
+    .pickup {
+        .b-general,
+        .b-country {
+            @include respond-to(mobile) {
+                margin-bottom: rem-calc(40);
+            }
+        }
     }
 }

@@ -139,6 +139,12 @@ function updateResponse(basketResponse) {
     }
 
     try {
+        base.applyCustomerGroupsAndProratedPriceAdjustments(basketResponse);
+    } catch (e) {
+        errorLogHelper.handleOcapiHookErrorStatus(e, 'applyCustomerGroupsAndProratedPriceAdjustmentsError', Resource.msgf('error.ocapi.update.basket', 'cart', null, e.message));
+    }
+
+    try {
         // Updating MAO Price Adjustment Object
         collections.forEach(response.product_items, function (productItem) { // eslint-disable-line
             collections.forEach(productItem.price_adjustments, function (priceAdjustment) {

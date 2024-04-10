@@ -2,7 +2,9 @@
     action="${URLUtils.url('Search-Show')}"
     method="get"
     name="simpleSearch"
-    class="b-search js-site-search">
+    class="b-search js-site-search"
+    data-currentsite="${dw.system.Site.current.ID ? dw.system.Site.current.ID : ""}"
+>
     <div class="b-search-container js-search-container">
         <input class="form-control js-search-field b-search-input"
             type="search"
@@ -18,7 +20,8 @@
             aria-expanded="false"
             aria-autocomplete="list"
             aria-activedescendant=""
-            aria-label="${Resource.msg('simplesearch.searchtext', 'common', null)}" />
+            aria-label="${Resource.msg('simplesearch.searchtext', 'common', null)}"
+        />
         <button type="reset" name="search-clear" class="b-search-button m-close js-search-clear" aria-label="${Resource.msg('label.header.search.clear', 'common', null)}">${Resource.msg('global.clear', 'common', null)}</button>
         <button type="submit" name="search-button" class="b-search-button m-submit" aria-label="${Resource.msg('label.header.search.go', 'common', null)}"></button>
     </div>

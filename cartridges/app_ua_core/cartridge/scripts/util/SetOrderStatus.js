@@ -47,8 +47,17 @@ function setOrderType(order) {
         if (order.custom.maoOrderType.value) {
             return;
         }
+
+        // Fix needed to apply correct MAO Order Type based on actual shipping method selected by customer.
+        var shippingMethodID =
+        order &&
+        order.getDefaultShipment() &&
+        order.getDefaultShipment().getShippingMethod()
+            ? order.getDefaultShipment().getShippingMethod().ID
+            : null;
+
         var orderType = 'web';
-        if ('sr_token' in order.custom && order.custom.sr_token) {
+        if ('sr_token' in order.custom && order.custom.sr_token && (shippingMethodID === 'shoprunner' || shippingMethodID === 'shoprunner_HAL')) {
             orderType = 'SHRU';
         }
         if (customer.isMemberOfCustomerGroup('CSR')) {

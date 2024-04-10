@@ -1,0 +1,30 @@
+<isset name="currentSite" value="${require('dw/system/Site').getCurrent()}" scope="page" />
+<isset name="chatLocales" value="${require('*/cartridge/scripts/utils/sfscLiveChatConfig').getDisableLiveChatLocales()}" scope="page" />
+
+<isif condition="${currentSite.getCustomPreferenceValue('isSfscLiveChatEnabled') === true && chatLocales === false}">
+    <!-- SFSC Live Chat PDP is Enabled -->
+    <isset name="sfscConfig" value="${currentSite.getCustomPreferenceValue('sfscLiveChatConfig')}" scope="page" />
+    
+    <link rel="stylesheet" href="${URLUtils.staticURL('/css/liveChat.css')}" />
+    <isset name="sfscConfigJSON" value="${JSON.parse(sfscConfig || '{}') || {}}" scope="page" />
+
+    <script src="${sfscConfigJSON && sfscConfigJSON.svcConfig && sfscConfigJSON.svcConfig.embeddedSvc ? sfscConfigJSON.svcConfig.embeddedSvc : 'https://service.force.com/embeddedservice/5.0/esw.min.js'}"></script>
+
+    <script>
+        var sfscLiveChatConfig = <isprint value="${sfscConfig}" encoding="off" />;
+        var currentLocale = '<isprint value="${request.locale}" encoding="off" />';
+        var isPDP = true;
+        window.config = {
+            currentLocale: currentLocale,
+            isPDP: isPDP,
+            sfscLiveChatConfig: sfscLiveChatConfig
+        };
+    </script>
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets');
+        assets.addJs('/js/liveChat.js');
+    </isscript>
+<iselse/>
+    <!-- SFSC Live Chat PDP is Disabled -->
+</isif>
+<!-- End SFSC Live Chat PDP -->

@@ -1,0 +1,350 @@
+{
+  "step-types": {
+    "script-module-step": [
+      {
+        "@type-id": "custom.constructor.writeProductFiles",
+        "@supports-parallel-execution": "true",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "module": "link_constructor_connect_legacy/cartridge/scripts/jobs/writeProductFiles",
+        "function": "execute",
+        "transactional": "false",
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "PartialByLastSyncDate",
+              "description": "Determines if the feed should only contain products that have been modified since the last sync date (without filters). Defaults to false. Note that this can improve performance.",
+              "@type": "boolean",
+              "@required": true,
+              "default-value": false
+            },
+            {
+              "@name": "SendOfflineVariants",
+              "description": "Determines if variants that are not online should be sent if the master product or any of its other variants are online. Note that this will affect performance.",
+              "@type": "boolean",
+              "@required": true,
+              "default-value": false
+            },
+            {
+              "@name": "IncludeMasterProductsOutOfStock",
+              "description": "Determines if master products that are online but with all variants out of stock should be included. Note that this will affect performance.",
+              "@type": "boolean",
+              "@required": true,
+              "default-value": false
+            },
+            {
+              "@name": "IncludeSlicedProducts",
+              "description": "Determines to include sliced products or not",
+              "@type": "boolean",
+              "@required": true,
+              "default-value": false
+            },
+            {
+              "@name": "Locale",
+              "description": "The locale ID to use when filling product data (e.g. `en_US`). Will fallback to the default catalog locale if not provided.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            },
+            {
+              "@name": "SearchPhrase",
+              "description": "The search phrase that can be used to filter the products.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true,
+              "default-value": ""
+            },
+            {
+              "@name": "CategoryId",
+              "description": "The category id that will be used to filter the products. Defaults to the root category if not provided.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true,
+              "default-value": ""
+            },
+            {
+              "@name": "Ids",
+              "description": "The list of ids to filter records by. Can be a the product id or variation group id. Needs to be separated by commas (,). Example: `1, 2, 3`. Note that there is a maximum of 30 IDs that can be specified.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true,
+              "default-value": ""
+            },
+            {
+              "@name": "WriteFolder",
+              "description": "Folder in which XML feed should be generated",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "/src/Constructor/"
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.constructor.writeCategoryFiles",
+        "@supports-parallel-execution": "true",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "module": "link_constructor_connect_legacy/cartridge/scripts/jobs/writeCategoryFiles",
+        "function": "execute",
+        "transactional": "false",
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "Locale",
+              "description": "The locale ID to use when filling category data (e.g. `en_US`). Will fallback to the default catalog locale if not provided.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            },
+            {
+              "@name": "WriteFolder",
+              "description": "Folder in which XML feed should be generated",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "/src/Constructor/"
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.constructor.writeInventoryFiles",
+        "@supports-parallel-execution": "true",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "module": "link_constructor_connect_legacy/cartridge/scripts/jobs/writeInventoryFiles",
+        "function": "execute",
+        "transactional": "false",
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "PartialByLastSyncDate",
+              "description": "Determines if the feed should only contain products that have been modified since the last sync date (without filters). Defaults to false. Note that this can improve performance.",
+              "@type": "boolean",
+              "@required": true,
+              "default-value": false
+            },
+            {
+              "@name": "SendOfflineVariants",
+              "description": "Determines if variants that are not online should be sent if the master product or any of its other variants are online. Note that this will affect performance.",
+              "@type": "boolean",
+              "@required": true,
+              "default-value": false
+            },
+            {
+              "@name": "IncludeMasterProductsOutOfStock",
+              "description": "Determines if master products that are online but with all variants out of stock should be included. Note that this will affect performance.",
+              "@type": "boolean",
+              "@required": true,
+              "default-value": false
+            },
+            {
+              "@name": "SearchPhrase",
+              "description": "The search phrase that can be used to filter the products.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true,
+              "default-value": ""
+            },
+            {
+              "@name": "CategoryId",
+              "description": "The category id that will be used to filter the products. Defaults to the root category if not provided.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true,
+              "default-value": ""
+            },
+            {
+              "@name": "Ids",
+              "description": "The list of ids to filter records by. Can be a the product id or variation group id. Needs to be separated by commas (,). Example: `1, 2, 3`. Note that there is a maximum of 30 IDs that can be specified.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true,
+              "default-value": ""
+            },
+            {
+              "@name": "WriteFolder",
+              "description": "Folder in which XML feed should be generated",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "/src/Constructor/"
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.constructor.sendProductDeltas",
+        "@supports-parallel-execution": "true",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "module": "link_constructor_connect_legacy/cartridge/scripts/jobs/sendProductDeltas",
+        "function": "execute",
+        "transactional": "false",
+        "timeout-in-seconds": "180000",
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "ApiKeyOverride",
+              "description": "Allows overriding the API key defined in the site preferences. Useful to send data to multiple indexes from the same site (e.g. different locales).",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            },
+            {
+              "@name": "FileAction",
+              "description": "Action to take with files after successful import",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "ARCHIVE",
+              "enum-values": {
+                "value": ["KEEP", "ARCHIVE", "DELETE"]
+              }
+            },
+            {
+              "@name": "ArchivePath",
+              "description": "The file archive directory",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "/src/Constructor/archive"
+            },
+            {
+              "@name": "ErrorPath",
+              "description": "The file error directory",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "/src/Constructor/error"
+            },
+            {
+              "@name": "Section",
+              "description": "Which section of the index to write the data to",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "Products"
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.constructor.sendCategoryDeltas",
+        "@supports-parallel-execution": "true",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "module": "link_constructor_connect_legacy/cartridge/scripts/jobs/sendCategoryDeltas",
+        "function": "execute",
+        "transactional": "false",
+        "timeout-in-seconds": "180000",
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "ApiKeyOverride",
+              "description": "Allows overriding the API key defined in the site preferences. Useful to send data to multiple indexes from the same site (e.g. different locales).",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            },
+            {
+              "@name": "FileAction",
+              "description": "Action to take with files after successful import",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "ARCHIVE",
+              "enum-values": {
+                "value": ["KEEP", "ARCHIVE", "DELETE"]
+              }
+            },
+            {
+              "@name": "ArchivePath",
+              "description": "The file archive directory",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "/src/Constructor/archive"
+            },
+            {
+              "@name": "ErrorPath",
+              "description": "The file error directory",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "/src/Constructor/error"
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.constructor.sendInventoryDeltas",
+        "@supports-parallel-execution": "true",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "module": "link_constructor_connect_legacy/cartridge/scripts/jobs/sendInventoryDeltas",
+        "function": "execute",
+        "transactional": "false",
+        "timeout-in-seconds": "180000",
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "ApiKeyOverride",
+              "description": "Allows overriding the API key defined in the site preferences. Useful to send data to multiple indexes from the same site (e.g. different locales).",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            },
+            {
+              "@name": "FileAction",
+              "description": "Action to take with files after successful import",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "ARCHIVE",
+              "enum-values": {
+                "value": ["KEEP", "ARCHIVE", "DELETE"]
+              }
+            },
+            {
+              "@name": "ArchivePath",
+              "description": "The file archive directory",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "/src/Constructor/archive"
+            },
+            {
+              "@name": "ErrorPath",
+              "description": "The file error directory",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "/src/Constructor/error"
+            },
+            {
+              "@name": "Section",
+              "description": "Which section of the index to write the data to",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "Products"
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.constructor.updateLastSyncDate",
+        "@supports-parallel-execution": "true",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "module": "link_constructor_connect_legacy/cartridge/scripts/jobs/updateLastSyncDate",
+        "function": "execute",
+        "transactional": "true",
+        "timeout-in-seconds": "180000"
+      }
+    ]
+  }
+}

@@ -176,6 +176,7 @@ function giftCardHooksProxyModel() {
                 };
             }
         },
+        'dw/system/Logger': require('../../dw/dw_system_Logger'),
         'dw/order/OrderMgr': {
             getOrder: function () {
                 var BasketMgr = require('../../../mocks/dw/dw_order_BasketMgr');

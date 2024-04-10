@@ -25,25 +25,37 @@
     </job>
 
     <job job-id="DataFeedWatch Export" priority="0">
-        <description/>
+        <description>11/04/2020:Ani:File pattern updated to no upload files to SFTP. DFW shop setting has been changed to pickup files from our impex folder directly using access key setup.
+1/10/2023:JLasson:Added MX scope to sibling flow</description>
         <parameters/>
         <split sequential="false">
             <flow>
-                <context site-id="CA"/>
-                <template-ref template-id="template_45"/>
-            </flow>
-            <flow>
                 <context site-id="US"/>
-                <template-ref template-id="template_45"/>
-            </flow>
-            <flow-template template-id="template_45">
-                <step step-id="Process" type="custom.CustomFeeds-Process" enforce-restart="false">
+                <step step-id="DFW Export US" type="custom.CustomFeeds-Process" enforce-restart="false">
                     <description/>
                     <parameters>
-                        <parameter name="feedConfigString">{     "US": {         "locales": ["en_US"],         "feed": ["DataFeedWatch"],         "currency": ["USD"]     },     "CA": {         "locales": ["en_CA", "fr_CA"],         "feed": ["DFWLocaleSpecific"],         "currency": ["CAD"]     } }</parameter>
+                        <parameter name="feedConfigString">{    "US": {          "locales": ["en_US"], "feed": ["DataFeedWatch"],  "currency": ["USD"]     } }</parameter>
                     </parameters>
                 </step>
-            </flow-template>
+            </flow>
+            <flow>
+                <context site-id="CA"/>
+                <step step-id="DFW Export CA" type="custom.CustomFeeds-Process" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="feedConfigString">{    "Language":{       "locales":[          "fr_CA"       ],       "feed":[          "DFWSecondary"       ],       "currency":[          "CAD"       ]    },    "ExtraLocales":{       "locales":[          "en_CA"       ],       "feed":[          "DFWLocaleSpecific"       ],       "currency":[          "CAD"       ]    } }</parameter>
+                    </parameters>
+                </step>
+            </flow>
+            <flow>
+                <context site-id="MX"/>
+                <step step-id="DFW Export MX" type="custom.CustomFeeds-Process" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="feedConfigString">{     "es": {         "locales": ["es_MX"],         "feed": ["DataFeedWatchMX"],         "currency": ["MXN"]     } }</parameter>
+                    </parameters>
+                </step>
+            </flow>
         </split>
         <flow>
             <context site-id="Sites"/>
@@ -62,44 +74,7 @@
                 </parameters>
             </step>
         </flow>
-        <flow>
-            <context site-id="Sites"/>
-            <step step-id="Upload to SFTP" type="custom.CSComponents.FtpUpload" enforce-restart="false">
-                <description>Uploading files to SFTP server</description>
-                <parameters>
-                    <parameter name="ServiceID">SFTP-XML</parameter>
-                    <parameter name="FilePattern">^.*xml</parameter>
-                    <parameter name="SourceFolder">src/feeds/DFW</parameter>
-                    <parameter name="TargetFolder">/dfw/products</parameter>
-                    <parameter name="Recursive">false</parameter>
-                    <parameter name="NoFileFoundStatus">OK</parameter>
-                </parameters>
-                <rules>
-                    <on-exit status="ERROR">
-                        <stop-job/>
-                    </on-exit>
-                </rules>
-            </step>
-        </flow>
-        <rules/>
-        <triggers>
-            <run-recurring enabled="true">
-                <recurrence>
-                    <date-from>2019-01-01Z</date-from>
-                    <start-time>08:00:00.000Z</start-time>
-                    <interval>1d</interval>
-                    <day-of-week>
-                        <weekday>Monday</weekday>
-                        <weekday>Sunday</weekday>
-                        <weekday>Friday</weekday>
-                        <weekday>Wednesday</weekday>
-                        <weekday>Tuesday</weekday>
-                        <weekday>Thursday</weekday>
-                        <weekday>Saturday</weekday>
-                    </day-of-week>
-                </recurrence>
-            </run-recurring>
-        </triggers>
+        <triggers />
     </job>
     <job job-id="MAODOMOrderExport" priority="0">
         <description>This job sends order data to OMS including not confirmed orders(pending payment or fraud check). The job takes order according to next criteria:
@@ -152,6 +127,66 @@
             <step step-id="ProcessEmailReturnLabelRequests" type="custom.Process-Email-Return-Label-Requests" enforce-restart="false">
                 <description/>
                 <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2020-07-02Z</date>
+                <time>20:26:12.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    <job job-id="AutoCleanCategory" priority="0">
+        <description>This Job un-assign all product from the categories</description>
+        <parameters/>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="AutoUncategorizeNewArrivals" type="custom.autoUncategorizeNewArrivals" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">NACatalog</parameter>
+                    <parameter name="storefrontCatalogID">NACatalog_storefront</parameter>
+                    <parameter name="isDisabled">false</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportCleanNewArrivals" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/newArrivalAssociationRemoval</parameter>
+                    <parameter name="FileNamePattern">^catalog_associations_newArrival.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/newArrivalAssociationRemoval</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <step step-id="AutoCleanCategory" type="custom.autoCleanCategory" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="storefrontCatalogID">NACatalog_storefront</parameter>
+                    <parameter name="CleanCategoryIDs">prep-category,prep_image</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <step step-id="ImportCleanCategories" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">cleanCategory</parameter>
+                    <parameter name="FileNamePattern">^catalog_category_associations.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Update</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/cleanCategory</parameter>
+                </parameters>
             </step>
         </flow>
         <rules/>
@@ -261,6 +296,32 @@
                     <parameter name="ImportFailedHandling">WARN</parameter>
                     <parameter name="AfterImportFileHandling">Archive</parameter>
                     <parameter name="ArchiveFolder">src/archive/sizePreferenceToken</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="AutoCategorizeNewArrivals" type="custom.autoCategorizeNewArrivals" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="masterCatalogID">NACatalog</parameter>
+                    <parameter name="storefrontCatalogID">NACatalog_storefront</parameter>
+                    <parameter name="isDisabled">false</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportNewArrivals" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/newArrivalAssociation</parameter>
+                    <parameter name="FileNamePattern">^catalog_associations_newArrival.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/newArrivalAssociation</parameter>
                 </parameters>
             </step>
         </flow>
@@ -507,7 +568,7 @@
                 <recurrence>
                     <date-from>2020-04-09Z</date-from>
                     <start-time>07:49:36.000Z</start-time>
-                    <interval>15m</interval>
+                    <interval>2h</interval>
                     <day-of-week>
                         <weekday>Friday</weekday>
                         <weekday>Wednesday</weekday>
@@ -575,7 +636,7 @@
         </flow>
         <rules/>
         <triggers>
-            <run-recurring enabled="true">
+            <run-recurring enabled="false">
                 <recurrence>
                     <date-from>2019-01-01Z</date-from>
                     <start-time>05:00:00.000Z</start-time>
@@ -631,6 +692,34 @@
                 </parameters>
             </step>
         </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Create Most Recent Static Copy" type="custom.CSComponents.ZipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="SourceFolder">src/pricebooks</parameter>
+                    <parameter name="FilePattern">.*xml</parameter>
+                    <parameter name="TargetFolder">src/archive/pricebooks/NA</parameter>
+                    <parameter name="ArchiveName">UA-pricebooks</parameter>
+                    <parameter name="RemoveFilesFromSourceFolder">false</parameter>
+                    <parameter name="RemoveSourceFolderAfterCompletion">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+        </flow>	        
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Archive Price Files" type="custom.ZipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="filePattern">.*xml</parameter>
+                    <parameter name="sourceFolder">src/pricebooks</parameter>
+                    <parameter name="targetFolder">src/archive/pricebooks/NA</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                    <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
+                </parameters>
+            </step>
+        </flow>        
         <rules/>
         <triggers>
             <run-recurring enabled="false">
@@ -652,18 +741,18 @@
         </triggers>
     </job>
 
-    <job job-id="Import Inventory" priority="0">
-        <description/>
+      <job job-id="Import Inventory">
+        <description>Inventory Import from MAO</description>
         <parameters/>
         <flow>
             <context site-id="Sites"/>
-            <step step-id="US - Download from Amazon S3" type="custom.CSComponents.FtpDownload" enforce-restart="false">
-                <description>to download files from S3 (ecommstaging)</description>
+            <step step-id="Download US Inventory from S3" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>Import inventory from staging folder</description>
                 <parameters>
                     <parameter name="ServiceID">AWS-XML_NA</parameter>
                     <parameter name="KeyAlias">na04-ecomm-staging</parameter>
                     <parameter name="FilePattern">.*zip</parameter>
-                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/mao/us/inventory</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/mao/us/inventory_staging</parameter>
                     <parameter name="TargetFolder">src/inventory/in</parameter>
                     <parameter name="Recursive">false</parameter>
                     <parameter name="DeleteRemoteFiles">true</parameter>
@@ -675,16 +764,13 @@
                     </on-exit>
                 </rules>
             </step>
-        </flow>
-        <flow>
-            <context site-id="Sites"/>
-            <step step-id="CA - Download from Amazon S3" type="custom.CSComponents.FtpDownload" enforce-restart="false">
-                <description>to download files from S3 (ecommstaging)</description>
+            <step step-id="Download CA Inventory from S3" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description>Download inventory from staging folder</description>
                 <parameters>
                     <parameter name="ServiceID">AWS-XML_NA</parameter>
                     <parameter name="KeyAlias">na04-ecomm-staging</parameter>
                     <parameter name="FilePattern">.*zip</parameter>
-                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/mao/ca/inventory</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/mao/ca/inventory_staging</parameter>
                     <parameter name="TargetFolder">src/inventory/in</parameter>
                     <parameter name="Recursive">false</parameter>
                     <parameter name="DeleteRemoteFiles">true</parameter>
@@ -696,10 +782,7 @@
                     </on-exit>
                 </rules>
             </step>
-        </flow>
-        <flow>
-            <context site-id="Sites"/>
-            <step step-id="Unarchive Data" type="custom.CSComponents.UnzipFiles" enforce-restart="false">
+            <step step-id="Unarchive data" type="custom.CSComponents.UnzipFiles" enforce-restart="false">
                 <description/>
                 <parameters>
                     <parameter name="SourceFolder">src/inventory/in</parameter>
@@ -715,19 +798,16 @@
                     </on-exit>
                 </rules>
             </step>
-        </flow>
-        <flow>
-            <context site-id="Sites"/>
-            <step step-id="Import Inventory" type="custom.CSComponents.ImportInventoryLists" enforce-restart="false">
-                <description>We are only importing inventory here and not archiving it. See the FileAction = Keep</description>
+            <step step-id="ImportInventory(OOB)" type="ImportInventoryLists" enforce-restart="false">
+                <description>This is Out Of Box step. Will replace CSComponent step.</description>
                 <parameters>
-                    <parameter name="SourceFolder">src/inventory/out</parameter>
-                    <parameter name="FilePattern">.*xml</parameter>
-                    <parameter name="FileAction">KEEP</parameter>
-                    <parameter name="ImportMode">MERGE</parameter>
-                    <parameter name="NoFileFoundStatus">OK</parameter>
-                    <parameter name="OnError">CONTINUE</parameter>
-                    <parameter name="ArchivePath">src/archive/inventory/NA</parameter>
+                    <parameter name="WorkingFolder">inventory/out</parameter>
+                    <parameter name="FileNamePattern">.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">src/archive/inventory/NA</parameter>
                 </parameters>
                 <rules>
                     <on-exit status="ERROR">
@@ -738,34 +818,53 @@
         </flow>
         <flow>
             <context site-id="Sites"/>
-            <step step-id="Archive Inventory" type="custom.ZipFiles" enforce-restart="false">
-                <description>Separate step to archive inventory into zipfiles</description>
+            <step step-id="Create Most Recent Static Copy" type="custom.CSComponents.ZipFiles" enforce-restart="false">
+                <description/>
                 <parameters>
-                    <parameter name="filePattern">^.*xml</parameter>
+                    <parameter name="SourceFolder">src/inventory/out</parameter>
+                    <parameter name="FilePattern">.*xml</parameter>
+                    <parameter name="TargetFolder">src/archive/inventory/NA</parameter>
+                    <parameter name="ArchiveName">UA-inventory</parameter>
+                    <parameter name="RemoveFilesFromSourceFolder">false</parameter>
+                    <parameter name="RemoveSourceFolderAfterCompletion">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Archive Inventory Files" type="custom.ZipFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="filePattern">.*xml</parameter>
                     <parameter name="sourceFolder">src/inventory/out</parameter>
                     <parameter name="targetFolder">src/archive/inventory/NA</parameter>
                     <parameter name="deleteFile">DELETE</parameter>
                     <parameter name="singleFile">SINGLE_ARCHIVE_FILE</parameter>
                 </parameters>
-                <rules>
-                    <on-exit status="ERROR">
-                        <stop-job/>
-                    </on-exit>
-                </rules>
             </step>
         </flow>
         <rules>
-            <on-running runtime-threshold="60m" enabled="false">
+            <on-running runtime-threshold="240m" enabled="true">
                 <mark-job-as-hanging/>
                 <send-mail>
                     <from>donotreply@demandware.com</from>
-                    <to>sfcc_l4@underarmour.com</to>
+                    <to>ECommerce_ProdOps@underarmour.com ,L3_eCommerce@underarmour.com</to>
+                    <cc>lcarmona@underarmour.com,minh.nguyen@underarmour.com,suat.erken@underarmour.com, mark.cardelli@underarmour.com, travis.huang@underarmour.com</cc>
                 </send-mail>
             </on-running>
-            <on-exit status="ERROR" enabled="false">
+            <on-retry enabled="true">
                 <send-mail>
                     <from>donotreply@demandware.com</from>
-                    <to>sfcc_l4@underarmour.com</to>
+                    <to>ECommerce_ProdOps@underarmour.com ,L3_eCommerce@underarmour.com</to>
+                    <cc>lcarmona@underarmour.com,minh.nguyen@underarmour.com,suat.erken@underarmour.com, mark.cardelli@underarmour.com, travis.huang@underarmour.com</cc>
+                </send-mail>
+            </on-retry>
+            <on-exit status="OK,ERROR" enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>ECommerce_ProdOps@underarmour.com ,L3_eCommerce@underarmour.com</to>
+                    <cc>lcarmona@underarmour.com,minh.nguyen@underarmour.com,suat.erken@underarmour.com, mark.cardelli@underarmour.com, travis.huang@underarmour.com</cc>
                 </send-mail>
             </on-exit>
         </rules>
@@ -773,23 +872,21 @@
             <run-recurring enabled="true">
                 <recurrence>
                     <date-from>2018-12-12Z</date-from>
-                    <start-time>05:00:00.000Z</start-time>
-                    <interval>4h</interval>
+                    <start-time>12:00:00.000Z</start-time>
+                    <interval>1d</interval>
                     <day-of-week>
                         <weekday>Sunday</weekday>
-                        <weekday>Tuesday</weekday>
-                        <weekday>Saturday</weekday>
-                        <weekday>Monday</weekday>
-                        <weekday>Wednesday</weekday>
                         <weekday>Thursday</weekday>
+                        <weekday>Wednesday</weekday>
                         <weekday>Friday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Saturday</weekday>
                     </day-of-week>
                 </recurrence>
             </run-recurring>
         </triggers>
     </job>
-
-
 
     <job job-id="smartlingCheckStatus" priority="0">
         <description/>
@@ -1263,41 +1360,47 @@
             </run-recurring>
         </triggers>
     </job>
-
     <job job-id="Bazaarvoice Inline Ratings Import" priority="0">
         <description/>
         <parameters/>
-        <split sequential="false">
-            <contexts template-ref="template_298">
-                <context site-id="US"/>
-            </contexts>
-            <flow-template template-id="template_298">
-                <step step-id="Download Rating Feed" type="custom.Bazaarvoice-Download" enforce-restart="false">
-                    <description/>
-                    <parameters>
-                        <parameter name="Enabled">true</parameter>
-                    </parameters>
-                </step>
-            </flow-template>
-        </split>
-        <split sequential="false">
-            <contexts template-ref="template_299">
-                <context site-id="US"/>
-            </contexts>
-            <flow-template template-id="template_299">
-                <step step-id="Import Ratings" type="custom.Bazaarvoice-Rating-Import" enforce-restart="false">
-                    <description/>
-                    <parameters>
-                        <parameter name="Enabled">true</parameter>
-                    </parameters>
-                    <rules>
-                        <on-exit status="ERROR">
-                            <stop-job/>
-                        </on-exit>
-                    </rules>
-                </step>
-            </flow-template>
-        </split>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="Download Rating Feed" type="custom.Bazaarvoice-Download" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Enabled">true</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="Import Ratings" type="custom.Bazaarvoice-Rating-Import" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Enabled">true</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Move File to Archive" type="custom.CSComponents.MoveFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FilePattern">^bv_underarmour_incremental_.*.gz</parameter>
+                    <parameter name="SourceFolder">/TEMP/bv/ratings</parameter>
+                    <parameter name="TargetFolder">IMPEX/src/archive/bv/</parameter>
+                    <parameter name="CopyOnly">false</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="Overwrite">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+        </flow>
         <rules>
             <on-running runtime-threshold="60m" enabled="true">
                 <mark-job-as-hanging/>
@@ -1320,9 +1423,9 @@
             </on-exit>
         </rules>
         <triggers>
-            <run-once enabled="false">
+            <run-once enabled="true">
                 <date>2020-04-17Z</date>
-                <time>20:15:54.000Z</time>
+                <time>20:15:00.000Z</time>
             </run-once>
         </triggers>
     </job>
@@ -1809,6 +1912,49 @@
             </run-recurring>
         </triggers>
     </job>
+<job job-id="Catalog Category Export">
+		<description/>
+		<parameters/>
+		<flow>
+			<context site-id="Sites"/>
+			<step step-id="StorefrontCatalog-Export" type="ExportCatalog" enforce-restart="false">
+				<description/>
+				<parameters>
+					<parameter name="CatalogID">NACatalog_storefront</parameter>
+					<parameter name="ExportCategories">false</parameter>
+					<parameter name="ExportProducts">false</parameter>
+					<parameter name="ExportCategoryAssignments">true</parameter>
+					<parameter name="ExportProductOptions">false</parameter>
+					<parameter name="ExportRecommendations">false</parameter>
+					<parameter name="ExportVariationAttributes">false</parameter>
+					<parameter name="ExportFile">/feeds/Category/NACatalog_storefront_Category</parameter>
+					<parameter name="OverwriteExportFile">true</parameter>
+				</parameters>
+			</step>
+		</flow>
+		<flow>
+			<context site-id="Sites"/>
+			<step step-id="Zip File" type="custom.CSComponents.ZipFiles" enforce-restart="false">
+				<description/>
+				<parameters>
+					<parameter name="SourceFolder">/src/feeds/Category</parameter>
+					<parameter name="FilePattern">NACatalog_storefront_Category.xml</parameter>
+					<parameter name="TargetFolder">/src/feeds/Category</parameter>
+					<parameter name="ArchiveName">NACatalog_storefront_Category.zip</parameter>
+					<parameter name="RemoveFilesFromSourceFolder">true</parameter>
+					<parameter name="RemoveSourceFolderAfterCompletion">false</parameter>
+					<parameter name="NoFileFoundStatus">OK</parameter>
+				</parameters>
+			</step>
+		</flow>
+		<rules/>
+		<triggers>
+			<run-once enabled="false">
+				<date>2024-03-20Z</date>
+				<time>12:31:00.000Z</time>
+			</run-once>
+		</triggers>
+	</job>    
     <job job-id="CancelNonPaidAurusCreditCardOrders" priority="0">
         <description>The purpose of this job is to Cancel the Aurus Credit Card orders with not paid status.</description>
         <parameters/>
@@ -1943,5 +2089,704 @@
             </run-once>
         </triggers>
     </job>
+    <job job-id="ConstructorSyncProductData - Full Update - FR-CA" priority="0">
+        <description>Export product data to Constructor.io for the FR-CA locale</description>
+        <parameters/>
+        <flow>
+            <context site-id="CA"/>
+            <step step-id="writeFiles" type="custom.constructor.writeProductFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="PartialByLastSyncDate">false</parameter>
+                    <parameter name="SendOfflineVariants">false</parameter>
+                    <parameter name="IncludeMasterProductsOutOfStock">true</parameter>
+                    <parameter name="Locale">fr_CA</parameter>
+                    <parameter name="WriteFolder">/src/Constructor/</parameter>
+                </parameters>
+            </step>
+            <step step-id="Switch To Full Update" type="custom.constructor.updateIngestionStrategy" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="DataType">product</parameter>
+                    <parameter name="Strategy">FULL</parameter>
+                </parameters>
+            </step>
+            <step step-id="sendDeltas" type="custom.constructor.sendProductDeltas" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FileAction">ARCHIVE</parameter>
+                    <parameter name="ArchivePath">/src/Constructor/archive</parameter>
+                    <parameter name="ErrorPath">/src/Constructor/error</parameter>
+                    <parameter name="Section">Products</parameter>
+                </parameters>
+            </step>
+            <step step-id="updateLastSyncDate" type="custom.constructor.updateLastSyncDate" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2023-09-28Z</date>
+                <time>19:09:00.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
 
+    <job job-id="ConstructorSyncCategorySectionData" priority="0">
+        <description>Export category data to Constructor.io, into the Categories section of the index</description>
+        <parameters/>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="writeFiles - EN-US" type="custom.constructor.writeCategorySectionFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Locale"></parameter>
+                    <parameter name="WriteFolder">/src/Constructor/</parameter>
+                </parameters>
+            </step>
+            <step step-id="sendDeltas - EN-US" type="custom.constructor.sendCategorySectionDeltas" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FileAction">ARCHIVE</parameter>
+                    <parameter name="ArchivePath">/src/Constructor/archive</parameter>
+                    <parameter name="ErrorPath">/src/Constructor/error</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="CA"/>
+            <step step-id="writeFiles - EN-CA" type="custom.constructor.writeCategorySectionFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Locale"></parameter>
+                    <parameter name="WriteFolder">/src/Constructor/</parameter>
+                </parameters>
+            </step>
+            <step step-id="sendDeltas - EN-CA" type="custom.constructor.sendCategorySectionDeltas" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FileAction">ARCHIVE</parameter>
+                    <parameter name="ArchivePath">/src/Constructor/archive</parameter>
+                    <parameter name="ErrorPath">/src/Constructor/error</parameter>
+                </parameters>
+            </step>
+            <step step-id="writeFiles - FR-CA" type="custom.constructor.writeCategorySectionFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Locale">fr_CA</parameter>
+                    <parameter name="WriteFolder">/src/Constructor/</parameter>
+                </parameters>
+            </step>
+            <step step-id="sendDeltas - FR-CA" type="custom.constructor.sendCategorySectionDeltas" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FileAction">ARCHIVE</parameter>
+                    <parameter name="ArchivePath">/src/Constructor/archive</parameter>
+                    <parameter name="ErrorPath">/src/Constructor/error</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="false">
+                <mark-job-as-hanging/>
+            </on-running>
+        </rules>
+        <triggers>
+            <run-once enabled="false">
+                <date>2023-05-31Z</date>
+                <time>21:35:00.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
+    <job job-id="ConstructorSyncProductData - Incremental Update" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="writeFiles - EN-US" type="custom.constructor.writeProductFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="PartialByLastSyncDate">false</parameter>
+                    <parameter name="SendOfflineVariants">false</parameter>
+                    <parameter name="IncludeMasterProductsOutOfStock">true</parameter>
+                    <parameter name="Locale"></parameter>
+                    <parameter name="Ids"></parameter>
+                    <parameter name="WriteFolder">/src/Constructor/</parameter>
+                </parameters>
+            </step>
+            <step step-id="Switch To Incremental Update - EN-US" type="custom.constructor.updateIngestionStrategy" enforce-restart="false">
+                <description>Switch the product ingestion strategy to Patch Delta(Create)</description>
+                <parameters>
+                    <parameter name="DataType">product</parameter>
+                    <parameter name="Strategy">PATCH_DELTA_CREATE</parameter>
+                </parameters>
+            </step>
+            <step step-id="sendDeltas - EN-US" type="custom.constructor.sendProductDeltas" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FileAction">ARCHIVE</parameter>
+                    <parameter name="ArchivePath">/src/Constructor/archive</parameter>
+                    <parameter name="ErrorPath">/src/Constructor/error</parameter>
+                    <parameter name="Section">Products</parameter>
+                </parameters>
+            </step>
+            <step step-id="updateLastSyncDate - EN-US" type="custom.constructor.updateLastSyncDate" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="CA"/>
+            <step step-id="writeFiles - EN-CA" type="custom.constructor.writeProductFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="PartialByLastSyncDate">false</parameter>
+                    <parameter name="SendOfflineVariants">false</parameter>
+                    <parameter name="IncludeMasterProductsOutOfStock">true</parameter>
+                    <parameter name="Locale"></parameter>
+                    <parameter name="Ids"></parameter>
+                    <parameter name="WriteFolder">/src/Constructor/</parameter>
+                </parameters>
+            </step>
+            <step step-id="Switch To Incremental Update - EN-CA" type="custom.constructor.updateIngestionStrategy" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="DataType">product</parameter>
+                    <parameter name="Strategy">PATCH_DELTA_CREATE</parameter>
+                </parameters>
+            </step>
+            <step step-id="sendDeltas - EN-CA" type="custom.constructor.sendProductDeltas" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FileAction">ARCHIVE</parameter>
+                    <parameter name="ArchivePath">/src/Constructor/archive</parameter>
+                    <parameter name="ErrorPath">/src/Constructor/error</parameter>
+                    <parameter name="Section">Products</parameter>
+                </parameters>
+            </step>
+            <step step-id="updateLastSyncDate - EN-CA" type="custom.constructor.updateLastSyncDate" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+            <step step-id="writeFiles - FR-CA" type="custom.constructor.writeProductFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="PartialByLastSyncDate">false</parameter>
+                    <parameter name="SendOfflineVariants">false</parameter>
+                    <parameter name="IncludeMasterProductsOutOfStock">true</parameter>
+                    <parameter name="Locale">fr_CA</parameter>
+                    <parameter name="Ids"></parameter>
+                    <parameter name="WriteFolder">/src/Constructor/</parameter>
+                </parameters>
+            </step>
+            <step step-id="Switch To Incremental Update - FR-CA" type="custom.constructor.updateIngestionStrategy" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="DataType">product</parameter>
+                    <parameter name="Strategy">PATCH_DELTA_CREATE</parameter>
+                </parameters>
+            </step>
+            <step step-id="sendDeltas - FR-CA" type="custom.constructor.sendProductDeltas" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FileAction">ARCHIVE</parameter>
+                    <parameter name="ArchivePath">/src/Constructor/archive</parameter>
+                    <parameter name="ErrorPath">/src/Constructor/error</parameter>
+                    <parameter name="Section">Products</parameter>
+                </parameters>
+            </step>
+            <step step-id="updateLastSyncDate - FR-CA" type="custom.constructor.updateLastSyncDate" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2023-09-27Z</date>
+                <time>19:06:00.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
+    <job job-id="ConstructorSyncProductData - Full Update - EN-US" priority="0">
+        <description>Export product data to Constructor.io for the EN-US locale</description>
+        <parameters/>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="writeFiles" type="custom.constructor.writeProductFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="PartialByLastSyncDate">false</parameter>
+                    <parameter name="SendOfflineVariants">false</parameter>
+                    <parameter name="IncludeMasterProductsOutOfStock">true</parameter>
+                    <parameter name="Locale"></parameter>
+                    <parameter name="WriteFolder">/src/Constructor/</parameter>
+                </parameters>
+            </step>
+            <step step-id="Switch To Full Update" type="custom.constructor.updateIngestionStrategy" enforce-restart="false">
+                <description>Switch the product ingestion strategy to Full</description>
+                <parameters>
+                    <parameter name="DataType">product</parameter>
+                    <parameter name="Strategy">FULL</parameter>
+                </parameters>
+            </step>
+            <step step-id="sendDeltas" type="custom.constructor.sendProductDeltas" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FileAction">ARCHIVE</parameter>
+                    <parameter name="ArchivePath">/src/Constructor/archive</parameter>
+                    <parameter name="ErrorPath">/src/Constructor/error</parameter>
+                    <parameter name="Section">Products</parameter>
+                </parameters>
+            </step>
+            <step step-id="updateLastSyncDate" type="custom.constructor.updateLastSyncDate" enforce-restart="false">
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2023-09-27Z</date>
+                <time>19:06:00.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
+    <job job-id="ConstructorSyncFacetMetaData" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="buildAndSendData - EN-US" type="custom.constructor.buildFacetMetadata" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Locale"></parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="CA"/>
+            <step step-id="buildAndSendData - EN-CA" type="custom.constructor.buildFacetMetadata" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Locale"></parameter>
+                </parameters>
+            </step>
+            <step step-id="buildAndSendData - FR-CA" type="custom.constructor.buildFacetMetadata" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Locale">fr_CA</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2023-09-27Z</date>
+                <time>19:06:00.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
+    <job job-id="ConstructorSyncCategoryData" priority="0">
+        <description>Export category to Constructor.io</description>
+        <parameters/>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="writeFiles - EN-US" type="custom.constructor.writeCategoryFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Locale"></parameter>
+                    <parameter name="WriteFolder">/src/Constructor/</parameter>
+                </parameters>
+            </step>
+            <step step-id="sendDeltas - EN-US" type="custom.constructor.sendCategoryDeltas" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FileAction">ARCHIVE</parameter>
+                    <parameter name="ArchivePath">/src/Constructor/archive</parameter>
+                    <parameter name="ErrorPath">/src/Constructor/error</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="CA"/>
+            <step step-id="writeFiles - EN-CA" type="custom.constructor.writeCategoryFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Locale"></parameter>
+                    <parameter name="WriteFolder">/src/Constructor/</parameter>
+                </parameters>
+            </step>
+            <step step-id="sendDeltas - EN-CA" type="custom.constructor.sendCategoryDeltas" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FileAction">ARCHIVE</parameter>
+                    <parameter name="ArchivePath">/src/Constructor/archive</parameter>
+                    <parameter name="ErrorPath">/src/Constructor/error</parameter>
+                </parameters>
+            </step>
+            <step step-id="writeFiles - FR-CA" type="custom.constructor.writeCategoryFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Locale">fr_CA</parameter>
+                    <parameter name="WriteFolder">/src/Constructor/</parameter>
+                </parameters>
+            </step>
+            <step step-id="sendDeltas - FR-CA" type="custom.constructor.sendCategoryDeltas" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FileAction">ARCHIVE</parameter>
+                    <parameter name="ArchivePath">/src/Constructor/archive</parameter>
+                    <parameter name="ErrorPath">/src/Constructor/error</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2023-09-27Z</date>
+                <time>19:06:00.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    <job job-id="ConstructorSyncProductData - Full Update - EN-CA" priority="0">
+        <description>Export product data to Constructor.io for the EN-CA locale</description>
+        <parameters/>
+        <flow>
+            <context site-id="CA"/>
+            <step step-id="writeFiles" type="custom.constructor.writeProductFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="PartialByLastSyncDate">false</parameter>
+                    <parameter name="SendOfflineVariants">false</parameter>
+                    <parameter name="IncludeMasterProductsOutOfStock">true</parameter>
+                    <parameter name="Locale"></parameter>
+                    <parameter name="WriteFolder">/src/Constructor/</parameter>
+                </parameters>
+            </step>
+            <step step-id="Switch To Full Update" type="custom.constructor.updateIngestionStrategy" enforce-restart="false">
+                <description>Switch the product ingestion strategy to Full</description>
+                <parameters>
+                    <parameter name="DataType">product</parameter>
+                    <parameter name="Strategy">FULL</parameter>
+                </parameters>
+            </step>
+            <step step-id="sendDeltas" type="custom.constructor.sendProductDeltas" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FileAction">ARCHIVE</parameter>
+                    <parameter name="ArchivePath">/src/Constructor/archive</parameter>
+                    <parameter name="ErrorPath">/src/Constructor/error</parameter>
+                    <parameter name="Section">Products</parameter>
+                </parameters>
+            </step>
+            <step step-id="updateLastSyncDate" type="custom.constructor.updateLastSyncDate" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2023-09-28Z</date>
+                <time>16:48:00.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    <job job-id="Update Shipping Method EDD Custom Object" priority="0">
+        <description>Update Shipping Method EDD Custom Object</description>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_715">
+                <context site-id="CA"/>
+                <context site-id="US"/>
+            </contexts>
+            <flow-template template-id="template_715">
+                <step step-id="Run" type="custom.updateShippingMethodEDDCO" enforce-restart="false">
+                    <description>Update the EDD in custom objects if they have expired.</description>
+                    <parameters/>
+                </step>
+            </flow-template>
+        </split>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2023-12-15Z</date-from>
+                    <start-time>19:56:00.000Z</start-time>
+                    <interval>1h</interval>
+                    <day-of-week>
+                        <weekday>Thursday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Monday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="MasterProductsCleanup" priority="0">
+        <description>Delete Old master products which does not have any variants assigned.</description>
+        <parameters/>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="MasterProductCleanup" type="custom.masterProductsCleanup" enforce-restart="false">
+                <description>Delete the old master product which does not have a variant associated with it.</description>
+                <parameters>
+                    <parameter name="deleteProduct">false</parameter>
+                    <parameter name="MasterCatalogId">NACatalog</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportDeleteCatalog" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/masterProductCleanup</parameter>
+                    <parameter name="FileNamePattern">^.*masterProductCleanup*.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">OK</parameter>
+                    <parameter name="ImportMode">Delete</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">src/archive/masterProductCleanup</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2024-01-04Z</date>
+                <time>14:58:00.000Z</time>
+                <rules>
+                    <on-exit status="ERROR">
+                        <disable-trigger/>
+                    </on-exit>
+                </rules>
+            </run-once>
+        </triggers>
+    </job>
+    <job job-id="Combine Slipspeed" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Combine Slip Speed Products" type="custom.combineProducts" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="MasterCatalogId">NACatalog</parameter>
+                    <parameter name="fileName">combine_products</parameter>
+                    <parameter name="directory">src/catalog/custom</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Import Catalog" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">catalog/custom</parameter>
+                    <parameter name="FileNamePattern">combine_products.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2024-01-30Z</date>
+                <time>15:22:00.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    <job job-id="Post data replication tasks" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="Download promotions XML file from AWS S3 US" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_NA</parameter>
+                    <parameter name="KeyAlias">na04-ecomm-staging</parameter>
+                    <parameter name="FilePattern">qa_team_promotions_us.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/qa_team_promotions/na</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/na</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Promotions US" type="ImportPromotions" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/na</parameter>
+                    <parameter name="FileNamePattern">qa_team_promotions_us.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+            <step step-id="Download coupons XML file from AWS S3 US" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_NA</parameter>
+                    <parameter name="KeyAlias">na04-ecomm-staging</parameter>
+                    <parameter name="FilePattern">qa_team_coupons_us.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/qa_team_promotions/na</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/na</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Coupons US" type="ImportCoupons" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/na</parameter>
+                    <parameter name="FileNamePattern">qa_team_coupons_us.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="CA"/>
+            <step step-id="Download promotions XML file from AWS S3 CA" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_NA</parameter>
+                    <parameter name="KeyAlias">na04-ecomm-staging</parameter>
+                    <parameter name="FilePattern">qa_team_promotions_ca.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/qa_team_promotions/na</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/na</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Promotions CA" type="ImportPromotions" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/na</parameter>
+                    <parameter name="FileNamePattern">qa_team_promotions_ca.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+            <step step-id="Download coupons XML file from AWS S3 CA" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_NA</parameter>
+                    <parameter name="KeyAlias">na04-ecomm-staging</parameter>
+                    <parameter name="FilePattern">qa_team_coupons_ca.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/qa_team_promotions/na</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/na</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Coupons CA" type="ImportCoupons" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/na</parameter>
+                    <parameter name="FileNamePattern">qa_team_coupons_ca.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="MX"/>
+            <step step-id="Download promotions XML file from AWS S3 MX" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_NA</parameter>
+                    <parameter name="KeyAlias">na04-ecomm-staging</parameter>
+                    <parameter name="FilePattern">qa_team_promotions_mx.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/qa_team_promotions/na</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/na</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Promotions MX" type="ImportPromotions" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/na</parameter>
+                    <parameter name="FileNamePattern">qa_team_promotions_mx.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+            <step step-id="Download coupons XML file from AWS S3 MX" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_NA</parameter>
+                    <parameter name="KeyAlias">na04-ecomm-staging</parameter>
+                    <parameter name="FilePattern">qa_team_coupons_mx.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/ecommstaging/qa_team_promotions/na</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/na</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Coupons MX" type="ImportCoupons" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/na</parameter>
+                    <parameter name="FileNamePattern">qa_team_coupons_mx.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2024-02-23Z</date-from>
+                    <start-time>07:00:00.000Z</start-time>
+                    <interval>24h</interval>
+                    <day-of-week>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
 </jobs>

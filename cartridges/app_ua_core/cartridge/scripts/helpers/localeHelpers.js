@@ -68,7 +68,8 @@ function getFAQResources() {
         faqInquiryTypeAccountIssue: Resource.msg('contactus.faq.inquiry.type.account.issue', 'contactUsFAQ', null),
         faqInquiryTypeOther: Resource.msg('contactus.faq.inquiry.type.other', 'contactUsFAQ', null),
         faqPhone: Resource.msg('contactus.faq.phone', 'contactUsFAQ', null),
-        faqConsent: Resource.msg('contactus.faq.consent', 'contactUsFAQ', null)
+        faqConsent: Resource.msg('contactus.faq.consent', 'contactUsFAQ', null),
+        faqInvalidInput: Resource.msg('contactus.faq.nonlatincharacters.error', 'contactUsFAQ', null)
 
     };
 

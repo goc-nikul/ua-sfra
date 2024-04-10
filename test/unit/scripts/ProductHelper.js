@@ -12,6 +12,66 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelper test', () => {
         return !data;
     };
 
+    var mProduct = {
+        master: true,
+        isMaster: function() {
+            return true;
+        },
+        priceModel: {
+            price: { valueOrNull: 'value' },
+            priceInfo: { priceBook: {} },
+            priceRange: true,
+            getPriceTable: function () {
+                return {
+                    quantities: { length: 1 }
+                };
+            },
+            getPriceBookPrice: function () {
+                return { available: true };
+            }
+        },
+        getPriceModel: function () {
+            return this.priceModel;
+        },
+        variationModel: {
+            variants: [{}, {}]
+        },
+        custom: {
+            defaultColorway: '003',
+            outletColors: '003'
+        },
+        getVariants: function () {
+            
+            var variants = {
+                productID: '123456',
+                onlineFlag: true,
+                availabilityModel: {
+                    orderable: true
+                },
+                custom: { 
+                    color: '003',
+                    defaultColorway: '003'
+                },
+                masterProduct: {
+                    ID: '98765'
+                },
+                isVariant: function() {
+                    return true;
+                },
+                online: true,
+                availabilityModel: {
+                    availability: 12,
+                    orderable: true,
+                    inStock: true
+                },
+                getPriceModel: function () {
+                    return {};
+                }
+            };
+            return [variants];
+        }
+    };
+
     let ProductHelper = proxyquire('../../../cartridges/app_ua_core/cartridge/scripts/helpers/ProductHelper', {
         'dw/catalog/ProductSearchModel': require('../../mocks/dw/dw_catalog_ProductSearchModel'),
         '*/cartridge/scripts/helpers/productHelpers': {
@@ -36,7 +96,8 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelper test', () => {
             current: {
                 preferences: {
                     custom: {
-                        enableAvailablePerLocale: 'YES'
+                        enableAvailablePerLocale: 'YES',
+                        enablePLPImageSlider: 'YES'
                     }
                 },
                 getCustomPreferenceValue: function () {
@@ -121,6 +182,27 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelper test', () => {
                     }
                 };
             },
+            'dw/system/Site': {
+                current: {
+                    preferences: {
+                        custom: {
+                            enableAvailablePerLocale: 'YES',
+                            enablePLPImageSlider: 'YES'
+                        }
+                    },
+                    getCustomPreferenceValue: function () {
+                        return 'YES'
+                    }
+                }
+            },
+            'dw/system/Logger': {
+                debug: function (text) {
+                    return text;
+                },
+                error: function (text) {
+                    return text;
+                }
+            }
         });
         let result = ProductHelper.getProductSearchHit({
             ID: '1'
@@ -145,6 +227,12 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelper test', () => {
 
         assert.equal(resultS, 'testUrlSmall');
         assert.equal(resultL, 'testUrlLarge');
+    });
+
+    it('Testing method: getDefaultColorVariant', () => {
+        var colorId = '003';
+        var result = ProductHelper.getDefaultColorVariant(mProduct);
+        assert.equal(result.custom.color, colorId);
     });
 
     it('Testing method: getVariantForColor', () => {
@@ -224,6 +312,11 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelper test', () => {
                     availabilityModel: true,
                     availabilityModel: {
                         orderable: true
+                    },
+                    custom: {
+                        earlyAccessConfigs: {
+                            value: 'NO'
+                        }
                     }
                 });
         }
@@ -247,6 +340,11 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelper test', () => {
                         availabilityModel: {
                             orderable: false
                         },
+                        custom: {
+                            earlyAccessConfigs: {
+                                value: 'NO'
+                            }
+                        }
                     };
                 }
             };
@@ -292,7 +390,10 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelper test', () => {
                         orderable: true
                     },
                     custom: {
-                        color: '003'
+                        color: '003',
+                        earlyAccessConfigs: {
+                            value: 'NO'
+                        }
                     }
                 });
         }
@@ -310,12 +411,17 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelper test', () => {
                 },
                 master: false
             };
-            return {
+            return {    
                 getDefaultVariant: function () {
                     return {
                         availabilityModel: {
                             orderable: false
                         },
+                        custom: {
+                            earlyAccessConfigs: {
+                                value: 'NO'
+                            }
+                        }
                     };
                 }
             };
@@ -361,7 +467,10 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelper test', () => {
                         orderable: true
                     },
                     custom: {
-                        color: '003'
+                        color: '003',
+                        earlyAccessConfigs: {
+                            value: 'NO'
+                        }
                     }
                 });
         }
@@ -385,6 +494,88 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelper test', () => {
                         availabilityModel: {
                             orderable: false
                         },
+                        custom: {
+                            earlyAccessConfigs: {
+                                value: 'NO'
+                            }
+                        }
+                    };
+                }
+            };
+        };
+        product.custom.outletColors = '002';
+        var result = ProductHelper.getOrderableVariant(product, 'outlet');
+        assert.isNotNull(result);
+    });
+
+    it('Testing method: getOrderableVariant --> hidden color', () => {
+        let Product = require('../../mocks/dw/dw_catalog_Product');
+        let product = new Product();
+        product.variationModel.getProductVariationAttribute = function () {
+            return {
+                ID: 'ID'
+            }
+        }
+        product.variationModel.getVariationValue = function () {
+            return {
+                ID: 'ID'
+            };
+        }
+        product.variationModel.hasOrderableVariants = function () {
+            return {};
+        }
+        var variants = {
+            onlineFlag: true,
+            availabilityModel: {
+                orderable: true
+            },
+            custom: {
+                color: '003'
+            },
+            masterProduct: {
+                ID: '883814258849'
+            }
+        };
+        product.variationModel.getVariants = function () {
+            return new Collections(
+                {
+                    availabilityModel: true,
+                    availabilityModel: {
+                        orderable: true
+                    },
+                    custom: {
+                        color: '003',
+                        earlyAccessConfigs: {
+                            value: 'HIDE'
+                        }
+                    }
+                });
+        }
+        product.getVariationModel = function () {
+            var variants = {
+                onlineFlag: true,
+                availabilityModel: {
+                    orderable: true
+                },
+                custom: {
+                    color: '003'
+                },
+                masterProduct: {
+                    ID: '883814258849'
+                },
+                master: false
+            };
+            return {
+                getDefaultVariant: function () {
+                    return {
+                        availabilityModel: {
+                            orderable: false
+                        },
+                        custom: {
+                            earlyAccessConfigs: {
+                                value: 'HIDE'
+                            }
+                        }
                     };
                 }
             };
@@ -424,23 +615,19 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelper test', () => {
             }
         };
         product.variationModel.getVariants = function (map) {
-            if (empty(map)) {
-                return new Collections(
-                    {
-                        availabilityModel: true,
-                        availabilityModel: {
-                            orderable: true
-                        },
-                        custom: {
-                            color: '003'
+            return new Collections(
+                {
+                    availabilityModel: true,
+                    availabilityModel: {
+                        orderable: true
+                    },
+                    custom: {
+                        color: '003',
+                        earlyAccessConfigs: {
+                            value: 'NO'
                         }
-                    });
-            }
-            return  {
-                iterator: function () {
-                    return false;
-                }
-            };
+                    }
+                });
         }
         product.getVariationModel = function () {
             var variants = {
@@ -462,6 +649,11 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelper test', () => {
                         availabilityModel: {
                             orderable: false
                         },
+                        custom: {
+                            earlyAccessConfigs: {
+                                value: 'NO'
+                            }
+                        }
                     };
                 }
             };
@@ -583,6 +775,98 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelper test', () => {
         assert.isNotNull(result.colorName);
     });
 
+    it('Testing method: getVariantForColorSize --> get a variant for the color and size provided', () => {
+        let Product = require('../../mocks/dw/dw_catalog_Product');
+        let product = new Product();
+        product.getVariants = function () {
+            var variants = {
+                onlineFlag: true,
+                availabilityModel: {
+                    orderable: true
+                },
+                custom: {
+                    color: '001',
+                    size:'MD'
+                },
+                masterProduct: {
+                    ID: '1361588'
+                }
+            };
+            return [variants];
+        };
+
+        product.variationModel = 
+        {
+            onlineFlag: true,
+            availabilityModel: true,
+            availabilityModel: {
+                orderable: true
+            },
+            custom: {
+                color: '001',
+                size:'MD'
+            },
+            master: false
+        }
+        var color = '001';
+        var size = 'MD';
+        var result = ProductHelper.getVariantForColorSize(product,color,size);
+        assert.isNotNull(result);
+    });
+
+    it('Testing method: getVariantForColorSize --> get a orderable variant for the color provided and size provided', () => {
+        let Product = require('../../mocks/dw/dw_catalog_Product');
+        let product = new Product();
+        product.getVariants = function () {
+            var variants = {
+                onlineFlag: true,
+                availabilityModel: {
+                    orderable: true
+                },
+                custom: {
+                    color: '001',
+                    size:'MD'
+                },
+                masterProduct: {
+                    ID: '1361588'
+                }
+            };
+            return [variants];
+        };
+
+        var color = '001';
+        var size = 'MD';
+        var result = ProductHelper.getVariantForColorSize(product,color,size);
+        assert.isTrue(result.availabilityModel.orderable)
+    });
+    
+    it('Testing method: getVariantForColorSize --> get a orderable variant for the color empty and size empty', () => {
+        let Product = require('../../mocks/dw/dw_catalog_Product');
+        let product = new Product();
+        product.getVariants = function () {
+            var variants = {
+                onlineFlag: true,
+                availabilityModel: {
+                    orderable: true
+                },
+                custom: {
+                    color: '001',
+                    size:'MD'
+                },
+                masterProduct: {
+                    ID: '1361588'
+                }
+            };
+            return [variants];
+        };
+
+        
+        var color = '';
+        var size = '';
+        var result = ProductHelper.getVariantForColorSize(product,color,size);
+        assert.isUndefined(result.availabilityModel.orderable)
+    });
+
     it('Testing method: isProductAvailableForLocale --> product availableForLocale', () => {
         let Product = require('../../mocks/dw/dw_catalog_Product');
         let product = new Product();
@@ -680,6 +964,69 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelper test', () => {
         });
         stubFormat.throws(new Error('custom exception'));
         var result = ProductHelper.enableAvailablePerLocale();
+        assert.isFalse(result);
+    });
+
+    it('Testing method: enablePLPImageSlider --> enablePLPImageSlider is enabled ', () => {
+        var result = ProductHelper.enablePLPImageSlider();
+        assert.isTrue(result);
+    });
+
+    it('Testing method: enablePLPImageSlider --> enablePLPImageSlider is disabled', () => {
+        let ProductHelper = proxyquire('../../../cartridges/app_ua_core/cartridge/scripts/helpers/ProductHelper', {
+            'dw/catalog/ProductSearchModel':{},
+            '*/cartridge/scripts/helpers/productHelpers': {},
+            'dw/system/Site': {
+                current: {
+                    preferences: {
+                        custom: {
+                            enablePLPImageSlider: false
+                        }
+                    },
+                    getCustomPreferenceValue: function () {
+                        return false
+                    }
+                }
+            },
+            'dw/system/Logger': {
+                debug: function (text) {
+                    return text;
+                },
+                error: function (text) {
+                    return text;
+                }
+            }
+        });
+        var result = ProductHelper.enablePLPImageSlider();
+        assert.isFalse(result);
+    });
+
+    it('Testing method: enablePLPImageSlider --> custom exception', () => {
+        var stubFormat = sinon.stub();
+        let ProductHelper = proxyquire('../../../cartridges/app_ua_core/cartridge/scripts/helpers/ProductHelper', {
+            'dw/catalog/ProductSearchModel':{},
+            '*/cartridge/scripts/helpers/productHelpers': {},
+            'dw/system/Site': {
+                current: {
+                    preferences: {
+                        custom: {
+                            enablePLPImageSlider: false
+                        }
+                    },
+                    getCustomPreferenceValue: stubFormat
+                }
+            },
+            'dw/system/Logger': {
+                debug: function (text) {
+                    return text;
+                },
+                error: function (text) {
+                    return text;
+                }
+            }
+        });
+        stubFormat.throws(new Error('custom exception'));
+        var result = ProductHelper.enablePLPImageSlider();
         assert.isFalse(result);
     });
 });

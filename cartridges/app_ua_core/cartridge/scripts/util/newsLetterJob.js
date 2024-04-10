@@ -27,6 +27,31 @@ function execute() {
             } else if (!empty(emailWebSourceJSON)) {
                 emailSourceCode = emailWebSourceJSON.checkout;
             }
+
+            var merkleEmailStatus;
+            var Site = require('dw/system/Site');
+
+            if (Site.getCurrent().getCustomPreferenceValue('isMarketingAutoOptInEnabled')) {
+                var merkleStatus = require('*/cartridge/modules/providers').get('Newsletter', {
+                    email: email,
+                    merkleSourceCode: emailSourceCode,
+                    country: country,
+                    lng: language
+                }).status();
+
+                if (merkleStatus && 'status' in merkleStatus && 'Ecomm' in merkleStatus) {
+                    merkleEmailStatus = merkleStatus.status.Ecomm;
+                    if (merkleEmailStatus !== '' && merkleEmailStatus !== null) {
+                        // if already subscribed, just remove custom object and skip
+                        require('dw/system/Transaction').wrap(function () { // eslint-disable-line
+                            customObjectMgr.remove(customObj);
+                        });
+                        continue; // eslint-disable-line
+                    }
+                }
+            }
+
+            // otherwise, perform as normal
             var resObj = require('*/cartridge/modules/providers').get('Newsletter', { email: email, merkleSourceCode: emailSourceCode, country: country, lng: language }).subscribe();
             if (resObj && 'MerkleStatus' in resObj && resObj.MerkleStatus === 'success') {
                 require('dw/system/Transaction').wrap(function () { // eslint-disable-line

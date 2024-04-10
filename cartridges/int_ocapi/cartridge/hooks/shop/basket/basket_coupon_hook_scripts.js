@@ -5,6 +5,7 @@
  */
 
 var Status = require('dw/system/Status');
+var Resource = require('dw/web/Resource');
 var errorLogHelper = require('*/cartridge/scripts/errorLogHelper');
 var paymentHelper = require('~/cartridge/scripts/paymentHelper');
 let PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
@@ -16,7 +17,7 @@ var Transaction = require('dw/system/Transaction');
  * @param {Basket} basket - Current basket
  * @returns {void}
  */
-function estimateLoyaltyPionts(basket) {
+function estimateLoyaltyPoints(basket) {
     if (PreferencesUtil.getValue('isLoyaltyEnable') && customer.isMemberOfCustomerGroup('Loyalty')) {
         const loyaltyHelper = require('*/cartridge/scripts/helpers/loyaltyHelper');
         loyaltyHelper.estimate(basket);
@@ -64,11 +65,54 @@ function handleCouponPromotions(basket) {
     try {
         require('dw/system/HookMgr').callHook('dw.order.calculate', 'calculate', basket);
         paymentHelper.autoAdjustBasketPaymentInstruments(basket);
-        estimateLoyaltyPionts(basket);
+        estimateLoyaltyPoints(basket);
     } catch (e) {
         return errorLogHelper.handleOcapiHookErrorStatus(e);
     }
     return new Status(Status.OK);
+}
+
+/**
+ * Checks a coupon up-front so that a custom error message may be returned.
+ * If the coupon is valid, it is removed so that the OCAPI add coupon functionality will work.
+ * @param {Basket} basket - Current basket
+ * @param {Coupon} couponItem - coupon being added
+ * @returns {Status | undefined} - Status
+ */
+function checkCoupon(basket, couponItem) {
+    var error;
+    var couponLineItem;
+
+    try {
+        couponLineItem = basket.createCouponLineItem(
+            couponItem.code,
+            true
+        );
+    } catch (e) {
+        error = e;
+    }
+    if (error) {
+        var errorCodes = {
+            COUPON_CODE_ALREADY_IN_BASKET: 'error.coupon.already.in.cart',
+            COUPON_ALREADY_IN_BASKET: 'error.coupon.cannot.be.combined',
+            COUPON_CODE_ALREADY_REDEEMED: 'error.coupon.already.redeemed',
+            COUPON_CODE_UNKNOWN: 'error.unable.to.add.coupon',
+            COUPON_DISABLED: 'error.unable.to.add.coupon',
+            REDEMPTION_LIMIT_EXCEEDED: 'error.unable.to.add.coupon',
+            TIMEFRAME_REDEMPTION_LIMIT_EXCEEDED:
+                'error.unable.to.add.coupon',
+            NO_ACTIVE_PROMOTION: 'error.unable.to.add.coupon',
+            default: 'error.unable.to.add.coupon'
+        };
+        var errorMessageKey = errorCodes[error.errorCode] || errorCodes.default;
+        var errorMessage = Resource.msg(errorMessageKey, 'cart', null);
+        var status = new Status(Status.ERROR, 'CREATE_COUPON_LINE_ITEM_ERROR', errorMessage);
+        status.addDetail('couponCode', couponItem.code);
+        status.addDetail('errorCode', error.errorCode);
+        return status;
+    }
+    basket.removeCouponLineItem(couponLineItem);
+    return undefined;
 }
 
 /**
@@ -81,7 +125,6 @@ function checkRedeemedCouponCode(basket, couponItem) {
     if (PreferencesUtil.getValue('isLoyaltyEnable') && customer.isMemberOfCustomerGroup('Loyalty')) {
         const loyaltyHelper = require('*/cartridge/scripts/helpers/loyaltyHelper');
         if (!loyaltyHelper.canApplyLoyaltyCoupon(couponItem.code)) {
-            var Resource = require('dw/web/Resource');
             return new Status(Status.ERROR, 'ERROR', Resource.msg('error.unable.to.add.coupon', 'cart', null));
         }
     }
@@ -96,6 +139,10 @@ exports.afterPOST = function (basket) {
 };
 
 exports.beforePOST = function (basket, couponItem) {
+    const errorStatus = checkCoupon(basket, couponItem);
+    if (errorStatus) {
+        return errorStatus;
+    }
     return checkRedeemedCouponCode(basket, couponItem);
 };
 

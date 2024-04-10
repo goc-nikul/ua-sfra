@@ -19,50 +19,29 @@
         </isif>
     </isloop>
     <isset name="showDescription" value="${false}" scope="page" />
-    <isif condition="${!empty(shortDescription) && shortDescription.markup.length > 0}">
-        <div>
-            <isprint value="${shortDescription}" encoding="off"/>
-        </div>
-        <isset name="showDescription" value="${true}" scope="page" />
-    </isif>
-    <isif condition="${!empty(longDescription) && longDescription.markup.length > 0}">
-        <div>
-            <ul>
-                <isif condition="${!empty(productFit) && !empty(productFit.description)}">
-                    <li>
-                        <isif condition="${!empty(productFit.name)}"><strong><isprint value="${productFit.name}" encoding="off"/>:</strong> </isif>
-                        <isprint value="${productFit.description}" encoding="off"/>
-                    </li>
-                </isif>
-                
-                <iscomment>DISPLAY BULLETS AND REMOVE ANY IF NECESSARY</iscomment>
-                <isif condition="${removeBullet}">
-                    <isset name="productBullet" value="${longDescription.markup.split('\n')}" scope="page" />
-                    <isloop items=${productBullet} var="bullet">
-                        <isif condition="${removeBullet.indexOf(bullet) == -1}">
-                            <li><isprint value="${bullet}" encoding="off"/></li>
-                        </isif>
-                    </isloop>
-                    <iselse>
-                        <li><isprint value="${longDescription.markup.replace(/\n/g,"</li><li>")}" encoding="off"/></li> 
-                    </isif>
-                
-                <isif condition="${!empty(pdict.product.custom.legal)}">
-                    <li><isprint value="${pdict.product.custom.legal.replace(/\n/g,"</li><li>")}" encoding="off"/></li>
-                </isif>
-                <isif condition="${!empty(pdict.product.custom.legalRegion)}">
-                    <iscomment>Match '/ko-kr/materials-and-care.html' URL and make it to be absolute URL to UA Korean production</iscomment>
-                    <isset name="legalRegion" value="${pdict.product.custom.legalRegion.replace(/\n<a href=\"\/ko-kr.*a>/,"")}" scope="page" />
-                    <li><isprint value="${legalRegion.replace(/\n/g,"</li><li>")}" encoding="off"/></li>
-                </isif>
-            </ul>
-        </div>
-    </isif>
+    <ul>
+        <isif condition="${pdict.product.custom.dna}">
+            <isloop items="${pdict.product.custom.dna}" var="prodDNA">
+                <li><isprint value="${prodDNA}"/></li>
+            </isloop>
+        </isif>
+        <isif condition="${pdict.product.custom.fitCare}">
+            <isloop items="${pdict.product.custom.fitCare}" var="prodFitCare">
+                <li><isprint value="${prodFitCare}"/></li>
+            </isloop>
+        </isif>
+        <isif condition="${pdict.product.custom.specs}">
+            <isloop items="${pdict.product.custom.specs}" var="prodSpecs">
+                <li><isprint value="${prodSpecs}"/></li>
+            </isloop>
+        </isif>
+    </ul>
 </div>
 	<isloop items="${pdict.productImages}" var="image" status="loopstate">
 		<div><img src=${image.URL} style="width:1000px;"></div>
     </isloop>
-<div><img src="${pdict.s7BaseURL + Resource.msg('updatematerial.description_image_two', 'shoplinker', null)}"></div>
-<div><img src="${pdict.s7BaseURL + Resource.msg('updatematerial.description_image_three', 'shoplinker', null)}"></div>
-<div><img src="${pdict.s7BaseURL + Resource.msg('updatematerial.description_image_four', 'shoplinker', null)}"></div>
+<div><img src="${pdict.s7BaseURL + Resource.msg('updatematerial.sizechart_image_mens', 'shoplinker', null)}"></div>
+<div><img src="${pdict.s7BaseURL + Resource.msg('updatematerial.sizechart_image_womens', 'shoplinker', null)}"></div>
+<div><img src="${pdict.s7BaseURL + Resource.msg('updatematerial.sizechart_image_mens_foorwear', 'shoplinker', null)}"></div>
+<div><img src="${pdict.s7BaseURL + Resource.msg('updatematerial.sizechart_image_womens_foorwear', 'shoplinker', null)}"></div>
 </div>

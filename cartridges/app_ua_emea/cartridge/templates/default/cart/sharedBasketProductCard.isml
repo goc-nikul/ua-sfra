@@ -1,0 +1,154 @@
+<isset name="prodURL" value="${lineItem && lineItem.id ? URLUtils.url('Product-Show','pid',lineItem.id) : ''}" scope="page" />
+<isset name="notAvailableItems" value="${dw.web.Resource.msg('label.not.available.items.instock', 'common', null)}" scope="page" />
+
+<div class="b-productcard_item_availability line-item-availability availability-${lineItem.id} bfx-product-inventory" data-labelnotavailable="${notAvailableItems}">
+    <span id="max-quantity-${lineItem.id}" hidden>${lineItem.quantities.length}</span>
+    <isif condition="${(lineItem.quantities.length < lineItem.quantity || lineItem.priceTotal.price === 'N/A' || ('isOnline' in lineItem && !lineItem.isOnline)) && !lineItem.custom.fromStoreId}">
+        <div class="b-header_minicart-item-check">
+            <isif condition="${lineItem.quantities.length < lineItem.quantity}">
+                <p class="b-header_minicart-check-icon"></p>
+                <div class="line-item-attributes">
+                    <div class="msg-quantity-in-stock"><isprint value="${dw.web.Resource.msgf('label.quantity.in.stock', 'common', null, lineItem.quantities.length)}" /></div>
+                    <div class="msg-no-items"><isprint value="${dw.web.Resource.msg('label.not.available.items', 'common', null)}" /></div>
+                </div>
+            </isif>
+        </div>
+    </isif>
+</div>
+
+<div class="b-cartlineitem_row bfx-price-product">
+    <input type="checkbox" id="${lineItem.id}" name="${lineItem.id}" class="sharedBasket-checkbox cbProduct"/>
+    <div class="b-cartlineitem_image line-item-image">
+        <a href="${prodURL}">
+            <img src="${typeof lineItem.images.pdpMainDesktop[0] !== 'undefined' ? lineItem.images.pdpMainDesktop[0].url : null}" title="${typeof lineItem.images.pdpMainDesktop[0] !== 'undefined' ? lineItem.images.pdpMainDesktop[0].title : null}" class="line-item-product-image bfx-product-image" alt="${typeof lineItem.images.pdpMainDesktop[0] !== 'undefined' ? lineItem.images.pdpMainDesktop[0].alt : null} image number ${typeof lineItem.images.pdpMainDesktop[0] !== 'undefined' ? lineItem.images.pdpMainDesktop[0].index :null}" itemprop="image" />
+        </a>
+        <isif condition="${'masterQtyLimit' in lineItem.custom && lineItem.custom.masterQtyLimit}">
+            ${Resource.msgf('error.alert.master.quantity.limit.reached', 'product',  null, lineItem.custom.masterQtyLimit)}
+        </isif>
+        <isif condition="${(!dw.system.Site.current.getCustomPreferenceValue('isBOPISEnabled') || typeof shipment !== "undefined" && !'fromStoreId' in shipment.custom || typeof shipment !== "undefined" && !shipment.custom.fromStoreId) && isUrgentMessageEnabled && 'atsValue' in lineItem.custom && lineItem.custom.atsValue > 0 && lineItem.custom.atsValue <= inventoryThreshold}">
+            <span class="b-urgent-message">${Resource.msg('msg.cart.inventory.urgency', 'cart', null)}</span>
+        </isif>
+    </div>
+    <div class="b-cartlineitem_details">
+        <div class="b-lineitem">
+            <a href="${prodURL}" class="b-lineitem_itemname bfx-product-name notranslate">
+                <isprint value=${lineItem.productName} encoding="off" />
+            </a>
+        </div>
+        <p class="hide visually-hidden bfx-sku-${lineItem.id}">${lineItem.custom.sku}</p>
+        <p class="hide visually-hidden bfx-product-customData-label">productId</p>
+        <p class="hide visually-hidden bfx-product-customData-value">${lineItem.id}</p>
+        <div class="b-cartlineitem_attributes">
+            <isif condition="${lineItem.custom.style}">
+                <p class="t-lineitem_attributes">${Resource.msg('label.product.item.sku', 'cart', null)} <span class="product-sku-${lineItem.id}">${lineItem.custom.sku}</span></p>
+            </isif>
+            <isloop items="${lineItem.variationAttributes}" var="attribute">
+                <isif condition="${attribute.attributeId == 'color'}">
+                    <p class="t-lineitem_attributes">
+                        <isset name="productHelpers" value="${require('*/cartridge/scripts/helpers/productHelpers')}" scope="page"/>
+                        <isset name="colorway" value="${lineItem.custom.colorway}" scope="page" />
+                        <isset name="fixProductColorNames" value="${colorway ? productHelpers.fixProductColorNames(colorway) : ''}" scope="page"/>
+                        ${attribute.displayName}: <isif condition="${colorway}"> <span class="color-${lineItem.id}">${fixProductColorNames}</span></isif><span> - <span class="color-${lineItem.id}"><isprint value="${lineItem.custom.color}"/></span></span>
+                    </p>
+                <iselse/>
+                    <p class="t-lineitem_attributes">${attribute.displayName}:<span class="size-${attribute.displayName}"> ${lineItem.sizeToDisplay}</span></p>
+                </isif>
+            </isloop>
+            <isloop items="${lineItem.options}" var="option">
+                <isif condition="${!!option}">
+                    <div class="lineItem-options-values" data-option-id="${option.optionId}" data-value-id="${option.selectedValueId}">
+                        <p class="t-lineitem_attributes">${option.displayName}</p>
+                    </div>
+                </isif>
+            </isloop>
+            <div class="b-cartlineitem_price price-mobile">
+                <div class="b-productcard_total_price line-item-total-price">
+                    <isif condition="${lineItem.promotions}">
+                        <isloop items="${lineItem.promotions}" var="appliedPromotion">
+                            <div class="b-promo-product-level">
+                                <isprint value="${appliedPromotion.calloutMsg}" encoding="off"/>
+                            </div>
+                        </isloop>
+                    </isif>
+                    <isif condition="${lineItem.price.offPercentage.value > 0}">
+                        <div class="price">
+                            <span class="strike-through bfx-price bfx-original-price ${lineItem.price.actualListPrice.formatted ? 'highlighted' : ''}
+                                <isif condition=${!lineItem.price.actualListPrice.formatted}>non-adjusted-price</isif>">
+                                    <isprint value=${lineItem.price.actualListPrice.formatted} encoding="off" />
+                            </span>
+                            <span class="${lineItem.price.actualListPrice.formatted ? 'highlighted' : ''} pricing line-item-total-price-amount bfx-price bfx-product-subtotal item-total-${typeof lineItem !== 'undefined' ? lineItem.UUID : null}">
+                                <isprint value=${lineItem.price.sales.formatted} encoding="off" />
+                            </span>
+                        </div>
+                    <iselse/>
+                        <span>
+                            <isprint value=${lineItem.price.actualListPrice.formatted} encoding="off"/>
+                        </span>
+                    </isif>
+                </div>
+            </div>
+            <div class="b-productcard_footer">
+                <div class="b-productcard_row">
+                    <!--- quantity --->
+                    <div class="b-productcard_item_quantity line-item-quantity">
+                        <div class="b-quantity">
+                            <label class="b-quantity-label" for="quantity-${typeof lineItem !=='undefined' ? lineItem.UUID : ''}">${Resource.msg('field.selectquantity','cart',null)}</label>
+                            <select class="b-quantity-select custom-select form-control js-quantity-select bfx-product-qty"
+                                    data-pid="${lineItem.id}"
+                                    data-pre-select-qty="${lineItem.quantity}"
+                                    id="quantity-${lineItem.id}"
+                                    name="quantity-${typeof lineItem !=='undefined' ? lineItem.UUID :''}"
+                                    aria-label="quantity: ${StringUtils.formatInteger(lineItem.quantity)}"
+                                    <isif condition="${lineItem.custom.masterQtyLimit}">
+                                        disabled="disabled"
+                                    </isif>>
+                                    <isloop begin="${lineItem.minOrderQuantity}"
+                                            end= "${Number(lineItem.quantity) > lineItem.quantities.length ? Number(lineItem.quantity) : lineItem.quantities.length}"
+                                            status="status">
+                                        <isif condition="${ Number(lineItem.quantity) === status.index}">
+                                            <option selected>${status.index}</option>
+                                        <iselse/>
+                                            <option>${status.index}</option>
+                                        </isif>
+                                    </isloop>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="b-cartlineitem_remove_edit b-no_egiftcard b-cartlineitem_remove_edit-right">
+                <div class="b-cartlineitem_togetherbutton">
+                    <a class="b-cartlineitem_left-content edit-sharedBasket" href="${URLUtils.https('QRcode-EditModal', 'pid', lineItem.id, 'quantity', lineItem.quantity)}" data-cmp="editShareBasketProduct">
+                        ${Resource.msg('link.edit.item','cart',null)}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="b-cartlineitem_price">
+        <div class="b-productcard_total_price line-item-total-price">
+            <isif condition="${lineItem.promotions}">
+                <isloop items="${lineItem.promotions}" var="appliedPromotion">
+                    <div class="b-promo-product-level">
+                        <isprint value="${appliedPromotion.calloutMsg}" encoding="off"/>
+                    </div>
+                </isloop>
+            </isif>
+            <isif condition="${lineItem.price.offPercentage.value > 0}">
+                <div class="price">
+                    <span class="strike-through bfx-price bfx-original-price ${lineItem.price.actualListPrice.formatted ? 'highlighted' : ''}
+                        <isif condition=${!lineItem.price.actualListPrice.formatted}>non-adjusted-price</isif>">
+                            <isprint value=${lineItem.price.actualListPrice.formatted} encoding="off" />
+                    </span>
+                    <span class="${lineItem.price.actualListPrice.formatted ? 'highlighted' : ''} pricing line-item-total-price-amount bfx-price bfx-product-subtotal item-total-${typeof lineItem !== 'undefined' ? lineItem.UUID : null}">
+                        <isprint value=${lineItem.price.sales.formatted} encoding="off" />
+                    </span>
+                </div>
+            <iselse/>
+                <span>
+                    <isprint value=${lineItem.price.actualListPrice.formatted} encoding="off"/>
+                </span>
+            </isif>
+        </div>
+    </div>
+</div>

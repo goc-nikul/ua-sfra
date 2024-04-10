@@ -1,0 +1,48 @@
+on:
+  push:
+    branches:
+      - develop   #Define required branch names
+      - main
+    paths:
+      - cartridges/app_ua_core/cartridge/static/default/.well-known/apple-app-site-association.json   #Check for changes occurred in mentioned file
+      
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+jobs:
+  push_request:
+    name: "File copying to S3"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v3
+        with:
+          ssh-key: ${{ secrets.GH_SSH_KEY }}
+          persist-credentials: true
+          submodules: recursive
+
+      # Configure AWS credentials.
+      - name: AWS Credentials
+        id: aws-credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::815528777639:role/s3-domain-certification-role  
+          role-duration-seconds: 900 # the ttl of the session, in seconds.
+          aws-region: us-east-1 # use your region here.
+          role-skip-session-tagging: true
+
+      - name: AWS Commands for Develop
+        if: ${{ github.ref == 'refs/heads/develop' }}  #subsequent step is executed only when the GitHub event is related to the mentioned branch name
+        run: |
+          aws s3 cp cartridges/app_ua_core/cartridge/static/default/.well-known/apple-app-site-association.json s3://domain-certification/dev-na04.ecm.underarmour.com/
+          aws s3 cp cartridges/app_ua_core/cartridge/static/default/.well-known/apple-app-site-association.json s3://domain-certification/dev-na04.ecm.underarmour.com/apple-app-site-association
+        #when this command is executed, it copies the local file apple-app-site-association.json to the specified S3 bucket and path
+
+      - name: Aws Commands for Main
+        if: ${{ github.ref == 'refs/heads/main' }}  #subsequent step is executed only when the GitHub event is related to the mentioned branch name
+        run: |
+          aws s3 cp cartridges/app_ua_core/cartridge/static/default/.well-known/apple-app-site-association.json s3://domain-certification/www.underarmour.com/
+          aws s3 cp cartridges/app_ua_core/cartridge/static/default/.well-known/apple-app-site-association.json s3://domain-certification/www.underarmour.com/apple-app-site-association
+        

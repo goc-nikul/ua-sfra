@@ -65,7 +65,9 @@ describe('int_mao/cartridge/scripts/OrderExportUtils.js', () => {
                         },
                         getShippingAddress: function () {
                             return {
-                                countryCode: {},
+                                countryCode: {
+                                    value: ''
+                                },
                                 custom: {
                                     isOfficeAddress: true,
                                     addressType: 'business'
@@ -94,7 +96,9 @@ describe('int_mao/cartridge/scripts/OrderExportUtils.js', () => {
                                         },
                                         getShippingAddress: function () {
                                             return {
-                                                countryCode: {}
+                                                countryCode: {
+                                                    value: ''
+                                                }
                                             };
                                         },
                                         quantity: {
@@ -478,7 +482,9 @@ describe('int_mao/cartridge/scripts/OrderExportUtils.js', () => {
                         },
                         getShippingAddress: function () {
                             return {
-                                countryCode: {}
+                                countryCode: {
+                                    value: ''
+                                }
                             };
                         },
                         quantity: {
@@ -663,6 +669,7 @@ describe('int_mao/cartridge/scripts/OrderExportUtils.js', () => {
         });
         var result = OrderExportUtils.getOrderJSON(order);
 
+        console.log(JSON.stringify(result));
         assert.isNotNull(result);
         var parseRes = JSON.parse(result);
         assert.isNotNull(parseRes.MessageHeader);
@@ -825,7 +832,9 @@ describe('int_mao/cartridge/scripts/OrderExportUtils.js', () => {
                         },
                         getShippingAddress: function () {
                             return {
-                                countryCode: {},
+                                countryCode: {
+                                    value: ''
+                                },
                                 custom: {
                                     isOfficeAddress: true,
                                     addressType: ''
@@ -854,7 +863,9 @@ describe('int_mao/cartridge/scripts/OrderExportUtils.js', () => {
                                         },
                                         getShippingAddress: function () {
                                             return {
-                                                countryCode: {}
+                                                countryCode: {
+                                                    value: ''
+                                                }
                                             };
                                         },
                                         quantity: {
@@ -1936,7 +1947,11 @@ describe('int_mao/cartridge/scripts/OrderExportUtils.js', () => {
 
     it('Testing method getOrderJson --> Test Custom Exception', () => {
         order.customerName = 'aaa bbb';
-        order.billingAddress = { countryCode: {} };
+        order.billingAddress = {
+            countryCode: {
+                value: ''
+            }
+        };
         var OrderExportUtils = proxyquire('../../../cartridges/int_mao/cartridge/scripts/OrderExportUtils', {
             'dw/util/Calendar': require('../../mocks/dw/dw_util_Calendar'),
             'dw/system/Logger': require('../../mocks/dw/dw_system_Logger'),
@@ -1983,6 +1998,7 @@ describe('int_mao/cartridge/scripts/OrderExportUtils.js', () => {
             'dw/util/ArrayList': require('../../mocks/dw/dw_util_ArrayList')
         });
         var result = OrderExportUtils.getOrderJSON(order);
+        console.log('result 123: ' + result);
         var resultObject = JSON.parse(result);
         assert.isNotNull(result);
         assert.isTrue(resultObject.error);

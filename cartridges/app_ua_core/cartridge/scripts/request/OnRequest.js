@@ -15,6 +15,21 @@ var URLUtils = require('dw/web/URLUtils');
  * @returns{dw.system.Status} status response
  */
 exports.onRequest = function () {
+    /* When customer is logged in from different browsers, and tries to delete customer account from one browser
+    and visits the session on other browser, due to soft SFCC timeout all the attributes identifying the users type are contradicting
+    The only way to identify the customer which we are getting on a browser but was deleted from other browser is:
+    fetching the customer attribute with empty email
+    Here, we are also deleting the cookie 'dwsid' which is a SFCC browser side cookie in order to start a new session
+    with anonymous customer. This is done because when customer is active in one session then deleting customer account
+    from another session throws a session without customer error when accessing any functionality in the active session */
+
+    if ((empty(session.customer) || (session.customer.profile && empty(session.customer.profile.email)))) {
+        require('*/cartridge/scripts/helpers/accountHelpers').deleteIDMCookies();
+        require('*/cartridge/scripts/helpers/cookieHelpers').deleteCookie('dwsid');
+
+        CustomerMgr.logoutCustomer(false);
+        return new Status(Status.OK);
+    }
     var borderFreeEnabled = Site.current.preferences !== null ? Site.current.preferences.custom.bfxIsEnabled : false;
     var cookieHelper = require('*/cartridge/scripts/helpers/cookieHelpers');
     var brooksBell = cookieHelper.read('brooksBell');

@@ -40,23 +40,6 @@ function updatePromotionInformation(data) {
         return;
     }
 
-    if (data.totals.promotionalDiscount && data.totals.promotionalDiscount.value === 0) {
-        if (!$('.b-orderdiscount_except_coupon').hasClass('hide')) {
-            $('.b-orderdiscount_except_coupon').addClass('hide');
-        }
-    } else if (data.totals.promotionalDiscount !== 0) {
-        if ($('.b-orderdiscount_except_coupon').hasClass('hide')) {
-            $('.b-orderdiscount_except_coupon').removeClass('hide');
-        }
-        $('.b-orderdiscount_except_coupon .b-discount_calloutmsg').empty()
-        .append(data.resources.productDiscount);
-
-        if (data.totals.promotionalDiscount && data.totals.promotionalDiscount.formatted) {
-            $('.b-orderdiscount_except_coupon .product-discount-total').empty()
-            .append(data.totals.promotionalDiscount.formatted);
-        }
-    }
-
     if (data.totals.couponsSavedAmount) {
         $('.b-promo-outer-class').empty()
         .html(createCouponCodeStructure(data));
@@ -65,6 +48,10 @@ function updatePromotionInformation(data) {
     if (data.showSavingExperience) {
         if ($('.b-order-saved-total').hasClass('hide')) {
             $('.b-order-saved-total').removeClass('hide');
+        }
+
+        if (!data.totals.saveTotal.value) {
+            $('.b-order-emea-saved-total').addClass('hide');
         }
 
         if (data.totals.saveTotal && data.totals.saveTotal.formatted) {

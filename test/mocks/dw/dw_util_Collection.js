@@ -32,6 +32,19 @@ class Collection {
         this.empty = !!this.items.length;
         this.length = this.items.length;
     }
+
+    remove(item) {
+        var index = this.items.findIndex(function(obj) {
+            return JSON.stringify(obj) === JSON.stringify(item);
+        });
+        
+        if (index !== -1) {
+            this.items.splice(index, 1);
+        }
+
+        this.empty = !!this.items.length;
+        this.length = this.items.length;
+    }
 }
 
 module.exports = Collection;

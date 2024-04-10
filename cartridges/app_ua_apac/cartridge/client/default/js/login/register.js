@@ -118,6 +118,10 @@ function handleCreateAccountSubmission(form, membersonEnabled, membersonSearchRe
         formdata += '&membersonSearchResponse=' + membersonSearchResponse;
     }
 
+    if ($('.l-pdp').length > 0 && window.memberPricePid) {
+        formdata += '&memberPricePid=' + window.memberPricePid;
+    }
+
     $.ajax({
         url: url,
         type: type,
@@ -135,11 +139,12 @@ function handleCreateAccountSubmission(form, membersonEnabled, membersonSearchRe
                     var errorMsg = $('[data-analytics-track="error-span"]').text().trim() + ' ' + $('[data-analytics-track="error-link"]').text().trim();
                     $('body').trigger('register:error', { errorMsg: errorMsg });
                 }
-                $('input[name="initializeRegisterForm"]');
+                $('input[name="initializeRegisterForm"]').val(false);
                 $('.js-createaccount-button').removeAttr('disabled');
             } else if (data.validationEmailMessage) {
                 $('.js-createaccount-button').removeAttr('disabled');
                 $('#newUserRegisterModal').find('#register').html(data.validationEmailMessage);
+                $('#newUserRegisterModal').find('.free-shipping-promotion').addClass('d-none');
             } else {
                 form.trigger('login:success', data);
                 $('body').trigger('register:success:analytics', {
@@ -147,6 +152,15 @@ function handleCreateAccountSubmission(form, membersonEnabled, membersonSearchRe
                     addToEmailList: data && data.addToEmailList,
                     email: form.find('[name="dwfrm_profile_customer_email"]').val()
                 });
+
+                if ($('.l-pdp').length > 0 && window.memberPricePid && data.memberPriceModalContent) {
+                    window.keepMemberPricingVar = true;
+                    $('#newUserRegisterModal').modal('hide');
+                    $('body').trigger('memberpricing:successpopup', {
+                        memberPriceModalContent: data.memberPriceModalContent
+                    });
+                    return;
+                }
 
                 if ('loyaltyGatedModal' in data) {
                     $('body').trigger('loyalty:enroll', {
@@ -158,6 +172,9 @@ function handleCreateAccountSubmission(form, membersonEnabled, membersonSearchRe
                     });
                 }
                 if (data.shouldRedirect || $('.js-login-in-page').length > 0 || $('.b-order-confirmation').length > 0 || 'loyaltyGatedModal' in data) {
+                    location.href = data.redirectUrl;
+                } else if ($('.register-in-page').length > 0) {
+                    setRegisteredCookie();
                     location.href = data.redirectUrl;
                 } else {
                     setRegisteredCookie();
@@ -178,10 +195,46 @@ function handleCreateAccountSubmission(form, membersonEnabled, membersonSearchRe
 }
 
 /**
+ * Populate the days present in a month
+ * @param {string} parentSelector - finding the days
+ * @param {Object} month ID - passing the month ID
+ */
+
+function getKeyByValue(object, value) { // eslint-disable-line
+    for (var prop in object) { // eslint-disable-line
+        if (prop === value) {
+            return object[prop];
+        }
+    }
+}
+
+/**
+ * Function to show number of days according to the month selected.
+ */
+function updateDays() {
+    $('body').on('change', 'select[name $= "customer_birthMonth"]', function () {
+        var monthCode = $(this).val();
+        var arrayHtml = '';
+        const obj = { 1: 31, 2: 29, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 }; // eslint-disable-line
+
+        var days = getKeyByValue(obj, monthCode);
+        for (var i = 0; i <= days; i++) { // eslint-disable-line
+            if (i === 0) {
+                arrayHtml += '<option value=""> Select </option>';
+            } else {
+                arrayHtml += '<option value="' + i + '">' + i + '</option>';
+            }
+        }
+        $('.b-day-select').empty();
+        $('.b-day-select').append(arrayHtml);
+    });
+}
+
+/**
  * On Submitting login on modal
  */
 function submitCreateAccount() {
-    $('body').on('click', '.js-createaccount-button', function (e) {
+    $('body').find('.js-createaccount-button').off('click').on('click', function (e) {
         e.preventDefault();
         $('.b-registration-error').addClass('hide');
         if ($('.b-memberson-error').length) {
@@ -297,6 +350,9 @@ function openCreateAccount($this) {
                 $('<div class="validateMsg invalid-feedback"><p>' + naverValidateRes + '</p></div>').prependTo('#newUserRegisterModal .g-modal-content');
                 $('input[name="showNaverValidationMessage"]').val('');
             }
+            if ($('span#mobileauth-register').length && $('#mobileauth-register').attr('data-mobileauth-enabled') === 'true') {
+                $('#newUserRegisterModal').attr('data-backdrop', 'static');
+            }
             $('body').trigger('login:afterCreateAccountModal');
             util.branchCloseJourney();
             $('#newUserRegisterModal').modal('show');
@@ -315,6 +371,7 @@ function openCreateAccountModal() {
         e.preventDefault();
         $('#newUserRegisterModal').remove();
         if ($('#loginModal').length > 0) {
+            $('html').removeClass('modal-open');
             $('#loginModal').remove();
         }
         if ($(this).closest('.js-login-page').length > 0) {
@@ -418,7 +475,11 @@ function isEligibleForLoyalty() {
  */
 function openRegisterOnPageLoad() {
     if ($('input[name="showRegisterModal"]').val() === 'true') {
-        $('.b-header_account-link.js-register').trigger('click');
+        if ($('.b-header_account-link.js-init-mobileauth').length > 0) {
+            $('.b-header_account-link.js-init-mobileauth').eq(0).trigger('click');
+        } else {
+            $('.b-header_account-link.js-register').trigger('click');
+        }
     }
 }
 
@@ -427,8 +488,10 @@ module.exports = {
     registerCreateAccountEvents: registerCreateAccountEvents,
     openCreateAccountModal: openCreateAccountModal,
     openAccountCreatedModal: openAccountCreatedModal,
+    updateDays: updateDays,
     consecutiveSpaceValidator: consecutiveSpaceValidator,
     openRegisterOnPageLoad: openRegisterOnPageLoad,
     isEligibleForLoyalty: isEligibleForLoyalty,
-    setEmailDomain: setEmailDomain
+    setEmailDomain: setEmailDomain,
+    submitCreateAccount: submitCreateAccount
 };

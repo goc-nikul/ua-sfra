@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<extensions xmlns="http://www.demandware.com/xml/bmmodules/2007-12-11"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.demandware.com/xml/bmmodules/2007-12-11 bmext.xsd">
+    <!-- =============================================================== -->
+    <!-- ==                                                           == -->
+    <!-- == SITE MENU EXTENSIONS                            == -->
+    <!-- ==                                                           == -->
+    <!-- =============================================================== -->
+    <menuaction id="customer_deletion_reports" menupath="customers" site="true" position="99999">
+        <name xml:lang="x-default">Customer Deletion Report</name>
+        <short_description xml:lang="x-default">Generate Deleted Customers Reports Feed</short_description>
+        <description xml:lang="x-default">Generate Deleted Customers Reports Feed</description>
+        <exec pipeline="CustomerReport" node="DeleteRecords"/>
+        <sub-pipelines>
+            <pipeline name="CustomerReport" />
+        </sub-pipelines>
+        <icon>icons/analytics_ico.gif</icon>
+    </menuaction>
+</extensions>

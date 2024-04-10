@@ -1,0 +1,21 @@
+<div class="g-modal-body g-modal-error-body">
+    <isif condition="${pdict.errorMessage}">
+        <isprint value="${pdict.errorMessage}" encoding="off" />
+    <iselse/>
+        <isprint value="${Resource.msg('error.mobileauth.generic', 'mobileAuth', null)}" encoding="off" />
+    </isif>
+</div>
+<isif condition="${pdict.authenticationPending}">
+    <button class="btn btn-primary btn-block g-error-close g-button_primary--black js-init-mobileauth-login"
+        data-href="${URLUtils.https('Login-InitiateMobileAuth', 'login', 'true')}"
+        aria-label="${Resource.msg('error.close.btn', 'common', null)}"
+        title="${Resource.msg('error.close.btn', 'mobileAuth', null)}">
+        ${Resource.msg('error.close.btn', 'mobileAuth', null)}
+    </button>
+<iselse/>
+    <button class="btn btn-primary btn-block g-error-close g-button_primary--black close-btn mobile-close-btn"
+        data-dismiss="modal" aria-label="${Resource.msg('button.close', 'common', null)}"
+        title="${Resource.msg('error.close.btn', 'mobileAuth', null)}">
+        ${Resource.msg('error.close.btn', 'mobileAuth', null)}
+    </button>
+</isif>

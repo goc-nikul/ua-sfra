@@ -55,10 +55,10 @@
 										<div class="default-bold-child"><isprint value="${Resource.msg('account.address.defaultbilling','account',null)}"/></div>
 									</isif>
 			                        <div class="bold-child"><isprint value="${address.address.firstName + ' ' + address.address.lastName}" /></div>
-			                        <div><isprint value="${address.address.address1}" /></div>
+			                        <div><isprint value="${address.address.address1 ? address.address.address1 + ', ' : ''}" /></div>
 			                        <div><isprint value="${address.address.address2}" /> </div>
-			                        <div><isif condition="${address.address.exteriorNumber}"><isprint value="${address.address.exteriorNumber}" /></isif> <isif condition="${address.address.interiorNumber}"><isprint value="${address.address.interiorNumber}" /></isif> <isif condition="${address.address.additionalInformation}"><isprint value="${address.address.additionalInformation}" /></isif></div>
-			                        <div><isprint value="${address.address.city + ', '}" /> <isif condition="${address.address.colony}"><isprint value="${address.address.colony}" /></isif> <isif condition="${address.address.dependentLocality}"><isprint value="${address.address.dependentLocality}" /></isif> <isif condition="${address.address.stateCode}"> <isprint value="${address.address.stateCode + ' ' }" /> </isif> <isprint value="${address.address.postalCode}" /> </div>
+			                        <div><isif condition="${!empty(address.address.exteriorNumber)}"><isprint value="${address.address.exteriorNumber + ', '}" /></isif> <isif condition="${!empty(address.address.interiorNumber)}"><isprint value="${address.address.interiorNumber + ', '}" /></isif> <isif condition="${!empty(address.address.additionalInformation)}"><isprint value="${address.address.additionalInformation}" /></isif></div>
+			                        <div><isprint value="${address.address.city + ', '}" /> <isif condition="${!empty(address.address.colony)}"><isprint value="${address.address.colony + ', '}" /></isif> <isif condition="${!empty(address.address.dependentLocality)}"><isprint value="${address.address.dependentLocality + ', '}" /></isif> <isif condition="${!empty(address.address.stateCode)}"> <isprint value="${address.address.stateCode + ', ' }" /> </isif> <isprint value="${address.address.postalCode + ', '}" /> </div>
 			                        <isif condition="${!empty(address.address.countryCode.value)}"> 
 			                        <div><isprint value="${Resource.msg('label.country.mexico','forms',null)}"></div>
 			                        </isif>

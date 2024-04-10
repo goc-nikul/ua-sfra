@@ -1,0 +1,119 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+<isinclude template="/components/modules" sf-toolkit="off" />
+
+<!DOCTYPE html>
+<html lang="${require('dw/util/Locale').getLocale(request.getLocale()).getLanguage()}" >
+    <head>
+        <isset name="currentSite" value="${dw.system.Site.current}" scope="page"/>
+        <isset name="robotMetaData" value="${currentSite.getCustomPreferenceValue('robotMetaData')}" scope="page"/>
+        <isset name="noIndexMeta" value="${'noIndexMeta' in currentSite.preferences.custom && currentSite.getCustomPreferenceValue('noIndexMeta') ? currentSite.getCustomPreferenceValue('noIndexMeta') : ''}" scope="page"/>
+        <isset name="allowCanonicalUrl" value="${currentSite.getCustomPreferenceValue('allowCanonicalUrl')}" scope="page"/>
+        <isset name="isCatLanding" value="${(!empty(pdict.category) && !empty(pdict.category.template) && pdict.category.template.indexOf('catLanding') > -1)}" scope="page"/>
+
+        <isif condition="${isCatLanding}">
+            <isset name="robotMetaData" value="${''}" scope="page"/>
+        <iselseif condition="${(!empty(pdict.productSearch) && (pdict.productSearch.count <= 2))}" />
+            <isset name="robotMetaData" value="${noIndexMeta}" scope="page"/>
+        <iselseif condition="${!empty(pdict.QueryParams)}"/>
+            <isloop items="${pdict.QueryParams}" var="queryParams">
+                <isif condition="${!empty(queryParams.key) && ['colorgroup', 'enduse', 'gender', 'division', 'subsilhouette', 'size', 'length', 'fittype', 'merchCollection', 'gearline', 'agegroup'].indexOf(queryParams.key) !== -1}">
+                    <isif condition="${!empty(queryParams.value) && (queryParams.value.split('|').length > 1) || !empty(queryParams.value) && queryParams.key === "size" }">
+                        <isset name="robotMetaData" value="${noIndexMeta}" scope="page"/>
+                        <isbreak/>
+                    </isif>
+                </isif>
+            </isloop>
+        </isif>
+        <isif condition="${pdict.canonicalUrl && (empty(robotMetaData) || allowCanonicalUrl) }" >
+            <isif condition="${((pdict.canonicalUrl).toString()).indexOf('?') > -1}" >
+                <isif condition="${(((pdict.canonicalUrl).toString()).indexOf('start') > -1 && ((pdict.canonicalUrl).toString()).indexOf('&') === -1)}" >
+                    <link rel="canonical" href="${pdict.canonicalUrl}"/>
+                <iselseif condition="${((pdict.canonicalUrl).toString()).indexOf('start') > -1 && ((pdict.canonicalUrl).toString()).indexOf('&') > -1 && ((pdict.canonicalUrl).toString()).indexOf('sz') > -1}"/>
+                    <link rel="canonical" href="${pdict.canonicalUrl}"/>
+                <iselseif condition="${(((pdict.canonicalUrl).toString()).indexOf('start') > -1 && ((pdict.canonicalUrl).toString()).indexOf('&') > -1)}"/>
+                    <isset name="refinedurl" value="${((pdict.canonicalUrl).toString()).split('&')[0]}" scope="page" />
+                    <link rel="canonical" href="${refinedurl}"/>
+                <iselse/>
+                    <isset name="refinedurl" value="${((pdict.canonicalUrl).toString()).split('?')[0]}" scope="page" />
+                    <link rel="canonical" href="${refinedurl}"/>
+                </isif>
+            <iselse/>
+                <isif condition="${((pdict.canonicalUrl).toString()).indexOf('home') > -1 && !(pdict.pageContext && (pdict.pageContext.ns === 'product' || pdict.pageContext.ns === 'content' || pdict.pageContext.ns === 'search'))}">
+                    <link rel="canonical" href="${((pdict.canonicalUrl).toString()).split('home')[0]}"/>
+                <iselse/>
+                    <isif condition="${pdict.canonicalUrl.toString().lastIndexOf('/') !== pdict.canonicalUrl.toString().length-1 && !pdict.canonicalUrl.toString().includes('.html')}">
+                        <link rel="canonical" href="${pdict.canonicalUrl}/"/>
+                    <iselse/>
+                        <link rel="canonical" href="${pdict.canonicalUrl}"/>
+                    </isif>
+                </isif>
+            </isif>
+        </isif>
+
+        <iscomment>ConstructorIO custom search</iscomment>
+        <isset name="constructorIOHelper" value="${require('app_ua_core/cartridge/scripts/helpers/constructorIOHelper')}" scope="page"/>
+        <isset name="cio_search_enabled" value="${constructorIOHelper.isConstructorEnabled()}" scope="page"/>
+        <isset name="cio_browse_enabled" value="${'Category_Data_Source' in currentSite.preferences.custom && (currentSite.getCustomPreferenceValue('Category_Data_Source') === 1 || currentSite.getCustomPreferenceValue('Category_Data_Source') === 2)}" scope="page"/>
+        <isif condition="${(cio_search_enabled || cio_browse_enabled)}">
+            <isinclude template="/common/constructorIO" />
+            <isif condition="${typeof pdict.initialSearchParams !== 'undefined' && pdict.initialSearchParams !== ''}">
+                <link rel="preload" as="script" href="${URLUtils.staticURL('/js/constructorIOSearch.js')}"/>
+                <script async src="${URLUtils.staticURL('/js/constructorIOSearch.js')}"></script>
+            </isif>
+        </isif>
+
+        <isinclude template="/common/htmlHead" />
+
+        <isactivedatahead/>
+        <isinclude template="/components/schema" />
+        <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_enabled') && pdict.pageContext && pdict.pageContext.ns === 'cart'}">
+            <isinclude template="/shoprunner/headerincludes" />
+        </isif>
+    </head>
+    <body id="l-body" class="l-body ${require('*/cartridge/scripts/util/branchBannerCookie.js').cookieValue() === 'first' || pdict.cartRoute === 'hideBanner' ? 'hide-branch-banner' : ''}">
+        <isinclude template="/components/header/svgLibrary" />
+
+        <div id="bodyPage" class="l-body-page js-page" data-action="${pdict.action}" data-querystring="${pdict.queryString}" data-wishlist="${URLUtils.url('Wishlist-ItemsAjax').toString()}">
+            <isset name="currentSite" value="${dw.system.Site.current}" scope="page"/>
+            <isset name="branchSDKKey" value="${'branchSDKKey' in currentSite.preferences.custom && currentSite.getCustomPreferenceValue('branchSDKKey') ? currentSite.getCustomPreferenceValue('branchSDKKey') : ''}" scope="page"/>
+            <div class="branch-journeys-top" data-branchkey="${branchSDKKey}"></div>
+
+            <div class="bfx-price-container bfx-disable-element-containter">
+                <isinclude template="/components/header/pageHeader" />
+            </div>
+
+            <isinclude template="/common/browsertoolscheck" />
+
+            <main class="l-body-page_main" role="main" id="maincontent">
+                <div class="bfx-checkout-container bfx-price-container bfx-disable-element-containter">
+                    <isreplace/>
+                </div>
+            </main>
+            <isif condition="${pdict.action === 'Product-Show' || pdict.action === 'Cart-Show'}">
+                <isinclude template="faqs/liveChatPDP"/>
+            <iselseif condition="${(['contact-us', 'shipping-information', 'customer-service', 'contact-us'].indexOf(pdict.contentAssetId) > -1) || (pdict.action === 'Order-TrackOrder' || pdict.action === 'SizeCharts-ShowSizeChart' || pdict.action === 'Account-Show' || pdict.action === 'Order-History' || pdict.action === 'Order-Details' || pdict.action === 'Account-EditProfile' || pdict.action === 'Search-Show')}"/>
+                <isinclude template="faqs/liveChatFAQ"/>
+            </isif>
+            <!--[if gt IE 9]><!-->
+                <isinclude sf-toolkit="off" template="/common/scripts" />
+                <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('isKlarnaEnabled')}">
+                    <isinclude sf-toolkit="off" template="/klarnapayments/scripts" />
+                </isif>
+            <!--<![endif]-->
+            <isinclude template="/components/footer/pageFooter" />
+        </div>
+        <iscomment> policy banner include </iscomment>
+        <isinclude url="${URLUtils.url('Page-PolicyBanner')}" />
+        <div class="l-consent_banner">
+            <iscontentasset aid="cookie_hint" />
+            <button type="button" class="close" aria-label="Close"><span aria-hidden="true">×</span></button>
+        </div>
+        <div class="error-messaging"></div>
+        <div class="modal-background"></div>
+
+        <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('sr_enabled') && pdict.pageContext && pdict.pageContext.ns === 'cart'}">
+            <isinclude template="/shoprunner/footerincludes" />
+        </isif>
+        <isinclude template="tealium/footer_include.isml"/>
+    </body>
+</html>

@@ -46,6 +46,19 @@ function adjustPaymentInstrument(paymentInstrumentRequest) {
         result.errorCode = 'EmptyOrInvalidGiftcard';
         return result;
     }
+    if (giftCardsBalanceFirstData.giftCardsData) {
+        const gcBasketPaymentInstrumentMatch = giftCardsBalanceFirstData.giftCardsData.filter(function (gc) {
+            return gc.gcNumber === gcNumber;
+        });
+        // if gift card from response isn't applied as payment method
+        if (gcBasketPaymentInstrumentMatch.length === 0) {
+            result.msg = Resource.msg('giftcards.apply.insufficient.balance', 'giftcards', null);
+            result.error = true;
+            result.errorCode = 'EmptyOrInvalidGiftcard';
+            return result;
+        }
+    }
+
     if (giftCardsBalanceFirstData.giftCardsWithZeroBalance && giftCardsBalanceFirstData.giftCardsWithZeroBalance.length > 0) {
         var invalidCard;
         giftCardsBalanceFirstData.giftCardsWithZeroBalance.forEach(function (zeroBalanceCard) {

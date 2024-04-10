@@ -1,0 +1,249 @@
+.g-modal-mobileAuth {
+    .g-modal-dialog {
+        max-width: rem-calc(450);
+        margin: rem-calc(32) auto;
+        min-height: calc(100% - (2rem * 2));
+
+        .g-modal-content {
+            @include respond-to(phones) {
+                padding: {
+                    left: rem-calc(16);
+                    right: rem-calc(16);
+                }
+            }
+
+            p {
+                @include font(main, rem-calc(14), 1.43);
+
+                margin: rem-calc(16) 0;
+            }
+
+            .mobile-auth-duplicate {
+                .mobile-auth-duplicate-content {
+                    margin-bottom: rem-calc(24);
+                }
+
+                .mobile-auth-duplicate-buttons {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: rem-calc(10);
+
+                    .js-login {
+                        flex-basis: 62%;
+                        max-width: 62%;
+                    }
+
+                    .close-btn {
+                        flex-basis: 35%;
+                        max-width: 35%;
+                        border-color: $black;
+                    }
+                }
+
+                .top-text {
+                    display: none;
+                }
+
+                .policy-links {
+                    @include font(main, rem-calc(12), 1.67);
+
+                    padding-top: rem-calc(10);
+                    text-align: center;
+                    margin: rem-calc(16) 0 0;
+                    color: $grey5;
+
+                    a {
+                        text-underline-position: under;
+                        text-decoration: underline;
+                    }
+                }
+
+                .naverBtn {
+                    display: block;
+                    width: fit-content;
+                }
+            }
+
+            .mobile-auth-complete-login {
+                .mobile-auth-complete-login-customerinfo {
+                    padding-top: rem-calc(5);
+                    padding-bottom: rem-calc(15);
+                }
+
+                .g-checkbox {
+                    margin-bottom: rem-calc(24);
+
+                    .g-checkbox-label {
+                        display: inline-block;
+
+                        .js-smsOptIn-content {
+                            white-space: nowrap;
+                            color: $red;
+                            text-decoration: none;
+                        }
+
+                        .color-red {
+                            color: $red;
+                        }
+                    }
+                }
+
+                .mobile-auth-complete-login-buttons {
+                    text-align: center;
+                    display: flex;
+                    justify-content: space-around;
+
+                    .complete-mobileauth,
+                    .cancel-mobileauth {
+                        flex-basis: 35%;
+                        max-width: 35%;
+                    }
+
+                    .cancel-mobileauth {
+                        border-color: $black;
+                    }
+                }
+            }
+
+            .g-modal-header {
+                padding-bottom: 0;
+
+                .g-modal-error-body {
+                    font-weight: 500;
+                }
+            }
+
+            b {
+                font-weight: bold;
+            }
+        }
+
+        .g-modal-error-body {
+            font-weight: 500;
+            font-size: rem-calc(14);
+            padding-bottom: rem-calc(10);
+        }
+
+        .g-error-close {
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+            padding: 0.5rem 1rem;
+            float: right;
+            width: rem-calc(80);
+            cursor: pointer;
+        }
+    }
+}
+
+.initiate-mobile-auth {
+    .title {
+        @include font(main_bold, rem-calc(24), 1);
+
+        letter-spacing: 0.5px;
+        padding-bottom: rem-calc(8);
+    }
+
+    .initiate-mobile-auth-body {
+        p {
+            @include font(main, rem-calc(14), 1.43);
+
+            margin: rem-calc(16) 0;
+        }
+    }
+
+    .icon-detail {
+        display: flex;
+        margin-bottom: rem-calc(10);
+        align-items: center;
+
+        img {
+            vertical-align: middle;
+            margin-right: rem-calc(10);
+        }
+    }
+
+    .initiate-mobile-auth-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: rem-calc(10);
+
+        .trigger-mobile-auth {
+            flex-basis: 62%;
+            max-width: 62%;
+        }
+
+        .close-btn {
+            flex-basis: 35%;
+            max-width: 35%;
+            border-color: $black;
+        }
+    }
+
+    .color-red {
+        color: $red;
+    }
+}
+
+.register-container {
+    .initiate-mobile-auth {
+        @include respond-to(mobile) {
+            margin: 0 auto;
+            max-width: 28rem;
+        }
+    }
+
+    .initiate-mobile-auth-buttons {
+        justify-content: space-around;
+        margin-top: rem-calc(10);
+
+        .close-btn {
+            display: none;
+        }
+    }
+}
+
+.init-mobileauth-register {
+    margin-right: rem-calc(8);
+}
+
+.js-trigger-mobile-auth {
+    @include respond-to(mobile) {
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+    }
+}
+
+.b-order-confirmation-mobileauth_card .confirmation-initiate-mobile-auth-body {
+    p {
+        @include font(main, rem-calc(13), 1.38);
+
+        letter-spacing: rem-calc(0.2);
+        margin: rem-calc(16) 0;
+
+        @include respond-to(mobile) {
+            font-size: rem-calc(12);
+        }
+    }
+
+    .icon-detail {
+        @include font(main, rem-calc(13), 1.38);
+
+        display: flex;
+        margin-bottom: rem-calc(10);
+        align-items: center;
+        letter-spacing: rem-calc(0.2);
+
+        @include respond-to(mobile) {
+            font-size: rem-calc(12);
+        }
+
+        img {
+            vertical-align: middle;
+            margin-right: rem-calc(10);
+        }
+    }
+
+    .trigger-mobile-auth-confirmation {
+        margin-top: rem-calc(10);
+    }
+}

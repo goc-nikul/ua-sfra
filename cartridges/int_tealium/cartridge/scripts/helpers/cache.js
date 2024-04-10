@@ -12,16 +12,21 @@ function getCartCache() {
 }
 
 /**
-* get the Cart data object from session
-* @param {object} cartData
+* Set the cart data object to the session
+* @param {Object} cartData the cart data object
 * @returns {boolean} true, if cart Data is set in the session variable
 */
 function setCartCache(cartData) {
-    if(cartData) {
-        session.privacy.tealiumCartData = JSON.stringify(cartData);
+    if (cartData) {
+        // api.session.maxStringLength API quota limit: 2000
+        var cartDataStringified = JSON.stringify(cartData);
+        if (cartDataStringified.length > 2000) {
+            return false;
+        }
+        session.privacy.tealiumCartData = cartDataStringified;
         return true;
     }
-    return false
+    return false;
 }
 
 /**

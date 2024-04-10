@@ -60,15 +60,23 @@ exports.cancelPayment = function (order, cancelPrice, refundableAmount, reason) 
             paymentKey: paymentKey,
             body: requestBody
         });
+
+        var Transaction = require('dw/system/Transaction');
         if (tossCancellationService.status === 'OK') {
             var responseObject = tossCancellationService.object;
-            var Transaction = require('dw/system/Transaction');
             var responseTextObject = JSON.parse(responseObject.getText());
             Transaction.begin();
             order.custom.tossPaymentsRefundDetails = responseObject.getText();  // eslint-disable-line no-param-reassign
             order.custom.tossPaymentsRefundStatus = responseTextObject.status;  // eslint-disable-line no-param-reassign
             order.custom.tossPaymentsStatus = responseTextObject.status;    // eslint-disable-line no-param-reassign
             Transaction.commit();
+        } else if (tossCancellationService.status === 'ERROR' && !empty(tossCancellationService.errorMessage) && 'code' in JSON.parse(tossCancellationService.errorMessage) && JSON.parse(tossCancellationService.errorMessage).code === 'ALREADY_CANCELED_PAYMENT') {
+            Transaction.begin();
+            order.custom.tossPaymentsRefundDetails = tossCancellationService.errorMessage;  // eslint-disable-line no-param-reassign
+            order.custom.tossPaymentsRefundStatus = 'CANCELED';  // eslint-disable-line no-param-reassign
+            order.custom.tossPaymentsStatus = 'CANCELED';    // eslint-disable-line no-param-reassign
+            Transaction.commit();
+            Logger.warn('TossPayment: Auto Refund failed: ' + tossCancellationService.errorMessage + ' : ' + tossCancellationService.error);
         } else {
             Logger.error('TossPayment: Refund failed : ' + tossCancellationService.errorMessage + ' : ' + tossCancellationService.error);
             return false;

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<extensions xmlns="http://www.demandware.com/xml/bmmodules/2007-12-11"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.demandware.com/xml/bmmodules/2007-12-11 bmext.xsd">
+    <!-- =============================================================== -->
+    <!-- ==                                                           == -->
+    <!-- == SITE MENU EXTENSIONS                            == -->
+    <!-- ==                                                           == -->
+    <!-- =============================================================== -->
+    <menuaction id="orders_reports" menupath="orders" position="660" site="true">
+        <name xml:lang="x-default">Order Reports</name>
+        <short_description xml:lang="x-default">Generate Order Reports Feed</short_description>
+        <description xml:lang="x-default">Generate Order Reports Feed</description>
+        <exec pipeline="BMOrders" node="Reports"/>
+        <sub-pipelines>
+            <pipeline name="BMOrders" />
+        </sub-pipelines>
+        <icon>icons/analytics_ico.gif</icon>
+    </menuaction>
+</extensions>

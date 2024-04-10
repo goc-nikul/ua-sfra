@@ -57,10 +57,10 @@ $break-points: (
                 @if ($_query == null) {
                     $__query: '';
                 } @else {
-                    $__query: str-insert($__query, ' and', str-length($__query) +1);
+                    $__query: str-insert($__query, ' and', str-length($__query) + 1);
                 }
 
-                $__query: str-insert($__query, unquote(map-get($break-points, $type)), str-length($__query) +1);
+                $__query: str-insert($__query, unquote(map-get($break-points, $type)), str-length($__query) + 1);
             }
         } @else {
             @warn $type;

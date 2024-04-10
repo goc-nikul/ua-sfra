@@ -85,16 +85,18 @@ function getPreferences() {
 
     var nvpService = null;
 
-    try {
-       nvpService = require('*/cartridge/scripts/service/paypalHttpNvpServiceInit').getPayPalService(prefs.nvpServiceName, site);
-    } catch (error) {
-        system.Logger.error('Service "' + prefs.nvpServiceName + '" is not configured. Need to create the service in BM > Administration > Operations > Services');
-        return prefs;
-    }
+    if (site.getCustomPreferenceValue('paypalService')) {
+        try {
+            nvpService = require('*/cartridge/scripts/service/paypalHttpNvpServiceInit').getPayPalService(prefs.nvpServiceName, site);
+         } catch (error) {
+             system.Logger.error('Service "' + prefs.nvpServiceName + '" is not configured. Need to create the service in BM > Administration > Operations > Services');
+             return prefs;
+         }
 
-    var isUseSandboxUrls = !nvpService.getConfiguration().getCredential().custom.PP_API_IsProduction;
-    prefs.environmentType = isUseSandboxUrls ? 'sandbox' : 'production';
-    prefs.paypalEndpoint = isUseSandboxUrls ? 'https://www.sandbox.paypal.com/cgi-bin/webscr' : 'https://www.paypal.com/cgi-bin/webscr';
+         var isUseSandboxUrls = !nvpService.getConfiguration().getCredential().custom.PP_API_IsProduction;
+         prefs.environmentType = isUseSandboxUrls ? 'sandbox' : 'production';
+         prefs.paypalEndpoint = isUseSandboxUrls ? 'https://www.sandbox.paypal.com/cgi-bin/webscr' : 'https://www.paypal.com/cgi-bin/webscr';
+    }
 
     return prefs;
 }

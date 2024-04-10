@@ -21,16 +21,35 @@
 	<tr>
 		<td class="infobox" style="vertical-align: top;">
 			<form action="${URLUtils.continueURL()}" method="post">
+				<input type="hidden" name="mainmenuname" value="<isprint value="${pdict.mainmenuname}" encoding="off"/>"/>
+				<input type="hidden" name="CurrentMenuItemId" value="<isprint value="${pdict.CurrentMenuItemId}" encoding="off"/>"/>
 				<table>
-					<tr>
-						<input type="hidden" name="mainmenuname" value="<isprint value="${pdict.mainmenuname}" encoding="off"/>"/>
-						<input type="hidden" name="CurrentMenuItemId" value="<isprint value="${pdict.CurrentMenuItemId}" encoding="off"/>"/>
-						<isinputfield formfield="${pdict.CurrentForms.browseremote.http.url}" type="input" attribute1="style" value1="width:400px;"/>
-						<isinputfield formfield="${pdict.CurrentForms.browseremote.http.encode}" type="checkbox">
-						<td class="left">
-							<input id="send" name="send" type="submit" value="Load" />
-						</td>
-					</tr>
+						<tr>
+							<td><isinputfield formfield="${pdict.CurrentForms.browseremote.http.method}" type="select" attribute1="style" value1="width:200px;"></td>
+						</tr>
+						<tr>
+							<td><isinputfield formfield="${pdict.CurrentForms.browseremote.http.url}" type="input" attribute1="style" value1="width:400px;"/></td>
+						</tr>
+						<tr>
+							<td><isinputfield formfield="${pdict.CurrentForms.browseremote.http.body}" type="input" attribute1="style" value1="width:400px;"/></td>
+						</tr>
+						<tr>
+							<td><isinputfield formfield="${pdict.CurrentForms.browseremote.http.key}" type="input" attribute1="style" value1="width:200px;"/></td>
+						</tr>
+						<tr>
+							<td><isinputfield formfield="${pdict.CurrentForms.browseremote.http.serviceID}" type="input" attribute1="style" value1="width:200px;"/></td>
+						</tr>
+						<tr>
+							<td><isinputfield formfield="${pdict.CurrentForms.browseremote.http.usejwt}" type="checkbox"></td>
+						</tr>
+						<tr>
+							<td><isinputfield formfield="${pdict.CurrentForms.browseremote.http.encode}" type="checkbox"></td>
+						</tr>
+						<tr>
+							<td class="left">
+								<input id="send" name="send" type="submit" value="Load" />
+							</td>
+						</tr>
 				</table>
 			</form>
 		</td>

@@ -7,32 +7,27 @@
             <span>${Resource.msg('label.cart.subtotal','cart',null)} <span class="number-of-items-summary order-summary_noitems">(<isprint value="${pdict.numItems.toFixed()}" encoding="off" />)</span>:</span>
         </span>
         <span class="order-summary_itemsvalue">
-        <isif condition="${customer.authenticated && customer.profile.custom.isEmployee && pdict.totals.orderLevelDiscountTotal.value === 0}">
             <span class="text-right sub-total bfx-price bfx-total-subtotal">${pdict.totals.subTotalWithoutAdjustments}</span>
-        <iselse/>
-            <span class="text-right sub-total bfx-price bfx-total-subtotal">${pdict.totals ? pdict.totals.subTotal : ''}</span>
-        </isif>
         </span>
     </div>
 
     <!--- Order Discount --->
-    <div class="order-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.orderLevelDiscountTotal.value === 0}">hide-order-discount</isif>">
+    <div class="order-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.totalDiscount.value === 0}">hide-order-discount</isif>">
         <span class="order-summary_itemsattr">
            <isif condition="${customer.authenticated && customer.profile.custom.isEmployee}">
                <span>${Resource.msg('employee.order.discount', 'common', null)}:</span>
            <iselse> 
-               <span>${Resource.msg('label.order.discount', 'common', null)}:</span>
+               <span>${Resource.msg('label.genericDiscount', 'common', null)}:</span>
            </isif>
         </span>
         <span class="order-summary_itemsvalue">
-            <span class="text-right bfx-price order-discount-total"> - ${customer.authenticated && customer.profile.custom.isEmployee && pdict.totals.totalEmployeeDiscount.formatted ?  pdict.totals.totalEmployeeDiscount.formatted : pdict.totals.orderLevelDiscountTotal.formatted}</span>
+            <span class="text-right bfx-price order-discount-total"> - ${pdict.totals.totalDiscount.formatted}</span>
         </span>
     </div>
     
-<iscomment> 
     <!-- Employee Discount -->
-    <isif condition="${customer.authenticated && customer.profile.custom.isEmployee && pdict.totals.orderLevelDiscountTotal.value === 0}">
-        <div class="order-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.totalEmployeeDiscount.value === 0}">hide-order-discount</isif>">
+    <isif condition="${customer.authenticated && customer.profile.custom.isEmployee && pdict.totals.totalDiscount.value === 0}">
+        <div class="order-summary_discount bfx-remove-element <isif condition="${pdict.totals.totalEmployeeDiscount.value === 0}">hide-order-discount</isif>">
             <span class="order-summary_itemsattr">            
                 <span>${Resource.msg('employee.order.discount', 'common', null)}:</span>
             </span>
@@ -40,7 +35,7 @@
                 <span class="text-right bfx-price order-discount-total"> - ${pdict.totals.totalEmployeeDiscount.formatted}</span>
             </span>
         </div>
-    </isif> </iscomment>
+    </isif>
 
     <isset name="zeroCost" value="${dw.util.StringUtils.formatMoney(new dw.value.Money(0, pdict.CurrentSession.currency.currencyCode))}" scope="page" />
     <div class="order-summary_items order-summary_shipping bfx-remove-element <isif condition="${pdict.totals.hideShippingTotal}">hide</isif>">
@@ -83,6 +78,17 @@
 	    <span class="order-summary_itemsvalue">
 	        <span class="text-right grand-total bfx-price bfx-total-grandtotal">${pdict.totals.grandTotal}</span>
 	    </span>
+
+        <isif condition="${pdict.totals.saveTotal.value != 0}">
+            <div class="b-order-saved-total">
+                <span class="order-summary_itemsattr">
+                    <span>${Resource.msg('label.save.total','cart',null)}</span>
+                </span>
+                <span class="order-summary_itemsvalue">
+                    <span class="text-right bfx-price order-saved-total">${pdict.totals.saveTotal.formatted}</span>
+                </span>
+            </div>
+        </isif>
 	</div>
         <!-- Atome Marketing Message AtomeEnabled-->
         <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('atomeEnabled')}">

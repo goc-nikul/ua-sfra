@@ -91,9 +91,10 @@ function getPaazlFallBackOption(countryCode, currencyCode) {
 /**
  * Save Paazl security tokken into the Basket custom attribute 'paazlAPIToken'.
  * @param {dw.order.Basket} basket - the current basket
+ * @param {Boolean} forceUpdateToken - force update paazl token
  */
-function updateTokenInBasket(basket) {
-    if (!basket.custom.paazlAPIToken) {
+function updateTokenInBasket(basket, forceUpdateToken) {
+    if (!basket.custom.paazlAPIToken || forceUpdateToken) {
         // If not already done, get REST API token from Paazl and store it into the current basket
         try {
             var getTokenService = require('*/cartridge/scripts/services/REST/getToken');
@@ -269,7 +270,7 @@ function updateShipment(order) {
             var fullNameSplit = pickupPointAddress.lastName.replace(' ', '***').split('***');
             shippingAddress.setFirstName(fullNameSplit[0]);
             if (fullNameSplit.length > 1) shippingAddress.setLastName(fullNameSplit[1]);
-            shippingAddress.setAddress1(pickupPointAddress.lastName);
+            shippingAddress.setAddress1(deliveryInfo.pickupLocationCode);
             shippingAddress.setAddress2((pickupPointAddress.address1).concat(' ' + pickupPointAddress.address2).concat(' ' + pickupPointAddress.streetNumberSuffix));
             shippingAddress.setCity(pickupPointAddress.city);
             shippingAddress.setPostalCode(pickupPointAddress.postalCode);
@@ -303,7 +304,7 @@ function updateShipment(order) {
                 if (pickupPointLocationAccountNumber) {
                     shippingAddress.setLastName(shippingAddress.getLastName() + ' ' + pickupPointLocationAccountNumber);
                 }
-                shippingAddress.setAddress1(pickupPointAddress.lastName);
+                shippingAddress.setAddress1(pickupLocationCode);
                 shippingAddress.setAddress2((pickupPointAddress.address1).concat(' ' + pickupPointAddress.address2).concat(' ' + pickupPointAddress.streetNumberSuffix));
             }
         }
@@ -394,7 +395,62 @@ function updateShippingJson(order, shippings, trackingCode) {
         order.custom.shippingJson = JSON.stringify(shippings);
     });
 }
-    
+
+/**
+ * build request for the Paazl to commit order tracking number SOAP call
+ *
+ * @param {Object} webRef Service stub
+ * @param {Object} params Required fields for service call
+ * @returns{Object} ExistingShipmentRequest SOAP Request with order tracking number detail
+ */
+function existingShipmentTrackingRequest(webRef, params) {
+    var paazlTrackingShipmentRequest = new webRef.com.paazl.schemas.matrix.AddExistingShipmentRequest();
+
+    var webshopID = Site.current.getCustomPreferenceValue('paazlWebshopID');
+    var paazlPassword = Site.current.getCustomPreferenceValue('paazlPassword');
+
+    var todayDate = new Date().toJSON().slice(0, 10).replace('-','').replace('-','');
+
+    var securityMsg = webshopID + paazlPassword + todayDate;
+    var sha1 = new MessageDigest(MessageDigest.DIGEST_SHA_1);
+    var encryptedSecurityMsg = sha1.digest(securityMsg);
+
+    paazlTrackingShipmentRequest.setWebshop(webshopID);
+    paazlTrackingShipmentRequest.setHash(encryptedSecurityMsg);
+
+    var shiptrackingcode='';
+    var trackcodes = getShipmentInfo(params);
+    trackcodes.forEach(function (shipping) {
+        if (shipping.trackingCode) {
+            shiptrackingcode = shipping.trackingCode
+        }
+    });
+
+    var requestedParcel = new webRef.com.paazl.schemas.matrix.ParcelRequestType();
+    requestedParcel.setBarcode(shiptrackingcode);
+
+    var requestedParcels = new webRef.com.paazl.schemas.matrix.ParcelsRequestType();
+    requestedParcels.parcel.push(requestedParcel);
+
+    var requestedShipment = new webRef.com.paazl.schemas.matrix.ShipmentRequestType();
+    requestedShipment.setReference(params.orderNo);
+    requestedShipment.setTrackingNumber(shiptrackingcode);
+    requestedShipment.setDispatchNumber('');
+    requestedShipment.setParcels(requestedParcels);
+
+    var requestedShipments = new webRef.com.paazl.schemas.matrix.ShipmentsRequestType();
+    requestedShipments.shipment.push(requestedShipment);
+
+    paazlTrackingShipmentRequest.setShipments(requestedShipments);
+
+    Transaction.wrap(function () {
+        var note = 'Committing order tracking number '+shiptrackingcode+' in paazl system';
+        params.addNote('Paazl-Commit-Order-ShipmentTracking',note);
+    });
+
+    return paazlTrackingShipmentRequest;
+}
+
 module.exports = {
     addressRequest: addressRequest,
     getShippingMethodID: getShippingMethodID,
@@ -407,5 +463,6 @@ module.exports = {
     getPaazlStatus: getPaazlStatus,
     resetSelectedShippingOption: resetSelectedShippingOption,
     getShipmentInfo: getShipmentInfo,
-    updateShippingJson: updateShippingJson
+    updateShippingJson: updateShippingJson,
+    existingShipmentTrackingRequest: existingShipmentTrackingRequest
 };

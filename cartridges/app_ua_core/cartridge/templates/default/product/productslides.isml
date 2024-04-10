@@ -4,12 +4,14 @@
 <isset name="showRatings" value="${empty(pdict.ratings) ? true: pdict.ratings}" scope="page"/>
 <isset name="source" value="${empty(pdict.source) ? null : pdict.source}" scope="page"/>
 <isset name="quickView" value="${empty(pdict.quickview) ? false: pdict.quickview}" scope="page"/>
+<isset name="quickAdd" value="${empty(pdict.quickAdd) ? false: pdict.quickAdd}" scope="page"/>
 
 <isif condition="${!empty(pdict.products)}">
     <isloop items="${pdict.products}" var="product">
        <isif condition="${!empty(product)}">
             <div class="g-carousel-slide swiper-slide">
-                <isinclude url="${URLUtils.url('Tile-Show', 'pid', product.id, 'swatches', showSwatches, 'ratings', showRatings, 'quickview', quickView, 'source', source)}" />
+                <isset name="showQATB" value="${quickAdd && 'isQATBRec' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.isQATBRec}" scope="page" />
+                <isinclude url="${URLUtils.url('Tile-Show', 'pid', product.id, 'swatches', showSwatches, 'ratings', showRatings, 'quickview', quickView, 'source', source, 'quickAdd', showQATB)}" />
             </div>
         </isif>
     </isloop>

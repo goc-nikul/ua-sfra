@@ -49,8 +49,17 @@ function getPageDesignerCategoryPage(categoryID) {
     var HashMap = require('dw/util/HashMap');
 
     var category = CatalogMgr.getCategory(categoryID.toLowerCase());
-    var page = PageMgr.getPage(category, true, 'plp');
-    var invisiblePage = PageMgr.getPage(category, false, 'plp');
+
+    if (category === null) {
+        return {
+            page: null,
+            invisiblePage: null,
+            aspectAttributes: null
+        };
+    }
+
+    var page = PageMgr.getPageByCategory(category, true, 'plp');
+    var invisiblePage = PageMgr.getPageByCategory(category, false, 'plp');
 
     if (page) {
         var aspectAttributes = new HashMap();
@@ -152,11 +161,11 @@ function search(req, res) {
 
     var canonicalUrl = URLUtils.url('Search-Show', 'cgid', req.querystring.cgid);
     var refineurl = URLUtils.url('Search-Refinebar');
-    var whitelistedParams = ['q', 'cgid', 'pmin', 'pmax', 'srule', 'pmid'];
+    var allowedParams = ['q', 'cgid', 'pmin', 'pmax', 'srule', 'pmid'];
     var isRefinedSearch = false;
 
     Object.keys(req.querystring).forEach(function (element) {
-        if (whitelistedParams.indexOf(element) > -1) {
+        if (allowedParams.indexOf(element) > -1) {
             refineurl.append(element, req.querystring[element]);
         }
 
@@ -201,7 +210,7 @@ function search(req, res) {
     return result;
 }
 
- /**
+/**
  * check to see if we are coming back from a pdp, if yes, use the old qs to set up the grid refinements and number of tiles
  *
  * @param {Object} clickStream - object with an array of request to the server in the current session
@@ -281,7 +290,7 @@ function backButtonDetection(clickStream) {
             if (strElementSplit2[0] === 'sz') { szPos = i; }
             if (strElementSplit2[0] === 'start') { startPos = i; }
             paramArray.push(strElementSplit2[0]);
-            valueArray.push(strElementSplit2[1]);
+            valueArray.push(decodeURIComponent(strElementSplit2[1]));
         });
 
         // alter the sz and start parameters
@@ -311,8 +320,8 @@ function backButtonDetection(clickStream) {
 function getBannerImageUrl(category) {
     var url = null;
 
-    if (category.custom && 'slotBannerImage' in category.custom &&
-        category.custom.slotBannerImage) {
+    if (category.custom && 'slotBannerImage' in category.custom
+        && category.custom.slotBannerImage) {
         url = category.custom.slotBannerImage.getURL();
     } else if (category.image) {
         url = category.image.getURL();

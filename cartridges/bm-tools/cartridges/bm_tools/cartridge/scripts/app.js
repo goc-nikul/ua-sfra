@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use strict';
 
 /**
@@ -33,7 +34,6 @@ exports.getModel = function (modelName) {
 exports.getView = function (viewName, parameters) {
     var View;
     try {
-
         if (typeof viewName === 'string') {
             View = require('./views/' + viewName + 'View');
         } else {
@@ -70,7 +70,8 @@ exports.getView = function (viewName, parameters) {
  * });
  */
 exports.getForm = function (formReference) {
-    var formInstance, FormModel;
+    var formInstance,
+        FormModel;
 
     FormModel = require('~/cartridge/scripts/models/FormModel');
     formInstance = null;

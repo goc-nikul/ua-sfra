@@ -45,6 +45,9 @@ var optionProductLineItems = new ArrayList([]);
 
 
 describe('Product Factory', () => {
+    global.empty = (data) => {
+        return !data;
+    };
     var collections = proxyquire('../../../../cartridges/storefront-reference-architecture/cartridges/app_storefront_base/cartridge/scripts/util/collections.js', {
         'dw/util/ArrayList': ArrayList
     });
@@ -184,6 +187,156 @@ describe('Product Factory', () => {
 
         assert.equal(result, 'full product');
         assert.isTrue(stubFullProduct.calledWith({}, options.apiProduct, options));
+    });
+
+    it('should return empty product model for product type bundle for bonusProductLineItem with color ', () => {
+        var params = {
+            pid: 'somePID',
+            pview: '',
+            lineItem: {
+                optionProductLineItems: new ArrayList([])
+            },
+            duuid: 'duuid',
+            containerView: 'order',
+            variantColor: true
+        };
+        var length = -1;
+        productMock.master = true;
+        productMock.getVariationModel = () => {
+            return {
+                setSelectedAttributeValue: () => {
+                    length++;
+                },
+                getImages: () => {
+                    return {
+                        toArray: () => {
+                            return { length: length };
+                        }
+                    };
+                },
+                getVariants: () => {
+                    return [{
+                        onlineFlag: true,
+                        availabilityModel: {
+                            availability: true,
+                            orderable: true
+                        },
+                        custom: {
+                            colorway: "someColorWay"
+                        },
+                        getVariationModel: () => {}
+                    },
+                    {
+                        onlineFlag: true,
+                        availabilityModel: {
+                            availability: true,
+                            orderable: true
+                        },
+                        custom: {
+                            colorway: "someColorWay"
+                        },
+                        getVariationModel: () => {}
+                    }];
+                }
+            };
+        };
+        options = {
+            variationModel: {
+                selectedVariant: null
+            },
+            options: undefined,
+            optionModel: 'optionModel',
+            promotions: 'promotions',
+            quantity: undefined,
+            variables: {},
+            apiProduct: productMock,
+            productType: 'bundle',
+            colorAttrSelection: {
+                color:null,
+                colorway:null
+            }
+        };
+        var result = productFactory.get(params);
+
+        assert.isDefined(result, 'bundle line item (order)');
+        assert.isFalse(stubBonusProduct.calledWith({}, options.apiProduct, options, params.exchangeItem));
+    });
+
+    it('should return empty product model for product type bundle for bonusProductLineItem with color and size ', () => {
+        var params = {
+            pid: 'somePID',
+            pview: '',
+            lineItem: {
+                optionProductLineItems: new ArrayList([])
+            },
+            duuid: 'duuid',
+            containerView: 'order',
+            variantColor: true,
+            variantSize:true
+        };
+        var length = -1;
+        productMock.master = true;
+        productMock.getVariationModel = () => {
+            return {
+                setSelectedAttributeValue: () => {
+                    length++;
+                },
+                getImages: () => {
+                    return {
+                        toArray: () => {
+                            return { length: length };
+                        }
+                    };
+                },
+                getVariants: () => {
+                    return [{
+                        onlineFlag: true,
+                        availabilityModel: {
+                            availability: true,
+                            orderable: true
+                        },
+                        custom: {
+                            colorway: "someColorWay"
+                        },
+                        getVariationModel: () => {}
+                    },
+                        {
+                            onlineFlag: true,
+                            availabilityModel: {
+                                availability: true,
+                                orderable: true
+                            },
+                            custom: {
+                                colorway: "someColorWay"
+                            },
+                            getVariationModel: () => {}
+                        }];
+                }
+            };
+        };
+        options = {
+            variationModel: {
+                selectedVariant: null
+            },
+            options: undefined,
+            optionModel: 'optionModel',
+            promotions: 'promotions',
+            quantity: undefined,
+            variables: {
+                color: true,
+                size: true
+            },
+            apiProduct: productMock,
+            productType: 'bundle',
+            colorAttrSelection: {
+                color:null,
+                colorway:null
+            }
+        };
+        var result = productFactory.get(params);
+
+        assert.isDefined(result, 'bundle line item (order)');
+        assert.isFalse(stubBonusProduct.calledWith({}, options.apiProduct, options, params.exchangeItem));
     });
 
     it('should return full product model for product type variant', () => {
@@ -699,7 +852,7 @@ describe('Product Factory', () => {
 
         assert.isDefined(result, {});
         assert.isFalse(stubBonusProduct.calledWith({}, options.apiProduct, options, params.exchangeItem));
-    }); 
+    });
 
     it('should return empty product model for product type bundle for bonusProductLineItem  ', () => {
         var params = {
@@ -730,7 +883,7 @@ describe('Product Factory', () => {
 
         assert.isDefined(result, 'bonus product line item (order)');
         assert.isFalse(stubBonusProduct.calledWith({}, options.apiProduct, options, params.exchangeItem));
-    }); 
+    });
 
     it('should return empty product model for product type bundle for bonusProductLineItem  ', () => {
         var params = {
@@ -855,7 +1008,7 @@ describe('Product Factory', () => {
         assert.isFalse(stubBonusProduct.calledWith({}, options.apiProduct, options, params.exchangeItem));
     });
 
-    
+
     it('should return empty product model for product type bundle for bonusProductLineItem  ', () => {
         var params = {
             pid: 'somePID',
@@ -959,7 +1112,7 @@ describe('Product Factory', () => {
         };
 
         productMock.productSet = true;
-        
+
         options = {
             variationModel: {
                 selectedVariant: null

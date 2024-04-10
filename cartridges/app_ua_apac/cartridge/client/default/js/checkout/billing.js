@@ -106,7 +106,7 @@ function updateBillingAddressSelector(order, customer) {
 
         var InCustAddressbookAvailable = false;
         var custAddressIDSelectedinShipping = '';
-        if (customer.addresses && customer.addresses.length > 0) {
+        if (customer && customer.addresses && customer.addresses.length > 0) {
             customer.addresses.forEach(function (address) {
                 if (order.shipping[0].matchingAddressId === address.ID) {
                     InCustAddressbookAvailable = true;
@@ -133,7 +133,7 @@ function updateBillingAddressSelector(order, customer) {
                 }
             });
         }
-        if (customer.addresses && customer.addresses.length > 0) {
+        if (customer && customer.addresses && customer.addresses.length > 0) {
             $('.make-ship-as-bill').removeClass('hide');
             // to remove option values getting updated as a duplicate address
             // $billingAddressSelector.append(addressHelpers.methods.optionValueForAddress(order.resources.accountAddresses, false, order));

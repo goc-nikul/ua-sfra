@@ -509,7 +509,7 @@ paypalHelper.updateBillingAddress = function (data, address) {
         address.setLastName(names.lastName);
     }
 
-    var countryCode = data.countrycode || '';
+    var countryCode = data.country || '';
     var phone = data.phonenum || data.paymentrequest_0_shiptophonenum || '';
 
     address.setAddress1(data.street);

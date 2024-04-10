@@ -1,0 +1,36 @@
+<div class="b-add_to_bag_container js-add_to_bag_notify ${(!product.available && pdict.isNotifyMeEnabled && pdict.isNotifyMeEnabled != null) ?"hide":""}">
+    <div class="b-add_to_bag">
+        <input type="hidden" class="add-to-cart-url bfx-disable-element" value="${pdict.addToCartUrl}">
+        <input type="hidden" class="cart-page-url bfx-disable-element" value="${pdict.cartPageUrl}">
+        <input type="hidden" class="added-tocart-confirmation-modal-url" value="${URLUtils.url('Cart-cartAddedConfirmationModal')}">
+        <button 
+            <isif condition="${pdict.variantProductModel.memberPricing.hasMemberPrice && pdict.variantProductModel.memberPricing.guestUser}">
+                class="js-add-to-cart g-button_base g-button_primary--black b-add_to_bag-cta js-unlock-access"
+            <iselse>
+                class="js-add-to-cart g-button_base g-button_tertiary b-add_to_bag-cta"
+            </isif>
+            ${product.exclusive.value === 'coming-soon' ? 'disabled' : ''} data-pid="${product.id}" data-quickadd=""
+            data-added-msg="${Resource.msg('button.addedtocart', 'common', null)}"
+            data-add-another="${Resource.msg('button.addanother', 'common', null)}"
+            data-addto-bag="${Resource.msg('button.addtocart', 'common', null)}"
+            data-pre-order="${Resource.msg('button.preorder', 'common', null)}"
+            data-coming-soon="${Resource.msg('button.comingsoon', 'common', null)}"
+            data-is-coming-soon="${product.exclusive.value === 'coming-soon' ? true : false}"
+            exclusive-oos="${product.custom.exclusive === 'out-of-stock' ? true : false}"
+            data-oos="${Resource.msg('button.OOS', 'common', null)}"
+            data-memberpricing-text="${pdict.variantProductModel.memberPricing.memberPricingUnlockCTA}">
+            <isif condition="${pdict.variantProductModel.memberPricing.hasMemberPrice && pdict.variantProductModel.memberPricing.guestUser}">
+                <isprint value="${pdict.variantProductModel.memberPricing.memberPricingUnlockCTA}" encoding="on" />
+            <iselseif condition="${product.exclusive.value === 'coming-soon'}">
+                ${Resource.msg('button.comingsoon', 'common', null)}
+            <iselseif condition="${product.custom.isPreOrder}">
+                ${Resource.msg('button.preorder', 'common', null)}
+            <iselseif condition="${product.exclusive.value === 'out-of-stock'}">
+                ${Resource.msg('button.OOS', 'common', null)}
+            <iselse/>
+                ${Resource.msg('button.addtocart', 'common', null)}
+            </isif>
+        </button>
+        <div data-cmp="detailBonusProductModal"></div>
+    </div>
+</div>

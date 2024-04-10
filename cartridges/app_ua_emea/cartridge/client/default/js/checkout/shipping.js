@@ -304,6 +304,25 @@ shippingHelpers.updateShippingAddress = function () {
     });
 };
 
+shippingHelpers.modifyPostalCode = function () {
+    const updatePostalCode = (target) => {
+        const currentCountry = $('#shippingCountrydefault').val();
+        if (currentCountry !== 'IE' || !target || !target.value) return;
+        let val = target.value.replace(/\s/g, '');
+        let targetValLength = target.value.length;
+        if (targetValLength > 3) {
+            const firstPart = val.substr(0, 3).toUpperCase();
+            const secondPart = val.substr(3).toUpperCase();
+            const concat = secondPart ? [firstPart, secondPart].join(' ') : firstPart;
+            $(target).val(concat);
+        }
+    };
+    $('input[name$="shippingAddress_addressFields_postalCode"], input[name$="billing_addressFields_postalCode"]').on('change', function (e) {
+        updatePostalCode(e.target);
+    });
+    [...$('input[name$="shippingAddress_addressFields_postalCode"]'), $('input[name$="billing_addressFields_postalCode"]')].forEach(target => updatePostalCode(target));
+};
+
 shippingHelpers.methods.updateShippingInformation = updateShippingInformation;
 shippingHelpers.methods.updateShippingSummaryInformation = updateShippingSummaryInformation;
 shippingHelpers.methods.updatePLIShippingSummaryInformation = updatePLIShippingSummaryInformation;

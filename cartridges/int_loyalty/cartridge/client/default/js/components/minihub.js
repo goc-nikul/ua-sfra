@@ -2,6 +2,7 @@
 const $mhmodal = $('#minihubmodal');
 const token = $('#minihub-csrf').val();
 const { createModal } = require('./helpers');
+var freeShippingBar = require('org/components/cart/FreeShippingBar');
 
 const updatePoints = (points) => {
     const pointsFormatted = Number(points).toLocaleString('en-us');
@@ -62,6 +63,10 @@ const rewardRedeem = (_, data) => {
                 currentCard.addClass('active');
                 updatePoints(res.cartModel.loyaltyPointsBalance);
                 checkAvailableReward(res.cartModel.loyaltyPointsBalance);
+                if (res && res.cartModel.freeShippingBar) {
+                    freeShippingBar.methods.updateShippingBar(res.cartModel.freeShippingBar);
+                    freeShippingBar.methods.getShippingPromo(res.cartModel.totals);
+                }
                 $('.coupon-code-field').removeClass('is-invalid');
                 $('body').trigger({
                     type: 'loyalty:minihub:redeemReward',
@@ -130,6 +135,10 @@ const rewardRemove = (_, data) => {
                 currentCard.removeClass('active');
                 updatePoints(res.cartModel.loyaltyPointsBalance);
                 checkAvailableReward(res.cartModel.loyaltyPointsBalance);
+                if (res && res.cartModel.freeShippingBar) {
+                    freeShippingBar.methods.updateShippingBar(res.cartModel.freeShippingBar);
+                    freeShippingBar.methods.getShippingPromo(res.cartModel.totals);
+                }
                 $('body').trigger({
                     type: 'loyalty:minihub:removeReward',
                     evData: {

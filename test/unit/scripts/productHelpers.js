@@ -5,6 +5,8 @@
 const assert = require('chai').assert;
 const proxyquire = require('proxyquire').noCallThru().noPreserveCache();
 
+var Collections = require('../../mocks/dw/dw_util_Collection');
+
 describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
     global.empty = (data) => {
         return !data;
@@ -41,10 +43,14 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
             getExistingProductLineItemInCart: function() {
                 return true;
             }
-        }
+        },
+        'dw/util/HashMap' : require('../../mocks/dw/dw_util_HashMap'),
     });
 
     it('Testing method: getConfig', () => {
+        global.request = {
+            httpPath: '/'
+        };
         let Product = require('../../mocks/dw/dw_catalog_Product');
         let product = new Product();
         var param = {pid:'883814258849', variantColor:'003'};
@@ -59,11 +65,28 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
     });
 
     it('Testing method: filterColorSwatches', () => {
-        let Product = require('../../mocks/dw/dw_catalog_Product');
-        let product = new Product();
-        var sourceValue = {color:{hex: '#4C6B81'}, displayValue:'Black', value: '303',id:'303'};
+        var product = {
+            raw: {
+                custom: {
+                    outletColors: null
+                },
+                variationModel: {
+                    getVariants: function (map) {
+                        return new Collections(
+                            {
+                                custom: {
+                                    earlyAccessConfigs: {
+                                        value: 'NO'
+                                    }
+                                }
+                            });
+                    }
+                }
+            }
+        };
+        var sourceValue = [{color:{hex: '#4C6B81'}, displayValue:'Black', value: '303',id:'303'}];
         var result = ProductHelper.filterColorSwatches(sourceValue, product , '');
-        assert.equal(result.id , sourceValue.id);
+        assert.equal(result[0].id , sourceValue[0].id);
     });
 
     it('Testing method: isMFOItem', () => {
@@ -75,6 +98,7 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
             'dw/catalog/CatalogMgr': require('../../mocks/dw/dw_catalog_CatalogMgr'),
             'dw/order/BasketMgr': require('../../mocks/dw/dw_order_BasketMgr'),
             'dw/system/Site': require('../../mocks/dw/dw_system_Site'),
+            'dw/util/HashMap' : require('../../mocks/dw/dw_util_HashMap'),
             '*/cartridge/scripts/helpers/ProductHelper': {
                 getOrderableVariant: function (product) {
                     return product;
@@ -126,6 +150,7 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
             'dw/catalog/CatalogMgr': require('../../mocks/dw/dw_catalog_CatalogMgr'),
             'dw/order/BasketMgr': require('../../mocks/dw/dw_order_BasketMgr'),
             'dw/system/Site': require('../../mocks/dw/dw_system_Site'),
+            'dw/util/HashMap' : require('../../mocks/dw/dw_util_HashMap'),
             '*/cartridge/scripts/helpers/ProductHelper': {
                 getOrderableVariant: function (product) {
                     return product;
@@ -166,6 +191,7 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
             'dw/campaign/PromotionMgr': require('../../mocks/dw/dw_campaign_PromotionMgr'),
             'dw/catalog/CatalogMgr': require('../../mocks/dw/dw_catalog_CatalogMgr'),
             'dw/order/BasketMgr': require('../../mocks/dw/dw_order_BasketMgr'),
+            'dw/util/HashMap' : require('../../mocks/dw/dw_util_HashMap'),
             'dw/system/Site': require('../../mocks/dw/dw_system_Site'),
             '*/cartridge/scripts/helpers/ProductHelper': {
                 getOrderableVariant: function (product) {
@@ -211,6 +237,7 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
             'dw/catalog/CatalogMgr': require('../../mocks/dw/dw_catalog_CatalogMgr'),
             'dw/order/BasketMgr': require('../../mocks/dw/dw_order_BasketMgr'),
             'dw/system/Site': require('../../mocks/dw/dw_system_Site'),
+            'dw/util/HashMap' : require('../../mocks/dw/dw_util_HashMap'),
             'dw/system/Transaction': require('../../mocks/dw/dw_system_Transaction'),        
             '*/cartridge/scripts/helpers/ProductHelper': {
                 getOrderableVariant: function (product) {
@@ -268,6 +295,7 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
             'dw/catalog/CatalogMgr': require('../../mocks/dw/dw_catalog_CatalogMgr'),
             'dw/order/BasketMgr': require('../../mocks/dw/dw_order_BasketMgr'),
             'dw/system/Site': require('../../mocks/dw/dw_system_Site'),
+            'dw/util/HashMap' : require('../../mocks/dw/dw_util_HashMap'),
             'dw/system/Transaction': require('../../mocks/dw/dw_system_Transaction'),        
             '*/cartridge/scripts/helpers/ProductHelper': {
                 getOrderableVariant: function (product) {
@@ -315,6 +343,7 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
             'dw/catalog/CatalogMgr': require('../../mocks/dw/dw_catalog_CatalogMgr'),
             'dw/order/BasketMgr': require('../../mocks/dw/dw_order_BasketMgr'),
             'dw/system/Site': require('../../mocks/dw/dw_system_Site'),
+            'dw/util/HashMap' : require('../../mocks/dw/dw_util_HashMap'),
             'dw/system/Transaction': require('../../mocks/dw/dw_system_Transaction'),        
             '*/cartridge/scripts/helpers/ProductHelper': {
                 getOrderableVariant: function (product) {
@@ -505,6 +534,7 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
             'dw/system/Site': require('../../mocks/dw/dw_system_Site'),
             'dw/system/Transaction': require('../../mocks/dw/dw_system_Transaction'),
             'dw/catalog/ProductSearchModel': require('../../mocks/dw/dw_catalog_ProductSearchModel'),
+            'dw/util/HashMap' : require('../../mocks/dw/dw_util_HashMap'),
             'int_mao/cartridge/scripts/availability/MAOAvailabilityHelper': {
                 isCheckPointEnabled: function (checkPoint) {
                     return true;
@@ -533,11 +563,48 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
         assert.isTrue(result.length > 0)
     });
 
+    it('Testing method: filterColorSwatches --> hide early access product', () => {
+        var product = {
+            raw: {
+                custom: {
+                    outletColors: ['outletColors', 'outletColors1']
+                },
+                variationModel: {
+                    getVariants: function (map) {
+                        return new Collections(
+                            {
+                                custom: {
+                                    earlyAccessConfigs: {
+                                        value: 'HIDE'
+                                    }
+                                }
+                            });
+                    }
+                }
+            }
+        }
+        var sourceValues = [{ id: 'outletColors' }, { id: 'outletColors1' }]
+        var result = ProductHelper.filterColorSwatches(sourceValues, product, 'premium');
+        assert.isFalse(result.length > 0)
+    });
+
     it('Testing method: filterColorSwatches --> premium experienceType', () => {
         var product = {
             raw: {
                 custom: {
                     outletColors: ['outletColors', 'outletColors1']
+                },
+                variationModel: {
+                    getVariants: function (map) {
+                        return new Collections(
+                            {
+                                custom: {
+                                    earlyAccessConfigs: {
+                                        value: 'NO'
+                                    }
+                                }
+                            });
+                    }
                 }
             }
         }
@@ -551,6 +618,18 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
             raw: {
                 custom: {
                     outletColors: ['outletColors1', 'outletColors2']
+                },
+                variationModel: {
+                    getVariants: function (map) {
+                        return new Collections(
+                            {
+                                custom: {
+                                    earlyAccessConfigs: {
+                                        value: 'NO'
+                                    }
+                                }
+                            });
+                    }
                 }
             }
         }
@@ -564,6 +643,18 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
             raw: {
                 custom: {
                     outletColors: ['outletColors', 'outletColors1']
+                },
+                variationModel: {
+                    getVariants: function (map) {
+                        return new Collections(
+                            {
+                                custom: {
+                                    earlyAccessConfigs: {
+                                        value: 'NO'
+                                    }
+                                }
+                            });
+                    }
                 }
             }
         }
@@ -1236,6 +1327,7 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
     it('Testing method:getCallOutMessagePromotions', () => {
         ProductHelper = proxyquire('../../../cartridges/app_ua_core/cartridge/scripts/helpers/productHelpers', {
             '*/cartridge/scripts/util/collections': require('../../mocks/scripts/util/collections'),
+            'dw/util/HashMap' : require('../../mocks/dw/dw_util_HashMap'),
             'app_storefront_base/cartridge/scripts/helpers/productHelpers': {},
             'dw/campaign/PromotionMgr': {
                 getPromotion: function () {
@@ -1338,6 +1430,18 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
             },
             custom: {
                 outletColors:  ['color1', 'color2']
+            },
+            variationModel: {
+                getVariants: function (map) {
+                    return new Collections(
+                        {
+                            custom: {
+                                earlyAccessConfigs: {
+                                    value: 'NO'
+                                }
+                            }
+                        });
+                }
             }
         }
         var sourceValues =  [{id: 'color4'}, {id: 'color3'}]
@@ -1358,6 +1462,18 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
             raw: {
                 custom: {
                     outletColors:  ''
+                },
+                variationModel: {
+                    getVariants: function (map) {
+                        return new Collections(
+                            {
+                                custom: {
+                                    earlyAccessConfigs: {
+                                        value: 'NO'
+                                    }
+                                }
+                            });
+                    }
                 }
             }
         }
@@ -1379,6 +1495,18 @@ describe('app_ua_core/cartridge/scripts/helpers/ProductHelpers test', () => {
             raw: {
                 custom: {
                     outletColors:   ['color1', 'color2']
+                },
+                variationModel: {
+                    getVariants: function (map) {
+                        return new Collections(
+                            {
+                                custom: {
+                                    earlyAccessConfigs: {
+                                        value: 'NO'
+                                    }
+                                }
+                            });
+                    }
                 }
             }
         }

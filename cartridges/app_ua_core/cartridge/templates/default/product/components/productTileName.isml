@@ -1,6 +1,8 @@
 <isset name="productName" value="${product.productName ? product.productName : !empty(product.custom) && !empty(product.custom.modelName) ? product.custom.modelName : ''}" scope="page" />
 <isif condition="${disableProductLink}">
-    <div class="b-tile-name">${productName}</div>
+    <h3 class="b-tile-name">${productName}</h3>
 <iselse>
-    <a class="b-tile-name" href="${productURL}">${productName}</a>
+    <a class="b-tile-name" href="${productURL}">
+        <h3>${productName}</h3>
+    </a>
 </isif>

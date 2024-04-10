@@ -16,8 +16,8 @@
         <div class="b-sort-content js-mob_sort" >
             <ul class="b-sort-list">
                 <isloop items="${pdict.productSearch.productSort.options}" var="option">
-					<li class="b-sort-item ${pdict.productSearch.productSort.ruleId && pdict.productSearch.productSort.ruleId.replace(/-/g, '').toLowerCase() === option.id.replace(/-/g, '') ? 'm-selected' : '' } js-sort-item" data-value="${option.url}"
-                        data-id="${option.id.replace(/\s/g,'')}"
+					<li class="b-sort-item ${pdict.productSearch.productSort.ruleId && pdict.productSearch.productSort.ruleId.replace(/-/g, '') === option.sortingRuleId.replace(/-/g, '') ? 'm-selected' : '' } js-sort-item" data-value="${option.url}"
+                        data-id="${option.sortingRuleId.replace(/\s/g,'')}"
                         data-analytics-sort-value="${option.displayName}"
                     >
                         ${option.displayName}

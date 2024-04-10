@@ -14,10 +14,8 @@ var guard = require('~/cartridge/scripts/guard');
 
 /**
  * Map the given attribute definition to a simple object
- *
  * @param {dw/value/ObjectAttributeDefinition} attributeDefinition The attribute definition to map as simple object
- *
- * @returns {Object}
+ * @returns {Object} The mapping object
  */
 var mapAttribute = function (attributeDefinition) {
     return {
@@ -30,10 +28,10 @@ var mapAttribute = function (attributeDefinition) {
  * Map the given attribute group to a simple object
  *
  * @param {dw/value/ObjectAttributeGroup} groupDefinition The attribute group to map as simple object
- * @param {String} groupURL The URL of the group from the BM
- * @param {String} appendedParameter The parameter to append to the groupURL that will contain the group ID
+ * @param {string} groupURL The URL of the group from the BM
+ * @param {string} appendedParameter The parameter to append to the groupURL that will contain the group ID
  *
- * @returns {Object}
+ * @returns {Object} The attribute group
  */
 var mapGroup = function (groupDefinition, groupURL, appendedParameter) {
     return {
@@ -49,10 +47,10 @@ var mapGroup = function (groupDefinition, groupURL, appendedParameter) {
  * Loads the groups & attributes from the given preferences instance
  *
  * @param {dw/obkect/ExtensibleObject} preferences The preferences from which to load the groups & attributes
- * @param {String} groupURL The URL of the group from the BM
- * @param {String} appendedParameter The parameter to append to the groupURL that will contain the group ID
+ * @param {string} groupURL The URL of the group from the BM
+ * @param {string} appendedParameter The parameter to append to the groupURL that will contain the group ID
  *
- * @returns {Array}
+ * @returns {Array} The result array
  */
 var loadGroups = function (preferences, groupURL, appendedParameter) {
     var describe = preferences.describe();
@@ -73,7 +71,7 @@ var loadGroups = function (preferences, groupURL, appendedParameter) {
     }
 
     return preferencesGroups;
-}
+};
 
 /**
  * Renders the preferences object definitions
@@ -86,7 +84,7 @@ function start() {
     app.getView({
         globalPreferencesGroups: globalPreferencesGroups,
         sitePreferencesGroups: sitePreferencesGroups,
-        title: 'Preferences finder'
+        title: 'Preferences Finder'
     }).render('preferences/results');
 }
 

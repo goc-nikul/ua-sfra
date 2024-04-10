@@ -6,6 +6,8 @@ var server = require('server');
 var csrfProtection = require('*/cartridge/scripts/middleware/csrf');
 var collections = require('*/cartridge/scripts/util/collections');
 var Constants = require('*/cartridge/scripts/constants/constants.js');
+var errorLogger = require('dw/system/Logger').getLogger('OrderFail', 'OrderFail');
+var LogHelper = require('*/cartridge/scripts/util/loggerHelper');
 server.extend(module.superModule);
 
 server.replace('PlaceOrder', server.middleware.https, function (req, res, next) {
@@ -41,6 +43,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     var bopisEnabled = 'isBOPISEnabled' in Site.current.preferences.custom && Site.current.getCustomPreferenceValue('isBOPISEnabled');
     var hasBOPISshipment = cartHelper.basketHasBOPISShipmet(currentBasket);
     if ((hasBOPISshipment && !bopisEnabled)) {
+        errorLogger.error('hasBOPISshipment && !bopisEnabled {0} ', LogHelper.getLoggingObject());
         res.json({
             error: true,
             cartError: true,
@@ -52,6 +55,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     } else if (bopisEnabled && hasBOPISshipment) { // This below code validates inventory limit exceeded and realTime inventory check for BOPIS products.
         var validatedBOPISProducts = validationHelpers.validateBOPISProductsInventory(currentBasket, 'BOPIS');
         if (validatedBOPISProducts && validatedBOPISProducts.availabilityError) {
+            errorLogger.error('validatedBOPISProducts.availabilityError {0} ', LogHelper.getLoggingObject());
             // below function moves invalid bopis items to shipToAddress.
             var invalidBOPISItems = COHelpers.handleInvalidBopisItems(cartModel, currentBasket, validatedBOPISProducts);
             // Calculate the basket
@@ -82,6 +86,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
 
     // This below code verifies the inventory limit exceeded and realTime inventory check
     if (validatedProducts.availabilityError) {
+        errorLogger.error('validatedProducts.availabilityError {0} ', LogHelper.getLoggingObject());
         var inValidItems = availabilityHelper.getInvalidItems(cartModel, validatedProducts);
         // remove or update quantity of the unavailable items from the Basket
         availabilityHelper.updateItemsAvailability(currentBasket, validatedProducts);
@@ -122,6 +127,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
         formFieldErrors.push(contactInfoFormErrors);
     }
     if (formFieldErrors.length) {
+        errorLogger.error('formFieldErrors {0} : {1}', JSON.stringify(formFieldErrors), LogHelper.getLoggingObject());
         // respond with form data and errors
         res.json({
             form: paymentForm,
@@ -142,6 +148,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
             var regExpression = new RegExp(regexp);
             var isvalid = regExpression.test(updatedPhone);
             if (!isvalid) {
+                errorLogger.error('phoneNumber !isvalid {0}', LogHelper.getLoggingObject());
                 res.json({
                     error: true,
                     errorMessage: Resource.msg('error.message.phonenumber.invalid', 'forms', null)
@@ -149,6 +156,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
                 return next();
             }
         } else {
+            errorLogger.error('!phoneNumber {0}', LogHelper.getLoggingObject());
             res.json({
                 error: true,
                 errorMessage: Resource.msg('error.message.required', 'forms', null)
@@ -177,6 +185,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     // valiate HAL address
     var halHelpers = require('*/cartridge/scripts/helpers/halHelper');
     if (!halHelpers.isValidAddress(currentBasket)) {
+        errorLogger.error('!halHelpers.isValidAddress {0}', LogHelper.getLoggingObject());
         res.json({
             error: true,
             errorStage: {
@@ -188,6 +197,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
         return next();
     }
     if (inputFieldsValidation.error && (Object.keys(inputFieldsValidation.shippingAddressErrors).length > 0 || Object.keys(inputFieldsValidation.giftMessageErrors).length > 0)) {
+        errorLogger.error('!inputFieldsValidation.shippingAddressErrors {0}', LogHelper.getLoggingObject());
         res.json({
             error: true,
             errorStage: {
@@ -198,6 +208,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
         });
         return next();
     } else if (inputFieldsValidation.error && Object.keys(inputFieldsValidation.billingAddressErrors).length > 0) {
+        errorLogger.error('!inputFieldsValidation.billingAddressErrors {0}', LogHelper.getLoggingObject());
         res.json({
             error: true,
             errorStage: {
@@ -208,6 +219,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
         });
         return next();
     } else if (inputFieldsValidation.error && Object.keys(inputFieldsValidation.contactInfoErrors).length > 0) {
+        errorLogger.error('!inputFieldsValidation.contactInfoErrors {0}', LogHelper.getLoggingObject());
         res.json({
             error: true,
             errorMessage: inputFieldsValidation.genericErrorMessage
@@ -242,6 +254,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
 
     var validationOrderStatus = hooksHelper('app.validate.order', 'validateOrder', currentBasket, require('~/cartridge/scripts/hooks/validateOrder').validateOrder);
     if (validationOrderStatus.error) {
+        errorLogger.error('validationOrderStatus.error {0}', LogHelper.getLoggingObject());
         res.json({
             error: true,
             errorMessage: validationOrderStatus.message
@@ -251,6 +264,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
 
     // Check to make sure there is a shipping address
     if (!basketHasOnlyEGiftCards && currentBasket.defaultShipment.shippingAddress === null) {
+        errorLogger.error('basketHasOnlyEGiftCards && currentBasket.defaultShipment.shippingAddress {0}', LogHelper.getLoggingObject());
         res.json({
             error: true,
             errorStage: {
@@ -264,6 +278,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
 
     // Check to make sure billing address exists
     if (!currentBasket.billingAddress) {
+        errorLogger.error('!currentBasket.billingAddress {0}', LogHelper.getLoggingObject());
         res.json({
             error: true,
             errorStage: {
@@ -283,6 +298,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     // Re-validates existing payment instruments
     var validPayment = COHelpers.validatePayment(req, currentBasket);
     if (validPayment.error) {
+        errorLogger.error('!validPayment {0}', LogHelper.getLoggingObject());
         res.json({
             error: true,
             errorStage: {
@@ -297,6 +313,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     // Re-calculate the payments.
     var calculatedPaymentTransactionTotal = COHelpers.calculatePaymentTransaction(currentBasket);
     if (calculatedPaymentTransactionTotal.error) {
+        errorLogger.error('calculatedPaymentTransactionTotal.error {0}', LogHelper.getLoggingObject());
         res.json({
             error: true,
             errorMessage: Resource.msg('error.technical', 'checkout', null)
@@ -307,6 +324,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     // Validates Payment Instruments
     var isPaymentAmountMatches = COHelpers.isPaymentAmountMatches(currentBasket);
     if (!isPaymentAmountMatches) {
+        errorLogger.error('!isPaymentAmountMatches {0}', LogHelper.getLoggingObject());
         res.json({
             error: true,
             errorStage: {
@@ -360,6 +378,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
         session.custom.orderNumber = order.orderNo;
     }
     if (!order) {
+        errorLogger.error('!order {0}', LogHelper.getLoggingObject());
         res.json({
             error: true,
             errorMessage: Resource.msg('error.technical', 'checkout', null)
@@ -367,10 +386,12 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
         return next();
     }
 
+    // Set Purchase site value
+    COHelpers.setOrderPurchaseSite(order);
+
     // Email signup - Checkout
-    var emailSignUp = req.querystring.emailSignUp;
     var email = order.customerEmail;
-    if (emailSignUp === 'true' && !empty(email)) {
+    if (Site.getCurrent().getCustomPreferenceValue('isMarketingAutoOptInEnabled') && !empty(email)) {
         var com = require('dw/object/CustomObjectMgr');
         const customObjectName = 'NewsLetterSignUp';
         var keyId = email;
@@ -566,6 +587,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     // Handles payment authorization
     var handlePaymentResult = COHelpers.handlePayments(order, order.orderNo);
     var paymentErrorMessage = null;
+    var paymentErrorCode = null;
     if (!handlePaymentResult.error) {
         // Payment status ok
         if (order.getCustom().onHold) {
@@ -642,6 +664,9 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
                 basketHasGCPaymentInstrument = order ? giftCardHelper.basketHasGCPaymentInstrument(order) : false;
                 if (basketHasGCPaymentInstrument) {
                     giftcardsHooks.reverseGiftCardsAmount(order);
+                    Transaction.wrap(function () {
+                        order.trackOrderChange('Reverse Gift Card Amount');
+                    });
                 }
                 // Aurus Legacy Check
                 if (!empty(Site.current.getCustomPreferenceValue('enableAurusPay')) && !Site.current.getCustomPreferenceValue('enableAurusPay')) {
@@ -654,11 +679,17 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
                         paymetricXiPayHelper.doVoidAuthorization(order, 'Paymetric');
                     }
                 }
+                Transaction.wrap(function () {
+                    order.trackOrderChange('Order Failed Reason: Fraud Detected by Accertify');
+                });
                 COHelpers.failOrder(order);
 
                 currentBasket = BasketMgr.getCurrentBasket();
                 if (currentBasket && vipDataHelpers.isVIPOrder(currentBasket)) {
                     vipHooks.reverseVipPoints(currentBasket);
+                    Transaction.wrap(function () {
+                        order.trackOrderChange('Reverse Vip points');
+                    });
                 }
                 COHelpers.sendFraudNotificationEmail(order);
                 // log the order details for dataDog.
@@ -685,8 +716,12 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     } else {
         // Reverse Auth If any error in Payment
         basketHasGCPaymentInstrument = order ? giftCardHelper.basketHasGCPaymentInstrument(order) : false;
+        errorLogger.error('basketHasGCPaymentInstrument {0}', basketHasGCPaymentInstrument);
         if (basketHasGCPaymentInstrument) {
             giftcardsHooks.reverseGiftCardsAmount(order);
+            Transaction.wrap(function () {
+                order.trackOrderChange('Reverse Gift Card Amount');
+            });
         }
 
         COHelpers.failOrder(order);
@@ -694,11 +729,15 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
         currentBasket = BasketMgr.getCurrentBasket();
         if (currentBasket && vipDataHelpers.isVIPOrder(currentBasket)) {
             vipHooks.reverseVipPoints(currentBasket);
+            Transaction.wrap(function () {
+                order.trackOrderChange('Reverse Vip points');
+            });
         }
         // log the order details for dataDog.
         if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
             paymentErrorMessage = handlePaymentResult.errorMessage ? handlePaymentResult.errorMessage : Resource.msg('error.handlePayment.msg', 'checkout', null);
-            orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, true, paymentErrorMessage));
+            paymentErrorCode = handlePaymentResult.errorCode ? handlePaymentResult.errorCode : null;
+            orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, true, paymentErrorMessage, paymentErrorCode));
         }
         res.json({
             error: true,
@@ -738,15 +777,45 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     }
 
     delete session.custom.orderNumber;
+    // Delete cached giftcard related values
+    delete session.privacy.giftCards;
+    delete session.privacy.giftCardsResponse;
+
+    var emailSignUp = req.querystring.emailSignUp;
+    if (Site.getCurrent().getCustomPreferenceValue('isMarketingAutoOptInEnabled')) {
+        emailSignUp = true;
+    }
     res.json({
         error: false,
         orderID: order.orderNo,
         orderToken: order.orderToken,
-        order_checkout_optin: req.querystring.emailSignUp,
+        order_checkout_optin: emailSignUp,
         continueUrl: URLUtils.url('Order-Confirm').toString()
     });
 
     return next();
+});
+
+server.append('PlaceOrder', function (req, res, next) {
+    var Transaction = require('dw/system/Transaction');
+    var OrderMgr = require('dw/order/OrderMgr');
+    var viewData = res.getViewData();
+    var paymentForm = server.forms.getForm('billing');
+    var smsUpdates = paymentForm.contactInfoFields.orderNotificationSmsOptIn
+        ? paymentForm.contactInfoFields.orderNotificationSmsOptIn.value
+        : '';
+    if (!empty(smsUpdates)) {
+        Transaction.wrap(function () {
+            if (viewData.orderID) {
+                var order = OrderMgr.getOrder(viewData.orderID);
+                if (order) {
+                    order.custom.isOptedInToNotifications = smsUpdates;
+                }
+            }
+        });
+    }
+
+    next();
 });
 
 /**
@@ -907,6 +976,7 @@ server.replace(
         }
 
         if (formFieldErrors.length || paymentFormResult.serverErrors) {
+            errorLogger.error('formFieldErrors paymentFormResult.error {0} : {1}', JSON.stringify(formFieldErrors), LogHelper.getLoggingObject());
             // respond with form data and errors
             res.json({
                 form: paymentForm,
@@ -1049,6 +1119,7 @@ server.replace(
             // Server side validation for billing info
             var inputFieldsValidation = COHelpers.validateInputFields(currentBasket);
             if (inputFieldsValidation.error && Object.keys(inputFieldsValidation.billingAddressErrors).length > 0) {
+                errorLogger.error('inputFieldsValidation.error {0} : {1}', JSON.stringify(inputFieldsValidation), LogHelper.getLoggingObject());
                 res.json({
                     form: billingForm,
                     fieldErrors: [],
@@ -1127,6 +1198,7 @@ server.replace(
             }
             // need to invalidate credit card fields
             if (result.error) {
+                errorLogger.error('Handle error {0} : {1}', JSON.stringify(result), LogHelper.getLoggingObject());
                 delete billingData.paymentInformation;
 
                 res.json({
@@ -1230,7 +1302,6 @@ server.post(
     csrfProtection.validateAjaxRequest,
     function (req, res, next) {
         var paymentForm = server.forms.getForm('billing');
-        var Resource = require('dw/web/Resource');
         var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
         // verify billing form data
         var billingFormErrors = COHelpers.validateBillingForm(paymentForm.addressFields);
@@ -1238,7 +1309,6 @@ server.post(
         var serverErrors = [];
         if (Object.keys(billingFormErrors).length) {
             formFieldErrors.push(billingFormErrors);
-            serverErrors.push(Resource.msg('billingaddress.invalid.errormessage', 'checkout', null));
         }
         if (formFieldErrors.length) {
             // respond with form data and errors

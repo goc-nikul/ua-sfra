@@ -113,17 +113,17 @@ function getHomePageSchema() {
     var searchUrl = homeUrl + 'search?q={search_term_string}';
     var schema = {
         '@context': 'http://schema.org',
-        '@type': 'Organization',
+        '@type': 'WebSite',
         url: homeUrl
     };
     schema.potentialAction = {
         '@type': 'SearchAction',
-        name: 'UnderArmour',
-        target: searchUrl,
         'query-input': 'required name=search_term_string'
     };
-
-
+    schema.potentialAction.target = {
+        '@type': 'EntryPoint',
+        urlTemplate: searchUrl
+    };
     return schema;
 }
 

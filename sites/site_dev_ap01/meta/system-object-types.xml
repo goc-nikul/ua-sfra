@@ -545,7 +545,21 @@
 				<min-length>0</min-length>
 				<field-length>0</field-length>
 			</attribute-definition>
-			 <attribute-definition attribute-id="Adyen_API_Key">
+			<attribute-definition attribute-id="Adyen_disableCaptureCall">
+                <display-name xml:lang="x-default">Disable Capture Call</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_showActionModalAsPopupFor2FA">
+                <display-name xml:lang="x-default">Enable Adyen Modal as Popup for 2FA</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_API_Key">
 				<display-name xml:lang="x-default">X-API-KEY of Web service</display-name>
 				<description xml:lang="x-default">X-API-KEY of Web service</description>
 				<type>password</type>
@@ -662,6 +676,137 @@
                 <mandatory-flag>true</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="MAO_SAP_carrierCodes">
+                <display-name xml:lang="x-default">MAO SAP Carrier Codes</display-name>
+                <description xml:lang="x-default">Shipping Method Identifiers are matched with SAP Carrier Codes. This custom preference used for UK/IE and EU Sites scope only.</description>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="MaoAuthTokenEndpointUrl">
+                <display-name xml:lang="x-default">MAO Auth Token Endpoint URL</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <default-value>https://uarms-auth.omni.manh.com/oauth/token</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="MaoAvailabilityEndpointUrl">
+                <display-name xml:lang="x-default">MAO Availability Endpoint URL</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <default-value>https://omni-uarms.omni.manh.com/inventory/api/availability/availabilitydetail</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="MaoBOPISAvailabilityEndpointUrl">
+                <display-name xml:lang="x-default">Mao BOPIS Availability Endpoint Url</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="MaoDeliveryPriorityDays">
+                <display-name xml:lang="x-default">MaoDeliveryPriorityDays</display-name>
+                <description xml:lang="x-default">Configure the Delivery Priority days based on which we'll be sending the deliveryPriority code to MAO. For Ex. deliveryPriorityDays &lt;= 3 ? '0020' : '0010'</description>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="MaoDomSaveOrderEndpointUrl">
+                <display-name xml:lang="x-default">Mao Dom Save Order Endpoint URL</display-name>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="MaoDomTokenChildOrgPassword">
+                <display-name xml:lang="x-default">Mao Dom Token Child Org Password</display-name>
+                <type>password</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="MaoDomTokenChildOrgUsername">
+                <display-name xml:lang="x-default">MAO Dom Token Child Org Username</display-name>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="maoBOPISViewDefinition">
+                <display-name xml:lang="x-default">MAO BOPIS View Definition</display-name>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="maoDeliveryDate">
+                <display-name xml:lang="x-default">MAO Delivery Date</display-name>
+                <description xml:lang="x-default">Map field to RequestedDeliveryDate</description>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">Use Max</display>
+                        <value>deliveryDateMax</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Use Min</display>
+                        <value>deliveryDateMin</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="maoMaxFailedCount">
+                <display-name xml:lang="x-default">MAO Max Failed Count</display-name>
+                <description xml:lang="x-default">The maximum number of failed attempts allowed for MAO order export and send status update job.</description>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-value>0.0</min-value>
+                <default-value>3</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="maoSpecialZipCodes">
+                <display-name xml:lang="x-default">MAO SpecialZipCodes</display-name>
+                <description xml:lang="x-default">Configure Special Zip codes to send SAP carrier code as 'PPPP' to MAO</description>
+                <type>set-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="maoViewDefinition">
+                <display-name xml:lang="x-default">MAO View Definition</display-name>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="realTimeInventoryCheckPoints">
+                <display-name xml:lang="x-default">MAO RealTime Inventory CheckPoints</display-name>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <select-multiple-flag>true</select-multiple-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">Cart View</display>
+                        <value>CartView</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">AddToCart</display>
+                        <value>AddToCart</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">EditCart</display>
+                        <value>EditCart</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">StartCheckout</display>
+                        <value>StartCheckout</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">PlaceOrder</display>
+                        <value>PlaceOrder</value>
+                    </value-definition>
+                </value-definitions>
             </attribute-definition>
             <attribute-definition attribute-id="sitemapsLocalesMapping">
                 <display-name xml:lang="x-default">Sitemaps Locales Mapping</display-name>
@@ -828,6 +973,14 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="noIndexMeta">
+                <display-name xml:lang="x-default">No Index Meta</display-name>
+                <description xml:lang="x-default">No Index Robots metadata</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="SitemapsLocalesMapping">
@@ -868,6 +1021,8 @@
 				<attribute attribute-id="OrderNumberPrefix"/>
                 <attribute attribute-id="adyenAdditionalData"/>
                 <attribute attribute-id="cashPaymentMethods"/>
+                <attribute attribute-id="Adyen_disableCaptureCall"/>
+                <attribute attribute-id="Adyen_showActionModalAsPopupFor2FA"/>
             </attribute-group>
             <attribute-group group-id="AurusPay">
                 <display-name xml:lang="x-default">Aurus Pay Site Configuration Settings</display-name>
@@ -909,6 +1064,31 @@
                 <attribute attribute-id="uaidmEnableRegisterFEValidation"/>
                 <attribute attribute-id="registrationPageRedirectURL"/>
             </attribute-group>
+            <attribute-group group-id="MAO">
+                <display-name xml:lang="x-default">MAO</display-name>
+                <attribute attribute-id="MaoDomTokenChildOrgUsername"/>
+                <attribute attribute-id="MaoDomTokenChildOrgPassword"/>
+                <attribute attribute-id="MaoDomSaveOrderEndpointUrl"/>
+                <attribute attribute-id="realTimeInventoryCallEnabled"/>
+                <attribute attribute-id="realTimeInventoryCheckPoints"/>
+                <attribute attribute-id="maoViewDefinition"/>
+                <attribute attribute-id="MaoAvailabilityEndpointUrl"/>
+                <attribute attribute-id="MaoAuthTokenEndpointUrl"/>
+                <attribute attribute-id="maoSpecialZipCodes"/>
+                <attribute attribute-id="maoBOPISViewDefinition"/>
+                <attribute attribute-id="MaoBOPISAvailabilityEndpointUrl"/>
+                <attribute attribute-id="MaoDeliveryPriorityDays"/>
+                <attribute attribute-id="maoMaxFailedCount"/>
+                <attribute attribute-id="maoDeliveryDate"/>
+                <attribute attribute-id="MAO_SAP_carrierCodes"/>
+            </attribute-group>
+            <attribute-group group-id="metaTag">
+				<display-name xml:lang="x-default">Meta Tag</display-name>
+                <attribute attribute-id="robotMetaData"/>
+                <attribute attribute-id="noIndexMeta"/>
+                <attribute attribute-id="allowCanonicalUrl"/>
+                <attribute attribute-id="siteTitle"/>
+			</attribute-group>
         </group-definitions>
     </type-extension>
 </metadata>

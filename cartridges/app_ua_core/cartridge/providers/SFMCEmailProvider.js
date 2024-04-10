@@ -118,6 +118,8 @@ var EmailProvider = AbstractEmailProvider.extend({
                 requestData.data.params.returnInfoLink = options.params.returnInfoLink;
                 requestData.data.params.returnCase = options.params.returnCase;
                 requestData.data.params.trackingNumber = options.params.trackingNumber;
+                requestData.data.params.trackingLink = options.params.trackingLink;
+                requestData.data.params.returnShipmentProvider = options.params.returnShipmentProvider;
                 break;
             case emailHelpers.emailTypes.SAPACEmailValidation:
                 requestData.hookID = 'app.communication.account.SAPACEmailValidation';

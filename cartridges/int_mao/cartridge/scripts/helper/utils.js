@@ -65,7 +65,7 @@ function urlencode(str) {
 /**
  * @param {string} str  The URL to parse. Invalid characters are replaced by _.
  * @param {string} component string component
- * @returns {Object} parsed url object
+ * @returns {Object | string} parsed url object
  */
 function parseUrl(str, component) {
     var key = [

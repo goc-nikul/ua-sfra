@@ -3,7 +3,7 @@
     flex-flow: column nowrap;
     align-items: center;
     justify-content: center;
-    margin: rem-calc(100) auto;
+    margin: rem-calc(40) auto;
     text-align: center;
 
     .b-gated-enrollment_form {
@@ -16,7 +16,7 @@
         @include font(main, rem-calc(14), rem-calc(20));
 
         &-login {
-            margin: 0 0 rem-calc(24);
+            margin: 0 auto rem-calc(24);
             max-width: rem-calc(320);
         }
 
@@ -106,8 +106,33 @@
     align-items: center;
     justify-content: center;
     gap: rem-calc(16) 0;
+    margin: 0 auto;
 
     &_create-account {
         margin: 0 0 rem-calc(24);
+    }
+}
+
+.b-loyalty-loading-btn {
+    /* default state */
+    .b-loyalty-btn_icon {
+        width: 100px;
+        height: auto;
+        display: none;
+    }
+
+    .b-loyalty-btn_text {
+        display: block;
+    }
+
+    /* loading state */
+    &[data-loading] {
+        .b-loyalty-btn_icon {
+            display: block;
+        }
+
+        .b-loyalty-btn_text {
+            display: none;
+        }
     }
 }

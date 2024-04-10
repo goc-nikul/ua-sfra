@@ -1,17 +1,21 @@
 /* eslint-disable no-console */
+'use strict';
 
-require('@babel/polyfill');
+require('core-js');
+require('@babel/runtime/regenerator');
 
 var processInclude = require('base/util');
 var pageData = require('./utils/pageData');
 var globalEvents = require('./utils/globalEvents');
 var globalBrowserCheck = require('./utils/globalBrowserCheck');
 var branch = require('branch-sdk');
+var globalUtils = require('./utils/globalUtils');
 
 $(document).ready(function () {
     const branchKey = $('.branch-journeys-top').data('branchkey');
     branch.init(branchKey);
     pageData.init();
+    globalUtils.init();
     globalEvents.init();
     globalBrowserCheck.init();
 

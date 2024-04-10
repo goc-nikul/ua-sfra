@@ -29,8 +29,14 @@
                         <isif condition=${!pdict.wishlist.publicView}>
                             <div class="edit-add-to-wishlist">
                                 <a href="${URLUtils.url('Wishlist-GetProduct', 'uuid', item.UUID, 'pid', item.pid)}" class="edit"
-                                   data-toggle="modal" data-target="#editWishlistProductModal"
-                                   title="${Resource.msg('link.edit.item','cart',null)}">${Resource.msg('link.edit.item','cart',null)}
+                                data-toggle="modal" data-target="#editWishlistProductModal"
+                                title="${Resource.msgf('wishlist.edit.item', 'wishlist', null, item.name)}"
+                            <isif condition="${item.variantAttributes}">
+                                aria-label="${Resource.msgf('wishlist.edit.item.variant', 'wishlist', null, item.name, item.variantAttributes)}">
+                            <iselse>
+                                aria-label="${Resource.msgf('wishlist.edit.item', 'wishlist', null, item.name)}">
+                            </isif>
+                                <span aria-hidden="true">${Resource.msg('link.edit.item','cart',null)}</span>
                                 </a>
                             </div>
                         </isif>

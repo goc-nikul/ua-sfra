@@ -4,7 +4,10 @@
 <isset name="showSwatches" value="${empty(slotConfigurationJSON.swatches) ? false : slotConfigurationJSON.swatches}" scope="page"/>
 <isset name="showRatings" value="${empty(slotConfigurationJSON.ratings) ? true: slotConfigurationJSON.ratings}" scope="page"/>
 <isset name="quickview" value="${!empty(slotConfigurationJSON.quickview) ? slotConfigurationJSON.quickview : false}" scope="page" />
+<isset name="quickAdd" value="${!empty(slotConfigurationJSON.quickAdd) ? slotConfigurationJSON.quickAdd : false}" scope="page" />
 <isset name="enableAvailablePerLocale" value="${'enableAvailablePerLocale' in (dw.system.Site.current.preferences.custom) && dw.system.Site.current.getCustomPreferenceValue('enableAvailablePerLocale')}"  scope="page"/>
+<isset name="slotHelpers" value="${require('*/cartridge/scripts/helpers/slotHelpers')}" scope="page" />
+
 <isif condition="${slotcontent.custom.slotTitle || slotcontent.custom.viewAllLink}">
     <div class="g-carousel-heading">
         <isif condition="${slotcontent.custom.slotTitle}">
@@ -28,12 +31,16 @@
     >
          <div class="g-carousel-wrapper swiper-wrapper js-swiper-wrapper ${slotcontent.content.length > 1 ? 'm-more-one' : ''}">
             <isloop items="${slotcontent.content}" var="product" status="loopState">
-            	<isif condition="${(enableAvailablePerLocale && product.custom.availableForLocale.value !== 'No') || !enableAvailablePerLocale}">
-                    <div class="g-carousel-slide swiper-slide">
-                        <isobject object="${product}" view="recommendation">
-                            <isinclude url="${URLUtils.url('Tile-Show', 'pid', product.ID, 'swatches', showSwatches, 'ratings', showRatings, 'source', 'recommendation', 'quickview', quickview)}" />
-                        </isobject>
-                    </div>
+                <isif condition="${slotHelpers.getProductSearchHit(product)}">
+                    <isif condition="${(enableAvailablePerLocale && product.custom.availableForLocale.value !== 'No') || !enableAvailablePerLocale}">
+                        <div class="g-carousel-slide swiper-slide">
+                            <isobject object="${product}" view="recommendation">
+                                <isset name="showQATB" value="${quickAdd && 'isQATBRec' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.isQATBRec}" scope="page" />
+                                <isset name="experienceType" value="${product.custom.experienceType}" scope="page" />
+                                <isinclude url="${URLUtils.url('Tile-Show', 'pid', product.ID, 'swatches', showSwatches, 'ratings', showRatings, 'source', 'recommendation','experienceType', experienceType, 'quickview', quickview, 'quickAdd', showQATB)}" />
+                            </isobject>
+                        </div>
+                    </isif>
                 </isif>
             </isloop>
         </div>

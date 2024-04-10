@@ -7,6 +7,7 @@
 var LocalServiceRegistry = require('dw/svc/LocalServiceRegistry');
 var serviceHelper = require('*/cartridge/scripts/services/serviceHelper');
 var LoggerHelper = require('*/cartridge/scripts/util/loggerHelper');
+var Site = require('dw/system/Site');
 
 /**
  * Service call to OIS to get token
@@ -17,7 +18,7 @@ function getTokenData() {
         createRequest: function (svc, options) {
             svc.setRequestMethod('POST');
             svc.addHeader('Content-Type', 'application/json');
-            svc.addHeader('ua-site-code', dw.system.Site.current.ID);
+            svc.addHeader('ua-site-code', Site.getCurrent().getID());
 
             return JSON.stringify(options.payload);
         },

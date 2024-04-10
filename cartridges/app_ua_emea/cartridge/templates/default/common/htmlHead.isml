@@ -6,8 +6,13 @@
 
 <iscomment>The page meta data will be replaced by rule based content if it's available</iscomment>
 <isset name="currentSite" value="${dw.system.Site.current}" scope="page"/>
-<isset name="siteTitle" value="${'siteTitle' in currentSite.preferences.custom && currentSite.getCustomPreferenceValue('siteTitle') ? currentSite.getCustomPreferenceValue('siteTitle') : ''}" scope="page"/>
-<isset name="pageTitle" value="${!empty(pdict.CurrentPageMetaData) && (pdict.CurrentPageMetaData.title !== siteTitle) ? true : false}" scope="page"/>
+<isif condition="${currentSite.ID === 'EU' || currentSite.ID === 'UKIE'}">
+    <iscomment><isset name="siteTitle" value="${'siteTitle' in currentSite.preferences.custom && currentSite.getCustomPreferenceValue('siteTitle') ? currentSite.getCustomPreferenceValue('siteTitle') : ''}" scope="page"/></iscomment>
+    <isset name="pageTitle" value="${!empty(pdict.CurrentPageMetaData) && (pdict.CurrentPageMetaData.title !== 'Sites-EU-Site' && pdict.CurrentPageMetaData.title !== 'Sites-UKIE-Site') ? true : false}" scope="page"/>
+<iselse>
+    <isset name="siteTitle" value="${'siteTitle' in currentSite.preferences.custom && currentSite.getCustomPreferenceValue('siteTitle') ? currentSite.getCustomPreferenceValue('siteTitle') : ''}" scope="page"/>
+    <isset name="pageTitle" value="${!empty(pdict.CurrentPageMetaData) && (pdict.CurrentPageMetaData.title !== siteTitle) ? true : false}" scope="page"/>
+</isif>
 <isif condition="${dw.system.System.getInstanceType() != dw.system.System.PRODUCTION_SYSTEM && pageTitle}">
     <title>${pdict.CurrentPageMetaData.title}</title>
 <iselseif condition="${pageTitle}"/>
@@ -19,31 +24,31 @@
 <meta name="description" content="${pdict.CurrentPageMetaData.description ? pdict.CurrentPageMetaData.description : Resource.msg('global.storename','common',null)}"/>
 <meta name="keywords" content="${pdict.CurrentPageMetaData.keywords ? pdict.CurrentPageMetaData.keywords : Resource.msg('global.storename','common',null)}"/>
 <meta name="format-detection" content="telephone=no">
-<isset name="robotMetaData" value="${currentSite.getCustomPreferenceValue('robotMetaData')}" scope="page"/>
-<isset name="noIndexMeta" value="${currentSite.getCustomPreferenceValue('noIndexMeta')}" scope="page"/>
-
-<isif condition="${(!empty(pdict.canonicalUrl) && (pdict.canonicalUrl.toString().indexOf('demandware.store') > -1)) || (!empty(request.httpHeaders && request.httpHeaders['x-is-script_name']) && (request.httpHeaders['x-is-script_name'].indexOf('demandware.store') > -1)) || (!empty(pdict.productSearch) && (pdict.productSearch.count <= 2))}" >
-    <isset name="robotMetaData" value="${noIndexMeta}" scope="page"/>
-<iselseif condition="${!empty(pdict.QueryParams)}" >
-    <isloop items="${pdict.QueryParams}" var="queryParams">
-        <isif condition="${!empty(queryParams.key) && (queryParams.key === 'colorgroup' || queryParams.key === 'enduse' || queryParams.key === 'gender' || queryParams.key === 'division' || queryParams.key === 'subsilhouette' || queryParams.key === 'size' || queryParams.key === 'length' || queryParams.key === 'fittype' || queryParams.key === 'merchCollection' || queryParams.key === 'gearline'  || queryParams.key === 'agegroup')}">
-            <isif condition="${!empty(queryParams.value) && (queryParams.value.split('|').length > 1)}">    
-                <isset name="robotMetaData" value="${noIndexMeta}" scope="page"/>
-                <isbreak/>
-            </isif>
-        </isif>
-    </isloop>
-</isif>
 <isif condition="${typeof robotMetaData !== "undefined" && !empty(robotMetaData)}">
     <isprint value="${robotMetaData}" encoding="off"/>
+</isif>
+
+<iscomment>Implementation of the robot noindex metadata tag</iscomment>
+<isif condition="${pdict.noIndexSEOTag}">
+    <isset name="currentSite" value="${dw.system.Site.current}" scope="page"/>
+    <isset name="noIndexSEOTag" value="${'noIndexMeta' in currentSite.preferences.custom && currentSite.getCustomPreferenceValue('noIndexMeta') ? currentSite.getCustomPreferenceValue('noIndexMeta') : ''}" scope="page"/>
+    <isprint value="${noIndexSEOTag}" encoding="off"/>
 </isif>
 
 <iscomment>Additional Rule based page meta tags</iscomment>
 <isloop items="${pdict.CurrentPageMetaData.pageMetaTags}" var="pageMetaTag">
     <isif condition="${pageMetaTag.name}">
-        <meta name="<isprint value="${pageMetaTag.ID}">" content="<isprint value="${pageMetaTag.content}">">
-    <iselseif condition="${pageMetaTag.property}">
-        <meta property="<isprint value="${pageMetaTag.ID}">" content="<isprint value="${pageMetaTag.content}">">
+        <isif condition="${pageMetaTag.ID === 'og:image'}">
+            <meta name="${pageMetaTag.ID}" content="${pageMetaTag.content.replace(/\?.*/gm, '') + '?wid=1500&hei=1500&size=1500,1500'}" />
+        <iselse/>
+            <meta name="${pageMetaTag.ID}" content="${pageMetaTag.content}" />
+        </isif>
+    <iselseif condition="${pageMetaTag.property}"/>
+        <isif condition="${pageMetaTag.ID === 'og:image'}">
+            <meta name="${pageMetaTag.ID}" content="${pageMetaTag.content.replace(/\?.*/gm, '') + '?wid=1500&hei=1500&size=1500,1500'}" />
+        <iselse/>
+            <meta name="${pageMetaTag.ID}" content="${pageMetaTag.content}" />
+        </isif>
     </isif>
 </isloop>
 
@@ -80,6 +85,9 @@
 <link rel="stylesheet" href="${URLUtils.staticURL('/css/fonts.css')}" />
 <link rel="stylesheet" href="${URLUtils.staticURL('/css/normalize.css')}" />
 <link rel="stylesheet" href="${URLUtils.staticURL('/css/style.css')}" />
+
+<isinclude template="components/datadogRum" />
+
 <isloop items="${ require('*/cartridge/scripts/assets.js').styles }" var="style">
      <link rel="stylesheet" href="${style.src}" <isif condition="${style.integrity != null}">integrity="${style.integrity}" crossorigin="anonymous"</isif> />
 </isloop>
@@ -87,32 +95,6 @@
 <isif condition="${'GoogleVerificationTag' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.GoogleVerificationTag!=''}">
     <meta name="google-site-verification" content="<isprint value="${dw.system.Site.current.preferences.custom.GoogleVerificationTag}"/>" />
 </isif>
-
-<isset name="pxAppID" value="${typeof currentSite !== "undefined" ? currentSite.getCustomPreferenceValue('PX_appID') : dw.system.Site.getCurrent().getCustomPreferenceValue('PX_appID')}" scope="page"/>
-<isset name="pxEnabled" value="${typeof currentSite !== "undefined" ? currentSite.getCustomPreferenceValue('PX_moduleEnabled') : dw.system.Site.getCurrent().getCustomPreferenceValue('PX_moduleEnabled')}" scope="page"/>
-<isif condition="${pxEnabled && pxAppID}">
-<iscomment>
-    perimeterx sensor include snippet.  For this to work, you must also add a dynamic mapping in Merchant Tools->SEO->Dynamic Mappings that looks like this:
-    /**/px/** p,,,PXFP-Handle,{0},src,{1}
-</iscomment>
-<isset name="pxScriptUrl" value="${URLUtils.https('PXFP-Handle')}" scope="page" />
-<script type="text/javascript">
-	(function(){
-		window._pxAppId = '${pxAppID}';
-		// Custom parameters
-		// window._pxParam1 = "<param1>";
-		var p = document.getElementsByTagName('script')[0],
-			s = document.createElement('script');
-            var pxScriptUrl = '${pxScriptUrl}';
-            var srcUrl = new URL(pxScriptUrl);
-            srcUrl.searchParams.append('src', window._pxAppId.substring(2) + '/init.js');
-		    s.async = 1;
-            s.src = srcUrl;
-		p.parentNode.insertBefore(s,p);
-	}());
-</script>
-</isif>
-
 
 <script>
 (function () {

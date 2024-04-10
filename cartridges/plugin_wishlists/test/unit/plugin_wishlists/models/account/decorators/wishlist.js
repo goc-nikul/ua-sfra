@@ -7,7 +7,7 @@ var apiWishlistMock;
 describe('my account wishlist decorator', function () {
     var wishlist = proxyquire('../../../../../../cartridges/plugin_wishlists/cartridge/models/account/decorators/wishlist', {
         '*/cartridge/models/productListItem': function () {
-            return;
+
         }
     });
 

@@ -23,7 +23,7 @@ function createNewUrl(productSearch, httpParams) {
     if (httpParams.start && httpParams.start > 0 && httpParams.showMore !== 'true') {
         var showMoreEndpoint = 'Search-UpdateGrid';
         var pageSize = preferences.defaultPageSize ? preferences.defaultPageSize : /* istanbul ignore next */ 12;
-        var start = Number(httpParams.start) - pageSize === 0 ? '0' : /* istanbul ignore next */ Number(httpParams.start) - pageSize;
+        var start = Number(httpParams.start) - pageSize <= 0 ? '0' : /* istanbul ignore next */ Number(httpParams.start) - pageSize;
         var urlParameter = { start: start };
         var url = productSearch.url(showMoreEndpoint).toString();
         appended.previousUrl = urlHelper.appendQueryParams(url, urlParameter).toString();

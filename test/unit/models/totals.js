@@ -7,6 +7,7 @@ var sinon = require('sinon');
 var totals;
 var TotalsModel;
 var stubisKlarnaPaymentEnabled = sinon.stub();
+var Money = require('../../mocks/dw/dw_value_Money');
 
 function baseTotalsModelMock() {
     this.orderLevelDiscountTotal = {
@@ -76,7 +77,8 @@ var couponLineItem = {
         getPromotionClass: function () {
             return {};
         }
-    }
+    },
+    couponCode: ''
 };
 
 var lineItemContainer = {
@@ -159,7 +161,13 @@ var lineItemContainer = {
     },
     price: {
         value: 100
-    }
+    },
+    getAdjustedMerchandizeTotalPrice: (param) => {
+        if (!param) {
+            return new Money(5);
+        }
+        return new Money(0);
+    },
 }
 
 var Template = function () {
@@ -194,7 +202,7 @@ describe('app_ua_core/cartridge/models/totals.js', () => {
                     return 'formatted money';
                 }
             },
-            'dw/value/Money': require('../../mocks/dw/dw_value_Money'),
+            'dw/value/Money': Money,
             '*/cartridge/scripts/marketing/klarnaOSM': {
                 formatPurchaseAmount : function () {
                     return 657;
@@ -278,7 +286,6 @@ describe('app_ua_core/cartridge/models/totals.js', () => {
     });
 
     it('Testing totals model for priceAdjustment promotion is null', () => {
-        priceAdjustment.promotion = null;
         couponLineItem.priceAdjustments = [priceAdjustment];
         lineItemContainer.couponLineItems = [couponLineItem];
         totals = new TotalsModel(lineItemContainer);
@@ -287,7 +294,6 @@ describe('app_ua_core/cartridge/models/totals.js', () => {
     });
 
     it('Testing totals model for couponLineItem promotion is null', () => {
-        couponLineItem.promotion = null;
         lineItemContainer.couponLineItems = [couponLineItem];
         totals = new TotalsModel(lineItemContainer);
 
@@ -338,5 +344,12 @@ describe('app_ua_core/cartridge/models/totals.js', () => {
         totals = new TotalsModel(lineItemContainer);
 
         assert.isNotNull(totals, 'online should exists');
+    });
+
+    it('Testing totals model for getSubtotalWithoutDiscounts is null', () => {
+        totals = new TotalsModel(lineItemContainer);
+
+        assert.isNotNull(totals, 'online should exists');
+        assert.isNotNull(totals.totalListPrice, 'totalListPrice should exists');
     });
 });

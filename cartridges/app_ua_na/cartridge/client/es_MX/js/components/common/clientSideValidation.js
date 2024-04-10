@@ -167,6 +167,63 @@ function onChangeCountry() {
     });
 }
 
+/**
+ * Checking if date is valid:
+ * 2021-03-30 - March 30, 2021 - true
+ * 2021-02-29 - February 29, 2021 - false
+ * 2020-02-29 - February 29, 2020 - true
+ * @param {string} date date in format YYYY-MM-DD
+ * @returns {boolean} boolean
+ */
+function isValidDate(date) {
+    const dateArr = date.split('-');
+    const year = +dateArr[0];
+    const month = dateArr[1] - 1;
+    const day = +dateArr[2];
+
+    const d = new Date(year, month, day);
+    if (d.getFullYear() === year && d.getMonth() === month && d.getDate() === day) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Birthday minimum age restriction
+ * @param {Object} $input form element
+ */
+function validateMinimumAgeRestriction($input) {
+    if ($input && $input.length) {
+        const dateValue = $input.val();
+        // eslint-disable-next-line no-useless-escape
+        const regEx = /^(0[1-9]|[12][0-9]|3[01])[\/](0[1-9]|1[012])[\/](19|20)\d\d$/;
+        let errorMsg;
+        if (!dateValue) {
+            errorMsg = $input.data('missing-error');
+        } else if (dateValue.length < 10 || !(regEx.test(dateValue.trim()))) {
+            errorMsg = $input.data('pattern-mismatch');
+        } else {
+            const dateOfBirthStr = dateValue.split('/').reverse().join('-');
+            if (isValidDate(dateOfBirthStr)) {
+                const dateOfBirth = new Date(dateOfBirthStr);
+                const date13YrsAgo = new Date();
+                date13YrsAgo.setFullYear(date13YrsAgo.getFullYear() - 13);
+                if (!(dateOfBirth <= date13YrsAgo)) {
+                    errorMsg = $input.data('under-age');
+                }
+            } else {
+                errorMsg = $input.data('pattern-mismatch');
+            }
+        }
+        if (errorMsg) {
+            $input.addClass('is-invalid');
+            $input.parents('.form-group').addClass('error-field');
+            $input.parents('.form-group').find('.invalid-feedback').text(errorMsg);
+        }
+    }
+}
+
 clientSideValidationBase.onChangeCountry = onChangeCountry;
 clientSideValidationBase.validateFields = validateFields;
+clientSideValidationBase.validateMinimumAgeRestriction = validateMinimumAgeRestriction;
 module.exports = clientSideValidationBase;

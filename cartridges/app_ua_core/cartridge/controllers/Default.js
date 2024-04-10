@@ -2,6 +2,7 @@
 
 var server = require('server');
 var URLUtils = require('dw/web/URLUtils');
+var cache = require('*/cartridge/scripts/middleware/cache');
 
 server.extend(module.superModule);
 
@@ -17,5 +18,13 @@ server.append('Start', function (req, res, next) {
     });
     next();
 });
+
+server.prepend(
+    'Start',
+    cache.applyPromotionSensitiveCache,
+    function (req, res, next) {
+        next();
+    }
+);
 
 module.exports = server.exports();

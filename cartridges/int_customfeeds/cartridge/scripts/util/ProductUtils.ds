@@ -862,7 +862,7 @@ ProductUtils.isCategoryChild = function( childCategoryId: String, parentCategorI
  
  */
 
-ProductUtils.getAllPriceRanges = function( product : Product) : Product {
+ProductUtils.getAllPriceRanges = function( product : Product ) : Product {
 
     var currencyCode : String = session.currency.currencyCode,
     minListPrice : Money = new Money(0, currencyCode),
@@ -877,13 +877,16 @@ ProductUtils.getAllPriceRanges = function( product : Product) : Product {
         var priceBooks = ProductUtils.getPriceBooks();
         var salePriceBookID = PriceBookMgr.getPriceBook(priceBooks.salePriceBookID);
         var listPriceBookID = PriceBookMgr.getPriceBook(priceBooks.listPriceBookID);
-        var pid = product.variant ? product.variationModel.master.ID : product.ID;
 
-        var salePriceBookRangePrice = ProductUtils.getPriceBookRangePrice(salePriceBookID, currencyCode, pid);
+		// pass multiple productsIds to account for combined PDP problem
+		// ex: slipspeed needs the upc to return prices whereas other products need the style
+		var pids = [product.variationModel.master.ID, product.ID];
+
+        var salePriceBookRangePrice = ProductUtils.getPriceBookRangePrice(salePriceBookID, currencyCode, pids);
         minSalePrice = salePriceBookRangePrice.minPrice;
         maxSalePrice = salePriceBookRangePrice.maxPrice;
 
-        var listPriceBookRangePrice = ProductUtils.getPriceBookRangePrice(listPriceBookID, currencyCode, pid);
+        var listPriceBookRangePrice = ProductUtils.getPriceBookRangePrice(listPriceBookID, currencyCode, pids);
         minListPrice = listPriceBookRangePrice.minPrice;
         maxListPrice = listPriceBookRangePrice.maxPrice;
 
@@ -905,20 +908,25 @@ ProductUtils.getAllPriceRanges = function( product : Product) : Product {
  @param {String} pid
  @return priceRanges
  */
-ProductUtils.getPriceBookRangePrice = function( priceBookID : String, currencyCode: String, pid: String ) : Product {
+ProductUtils.getPriceBookRangePrice = function( priceBookID : String, currencyCode: String, pids: Array ) : Product {
 
     var ProductSearchModel = require('dw/catalog/ProductSearchModel'),
     PriceBookMgr = require('dw/catalog/PriceBookMgr'),
     minPrice : Money = new Money(0, currencyCode),
     maxPrice : Money = new Money(0, currencyCode),
-    product = ProductMgr.getProduct(pid),
+    product = ProductMgr.getProduct(pids[0]),
+	backupProduct = ProductMgr.getProduct(pids[1]),
     searchModel = new ProductSearchModel();
 
     if (!empty(product)) {
 	    PriceBookMgr.setApplicablePriceBooks(priceBookID);
-        searchModel.setSearchPhrase(pid);
+        searchModel.setSearchPhrase(pids[0]);
         searchModel.search();
         var hit = searchModel.getProductSearchHit(product);
+		// in the case of combined PDP, using the master product didn't always return a hit
+		if(empty(hit) && !empty(backupProduct)){
+			hit = searchModel.getProductSearchHit(backupProduct)
+		}
         if (!empty(hit)) {
 	        minPrice = hit.getMinPrice();
 	        maxPrice = hit.getMaxPrice();
@@ -1887,6 +1895,15 @@ ProductUtils.getPriceBooks = function() {
         	salePriceBookID: currencyCode + '-sale'
     	};
 	}
+}
+
+/**
+* @param {string} string string to be sanitized
+* @returns {string} - sanitized string
+ */
+ProductUtils.sanitizeInvisibleSpaces = function (str) {
+	// replace all non-breaking spaces with regular spaces
+	return str.replace(/\xa0/g, ' ');
 }
 
 if (typeof (exports) !== 'undefined') {

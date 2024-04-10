@@ -1,5 +1,6 @@
 <iscontent type="text/html" charset="UTF-8" compact="true"/>
 
+<isset name="currentSite" value="${dw.system.Site.current}" scope="page"/>
 <isif condition="${pdict.isEmailLabel}">
     <link rel="stylesheet" href="${URLUtils.staticURL('/css/fonts.css')}" />
     <link rel="stylesheet" href="${URLUtils.staticURL('/css/normalize.css')}" />
@@ -63,7 +64,11 @@
                 </div>
                 <div class="return-label--head-column">
                     <div class="return-label--btn">
-                        <button type="button" class="js-orderLabel-printPage btn btn-primary btn-block g-button_base g-button_primary--black">${Resource.msg('returns.refunds.button','refunds',null)}</button>
+                        <isif condition="${currentSite.ID === 'EU' || currentSite.ID === 'UKIE'}">
+                            <button type="button" class="js-orderLabel-printPage-emea btn btn-primary btn-block g-button_base g-button_primary--black">${Resource.msg('returns.refunds.button','refunds',null)}</button>
+                        <iselse>
+                            <button type="button" class="js-orderLabel-printPage btn btn-primary btn-block g-button_base g-button_primary--black">${Resource.msg('returns.refunds.button','refunds',null)}</button>
+                        </isif>
                     </div>
                 </div>
             </div>
@@ -99,7 +104,7 @@
                 </div>
 
                 <div class="return-label--page-1">
-                    <isif condition="${pdict.authFormObject.country == 'CA' || pdict.authFormObject.country == 'AU' }">
+                    <isif condition="${pdict.authFormObject.country == 'CA' || pdict.authFormObject.country == 'AU' || pdict.isPDF}">
                         <div class="img-heading-hide CA-pdfImg-value">
                             ${pdict.imageObj}
                         </div>
@@ -154,17 +159,22 @@
                             </div>
                         </div>
                         <div class="return-label--sub-section">
+                        <isset name="contentAsset" value="${require('dw/content/ContentMgr').getContent('return-need-help')}" scope="page"/>
                             <div class="return-label--minor-heading">
                                 ${Resource.msg('returns.refunds.help','refunds',null)} 
                             </div>
                             <p class="return-label--help-info">
-                                <span>
-                                ${Resource.msg('returns.refunds.call','refunds',null)} 
-                                <a href="https://underarmour.custhelp.com/">
-                                    ${Resource.msg('returns.refunds.link','refunds',null)} 
-                                </a>
-                                ${Resource.msg('returns.refunds.answar','refunds',null)} 
-                                </span>
+                                <isif condition="${!empty(contentAsset) && !empty(contentAsset.custom.body)}">
+                                    <isprint value="${contentAsset.custom.body}" encoding="off" >
+                                <iselse>
+                                    <span>
+                                        ${Resource.msg('returns.refunds.call','refunds',null)} 
+                                        <a href="https://underarmour.custhelp.com/">
+                                            ${Resource.msg('returns.refunds.link','refunds',null)} 
+                                        </a>
+                                        ${Resource.msg('returns.refunds.answar','refunds',null)} 
+                                    </span>
+                                </isif>
                             </p>
                             <p class="return-label--help-info">
                             ${Resource.msg('returns.refunds.paragraph','refunds',null)} 

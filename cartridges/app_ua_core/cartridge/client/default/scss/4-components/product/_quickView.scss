@@ -296,14 +296,8 @@
 
         .btn.update-cart-product-global-style,
         .add-to-cart-global-global-style {
-            width: rem-calc(280);
+            width: 100%;
             max-width: 100%;
-
-            @include respond-to(mobile) {
-                width: calc(100vw - 177px);
-                max-width: 100%;
-                margin-left: rem-calc(6);
-            }
         }
 
         &-qty-button {
@@ -495,5 +489,12 @@
         .b-size_pdp .b-select-size-outer ul li a::before {
             transform: rotate(44deg);
         }
+    }
+}
+
+.plp-loading {
+    .b-product_attrs-item.b-product_sizeChart a {
+        pointer-events: none;
+        color: gray;
     }
 }

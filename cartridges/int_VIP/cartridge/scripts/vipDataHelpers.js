@@ -152,7 +152,7 @@ function removeNonGiftCardPaymentInstruments(lineItemCtnr) {
             Transaction.wrap(function () {
                 while (paymentInstrumentsIt.hasNext()) {
                     var paymentInstrument = paymentInstrumentsIt.next();
-                    if (!paymentInstrument.getPaymentMethod().equalsIgnoreCase('GIFT_CARD') && !paymentInstrument.getPaymentMethod().equalsIgnoreCase('AURUS_CREDIT_CARD')) {
+                    if (!paymentInstrument.getPaymentMethod().equalsIgnoreCase('GIFT_CARD') && !paymentInstrument.getPaymentMethod().equalsIgnoreCase('AURUS_CREDIT_CARD') && !paymentInstrument.getPaymentMethod().equalsIgnoreCase('KLARNA_PAYMENTS')) {
                         lineItemCtnr.removePaymentInstrument(paymentInstrument);
                     }
                 }
@@ -301,27 +301,12 @@ function handleVIPPayment(currentCustomer, currentBasket) {
                     session.custom.currentOrderTotal = currentBasket.totalGrossPrice.value;
                     session.custom.suppressVipPointsCheck = false;
                 }
-            } else if (Site.getCurrent().getCustomPreferenceValue('enableGiftCardPaymentForVIP') && availablePoints.value > 0 && availablePoints.value < orderTotal.value && !isCartHasgiftCards) {
-                removeNonGiftCardPaymentInstruments(currentBasket);
-                var appliedVipPoints = new Money(availablePoints.value, currencyCode);
-                var vipUserPaymentInstrument = applyVIPAllotmentPoints(appliedVipPoints, currentBasket);
-                if (vipUserPaymentInstrument) {
-                    var resultObj = {};
-                    resultObj.availablePoints = formatMoney(availablePoints);
-                    resultObj.usedPoints = formatMoney(appliedVipPoints);
-                    resultObj.remainingPoints = formatMoney(new Money(0, currencyCode));
-                    resultObj.pointsApplied = false;
-                    resultObj.vipPromotionEnabled = false;
-                    resultObj.partialPointsApplied = true;
-                    Transaction.wrap(function () {
-                        vipUserPaymentInstrument.custom.vipAccountId = accountNumber;
-                        vipUserPaymentInstrument.custom.vipPaymentDetails = JSON.stringify(resultObj);
-                    });
-                    session.custom.currentOrderTotal = currentBasket.totalGrossPrice.value;
-                    session.custom.suppressVipPointsCheck = false;
-                }
             } else {
-                removeVipPaymentInstruments(currentBasket);
+                if (Site.getCurrent().getCustomPreferenceValue('enableGiftCardPaymentForVIP') && availablePoints.value > 0 && availablePoints.value < orderTotal.value && !isCartHasgiftCards) {
+                    removeNonGiftCardPaymentInstruments(currentBasket);
+                } else {
+                    removeVipPaymentInstruments(currentBasket);
+                }
                 session.custom.insufficientVipPoints = true;
                 session.custom.suppressVipPointsCheck = true;
                 dw.system.HookMgr.callHook('dw.order.calculate', 'calculate', currentBasket);

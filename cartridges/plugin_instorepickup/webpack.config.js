@@ -1,8 +1,10 @@
 'use strict';
 
 var path = require('path');
-var ExtractTextPlugin = require('sgmf-scripts')['extract-text-webpack-plugin'];
+var MiniCssExtractPlugin = require('mini-css-extract-plugin');
+var CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 var sgmfScripts = require('sgmf-scripts');
+var RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts');
 
 module.exports = [{
     mode: 'production',
@@ -17,38 +19,50 @@ module.exports = [{
     name: 'scss',
     entry: sgmfScripts.createScssPath(),
     output: {
-        path: path.resolve('./cartridges/plugin_instorepickup/cartridge/static'),
-        filename: '[name].css'
+        path: path.resolve('./cartridges/plugin_instorepickup/cartridge/static')
     },
     module: {
         rules: [{
             test: /\.scss$/,
-            use: ExtractTextPlugin.extract({
-                use: [{
-                    loader: 'css-loader',
-                    options: {
-                        url: false,
-                        minimize: true
+            use: [{
+                loader: MiniCssExtractPlugin.loader,
+                options: {
+                    esModule: false
+                }
+            },
+            {
+                loader: 'css-loader',
+                options: {
+                    url: false
+                }
+            }, {
+                loader: 'postcss-loader',
+                options: {
+                    postcssOptions: {
+                        plugins: [require('autoprefixer')]
                     }
-                }, {
-                    loader: 'postcss-loader',
-                    options: {
-                        plugins: [
-                            require('autoprefixer')()
-                        ]
-                    }
-                }, {
-                    loader: 'sass-loader',
-                    options: {
+                }
+            }, {
+                loader: 'sass-loader',
+                options: {
+                    implementation: require('sass'),
+                    sassOptions: {
                         includePaths: [
                             path.resolve(process.cwd(), '../storefront-reference-architecture/node_modules/')
                         ]
                     }
-                }]
-            })
+                }
+            }]
         }]
     },
     plugins: [
-        new ExtractTextPlugin({ filename: '[name].css' })
-    ]
+        new RemoveEmptyScriptsPlugin(),
+        new MiniCssExtractPlugin({
+            filename: '[name].css',
+            chunkFilename: '[name].css'
+        })
+    ],
+    optimization: {
+        minimizer: ['...', new CssMinimizerPlugin()]
+    }
 }];

@@ -26,9 +26,17 @@
 <iscomment>Additional Rule based page meta tags</iscomment>
 <isloop items="${pdict.CurrentPageMetaData.pageMetaTags}" var="pageMetaTag">
     <isif condition="${pageMetaTag.name}">
-        <meta name="<isprint value="${pageMetaTag.ID}">" content="<isprint value="${pageMetaTag.content}">">
-    <iselseif condition="${pageMetaTag.property}">
-        <meta property="<isprint value="${pageMetaTag.ID}">" content="<isprint value="${pageMetaTag.content}">">
+        <isif condition="${pageMetaTag.ID === 'og:image'}">
+            <meta name="${pageMetaTag.ID}" content="${pageMetaTag.content.replace(/\?.*/gm, '') + '?wid=1500&hei=1500&size=1500,1500'}" />
+        <iselse/>
+            <meta name="${pageMetaTag.ID}" content="${pageMetaTag.content}" />
+        </isif>
+    <iselseif condition="${pageMetaTag.property}"/>
+        <isif condition="${pageMetaTag.ID === 'og:image'}">
+            <meta name="${pageMetaTag.ID}" content="${pageMetaTag.content.replace(/\?.*/gm, '') + '?wid=1500&hei=1500&size=1500,1500'}" />
+        <iselse/>
+            <meta name="${pageMetaTag.ID}" content="${pageMetaTag.content}" />
+        </isif>
     </isif>
 </isloop>
 
@@ -75,32 +83,6 @@
 <isif condition="${'GoogleVerificationTag' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.GoogleVerificationTag!=''}">
     <meta name="google-site-verification" content="<isprint value="${dw.system.Site.current.preferences.custom.GoogleVerificationTag}"/>" />
 </isif>
-
-<isset name="pxAppID" value="${dw.system.Site.current.getCustomPreferenceValue('PX_appID')}" scope="page"/>
-<isset name="pxEnabled" value="${dw.system.Site.current.getCustomPreferenceValue('PX_moduleEnabled')}" scope="page"/>
-<isif condition="${pxEnabled && pxAppID}">
-<iscomment>
-    perimeterx sensor include snippet.  For this to work, you must also add a dynamic mapping in Merchant Tools->SEO->Dynamic Mappings that looks like this:
-    /px/** p,,,PXFP-Handle,,src,{0}
-</iscomment>
-<isset name="pxScriptUrl" value="${URLUtils.https('PXFP-Handle')}" scope="page" />
-<script type="text/javascript">
-	(function(){
-		window._pxAppId = '${pxAppID}';
-		// Custom parameters
-		// window._pxParam1 = "<param1>";
-		var p = document.getElementsByTagName('script')[0],
-			s = document.createElement('script');
-        var pxScriptUrl = '${pxScriptUrl}';
-        var srcUrl = new URL(pxScriptUrl);
-        srcUrl.searchParams.append('src', window._pxAppId.substring(2) + '/init.js');
-		s.async = 1;
-        s.src = srcUrl;
-		p.parentNode.insertBefore(s,p);
-	}());
-</script>
-</isif>
-
 
 <script>
 (function () {

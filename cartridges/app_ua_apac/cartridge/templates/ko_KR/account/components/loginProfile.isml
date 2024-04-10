@@ -21,6 +21,7 @@
                             <isif condition="${dw.system.Site.current.getCustomPreferenceValue('isNaverSSOEnabled')}">
                                 <isset name="naverButtonImgURL" value="${dw.system.Site.current.getCustomPreferenceValue('naverLoginBtnImageUrl').getAbsURL()}" scope="page" />
                                 <isset name="naverButtonDestination" value="login" scope="page" />
+                                <isset name="naverAccountDeletion" value="${false}" scope="page" />
                                 <isinclude template="account/components/naverSSO" />
                             </isif>
                         </div>

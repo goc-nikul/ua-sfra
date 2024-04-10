@@ -14,6 +14,7 @@ class Customer {
             email: 'testEmail@gmail.com',
             firstName: 'testFirstName',
             lastName: 'testlastName',
+            customerNo:'123456',
             credentials: {
                 createResetPasswordToken: () => {
                     return 'token';

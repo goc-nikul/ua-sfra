@@ -1,0 +1,25 @@
+<isset name="mainProduct" value="${require('dw/catalog/ProductMgr').getProduct(lineItem.id)}" scope="page">
+<isif condition="${lineItem.appliedPromotions == null && (!empty(pdict.totals) && pdict.totals.orderLevelDiscountTotal.value === 0 && pdict.totals.shippingLevelDiscountTotal.value === 0)}">
+    <isif condition="${!pdict.isEmployee && !pdict.isVIP && !pdict.CurrentCustomer.isMemberOfCustomerGroup('IDmeVerified')}">
+        <isif condition="${mainProduct.custom.promoCalloutAssetID}">
+            <div class="b-product_text-callout b-product-promo">
+                <iscontentasset aid="${mainProduct.custom.promoCalloutAssetID}" />
+            </div>
+        </isif>
+    </isif>
+<iselse>
+    <isif condition="${!pdict.isEmployee && lineItem.custom && 'giftCard' in lineItem.custom && (lineItem.custom.giftCard === 'EGIFT_CARD' || lineItem.custom.giftCard === 'GIFT_CARD')}">
+        <isif condition="${mainProduct.custom.promoCalloutAssetID}">
+            <div class="b-product_text-callout b-product-promo">
+                <iscontentasset aid="${mainProduct.custom.promoCalloutAssetID}" />
+            </div>
+        </isif>
+    <iselseif condition = "${lineItem.custom && 'giftCard' in lineItem.custom && (lineItem.custom.giftCard !== 'EGIFT_CARD' && lineItem.custom.giftCard !== 'GIFT_CARD')}">
+        <isif condition="${mainProduct.custom.promoCalloutAssetID}">
+            <div class="b-product_text-callout b-product-promo">
+                <iscontentasset aid="${mainProduct.custom.promoCalloutAssetID}" />
+            </div>
+        </isif>
+    </iselseif>
+    </isif>
+</isif>

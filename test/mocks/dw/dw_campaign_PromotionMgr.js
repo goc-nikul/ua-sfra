@@ -10,6 +10,14 @@ class PromotionMgr {
     getActiveCustomerPromotions() {
         return this.activeCustomerPromotions;
     }
+
+    getActivePromotions() {
+        return {
+            getProductPromotions() {
+                return [{ promo: 'discount' }];
+            }
+        };
+    }
 }
 
 module.exports = new PromotionMgr();

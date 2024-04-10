@@ -21,10 +21,21 @@ $negative-spacer: -0.625rem;
     padding: 1em;
 
     @keyframes fade {
-        0% { opacity: 0; }
-        10% { opacity: 1; }
-        90% { opacity: 1; }
-        100% { opacity: 0; }
+        0% {
+            opacity: 0;
+        }
+
+        10% {
+            opacity: 1;
+        }
+
+        90% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0;
+        }
     }
 
     &.show {
@@ -32,7 +43,7 @@ $negative-spacer: -0.625rem;
     }
 }
 
-.add-to-cart-wishList {
+.add-to-cart-wishlist {
     .add-to-cart {
         float: right;
         margin-right: 1.5em;
@@ -44,7 +55,7 @@ $negative-spacer: -0.625rem;
     }
 }
 
-.select-attributes-wishList {
+.select-attributes-wishlist {
     .select-attributes-btn {
         float: right;
         margin-right: 1.5em;
@@ -62,6 +73,25 @@ $negative-spacer: -0.625rem;
 
     @include media-breakpoint-up(md) {
         height: auto;
+    }
+
+    .remove-btn {
+        color: $slightly-darker-gray;
+        font-size: 1.625em;
+        padding: 0;
+        position: absolute;
+        top: 0;
+        right: 0.25rem;
+        border: none;
+        background-color: $white;
+
+        @include media-breakpoint-up(lg) {
+            top: 0;
+            bottom: 0;
+            right: $negative-spacer;
+            margin-top: $negative-spacer;
+            margin-bottom: $negative-spacer;
+        }
     }
 }
 
@@ -116,32 +146,11 @@ $negative-spacer: -0.625rem;
 }
 
 .wishlist-line-item-divider {
-    margin: 0.625em -0.615em 0.625em -0.615em;
+    margin: 0.625em -0.615em;
 }
 
 .wishlist-edit-item-divider {
-    margin: 0.625em -0.615em 0.625em -0.615em;
-}
-
-.product-info {
-    .remove-btn {
-        color: $slightly-darker-gray;
-        font-size: 1.625em;
-        padding: 0;
-        position: absolute;
-        top: 0;
-        right: 0.25rem;
-        border: none;
-        background-color: $white;
-
-        @include media-breakpoint-up(lg) {
-            top: 0;
-            bottom: 0;
-            right: $negative-spacer;
-            margin-top: $negative-spacer;
-            margin-bottom: $negative-spacer;
-        }
-    }
+    margin: 0.625em -0.615em;
 }
 
 .remove-btn-lg {

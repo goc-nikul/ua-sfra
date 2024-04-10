@@ -76,6 +76,33 @@ function getAuthAccessToken() {
     return responseText;
 }
 /**
+ * Compares cached giftCards in order to reduce number of calls
+ * @param {Object[]} giftCards Array of gift card objects
+ * @returns {Object[]|null} cachedGiftCardsResponse
+ */
+function getCachedGC(giftCards) {
+    if (!empty(session.privacy.giftCards) && !empty(session.privacy.giftCardsResponse)) {
+        try {
+            var cachedGC = JSON.parse(session.privacy.giftCards);
+            // Cards can have different order, but a single card must be identical to cached version
+            var isCached = (giftCards.length === cachedGC.length) &&
+                            giftCards.every(function (card) {
+                                return cachedGC.some(function (cachedCard) {
+                                    return JSON.stringify(card) === JSON.stringify(cachedCard);
+                                });
+                            });
+            if (isCached) {
+                var cachedGiftCardsResponse = JSON.parse(session.privacy.giftCardsResponse);
+                return cachedGiftCardsResponse;
+            }
+        } catch (e) {
+            delete session.privacy.giftCards;
+            delete session.privacy.giftCardsResponse;
+        }
+    }
+    return null;
+}
+/**
  * Makes service call to generate new gift card number.
  * @param {number} amount - gift card amount.
  * @param {string} orderNo - The order number for the giftcard purchase order
@@ -462,6 +489,12 @@ function checkGiftCardsBalance(giftCards) {
         errorMessage: defaultErrorMessage,
         giftCardsData: null
     };
+    // Reduce number of service calls for identical giftCards by using cached response
+    var cachedGiftCardsResponse = getCachedGC(giftCards);
+    if (!empty(cachedGiftCardsResponse)) {
+        return cachedGiftCardsResponse;
+    }
+
     try {
         if (!empty(giftCards)) {
             const requestBody = [];
@@ -509,6 +542,15 @@ function checkGiftCardsBalance(giftCards) {
     } catch (e) {
         Logger.error('Error while checking gift cards balance. :: {0}', e.message);
     }
+
+    try {
+        // Refresh cached values
+        session.privacy.giftCards = JSON.stringify(giftCards);
+        session.privacy.giftCardsResponse = JSON.stringify(giftCardsResponse);
+    } catch (e) {
+        Logger.error('Error while refreshing cached gift cards data in session. :: {0}', e.message);
+    }
+
     return giftCardsResponse;
 }
 
@@ -640,6 +682,7 @@ function authorizeGiftCards(giftCards, orderNo, customerEmail) {
  *  }
  */
 function reverseGiftCardsAmount(giftCards) {
+    const errorLogger = require('dw/system/Logger').getLogger('OrderFail', 'OrderFail');
     const giftCardsResponse = {
         success: false,
         errorMessage: defaultErrorMessage,
@@ -677,12 +720,14 @@ function reverseGiftCardsAmount(giftCards) {
                 const serviceResponse = createGraphQLService.call(params);
                 if (validateServiceResponse(serviceResponse)) {
                     const responseText = JSON.parse(serviceResponse.object.text);
+                    errorLogger.error('requestBody : {0}, responseText {1}', JSON.stringify(requestBody), serviceResponse.object.text);
                     const gcVoidPurchaseData = [];
                     for (i = 0; i < responseText.length; i++) {
                         if (!empty(responseText[i]) && !empty(responseText[i].data) && !empty(responseText[i].data.voidPurchase)) {
                             gcVoidPurchaseData.push(responseText[i].data.voidPurchase);
                         }
                     }
+                    errorLogger.error('gcVoidPurchaseData {0}', JSON.stringify(gcVoidPurchaseData));
                     if (gcVoidPurchaseData.length > 0) {
                         giftCardsResponse.success = true;
                         giftCardsResponse.errorMessage = null;
@@ -707,5 +752,6 @@ module.exports = {
     authorizeGiftCards: authorizeGiftCards,
     reverseGiftCardsAmount: reverseGiftCardsAmount,
     getAuthAccessToken: getAuthAccessToken,
-    validateServiceResponse: validateServiceResponse
+    validateServiceResponse: validateServiceResponse,
+    getCachedGC: getCachedGC
 };

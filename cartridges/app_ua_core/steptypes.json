@@ -1,33 +1,33 @@
 {
    "step-types": {
        "script-module-step": [
-           {
-               "@type-id": "custom.processEGiftCard",
-               "@support-parallel-execution": "false",
-               "@support-site-context": "true",
-               "@support-organization-context": "false",
-               "description": "Process eGift Card",
-               "module": "app_ua_core/cartridge/scripts/giftcard/job/eGiftCard.js",
-               "function": "Process",
-               "transactional":"false",
-               "parameters": {},
-               "status-codes": {
-                   "status": [
-                       {
-                           "@code":"ERROR",
-                           "description":"Used when an error occurred."
-                       },
-                       {
-                           "@code":"OK",
-                           "description":"Used when everything went well."
-                       },
-                       {
-                           "@code":"WARN",
-                           "description":"Used when small, but acceptable problems occurred."
-                       }
-                   ]
-               }
-           },
+            {
+                "@type-id": "custom.processEGiftCard",
+                "@support-parallel-execution": "false",
+                "@support-site-context": "true",
+                "@support-organization-context": "false",
+                "description": "Process eGift Card",
+                "module": "app_ua_core/cartridge/scripts/giftcard/job/eGiftCard.js",
+                "function": "Process",
+                "transactional":"false",
+                "parameters": {},
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code":"ERROR",
+                            "description":"Used when an error occurred."
+                        },
+                        {
+                            "@code":"OK",
+                            "description":"Used when everything went well."
+                        },
+                        {
+                            "@code":"WARN",
+                            "description":"Used when small, but acceptable problems occurred."
+                        }
+                    ]
+                }
+            },
            {
             "@type-id": "custom.refreshAccessTokens",
             "module": "app_ua_core/cartridge/scripts/jobs/refreshAccessTokens",
@@ -130,7 +130,231 @@
                     }
                 ]
             }
-        }
+            },
+            {
+                "@type-id": "custom.updatePreorderInventory",
+                "description": "Accepts a CSV list of products from site preference preOrderProductList and sets inventory preorder-backorder-handling flag to 'preorder' on the inventory record. Accepts a CSV list of products from site preference inStockProductList and sets inventory preorder-backorder-handling flag to 'none' on the inventory record.If it's a master product, all variants under the master need to be set. Updates product custom attributes isPreOrder, preOrderPDPMessage, preOrderProductTileMessage with ShipBy date (MAO date + Number of days from site preference preOrderShipByDateDiff)",
+                "module": "app_ua_core/cartridge/scripts/jobs/updatePreorderInventory",
+                "@supports-organization-context": "false",
+                "function": "execute",
+                "transactional": "false",
+                "parameters": {
+                    "parameter": [
+                    {
+                        "@name": "fileNamePrefix",
+                        "@type": "string",
+                        "@required": "true",
+                        "@trim": "true",
+                        "description": "Datetime will be added to the filename automatically",
+                        "default-value": "US_UpdatePreorderInventory"
+                    },
+                    {
+                        "@name": "targetDirectoryPath",
+                        "@type": "string",
+                        "@required": "true",
+                        "@trim": "true",
+                        "description": "Relatively to IMPEX",
+                        "default-value": "src/inventory/preorder"
+                    },
+                    {
+                        "@name": "inventoryListId",
+                        "@type": "string",
+                        "@required": "true",
+                        "@trim": "true",
+                        "description": "Inventory list ID",
+                        "default-value": "US_Ecomm_Inventory"
+                    },
+                    {
+                        "@name": "inventoryListDefaultInStockFlag",
+                        "@type": "string",
+                        "@required": "true",
+                        "@trim": "true",
+                        "description": "Inventory list default in stock flag",
+                        "default-value": "false"
+                    }
+                    ]
+                },
+                "status-codes": {
+                    "status": [{
+                            "@code": "ERROR",
+                            "description": "Used when an error occurred."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when everything went well."
+                        },
+                        {
+                            "@code": "WARN",
+                            "description": "Used when small, but acceptable problems occurred."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.updateShippingMethodEDDCO",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "module": "app_ua_core/cartridge/scripts/jobs/updateShippingMethodEDDCO.js",
+                "description": "Update the EDD in custom objects if they have expired.",
+                "function": "run"
+            },
+            {
+                "@type-id": "custom.orderReconciliationDataExport",
+                "module": "app_ua_core/cartridge/scripts/jobs/feeds/orderReconciliation",
+                "function": "process",
+                "parameters": {
+                    "parameter": [
+                    {
+                        "@name": "exportFileName",
+                        "@type": "string",
+                        "@required": "true",
+                        "@trim": "true",
+                        "description": "Datetime will be added to the filename automatically",
+                        "default-value": "orderReconciliation.csv"
+                    },
+                    {
+                        "@name": "targetDirectoryPath",
+                        "@type": "string",
+                        "@required": "true",
+                        "@trim": "true",
+                        "description": "Relatively to IMPEX / Site ID will be added at the end of the path automatically",
+                        "default-value": "src/feeds/orderReconciliation"
+                    },
+                    {
+                        "@name": "delimiter",
+                        "@type": "string",
+                        "@required": "true",
+                        "description": "Delimiter character.",
+                        "default-value": ",",
+                        "enum-values":
+                        {
+                            "value":
+                            [
+                                "|",
+                                ","
+                            ]
+                        }
+                    },
+                    {
+                        "@name": "rows",
+                        "@type": "string",
+                        "@required": "false",
+                        "description": "Rows to be included."
+                    },
+                    {
+                        "@name": "lastXdays",
+                        "@type": "string",
+                        "@required": "false",
+                        "description": "Report for the last X days. If this is set, leave settings for date and endDate empty."
+                    }
+                  ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when the step failed with an error."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when the step finished successfully."
+                        }
+                    ]
+                }
+            }
+       ],
+       "chunk-script-module-step": [
+            {
+                "@type-id": "custom.wishlistCleanup",
+                "@supports-parallel-execution": "false",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "description": "Removes unavailable products and empty wishlists",
+                "module": "app_ua_core/cartridge/scripts/jobs/wishlistProductAvailability/wishlistCleanup.js",
+                "before-step-function": "beforeStep",
+                "read-function": "read",
+                "process-function": "process",
+                "after-chunk-function": "afterChunk",
+                "write-function": "write",
+                "after-step-function": "afterStep",
+                "total-count-function": "getTotalCount",
+                "chunk-size": 1000,
+                "status-codes": {
+                    "status": [
+                        {
+                        "@code": "ERROR",
+                        "description": "Used when an error occurred."
+                        },
+                        {
+                        "@code": "OK",
+                        "description": "Used when everything went well."
+                        }
+                    ]
+                },
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "stockDateDaysLimit",
+                            "@type": "double",
+                            "@required": "true",
+                            "description": "How long to keep products with stock 0 in the list [number of days]",
+                            "default-value": "365"
+                        },
+                        {
+                            "@name": "exceptionProducts",
+                            "@type": "string",
+                            "@required": "true",
+                            "description": "The comma separated IDs of special products that are not processed (eg. products without records, that are always available). Supports master product id to exclude all variants",
+                            "default-value": "GC00001"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.masterProductsCleanup",
+                "@supports-parallel-execution": "false",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "description": "Removes old master product from catalog",
+                "module": "app_ua_core/cartridge/scripts/jobs/catalog/masterProductsCleanup.js",
+                "before-step-function": "beforeStep",
+                "read-function": "read",
+                "process-function": "process",
+                "write-function": "write",
+                "after-step-function": "afterStep",
+                "total-count-function": "getTotalCount",
+                "chunk-size": 1000,
+                "status-codes": {
+                    "status": [
+                        {
+                        "@code": "ERROR",
+                        "description": "Used when an error occurred."
+                        },
+                        {
+                        "@code": "OK",
+                        "description": "Used when everything went well."
+                        }
+                    ]
+                },
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "deleteProduct",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "description": "Decides if the master proucuct should be deleted or just retrieve the master product list",
+                            "default-value": "false"
+                        },
+                        {
+                            "@name": "MasterCatalogId",
+                            "@type": "string",
+                            "@required": "true",
+                            "description": "Master catalog ID",
+                            "default-value": "NACatalog"
+                        }
+                    ]
+                }
+            }
        ]
    }
 }

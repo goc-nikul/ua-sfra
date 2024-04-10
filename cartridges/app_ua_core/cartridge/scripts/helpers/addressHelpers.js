@@ -128,7 +128,9 @@ function getCountries() {
         var countryObject = {};
         countryObject.custom = {};
         countryObject.custom.ID = key;
-        countryObject.custom.displayName = countryListJson[key];
+        var translatedCountry = Resource.msg('global.country.' + key, 'locale', null);
+        var countryDisplayName = translatedCountry.indexOf('global.country') > -1 ? countryListJson[key] : translatedCountry;
+        countryObject.custom.displayName = countryDisplayName;
         countryList.push(countryObject);
     });
 
@@ -290,8 +292,22 @@ function formatCalenderHelper(req) {
     return lastUpdatedDate;
 }
 
+/**
+ * Generate random address id for address creation
+ * @param {dw.customer.AddressBook} addressBook - Object that customer addressBook
+ * @returns {string} - String with the generated random address name
+ */
+function generateRandomAddressId(addressBook) {
+    var randomID = Math.random().toString(36).substr(2);
+    if (addressBook.getAddress(randomID)) {
+        generateRandomAddressId(addressBook);
+    }
+    return randomID;
+}
+
 module.exports = {
     generateAddressName: base.generateAddressName,
+    generateRandomAddressId: generateRandomAddressId,
     checkIfAddressStored: base.checkIfAddressStored,
     saveAddress: base.saveAddress,
     copyShippingAddress: base.copyShippingAddress,

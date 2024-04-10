@@ -1,6 +1,40 @@
 <isinclude template="/components/modules"/>
 <isinclude template="account/components/minimumAgePreferences" />
-<div class="card b-order-confirmation_card">
+<isif condition="${pdict.mobileAuthEnabled}">
+    <div class="card b-order-confirmation-mobileauth_card">
+        <div class="card-header">
+            <div class="confirmation-initiate-mobile-auth-body" data-triggered="false">
+                <p>${Resource.msg('heading.confirmation.initiatemobileauth', 'mobileAuth', null)}</p>
+                <div class="icon-list">
+                    <div class="icon-detail">
+                        <img src="${URLUtils.staticURL('/images/freeshipping.png')}" alt="Free Shipping Icon" width="35" />
+                        <span class="text-free-shipping">${Resource.msg('msg.initiatemobileauth.freeshipping', 'mobileAuth', '')}</span>
+                    </div>
+            
+                    <div class="icon-detail">
+                        <img src="${URLUtils.staticURL('/images/samedaydeparture.png')}" alt="Free Shipping Icon" width="35" />
+                        <span class="text-sameday-departure">${Resource.msg('msg.initiatemobileauth.samedaydeparture', 'mobileAuth', '')}</span>
+                    </div>
+            
+                    <div class="icon-detail">
+                        <img src="${URLUtils.staticURL('/images/marketingdiscount.png')}" alt="Marketing Discount Icon"
+                            width="35" />
+                        <span class="text-marketing-discount">${Resource.msg('msg.initiatemobileauth.marketingdiscount', 'mobileAuth', '')}</span>
+                    </div>
+                </div>
+                <p>${Resource.msg('msg.initiatemobileauth.modal', 'mobileAuth', '')}</p>
+            </div>
+            <a href="" data-href="${URLUtils.https('Login-MobileAuthModal')}"
+                class="btn btn-primary btn-block g-button_base g-button_primary--black trigger-mobile-auth-confirmation js-trigger-mobile-auth"
+                aria-label="${Resource.msg('button.confirmation.triggermobileauth', 'mobileAuth', null)}">
+                ${Resource.msg('button.confirmation.triggermobileauth', 'mobileAuth', null)}
+            </a>
+        </div>
+        <div class="d-none b-order-confirmation-mobileauth-url" data-homepage-url="${URLUtils.https('Home-Show')}" data-homepage-url-mobileauth="${URLUtils.https('Home-Show', 'showRegisterModal', 'true')}">
+        </div>
+    </div>
+</isif>
+<div class="card b-order-confirmation_card ${pdict.mobileAuthEnabled ? 'd-none' : ''}">
     <div class="card-header">
         <h3 class="card-header-custom b-order-confirmation_header header-d">${Resource.msg('title.save.customer.information', 'confirmation', null)}</h3>
         <h3 class="card-header-custom b-order-confirmation_header header-m">${Resource.msg('titleM.save.customer.information', 'confirmation', null)}</h3>
@@ -131,7 +165,7 @@
                    type="password"
                    class="form-control b-input_row-input js-password-field"
                    id="newPassword"
-                   data-missing-error="${Resource.msg('error.message.required','forms',null)}"
+                   data-missing-error="${Resource.msg('error.card.info.missing.password','login',null)}"
                    data-range-error="${Resource.msg('error.message.8_255characters','forms',null)}"
                    data-can-contains-email="${dw.system.Site.current.getCustomPreferenceValue('allowEmailInPassword') === false ? false : true}"
                    data-contains-email-error="${Resource.msg('password.contains.email.error','account',null)}"

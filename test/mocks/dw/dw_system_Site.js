@@ -77,12 +77,12 @@ class Site {
             uaidmUpdateProfileOnLogin: true,
             uaidmOauthProviderId: 'Under Armour',
             // eslint-disable-next-line spellcheck/spell-checker
-            uaidmClientId: 'da7b4379-8281-491a-8816-ac2dc8e24a477',
+            uaidmClientId: '3653ed6b-e356-4dd7-85a3-1885296d57e3',
             // eslint-disable-next-line spellcheck/spell-checker
-            uaidmClientSecret: 'hjw3je7sh7xamczqwyjktz5eobh5i4adk5t7pkc6ouxy54bl5joq',
-            uaidmJwtSigningKeyId: '32b681ab-96e3-4181-90b6-54f0908c0a2b',
+            uaidmClientSecret: 'wtbxi3ewy7ypj77zlg2xduftd7aratrw7klavbocevdoo3qfspna',
+            uaidmJwtSigningKeyId: 'cb68549f-ee89-4ccb-9dd0-c8765e958a89',
             // eslint-disable-next-line spellcheck/spell-checker
-            uaidmJwtSigningKey: 'k_wiqYne_5ZjN2HP2Q8rJgpW8muK964ifLDleyshiTmnOBOFVwSASoIkUEYdnmItp5B4CM4d274V2mQ6CgyzQA',
+            uaidmJwtSigningKey: '3FyI1XdgLzJDwK0FsBvjh0dVOdZjlxuKA-3W73gc4TA-KBJSRcKFut_jUo26lSt1voLlR76RZEYxxkLBZCJrvg',
             uaidmSfccStorefrontPassword: '3131labs',
             uaidmRedirectURI: 'https://development-us.sfcc.ua-ecm.com/on/demandware.store/Sites-US-Site/en_US/Login-OAuthReentry',
             // eslint-disable-next-line spellcheck/spell-checker
@@ -116,6 +116,8 @@ class Site {
             maoManipulatePostalCode: '12345',
             maoSpecialZipCodes: '11111',
             bfxIsEnabled: true,
+            preOrderProductList: 'pid1, pid2',
+            inStockProductList: 'pid3',
             halShippingEnabled: true,
             halEnabledForShopApp: true,
             isRadioPaymentExperienceEnabled: true,
@@ -133,7 +135,6 @@ class Site {
             orderHistoryDetailsProvider: {
                 value: 'UACAPI'
             },
-            isKlarnaEnabled: 'isKlarnaEnabled',
             isInternationalBillingAddressEnabled: 'isInternationalBillingAddressEnabled',
             statesCodeMapping: '{}',
             NaverPayMode: {
@@ -145,7 +146,35 @@ class Site {
             isLoyaltyEnable: true,
             loyaltyPilotZipCodes: ['00009'],
             isLoyaltyPilotEnable: true,
-            returnsConfiguration: '{ "holidayStart": "11-01", "holidayEnd": "12-24", "holidayReturnPeriod": 90, "nonHolidayReturnPeriod": 60 }'
+            isLoyaltyRewardsReconciliationEnabled: true,
+            loyaltyLandingContentAssetID: 'rewards',
+            returnsConfiguration: '{ "holidayStart": "11-01", "holidayEnd": "12-24", "holidayReturnPeriod": 90, "nonHolidayReturnPeriod": 60 }',
+            pickupDateRange: {
+                'daysstartFrom': 2,
+                'daysEndTill': 7,
+                'weekendsoff': true
+            },
+            pickupTimeSlots: ['09:00-18:00'],
+            publicHolidayList: [],
+            isKlarnaEnabled: true,
+            adobeTargetOrgId: 'testAdobeTargetOrgId',
+            returnCountryOverride: '{    "FR": {        "carrierName": "FedEx",        "accountNumber": "584667800"    },    "ES": {        "carrierName": "FedEx",        "accountNumber": "584667800"    },    "IT": {        "carrierName": "FedEx",        "accountNumber": "584667800"    },    "AT": {        "carrierName": "FedEx",        "accountNumber": "584667800"    },    "SE": {        "carrierName": "FedEx",        "accountNumber": "584667800"    },    "DK": {        "carrierName": "FedEx",        "accountNumber": "584667800"    },    "PT": {        "carrierName": "FedEx",        "accountNumber": "584667800"    },    "PL": {        "carrierName": "FedEx",        "accountNumber": "584667800"    },    "UK": {        "carrierName": "FedEx",        "accountNumber": "683638978"    },    "CH": {        "carrierName": "DHLExpress",        "accountNumber": "952761486"    },    "IE": {        "carrierName": "DHLExpress",        "accountNumber": "952761486"    },    "NO": {        "carrierName": "DHLExpress",        "accountNumber": "952761486"    },    "NL": {        "carrierName": "DHLParcel",        "accountNumber": "06266456"    },    "DE": {        "carrierName": "DHLParcel",        "accountNumber": "06266456"    },    "BE": {        "carrierName": "DHLParcel",        "accountNumber": "06266456"    }}',
+            dhlParcelAPIUser: '657947af-0447-4630-bbf7-9ccd9010ad5f',
+            dhlParcelAPIKey: '913f4eab-76dc-4e5f-a23d-e6c324e66e1b',
+            voucherCancellationNotificationEmails: ['test@test.com', 'test.test@test.com'],
+            membersonAPIUser: 'test111',
+            membersonAPIPassword: 'Test@1234',
+            eGiftCardProductID: '883814258849',
+            DeleteAccountJiraProject: 'Testt',
+            DeleteAccountJiraAssignee: 'Test123',
+            DeleteAccountJiraAPIUser: 'test222',
+            DeleteAccountJiraAPIPassword: 'test333',
+            enableMobileAuthentication: true,
+            mobileAuthProvider: 'NiceID',
+            NiceIDUsername: 'test',
+            NiceIDSecret: 'test',
+            NiceIDProductID: 'test'
+
         };
         this.preferences = {
             custom: this.preferenceMap
@@ -169,6 +198,9 @@ class Site {
     getDefaultLocale() {
         return 'default';
     }
+    getAllowedLocales() {
+        return new Array('defautl','test');
+    }
     getPreferences() {
         return {
             getCustom: () => {
@@ -177,12 +209,19 @@ class Site {
             custom: this.preferenceMap
         };
     }
+    getTimezone() {
+        return '';
+    }
     // dw.system.Site methods
     static getCurrent() {
         if (Site.current) {
             return Site.current;
         }
         return new Site();
+    }
+    getCalendar() {
+        var Calendar = require('../../mocks/dw/dw_util_Calendar');
+        return new Calendar();;
     }
 }
 

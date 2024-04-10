@@ -11,6 +11,9 @@ describe('tile images decorator', function () {
                 return {};
             }
         },
+        'dw/web/Resource': {
+            msg: function (params1) { return params1; }
+        },
         '*/cartridge/scripts/helpers/productHelpers': {
             sizeModelImagesMapping: function () {
                 return {};
@@ -42,6 +45,12 @@ describe('tile images decorator', function () {
                         orderable: true
                     }
                 };
+            },
+            isHiddenColor: function () {
+                return false;
+            },
+            isHiddenProduct: function () {
+                return false;
             }
         },
         'dw/system/Site': {
@@ -52,7 +61,7 @@ describe('tile images decorator', function () {
                     }
                 },
                 getCustomPreferenceValue: function () {
-                    return {};
+                    return false;
                 }
             }
         },
@@ -176,6 +185,12 @@ describe('tile images decorator', function () {
                             orderable: true
                         }
                     };
+                },
+                isHiddenColor: function () {
+                    return false;
+                },
+                isHiddenProduct: function () {
+                    return false;
                 }
             },
             'dw/system/Site': {
@@ -186,7 +201,7 @@ describe('tile images decorator', function () {
                         }
                     },
                     getCustomPreferenceValue: function () {
-                        return {};
+                        return false;
                     }
                 }
             },
@@ -631,5 +646,161 @@ describe('tile images decorator', function () {
             }
         };
         tileImages({}, apiProduct, productHit, '', 'outletMerchOverride');
+    });
+
+    it('Test tile all mobile images decorator', function () {
+        var apiProduct = {
+            getVariationModel: function () {
+                return {
+                    setSelectedAttributeValue: function () {},
+                    getImages: function (param) {
+                        if (param === 'pdpMainDesktop') {
+                            return {
+                                toArray: function () {
+                                    return [
+                                        {URL: "https://underarmour.scene7.com/is/image/Underarmour/1342663-400_SLF_SL?rp=standard-0pad|gridTileDesktop&scl=1&fmt=jpg&qlt=50&resMode=sharp2&cache=on,on&bgc=F0F0F0&wid=512&hei=640&size=512,640"},
+                                        {URL: "https://underarmour.scene7.com/is/image/Underarmour/3022711-100_DEFAULT?rp=standard-30pad|gridTileDesktop&scl=1&fmt=jpg&qlt=50&resMode=sharp2&cache=on,on&bgc=F0F0F0&wid=512&hei=640&size=472,600"},
+                                        {URL: "https://underarmour.scene7.com/is/image/Underarmour/1315434-001_SLF_SL?rp=standard-0pad|gridTileDesktop&scl=1&fmt=jpg&qlt=50&resMode=sharp2&cache=on,on&bgc=F0F0F0&wid=512&hei=640&size=512,640"},
+                                        {URL: "https://underarmour.scene7.com/is/image/Underarmour/1252084-001_SLF_SL?rp=standard-0pad|gridTileDesktop&scl=1&fmt=jpg&qlt=50&resMode=sharp2&cache=on,on&bgc=F0F0F0&wid=512&hei=640&size=512,640"},
+                                        {URL: "https://underarmour.scene7.com/is/image/Underarmour/V5-1257471-001_FC_Main?rp=standard-0pad|gridTileDesktop&scl=1&fmt=jpg&qlt=50&resMode=sharp2&cache=on,on&bgc=F0F0F0&wid=512&hei=640&size=512,640"},
+                                        {URL: "https://underarmour.scene7.com/is/image/Underarmour/1300488-991_SLF_SL?rp=standard-0pad|gridTileDesktop&scl=1&fmt=jpg&qlt=50&resMode=sharp2&cache=on,on&bgc=F0F0F0&wid=512&hei=640&size=512,640"},
+                                        {URL: "https://underarmour.scene7.com/is/image/Underarmour/1300033-001_F?rp=standard-10pad|gridTileDesktop&scl=1&fmt=jpg&qlt=50&resMode=sharp2&cache=on,on&bgc=F0F0F0&wid=512&hei=640&size=512,600"},
+                                        {URL: "https://underarmour.scene7.com/is/image/Underarmour/1305519-102_SLF_SL?rp=standard-0pad|gridTileDesktop&scl=1&fmt=jpg&qlt=50&resMode=sharp2&cache=on,on&bgc=F0F0F0&wid=512&hei=640&size=512,640"},
+                                        {URL: "https://underarmour.scene7.com/is/image/Underarmour/V5-1313204-006_FC_Main?rp=standard-0pad|gridTileDesktop&scl=1&fmt=jpg&qlt=50&resMode=sharp2&cache=on,on&bgc=F0F0F0&wid=512&hei=640&size=512,640"},
+                                        {URL: "https://underarmour.scene7.com/is/image/Underarmour/V5-1316264-012_FC_Main?rp=standard-0pad|gridTileDesktop&scl=1&fmt=jpg&qlt=50&resMode=sharp2&cache=on,on&bgc=F0F0F0&wid=512&hei=640&size=512,640"},
+                                        {URL: "https://underarmour.scene7.com/is/image/Underarmour/V5-1289577-001_FC_Main?rp=standard-0pad|gridTileDesktop&scl=1&fmt=jpg&qlt=50&resMode=sharp2&cache=on,on&bgc=F0F0F0&wid=512&hei=640&size=512,640"}                                
+                                    ];
+                                }
+                            };
+                        } else {
+                            return {
+                                toArray: function () {
+                                    return [{}];
+                                }
+                            };
+                        }
+                    },
+                    getProductVariationAttribute: function () {},
+                    getSelectedValue: function () {},
+                    getImage: function () {},
+                    getVariants: function () {
+                        return [{
+                            availabilityModel: ''
+                        }];
+                    }
+                };
+            },
+            custom: {
+                giftCard: {
+                    value: 'EGIFT_CARD'
+                },
+                defaultColorway: null
+            },
+            getProductVariationAttribute: function () {},
+            isMaster: function () {
+                return true;
+            }
+        };
+
+        var productHit = {
+            getRepresentedVariationValues: function () {
+                return {
+                    get: function () {
+                        return {};
+                    },
+                    size: function () {
+                        return 1;
+                    }
+                };
+            }
+        };
+        global.request = {
+            httpParameterMap: {
+                team: {
+                    value: ''
+                },
+                colorGroup: {
+                    value: ''
+                },
+                shopThisLookoutfit: {
+                    booleanValue: ''
+                }
+            }
+        };
+        var object = {};
+        tileImages(object, apiProduct, productHit, '', '');
+        assert.isNotNull(object.images.mobile.all[0].URL);
+    });
+
+    it('Test tile all mobile images decorator -- Null check', function () {
+        var apiProduct = {
+            getVariationModel: function () {
+                return {
+                    setSelectedAttributeValue: function () {},
+                    getImages: function (param) {
+                        if (param === 'pdpMainDesktop') {
+                            return {
+                                toArray: function () {
+                                    return [];
+                                }
+                            };
+                        } else {
+                            return {
+                                toArray: function () {
+                                    return [{}];
+                                }
+                            };
+                        }
+                    },
+                    getProductVariationAttribute: function () {},
+                    getSelectedValue: function () {},
+                    getImage: function () {},
+                    getVariants: function () {
+                        return [{
+                            availabilityModel: ''
+                        }];
+                    }
+                };
+            },
+            custom: {
+                giftCard: {
+                    value: 'EGIFT_CARD'
+                },
+                defaultColorway: null
+            },
+            getProductVariationAttribute: function () {},
+            isMaster: function () {
+                return true;
+            }
+        };
+
+        var productHit = {
+            getRepresentedVariationValues: function () {
+                return {
+                    get: function () {
+                        return {};
+                    },
+                    size: function () {
+                        return 1;
+                    }
+                };
+            }
+        };
+        global.request = {
+            httpParameterMap: {
+                team: {
+                    value: ''
+                },
+                colorGroup: {
+                    value: ''
+                },
+                shopThisLookoutfit: {
+                    booleanValue: ''
+                }
+            }
+        };
+        var object = {};
+        tileImages(object, apiProduct, productHit, '', '');
+        assert.isNotNull(object.images.mobile.all);
     });
 });

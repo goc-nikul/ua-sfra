@@ -7,6 +7,7 @@ var pluginShipping = require('./shipping');
 
 baseCheckout.updateCheckoutView = function () {
     $('body').on('checkout:updateCheckoutView', function (e, data) {
+        baseCheckout.methods.updateCustomerInformation(data.customer, data.order);
         baseCheckout.methods.updateMultiShipInformation(data.order);
         baseSummaryHelpers.updateTotals(data.order.totals);
 

@@ -24,7 +24,7 @@ describe('int_nzpost/cartridge/models/request/receiverDetails.js', () => {
             name: 'UA',
             phone: '1234567890'
         };
-        var receiverDetails = new ReceiverDetailsModel(orderAddressMap, 'ua@gmail.com');
+        var receiverDetails = new ReceiverDetailsModel(orderAddressMap, 'customerservicenz@underarmour.com');
         assert.isDefined(receiverDetails, 'receiverDetails not defined');
         assert.isNotNull(receiverDetails, 'receiverDetails is null');
         assert.isDefined(receiverDetails.name, 'name exists');
@@ -32,7 +32,7 @@ describe('int_nzpost/cartridge/models/request/receiverDetails.js', () => {
         assert.isDefined(receiverDetails.email, 'email exists');
         assert.equal(receiverDetails.name, 'UA');
         assert.equal(receiverDetails.phone, '1234567890');
-        assert.equal(receiverDetails.email, 'ua@gmail.com');
+        assert.equal(receiverDetails.email, 'customerservicenz@underarmour.com');
     });
 
 });

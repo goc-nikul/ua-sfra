@@ -72,5 +72,56 @@ function maskPIIAuruspayInfo(aurusPayLogMessage) {
     return maskedAurusPayLogMessage;
 }
 
+/**
+* returns json object for logging
+* @param {Object} order - order of customer if exists
+* @returns {Object} responseObject - returns true or false
+*/
+function getLoggingObject(order) {
+    var responseObject = {};
+
+    try {
+        var BasketMgr = require('dw/order/BasketMgr');
+        var lineItemCtnr = BasketMgr.getCurrentBasket();
+
+        if (lineItemCtnr) {
+            responseObject.customerEmail = lineItemCtnr.getCustomerEmail();
+        }
+
+        if (order && order instanceof dw.order.Order) {
+            responseObject.customerEmail = order.getCustomerEmail();
+            responseObject.orderNo = order.getOrderNo();
+        }
+
+        responseObject.SessionId = session.sessionID.toString();
+        if (session.customer) {
+            responseObject.customerID = session.customer.getID();
+            if (session.customer.profile) {
+                responseObject.profile = session.customer.profile.email;
+            }
+        }
+    } catch (error) {
+        var errorLogger = require('dw/system/Logger').getLogger('OrderFail', 'OrderFail');
+        errorLogger.error('getLoggingObject {0}', JSON.stringify(error));
+        responseObject.error = error;
+    }
+
+    return JSON.stringify(responseObject);
+}
+
+/**
+ * Generic error logging for try and catch exceptions
+ * @param {string} logType - Logging type such as OCAPI / ORDER / CATALOG
+ * @param {string} customMsg - Custom message to be logged.
+ * @param {Object} e - Error object
+ */
+function logException(logType, customMsg, e) {
+    const Logger = require('dw/system/Logger').getLogger(logType);
+    Logger.error('{0} - {1}: {2} ({3}:{4}) \n{5}', customMsg, e.name, e.message, e.fileName, e.lineNumber, e.stack);
+}
+
+// Exporting the class for use in other files
+module.exports.logException = logException;
+module.exports.getLoggingObject = getLoggingObject;
 module.exports.maskSensitiveInfo = maskSensitiveInfo;
 module.exports.maskPIIAuruspayInfo = maskPIIAuruspayInfo;

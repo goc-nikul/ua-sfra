@@ -1,0 +1,32 @@
+<div class="column-6 delete-account-login-form">
+    <form action="${pdict.actionUrl}" class="login" method="GET" name="user-form" target="_self">
+        <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}" />
+        <div class="b-input_row form-group removeEmailField required readonly">
+            <label class="b-input_row-label form-control-label" for="login-form-email">
+                ${Resource.msg('label.input.login.email', 'login', null)}
+            </label>
+            <input type="email" aria-required="true" required
+                class="b-input_row-input form-control js-custom-input delete-form-email" aria-describedby="form-email-error"
+                name="loginEmail" value="${pdict.email}"
+                readonly disabled>
+            <div class="invalid-feedback" id="form-email-error"></div>
+        </div>
+        <isif condition="${!pdict.naverReauthenticated}">
+            <div class="b-input_row form-group">
+            <div class="b-account-profile-subhead">${Resource.msg('label.account.reauthenticate.naver','account',null)}</div>
+            <iscomment> NAVER SSO LOGIN </iscomment>
+            <isif condition="${dw.system.Site.current.getCustomPreferenceValue('isNaverSSOEnabled')}">
+                <isset name="naverButtonImgURL" value="${dw.system.Site.current.getCustomPreferenceValue('naverLoginBtnImageUrl').getAbsURL()}" scope="page" />
+                <isset name="naverButtonDestination" value="login" scope="page" />
+                <isset name="naverAccountDeletion" value="${true}" scope="page" />
+                <isinclude template="account/components/naverSSO" />
+            </isif>
+        </div>
+        </isif>
+        <button type="submit"
+            class="btn btn-block g-button_primary--black g-button_base b-checkout-login_button js-account-delete-submit-button"
+            <isif condition="${!pdict.naverReauthenticated}">disabled</isif>>
+            ${Resource.msg('button.account.removeconfirm', 'account', null)}
+        </button>
+    </form>
+</div>

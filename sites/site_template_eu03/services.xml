@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <services xmlns="http://www.demandware.com/xml/impex/services/2014-09-26">
     <service-credential service-credential-id="AurusPaySandboxSessionTokken">
-        <url>https://uatds42.auruspay.com/aurus-adsdk-web-service/auruspay/adsdk/sessiontoken</url>
+        <url>https://uatps42.aurusepay.com/aurus-adsdk-web-service/auruspay/adsdk/sessiontoken</url>
         <user-id/>
         <password encrypted="true" encryption-type="common.export">YETsGA1aQJTVHiUASAtYHng3ZtLIbRG5vCXZ8qnp35Q=</password>
         <custom-attributes>
@@ -11,7 +11,7 @@
     </service-credential>
 
     <service-credential service-credential-id="AuruspaySandboxAuth">
-        <url>https://uatds42.auruspay.com/aurus-adsdk-web-service/auruspay/adsdk/authtransaction</url>
+        <url>https://uatps42.aurusepay.com/aurus-adsdk-web-service/auruspay/adsdk/authtransaction</url>
         <user-id/>
         <password encrypted="true" encryption-type="common.export">wFsbuOV4xeHnRTqiK2U/jjNVbRBE2i094LmhVo6qduE=</password>
         <custom-attributes>
@@ -21,7 +21,7 @@
     </service-credential>
 
     <service-credential service-credential-id="AuruspaySandboxBillerToken">
-        <url>https://uatds42.auruspay.com/aurus-adsdk-web-service/auruspay/adsdk/billertoken</url>
+        <url>https://uatps42.aurusepay.com/aurus-adsdk-web-service/auruspay/adsdk/billertoken</url>
         <user-id/>
         <password encrypted="true" encryption-type="common.export">nQgulEcanZpz8QiXinyMmMRwCaXaBJ1krlgYLrDwWrc=</password>
         <custom-attributes>
@@ -31,7 +31,7 @@
     </service-credential>
 
     <service-credential service-credential-id="AuruspaySandboxSession">
-        <url>https://uatds42.auruspay.com/aurus-adsdk-web-service/auruspay/adsdk/sessionId</url>
+        <url>https://uatps42.aurusepay.com/aurus-adsdk-web-service/auruspay/adsdk/sessionId</url>
         <user-id/>
         <password encrypted="true" encryption-type="common.export">WDyxO60gUh91wbR6K6mK01gcX/LHSIF1zrz+OUIk2Fk=</password>
         <custom-attributes>
@@ -101,8 +101,44 @@
         <url>https://checkout-test.adyen.com/v69/paymentMethods/balance</url>
     </service-credential>
 
+    <service-credential service-credential-id="int_dhl.parcel.rest.auth">
+        <url>https://api-gw.dhlparcel.nl/authenticate/api-key</url>
+    </service-credential>
+
+    <service-credential service-credential-id="int_dhl.parcel.rest.label">
+        <url>https://api-gw.dhlparcel.nl/labels</url>
+    </service-credential>
+
+    <service-credential service-credential-id="int_fedex_rest.shipment.rest.auth">
+        <url>https://apis-sandbox.fedex.com/oauth/token</url>
+    </service-credential>
+
+    <service-credential service-credential-id="int_fedex_rest.shipment.rest.label">
+        <url>https://apis-sandbox.fedex.com/ship/v1/shipments</url>
+    </service-credential>
+
     <service-profile service-profile-id="aurusPay.https.profile">
         <timeout-millis>10000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service-profile service-profile-id="int_dhl.parcel.profile">
+        <timeout-millis>5000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>false</cb-enabled>
+        <cb-calls>0</cb-calls>
+        <cb-millis>0</cb-millis>
+    </service-profile>
+
+    <service-profile service-profile-id="int_fedex_rest.shipment.profile">
+        <timeout-millis>15000</timeout-millis>
         <rate-limit-enabled>false</rate-limit-enabled>
         <rate-limit-calls>0</rate-limit-calls>
         <rate-limit-millis>0</rate-limit-millis>
@@ -272,5 +308,44 @@
         <profile-id>Adyen</profile-id>
         <credential-id>AdyenCheckBalance</credential-id>
     </service>
-
+    <service service-id="int_dhl.parcel.rest.auth">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>int_dhl_parcel</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>int_dhl.parcel.profile</profile-id>
+        <credential-id>int_dhl.parcel.rest.auth</credential-id>
+    </service>
+    <service service-id="int_dhl.parcel.rest.label">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>int_dhl_parcel</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>int_dhl.parcel.profile</profile-id>
+        <credential-id>int_dhl.parcel.rest.label</credential-id>
+    </service>
+    <service service-id="int_fedex_rest.shipment.rest.auth">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>int_fedex_shipment</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>int_fedex_rest.shipment.profile</profile-id>
+        <credential-id>int_fedex_rest.shipment.rest.auth</credential-id>
+    </service>
+    <service service-id="int_fedex_rest.shipment.rest.label">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>int_fedex_shipment</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>int_fedex_rest.shipment.profile</profile-id>
+        <credential-id>int_fedex_rest.shipment.rest.label</credential-id>
+    </service>
 </services>

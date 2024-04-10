@@ -1,6 +1,6 @@
 <script type="text/javascript">
     var paazlWidgetInit = JSON.parse('<isprint value="${JSON.stringify(pdict.paazlWidgetInit)}" encoding="jsonvalue"/>');
-    var element = document.querySelectorAll('div[default-address="true"]');
+    var element = document.querySelectorAll('.shipping-address-section .shipping-address-option');
     if (element.length > 0 && element[0] && element[0].attributes && paazlWidgetInit) {
         if (element[0].attributes['data-country-code'] && element[0].attributes['data-country-code'].value && paazlWidgetInit.consigneeCountryCode && element[0].attributes['data-country-code'].value !== paazlWidgetInit.consigneeCountryCode) {
             paazlWidgetInit.consigneeCountryCode = element[0].attributes['data-country-code'].value;

@@ -55,19 +55,20 @@
     margin: 1.25rem 0 0;
 
     h4 {
-        font-size: rem-calc(12);
+        font-size: rem-calc(14);
+        font-weight: 600;
+        margin-bottom: 4px;
+        display: flex;
 
         &.t-order_greentick {
             color: $green;
             position: relative;
-            padding-left: rem-calc(18);
 
             span {
-                @include icon(check);
+                @include icon(check, 'before', 18, 0.6);
 
                 &::before {
-                    position: absolute;
-                    left: 0;
+                    margin-right: 5px;
                 }
             }
         }

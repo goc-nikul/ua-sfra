@@ -44,7 +44,7 @@ function handlePayPalCheckout(basket) {
         return;
     }
 
-    if (!basket) {
+    if (!basket || basket.totalGrossPrice.value === 0) {
         throw new Error('empty_cart');
     }
 
@@ -80,18 +80,18 @@ function handleCommercialPickupBasket(basket) {
  * @param {dw.order.Basket} basket - currentBasket
  */
 function updateBasketAfterPostPutDeleteCalls(basket) {
-    var paymentHelper = require('~/cartridge/scripts/paymentHelper');
-    var maoAvailability = basketHelper.getRealTimeInventory(basket);
-    basketHelper.setInventoryRecord(basket, maoAvailability);
     var collections = require('*/cartridge/scripts/util/collections');
-    const giftcardHelper = require('*/cartridge/scripts/giftcard/giftcardHelper');
-
     // Remove the dummy productLineItem used while handling the eGift-card items
+    // and remove products from basket that have been deleted
     collections.forEach(basket.getProductLineItems(), function (lineItem) {
-        if (lineItem.productID === dummyProductID) {
+        if (lineItem.productID === dummyProductID || empty(lineItem.product)) {
             basket.removeProductLineItem(lineItem);
         }
     });
+    var paymentHelper = require('~/cartridge/scripts/paymentHelper');
+    var maoAvailability = basketHelper.getRealTimeInventory(basket);
+    basketHelper.setInventoryRecord(basket, maoAvailability);
+    const giftcardHelper = require('*/cartridge/scripts/giftcard/giftcardHelper');
     giftcardHelper.updateGiftCardShipments(basket);
     require('dw/system/HookMgr').callHook('dw.order.calculate', 'calculate', basket);
     paymentHelper.autoAdjustBasketPaymentInstruments(basket);
@@ -104,7 +104,7 @@ function updateBasketAfterPostPutDeleteCalls(basket) {
  *
  * @param {dw.order.Basket} basket - currentBasket
  */
-function estimateLoyaltyPionts(basket) {
+function estimateLoyaltyPoints(basket) {
     let PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
     if (PreferencesUtil.getValue('isLoyaltyEnable')) {
         const loyaltyHelper = require('*/cartridge/scripts/helpers/loyaltyHelper');
@@ -135,7 +135,6 @@ function handleShopRunner(basket) {
                 session.custom.srtoken = '';
                 basket.getDefaultShipment().shippingMethod = null; // eslint-disable-line
             });
-            throw new Error('Error validating ShopRunner token on Basket');
         }
         session.custom.srtoken = basket.custom.sr_token;
     }
@@ -152,6 +151,7 @@ function updateBasketAfterPOST(basket) {
         return;
     }
     try {
+        const collections = require('*/cartridge/scripts/util/collections');
         const cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
         const AvailabilityHelper = require('int_mao/cartridge/scripts/availability/MAOAvailabilityHelper');
         const itemsBOPIS = AvailabilityHelper.getBOPISDetails(basket);
@@ -161,7 +161,6 @@ function updateBasketAfterPOST(basket) {
             const Transaction = require('dw/system/Transaction');
             const UUIDUtils = require('dw/util/UUIDUtils');
             const COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
-            const collections = require('*/cartridge/scripts/util/collections');
             Object.keys(itemsBOPIS).forEach(productUUID => {
                 const bopisDetails = itemsBOPIS[productUUID];
                 if (!empty(bopisDetails.productID) && !empty(bopisDetails.storeID)) {
@@ -207,11 +206,6 @@ function updateBasketAfterPOST(basket) {
                             shipment.custom.fromStoreId = bopisDetails.storeID;
                             shipment.custom.shipmentType = 'in-store';
                             COHelpers.copyShippingAddressToShipment(storeAddress, shipment);
-                            const shipmentPLI = shipment.productLineItems;
-                            for (let m = 0; m < shipmentPLI.length; m++) {
-                                shipmentPLI[m].setShipment(shipment);
-                                shipmentPLI[m].custom.fromStoreId = bopisDetails.storeID;
-                            }
                         });
                     }
                     cartHelper.ensureShippingAddressforStore(basket);
@@ -222,8 +216,17 @@ function updateBasketAfterPOST(basket) {
                 }
             });
         } else {
+            // make sure there are no bopis shipments
+            if (cartHelper.basketHasBOPISShipmet(basket)) {
+                cartHelper.bopisLineItemInventory(basket, false, null, null);
+            }
             cartHelper.resetBasketToHomeDelivery(basket);
         }
+        collections.forEach(basket.shipments, function (shipmentToRemove) {
+            if (shipmentToRemove.productLineItems.empty && !shipmentToRemove.default) {
+                basket.removeShipment(shipmentToRemove);
+            }
+        });
     } catch (e) {
         errorLogHelper.handleOcapiHookErrorStatus(e, 'updateBasketAfterPOST', Resource.msgf('error.ocapi.update.basket', 'cart', null, e.message));
     }
@@ -273,6 +276,26 @@ exports.afterPUT = function (basket, shipment, shippingAddress) {
 };
 
 exports.beforePOST = function (basket, items) {
+    try {
+        var PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
+        var isLoyaltyRewardsReconciliationEnabled = PreferencesUtil.getValue('isLoyaltyRewardsReconciliationEnabled'); // eslint-disable-line spellcheck/spell-checker
+        if (isLoyaltyRewardsReconciliationEnabled) {
+            /*
+            Run this only for newly created baskets.
+            As this hook does not work as designed, it gets call after the basket has already been created.
+            Therefore, we do a time diff to see if we have a new-ish basket.
+            */
+            var date = new Date();
+            if (date.getTime() - basket.creationDate.getTime() < 1000) { // 1 second
+                const loyaltyHelper = require('*/cartridge/scripts/helpers/loyaltyHelper');
+                loyaltyHelper.checkCustomerReconcile(basket);
+            }
+        }
+    } catch (e) {
+        var Logger = require('dw/system/Logger').getLogger('OCAPI', 'OCAPI');
+        Logger.error('Error for checkCustomerReconcile: {0} {1}', e.message, e.stack);
+    }
+
     try {
         if (items) {
             var maoAvailability = basketHelper.getRealTimeInventory(basket);
@@ -327,7 +350,7 @@ exports.afterPOST = function (basket) {
         var cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
         cartHelper.ensureAllShipmentsHaveMethods(basket);
         updateBasketAfterPostPutDeleteCalls(basket);
-        estimateLoyaltyPionts(basket);
+        estimateLoyaltyPoints(basket);
         updateBasketAurus(basket);
     } catch (e) {
         return errorLogHelper.handleOcapiHookErrorStatus(e, 'updateBasketResponseError', Resource.msgf('error.ocapi.update.basket', 'cart', null, e.message));
@@ -342,7 +365,7 @@ exports.afterPATCH = function (basket) {
         updateBasketAfterPostPutDeleteCalls(basket);
         handlePayPalCheckout(basket);
         handleCommercialPickupBasket(basket);
-        estimateLoyaltyPionts(basket);
+        estimateLoyaltyPoints(basket);
     } catch (e) {
         return errorLogHelper.handleOcapiHookErrorStatus(e, 'updateBasketResponseError', Resource.msgf('error.ocapi.update.basket', 'cart', null, e.message));
     }
@@ -353,7 +376,7 @@ exports.afterDELETE = function (basket) {
     try {
         updateBasketAfterPOST(basket);
         updateBasketAfterPostPutDeleteCalls(basket);
-        estimateLoyaltyPionts(basket);
+        estimateLoyaltyPoints(basket);
     } catch (e) {
         return errorLogHelper.handleOcapiHookErrorStatus(e, 'updateBasketResponseError', Resource.msgf('error.ocapi.update.basket', 'cart', null, e.message));
     }
@@ -363,6 +386,12 @@ exports.afterDELETE = function (basket) {
 
 exports.modifyGETResponse_v2 = function (shipment, shippingMethodResult) {
     var shippingHelpers = require('*/cartridge/scripts/checkout/shippingHelpers');
+    var PromotionMgr = require('dw/campaign/PromotionMgr');
+    var collections = require('*/cartridge/scripts/util/collections');
+
+    // Restore IDME session data from basket attribute
+    basketHelper.reapplyIDMeToSessionForCurrentCustomer();
+
     var applicableShippingMethods = shippingHelpers.getApplicableShippingMethods(shipment);
     var ids = [];
     applicableShippingMethods.forEach(function (shippingMethod) {
@@ -370,10 +399,31 @@ exports.modifyGETResponse_v2 = function (shipment, shippingMethodResult) {
             ids.push(shippingMethod.ID);
         }
     });
+
+    // get the promotions that are valid for the current customer
+    var customerPromotions = PromotionMgr.getActiveCustomerPromotions();
+    var shippingPromotions = [];
+    if (customerPromotions && customerPromotions.shippingPromotions) {
+        shippingPromotions = collections.map(customerPromotions.shippingPromotions, function (promo) {
+            return { ID: promo.ID, isFreeShipping: 'isFreeShipping' in promo.custom ? promo.custom.isFreeShipping : false };
+        });
+    }
+
+    // loop through and find the applicable methods, setting the price to 0 there is a qualifying promotion for free shipping
     var shippingMethods = [];
-    var collections = require('*/cartridge/scripts/util/collections');
-    collections.forEach(shippingMethodResult.applicable_shipping_methods, function (shippingMethod) {
+    collections.forEach(shippingMethodResult.applicable_shipping_methods, function (method) {
+        var shippingMethod = method;
         if (ids.includes(shippingMethod.id)) {
+            if (shippingMethod.shipping_promotions) {
+                collections.forEach(shippingMethod.shipping_promotions, function (shippingPromotion) {
+                    if (shippingMethod.c_showFreeOnShippingButton) {
+                        var matchingPromotion = shippingPromotions.find(promo => promo.ID === shippingPromotion.promotionId);
+                        if (matchingPromotion && matchingPromotion.isFreeShipping) {
+                            shippingMethod.price = 0.00;
+                        }
+                    }
+                });
+            }
             shippingMethods.push(shippingMethod);
         }
         return false;
@@ -385,11 +435,6 @@ exports.modifyGETResponse_v2 = function (shipment, shippingMethodResult) {
 };
 
 exports.modifyGETResponse = function (basket, basketResponse) {
-    const PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
-    if (PreferencesUtil.getValue('isLoyaltyEnable')) {
-        const loyaltyHelper = require('*/cartridge/scripts/helpers/loyaltyHelper');
-        loyaltyHelper.checkCustomerReconcile(basket);
-    }
     return basketHelper.updateResponse(basketResponse);
 };
 

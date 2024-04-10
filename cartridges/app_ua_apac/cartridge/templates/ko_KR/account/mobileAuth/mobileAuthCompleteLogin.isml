@@ -1,0 +1,69 @@
+<iscontent type="text/html" charset="UTF-8" compact="true" />
+<isinclude template="/components/modules" sf-toolkit="off" />
+<meta name="format-detection" content="telephone=no" />
+
+<div class="g-modal-header g-login-modal-header">
+    <div class="g-password-modal-close">
+        <button type="button" class="g-password-modal-close_button close" data-dismiss="modal"
+            aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+    </div>
+</div>
+
+<div class="g-modal-header g-mobileauth-modal-header">
+    <h2 class="g-modal-title">${Resource.msg('heading.completelogin.modal', 'mobileAuth', null)}</h2>
+</div>
+<div class="g-modal-body g-modal-error-body">
+    <div class="mobile-auth-complete-login">
+        <div class="mobile-auth-complete-login-content">
+            <p>${Resource.msg('subheading.completelogin.modal', 'mobileAuth', null)}</p>
+
+            <div class="mobile-auth-complete-login-customerinfo">
+                <p>${Resource.msg('label.completelogin.customerinfo', 'mobileAuth', null)}</p>
+                <p>${Resource.msgf('label.completelogin.customername', 'mobileAuth', null, pdict.decryptedRetData.utf8_name)}</p>
+                <p>${Resource.msgf('label.completelogin.customerbirthdate', 'mobileAuth', null, pdict.decryptedRetData.birthYear, pdict.decryptedRetData.birthMonth, pdict.decryptedRetData.birthDay)}</p>
+                <p>${Resource.msgf('label.completelogin.customergender', 'mobileAuth', null, pdict.decryptedRetData.genderText)}</p>
+                <p>${Resource.msgf('label.completelogin.customermobile', 'mobileAuth', null, pdict.decryptedRetData.splitPhone)}</p>
+            </div>
+
+            <div class="mobile-auth-complete-login-checkbox-container">
+                <div class="form-group g-checkbox">
+                    <input type="checkbox" class="g-checkbox-input form-control" id="mobile-auth-update-checkbox"
+                        data-missing-error="${Resource.msg('error.completelogin.requiredcheckbox', 'mobileAuth', null)}" required aria-required="true" value="true">
+                    <label class="g-checkbox-label" for="mobile-auth-update-checkbox">
+                        <isprint value="${Resource.msg('label.completelogin.updatecustomerinfo', 'mobileAuth', null)}" encoding="off" />
+                    </label>
+                    <div class="invalid-feedback"></div>
+                </div>
+
+                <isif condition="${pdict.showSMSOptIn}">
+                    <div class="form-group g-checkbox">
+                        <input type="checkbox" class="g-checkbox-input form-control" id="add-to-addsmsto-list" value="true">
+                        <label class="g-checkbox-label" for="add-to-addsmsto-list">
+                            <isprint value="${Resource.msgf('label.completelogin.smsoptin', 'mobileAuth', null)}" encoding="off" />
+                        </label>
+                        <div class="d-none" id="js-smsOptIn-content">
+                            <div class="g-modal-header g-login-modal-header">
+                                <div class="g-password-modal-close">
+                                    <button type="button" class="g-password-modal-close_button close" data-dismiss="modal"
+                                        aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+                                </div>
+                            </div>
+                            <iscontentasset aid="consent-smsOptIn" />
+                        </div>
+                    </div>
+                </isif>
+            </div>
+        </div>
+    
+        <div class="mobile-auth-complete-login-buttons">
+            <a href="" data-href="${URLUtils.https('Login-CompleteMobileAuth')}"
+                class="btn btn-block g-button_primary--black g-button_base complete-mobileauth js-complete-mobileauth">
+                ${Resource.msg('button.completelogin.update', 'mobileAuth', null)}
+            </a>
+    
+            <a href="" data-href="${URLUtils.https('Login-CompleteMobileAuth', 'logout', 'true')}" class="btn btn-block g-button_primary--white g-button_base cancel-mobileauth js-cancel-mobileauth">
+                ${Resource.msg('button.completelogin.cancel', 'mobileAuth', null)}
+            </a>
+        </div>
+    </div>
+</div>

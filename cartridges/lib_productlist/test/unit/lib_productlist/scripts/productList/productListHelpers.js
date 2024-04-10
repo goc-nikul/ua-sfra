@@ -11,7 +11,7 @@ var transaction = {
 var ArrayList = require('../../../../mocks/dw.util.Collection');
 var collections = require('../../../../mocks/util/collections');
 var removeProductList = { removeProductList: function () { return {}; } };
-var removeProductListStub = sinon.stub(removeProductList, 'removeProductList', function () { return {}; });
+var removeProductListStub = sinon.stub(removeProductList, 'removeProductList').callsFake(function () { return {}; });
 
 var productListMgr = {
     createProductList: function () {
@@ -416,7 +416,6 @@ describe('productListHelpers', function () {
             assert.equal(listObject, null);
         });
 
-
         it('should get a list for a customer with existing items', function () {
             user.uuid = 1;
             var listObject = productListHelpers.getList(user, { type: 10 });
@@ -500,7 +499,7 @@ describe('productListHelpers', function () {
         it('removeProductList() should be called once', function () {
             productListHelpers.removeList(customer, { mergeList: true });
             assert.isTrue(removeProductListStub.calledOnce);
-            removeProductListStub.reset();
+            removeProductListStub.resetHistory();
         });
     });
 
@@ -526,9 +525,7 @@ describe('productListHelpers', function () {
                     return [{ productID: '12345' }, { productID: '567654' }];
                 }
             },
-            removeItem: function () {
-                return;
-            }
+            removeItem: function () {}
         };
         var spy = sinon.spy(theList, 'removeItem');
         it('inner removeItem function should be called once', function () {
@@ -557,7 +554,8 @@ describe('productListHelpers', function () {
 
     describe('addItem', function () {
         var pid1 = '95555';
-        var config = { qty: 1,
+        var config = {
+            qty: 1,
             optionId: null,
             optionValue: null,
             req: reqObject,
@@ -565,7 +563,7 @@ describe('productListHelpers', function () {
         };
         var productListItem = {
             setQuantityValue: function () {
-                return;
+
             },
             productID: '12345'
 
@@ -580,7 +578,7 @@ describe('productListHelpers', function () {
         var spy2 = sinon.spy(productListItem, 'setQuantityValue');
 
         beforeEach(function () {
-            spy2.reset();
+            spy2.resetHistory();
         });
 
         it('should return false if no list is passed in', function () {
@@ -666,7 +664,7 @@ describe('productListHelpers', function () {
     describe('mergelists', function () {
         var productListItem = {
             setQuantityValue: function () {
-                return;
+
             }
         };
         function getOptionModel() {
@@ -823,7 +821,7 @@ describe('productListHelpers', function () {
             var result = productListHelpers.toggleStatus(customer4, itemID, listID);
             var expectedResult = {
                 error: true,
-                msg: 'list.togglepublic.master.error.msg'
+                msg: 'list.togglepublic.main.error.msg'
             };
 
             assert.equal(result.error, expectedResult.error);
@@ -859,4 +857,3 @@ describe('productListHelpers', function () {
         });
     });
 });
-

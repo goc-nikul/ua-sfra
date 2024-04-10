@@ -2,6 +2,7 @@
 
 var assert = require('chai').assert;
 var proxyquire = require('proxyquire').noCallThru().noPreserveCache();
+var pathToCoreMock = '../../../../mocks/';
 
 describe('app_ua_core/cartridge/models/product/decorators/customAttributes.js', () => {
     let Obj = proxyquire('../../../../../cartridges/app_ua_core/cartridge/models/product/decorators/customAttributes.js', {
@@ -9,7 +10,8 @@ describe('app_ua_core/cartridge/models/product/decorators/customAttributes.js', 
             isPreSizeSelectionEligible: function () {
                 return {};
             }
-        }
+        },
+        'dw/system/HookMgr': require(pathToCoreMock + 'dw/dw_system_HookMgr'),
     });
     it('Testing for Custom Attributes', () => {
         var apiProduct = {

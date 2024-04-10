@@ -5,6 +5,8 @@
 var ContentMgr = require('dw/content/ContentMgr');
 var ZipCheckoutSessionModel = require('*/cartridge/scripts/zip/helpers/checkoutSession');
 var pageMetaData = require('*/cartridge/scripts/middleware/pageMetaData');
+var orderInfoLogger = require('dw/system/Logger').getLogger('orderInfo', 'orderInfo');
+var Site = require('dw/system/Site');
 var server = require('server');
 
 server.get('Landing', function (req, res, next) {
@@ -20,9 +22,21 @@ server.get('Landing', function (req, res, next) {
  */
 function failZipSessionOrder() {
     var Transaction = require('dw/system/Transaction');
+    var OrderMgr = require('dw/order/OrderMgr');
+    var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
 
     if (ZipCheckoutSessionModel.hasZipOrder()) {
+        var sessionOrderId = ZipCheckoutSessionModel.getZipOrderId();
         ZipCheckoutSessionModel.failZipOrder();
+        // log the order details for dataDog.
+        if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog')) {
+            try {
+                var order = OrderMgr.getOrder(sessionOrderId);
+                orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+            } catch (e) {
+                dw.system.Logger.error('Unable to get Zip order from session ' + e.message + '\n\r' + e.stack);
+            }
+        }
     }
 
     Transaction.wrap(function () { session.privacy.ZipCheckoutId = null; });
@@ -92,7 +106,18 @@ server.get('Redirect', function (req, res, next) {
     var Order = require('dw/order/Order');
     if (order.getStatus().value === Order.ORDER_STATUS_NEW || order.getStatus().value === Order.ORDER_STATUS_OPEN) {
         if (Object.prototype.hasOwnProperty.call(req.session.raw.custom, 'orderID')) delete req.session.raw.custom.orderID;// eslint-disable-line
-        res.redirect(URLUtils.url('Order-Confirm', 'ID', order.orderNo, 'token', order.orderToken));
+        // log the order details for dataDog.
+        if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+            orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+        }
+        if (Site.getCurrent().getCustomPreferenceValue('zip_SFRA6_Compatibility')) {
+            res.render('orderConfirmForm', {
+                orderID: order.orderNo,
+                orderToken: order.orderToken
+            });
+        } else {
+            res.redirect(URLUtils.url('Order-Confirm', 'orderID', order.orderNo, 'orderToken', order.orderToken));
+        }
         return next();
     }
 
@@ -138,7 +163,6 @@ server.get('Redirect', function (req, res, next) {
         var fraudDetectionStatus = hooksHelper('app.fraud.detection', 'fraudDetection', currentBasket, require('*/cartridge/scripts/hooks/fraudDetection').fraudDetection);
         if (fraudDetectionStatus.status === 'fail') {
             failZipSessionOrder();
-
             // fraud detection failed
             req.session.privacyCache.set('fraudDetectionStatus', true);
 
@@ -149,6 +173,7 @@ server.get('Redirect', function (req, res, next) {
         var placeOrderResult = COHelpers.placeOrder(order, fraudDetectionStatus);
         if (placeOrderResult.error) {
             failZipSessionOrder();
+
             res.redirect(failUrl);
             return next();
         }
@@ -160,8 +185,18 @@ server.get('Redirect', function (req, res, next) {
 
         // Reset usingMultiShip after successful Order placement
         req.session.privacyCache.set('usingMultiShipping', false);
-
-        res.redirect(URLUtils.url('Order-Confirm', 'ID', order.orderNo, 'token', order.orderToken));
+        // log the order details for dataDog.
+        if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+            orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+        }
+        if (Site.getCurrent().getCustomPreferenceValue('zip_SFRA6_Compatibility')) {
+            res.render('orderConfirmForm', {
+                orderID: order.orderNo,
+                orderToken: order.orderToken
+            });
+        } else {
+            res.redirect(URLUtils.url('Order-Confirm', 'orderID', order.orderNo, 'orderToken', order.orderToken));
+        }
         return next();
     } else if (result === 'referred') {
         Transaction.wrap(function () { order.custom.zipRequireApproval = true; });

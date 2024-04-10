@@ -146,7 +146,7 @@ function getOrderModel(req) {
     var customerOrders = getOrders('dashboard', params).orders;
     var orderModel = null;
     if (customerOrders) {
-        var OrderModel = require('*/cartridge/models/OIS/order');
+        var OrderModel = require('*/cartridge/models/UACAPI/order/order');
         orderModel = new OrderModel(customerOrders);
     }
     return orderModel;

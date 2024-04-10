@@ -1,0 +1,26 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+
+<isset name="isQuickAdd" value="${typeof isQuickAdd !== 'undefined' ? isQuickAdd : false}" scope="page" />
+<isif condition="${isQuickAdd}">
+    <isscript>
+        var config = {
+            parentModal: '#quickViewModal',
+            backLabel: Resource.msg('button.back', 'common', null),
+            isSubmodal: true
+        }
+    </isscript>
+</isif>
+
+
+<div class="b-notify_container js-notify_product${product.available ? " hide" : ""}">
+    <div class="b-notify">
+
+    <button type="button" data-href="${URLUtils.url('Notifyme-Modal')}" data-cmp="notifyMe" class="g-button_base g-button_tertiary b-notify-cta"
+        <isif condition="${isQuickAdd}">
+            data-json-config="${JSON.stringify(config)}"
+        </isif>
+        >
+            ${Resource.msg('button.notifyme', 'common', null)}
+        </button>
+    </div>
+</div>

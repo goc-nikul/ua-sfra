@@ -321,7 +321,7 @@ exports.failOrder = function (order, status) {
     var orderInfoLogger = Logger.getLogger('orderInfo', 'orderInfo');
     if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
         var paymentErorMessage = Resource.msgf('applepay.order.failed', 'checkout', null, order.orderNo, status.getCode());
-        orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, true, paymentErorMessage));
+        orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, true, paymentErorMessage, status.getCode()));
     }
     return new ApplePayHookResult(status, null);
 };

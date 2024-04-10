@@ -8,7 +8,8 @@
                 "description": "Handle Sleeping Accounts",
                 "function": "execute",
                 "parameters": {
-                    "parameter": [{
+                    "parameter": [
+                        {
                             "@name": "sleepingAccountCutoffDays",
                             "description": "account disable date in days",
                             "@type": "string",
@@ -19,6 +20,114 @@
                             "description": "notification before inactivity days",
                             "@type": "string",
                             "@required": "true"
+                        },
+                        {
+                            "@name": "emailId",
+                            "description": "Sleeping account will be marked as true for the following email",
+                            "@type": "string",
+                            "@required": "false"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.SleepingAccount.unsubscribe.newsletter",
+                "@supports-site-context": "true",
+                "module": "plugin_sleepingaccount/cartridge/scripts/jobs/handleSleepingUserUnsubscribe.js",
+                "description": "Handle Sleeping Accounts",
+                "function": "execute"
+            }
+        ],
+        "chunk-script-module-step": [
+            {
+                "@type-id": "custom.MCC-Feed-ExportReengagedCustomers",
+                "@supports-parallel-execution": "false",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "description": "Marketing Cloud Customers Export",
+                "module": "plugin_sleepingaccount/cartridge/scripts/jobs/ExportReengagedCustomers.js",
+                "before-step-function": "beforeStep",
+                "total-count-function": "getTotalCount",
+                "before-chunk-function": "",
+                "read-function": "read",
+                "process-function": "process",
+                "write-function": "write",
+                "after-chunk-function": "",
+                "after-step-function": "afterStep",
+                "chunk-size": 10,
+                "transactional": "false",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "reengagementType",
+                            "description": "Engagement Type",
+                            "@type": "string",
+                            "@required": "true",
+                            "default-value": "first",
+                            "enum-values": {
+                                "value": ["first", "second"]
+                            }
+                        },
+                        {
+                            "@name": "sleepingAccountCutoffDays",
+                            "description": "account disable date in days",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "reengagementDays",
+                            "description": "Inactive days before sending reengagement",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "emailIds",
+                            "description": "For testing purpose. Job will only pick up account with these emails. Comma delimited. Example values: test@test.com, test1@test.com",
+                            "@type": "string",
+                            "@required": "false"
+                        },
+                        {
+                            "@name": "ExportID",
+                            "@type": "string",
+                            "@required": "true",
+                            "description": "Export ID for this feed, should match exportID value from custom object definition.",
+                            "default-value": "customersFeed"
+                        },
+                        {
+                            "@name": "ExportFileName",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true",
+                            "description": "Filename for the exported feed.",
+                            "default-value": "customersFeed.psv"
+                        },
+                        {
+                            "@name": "Delimiter",
+                            "@type": "string",
+                            "@required": "true",
+                            "description": "Delimiter character.",
+                            "default-value": "|",
+                            "enum-values": {
+                                "value": ["|", ",", "TAB"]
+                            }
+                        },
+                        {
+                            "@name": "IncrementalExport",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "description": "If set, only updates since the last export are transmitted."
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when the step failed with an error."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when the step finished successfully."
                         }
                     ]
                 }

@@ -93,7 +93,8 @@
                                             data-analytics-track="search-suggestion"
                                             data-analytics-value="product|${product.productName}"
                                         >
-                                            <isinclude url="${URLUtils.url('Tile-Show', 'pid', product.id)}"/>
+                                            <isset name="showQATB" value="${'isQATBHeaderSearch' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.isQATBHeaderSearch}" scope="page" />
+                                            <isinclude url="${URLUtils.url('Tile-Show', 'pid', product.id, 'showImageSlider', pdict.showPLPImageSlider, 'quickAdd', showQATB )}"/>
                                         </li>
                                     </isif>
                                  </isif>

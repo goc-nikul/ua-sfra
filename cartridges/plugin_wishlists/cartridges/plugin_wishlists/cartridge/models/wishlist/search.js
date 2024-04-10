@@ -1,8 +1,9 @@
-'use strict';
-var Resource = require('dw/web/Resource');
-var CustomerMgr = require('dw/customer/CustomerMgr');
-var URLUtils = require('dw/web/URLUtils');
-var productListMgr = require('dw/customer/ProductListMgr');
+"use strict";
+
+var Resource = require("dw/web/Resource");
+var CustomerMgr = require("dw/customer/CustomerMgr");
+var URLUtils = require("dw/web/URLUtils");
+var productListMgr = require("dw/customer/ProductListMgr");
 
 /**
  * creates a results object for a wishlists search
@@ -15,7 +16,8 @@ var productListMgr = require('dw/customer/ProductListMgr');
 function createSearchResultObject(firstName, lastName, email, config) {
     var PAGE_SIZE = 8;
     var pageSize = config.pageSize || PAGE_SIZE;
-    var uuids = config.uuids.toString().length === 0 ? [] : JSON.parse(config.uuids);
+    var uuids =
+        config.uuids.toString().length === 0 ? [] : JSON.parse(config.uuids);
 
     if (!firstName && !lastName && !email) {
         return null;
@@ -34,11 +36,22 @@ function createSearchResultObject(firstName, lastName, email, config) {
             profiles.push(listOwner.profile);
         }
     } else if (firstName && lastName) {
-        profiles = CustomerMgr.queryProfiles('firstName = {0} AND lastName = {1}', null, firstName, lastName).asList().toArray();
+        profiles = CustomerMgr.queryProfiles(
+            "firstName = {0} AND lastName = {1}",
+            null,
+            firstName,
+            lastName
+        )
+            .asList()
+            .toArray();
     } else if (firstName && !lastName) {
-        profiles = CustomerMgr.queryProfiles('firstName = {0}', null, firstName).asList().toArray();
+        profiles = CustomerMgr.queryProfiles("firstName = {0}", null, firstName)
+            .asList()
+            .toArray();
     } else if (!firstName && lastName) {
-        profiles = CustomerMgr.queryProfiles('lastName = {0}', null, lastName).asList().toArray();
+        profiles = CustomerMgr.queryProfiles("lastName = {0}", null, lastName)
+            .asList()
+            .toArray();
     }
 
     var lists;
@@ -55,7 +68,11 @@ function createSearchResultObject(firstName, lastName, email, config) {
                     uuid = uuids[totalNumber];
                     uuidsCount++;
                 }
-                if (uuidsCount < pageSize * (pageNumber - 1) && uuids.length > 0 && uuid !== lists[0].ID) {
+                if (
+                    uuidsCount < pageSize * (pageNumber - 1) &&
+                    uuids.length > 0 &&
+                    uuid !== lists[0].ID
+                ) {
                     changedList = true;
                 }
 
@@ -64,9 +81,21 @@ function createSearchResultObject(firstName, lastName, email, config) {
                     firstName: profile.firstName,
                     lastName: profile.lastName,
                     id: lists[0].ID,
-                    url: URLUtils.url('Wishlist-ShowOthers', 'id', lists[0].ID).toString(),
-                    urlTitle: Resource.msg('title.link.view.public.list', 'productlist', null),
-                    urlText: Resource.msg('txt.link.view.public.list', 'productlist', null)
+                    url: URLUtils.url(
+                        "Wishlist-ShowOthers",
+                        "id",
+                        lists[0].ID
+                    ).toString(),
+                    urlTitle: Resource.msg(
+                        "title.link.view.public.list",
+                        "productlist",
+                        null
+                    ),
+                    urlText: Resource.msg(
+                        "txt.link.view.public.list",
+                        "productlist",
+                        null
+                    )
                 });
             } else {
                 totalNumber++;
@@ -83,7 +112,12 @@ function createSearchResultObject(firstName, lastName, email, config) {
     response.pageNumber = pageNumber;
     response.pageSize = pageSize;
     response.total = totalNumber;
-    response.totalString = Resource.msgf('txt.heading.wl.search.results.count', 'wishlist', null, totalNumber);
+    response.totalString = Resource.msgf(
+        "txt.heading.wl.search.results.count",
+        "wishlist",
+        null,
+        totalNumber
+    );
     response.showMore = !(totalNumber <= pageSize * pageNumber);
     response.changedList = changedList;
     return response;

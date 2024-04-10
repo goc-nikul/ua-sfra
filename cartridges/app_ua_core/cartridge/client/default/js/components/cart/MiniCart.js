@@ -2,7 +2,7 @@
 
 import Component from '../core/Component';
 
-import cart from 'base/cart/cart';
+import cart from './cart';
 
 var updateMiniCart = true;
 
@@ -13,6 +13,7 @@ export default class MiniCart extends Component {
         this.$minicart = $('.minicart');
         this.$body = $('body');
         this.$minicartBackdrop = $('.b-header_minicart-modal-backdrop');
+        this.isCartPage = $('#bodyPage').is('[data-action="Cart-Show"]');
         this.initEvents();
         this.onProgressBar();
     }
@@ -30,13 +31,17 @@ export default class MiniCart extends Component {
 
     onCountUpdate(event, count) {
         if (count && $.isNumeric(count.quantityTotal)) {
+            if (this.isCartPage) {
+                window.location.reload();
+                return;
+            }
             if (!this.$minicart.find('.minicart-quantity').length) {
                 this.$minicart.find('.b-header_minicart-icon').append(
                     '<span class="b-header_minicart-quantity minicart-quantity"></span>'
                 );
             }
 
-            this.$minicart.find('.minicart-quantity').css('display', 'block');
+            this.$minicart.find('.minicart-quantity').css('display', count.quantityTotal > 0 ? 'block' : 'none');
             this.$minicart.find('.minicart-link').attr({
                 'aria-label': count.minicartCountOfItems,
                 title: count.minicartCountOfItems

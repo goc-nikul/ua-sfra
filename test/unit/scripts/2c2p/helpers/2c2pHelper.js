@@ -92,7 +92,15 @@ describe('int_2c2p/cartridge/scripts/helpers/2c2pHelper.js', () => {
                 paymentType: 'test type'
             }
         },
-        'dw/system/Logger': require('../../../../mocks/dw/dw_system_Logger')
+        'dw/system/Logger': require('../../../../mocks/dw/dw_system_Logger'),
+        'dw/web/Resource': {
+            msg: function () {
+                return 'someString';
+            },
+            msgf: function () {
+                return 'someString';
+            }
+        }
     });
 
     var result;
@@ -266,7 +274,15 @@ describe('int_2c2p/cartridge/scripts/helpers/2c2pHelper.js', () => {
                         paymentType: 'test type'
                     }
                 },
-                'dw/system/Logger': require('../../../../mocks/dw/dw_system_Logger')
+                'dw/system/Logger': require('../../../../mocks/dw/dw_system_Logger'),
+                'dw/web/Resource': {
+                    msg: function () {
+                        return 'someString';
+                    },
+                    msgf: function () {
+                        return 'someString';
+                    }
+                }
             });
             order.exportStatus.value = Order.ORDER_STATUS_NEW;
             order.custom.orderConfirmationEmailStatus = '';

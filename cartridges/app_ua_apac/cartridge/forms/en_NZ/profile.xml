@@ -1,0 +1,463 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19" secure="false">
+	<group formid="customer">
+		<field
+			formid="firstname"
+			label="label.input.firstname.profile"
+			mandatory="true"
+			max-length="50"
+			range-error="error.message.50orless"
+			type="string" />
+
+		<field
+			formid="lastname"
+			label="label.input.lastname.profile"
+			mandatory="true"
+			max-length="50"
+			range-error="error.message.50orless"
+			type="string" />
+
+		<field
+			formid="email"
+			label="label.input.email.profile"
+			mandatory="true"
+			max-length="50"
+			missing-error="error.message.required"
+			parse-error="error.message.parse.email.profile.form"
+			range-error="error.message.50orless"
+			regexp="^[\w%+\-]+([.]?[\w%+\-])+@[\w.\-]+\.\w{2,}$"
+			value-error="ValueErrorText"
+			type="string"/>
+			<!-- TODO value-error not comming back from the platform -->
+
+        <field
+            formid="newemail"
+            label="label.input.newemail"
+            mandatory="true"
+            max-length="50"
+            missing-error="error.message.required"
+            parse-error="error.message.parse.email.profile.form"
+            range-error="error.message.50orless"
+			regexp="^[\w%+\-]+([.]?[\w%+\-])+@[\w.\-]+\.\w{2,}$"
+            value-error="ValueErrorText"
+            type="string"/>
+
+        <field
+            formid="newemailconfirm"
+            label="label.input.newemailconfirm"
+            mandatory="true"
+            max-length="50"
+            missing-error="error.message.required"
+            parse-error="error.message.parse.email.profile.form"
+            range-error="error.message.50orless"
+			regexp="^[\w%+\-]+([.]?[\w%+\-])+@[\w.\-]+\.\w{2,}$"
+            value-error="ValueErrorText"
+            type="string"/>
+
+		<field
+			formid="emailconfirm"
+			label="label.input.emailconfirm.profile"
+			mandatory="true"
+			max-length="50"
+			missing-error="error.message.required"
+			parse-error="error.message.parse.email.profile.form"
+			range-error="error.message.50orless"
+			regexp="^[\w%+\-]+([.]?[\w%+\-])+@[\w.\-]+\.\w{2,}$"
+			value-error="ValueErrorText"
+			type="string"/>
+			<!-- TODO value-error not comming back from the platform -->
+		<field formid="countryDialingCode" label="label.input.countryDialingCode" type="string" mandatory="false" binding="countryDialingCode">
+			<options>
+				<option optionid=""         label="label.select" value=""/>
+				<option optionid="+60"      label="MY: +60"          value="+60"/>
+				<option optionid="+65"      label="SG: +65"          value="+65"/>
+				<option optionid="+62"      label="ID: +62"          value="+62"/>
+				<option optionid="+852"     label="HK: +852"         value="+852"/>
+				<option optionid="+63"      label="PH: +63"          value="+63"/>
+				<option optionid="+66"      label="TH: +66"          value="+66"/>
+				<option optionid="+93"	label="AF: +93"	    value="+93"/>
+				<option optionid="+355"     label="AL: +355"         value="+355"/>
+				<option optionid="+213"     label="DZ: +213"         value="+213"/>
+				<option optionid="+1684"    label="AS: +1684"        value="+1684"/>
+				<option optionid="+376"     label="AD: +376"         value="+376"/>
+				<option optionid="+244"     label="AO: +244"         value="+244"/>
+				<option optionid="+1264"    label="AI: +1264"        value="+1264"/>
+				<option optionid="+672"     label="AQ: +672"         value="+672"/>
+				<option optionid="+1268"    label="AG: +1268"        value="+1268"/>
+				<option optionid="+54"      label="AR: +54"          value="+54"/>
+				<option optionid="+374"     label="AM: +374"         value="+374"/>
+				<option optionid="+297"     label="AW: +297"         value="+297"/>
+				<option optionid="+61"      label="AU: +61"          value="+61"/>
+				<option optionid="+43"      label="AT: +43"          value="+43"/>
+				<option optionid="+994"     label="AZ: +994"         value="+994"/>
+				<option optionid="+1242"    label="BS: +1242"        value="+1242"/>
+				<option optionid="+973"     label="BH: +973"         value="+973"/>
+				<option optionid="+880"     label="BD: +880"         value="+880"/>
+				<option optionid="+1246"    label="BB: +1246"        value="+1246"/>
+				<option optionid="+375"     label="BY: +375"         value="+375"/>
+				<option optionid="+32"      label="BE: +32"          value="+32"/>
+				<option optionid="+501"     label="BZ: +501"         value="+501"/>
+				<option optionid="+229"     label="BJ: +229"         value="+229"/>
+				<option optionid="+1441"    label="BM: +1441"        value="+1441"/>
+				<option optionid="+975"     label="BT: +975"         value="+975"/>
+				<option optionid="+591"     label="BO: +591"         value="+591"/>
+				<option optionid="+387"     label="BA: +387"         value="+387"/>
+				<option optionid="+267"     label="BW: +267"         value="+267"/>
+				<option optionid="+55"      label="BR: +55"          value="+55"/>
+				<option optionid="+246"     label="IO: +246"         value="+246"/>
+				<option optionid="+1284"    label="VG: +1284"        value="+1284"/>
+				<option optionid="+673"     label="BN: +673"         value="+673"/>
+				<option optionid="+359"     label="BG: +359"         value="+359"/>
+				<option optionid="+226"     label="BF: +226"         value="+226"/>
+				<option optionid="+257"     label="BI: +257"         value="+257"/>
+				<option optionid="+855"     label="KH: +855"         value="+855"/>
+				<option optionid="+237"     label="CM: +237"         value="+237"/>
+				<option optionid="+1"       label="CA: +1"           value="+1"/>
+				<option optionid="+238"     label="CV: +238"         value="+238"/>
+				<option optionid="+1345"    label="KY: +1345"        value="+1345"/>
+				<option optionid="+236"     label="CF: +236"         value="+236"/>
+				<option optionid="+235"     label="TD: +235"         value="+235"/>
+				<option optionid="+56"      label="CL: +56"          value="+56"/>
+				<option optionid="+86"      label="CN: +86"          value="+86"/>
+				<option optionid="+61"      label="CX: +61"          value="+61"/>
+				<option optionid="+61"      label="CC: +61"          value="+61"/>
+				<option optionid="+57"      label="CO: +57"          value="+57"/>
+				<option optionid="+269"     label="KM: +269"         value="+269"/>
+				<option optionid="+682"     label="CK: +682"         value="+682"/>
+				<option optionid="+506"     label="CR: +506"         value="+506"/>
+				<option optionid="+385"     label="HR: +385"         value="+385"/>
+				<option optionid="+53"      label="CU: +53"          value="+53"/>
+				<option optionid="+599"     label="CW: +599"         value="+599"/>
+				<option optionid="+357"     label="CY: +357"         value="+357"/>
+				<option optionid="+420"     label="CZ: +420"         value="+420"/>
+				<option optionid="+243"     label="CD: +243"         value="+243"/>
+				<option optionid="+45"      label="DK: +45"          value="+45"/>
+				<option optionid="+253"     label="DJ: +253"         value="+253"/>
+				<option optionid="+1767"    label="DM: +1767"        value="+1767"/>
+				<option optionid="+1809"    label="DO: +1809"        value="+1809"/>
+				<option optionid="+1829"    label="DO: +1829"        value="+1829"/>
+				<option optionid="+1849"    label="DO: +1849"        value="+1849"/>
+				<option optionid="+670"     label="TL: +670"         value="+670"/>
+				<option optionid="+593"     label="EC: +593"         value="+593"/>
+				<option optionid="+20"      label="EG: +20"          value="+20"/>
+				<option optionid="+503"     label="SV: +503"         value="+503"/>
+				<option optionid="+240"     label="GQ: +240"         value="+240"/>
+				<option optionid="+291"     label="ER: +291"         value="+291"/>
+				<option optionid="+372"     label="EE: +372"         value="+372"/>
+				<option optionid="+251"     label="ET: +251"         value="+251"/>
+				<option optionid="+500"     label="FK: +500"         value="+500"/>
+				<option optionid="+298"     label="FO: +298"         value="+298"/>
+				<option optionid="+679"     label="FJ: +679"         value="+679"/>
+				<option optionid="+358"     label="FI: +358"         value="+358"/>
+				<option optionid="+33"      label="FR: +33"          value="+33"/>
+				<option optionid="+689"     label="PF: +689"         value="+689"/>
+				<option optionid="+241"     label="GA: +241"         value="+241"/>
+				<option optionid="+220"     label="GM: +220"         value="+220"/>
+				<option optionid="+995"     label="GE: +995"         value="+995"/>
+				<option optionid="+49"      label="DE: +49"          value="+49"/>
+				<option optionid="+233"     label="GH: +233"         value="+233"/>
+				<option optionid="+350"     label="GI: +350"         value="+350"/>
+				<option optionid="+30"      label="GR: +30"          value="+30"/>
+				<option optionid="+299"     label="GL: +299"         value="+299"/>
+				<option optionid="+1473"    label="GD: +1473"        value="+1473"/>
+				<option optionid="+1671"    label="GU: +1671"        value="+1671"/>
+				<option optionid="+502"     label="GT: +502"         value="+502"/>
+				<option optionid="+441481"  label="GG: +441481"      value="+441481"/>
+				<option optionid="+224"     label="GN: +224"         value="+224"/>
+				<option optionid="+245"     label="GW: +245"         value="+245"/>
+				<option optionid="+592"     label="GY: +592"         value="+592"/>
+				<option optionid="+509"     label="HT: +509"         value="+509"/>
+				<option optionid="+504"     label="HN: +504"         value="+504"/>
+				<option optionid="+36"      label="HU: +36"          value="+36"/>
+				<option optionid="+354"     label="IS: +354"         value="+354"/>
+				<option optionid="+91"      label="IN: +91"          value="+91"/>
+				<option optionid="+98"      label="IR: +98"          value="+98"/>
+				<option optionid="+964"     label="IQ: +964"         value="+964"/>
+				<option optionid="+353"     label="IE: +353"         value="+353"/>
+				<option optionid="+441624"  label="IM: +441624"      value="+441624"/>
+				<option optionid="+972"     label="IL: +972"         value="+972"/>
+				<option optionid="+39"      label="IT: +39"          value="+39"/>
+				<option optionid="+225"     label="CI: +225"         value="+225"/>
+				<option optionid="+1876"    label="JM: +1876"        value="+1876"/>
+				<option optionid="+81"      label="JP: +81"          value="+81"/>
+				<option optionid="+441534"  label="JE: +441534"      value="+441534"/>
+				<option optionid="+962"     label="JO: +962"         value="+962"/>
+				<option optionid="+7"       label="KZ: +7"           value="+7"/>
+				<option optionid="+254"     label="KE: +254"         value="+254"/>
+				<option optionid="+686"     label="KI: +686"         value="+686"/>
+				<option optionid="+383"     label="XK: +383"         value="+383"/>
+				<option optionid="+965"     label="KW: +965"         value="+965"/>
+				<option optionid="+996"     label="KG: +996"         value="+996"/>
+				<option optionid="+856"     label="LA: +856"         value="+856"/>
+				<option optionid="+371"     label="LV: +371"         value="+371"/>
+				<option optionid="+961"     label="LB: +961"         value="+961"/>
+				<option optionid="+266"     label="LS: +266"         value="+266"/>
+				<option optionid="+231"     label="LR: +231"         value="+231"/>
+				<option optionid="+218"     label="LY: +218"         value="+218"/>
+				<option optionid="+423"     label="LI: +423"         value="+423"/>
+				<option optionid="+370"     label="LT: +370"         value="+370"/>
+				<option optionid="+352"     label="LU: +352"         value="+352"/>
+				<option optionid="+853"     label="MO: +853"         value="+853"/>
+				<option optionid="+389"     label="MK: +389"         value="+389"/>
+				<option optionid="+261"     label="MG: +261"         value="+261"/>
+				<option optionid="+265"     label="MW: +265"         value="+265"/>
+				<option optionid="+960"     label="MV: +960"         value="+960"/>
+				<option optionid="+223"     label="ML: +223"         value="+223"/>
+				<option optionid="+356"     label="MT: +356"         value="+356"/>
+				<option optionid="+692"     label="MH: +692"         value="+692"/>
+				<option optionid="+222"     label="MR: +222"         value="+222"/>
+				<option optionid="+230"     label="MU: +230"         value="+230"/>
+				<option optionid="+262"     label="YT: +262"         value="+262"/>
+				<option optionid="+52"      label="MX: +52"          value="+52"/>
+				<option optionid="+691"     label="FM: +691"         value="+691"/>
+				<option optionid="+373"     label="MD: +373"         value="+373"/>
+				<option optionid="+377"     label="MC: +377"         value="+377"/>
+				<option optionid="+976"     label="MN: +976"         value="+976"/>
+				<option optionid="+382"     label="ME: +382"         value="+382"/>
+				<option optionid="+1664"    label="MS: +1664"        value="+1664"/>
+				<option optionid="+212"     label="MA: +212"         value="+212"/>
+				<option optionid="+258"     label="MZ: +258"         value="+258"/>
+				<option optionid="+95"      label="MM: +95"          value="+95"/>
+				<option optionid="+264"     label="NA: +264"         value="+264"/>
+				<option optionid="+674"     label="NR: +674"         value="+674"/>
+				<option optionid="+977"     label="NP: +977"         value="+977"/>
+				<option optionid="+31"      label="NL: +31"          value="+31"/>
+				<option optionid="+599"     label="AN: +599"         value="+599"/>
+				<option optionid="+687"     label="NC: +687"         value="+687"/>
+				<option optionid="+505"     label="NI: +505"         value="+505"/>
+				<option optionid="+227"     label="NE: +227"         value="+227"/>
+				<option optionid="+234"     label="NG: +234"         value="+234"/>
+				<option optionid="+683"     label="NU: +683"         value="+683"/>
+				<option optionid="+850"     label="KP: +850"         value="+850"/>
+				<option optionid="+1670"    label="MP: +1670"        value="+1670"/>
+				<option optionid="+47"      label="NO: +47"          value="+47"/>
+				<option optionid="+968"     label="OM: +968"         value="+968"/>
+				<option optionid="+92"      label="PK: +92"          value="+92"/>
+				<option optionid="+680"     label="PW: +680"         value="+680"/>
+				<option optionid="+970"     label="PS: +970"         value="+970"/>
+				<option optionid="+507"     label="PA: +507"         value="+507"/>
+				<option optionid="+675"     label="PG: +675"         value="+675"/>
+				<option optionid="+595"     label="PY: +595"         value="+595"/>
+				<option optionid="+51"      label="PE: +51"          value="+51"/>
+				<option optionid="+64"      label="PN: +64"          value="+64"/>
+				<option optionid="+64"      label="NZ: +64"          value="+64"/>
+				<option optionid="+48"      label="PL: +48"          value="+48"/>
+				<option optionid="+351"     label="PT: +351"         value="+351"/>
+				<option optionid="+1787"    label="PR: +1787"        value="+1787"/>
+				<option optionid="+1939"    label="PR: +1939"        value="+1939"/>
+				<option optionid="+974"     label="QA: +974"         value="+974"/>
+				<option optionid="+242"     label="CG: +242"         value="+242"/>
+				<option optionid="+262"     label="RE: +262"         value="+262"/>
+				<option optionid="+40"      label="RO: +40"          value="+40"/>
+				<option optionid="+7"       label="RU: +7"           value="+7"/>
+				<option optionid="+250"     label="RW: +250"         value="+250"/>
+				<option optionid="+590"     label="BL: +590"         value="+590"/>
+				<option optionid="+290"     label="SH: +290"         value="+290"/>
+				<option optionid="+1869"    label="KN: +1869"        value="+1869"/>
+				<option optionid="+1758"    label="LC: +1758"        value="+1758"/>
+				<option optionid="+590"     label="MF: +590"         value="+590"/>
+				<option optionid="+508"     label="PM: +508"         value="+508"/>
+				<option optionid="+1784"    label="VC: +1784"        value="+1784"/>
+				<option optionid="+685"     label="WS: +685"         value="+685"/>
+				<option optionid="+378"     label="SM: +378"         value="+378"/>
+				<option optionid="+239"     label="ST: +239"         value="+239"/>
+				<option optionid="+966"     label="SA: +966"         value="+966"/>
+				<option optionid="+221"     label="SN: +221"         value="+221"/>
+				<option optionid="+381"     label="RS: +381"         value="+381"/>
+				<option optionid="+248"     label="SC: +248"         value="+248"/>
+				<option optionid="+232"     label="SL: +232"         value="+232"/>
+				<option optionid="+1721"    label="SX: +1721"        value="+1721"/>
+				<option optionid="+421"     label="SK: +421"         value="+421"/>
+				<option optionid="+386"     label="SI: +386"         value="+386"/>
+				<option optionid="+677"     label="SB: +677"         value="+677"/>
+				<option optionid="+252"     label="SO: +252"         value="+252"/>
+				<option optionid="+27"      label="ZA: +27"          value="+27"/>
+				<option optionid="+82"      label="KR: +82"          value="+82"/>
+				<option optionid="+211"     label="SS: +211"         value="+211"/>
+				<option optionid="+34"      label="ES: +34"          value="+34"/>
+				<option optionid="+94"      label="LK: +94"          value="+94"/>
+				<option optionid="+249"     label="SD: +249"         value="+249"/>
+				<option optionid="+597"     label="SR: +597"         value="+597"/>
+				<option optionid="+47"      label="SJ: +47"          value="+47"/>
+				<option optionid="+268"     label="SZ: +268"         value="+268"/>
+				<option optionid="+46"      label="SE: +46"          value="+46"/>
+				<option optionid="+41"      label="CH: +41"          value="+41"/>
+				<option optionid="+963"     label="SY: +963"         value="+963"/>
+				<option optionid="+886"     label="TW: +886"         value="+886"/>
+				<option optionid="+992"     label="TJ: +992"         value="+992"/>
+				<option optionid="+255"     label="TZ: +255"         value="+255"/>
+				<option optionid="+228"     label="TG: +228"         value="+228"/>
+				<option optionid="+690"     label="TK: +690"         value="+690"/>
+				<option optionid="+676"     label="TO: +676"         value="+676"/>
+				<option optionid="+1868"    label="TT: +1868"        value="+1868"/>
+				<option optionid="+216"     label="TN: +216"         value="+216"/>
+				<option optionid="+90"      label="TR: +90"          value="+90"/>
+				<option optionid="+993"     label="TM: +993"         value="+993"/>
+				<option optionid="+1649"    label="TC: +1649"        value="+1649"/>
+				<option optionid="+688"     label="TV: +688"         value="+688"/>
+				<option optionid="+1340"    label="VI: +1340"        value="+1340"/>
+				<option optionid="+256"     label="UG: +256"         value="+256"/>
+				<option optionid="+380"     label="UA: +380"         value="+380"/>
+				<option optionid="+971"     label="AE: +971"         value="+971"/>
+				<option optionid="+44"      label="GB: +44"          value="+44"/>
+				<option optionid="+1"       label="US: +1"           value="+1"/>
+				<option optionid="+598"     label="UY: +598"         value="+598"/>
+				<option optionid="+998"     label="UZ: +998"         value="+998"/>
+				<option optionid="+678"     label="VU: +678"         value="+678"/>
+				<option optionid="+379"     label="VA: +379"         value="+379"/>
+				<option optionid="+58"      label="VE: +58"          value="+58"/>
+				<option optionid="+84"      label="VN: +84"          value="+84"/>
+				<option optionid="+681"     label="WF: +681"         value="+681"/>
+				<option optionid="+212"     label="EH: +212"         value="+212"/>
+				<option optionid="+967"     label="YE: +967"         value="+967"/>
+				<option optionid="+260"     label="ZM: +260"         value="+260"/>
+				<option optionid="+263"     label="ZW: +263"         value="+263"/>
+		 </options>
+		</field>
+		<field
+			formid="phone"
+			label="label.input.phone.profile"
+			mandatory="false"
+			type="string"/>
+
+        <field formid="postalCode" label="label.input.profile.zipcode" type="string" mandatory="false" min-length="5" max-length="10"
+           binding="custom.zipCode"
+           range-error="error.message.between5and10"
+           parse-error="error.message.parse.zip"/>
+
+        <field formid="birthMonth" label="label.input.birthMonth" type="string" mandatory="false" binding="birthMonth">
+	        <options>
+	            <option optionid=""   label="label.select"         value=""/>
+	            <option optionid="1"   label="label.select.month.january"         value="1"/>
+	            <option optionid="2"   label="label.select.month.february"        value="2"/>
+	            <option optionid="3"   label="label.select.month.march"           value="3"/>
+	            <option optionid="4"   label="label.select.month.april"           value="4"/>
+	            <option optionid="5"   label="label.select.month.may"             value="5"/>
+	            <option optionid="6"   label="label.select.month.june"            value="6"/>
+	            <option optionid="7"   label="label.select.month.july"            value="7"/>
+	            <option optionid="8"   label="label.select.month.august"          value="8"/>
+	            <option optionid="9"   label="label.select.month.september"       value="9"/>
+	            <option optionid="10"  label="label.select.month.october"         value="10"/>
+	            <option optionid="11"  label="label.select.month.november"        value="11"/>
+	            <option optionid="12"  label="label.select.month.december"        value="12"/>
+	        </options>
+        </field>
+
+		<field formid="birthYear" label="label.input.birthYear" type="string" mandatory="false" binding="birthYear">
+			<options>
+	            <option optionid=""   label="label.select"         value=""/>
+	        </options>
+    	</field>
+
+        <field formid="birthDay" label="label.input.birthDay" type="string" mandatory="false" binding="birthDay">
+            <options>
+                <option optionid=""      label="label.select"  value=""/>
+                <option optionid="1"     label="01"         value="1"/>
+                <option optionid="2"     label="02"         value="2"/>
+                <option optionid="3"     label="03"         value="3"/>
+                <option optionid="4"     label="04"         value="4"/>
+                <option optionid="5"     label="05"         value="5"/>
+                <option optionid="6"     label="06"         value="6"/>
+                <option optionid="7"     label="07"         value="7"/>
+                <option optionid="8"     label="08"         value="8"/>
+                <option optionid="9"     label="09"         value="9"/>
+                <option optionid="10"     label="10"         value="10"/>
+                <option optionid="11"     label="11"         value="11"/>
+                <option optionid="12"     label="12"         value="12"/>
+                <option optionid="13"     label="13"         value="13"/>
+                <option optionid="14"     label="14"         value="14"/>
+                <option optionid="15"     label="15"         value="15"/>
+                <option optionid="16"     label="16"         value="16"/>
+                <option optionid="17"     label="17"         value="17"/>
+                <option optionid="18"     label="18"         value="18"/>
+                <option optionid="19"     label="19"         value="19"/>
+                <option optionid="20"     label="20"         value="20"/>
+                <option optionid="21"     label="21"         value="21"/>
+                <option optionid="22"     label="22"         value="22"/>
+                <option optionid="23"     label="23"         value="23"/>
+                <option optionid="24"     label="24"         value="24"/>
+                <option optionid="25"     label="25"         value="25"/>
+                <option optionid="26"     label="26"         value="26"/>
+                <option optionid="27"     label="27"         value="27"/>
+                <option optionid="28"     label="28"         value="28"/>
+                <option optionid="29"     label="29"         value="29"/>
+                <option optionid="30"     label="30"         value="30"/>
+                <option optionid="31"     label="31"         value="31"/>
+            </options>
+        </field>
+
+        <field formid="gender" label="label.input.gender" type="string" mandatory="false" binding="gender">
+            <options>
+                <option optionid=""     label="label.select"     value="0"/>
+                <option optionid="Male"     label="label.select.gender.male"         value="1"/>
+                <option optionid="Female"   label="label.select.gender.female"       value="2"/>
+           </options>
+        </field>
+
+        <group formid="preferences">
+            <group formid="genders">
+	            <field formid="17ef2222b4ae2c3c080b" type="string" label="label.input.genders.men" default-value="17ef2222b4ae2c3c080b" mandatory="false" />
+	            <field formid="9b801213a051ebafd4d5" type="string" label="label.input.genders.women" default-value="9b801213a051ebafd4d5" mandatory="false" />
+	            <field formid="1a757f7504684c6fee5f" type="string" label="label.input.genders.boys" default-value="1a757f7504684c6fee5f" mandatory="false" />
+	            <field formid="14e2aa6a73daf41a2f45" type="string" label="label.input.genders.girls" default-value="14e2aa6a73daf41a2f45" mandatory="false" />
+	        </group>
+
+	        <group formid="activities">
+	            <field formid="19cdd17575e118c2eb75" type="string" label="label.input.activities.baseball" default-value="19cdd17575e118c2eb75" mandatory="false" />
+	            <field formid="a436b611a37574705861" type="string" label="label.input.activities.football" default-value="a436b611a37574705861" mandatory="false" />
+	            <field formid="d7cdbca5c1fec2f2e83e" type="string" label="label.input.activities.military" default-value="d7cdbca5c1fec2f2e83e" mandatory="false" />
+	            <field formid="72018b8825fbda00a7c0" type="string" label="label.input.activities.softball" default-value="72018b8825fbda00a7c0" mandatory="false" />
+	            <field formid="28d8e46e3ef4f54c8cee" type="string" label="label.input.activities.basketball" default-value="28d8e46e3ef4f54c8cee" mandatory="false" />
+	            <field formid="f2e3d21efeb906c31d33" type="string" label="label.input.activities.golf" default-value="f2e3d21efeb906c31d33" mandatory="false" />
+	            <field formid="4f4f43b68fe843843019" type="string" label="label.input.activities.running" default-value="4f4f43b68fe843843019" mandatory="false" />
+	            <field formid="d4b792a53f4fdf5ab139" type="string" label="label.input.activities.training" default-value="d4b792a53f4fdf5ab139" mandatory="false" />
+	            <field formid="1186ed9c0e478a3b97a9" type="string" label="label.input.activities.fishing" default-value="1186ed9c0e478a3b97a9" mandatory="false" />
+	            <field formid="2edd7b702c85c59cd45b" type="string" label="label.input.activities.hunting" default-value="2edd7b702c85c59cd45b" mandatory="false" />
+	            <field formid="57fc4a5fadde3c42b43a" type="string" label="label.input.activities.soccer" default-value="57fc4a5fadde3c42b43a" mandatory="false" />
+	            <field formid="32cbd8af77afabe3a347" type="string" label="label.input.activities.yoga" default-value="32cbd8af77afabe3a347" mandatory="false" />
+	        </group>
+        </group>
+
+		<field
+			formid="addtoemaillist"
+			label="description.checkbox.emailsignup.profile"
+			type="boolean"/>
+	</group>
+
+	<group formid="login">
+		<field
+			formid="password"
+			label="label.input.password.profile"
+			mandatory="true"
+			value-error="error.message.currentpasswordnomatch"
+			type="string" />
+			<!-- TODO value-error -->
+
+        <field
+            formid="creatPassword"
+            label="label.input.creatPassword.profile"
+            mandatory="true"
+            value-error="error.message.currentpasswordnomatch"
+            type="string" />
+            <!-- TODO value-error -->
+
+		<field
+			formid="passwordconfirm"
+			label="label.input.passwordconfirm.profile"
+			type="string"
+			mandatory="true"
+			value-error="error.message.currentpasswordnomatch"/>
+			<!-- TODO value-error -->
+
+		<field
+			formid="currentpassword"
+			label="label.input.currentpassword.profile"
+			mandatory="true"
+			value-error="error.message.currentpasswordnomatch"
+			type="string" />
+
+		<include formid="newpasswords" name="newPasswords"/>
+	</group>
+	<action formid="create" valid-form="true"/>
+	<action formid="fbcreate" valid-form="true"/>
+</form>

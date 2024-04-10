@@ -9,6 +9,7 @@ class Calendar {
         this.MONTH = 2;
         this.YEAR = 1;
         this.DAY_OF_WEEK = 7;
+        this.DAY_OF_MONTH = 5;
         this.SATURDAY = 7;
         this.SUNDAY = 1;
         this.time = date ? new Date(date) : new Date();
@@ -51,22 +52,29 @@ class Calendar {
             },
             getFullYear() {
                 return 1990
+            },
+            getTime() {
+               return new Date().getTime(); 
             }
         };
     }
 
     set(year, month, date) {
         let time = new Date();
-        if (date) {
+        if (typeof date === 'number' && !Number.isNaN(date)) {
             time.setDate(date);
         }
-        if (month) {
+        if (typeof month === 'number' && !Number.isNaN(month)) {
             time.setMonth(month);
         }
-        if (year) {
+        if (typeof year === 'number' && !Number.isNaN(year)) {
             time.setFullYear(year);
         }
         this.time = time;
+    }
+
+    setTimeZone () {
+        return this.date;
     }
 }
 

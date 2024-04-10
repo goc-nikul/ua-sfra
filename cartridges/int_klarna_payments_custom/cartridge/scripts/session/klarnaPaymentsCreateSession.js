@@ -55,19 +55,30 @@ superModule.createSession = function (basket, localeObject, scope) {
         var requestBody = _getRequestBody(basket, localeObject, scope); // eslint-disable-line
         var requestUrl = klarnaApiContext.getFlowApiUrls().get('createSession');
         var serviceID = klarnaApiContext.getFlowApiIds().get('createSession');
+        var shippingFee = false;
+        if (requestBody && requestBody.order_lines) {
+            for (var i = 0; i < requestBody.order_lines.length; i++) {
+                if (requestBody.order_lines[i].type === 'shipping_fee') {
+                    shippingFee = true;
+                }
+            }
+        }
 
-        response = klarnaPaymentsHttpService.call(serviceID, requestUrl, 'POST', localeObject.custom.credentialID, requestBody);
-        var klarnaPaymentMethods = response.payment_method_categories ? JSON.stringify(response.payment_method_categories) : null;
-        Transaction.wrap(function () {
-            session.privacy.KlarnaLocale = localeObject.custom.klarnaLocale;
-            session.privacy.KlarnaPaymentMethods = klarnaPaymentMethods;
-            session.privacy.SelectedKlarnaPaymentMethod = null;
+        if (requestBody && requestBody.order_tax_amount >= 0 && shippingFee) {
+            response = klarnaPaymentsHttpService.call(serviceID, requestUrl, 'POST', localeObject.custom.credentialID, requestBody);
+            var klarnaPaymentMethods = response.payment_method_categories ? JSON.stringify(response.payment_method_categories) : null;
+            Transaction.wrap(function () {
+                session.privacy.KlarnaLocale = localeObject.custom.klarnaLocale;
+                session.privacy.KlarnaPaymentMethods = klarnaPaymentMethods;
+                session.privacy.SelectedKlarnaPaymentMethod = null;
 
-            basket.custom.kpSessionId = response.session_id; // eslint-disable-line
-            basket.custom.kpClientToken = response.client_token; // eslint-disable-line
-        });
+                basket.custom.kpSessionId = response.session_id; // eslint-disable-line
+                basket.custom.kpClientToken = response.client_token; // eslint-disable-line
+            });
+        }
     } catch (e) {
-        dw.system.Logger.error('Error in creating Klarna Payments Session: {0}', e.message + e.stack);
+        var Logger = require('dw/system/Logger');
+        Logger.error('Error in creating Klarna Payments Session: {0}', e.message + e.stack);
         KlarnaHelper.clearSessionRef(basket);
         return {
             success: false,

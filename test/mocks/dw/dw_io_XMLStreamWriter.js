@@ -1,9 +1,12 @@
-/* eslint-disable no-empty-function */
+/* eslint-disable no-empty-function, no-unused-vars */
 module.exports = class XMLStreamWriter {
-    constructor() { }
+    constructor(writer) { }
     writeStartDocument() { }
     writeStartElement() { }
     writeAttribute() { }
     writeCharacters() { }
     writeEndElement() { }
+    writeEndDocument() {}
+    flush() {}
+    close() {}
 };

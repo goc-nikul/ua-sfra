@@ -8,8 +8,23 @@ html,
         form textarea {
             caret-color: $grey5;
             line-height: rem-calc(25);
+            opacity: initial;
         }
     }
+}
+
+html,
+body {
+    position: relative;
+    width: var(--width, auto);
+
+    &.modal-open {
+        --global-overflow: hidden;
+    }
+}
+
+body {
+    overflow: var(--global-overflow);
 }
 
 .l-body {

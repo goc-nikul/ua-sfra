@@ -19,9 +19,7 @@ exports.execute = function (params) {
             endDate.add(Calendar.HOUR_OF_DAY, (0 - delay));
             endDate = endDate.getTime();
         }
-        var queryString = '(status = {0} OR paymentStatus = {1}) AND custom.Loyalty-VoucherCancelled = {2} AND creationDate >= {3} AND creationDate < {4}';
-
-        OrderMgr.processOrders(function (order) {
+        var handleCancelMembersonVoucher = function (order) {
             // Ignoring COD orders
             if (order.getPaymentInstruments('COD').length === 0 && !empty(order.custom['Loyalty-VoucherName'])) {
                 var loyaltyVoucherName = order.custom['Loyalty-VoucherName'].split('=')[1];
@@ -38,14 +36,9 @@ exports.execute = function (params) {
                     notificationCustomObject.custom.voucherCancellationStatus = order.custom['Loyalty-VoucherCancelled'].value;
                 });
             }
-        },
-            queryString,
-            Order.ORDER_STATUS_FAILED,
-            Order.PAYMENT_STATUS_NOTPAID,
-            0,
-            startDate,
-            endDate
-        );
+        };
+        var queryString = '(status = {0} OR paymentStatus = {1}) AND custom.Loyalty-VoucherCancelled = {2} AND creationDate >= {3} AND creationDate < {4}';
+        OrderMgr.processOrders(handleCancelMembersonVoucher, queryString, Order.ORDER_STATUS_FAILED, Order.PAYMENT_STATUS_NOTPAID, 0, startDate, endDate);
     } catch (e) {
         Logger.error('Memberson - Could not cancel voucher ' + e.message + e.stack);
         return new Status(Status.ERROR);

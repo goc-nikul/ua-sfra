@@ -283,3 +283,5 @@ server.append('DeletePayment', userLoggedIn.validateLoggedInAjax, function (req,
 });
 
 module.exports = server.exports();
+module.exports.getDefaultPaymentInstrument = getDefaultPaymentInstrument;
+module.exports.makeDefaultCard = makeDefaultCard;

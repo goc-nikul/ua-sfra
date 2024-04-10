@@ -58,9 +58,7 @@ module.exports = {
                 $('.b-account-edit-profile .b-profile-error-msg').empty();
             }
             if (!$form.find('input.is-invalid, select.is-invalid').length) {
-                var disabledFields = $form.find('select[disabled]').removeAttr('disabled');
                 var serializedForm = $form.serialize();
-                disabledFields.attr('disabled', 'true');
                 $(this).spinner().start();
                 $.ajax({
                     url: url,
@@ -244,6 +242,28 @@ module.exports = {
             $('.b-day-select').empty();
             $('.b-day-select').append(arrayHtml);
         });
+    },
+    birthDayDate: function () {
+        if ($('#birthDay').length > 0) {
+            var monthCode = $('select[name$="customer_birthMonth"]').val();
+            var birthdateCode = $('select[name$="customer_birthDay"]').val();
+            var arrayHtml = '';
+            const obj = { 1: 31, 2: 29, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 }; // eslint-disable-line
+
+            var days = getKeyByValue(obj, monthCode);
+            for (var i = 0; i <= days; i++) { // eslint-disable-line
+                if (i === 0) {
+                    arrayHtml += '<option value=""> Select </option>';
+                // eslint-disable-next-line eqeqeq
+                } else if (birthdateCode !== '' && i == birthdateCode) {
+                    arrayHtml += '<option value="' + birthdateCode + '" selected>' + birthdateCode + '</option>';
+                } else {
+                    arrayHtml += '<option value="' + i + '">' + i + '</option>';
+                }
+            }
+            $('.b-day-select').empty();
+            $('.b-day-select').append(arrayHtml);
+        }
     },
     consentModal: consents.consentClickmodal(),
     submitPassword: profileHelpersCore.submitPassword,

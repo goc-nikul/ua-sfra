@@ -323,7 +323,7 @@
 
         // Check if total amount is equal to order amount incl. tax
         if ( orderAmount !== orderLinesTotals ) {
-            Logger.error( 'KlarnaPaymentsSessionRequestBuilder.validateBuildAmounts: Order amount or tax amount DO NOT match.' );
+            Logger.warn( 'KlarnaPaymentsSessionRequestBuilder.validateBuildAmounts: Order amount or tax amount DO NOT match.' );
             // Otherwise, adjust order amount and tax amount
             this.context.order_tax_amount = this.context.order_tax_amount + ( orderAmount - orderLinesTotals );
             this.context.order_amount = orderLinesTotals;

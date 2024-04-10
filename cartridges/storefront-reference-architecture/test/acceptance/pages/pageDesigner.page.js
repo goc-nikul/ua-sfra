@@ -1,3 +1,5 @@
+'use strict';
+
 const I = actor();
 
 var carousel2Item1Selector = '.carousel:nth-child(2) .carousel-item:nth-child(1)';
@@ -31,7 +33,7 @@ module.exports = {
 
         shopTheLookContainer: '.shop-the-look-container',
         shopTheLookTextOverlay: shopTheLookCell1 + ' .product-text-center',
-        shopTheLookImage: '.shopthelook-figure-lg img',
+        shopTheLookImage: shopTheLookCell1 + ' img',
         shopTheLookSetItems: shopTheLookCell1 + ' .set-count-text-center',
         shopTheLookButton: shopTheLookCell1 + ' .shopthelook-text',
         shopTheLook4thImage: shopTheLookCell4 + ' img',
@@ -78,8 +80,10 @@ module.exports = {
         I.seeElement('.carousel:nth-child(' + position + ') .carousel-control-next');
         I.seeElement('.carousel:nth-child(' + position + ') .carousel-control-prev');
     },
-    verifySlide(position, expectedText, limitingElement) {
-        I.seeTextEquals(expectedText, '.carousel:nth-child(' + position + ') .carousel-item.active ' + limitingElement);
+    async verifySlide(position, expectedText, limitingElement) {
+        const el = '.carousel:nth-child(' + position + ') .carousel-item.active ' + limitingElement;
+        const text = await I.grabTextFrom(el);
+        text.should.equal(expectedText);
     },
     carouselControlClick(position, control) {
         I.click('.carousel:nth-child(' + position + ') ' + control);

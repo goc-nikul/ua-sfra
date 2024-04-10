@@ -66,6 +66,7 @@ class LineItemCtnr {
         this.shippingTotalPrice = new Money(7.99);
         this.totalTax = new Money(0);
         this.currencyCode = 'USD';
+        this.priceAdjustments = new ArrayList();
     }
 
     getPaymentInstruments(paymentMethodID) {
@@ -138,15 +139,17 @@ class LineItemCtnr {
         }
     }
 
-    addCouponLineItem(couponCode) {
-        this.couponLineItems.push({
-            promotion: { name: 'testPromo', calloutMsg: 'msg'},
+    createCouponLineItem(couponCode, campaignBased) {
+        var c = {
+            promotion: { name: 'testPromo', calloutMsg: 'msg' },
             couponCode: couponCode
-        })
+        };
+        this.couponLineItems.add(c);
+        return c;
     }
 
-    getFirstCouponLineItem(){
-        return this.couponLineItems.get(0)
+    removeCouponLineItem(couponLineItem) {
+        this.couponLineItems.remove(couponLineItem);
     }
 
     createProductLineItem(product, shipment) {
@@ -175,6 +178,9 @@ class LineItemCtnr {
                 price: {
                     value: 100
                 },
+                basePrice: {
+                    value: 100
+                },
                 tax: {
                     value: 10
                 },
@@ -190,6 +196,7 @@ class LineItemCtnr {
                 setPriceValue(price) {
                     this.price = new Money(price);
                     this.priceValue = price;
+                    this.basePrice = new Money(price);
                 },
                 setQuantityValue(quantityValue) {
                     this.quantity.value = quantityValue;
@@ -295,7 +302,7 @@ class LineItemCtnr {
     }
 
     getCustomer() {
-        return {};
+        return this.customer;
     }
 
     getCustomerEmail() {
@@ -327,6 +334,44 @@ class LineItemCtnr {
 
     getAdjustedMerchandizeTotalPrice() {
         return this.totalGrossPrice;
+    }
+
+    getGiftCertificateLineItems() {
+        return new ArrayList();
+    }
+
+    createBillingAddress() {
+        this.billingAddress = {
+            firstName: 'test',
+            lastName: 'test',
+            fullName: 'test_test',
+            address1: 'test',
+            address2: 'test',
+            city: 'test',
+            stateCode: 'CA',
+            postalCode: '04330',
+            countryCode: {
+                displayValue: 'United States',
+                value: 'US'
+            },
+            phone: '9234567890',
+            setPhone: function (phoneNumber) { },
+            getCountryCode: function () { return { value: this.countryCode }; },
+            setCountryCode: function (countryCode) { },
+            setFirstName: function (o) { },
+            setLastName: function (o) { },
+            setAddress1: function (o) { },
+            setAddress2: function (o) { },
+            setCity: function (o) { },
+            setPostalCode: function (o) { },
+            setStateCode: function (o) { },
+            custom: {
+                suburb: '',
+                district: '',
+                businessName: ''
+            }
+        };
+        return this.billingAddress;
     }
 }
 

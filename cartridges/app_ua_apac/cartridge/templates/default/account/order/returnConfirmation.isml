@@ -1,0 +1,11 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+
+<isset name="returnMethodContent" value="${pdict.returnMethodContent}" scope="page" />
+
+<isprint value="${dw.content.ContentMgr.getContent(returnMethodContent).custom.body}" encoding="off" />
+
+<div class="continue-buttons buttons-bottom">
+    <a href="${pdict.redirectUrl}" class="g-button_base g-button_primary--black">
+        ${Resource.msg('returns.completed.btn.text', 'refunds', null)}
+    </a>
+</div>

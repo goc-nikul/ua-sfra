@@ -3,6 +3,8 @@
         <isinclude template="account/order/orderItemShipmentStatus"/>
     </div>
 </isif>
+<isset name="mainProduct" value="${require('dw/catalog/ProductMgr').getProduct(orderItem.ID)}" scope="page">
+<isset name="styleCode" value="${mainProduct.isMaster() ? mainProduct.ID : mainProduct.getVariationModel().getMaster().ID}" scope="page" />
 <div class="order-item ${!orderItem.exchangeItem ? 'original-order' : ''} <isif condition="${order.bopisItemscount > 0 && !order.bopisItemsOnly && addBopisClass == 1 && orderItem.isBopis }">b-bopis-only-item</isif>">
     <input type="hidden" name="orderPid" class="orderPid" value="${orderItem.ID}" />
     <isif condition="${pdict.exchangeDetailsPage && !orderItem.exchangeItem}">
@@ -43,7 +45,7 @@
 								</isif>
 								<isif condition="${orderItem.displayTooltip && order.paymentMethod !== 'KLARNA_PAYMENTS'}">
 									<span class="g-tooltip">
-	                                    <p>${Resource.msg('returns.not.tqmark','refunds',null)}</p>
+	                                    <span class="g-tooltip-icon g-tooltip"></span>
 	                                    <span class="g-tooltip-text">${Resource.msg('returns.tooltip','refunds',null)}</span>
 	                                </span>
 								</isif>
@@ -202,11 +204,9 @@
 			                           <a class="" data-analytics-track="buy-again" href="${orderItem.url}">${Resource.msg('label.item.buyagain','account',null)}</a>
 			                        </div>
 			                    </div>
-			                    <isset name="mainProduct" value="${require('dw/catalog/ProductMgr').getProduct(orderItem.ID)}" scope="page">
 								<isif condition="${mainProduct}">
-									<isset name="styleCode" value="${mainProduct.isMaster() ? mainProduct.ID : mainProduct.getVariationModel().getMaster().ID}" scope="page" />
 									<div class="b-item-sec bv-write-review">
-										<a href="${'#'}" class="write-review-link" data-analytics-style-bv="${styleCode}" data-analytics-order-review="${mainProduct.custom.bvReviewCount}" data-analytics-order-rating="${mainProduct.custom.bvAverageRating}" data-product="${orderItem.ID}">${Resource.msg('label.order.review','account',null)}</a>
+										<a href="${'#'}" class="write-review-link" data-analytics-style-bv="${styleCode}" data-analytics-order-review="${mainProduct.custom.bvReviewCount}" data-analytics-order-rating="${mainProduct.custom.bvAverageRating}" data-product="${styleCode}">${Resource.msg('label.order.review','account',null)}</a>
 									</div>
 								</isif>
 			                </div>
@@ -293,7 +293,7 @@
 							</isif>
 							<isif condition="${orderItem.displayTooltip}">
 								<span class="g-tooltip">
-									<p>${Resource.msg('returns.not.tqmark','refunds',null)}</p>
+									<span class="g-tooltip-icon g-tooltip"></span>
 									<span class="g-tooltip-text">${Resource.msg('returns.tooltip','refunds',null)}</span>
 								</span>
 							</isif>
@@ -316,7 +316,7 @@
 	                    </div>
 	                </div>
 	                   <div class="b-item-sec bv-write-review">
-	                       <a href="${'#'}" class="write-review-link" data-product="${orderItem.ID}">${Resource.msg('label.order.review','account',null)}</a>
+	                       <a href="${'#'}" class="write-review-link" data-product="${styleCode}">${Resource.msg('label.order.review','account',null)}</a>
 	                   </div>
 	            </div>
             </isif>
@@ -361,8 +361,11 @@
                                </select>
                                <div class="invalid-feedback return-reason-invalid-feedback hide" data-error="${Resource.msg('option.return.exchange.reason.error','account',null)}">${Resource.msg('option.return.reason.error','account',null)}</div>
 	                      <iselse>
-							<isif condition="${!empty(dw.system.Site.current.getCustomPreferenceValue('returnReasonCodes'))}">
-								<isset name="returnReasonCodes" value="${dw.system.Site.current.getCustomPreferenceValue('returnReasonCodes')}" scope="page" />
+							<isif condition="${(!empty(pdict.returnReasonObj || !('returnReasonObj' in pdict)) && (dw.system.Site.getCurrent().getID() === 'SEA' || dw.system.Site.getCurrent().getID() === 'TH'))}">
+								<isset name="returnReasonCodes" value="${pdict.returnReasonObj}" scope="page" />
+								<isif condition="${!('returnReasonObj' in pdict)}">
+									<isset name="returnReasonCodes" value="${dw.system.Site.current.getCustomPreferenceValue('returnReasonCodes')}" scope="page" />
+								</isif>
 								<label class="form-control-label b-input_row-label">${Resource.msg('select.return.reason','account',null)}</label>
 								<select class="b-order-reason-select js-order-return-reason-select order-return-reason-select form-control b-quantity-select custom-select order-return-form-input auto-return-reason">
 									<option class="order-return-reason-option select-default" value="">${Resource.msg('label.select','common',null)}</option>

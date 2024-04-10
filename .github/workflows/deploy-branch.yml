@@ -1,15 +1,14 @@
-name: Deploy Branch
+name: Deploy to Development
 on:
   schedule:
     - cron: '0 0,16 * * 1,2,3,4,5'
     - cron: '0 0 * * 0,6'
   workflow_dispatch:
-    branches-ignore:
-      - 'master'
-      - 'main'
+    branches:
+      - 'develop'
 jobs:
   build:
-    name: Build and Deploy for Branch
+    name: Build and Deploy for Development
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -36,11 +35,12 @@ jobs:
             TEST_QUEUE_USER: ${{ secrets.TEST_QUEUE_USER }}
             TEST_QUEUE_PASSWORD: ${{ secrets.TEST_QUEUE_PASSWORD }}
             DRY_RUN: ${{ secrets.DRY_RUN }}
-      - name: Slack Notification
+      - name: MS_Teams-Notification
+        uses: Skitionek/notify-microsoft-teams@v1.0.8
         if: ${{ always() }}
-        uses: rtCamp/action-slack-notify@v2
-        env:
-            SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-            SLACK_USERNAME: ua-sfra-build
-            SLACK_COLOR: ${{ job.status }}
-            SLACK_MESSAGE: '${{ job.status }}'
+        with:
+          webhook_url: ${{ secrets.MS_TEAM_WEBHOOK_URI }}
+          job: ${{ toJson(job) }}
+          steps: ${{ toJson(steps) }}
+          needs: ${{ toJson(needs) }}
+          dry_run: ${{ secrets.DRY_RUN }}

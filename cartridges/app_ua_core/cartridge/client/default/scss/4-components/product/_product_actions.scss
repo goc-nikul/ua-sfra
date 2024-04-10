@@ -212,5 +212,58 @@
                 right: 0;
             }
         }
+
+        .b-notify_container {
+            flex-grow: 0;
+            padding-right: rem-calc(32);
+            padding-top: 0;
+            margin-right: 0;
+        }
+    }
+}
+
+.b-notify {
+    position: relative;
+    flex-basis: 100%;
+
+    @include respond-to(mobile) {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        padding: rem-calc(16);
+        background: $white;
+        background-clip: padding-box;
+        left: 0;
+        border-top: 1px solid $grey3;
+        flex-direction: row-reverse;
+        z-index: 10;
+    }
+
+    @include respond-to(desktop) {
+        &.b-paypalcta-disabled {
+            .b-add_to_bag_container {
+                max-width: 100%;
+            }
+        }
+    }
+
+    &_container {
+        display: flex;
+        justify-content: space-between;
+        padding-top: spacing(xs);
+        padding-right: rem-calc(3);
+        margin-right: rem-calc(3);
+    }
+
+    .b-loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        right: auto;
+    }
+
+    &-cta {
+        max-width: 100%;
     }
 }

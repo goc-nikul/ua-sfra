@@ -19,6 +19,7 @@ var isBOPISEnabled = 'isBOPISEnabled' in Site.current.preferences.custom && Site
 var isUACAPIActive = Site.getCurrent().getCustomPreferenceValue('orderHistoryDetailsProvider') && Site.getCurrent().getCustomPreferenceValue('orderHistoryDetailsProvider').value === 'UACAPI';
 const TYPE_WISH_LIST = require('dw/customer/ProductList').TYPE_WISH_LIST;
 var isMAOMaintenanceModeEnabled = 'isMAOMaintenanceModeEnabled' in Site.current.preferences.custom && Site.current.getCustomPreferenceValue('isMAOMaintenanceModeEnabled');
+const logger = require('dw/system/Logger').getLogger('constructor', 'constructor');
 
 server.extend(module.superModule);
 
@@ -28,10 +29,20 @@ server.prepend(
     server.middleware.https,
     csrfProtection.generateToken,
     function (req, res, next) {
+        if (req.httpMethod === 'GET') {
+            // SFRA v6.3 no longer supports HTTP METHOD: 'GET'
+            // So if another page calls this we will redirect to 404 instead of
+            // 500
+            // NOTE: If other prepends are added this code will need to be moved there as well.
+            res.setStatusCode(404);
+            res.render('error/notFound');
+            this.emit('route:Complete', req, res);
+            return;
+        }
         var OrderMgr = require('dw/order/OrderMgr');
+        var order = OrderMgr.getOrder(req.form.orderID, req.form.orderToken);
 
-        var order = OrderMgr.getOrder(req.querystring.ID);
-        var token = req.querystring.token ? req.querystring.token : null;
+        var token = req.form.orderToken ? req.form.orderToken : null;
 
         if (!order
             || !token
@@ -50,9 +61,9 @@ server.append('Confirm', function (req, res, next) {
     viewData.pageContext = {
         ns: 'order.confirmation'
     };
-    if (!empty(req.querystring.ID)) {
+    if (!empty(req.form.orderID)) {
         var OrderMgr = require('dw/order/OrderMgr');
-        var order = OrderMgr.getOrder(req.querystring.ID);
+        var order = OrderMgr.getOrder(req.form.orderID);
         if (order) {
             const giftcardHelper = require('*/cartridge/scripts/giftcard/giftcardHelper');
             var giftCardOrderData = giftcardHelper.giftCardOrderData(order);
@@ -127,10 +138,21 @@ server.append('Confirm', function (req, res, next) {
                     }
                 }
             }
+            // Returns & Exchanges Policy Content
+            var returnsExchangesPolicyContent = ContentMgr.getContent('order-confirmation-returns-exchanges-policy');
+            if (returnsExchangesPolicyContent && returnsExchangesPolicyContent.online && returnsExchangesPolicyContent.custom && returnsExchangesPolicyContent.custom.body && returnsExchangesPolicyContent.custom.body.markup) {
+                viewData.returnsExchangesPolicyContentEnabled = true;
+            }
+
+            // send inventory to Constructor
+            var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
+            logger.info('Order.js | send inventory to Constructor');
+            COHelpers.sendInventoryToConstructor(order.getAllProductLineItems());
         }
         var passwordRequirements = require('*/cartridge/scripts/helpers/accountHelpers').getPasswordRequirements();
         viewData.passwordRules = passwordRequirements;
     }
+
     res.setViewData(viewData);
     var contentObj = ContentMgr.getContent('order-comfirmation-page-meta');
     if (contentObj) {
@@ -290,7 +312,7 @@ server.replace(
                     var exitLinkUrl =
                         URLUtils.https('Order-History', 'orderFilter', req.querystring.orderFilter);
                     var viewData = res.getViewData();
-                    var BVHelper = require('bc_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
+                    var BVHelper = require('bm_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
                     if (BVHelper.isRREnabled() || BVHelper.isQAEnabled()) {
                         viewData.bvScout = BVHelper.getBvLoaderUrl();
                     }
@@ -552,7 +574,7 @@ server.replace(
                         : URLUtils.https('Account-Show');
 
                     var viewData = res.getViewData();
-                    var BVHelper = require('bc_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
+                    var BVHelper = require('bm_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
                     if (BVHelper.isRREnabled() || BVHelper.isQAEnabled()) {
                         viewData.bvScout = BVHelper.getBvLoaderUrl();
                     }
@@ -1399,7 +1421,7 @@ server.use(
             }
 
             var viewData = res.getViewData();
-            var BVHelper = require('bc_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
+            var BVHelper = require('bm_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
             if (BVHelper.isRREnabled() || BVHelper.isQAEnabled()) {
                 viewData.bvScout = BVHelper.getBvLoaderUrl();
             }

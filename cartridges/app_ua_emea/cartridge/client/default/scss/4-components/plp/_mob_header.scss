@@ -1,0 +1,38 @@
+.b-mob_header {
+    display: flex;
+    border-bottom: 1px solid $grey3;
+
+    @include respond-to(mobile) {
+        position: -webkit-sticky;
+        position: sticky;
+        top: rem-calc(120);
+        width: 100%;
+        z-index: 5;
+        transition: top 0.3s ease;
+    }
+
+    @include respond-to(desktop) {
+        display: none;
+    }
+
+    &-sort,
+    &-filter {
+        flex: 1;
+    }
+
+    &-filter {
+        @include font(main_med, rem-calc(12));
+
+        min-height: 64px;
+        border: none;
+        border-left: 1px solid $grey3;
+        background: $white;
+        color: $black;
+    }
+}
+
+@media screen and (min-width: 767px) and (max-width: 1023px) {
+    .b-mob_header {
+        top: rem-calc(97.6);
+    }
+}

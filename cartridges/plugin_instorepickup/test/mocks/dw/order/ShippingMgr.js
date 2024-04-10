@@ -1,16 +1,15 @@
+'use strict';
 
 var ArrayList = require('../../../mocks/dw.util.Collection');
 
-var defaultShippingMethod =
-    {
-        description: 'Order received within 7-10 business days',
-        displayName: 'Ground',
-        ID: '001',
-        custom: {
-            estimatedArrivalTime: '7-10 Business Days'
-        }
-    };
-
+var defaultShippingMethod = {
+    description: 'Order received within 7-10 business days',
+    displayName: 'Ground',
+    ID: '001',
+    custom: {
+        estimatedArrivalTime: '7-10 Business Days'
+    }
+};
 
 function createShipmentShippingModel() {
     return {

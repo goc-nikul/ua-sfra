@@ -89,6 +89,8 @@ server.replace('Show', consentTracking.consent, server.middleware.https, csrfPro
 
     var profileForm = server.forms.getForm('profile');
     profileForm.clear();
+    var sortRuleSelected = 'NewestAdded';
+
     var wishlistModel = new WishlistModel(
         list,
         {
@@ -121,6 +123,7 @@ server.replace('Show', consentTracking.consent, server.middleware.https, csrfPro
     var sortingOptionsList = new ArrayList(sortOptions);
     if (wishlistModel) {
         wishlistModel.wishlistSortOptions = sortingOptionsList;
+        wishlistModel.sortRuleSelected = sortRuleSelected;
     }
     // set page meta-data
     var ContentMgr = require('dw/content/ContentMgr');
@@ -210,11 +213,21 @@ server.get('Items', function (req, res, next) {
     next();
 });
 
+server.get('ItemsAjax', function (req, res, next) {
+    var wishlistProductIDsArray = productListHelper.getProductIdsArray(req.currentCustomer.raw, { type: TYPE_WISH_LIST });
+
+    res.json({
+        success: true,
+        wishlistProductIDsArray: wishlistProductIDsArray
+    });
+
+    next();
+});
+
 server.get('Indicator', function (req, res, next) {
     var ProductMgr = require('dw/catalog/ProductMgr');
     var productID = req.querystring.pid;
     var product = ProductMgr.getProduct(productID);
-    var masterProduct = product.isMaster() ? product : product.getMasterProduct();
     var productStyle = '';
     var isItemExistsInWishList = false;
 
@@ -226,11 +239,11 @@ server.get('Indicator', function (req, res, next) {
             type: TYPE_WISH_LIST
         };
         var list = productListHelper.getListNew(req.currentCustomer.raw, { type: TYPE_WISH_LIST });
-        isItemExistsInWishList = (list && !list.items.empty) ? productListHelper.itemExists(list, masterProduct.ID, config) : false;
+        isItemExistsInWishList = (list && !list.items.empty) ? productListHelper.itemExists(list, productID, config) : false;
     }
 
     res.setViewData({
-        productID: masterProduct.ID,
+        productID: productID,
         isItemExistsInWishList: isItemExistsInWishList,
         productStyle: productStyle
     });
@@ -246,6 +259,28 @@ server.replace('RemoveProduct', function (req, res, next) {
         success: true,
         listIsEmpty: listIsEmpty,
         emptyWishlistMsg: listIsEmpty ? Resource.msg('wishlist.empty.text', 'wishlist', null) : ''
+    });
+    next();
+});
+
+server.get('RenderIcon', function (req, res, next) {
+    var ProductMgr = require('dw/catalog/ProductMgr');
+    var params = req.querystring;
+    var config = {
+        qty: 1,
+        req: req,
+        type: TYPE_WISH_LIST
+    };
+    var mid = params.mid;
+    var productId = params.pid;
+    var product = ProductMgr.getProduct(productId);
+    var list = productListHelper.getListNew(req.currentCustomer.raw, { type: TYPE_WISH_LIST });
+    var isItemExistsInWishList = (list && !list.items.empty) ? Boolean(productListHelper.itemExists(list, productId, config)) : false;
+    var template = 'product/components/wishListIcon';
+    res.render(template, {
+        mid: mid,
+        isItemExistsInWishList: isItemExistsInWishList,
+        productStyle: product.custom.style
     });
     next();
 });

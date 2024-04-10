@@ -4,6 +4,13 @@ var proxyquire = require('proxyquire').noCallThru().noPreserveCache();
 const Spy = require('../../../helpers/unit/Spy');
 let spy = new Spy();
 
+// Path to scripts
+var pathToCartridges = '../../../../cartridges/';
+var pathToLinkScripts = pathToCartridges + 'int_aurus_custom/cartridge/scripts/';
+
+// Path to test scripts
+var pathToCoreMock = '../../../mocks/';
+
 class EmailProvider {
     constructor() {
         this.emailObj = {};
@@ -23,14 +30,31 @@ class EmailProvider {
     }
 }
 
-class Calander {
+class Calendar {
     constructor(date) {
         this.date = date;
-        return {
-            toTimeString: function () {
-                return date.toDateString();
-            }
-        };
+        this.DATE = 5;
+        this.DAY_OF_WEEK = 7;
+        this.SATURDAY = 7;
+        this.SUNDAY = 1;
+    }
+
+    add(field, value) {
+        if (field === this.DATE) {
+            this.date.setDate(this.date.getDate() + value);
+        }
+    }
+
+    before() {
+        return false;
+    }
+
+    toTimeString() {
+        return this.date ? this.date.toDateString() : '';
+    }
+
+    get() {
+        return 2;
     }
 }
 
@@ -52,6 +76,9 @@ function proxyModel() {
         '*/cartridge/scripts/helpers/instorePickupStoreHelpers': {
             basketHasInStorePickUpShipment: function () {
             }
+        },
+        '*/cartridge/scripts/util/loggerHelper': {
+            getLoggingObject: () => ''
         },
         'app_storefront_base/cartridge/scripts/checkout/checkoutHelpers': {},
         '*/cartridge/scripts/basketHelper': {},
@@ -77,7 +104,7 @@ function proxyModel() {
         '*/cartridge/scripts/firstDataHelper': require('../helpers/firstDataHelper'),
         'dw/util/StringUtils': require('../../../mocks/dw/dw_util_StringUtils'),
         '*/cartridge/scripts/util/collections': require('../util/collections'),
-        'dw/util/Calendar': Calander,
+        'dw/util/Calendar': Calendar,
         '*/cartridge/scripts/cart/cartHelpers': {
             getExistingProductLineItemInCart: function () {
                 return true;

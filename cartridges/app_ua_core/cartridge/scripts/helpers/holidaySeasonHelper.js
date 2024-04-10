@@ -30,24 +30,29 @@ function setHolidaySeason(order) {
     var Calendar = require('dw/util/Calendar');
     var Transaction = require('dw/system/Transaction');
     var returnConfiguration = getReturnConfiguration();
+    var currentSite = require('dw/system/Site').getCurrent();
     if (order && returnConfiguration) {
         try {
             var holidaySeasonStart = returnConfiguration.holidayStart ? returnConfiguration.holidayStart.split('-') : null;
             var holidaySeasonEnd = returnConfiguration.holidayEnd ? returnConfiguration.holidayEnd.split('-') : null;
             var holidaySeason = false;
+            var currentDate = currentSite.getCalendar();
 
             if (holidaySeasonStart && holidaySeasonEnd && holidaySeasonStart.length > 1 && holidaySeasonEnd.length > 1 && !isNaN(holidaySeasonStart[0]) && !isNaN(holidaySeasonStart[1]) && !isNaN(holidaySeasonEnd[0]) && !isNaN(holidaySeasonEnd[1]) && holidaySeasonStart[0] < 13 && holidaySeasonEnd[0] < 13 && holidaySeasonStart[1] < 32 && holidaySeasonEnd[1] < 32) {
-                var holidayStartDate = new Calendar();
-                holidayStartDate.set(holidayStartDate.get(Calendar.YEAR), holidaySeasonStart[0] - 1, holidaySeasonStart[1]);
-
-                var holidayEndDate = new Calendar();
-                if (holidaySeasonEnd[0] >= holidaySeasonStart[0]) {
-                    holidayEndDate.set(holidayEndDate.get(Calendar.YEAR), holidaySeasonEnd[0] - 1, holidaySeasonEnd[1]);
+                var holidayStartDate = new Calendar(new Date(currentDate.getTime().getTime() + currentSite.timezoneOffset));
+                if ((parseInt(holidaySeasonEnd[0], 10) < parseInt(holidaySeasonStart[0], 10)) && (holidayStartDate.get(Calendar.MONTH) + 1) <= parseInt(holidaySeasonEnd[0], 10)) {
+                    holidayStartDate.set(holidayStartDate.get(Calendar.YEAR) - 1, holidaySeasonStart[0] - 1, parseInt(holidaySeasonStart[1], 10));
                 } else {
-                    holidayEndDate.set(holidayEndDate.get(Calendar.YEAR) + 1, holidaySeasonEnd[0] - 1, holidaySeasonEnd[1]);
+                    holidayStartDate.set(holidayStartDate.get(Calendar.YEAR), holidaySeasonStart[0] - 1, parseInt(holidaySeasonStart[1], 10));
+                }
+                var holidayEndDate = new Calendar(new Date(currentDate.getTime().getTime() + currentSite.timezoneOffset));
+                if ((parseInt(holidaySeasonEnd[0], 10) < parseInt(holidaySeasonStart[0], 10)) && (holidayEndDate.get(Calendar.MONTH) + 1) >= parseInt(holidaySeasonStart[0], 10)) {
+                    holidayEndDate.set(holidayEndDate.get(Calendar.YEAR) + 1, holidaySeasonEnd[0] - 1, parseInt(holidaySeasonEnd[1], 10));
+                } else {
+                    holidayEndDate.set(holidayEndDate.get(Calendar.YEAR), holidaySeasonEnd[0] - 1, parseInt(holidaySeasonEnd[1], 10));
                 }
 
-                var todayDate = new Calendar();
+                var todayDate = new Calendar(new Date(currentDate.getTime().getTime() + currentSite.timezoneOffset));
                 if (todayDate.time >= holidayStartDate.time && todayDate.time <= holidayEndDate.time) {
                     holidaySeason = true;
                 }

@@ -21,6 +21,9 @@ var resObject = {
     setStatusCode: () => {
         return true;
     },
+    setRedirectStatus: () => {
+        return true;
+    },
     setViewData: () => {},
     redirect: () => {}
 };

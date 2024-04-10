@@ -38,8 +38,9 @@ function proxyModel() {
         },
         'dw/system/Transaction': {
             wrap: function () {
-                return;
+
             }
+
         },
         'dw/web/Resource': {
             msg: function () {

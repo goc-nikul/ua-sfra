@@ -60,6 +60,7 @@
 button.btn.btn-block.btn-outline-primary.select-bonus-product:disabled {
     background-color: #fff !important;
     pointer-events: none !important;
+    border: 2px solid $grey3;
 }
 
 .modal-dialog.choose-bonus-product-dialog.pdp-bonus-product-model .close {
@@ -82,6 +83,7 @@ button.btn.btn-block.btn-outline-primary.select-bonus-product:disabled {
 .modal-dialog.choose-bonus-product-dialog .modal-content {
     padding: 1.875rem 1.5625rem;
     width: 56.25rem;
+    border: 0;
 }
 
 span.color-value.swatch-circle.swatch-value.selected.selectable::after {
@@ -107,6 +109,12 @@ span.color-value.swatch-circle.swatch-value.selected.selectable::after {
 .bonus-product-details {
     max-width: 50%;
     float: right;
+
+    .bonus-line-item-row {
+        .line-item-price-info {
+            margin-bottom: 0;
+        }
+    }
 }
 
 .choose-bonus-product-dialog {
@@ -144,11 +152,15 @@ span.color-value.swatch-circle.swatch-value.selected.selectable::after {
 
 .choose-bonus-product-dialog .align-items-end {
     display: flex;
-    margin: 24px;
+    margin: 24px 0;
 }
 
 .add-to-bag-bonus {
     margin: 0 auto;
+    @include respond-to(mobile) {
+        min-width: rem-calc(118);
+        margin: 0 0 0 auto;
+    }
 }
 
 .g-button_base-bonus {
@@ -205,6 +217,7 @@ button.btn.btn-block.btn-outline-primary.select-bonus-product {
     text-align: center;
     line-height: 3;
     justify-content: center;
+    border-color: #000;
 }
 
 .b-cartlineitem_row.bonus-line-item-row.bfx-price-product .product-card-footer {
@@ -241,6 +254,7 @@ div#bonus-productlineitems-referesh .b-cartlineitem_row.bonus-line-item-row.bfx-
 
 .b-cartlineitem_row.bonus-line-item-row.bfx-price-product .product-card-footer .line-item-total-price {
     display: flex !important;
+    align-items: baseline;
 }
 
 .choose-bonus-product-dialog .modal-body {
@@ -303,8 +317,12 @@ div#bonusProduct button.btn.btn-outline-primary {
     font-size: 14px;
     line-height: 1.5;
     border-radius: 0.1875rem;
-    margin-top: 12px;
     color: #1d1d1d;
+}
+
+div#bonusProduct {
+    width: fit-content;
+    margin-top: rem-calc(12);
 }
 
 div#bonusProduct button.btn.btn-outline-primary:hover {
@@ -366,6 +384,7 @@ div#bonusProduct button.btn.btn-outline-primary:hover {
 
 .b-cartlineitem_row.bonus-line-item-row.bfx-price-product .product-card-footer .col-4.col-lg-3.line-item-quantity {
     display: flex;
+    align-items: baseline;
 }
 
 .b-cartlineitem_row.bonus-line-item-row.bfx-price-product .product-card-footer span.value {
@@ -426,9 +445,9 @@ div#bonusProduct button.btn.btn-outline-primary:hover {
 
     .choose-bonus-product-dialog {
         max-width: 100% !important;
-        top: 33% !important;
+        top: 50% !important;
         width: 94%;
-        padding: 0.4em 1.875rem 1.5625rem !important;
+        padding: 1rem 1.5rem 1.5625rem !important;
     }
 
     .choose-bonus-product-dialog {
@@ -436,7 +455,7 @@ div#bonusProduct button.btn.btn-outline-primary:hover {
         position: absolute;
         float: left;
         left: 50%;
-        top: 33% !important;
+        top: 50% !important;
         transform: translate(-50%, -50%);
         padding: 1.875rem 1.5625rem;
     }
@@ -628,7 +647,7 @@ div#bonusProduct button.btn.btn-outline-primary:hover {
 
 @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
     .choose-bonus-product-dialog {
-        top: 25% !important;
+        top: 50% !important;
     }
 
     .b-cartlineitem_togetherbutton {
@@ -747,13 +766,22 @@ div#bonusProduct button.btn.btn-outline-primary:hover {
     }
 }
 
-@media only screen and (min-device-width: 1025px) {
+@media only screen and (min-device-width: 1024px) {
     .b-cartlineitem.card-product-info.card.bonus-product-line-item .b-cartlineitem_remove_edit {
         width: auto !important;
+        flex: 1 1 100%;
     }
 
-    .bonus-product-details .b-cartlineitem_image {
-        max-width: 10rem;
+    .b-cart-content .bonus-product-cart-main {
+        width: 100%;
+    }
+
+    .b-cart-content .b-cartlineitem_row {
+        width: inherit;
+    }
+
+    .b-cart-content .b-cartlineitem_image {
+        width: inherit;
     }
 }
 
@@ -776,4 +804,44 @@ div#bonusProduct button.btn.btn-outline-primary:hover {
     width: calc(100% - 124px);
     display: inline-block;
     float: right;
+}
+
+.bonus-product-name {
+    margin-top: 8px;
+}
+
+.selected-bonus-product-container {
+    display: flex;
+
+    .selected-pid {
+        display: flex;
+        align-items: center;
+        margin-right: 8px;
+        @include respond-to(mobile) {
+            min-width: rem-calc(15);
+        }
+    }
+}
+
+.bonus-error-text {
+    z-index: 2000;
+    @include respond-to(mobile) {
+        width: fit-content;
+        background: $grey2;
+    }
+}
+
+.alert {
+    font-size: rem-calc(12);
+    line-height: 1.67;
+    background: $grey2;
+    border-radius: rem-calc(4);
+    color: $red;
+}
+
+.add-to-cart-messages {
+    width: fit-content;
+    display: inline-block;
+    z-index: 2000;
+    top: 50% !important;
 }

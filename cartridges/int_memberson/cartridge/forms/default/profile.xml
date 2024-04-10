@@ -27,7 +27,7 @@
 			missing-error="error.message.required"
 			parse-error="error.message.parse.email.profile.form"
 			range-error="error.message.50orless"
-			regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$" 
+			regexp="^[\w%+\-]+([.]?[\w%+\-])+@[\w.\-]+\.[\w]{2,6}" 
 			value-error="ValueErrorText"
 			type="string"/> 
 			<!-- TODO value-error not comming back from the platform -->
@@ -40,7 +40,7 @@
             missing-error="error.message.required"
             parse-error="error.message.parse.email.profile.form"
             range-error="error.message.50orless"
-            regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$" 
+			regexp="^[\w%+\-]+([.]?[\w%+\-])+@[\w.\-]+\.[\w]{2,6}"
             value-error="ValueErrorText"
             type="string"/>
 
@@ -52,7 +52,7 @@
             missing-error="error.message.required"
             parse-error="error.message.parse.email.profile.form"
             range-error="error.message.50orless"
-            regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$" 
+			regexp="^[\w%+\-]+([.]?[\w%+\-])+@[\w.\-]+\.[\w]{2,6}"
             value-error="ValueErrorText"
             type="string"/>
 
@@ -64,7 +64,7 @@
 			missing-error="error.message.required"
 			parse-error="error.message.parse.email.profile.form"
 			range-error="error.message.50orless"
-			regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$"
+			regexp="^[\w%+\-]+([.]?[\w%+\-])+@[\w.\-]+\.[\w]{2,6}"
 			value-error="ValueErrorText"
 			type="string"/> 
 			<!-- TODO value-error not comming back from the platform -->
@@ -89,7 +89,7 @@
 				<option optionid="+54"      label="AR: +54"          value="+54"/>
 				<option optionid="+374"     label="AM: +374"         value="+374"/>
 				<option optionid="+297"     label="AW: +297"         value="+297"/>
-				<option optionid="+61"      label="AU: +61"          value="+61"/>
+				<option optionid="+61"      label="CC: +61"          value="+61"/>
 				<option optionid="+43"      label="AT: +43"          value="+43"/>
 				<option optionid="+994"     label="AZ: +994"         value="+994"/>
 				<option optionid="+1242"    label="BS: +1242"        value="+1242"/>
@@ -122,7 +122,7 @@
 				<option optionid="+56"      label="CL: +56"          value="+56"/>
 				<option optionid="+86"      label="CN: +86"          value="+86"/>
 				<option optionid="+61"      label="CX: +61"          value="+61"/>
-				<option optionid="+61"      label="CC: +61"          value="+61"/>
+				<option optionid="+61"      label="AU: +61"          value="+61"/>
 				<option optionid="+57"      label="CO: +57"          value="+57"/>
 				<option optionid="+269"     label="KM: +269"         value="+269"/>
 				<option optionid="+682"     label="CK: +682"         value="+682"/>
@@ -226,7 +226,6 @@
 				<option optionid="+31"      label="NL: +31"          value="+31"/>
 				<option optionid="+599"     label="AN: +599"         value="+599"/>
 				<option optionid="+687"     label="NC: +687"         value="+687"/>
-				<option optionid="+64"      label="NZ: +64"          value="+64"/>
 				<option optionid="+505"     label="NI: +505"         value="+505"/>
 				<option optionid="+227"     label="NE: +227"         value="+227"/>
 				<option optionid="+234"     label="NG: +234"         value="+234"/>
@@ -243,6 +242,7 @@
 				<option optionid="+595"     label="PY: +595"         value="+595"/>
 				<option optionid="+51"      label="PE: +51"          value="+51"/>              
 				<option optionid="+64"      label="PN: +64"          value="+64"/>
+				<option optionid="+64"      label="NZ: +64"          value="+64"/>
 				<option optionid="+48"      label="PL: +48"          value="+48"/>
 				<option optionid="+351"     label="PT: +351"         value="+351"/>
 				<option optionid="+1787"    label="PR: +1787"        value="+1787"/>
@@ -347,7 +347,7 @@
 
 		<field formid="birthDay" label="label.input.birthDay" type="string" mandatory="false" binding="birthDay" default-value="1">
             <options>
-                <option optionid=""      label="label.select"  value="0"/>
+                <option optionid=""      label="label.select"  value=""/>
                 <option optionid="1"     label="01"         value="1"/>
                 <option optionid="2"     label="02"         value="2"/>
                 <option optionid="3"     label="03"         value="3"/>

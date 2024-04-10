@@ -35,6 +35,15 @@ server.append('Start', function (req, res, next) {
             });
         }
     }
+
+    if (req.querystring.initiateMobileAuth) {
+        var mobileAuthProvider = require('*/cartridge/modules/providers').get('MobileAuth');
+        if (mobileAuthProvider.mobileAuthEnabled) {
+            res.setViewData({
+                initiateMobileAuth: true
+            });
+        }
+    }
     next();
 });
 

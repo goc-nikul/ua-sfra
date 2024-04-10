@@ -250,6 +250,42 @@ function getBOPISDetails(basket) {
     return lineItemObj;
 }
 
+/**
+ * Prepares and sends line item inventory to Constructor.IO.
+ * @param {Object} MAOAvailabilityResponse - items from MAO availability call response
+ */
+function sendInventoryToConstructor(MAOAvailabilityResponse) {
+    var Site = require('dw/system/Site');
+
+    var constructor = {
+        deltasEnabled: Site.current.getCustomPreferenceValue('Constructor_DeltaInventoryManager')
+    };
+
+    if (constructor.deltasEnabled) {
+        const inventoryMgr = require('*/cartridge/scripts/constructorio/inventoryStateManager');
+        var obj = {};
+        var itemId;
+        var styleId;
+        var available;
+        var key;
+
+        // add each item to ConstructorIO custom object
+        var keys = Object.keys(MAOAvailabilityResponse);
+        for (var i = 0; i < keys.length; i++) {
+            obj = JSON.parse(MAOAvailabilityResponse[key]);
+
+            if ('TotalQuantity' in obj || 'Quantity' in obj) {
+                itemId = key;
+                styleId = key.substring(0, key.indexOf('-'));
+                available = 'TotalQuantity' in obj ? obj.TotalQuantity : obj.Quantity;
+
+                // Send delta to Constructor.io
+                inventoryMgr.addMAODeltas(styleId, itemId, available);
+            }
+        }
+    }
+}
+
 module.exports = {
     getAvailabilityRequest: getAvailabilityRequest,
     parseResponse: parseResponse,
@@ -259,5 +295,6 @@ module.exports = {
     getInstorePickUpSKUS: getInstorePickUpSKUS,
     getBOPISStoresBySKU: getBOPISStoresBySKU,
     getBOPISDetails: getBOPISDetails,
-    getBOPISStoresBySKUOCAPI: getBOPISStoresBySKUOCAPI
+    getBOPISStoresBySKUOCAPI: getBOPISStoresBySKUOCAPI,
+    sendInventoryToConstructor: sendInventoryToConstructor
 };

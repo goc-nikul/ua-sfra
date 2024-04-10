@@ -179,7 +179,7 @@ module.exports = function () {
         });
     });
 
-    $('body').on('click', '#myaccount', function () {
+    $('body').on('click', '#myaccount', function (event) {
         event.preventDefault();
     });
 
@@ -240,38 +240,40 @@ module.exports = function () {
 
     // Clones elements from message banner and/or promo banner to Header banner for mobile display and updates data.
     if ($globalMessageBannerWrapper.length || $globalPromoBannerMessage.length) {
-        let loadNumber = $('.b-header-banner .js-promo-header-banner').length;
         let analyticsAssetID = '';
         let analyticsVariant = 'header-banner';
-        if ($globalMessageBannerWrapper.length) {
-            analyticsAssetID = $('.b-global-message-banner__wrapper .js-promo-header-banner').attr('data-analytics-id');
-        } else if ($globalPromoBannerMessage.length) {
-            analyticsAssetID = $('.b-global-promo-banner-message .js-promo-header-banner').attr('data-analytics-id');
-        }
+        let loadNumber = $('.b-header-banner .js-promo-header-banner').length;
+        var i = 0;
 
-        $('.b-header-banner .promo-banner-slider').append('<div class="js-promo-header-banner promo-banner__slide-' + loadNumber
-        + '" data-analytics-id="' + analyticsAssetID + '" data-analytics-variant="' + analyticsVariant
-        + '" data-analytics-type="bm-header-text-link"><div class="mobile-messages__wrapper"></div>');
+        $globalMessageBannerWrapper.each(function () {
+            i++;
+            analyticsAssetID = $(this).attr('data-analytics-id');
+            $('.b-header-banner .promo-banner-slider').append('<div class="js-promo-header-banner promo-banner__slide-' + i + '" data-analytics-id="' + analyticsAssetID + '" data-analytics-variant="' + analyticsVariant + '" data-analytics-type="bm-header-text-link"><div class="mobile-messages__wrapper"></div>');
 
-        if ($globalPromoBannerMessage.length) {
-            let clonedSlidePromo = $('.b-global-promo-banner-message .js-promo-header-banner').find('.promo-mobile-layout').clone().html();
-            let clonedClosebox = $('.b-global-promo-banner-exit').clone();
-            $('.mobile-messages__wrapper').append('<div class="header-mobile-promo">' + clonedSlidePromo + '</div>');
+            var clonedSlideMessage = $(this).find('.promo-mobile-layout').clone().html();
+            $('.js-promo-header-banner.promo-banner__slide-' + i + ' .mobile-messages__wrapper').append('<div class="header-mobile-message">' + clonedSlideMessage + '</div>');
+            if ($('.b-global-message-banner__wrapper .g-promo-combo-modal').length) {
+                var clonedModal = $('.b-global-message-banner__wrapper .g-promo-combo-modal').clone();
+                $('.b-header-banner .promo-banner__wrapper').append('<div class="g-promo-combo-modal promo-banner__modal-' + i + '">' + clonedModal.html() + '</div>');
+            }
+        });
+
+        $globalPromoBannerMessage.each(function () {
+            i++;
+            analyticsAssetID = $(this).attr('data-analytics-id');
+            $('.b-header-banner .promo-banner-slider').append('<div class="js-promo-header-banner promo-banner__slide-' + i + '" data-analytics-id="' + analyticsAssetID + '" data-analytics-variant="' + analyticsVariant + '" data-analytics-type="bm-header-text-link"><div class="mobile-messages__wrapper"></div>');
+
+            var clonedSlidePromo = $(this).find('.promo-mobile-layout').clone().html();
+            var clonedClosebox = $('.b-global-promo-banner-exit').clone();
+            $('.js-promo-header-banner.promo-banner__slide-' + i + ' .mobile-messages__wrapper').append('<div class="header-mobile-promo">' + clonedSlidePromo + '</div>');
             $('.header-mobile-promo').append(clonedClosebox.html());
             if ($('.b-global-promo-banner-message .g-promo-combo-modal').length) {
-                let clonedModal = $('.b-global-promo-banner-message .g-promo-combo-modal').clone();
-                $('.b-header-banner .promo-banner__wrapper').append('<div class="g-promo-combo-modal promo-banner__modal-' + loadNumber + '">' + clonedModal.html() + '</div>');
+                var clonedModal = $('.b-global-promo-banner-message .g-promo-combo-modal').clone();
+                $('.b-header-banner .promo-banner__wrapper').append('<div class="g-promo-combo-modal promo-banner__modal-' + i + '">' + clonedModal.html() + '</div>');
             }
-        }
-        if ($globalMessageBannerWrapper.length) {
-            let clonedSlideMessage = $('.b-global-message-banner__wrapper .js-promo-header-banner').find('.promo-mobile-layout').clone().html();
-            $('.mobile-messages__wrapper').append('<div class="header-mobile-message">' + clonedSlideMessage + '</div>');
-            if ($('.b-global-message-banner__wrapper .g-promo-combo-modal').length) {
-                let clonedModal = $('.b-global-message-banner__wrapper .g-promo-combo-modal').clone();
-                $('.b-header-banner .promo-banner__wrapper').append('<div class="g-promo-combo-modal promo-banner__modal-' + loadNumber + '">' + clonedModal.html() + '</div>');
-            }
-        }
-        $promoBannerWrapper.attr('data-assets', loadNumber + 1);
+        });
+
+        $promoBannerWrapper.attr('data-assets', loadNumber + i);
     }
 
     $('.promo-banner__wrapper .g-modal-close').on('click', function () {

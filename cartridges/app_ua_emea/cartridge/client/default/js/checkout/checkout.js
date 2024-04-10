@@ -7,9 +7,11 @@ var billingHelpers = require('./billing');
 var summaryHelpers = require('./summary');
 var formHelpers = require('org/checkout/formErrors');
 var scrollAnimate = require('org/components/scrollAnimate');
+var location = window.location;
+var history = window.history;
 var addressSuggestionHelpers = require('./qasAddressSuggesstion');
 var clientSideValidation = require('../components/common/clientSideValidation');
-var adyenCheckout = require('adyen/adyenCheckout');
+var adyenCheckout = require('../adyen_checkout/adyenCheckout');
 
 var isPaazlField = true;
 
@@ -176,6 +178,11 @@ var isPaazlField = true;
                                     }
                                 });
                             }
+                        } else {
+                            // Errors on form re-enable next-step-button
+                            $('.next-step-button button').removeAttr('data-clicked');
+                            $('.next-step-button button').removeAttr('disabled');
+                            $('.checkout-card-header').removeClass('pe-none');
                         }
                     } else {
                         $('#shippingAddressUseAsBillingAddress').val($('#shippingAsBilling').is(':checked'));
@@ -357,6 +364,11 @@ var isPaazlField = true;
                                     }
                                 });
                             }
+                        } else {
+                            // Errors on form re-enable next-step-button
+                            $('.next-step-button button').removeAttr('data-clicked');
+                            $('.next-step-button button').removeAttr('disabled');
+                            $('.checkout-card-header').removeClass('pe-none');
                         }
                     }
                     return defer;
@@ -443,6 +455,11 @@ var isPaazlField = true;
                                 }
                             });
                         }
+                    } else {
+                        // Errors on form re-enable next-step-button
+                        $('.next-step-button button').removeAttr('data-clicked');
+                        $('.next-step-button button').removeAttr('disabled');
+                        $('.checkout-card-header').removeClass('pe-none');
                     }
 
                     if ($('.data-checkout-stage').data('customer-type') === 'registered') {
@@ -674,19 +691,36 @@ var isPaazlField = true;
                                     adyenCheckout.actionHandler(data.adyenAction);
                                     defer.resolve(data);
                                 } else {
-                                    var continueUrl = data.continueUrl;
-                                    var urlParams = {
-                                        ID: data.orderID,
-                                        token: data.orderToken,
-                                        order_checkout_optin: data.order_checkout_optin
-                                    };
+                                    // Changes due to SFRA cartridge upgrade!
+                                    let redirect = $('<form>')
+                                            .appendTo(document.body)
+                                            .attr({
+                                                method: 'POST',
+                                                action: data.continueUrl
+                                            });
+                                    $('<input>')
+                                    .appendTo(redirect)
+                                    .attr({
+                                        name: 'orderID',
+                                        value: data.orderID,
+                                        type: 'hidden'
+                                    });
 
-                                    continueUrl += (continueUrl.indexOf('?') !== -1 ? '&' : '?') +
-                                        Object.keys(urlParams).map(function (key) {
-                                            return key + '=' + encodeURIComponent(urlParams[key]);
-                                        }).join('&');
-
-                                    window.location.href = continueUrl;
+                                    $('<input>')
+                                        .appendTo(redirect)
+                                        .attr({
+                                            name: 'orderToken',
+                                            value: data.orderToken,
+                                            type: 'hidden'
+                                        });
+                                    $('<input>')
+                                        .appendTo(redirect)
+                                        .attr({
+                                            name: 'order_checkout_optin',
+                                            value: data.order_checkout_optin,
+                                            type: 'hidden'
+                                        });
+                                    redirect.trigger('submit');
                                     defer.resolve(data);
                                 }
                                 // Hide the coupon code form from checkout page place order stage
@@ -721,6 +755,11 @@ var isPaazlField = true;
                 // set the initial state of checkout
                 members.currentStage = checkoutStages
                     .indexOf($('.data-checkout-stage').data('checkout-stage'));
+                // v6.3.0 has a new stage called 'customer' which is passed in by default during Checkout-Begin
+                // UA has not upgraded the extended cartridges from the upgrade yet.
+                if (members.currentStage < 0) {
+                    members.currentStage = 0;
+                }
                 $(plugin).attr('data-checkout-stage', checkoutStages[members.currentStage]);
 
                 //
@@ -735,6 +774,8 @@ var isPaazlField = true;
                 //
                 $(plugin).on('click', '.next-step-button button', function () {
                     $('.next-step-button button').attr('data-clicked', 'true');
+                    $('.next-step-button button').attr('disabled', 'disabled');
+                    $('.checkout-card-header').addClass('pe-none');
                     members.nextStage();
                 });
 
@@ -863,6 +904,10 @@ var isPaazlField = true;
                         // Forward button  pressed
                         members.handleNextStage(false);
                     }
+
+                    if ($('.g-adyen3ds-verification-modal').is(':visible')) {
+                        location.reload(true);
+                    }
                 });
 
                 //
@@ -910,10 +955,14 @@ var isPaazlField = true;
                     // Update UI with new stage
                     members.handleNextStage(true);
                     $('.next-step-button button').removeAttr('data-clicked');
+                    $('.next-step-button button').removeAttr('disabled');
+                    $('.checkout-card-header').removeClass('pe-none');
                 });
 
                 promise.fail(function (data) {
                     $('.next-step-button button').removeAttr('data-clicked');
+                    $('.next-step-button button').removeAttr('disabled');
+                    $('.checkout-card-header').removeClass('pe-none');
                     // show errors
                     if (data) {
                         if (data.errorStage) {

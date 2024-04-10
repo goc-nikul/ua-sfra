@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use strict';
 
 /**
@@ -16,7 +17,7 @@
  * exports.Show = require('~/guard').ensure(['get','https','loggedIn'],show);
  */
 var browsing = require('~/cartridge/scripts/util/Browsing');
-var LOGGER   = dw.system.Logger.getLogger('guard');
+var LOGGER = dw.system.Logger.getLogger('guard');
 
 /**
  * This method contains the login to handle a not logged in customer
@@ -27,7 +28,7 @@ function requireLogin(params) {
     if (customer.authenticated) {
         return true;
     }
-    var redirectUrl = dw.web.URLUtils.https('Login-Show','original', browsing.lastUrl());
+    var redirectUrl = require('dw/web/URLUtils').https('Login-Show', 'original', browsing.lastUrl());
 
     if (params && params.scope) {
         redirectUrl.append('scope', params.scope);
@@ -65,20 +66,18 @@ function switchToHttps() {
  */
 var Filters = {
     /** Action must be accessed via HTTPS */
-    https: function () {return request.isHttpSecure();},
+    https: function () { return request.isHttpSecure(); },
     /** Action must be accessed via HTTP */
-    http: function () {return !this.https();},
+    http: function () { return !this.https(); },
     /** Action must be accessed via a GET request */
-    get: function () {return request.httpMethod === 'GET';},
+    get: function () { return request.httpMethod === 'GET'; },
     /** Action must be accessed via a POST request */
-    post: function () {return request.httpMethod === 'POST';},
+    post: function () { return request.httpMethod === 'POST'; },
     /** Action must only be accessed authenticated csutomers */
-    loggedIn: function () {return customer.authenticated;},
+    loggedIn: function () { return customer.authenticated; },
     /** Action must only be used as remote include */
     include: function () {
-        // the main request will be something like kjhNd1UlX_80AgAK-0-00, all includes
-        // have incremented trailing counters
-        return request.httpHeaders['x-is-requestid'].indexOf('-0-00') === -1;
+        return request.includeRequest;
     }
 };
 
@@ -91,15 +90,15 @@ var Filters = {
  * @see module:guard~Filters
  * @see module:guard
  */
-function ensure (filters, action, params) {
+function ensure(filters, action, params) {
     return expose(function (args) {
         var error;
         var filtersPassed = true;
         var errors = [];
-        params = require('~/cartridge/scripts/object').extend(params,args);
+        params = require('~/cartridge/scripts/object').extend(params, args);
 
         for (var i = 0; i < filters.length; i++) {
-            LOGGER.debug('Ensuring guard "{0}"...',filters[i]);
+            LOGGER.debug('Ensuring guard "{0}"...', filters[i]);
 
             filtersPassed = Filters[filters[i]].apply(Filters);
             if (!filtersPassed) {
@@ -122,10 +121,9 @@ function ensure (filters, action, params) {
         if (filtersPassed) {
             LOGGER.debug('...passed.');
             return action(params);
-        } else {
-            LOGGER.debug('...failed. {0}',error.name);
-            return error(params);
         }
+        LOGGER.debug('...failed. {0}', error.name);
+        return error(params);
     });
 }
 
@@ -151,7 +149,7 @@ exports.all = expose;
  * @deprecated Use ensure(['https','get'], action) instead
  */
 exports.httpsGet = function (action) {
-    return ensure(['https','get'], action);
+    return ensure(['https', 'get'], action);
 };
 
 /**
@@ -160,7 +158,7 @@ exports.httpsGet = function (action) {
  * @deprecated Use ensure(['https','post'], action) instead
  */
 exports.httpsPost = function (action) {
-    return ensure(['https','post'], action);
+    return ensure(['https', 'post'], action);
 };
 
 /**

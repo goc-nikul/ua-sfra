@@ -23,7 +23,7 @@
 		            ${Resource.msg('error.message.user.already.exist.link', 'forms', null)}
         		</a>
         	 </div>
-            <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('additionalRegFields')}">
+            <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('additionalRegFields') || pdict.membersonEnabled}">
                 <div class="b-account_form-row b-account_form-row-three additional-regFields">
                     <div class="b-account_form-column b-account_form-column-mobile">
                         <div class="form-group b-month">

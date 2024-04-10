@@ -1,0 +1,86 @@
+.g-no-charge-order-modal {
+    &-dialog {
+        max-width: rem-calc(448);
+        margin: rem-calc(28) auto;
+    }
+
+    &-content {
+        padding: rem-calc(48) rem-calc(50);
+        border-radius: rem-calc(4);
+        text-align: center;
+    }
+
+    &-title {
+        @include font(main_bold, rem-calc(32), 1.25);
+
+        margin-bottom: rem-calc(16);
+        letter-spacing: rem-calc(1);
+    }
+
+    &-text {
+        @include font(main, rem-calc(14), 1.72);
+
+        margin-bottom: rem-calc(24);
+    }
+
+    &-footer {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0;
+        padding: 0 rem-calc(6);
+
+        .button-styles {
+            max-width: 46%;
+            width: 46%;
+        }
+    }
+
+    &-close-button {
+        width: rem-calc(16);
+        height: rem-calc(16);
+        position: relative;
+        top: rem-calc(8);
+
+        &::before,
+        &::after {
+            width: rem-calc(16);
+        }
+    }
+
+    &.show {
+        display: flex !important;
+
+        @media screen and (max-width: 667px) {
+            .g-modal-dialog {
+                margin: auto 0 0;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .g-modal-content {
+                border-radius: rem-calc(12) rem-calc(12) 0 0;
+                padding: rem-calc(32) rem-calc(16);
+            }
+        }
+    }
+
+    @media screen and (max-width: 667px) {
+        &-title {
+            @include font(main_bold, rem-calc(24), 1.5);
+        }
+
+        &-text {
+            padding: 0 rem-calc(14);
+            margin-bottom: rem-calc(32);
+        }
+
+        &-footer {
+            padding: 0;
+
+            .button-styles {
+                max-width: 48%;
+                width: 48%;
+            }
+        }
+    }
+}

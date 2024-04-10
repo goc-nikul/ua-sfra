@@ -106,7 +106,7 @@ function checkEmptyEmojiNonLatinChars(object, addressFieldsToVerify, countryCode
                 FR: /(^\d{5}(-\d{4})?$)|(^[abceghjklmnprstvxyABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Za-z]{1} *\d{1}[A-Za-z]{1}\d{1}$)/,
                 DE: /(^\d{5}(-\d{4})?$)|(^[abceghjklmnprstvxyABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Za-z]{1} *\d{1}[A-Za-z]{1}\d{1}$)/,
                 GB: /^ ?(([BEGLMNSWbeglmnsw][0-9][0-9]?)|(([A-PR-UWYZa-pr-uwyz][A-HK-Ya-hk-y][0-9][0-9]?)|(([ENWenw][0-9][A-HJKSTUWa-hjkstuw])|([ENSWenw][A-HK-Ya-hk-y][0-9][ABEHMNPRVWXYabehmnprvwxy])))) ?[0-9][ABD-HJLNP-UW-Zabd-hjlnp-uw-z]{2}$/i,
-                IE: /^([A-Za-z0-9]{0,8})$/i,
+                IE: /^[0-9a-zA-Z]{3}[ ][0-9a-zA-Z]{4}$/i,
                 IT: /([0-9]{5})$/,
                 NL: /^[1-9][0-9]{3} ?(?!sa|sd|ss)[a-zA-Z]{2}$/i,
                 ES: /([0-9]{5})$/,
@@ -313,6 +313,8 @@ function placeOrder(order, fraudDetectionStatus, currencyFromAdyenJob) {
                 Transaction.wrap(function () {
                     order.custom.notSavedInPaazl = true; // eslint-disable-line no-param-reassign
                     order.custom.failedAttempts = 0; // eslint-disable-line no-param-reassign
+                    order.custom.notSavedPaazlShipping = true; // eslint-disable-line no-param-reassign
+                    order.custom.failedShipmentAttempts = 0; // eslint-disable-line no-param-reassign
                     if (empty(order.getCustomerName())) {
                         var customerName = order.billingAddress.firstName + ' ' + order.billingAddress.lastName;
                         order.setCustomerName(customerName.trim());

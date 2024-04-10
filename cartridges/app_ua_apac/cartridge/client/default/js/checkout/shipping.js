@@ -221,7 +221,7 @@ function singleShippingAddressSelect(scope) {
     var form = $(scope).parents('form')[0];
     var selectedOption = $(scope);
     var postCodeVal;
-    var attrs = selectedOption.data();
+    var attrs = selectedOption.length > 0 ? selectedOption[0].dataset : selectedOption.data();
     var shipmentUUID = $(selectedOption[0]).attr('value');
     var originalUUID = $('input[name=shipmentUUID]', form).val();
     var element;
@@ -403,12 +403,16 @@ function shippingFormResponse(defer, data) {
     var formSelector = isMultiShip
         ? '.multi-shipping .active form'
         : '.single-shipping form';
+    var $form = $(formSelector);
 
     // highlight fields with errors
     if (data.error) {
         if (data.fieldErrors.length) {
             data.fieldErrors.forEach(function (error) {
                 if (Object.keys(error).length) {
+                    if ($form.attr('data-address-mode') === 'customer' || $form.attr('data-address-mode') === 'edit') {
+                        $form.attr('data-address-mode', 'details');
+                    }
                     formHelpers.loadFormErrors(formSelector, error);
                 }
             });
@@ -417,7 +421,7 @@ function shippingFormResponse(defer, data) {
 
         if (data.serverErrors && data.serverErrors.length) {
             $.each(data.serverErrors, function (index, element) {
-                shippingHelpersCore.createErrorNotification(element);
+                shippingHelpersCore.methods.createErrorNotification(element);
             });
 
             defer.reject(data);

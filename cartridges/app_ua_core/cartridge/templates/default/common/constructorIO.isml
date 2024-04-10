@@ -1,0 +1,7 @@
+<isset name="constructorIOHelper" value="${require('app_ua_core/cartridge/scripts/helpers/constructorIOHelper')}" scope="page"/>
+
+<script>
+    window.constructorIOSettings = <isprint value="${JSON.stringify(constructorIOHelper.getConstructorIOSettings(pdict))}" encoding="off"/>;
+    window.constructorIOResources = <isprint value="${JSON.stringify(constructorIOHelper.getConstructorIOResources())}" encoding="off"/>;
+    window.constructorIOURLs = <isprint value="${JSON.stringify(constructorIOHelper.getConstructorIOURLs())}" encoding="off"/>;
+</script>

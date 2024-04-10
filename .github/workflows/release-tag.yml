@@ -1,0 +1,46 @@
+name: Release Action - Tag tickets
+
+on:
+  pull_request_target:
+    types:
+      - closed
+    branches:
+      - develop
+jobs: 
+  retrieve-and-tag:
+    # Ensure the PR is merged and not closed.
+    if: github.event.pull_request.merged == true && !contains(github.event.pull_request.head.ref, 'release') && !contains(github.event.pull_request.head.ref, 'hotfix') && !contains(github.event.pull_request.head.ref, 'main')
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checks out the repository
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: '30'
+        - name: Get list of tickets - Monitor Run
+          id: retrieve-tickets
+          run: cd build_tools/modules/get-tickets && npm install && COMMIT_ID=${{ github.sha }} BRANCH=develop npm start
+        - name: Get the list of Jira ticket IDs.
+          uses: levigo/github-action-glix@v1.1
+          id: glix
+          with:
+            commitId: ${{ github.sha }}
+            mainBranch: "develop"
+        - name: Add fix version to Jira tickets
+          uses: levigo/github-action-jira-fixversion@v1.0
+          if: ${{ contains('true',vars.JIRA_TAG_ENABLE) }}
+          with:
+            domain: ${{ vars.JIRA_DOMAIN }}
+            username: ${{ vars.JIRA_USERNAME }}
+            password: ${{ secrets.JIRA_PASSWORD }}
+            versionName: ${{ vars.JIRA_RELEASE_VERSION }}
+            versionDescription: ${{ vars.JIRA_RELEASE_DESCRIPTION }}
+            issueKeys: ${{ steps.glix.outputs.issueKeys }}
+        - name: MSTeams Notification
+          uses: Skitionek/notify-microsoft-teams@v1.0.8
+          if: ${{ steps.glix.outputs.issueKeys != steps.retrieve-tickets.outputs.issueKeys }}
+          with:
+            webhook_url: ${{ secrets.MT_TAG_WEBHOOK_URI }}
+            job: ${{ toJson(job) }}
+            steps: ${{ toJson(steps) }}
+            needs: ${{ toJson(needs) }}
+            overwrite: "{title: `Review needed. New: ${{ steps.retrieve-tickets.outputs.issueKeys }}, Current: ${{ steps.glix.outputs.issueKeys }}`}"

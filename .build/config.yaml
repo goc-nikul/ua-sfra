@@ -15,6 +15,8 @@ branches:
     - stg-eu03
     - stg-ua03
     - stg-ap01
+    - stg-ua002
+    - stg-eu02
 environments:
 # Each environment configuration has the following structure
 # instance:
@@ -86,3 +88,15 @@ environments:
     replication:
       host: staging-ua03-underarmour.demandware.net
       jobId: CodeAndDataDeploy
+  stg-ua002:
+    host: staging-ua002-underarmour.demandware.net
+    region: apac
+    mode: production
+    instanceType: stg
+    certURL: cert.staging.ua002.underarmour.demandware.net
+  stg-eu02:
+    host: staging-eu02-underarmour.demandware.net
+    region: emea
+    mode: production
+    instanceType: stg
+    certURL: cert.staging.eu02.underarmour.demandware.net

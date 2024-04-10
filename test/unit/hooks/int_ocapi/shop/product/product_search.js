@@ -5,6 +5,43 @@ const {
 } = require('chai');
 const proxyquire = require('proxyquire').noCallThru().noPreserveCache();
 const sinon = require('sinon');
+const Product = require('../../../../../mocks/dw/dw_catalog_Product');
+class ProductManager {
+
+    static getProduct(productID) {
+        this.product = new Product(productID);
+        this.isVariant = function () {
+            return true;
+        };
+        this.product.variants = this.product.getVariants();
+        return this.product;
+    }
+    variantModel() {
+        return null;
+    }
+}
+
+class ProductImages {
+    constructor() {
+        return {
+            gridTileDesktop: []
+        };
+    }
+}
+
+global.empty = (data) => {
+    return !data;
+};
+
+global.session = {};
+
+global.session.getCurrency = function () {
+    return {
+        getCurrencyCode: function () {
+            return 'USD';
+        }
+    };
+};
 
 describe('int_ocapi/cartridge/hooks/shop/product/product_search.js', () => {
     it('should list page meta tags', function () {
@@ -46,12 +83,16 @@ describe('int_ocapi/cartridge/hooks/shop/product/product_search.js', () => {
             'dw/web/Resource': require('../../../../../mocks/dw/dw_web_Resource'),
             'dw/system/Site': require('../../../../../mocks/dw/dw_system_Site'),
             'dw/system/Logger': require('../../../../../mocks/dw/dw_system_Logger'),
-            'dw/catalog/ProductMgr': new (require('../../../../../mocks/dw/dw_catalog_ProductMgr'))(),
+            'dw/catalog/ProductMgr': ProductManager,
             'dw/catalog/PriceBookMgr': {
                 setApplicablePriceBooks: function () {},
                 getApplicablePriceBooks: function () {}
             },
-            'dw/catalog/CatalogMgr': function () { },
+            'dw/catalog/CatalogMgr': {
+                getCategory(cgid) {
+                    return cgid || '';
+                }
+            },
             'dw/util': {
                 HashMap: function () {
                     return {
@@ -123,9 +164,50 @@ describe('int_ocapi/cartridge/hooks/shop/product/product_search.js', () => {
                     };
                 }
             },
-            'dw/catalog/ProductSearchModel': ProductSearchModel
+            'dw/catalog/ProductSearchModel': ProductSearchModel,
+            '*/cartridge/models/product/productImages': ProductImages
         });
-        var currentSearch = { query: '' };
+        var currentSearch = {
+            query: '',
+            selected_refinements: {
+                cgid: 'shoes-slip-on-sneakers',
+                c_premiumFilter: 'premium'
+            },
+            hits: [{
+                product_id: '196039201812',
+                custom: {
+                    experienceType: 'premium',
+                    shopTheLookJson: '',
+                    comingSoonMessage: '',
+                    preOrderProductTileMessage: '',
+                    isPreOrder: false
+                },
+                variants: [
+                    {
+                        custom: {
+                            color: '100',
+                            hexcolor: '',
+                            colorway: '',
+                            secondaryHex: '',
+                            team: '',
+                            isLoyaltyExclusive: false,
+                            style: ''
+                        }
+                    }
+                ]
+            },
+            {
+                product_id: '3027049',
+                custom: {
+                    experienceType: 'premium',
+                    shopTheLookJson: '',
+                    comingSoonMessage: '',
+                    preOrderProductTileMessage: '',
+                    isPreOrder: false,
+                    variants: []
+                }
+            }]
+        };
         assert.doesNotThrow(() => productSearch.modifyGETResponse(currentSearch));
     });
 });

@@ -11,6 +11,37 @@ var Resource = require('dw/web/Resource');
 var validationHelpers = require('*/cartridge/scripts/helpers/basketValidationHelpers');
 var errorLogHelper = require('*/cartridge/scripts/errorLogHelper');
 
+
+/**
+ * This method Remove Invalid Loyalty Coupon Code from Basket for Loyalty users
+ *
+ * @param {dw.order.Basket} basket - basket
+ */
+function removeInvalidLoyaltyCouponsBeforePlaceOrder(basket) {
+    let PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
+    if (PreferencesUtil.getValue('isLoyaltyEnable') && customer.isMemberOfCustomerGroup('Loyalty')) {
+        const loyaltyHelper = require('*/cartridge/scripts/helpers/loyaltyHelper');
+        try {
+            loyaltyHelper.removeInvalidLoyaltyCoupons(basket);
+        } catch (e) {
+            errorLogHelper.handleOcapiHookErrorStatus(e);
+        }
+    }
+}
+/**
+ * Log basket info to investigate the root cause if any error occurs on address validation at the place order step.
+ * @param {dw.order.Basket} basket  - Current basket
+ */
+function logBasketInfo(basket) {
+    var Logger = require('dw/system/Logger').getLogger('OCAPI', 'OCAPI');
+    try {
+        const basketHelper = require('~/cartridge/scripts/basketHelper');
+        let basketJSON = basketHelper.getBasketInfoForLog(basket);
+        Logger.error(JSON.stringify(basketJSON));
+    } catch (e) {
+        Logger.error('Error while logging basket info: {0} {1}', e.message, e.stack);
+    }
+}
 /**
  * validates order before creating
  * @param {dw.order.Basket} basket  - Current basket
@@ -18,6 +49,9 @@ var errorLogHelper = require('*/cartridge/scripts/errorLogHelper');
  */
 function validateOrder(basket) {
     try {
+        // Remove empty shipments
+        var giftCardHelper = require('*/cartridge/scripts/giftcard/giftcardHelper');
+        giftCardHelper.removeEmptyShipments(basket);
         // validate for real time inventory
         var validatedProducts = validationHelpers.validateProductsInventory(basket, 'PlaceOrder');
         if (validatedProducts.availabilityError) {
@@ -28,6 +62,7 @@ function validateOrder(basket) {
         // validates address type
         var validAddressType = COHelpers.ensureValidAddressType(basket);
         if (!validAddressType) {
+            logBasketInfo(basket);
             throw new Error(Resource.msg('address.invalid.type', 'address', null));
         }
         // validates order
@@ -42,16 +77,19 @@ function validateOrder(basket) {
         // validates payment
         var validPayment = COHelpers.validatePaymentCards(basket, request.geolocation.countryCode, customer); // eslint-disable-line
         if (validPayment.error) {
+            logBasketInfo(basket);
             throw new Error(Resource.msg('error.payment.not.valid', 'checkout', null));
         }
         // Re-calculate the payments.
         var calculatedPaymentTransactionTotal = COHelpers.calculatePaymentTransaction(basket);
         if (calculatedPaymentTransactionTotal.error) {
+            logBasketInfo(basket);
             throw new Error(Resource.msg('error.payment.not.valid', 'checkout', null));
         }
         // validates payment instrument
         var isPaymentAmountMatches = COHelpers.isPaymentAmountMatches(basket);
         if (!isPaymentAmountMatches) {
+            logBasketInfo(basket);
             throw new Error(Resource.msg('error.card.invalid.amount', 'cart', null));
         }
 
@@ -83,14 +121,21 @@ function validateOrder(basket) {
         if (basket && basket.custom.isCommercialPickup && !isHALEnabledForShopApp) {
             return new Status(Status.ERROR, 'HALBasketError', Resource.msg('error.ocapi.commercial.pickup.disabled', 'checkout', null));
         }
-
-        return new Status(Status.OK);
     } catch (e) {
         if (e.name === 'QtyLimitExceededException') {
             return errorLogHelper.handleOcapiHookErrorStatus(e, e.name, e.message);
         }
         return errorLogHelper.handleOcapiHookErrorStatus(e, 'BasketValidationError', e.message);
     }
+
+    try {
+        removeInvalidLoyaltyCouponsBeforePlaceOrder(basket);
+    } catch (e) {
+        const Logger = require('dw/system/Logger').getLogger('loyalty', 'Loyalty');
+        Logger.error('Error removing not applied coupon from the basket {0}', e.message);
+    }
+
+    return new Status(Status.OK);
 }
 
 /**
@@ -101,4 +146,3 @@ function validateOrder(basket) {
 exports.beforePOST = function (basket) {
     return validateOrder(basket);
 };
-

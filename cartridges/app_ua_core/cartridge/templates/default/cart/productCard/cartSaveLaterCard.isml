@@ -40,7 +40,7 @@
                         <isif condition="${item.custom.color || colorway}">${attribute.displayName}: <isif condition="${colorway}"> <span> ${fixProductColorNames} </span></isif><span> - <isprint value="${item.custom.color}"/></span><iselse/><isprint value="${Resource.msgf('label.select.attribute', 'cart', null, attribute.displayName)}"/></isif>
                     </p>
                 <iselseif condition="${attribute.attributeId == 'size'}" />
-                    <p class="t-lineitem_attributes ${attribute.displayName}-${typeof lineItem !=='undefined' ? lineItem.UUID :''}"><isif condition="${item.custom.size}">${attribute.displayName}: ${item.custom.size}<iselse/><isprint value="${Resource.msgf('label.select.attribute', 'cart', null, attribute.displayName)}"/></isif></p>
+                    <p class="t-lineitem_attributes ${attribute.displayName}-${typeof lineItem !=='undefined' ? lineItem.UUID :''}"><isif condition="${item.custom.size}">${attribute.displayName}: ${attribute.displayValue ? attribute.displayValue :item.custom.size}<iselse/><isprint value="${Resource.msgf('label.select.attribute', 'cart', null, attribute.displayName)}"/></isif></p>
                 <iselse/>
                     <p class="t-lineitem_attributes ${attribute.displayName}-${typeof lineItem !=='undefined' ? lineItem.UUID :''}">
                         <isif condition="${typeof attribute.displayValue !=='undefined' && attribute.displayValue}">
@@ -53,7 +53,7 @@
                     </p>
                 </isif>
             </isloop>
-            <isif condition="${item.options}">	
+            <isif condition="${item.options}">
                 <isloop items="${item.options}" var="option">
                     <isif condition="${!!option}" >
                         <div class="lineItem-options-values" data-option-id="${option.optionId}" data-value-id="${option.selectedValueId}">

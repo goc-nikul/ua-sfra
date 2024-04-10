@@ -1,6 +1,7 @@
 'use strict';
 
 var formValidation = require('base/components/formValidation');
+var location = window.location;
 var clientSideValidation = require('../components/common/clientSideValidation');
 var util = require('../util');
 
@@ -218,7 +219,9 @@ function loginSubmit() {
                             });
                         }
                         // Use redirectUrl if any is provided in the response
-                        if (data && data.redirectUrl) {
+                        if (data && data.returnUrl) {
+                            location.href = data.returnUrl;
+                        } else if ((data && data.redirectUrl && data.shouldRedirect) || $('#checkout-main').length > 0 || $('.b-order-confirmation').length || $('.b-account-history').length || ($('#checkout-main').length > 0 && data.isEmployee) || ($('#checkout-main').length > 0 && data.isVIP) || 'loyaltyGatedModal' in data) {
                             location.href = data.redirectUrl;
                         } else {
                             window.location.reload();
@@ -242,6 +245,51 @@ function loginSubmit() {
         }
         form.spinner().stop();
         return false;
+    });
+}
+
+/**
+ * Validate the email field and continue to password
+ */
+function loginContinue() {
+    $('body').on('click', '#loginModal .js-continue-button', function (e) {
+        e.preventDefault();
+        var form = $(this).closest('form');
+        clientSideValidation.checkMandatoryField(form);
+
+        if ($('#form-email-error').text() === '') {
+            var email = $('#login-form-email').val();
+            $('.email-value-show .email-value').text(email);
+            $('.before-continue').addClass('d-none');
+            $('.after-continue').removeClass('d-none');
+        }
+    });
+}
+
+/**
+ * Go back to change email
+ */
+function loginUseDiffEmail() {
+    $('body').on('click', '#loginModal .use-different-email', function (e) {
+        e.preventDefault();
+        $('.before-continue').removeClass('d-none');
+        $('.after-continue').addClass('d-none');
+    });
+}
+
+/**
+ * Go back to change email
+ */
+function checkoutAsGuest() {
+    $('body').on('click', '#loginModal .js-checkoutguest-button', function (e) {
+        e.preventDefault();
+        $('#loginModal').find('button.close').trigger('click');
+    });
+
+    $(document).on('keydown', function (event) {
+        if (event.key === 'Escape' && $('.js-checkoutguest-button').length) {
+            $('.js-checkoutguest-button').trigger('click');
+        }
     });
 }
 
@@ -383,5 +431,8 @@ module.exports = {
     updatePasswordSubmit: updatePasswordSubmit,
     faceBookLogin: faceBookLogin,
     resetClosePopUp: resetClosePopUp,
-    consecutiveSpaceValidator: consecutiveSpaceValidator
+    consecutiveSpaceValidator: consecutiveSpaceValidator,
+    loginContinue: loginContinue,
+    loginUseDiffEmail: loginUseDiffEmail,
+    checkoutAsGuest: checkoutAsGuest
 };

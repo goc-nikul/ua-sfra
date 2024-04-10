@@ -106,7 +106,6 @@ function getReturnItemsData(returnCase) {
  * @return {Object} Return params
  */
 function createAuthFormObj(returnCase) {
-    var Site = require('dw/system/Site');
     var ReturnsUtils = require('*/cartridge/scripts/orders/ReturnsUtils');
     var order = returnCase.getOrder();
     var returnShipment = returnCase.items[0].lineItem.shipment;
@@ -119,14 +118,10 @@ function createAuthFormObj(returnCase) {
         phone: order.getBillingAddress().getPhone()
     };
     var returnService = '';
-    if ('returnService' in Site.getCurrent().getPreferences().getCustom() && !empty(Site.getCurrent().getCustomPreferenceValue('returnService').value)) {
-        returnService = Site.getCurrent().getCustomPreferenceValue('returnService').value;
-    } else {
-        var returnsUtil = new ReturnsUtils();
-        var returnServiceValue = returnsUtil.getPreferenceValue('returnService', order.custom.customerLocale);
-        if (returnServiceValue && !empty(returnServiceValue)) {
-            returnService = returnServiceValue;
-        }
+    var returnsUtil = new ReturnsUtils();
+    var returnServiceValue = returnsUtil.getPreferenceValue('returnService', order.custom.customerLocale);
+    if (returnServiceValue && !empty(returnServiceValue)) {
+        returnService = returnServiceValue;
     }
     var params = {
         deliveryNumber: deliveryNumber,
@@ -178,7 +173,9 @@ function sendReturnCreatedConfirmationEmail(order, returnCase) {
             Order: order,
             returnInfoLink: returnInfoLink || URLUtils.abs('Order-PrintEmailLabel', 'orderNumber', order.orderNo, 'returnNumber', returnCase.returnCaseNumber, 'orderEmail', order.customerEmail).toString(),
             returnCase: returnCase,
-            trackingNumber: returnCase.custom && 'trackingNumber' in returnCase.custom ? returnCase.custom.trackingNumber : ''
+            trackingNumber: returnCase.custom && 'trackingNumber' in returnCase.custom ? returnCase.custom.trackingNumber : '',
+            trackingLink: returnCase.custom && 'trackingLink' in returnCase.custom ? returnCase.custom.trackingLink : '',
+            returnShipmentProvider: returnCase.custom && 'returnShipmentProvider' in returnCase.custom ? returnCase.custom.returnShipmentProvider : ''
         };
         emailHelper.sendReturnConfirmationEmail(order, params);
     }

@@ -1,0 +1,134 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+
+<isset name="product" value="${pdict.product}" scope="page" />
+<isset name="isQuickAdd" value="${typeof isQuickAdd !== 'undefined' ? isQuickAdd : false}" scope="page" />
+
+<div class="modal g-modal b-product-notify-me-modal" role="dialog">
+    <div class="modal-dialog g-modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content g-modal-content">
+            <div class="g-modal-header">
+                <div class="g-modal-title">
+                    <isif condition="${pdict.isSubmodal}">
+                        ${Resource.msg('product.notifyme.modal.header.short', 'common', null)}
+                    <iselse/>
+                        ${Resource.msg('product.notifyme.modal.header', 'common', null)}
+                    </isif>
+                </div>
+                <div class="g-modal-close">
+                    <button type="button" class="close pull-right" data-dismiss="modal" aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+                </div>
+            </div>
+            <isif condition="${pdict.isSubmodal}">
+                <div class="b-notify-me-desc">
+                    ${Resource.msg('product.notifyme.modal.desc', 'common', null)}
+                </div>
+            </isif>
+            <div class="b-product-notify-me-modal-container">
+                <div class="b-product-detailsnotifyme">
+                    <isloop items="${product.images['pdpMainDesktop'] ? product.images['pdpMainDesktop'] : []}" var="image" status="loopStatus" end="0">
+                        <div class="js-product-image-notifyme">
+                            <img src="${image.url}" alt="${image.alt}" title="${image.title}"/>
+                        </div>
+                    </isloop>
+                    <div class="js-product-details">
+                        <div class="b-product-name">${product.productName}</div>
+                        <isloop items="${product.variationAttributes}" var="attribute">
+                            <div class="b-product-attribute">
+                                <span class="b-product-attribute-name">${attribute.displayName}: </span>
+                                <isif condition="${attribute.attributeId == 'color'}">
+                                    <isset name="productHelpers" value="${require('*/cartridge/scripts/helpers/productHelpers')}" scope="page"/>
+                                    <isset name="fixProductColorNames" value="${productHelpers.fixProductColorNames(product.custom.colorway)}" scope="page"/>
+                                    <isif condition="${product.custom.colorway}">
+                                        <span>${fixProductColorNames}</span> -
+                                    </isif>
+                                    <isprint value="${product.custom.color}"/>
+                                <iselse/>
+                                    <isloop items="${attribute.values}" var="attributeValue" status="loopstatus">
+                                        <isif condition="${attributeValue.selected}">
+                                            ${attributeValue.displayValue}
+                                            <isbreak/>
+                                        </isif>
+                                    </isloop>
+                                </isif>
+                            </div>
+                        </isloop>
+
+                        <div class="b-product-options">
+                            <isloop items="${product.options}" var="option">
+                                <div class="b-header_minicart-item-option">${option.displayName}</div>
+                            </isloop>
+                        </div>
+                    </div>
+                </div>
+                <isif condition="${pdict.isNotifyMeEnabled}">
+                    <form action="${URLUtils.url('Notifyme-Submit')}" class="b-product-notify-me-form" method="POST"
+                        data-cmp="formGeneric" name="productNotifyMe" >
+                        <div class="form-group b-input_row b-input-notifyme-first-name required">
+                            <label class="form-control-label b-input_row-label" for="notify-me-first-name${product.id}">
+                                <isprint value="${pdict.productNotifymeForm.firstname.label}" encoding="htmlcontent" />
+                            </label>
+                            <input type="text" required class="form-control b-input_row-input" id="notify-me-first-name${product.id}"
+                                data-default-value="${pdict.profile ? pdict.profile.firstName : ''}"
+                                data-missing-error="${Resource.msg('error.message.missing.firstname', 'forms', null)}" area-describedby="notify-me-first-name-error${product.id}" name="productNotifyMeFirstName" <isprint
+                                value="${pdict.productNotifymeForm.firstname.attributes}" encoding="off" /> />
+                            <div class="invalid-feedback" id="notify-me-first-name-error${product.id}"></div>
+                        </div>
+
+                        <div class="b-input_row form-group b-input-notifyme-email required">
+                            <label class="b-input_row-label form-control-label" for="nofify-me-form-email${product.id}">
+                                <isprint value="${pdict.productNotifymeForm.email.label}" encoding="htmlcontent" />
+                            </label>
+                            <input type="email" required id="nofify-me-form-email${product.id}" aria-required="true" required
+                                class="b-input_row-input form-control js-custom-input"
+                                data-default-value="${pdict.profile ? pdict.profile.email : ''}" data-missing-error="<isprint
+                                value="${Resource.msg('error.message.parse.email.subscribe', 'forms', null)}" encoding="htmldoublequote" />" data-pattern-mismatch="<isprint
+                                value="${Resource.msg('error.message.parse.email.subscribe', 'forms', null)}" encoding="htmldoublequote" />" aria-describedby="notify-me-email-error${product.id}" name="productNotifyMeEmail"
+                                <isprint value="${pdict.productNotifymeForm.email.attributes}" encoding="off" /> />
+                            <div class="invalid-feedback" id="notify-me-email-error${product.id}"></div>
+                        </div>
+
+                        <div class=" form-group product-notifyme-submit-section text-center">
+                            <iscomment> <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}" /> </iscomment>
+                            <button type="submit" class="btn btn-primary btn-block js-product-submit-notifyme-button g-button_base g-button_primary--black">
+                                ${Resource.msg('product.notify.me.submit.button', 'forms', null)}
+                            </button>
+                        </div>
+
+                        <!---  Product ID  --->
+                        <input type="hidden" class="notifyMePID" name="pid" value="${product.id}"/>
+                    </form>
+                </isif>
+            </div>
+            <div class="b-product-details-notify-me-complete">
+                <div class="success-mode">
+                    <div class="b-product-notify-me-complete-icon b-product-notify-me-complete-icon-success"></div>
+                    <div class="b-product-notify-me-complete-header">
+                        ${Resource.msg('product.notifyme.success.header', 'common', null)}
+                    </div>
+                    <div class="notify-me-complete-message js-product-notify-me-complete-message"></div>
+                    <div class="notify-me-action-container">
+                        <button class="btn btn-primary btn-block g-button_base g-button_primary--black notify-me-action-button">
+                            ${Resource.msg('button.continue.browsing.label', 'common', null)}
+                        </button>
+                    </div>
+                </div>
+                <div class="error-mode">
+                    <div class="b-product-notify-me-complete-icon b-product-notify-me-complete-icon-error"></div>
+                    <div class="b-product-notify-me-complete-header">
+                        ${Resource.msg('product.notifyme.error.header', 'common', null)}
+                    </div>
+                    <div class="notify-me-complete-message">
+                        <span class="notify-me-error-message">${Resource.msg('product.notifyme.error.message', 'common', null)}</span>
+                        <span class="try-again-message">${Resource.msg('product.notifyme.try.again.message', 'common', null)}</span>
+                    </div>
+                    <div class="notify-me-action-container">
+                        <button class="btn btn-primary btn-block g-button_base g-button_primary--black notify-me-action-button">
+                            ${Resource.msg('button.try.again.label', 'common', null)}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

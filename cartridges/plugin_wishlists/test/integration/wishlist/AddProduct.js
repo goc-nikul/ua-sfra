@@ -1,3 +1,5 @@
+'use strict';
+
 var assert = require('chai').assert;
 var request = require('request-promise');
 var config = require('../it.config');
@@ -38,7 +40,6 @@ describe('Wishlist AddProduct', function () {
                 assert.equal(bodyAsJson.msg, expectedResponse.msg);
             });
     });
-
 
     it('should not add product to wishlist a second time', function () {
         var cookieJar = request.jar();
@@ -113,9 +114,11 @@ describe('Wishlist AddProduct', function () {
             .catch(function (error) {
                 assert.equal(error.statusCode, 500, 'Expected statusCode to be 500 for add to wishlist with bogus pid.');
                 var bodyAsJson = JSON.parse(error.response.body);
-                assert.equal(bodyAsJson.message,
+                assert.equal(
+                    bodyAsJson.message,
                     'For technical reasons, your request could not be handled properly at this time. We apologize for any inconvenience.',
-                    'Actual error message from add to wishlist with non-matching pid not as expected');
+                    'Actual error message from add to wishlist with non-matching pid not as expected'
+                );
             });
     });
 });

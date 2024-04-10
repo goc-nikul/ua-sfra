@@ -8,7 +8,7 @@ let importOrderUtils = require('bc_jobs/cartridge/scripts/import/Utils'),
     Order = require('dw/order/Order'),
     ProductMgr = require('dw/catalog/ProductMgr'),
     Status = require('dw/system/Status'),
-    ArrayList = require('dw/util/ArrayList'),    
+    ArrayList = require('dw/util/ArrayList'),
     Calendar = require('dw/util/Calendar'),
     Site = require('dw/system/Site'),
     Resource = require('dw/web/Resource'),
@@ -21,8 +21,7 @@ let importOrderUtils = require('bc_jobs/cartridge/scripts/import/Utils'),
     StringUtils = require('dw/util/StringUtils'),
     ReturnsUtils = require('*/cartridge/scripts/orders/ReturnsUtils'),
     returnsUtils = new ReturnsUtils(),
-    helpers = require('int_marketing_cloud/cartridge/scripts/util/helpers'),
-    ordersToEmail = [];
+    helpers = require('int_marketing_cloud/cartridge/scripts/util/helpers');
 
     var collections = require('*/cartridge/scripts/util/collections');
     const preferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
@@ -62,7 +61,7 @@ function execute(params) {
             let importResult = importOrderUtils.processImportFile(fileForImport, orderElementFilter, orderElementHandler, filesParam.offlineRefund);
             if (importResult.Status != 'success') {
                 if(fileForImport.name.indexOf('INVALID') === -1) {
-                    //rename file to mark it 'INVALID' 
+                    //rename file to mark it 'INVALID'
                     var invalidFile = new File([File.IMPEX, params.workingFolder, 'INVALID_' + fileForImport.name].join(File.SEPARATOR));
                     fileForImport.renameTo(invalidFile);
                 }
@@ -70,7 +69,7 @@ function execute(params) {
                 Logger.error('OrderRefund.js: Import of {0} failed', fileForImport.getFullPath());
                 Transaction.rollback();
             } else {
-                //if success, remove file mark 'INVALID' 
+                //if success, remove file mark 'INVALID'
                 if(fileForImport.name.indexOf('INVALID') !== -1) {
                     var validFile = new File([File.IMPEX, params.workingFolder, fileForImport.name.replace('INVALID_', '')].join(File.SEPARATOR));
                     fileForImport.renameTo(validFile);
@@ -115,6 +114,7 @@ var orderElementHandler = function(element, offlineRefund, file) {
         handlerTypeElement = element.elements('modification');
     var amount = '';
     var currency = '';
+    var ordersToEmail = [];
     if (handlerTypeElement.length() === 1) {
     	amount = handlerTypeElement.elements('amount'),
         currency = handlerTypeElement.elements('currency');
@@ -174,7 +174,6 @@ var orderElementHandler = function(element, offlineRefund, file) {
                             returnsUtils.toggleRefundsJson(orderToEmail, offlineRefund, orderRefundNumber);
                         }
                     });
-                    ordersToEmail = [];
                 }
 
                 if (result && result.status.statusCode !== 200) {
@@ -227,7 +226,7 @@ function processRefund(order, modification, refundDate, offlineRefund, file) {
             var itemSku = item.elements('sku').toString();
             var itemQty = item.elements('qty').toString();
             var itemAmount = item.elements('refund-amount').toString();
-            //SEA (SINGPOST) passes product id as the sku value, adding 
+            //SEA (SINGPOST) passes product id as the sku value, adding
             //check if site is configured to use productIDs in this XML
             //and adjusting accordingly
             if (!returnsUtils.isIgnoredSKU(itemSku) && Site.getCurrent().getCustomPreferenceValue('orderStatusIDs').toString() == 'true') {
@@ -266,7 +265,7 @@ function processRefund(order, modification, refundDate, offlineRefund, file) {
         let parsedLineItemsString = getPLIString(parsedLineItems);
         if (typeof transactionReference === 'undefined' || transactionReference === null || transactionReference === '' || transactionReference === '') { // If transactionReference is empty then send refund skipped mail
             Logger.error('OrderRefund.js: Error: Refund - Empty transactionReference: ' + order.getOrderNo() + ' with items: ' + parsedLineItemsString);
-            returnsUtils.SetRefundsCountInfo(true, false, order);  
+            returnsUtils.SetRefundsCountInfo(true, false, order);
             if (amount.length() === 1 && currency.length() === 1) {
                 sendRefundNotifyMail(order, amount.toString(), currency.toString(), parsedLineItemsString,file,'REFUND_EMPTY_TRANSACTION_REFERENCE');
             } else {
@@ -282,7 +281,7 @@ function processRefund(order, modification, refundDate, offlineRefund, file) {
             }
         } else if (isRefundItemSkuEmpty) { // If sku is empty then send refund skipped mail
         	Logger.error('OrderRefund.js: Error: Refund - Empty SKU: ' + order.getOrderNo() + ' with items: ' + parsedLineItemsString);
-            returnsUtils.SetRefundsCountInfo(true, false, order);  
+            returnsUtils.SetRefundsCountInfo(true, false, order);
             if (amount.length() === 1 && currency.length() === 1) {
             	sendRefundNotifyMail(order, amount.toString(), currency.toString(), parsedLineItemsString,file,'REFUND_EMPTY_SKU');
             } else {
@@ -290,15 +289,15 @@ function processRefund(order, modification, refundDate, offlineRefund, file) {
             }
         } else if (isRefundQtyEmpty) { // If refundQty is empty then send refund skipped mail
         	Logger.error('OrderRefund.js: Error: Refund - Empty Qty: ' + order.getOrderNo() + ' with items: ' + parsedLineItemsString);
-            returnsUtils.SetRefundsCountInfo(true, false, order);  
+            returnsUtils.SetRefundsCountInfo(true, false, order);
             if (amount.length() === 1 && currency.length() === 1) {
                 sendRefundNotifyMail(order, amount.toString(), currency.toString(), parsedLineItemsString,file,'REFUND_EMPTY_QTY');
             } else {
             	sendRefundNotifyMail(order, '', '', parsedLineItemsString,file,'REFUND_EMPTY_QTY');
             }
         } else if (isRefundItemAmountEmpty) { // If refundAmount is empty then send refund skipped mail
-            Logger.error('OrderRefund.js: Error: Refund - Empty refund amount: ' + order.getOrderNo() + ' with items: ' + parsedLineItemsString);            
-            returnsUtils.SetRefundsCountInfo(true, false, order);  
+            Logger.error('OrderRefund.js: Error: Refund - Empty refund amount: ' + order.getOrderNo() + ' with items: ' + parsedLineItemsString);
+            returnsUtils.SetRefundsCountInfo(true, false, order);
             if (amount.length() === 1 && currency.length() === 1) {
                 sendRefundNotifyMail(order, amount.toString(), currency.toString(), parsedLineItemsString,file,'REFUND_EMPTY_REFUNDAMOUNT');
             } else {
@@ -306,7 +305,7 @@ function processRefund(order, modification, refundDate, offlineRefund, file) {
             }
         } else if (typeof transactionReference !== 'undefined' && transactionReference.length() === 1 && transactionReference.toString().length < 16 && isAdyenPayment(order)) {
             Logger.error('OrderRefund.js: Error: Refund - Invalid transactionReference length: ' +transactionReference.toString().length+':::'+ order.getOrderNo() + ' with items: ' + parsedLineItemsString);
-            returnsUtils.SetRefundsCountInfo(true, false, order);  
+            returnsUtils.SetRefundsCountInfo(true, false, order);
             if (amount.length() === 1 && currency.length() === 1) {
                 sendRefundNotifyMail(order, amount.toString(), currency.toString(), parsedLineItemsString,file,'REFUND_INVALID_TRANSACTION_REFERENCE');
             } else {
@@ -316,7 +315,7 @@ function processRefund(order, modification, refundDate, offlineRefund, file) {
         	var newReturn = returnsUtils.createReturnAccordingRefundLineItems(order, parsedLineItems);
 
 	        //if return not created, skip processing
-	        if (!returnsUtils.isIgnoredSKU(itemSku) && empty(newReturn)) {	            
+	        if (!returnsUtils.isIgnoredSKU(itemSku) && empty(newReturn)) {
 	            Logger.error('OrderRefund.js: Error: Refund - Can\'t create return for order: ' + order.getOrderNo() + ' with items: ' + parsedLineItemsString);
 	            if (order.getNotes().size() < 99) {
 	                order.addNote('Error: Order Refund', 'Empty master product in item with SKU:' + itemSku + '. Please check variation, it could be unassigned from master. Refund not processed.');
@@ -331,12 +330,12 @@ function processRefund(order, modification, refundDate, offlineRefund, file) {
 	        } else {
 	            toJson.push(refund);
 	            order.custom.refundsJson = JSON.stringify(toJson);
-	
+
 	            if (amount.length() === 1 && currency.length() === 1 && transactionReference.length() === 1) {
 	                let orderRefundNumber = !empty(toJson) ? toJson.length : 0,
 	                    returnReference = (orderRefundNumber > 0) ? (order.orderNo + '-' + orderRefundNumber) : order.orderNo;
 	                var result;
-	
+
                     if (!offlineRefund) {
                         // catch block exists in Utils.js line number 284, to handle below exception
                         if (!HookMgr.hasHook('app.payment.provider.' + processor.ID.toLowerCase())) throw new Error('No Payment hooks declared');
@@ -353,11 +352,11 @@ function processRefund(order, modification, refundDate, offlineRefund, file) {
 	                    //Populate result variable if offline refund is selected
 	                    result = {statusCode: 200};
 	                }
-	
+
 	                if (offlineRefund && result.statusCode == 200) {
 	                    //This refund is being handled 'offline', meaning DW is not responsible for communicating the refund to the payment processor
 	                    //OR the refund email is being managed from the process job, not an order notify job
-	
+
 	                    //confirm return and create invoice with refund amount
 	                    if (!empty(newReturn) && newReturn.status != Return.STATUS_COMPLETED) {
 	                        var totalRefundAmount = new Money(parseFloat(amount.toString()), currency.toString());
@@ -375,17 +374,17 @@ function processRefund(order, modification, refundDate, offlineRefund, file) {
                         if (isAdyenPayment(order)) {
                             //set up Adyen attributes for correct displaying 'Refund' order status on order history page
 	                        order.custom.Adyen_refundStatus = result.statusCode == 200 ? 'Success' : 'Failed';
-	                        //to ensure we have this data at time of refund email for offline integrations (KGInicis) 
+	                        //to ensure we have this data at time of refund email for offline integrations (KGInicis)
 	                        order.custom.Adyen_refundAmount = amount.toString();
 	                        order.custom.Adyen_refundCurrency = currency.toString();
                         }
 	                }
-	
+
 	                if (result.statusCode != 200) {
 	                    sendRefundNotifyMail(order, amount.toString(), currency.toString(), getPLIString(parsedLineItems),file,'');
 	                    Logger.error('OrderRefund.js: Error: Modification/Refund failure for order: {0}, result: {1}', order.orderNo, result);
 	                }
-	
+
 	                return {
 	                    status: result,
 	                    newReturn: newReturn
@@ -451,7 +450,7 @@ function isAdyenPayment(order) {
 	try {
 		var paymentInstruments = order.getPaymentInstruments(),
         PILength = paymentInstruments.length;
-    
+
         for (var i = 0; i < PILength; i++) {
             if (paymentInstruments[i].getPaymentMethod() === 'AdyenComponent' || paymentInstruments[i].getPaymentMethod() === 'AdyenComponent') {
                 isAdyenPayment = true;

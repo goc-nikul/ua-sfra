@@ -84,10 +84,6 @@
                 width: 100%;
                 background: $white;
                 padding: 0;
-
-                .b-header_progress-bar {
-                    display: none;
-                }
             }
         }
 
@@ -322,6 +318,8 @@
         }
 
         .b-cartlineitem_remove_edit {
+            flex-wrap: wrap;
+
             &.b-no_egiftcard {
                 position: relative;
             }
@@ -332,6 +330,7 @@
 
                 &.b-cartlineitem_remove_edit-right {
                     justify-content: flex-end;
+                    position: relative;
                 }
             }
         }
@@ -468,6 +467,16 @@
             @include respond-to(no-phones) {
                 margin-right: 1rem;
             }
+
+            &_center {
+                @include respond-to(no-phones) {
+                    margin-right: 8px;
+                    width: 30px;
+                    display: flex;
+                    place-items: center;
+                    place-content: center;
+                }
+            }
         }
 
         .register-cart-text {
@@ -569,4 +578,309 @@
     margin-bottom: 0;
     width: 100%;
     float: left;
+}
+
+.b-product-quickview-action-container {
+    display: flex;
+    width: 100%;
+}
+
+.b-product-quickview-button {
+    flex: 1 1 auto;
+}
+
+@media (max-width: 543.98px) {
+    .cart-and-ipay button.btn {
+        width: 100%;
+        margin: initial;
+    }
+}
+
+.b-cartlineitem_right-content-nobopis {
+    @include respond-to(desktop) {
+        display: flex;
+        flex-wrap: wrap;
+        flex: 1 1 calc(100% - 13rem);
+        max-width: calc(100% - 13rem);
+        justify-content: space-between;
+    }
+
+    .b-no_egiftcard {
+        position: relative;
+        margin-left: rem-calc(16);
+        @include respond-to(mobile) {
+            margin-left: 0;
+        }
+    }
+
+    .b-cartlineitem_remove_edit-right {
+        @include respond-to(desktop) {
+            position: relative;
+            flex-wrap: wrap;
+            justify-content: end;
+            display: flex;
+            margin-left: 1rem;
+        }
+
+        .b-product_promoCallout {
+            @include respond-to(desktop) {
+                -ms-flex: 1 1 100%;
+                flex: 1 1 40%;
+                align-items: end;
+                display: flex;
+            }
+
+            .b-product-promo {
+                @include respond-to(desktop) {
+                    margin-bottom: 0 !important;
+                }
+            }
+        }
+    }
+}
+
+// Share basket functionality style
+.share-basket-button {
+    background-color: white;
+    border: none;
+    float: right;
+    margin-top: rem-calc(5);
+    height: fit-content;
+    width: fit-content;
+
+    @include respond-to(mobile) {
+        margin-right: rem-calc(5);
+    }
+
+    .innerText {
+        font-size: rem-calc(8);
+        cursor: auto;
+    }
+
+    svg {
+        cursor: pointer;
+    }
+}
+
+.qrcode-m-body {
+    display: flex;
+    align-content: center;
+    flex-flow: column wrap;
+    align-items: center;
+    justify-content: center;
+
+    .description {
+        padding-top: rem-calc(15);
+        margin-top: rem-calc(22);
+        border-top: 1px solid rgba(174, 173, 173, 0.806);
+        line-height: 1.5;
+    }
+
+    .qrcode-body-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        justify-content: center;
+
+        .icon-wrapper {
+            width: 100%;
+            cursor: pointer;
+
+            .copy-btn {
+                @include respond-to(hoverable) {
+                    &:hover {
+                        border-color: $black;
+                        background-color: $black;
+                    }
+                }
+            }
+        }
+
+        .icon-group {
+            min-width: 10%;
+            max-width: 14%;
+            padding-left: rem-calc(10);
+        }
+
+        .icon {
+            border: none;
+            cursor: pointer;
+            width: rem-calc(44);
+            height: rem-calc(44);
+            appearance: none;
+            padding: rem-calc(8);
+            outline: 0;
+            background-color: $black;
+            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clippy {
+            color: white;
+            position: absolute;
+            stroke-dasharray: 50;
+            stroke-dashoffset: 0;
+            -webkit-transition: all 300ms ease-in-out;
+            transition: all 300ms ease-in-out;
+
+            &.copied {
+                stroke-dashoffset: -50;
+            }
+        }
+
+        .check {
+            color: white;
+            position: absolute;
+            stroke-dasharray: 50;
+            stroke-dashoffset: -50;
+            -webkit-transition: all 300ms ease-in-out;
+            transition: all 300ms ease-in-out;
+            display: none;
+
+            &.copied {
+                display: block;
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .whatsapp-share {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+            align-items: center;
+            line-height: normal;
+            cursor: pointer;
+            border: none;
+
+            svg {
+                fill: white;
+                width: auto;
+                height: rem-calc(15);
+                margin: 0;
+            }
+
+            span {
+                color: white;
+                margin-left: rem-calc(5);
+            }
+        }
+
+        .share-desktop {
+            @include respond-to(mobile) {
+                display: none;
+            }
+        }
+
+        .share-mobile {
+            display: none;
+
+            @include respond-to(mobile) {
+                display: flex;
+            }
+        }
+
+        .downloadqr {
+            &_group {
+                display: none;
+                width: 100%;
+                align-items: center;
+                flex-direction: column;
+                padding-top: rem-calc(15);
+            }
+
+            &_wrapper {
+                width: rem-calc(44);
+                float: right;
+                margin-top: 1rem;
+            }
+
+            &_text {
+                padding-bottom: 0;
+                margin-bottom: 0;
+            }
+
+            &_button {
+                @include respond-to(hoverable) {
+                    &:hover {
+                        border-color: $black;
+                        background-color: $black;
+                    }
+                }
+            }
+        }
+    }
+
+    .b-navigation-level_2_link {
+        padding-top: rem-calc(15);
+    }
+
+    .active {
+        text-align: center;
+        max-width: 13rem;
+    }
+
+    canvas {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.g-flex {
+    width: 100%;
+    align-content: stretch;
+    border-top: rem-calc(1) solid #e1e1e1;
+    padding-top: rem-calc(15);
+    margin-top: rem-calc(22);
+
+    &_row {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+    }
+
+    &_col {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+
+        h2 {
+            padding-bottom: rem-calc(10);
+            font-weight: 500;
+            font-size: 0.875rem;
+            line-height: 1.67;
+            margin-bottom: 0.5rem;
+            text-decoration: none;
+            color: #1d1d1d;
+        }
+    }
+
+    .copy-link {
+        padding: 0;
+    }
+
+    &_copylink {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+
+        .display-link {
+            min-width: 86%;
+            max-width: 90%;
+            height: rem-calc(44);
+            padding: rem-calc(15);
+            opacity: 50%;
+            border-radius: 0.25rem;
+            border: 0.1px solid gray;
+        }
+    }
+}
+
+.share-modal {
+    @include respond-to(mobile) {
+        margin: 0.5rem;
+    }
 }

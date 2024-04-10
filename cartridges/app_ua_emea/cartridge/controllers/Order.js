@@ -6,6 +6,7 @@
 
 var server = require('server');
 
+var Site = require('dw/system/Site');
 var Resource = require('dw/web/Resource');
 var URLUtils = require('dw/web/URLUtils');
 var Logger = require('dw/system/Logger');
@@ -17,10 +18,14 @@ var consentTracking = require('*/cartridge/scripts/middleware/consentTracking');
 var csrfProtection = require('*/cartridge/scripts/middleware/csrf');
 var pageMetaData = require('*/cartridge/scripts/middleware/pageMetaData');
 var pageMetaHelper = require('*/cartridge/scripts/helpers/pageMetaHelper');
-var Site = require('dw/system/Site');
+var contentHelpers = require('*/cartridge/scripts/helpers/contentHelpers');
+var orderHelpers = require('*/cartridge/scripts/order/orderHelpers');
+var BVConstants = require('bm_bazaarvoice/cartridge/scripts/lib/libConstants').getConstants();
+var BVHelper = require('bm_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
 var countrySupportedReturnBox = ['SEA', 'TH'];
 var country = Site.getCurrent().getID();
 var returnBox = true;
+
 if (countrySupportedReturnBox.includes(country)) {
     returnBox = false;
 }
@@ -44,9 +49,7 @@ server.replace(
     server.middleware.https,
     userLoggedIn.validateLoggedIn,
     function (req, res, next) {
-        var OrderHelpers = require('*/cartridge/scripts/order/orderHelpers');
-        var contentHelpers = require('*/cartridge/scripts/helpers/contentHelpers');
-        var ordersResult = OrderHelpers.getOrders(
+        var ordersResult = orderHelpers.getOrders(
             req.currentCustomer,
             req.querystring,
             req.locale.id
@@ -64,7 +67,7 @@ server.replace(
             }
         ];
 
-        var returnOrders = OrderHelpers.getReturnOrders(
+        var returnOrders = orderHelpers.getReturnOrders(
             req.currentCustomer,
             req.querystring,
             req.locale.id
@@ -99,9 +102,7 @@ server.replace(
     userLoggedIn.validateLoggedIn,
     function (req, res, next) {
         try {
-            var OrderHelpers = require('*/cartridge/scripts/order/orderHelpers');
-
-            var ordersResult = OrderHelpers.getReturnOrders(
+            var ordersResult = orderHelpers.getReturnOrders(
                 req.currentCustomer,
                 req.querystring,
                 req.locale.id
@@ -151,8 +152,6 @@ server.replace(
     server.middleware.https,
     userLoggedIn.validateLoggedIn,
     function (req, res, next) {
-        var orderHelpers = require('*/cartridge/scripts/order/orderHelpers');
-
         var order = OrderMgr.getOrder(req.querystring.orderID);
         var orderCustomerNo = req.currentCustomer.profile.customerNo;
         var currentCustomerNo = order.customer.profile.customerNo;
@@ -177,7 +176,6 @@ server.replace(
             var exitLinkText = Resource.msg('link.orderdetails.orderhistory', 'account', null);
             var exitLinkUrl = URLUtils.https('Order-History', 'orderFilter', req.querystring.orderFilter);
             var viewData = res.getViewData();
-            var BVHelper = require('bc_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
             if (BVHelper.isRREnabled() || BVHelper.isQAEnabled()) {
                 viewData.bvScout = BVHelper.getBvLoaderUrl();
             }
@@ -254,7 +252,6 @@ server.replace(
     server.middleware.https,
     userLoggedIn.validateLoggedIn,
     function (req, res, next) {
-        var orderHelpers = require('*/cartridge/scripts/order/orderHelpers');
         var orderID = req.querystring.orderID;
         var editURL = URLUtils.url('Order-ReturnItems', 'orderID', orderID);
         var order = OrderMgr.getOrder(orderID);
@@ -304,7 +301,6 @@ server.replace(
     csrfProtection.generateToken,
     userLoggedIn.validateLoggedIn,
     function (req, res, next) {
-        var orderHelpers = require('*/cartridge/scripts/order/orderHelpers');
         var renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
         var customerNo = req.currentCustomer.profile.customerNo;
         var orderID = req.querystring.orderID;
@@ -339,7 +335,23 @@ server.replace(
             }
             var hideReturnCommentsSection = Site.getCurrent().getCustomPreferenceValue('hideReturnCommentsSection');
             var orderModel = orderHelpers.getReturnOrderDetails(req, selectedPidsArray, pidQtyObj);
-            var renderedTemplate = renderTemplateHelper.getRenderedHtml({ csrf: viewData.csrf, orderReturnItems: 'reason', selectedPids: selectedPids, order: orderModel, returnRefreshURL: returnRefreshURL, hideReturnCommentsSection: hideReturnCommentsSection }, template);
+            var renderedTemplate;
+            try {
+                if ((Site.getCurrent().getID() === 'SEA' || Site.getCurrent().getID() === 'TH')) {
+                    var orderCountryCode = order.getDefaultShipment().shippingAddress.countryCode.value;
+                    var returnHelpers = require('*/cartridge/scripts/order/returnHelpers');
+                    var customObjectdefinition = returnHelpers.getCustomObject('ReturnMethodsConfigurations', orderCountryCode);
+                    if (!empty(customObjectdefinition)) {
+                        renderedTemplate = renderTemplateHelper.getRenderedHtml({ csrf: viewData.csrf, orderReturnItems: 'reason', selectedPids: selectedPids, order: orderModel, returnRefreshURL: returnRefreshURL, hideReturnCommentsSection: hideReturnCommentsSection, returnReasonObj: customObjectdefinition.returnReasonCodes }, template);
+                    } else {
+                        renderedTemplate = renderTemplateHelper.getRenderedHtml({ csrf: viewData.csrf, orderReturnItems: 'reason', selectedPids: selectedPids, order: orderModel, returnRefreshURL: returnRefreshURL, hideReturnCommentsSection: hideReturnCommentsSection }, template);
+                    }
+                } else {
+                    renderedTemplate = renderTemplateHelper.getRenderedHtml({ csrf: viewData.csrf, orderReturnItems: 'reason', selectedPids: selectedPids, order: orderModel, returnRefreshURL: returnRefreshURL, hideReturnCommentsSection: hideReturnCommentsSection }, template);
+                }
+            } catch (e) {
+                Logger.error('Error while generate template for Autoreturn registered: ' + e.message);
+            }
             var resources = {
                 return_page_header: Resource.msg('heading.returns.reason', 'confirmation', null)
             };
@@ -382,7 +394,6 @@ server.replace(
     csrfProtection.generateToken,
     server.middleware.https,
     function (req, res, next) {
-        var contentHelpers = require('*/cartridge/scripts/helpers/contentHelpers');
         var returnRetailForm = server.forms.getForm('uareturns');
         var content = ContentMgr.getContent('guest-returns');
         if (content) {
@@ -417,7 +428,6 @@ server.replace(
     csrfProtection.generateToken,
     function (req, res, next) {
         var OrderModel = require('*/cartridge/models/order');
-        var contentHelpers = require('*/cartridge/scripts/helpers/contentHelpers');
         var order;
         var validForm = true;
         var orderReturnsTrackingURL = null;
@@ -441,7 +451,6 @@ server.replace(
             next();
         } else {
             var viewData = res.getViewData();
-            var BVHelper = require('bc_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
             if (BVHelper.isRREnabled() || BVHelper.isQAEnabled()) {
                 viewData.bvScout = BVHelper.getBvLoaderUrl();
             }
@@ -538,7 +547,6 @@ server.replace(
     csrfProtection.generateToken,
     function (req, res, next) {
         var renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
-        var orderHelpers = require('*/cartridge/scripts/order/orderHelpers');
 
         var order = OrderMgr.getOrder(req.querystring.trackOrderNumber);
         var continueGuestReasonURL = URLUtils.url('Order-ContinueGuestReason', 'trackOrderNumber', req.querystring.trackOrderNumber, 'trackOrderEmail', req.querystring.trackOrderEmail);
@@ -553,7 +561,7 @@ server.replace(
         try {
             selectedPidsArray = JSON.parse(selectedPids);
         } catch (e) {
-            Logger.error('OIS Error:  ' + e.message);
+            Logger.error('OIS Error:  ' + e.stack);
         }
         var viewData = res.getViewData();
         var template = 'account/order/orderReturnReasonCard';
@@ -572,7 +580,23 @@ server.replace(
             }
             var hideReturnCommentsSection = Site.getCurrent().getCustomPreferenceValue('hideReturnCommentsSection');
             var orderModel = orderHelpers.getReturnOrderDetails(req, selectedPidsArray, pidQtyObj);
-            var renderedTemplate = renderTemplateHelper.getRenderedHtml({ csrf: viewData.csrf, orderReturnItems: 'reason', selectedPids: selectedPids, order: orderModel, continueGuestReasonURL: continueGuestReasonURL, returnRefreshURL: returnRefreshURL, hideReturnCommentsSection: hideReturnCommentsSection }, template);
+            var renderedTemplate;
+            try {
+                if ((Site.getCurrent().getID() === 'SEA' || Site.getCurrent().getID() === 'TH')) {
+                    var orderCountryCode = order.getDefaultShipment().shippingAddress.countryCode.value;
+                    var returnHelpers = require('*/cartridge/scripts/order/returnHelpers');
+                    var customObjectdefinition = returnHelpers.getCustomObject('ReturnMethodsConfigurations', orderCountryCode);
+                    if (!empty(customObjectdefinition)) {
+                        renderedTemplate = renderTemplateHelper.getRenderedHtml({ csrf: viewData.csrf, orderReturnItems: 'reason', selectedPids: selectedPids, order: orderModel, continueGuestReasonURL: continueGuestReasonURL, returnRefreshURL: returnRefreshURL, hideReturnCommentsSection: hideReturnCommentsSection, returnReasonObj: customObjectdefinition.returnReasonCodes }, template);
+                    } else {
+                        renderedTemplate = renderTemplateHelper.getRenderedHtml({ csrf: viewData.csrf, orderReturnItems: 'reason', selectedPids: selectedPids, order: orderModel, continueGuestReasonURL: continueGuestReasonURL, returnRefreshURL: returnRefreshURL, hideReturnCommentsSection: hideReturnCommentsSection }, template);
+                    }
+                } else {
+                    renderedTemplate = renderTemplateHelper.getRenderedHtml({ csrf: viewData.csrf, orderReturnItems: 'reason', selectedPids: selectedPids, order: orderModel, continueGuestReasonURL: continueGuestReasonURL, returnRefreshURL: returnRefreshURL, hideReturnCommentsSection: hideReturnCommentsSection }, template);
+                }
+            } catch (e) {
+                Logger.error('Error while generate template for Autoreturn guest: ' + e.stack);
+            }
             var resources = {
                 return_page_header: Resource.msg('heading.returns.reason', 'confirmation', null)
             };
@@ -618,8 +642,8 @@ server.replace(
             var result = printLabelHelpers.getPDF(order, returnObj);
             res.json(result);
         } catch (e) {
-            Logger.error('Order.js: ' + e.message);
-            res.json({ errorMsg: Resource.msg('label.print.error', 'account', null), errorInResponse: true, renderedTemplate: '' });
+            Logger.error('Order.js: ' + e.stack);
+            res.json({ errorMessage: Resource.msg('label.print.generic.error', 'account', null), errorInResponse: true, renderedTemplate: '' });
         }
         next();
     }
@@ -636,8 +660,8 @@ server.replace(
             var result = printLabelHelpers.getPDF(order, returnObj);
             res.json(result);
         } catch (e) {
-            Logger.error('Order.js: ' + e.message);
-            res.json({ errorMsg: Resource.msg('label.print.error', 'account', null), errorInResponse: true, renderedTemplate: '' });
+            Logger.error('Order.js: ' + e.stack);
+            res.json({ errorMessage: Resource.msg('label.print.generic.error', 'account', null), errorInResponse: true, renderedTemplate: '' });
         }
         next();
     }
@@ -666,7 +690,7 @@ server.replace(
                     var returnsUtils = new ReturnsUtils();
                     var returnServiceValue = returnsUtils.getPreferenceValue('returnService', order.custom.customerLocale);
                     var imageObj = '';
-                    if (returnServiceValue === 'aupost') {
+                    if (returnServiceValue && (returnServiceValue === 'aupost' || returnServiceValue.toLowerCase() === 'dhlparcel' || returnServiceValue.toLowerCase() === 'fedex')) {
                         imageObj = 'data:application/pdf;base64,' + returnCase.custom.shipmentLabel;
                         imageObj.replace(/['"]+/g, '');
                     } else {
@@ -683,7 +707,9 @@ server.replace(
                         authFormObject: authFormObject,
                         imageObj: imageObj,
                         returnInstructionText: returnInstructionText,
-                        isEmailLabel: true
+                        isEmailLabel: true,
+                        returnServiceValue: returnServiceValue.toLowerCase(),
+                        isPDF: imageObj.indexOf('application/pdf;base64') > -1
                     });
                 }
             }
@@ -708,7 +734,6 @@ server.replace(
         profileForm.clear();
         var orderReturnsTrackingURL = null;
         var orderExchangeTrackingURL = null;
-        var orderHelpers = require('*/cartridge/scripts/order/orderHelpers');
 
         if (req.form.trackOrderEmail && req.form.trackOrderNumber) {
             var StringUtils = require('dw/util/StringUtils');
@@ -769,7 +794,6 @@ server.replace(
                     : URLUtils.https('Account-Show');
 
                 var viewData = res.getViewData();
-                var BVHelper = require('*/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
                 if (BVHelper.isRREnabled() || BVHelper.isQAEnabled()) {
                     viewData.bvScout = BVHelper.getBvLoaderUrl();
                 }
@@ -808,11 +832,78 @@ server.prepend(
     function (req, res, next) {
         if (req.currentCustomer.raw.authenticated && req.currentCustomer.raw.registered && req.querystring && req.querystring.orderNo) {
             var order = OrderMgr.getOrder(req.querystring.orderNo);
-            var orderCustomerNo = req.currentCustomer.profile.customerNo;
-            var currentCustomerNo = order.customer.profile.customerNo;
-            if (order && orderCustomerNo === currentCustomerNo) {
-                res.redirect(URLUtils.url('Order-Details', 'orderID', req.querystring.orderNo));
+            if (!empty(order) && !empty(order.customer) && !empty(order.customer.profile)) {
+                var orderCustomerNo = req.currentCustomer.profile.customerNo;
+                var currentCustomerNo = order.customer.profile.customerNo;
+                if (order && orderCustomerNo === currentCustomerNo) {
+                    res.redirect(URLUtils.url('Order-Details', 'orderID', req.querystring.orderNo));
+                }
             }
+        }
+        next();
+    }
+);
+
+server.append(
+    'TrackOrder',
+    function (req, res, next) {
+        var viewData = res.getViewData();
+
+        viewData.trackOrder2ContentAvailable = contentHelpers.isContentAssetBodyAvailable('guest-track-order-2');
+
+        res.setViewData(viewData);
+
+        next();
+    }
+);
+
+server.append(
+    'Confirm',
+    function (req, res, next) {
+        var pixelEnabled = dw.system.Site.getCurrent().getCustomPreferenceValue('bvEnableBVPixel');
+        if (pixelEnabled) {
+            var viewData = res.getViewData();
+            viewData.bvScout = BVHelper.getBvLoaderUrl();
+            var order = OrderMgr.getOrder(req.form.orderID, req.form.orderToken);
+            var bvdata = BVHelper.getDisplayData();
+            var pixelObj = {
+                orderId: order.orderNo,
+                tax: order.totalTax.value.toFixed(2),
+                shipping: order.adjustedShippingTotalNetPrice.value.toFixed(2),
+                total: order.adjustedMerchandizeTotalNetPrice.value.toFixed(2),
+                city: order.billingAddress.city,
+                state: order.billingAddress.stateCode,
+                country: order.billingAddress.countryCode.value,
+                currency: order.currencyCode,
+                email: order.customerEmail,
+                nickname: order.customerName,
+                partnerSource: BVConstants.XML_GENERATOR,
+                locale: bvdata.locale,
+                deploymentZone: bvdata.zone.toLowerCase().replace(' ', '_', 'g'),
+                items: []
+            };
+            if (order.customerNo) {
+                pixelObj.userId = order.customerNo;
+            }
+            var lineItems = order.allProductLineItems;
+            for (var i = 0; i < lineItems.length; i++) {
+                var item = lineItems[i];
+                if (item.product) {
+                    var itemObj = {
+                        sku: BVHelper.replaceIllegalCharacters((item.product.variant && !BVConstants.UseVariantID) ? item.product.variationModel.master.ID : item.product.ID),
+                        name: item.product.name,
+                        quantity: item.quantity.value.toFixed(),
+                        price: item.adjustedNetPrice.value.toFixed(2)
+                    };
+                    var img = BVHelper.getImageURL(item.product, BVConstants.PURCHASE);
+                    if (img) {
+                        itemObj.imageURL = img;
+                    }
+                    pixelObj.items.push(itemObj);
+                }
+            }
+            viewData.bvpixel = pixelObj;
+            res.setViewData(viewData);
         }
         next();
     }

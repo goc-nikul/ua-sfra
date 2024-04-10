@@ -34,6 +34,9 @@ function getBoysCategories(product) {
                         case 'Train':
                             newCategory.push({ 'p': 'boys-accessories-beanies-cold-weather', 'c': 'boys-accessories-gloves' });
                             break;
+                        case 'Sportstyle':
+                            newCategory.push({ 'p': 'boys-accessories-beanies-cold-weather', 'c': '' });
+                            break;
                     }
                     break;
                 case 'Headwear':
@@ -101,7 +104,7 @@ function getBoysCategories(product) {
                         newCategory.push({ 'p': 'boys-clothing-outerwear', 'c': 'boys-clothing-outerwear' });
                         break;
                     case 'Swimwear':
-                        newCategory.push({ 'p': 'boys-clothing-swimwear', 'c': 'boys-clothing-bottoms' });
+                        newCategory.push({ 'p': 'boys-clothing-swimwear', 'c': 'boys-clothings-swimwear' });
                         break;
                     case 'Tops':
                         newCategory.push({ 'p': 'boys-clothing-tops', 'c': 'boys-clothing-tops' });
@@ -142,6 +145,9 @@ function getBoysCategories(product) {
                 case 'Sideline':
                     newCategory.push({ 'p': 'boys-footwear-sandals-slides', 'c': 'boys-footwear' });
                     break;
+                case 'Sportstyle':
+                    newCategory.push({ 'p': 'boys-footwear-sportstyle', 'c': '' });
+                    break;    
             }
             break;
     }
@@ -161,6 +167,11 @@ function getGirlsCategories(product) {
                     switch (product.custom.enduse) {
                         case 'Softball':
                             newCategory.push({ 'p': 'girls-accessories-sport-gloves', 'c': 'girls-accessories-gloves' });
+                            break;
+                        case 'Sportstyle':
+                            if (product.custom.subsilhouette == 'Mittens') {
+                                newCategory.push({ 'p': 'girls-accessories-beanies-cold-weather', 'c': '' });
+                            }
                             break;
                         default:
                             newCategory.push({ 'p': 'girls-accessories-beanies-cold-weather', 'c': 'girls-accessories-gloves' });
@@ -265,6 +276,9 @@ function getGirlsCategories(product) {
                 case 'Softball':
                     newCategory.push({ 'p': 'girls-footwear-softball', 'c': 'girls-footwear' });
                     break;
+                case 'Sportstyle':
+                    newCategory.push({ 'p': 'girls-footwear-sportstyle', 'c': '' });
+                    break;
             }
             break;
     }
@@ -335,7 +349,10 @@ function getMensCategories(product) {
                                         newCategory.push({ 'p': 'men-accessories-sport-gloves', 'c': 'men-accessories-sport-gloves' });
                                         break;
                                     case 'Train':
-                                        newCategory.push({ 'p': 'men-accessories-beanies-cold-weather', 'c': 'men-accessories-sport-gloves' });
+                                        newCategory.push({ 'p': 'men-accessories-beanies-cold-weather', 'c': 'men-accessories-beanies-cold-weather' });
+                                        break;
+                                    case 'Sportstyle':
+                                        newCategory.push({ 'p': 'men-accessories-beanies-cold-weather', 'c': '' });
                                         break;
                                 }
                                 break;
@@ -436,7 +453,7 @@ function getMensCategories(product) {
                     case 'Swimwear':
                         switch (product.custom.subsilhouette) {
                             case 'Swim Bottoms':
-                                newCategory.push({ 'p': 'men-clothing-swimwear', 'c': 'men-clothing-bottoms' });
+                                newCategory.push({ 'p': 'men-clothing-swimwear', 'c': 'men-clothings-swimwear' });
                                 break;
                         }
                         break;
@@ -499,13 +516,16 @@ function getMensCategories(product) {
                     newCategory.push({ 'p': 'men-footwear-running', 'c': 'men-footwear' });
                     break;
                 case 'Sideline':
-                    newCategory.push({ 'p': 'men-footwear-sandals-slides', 'c': 'men-footwear' });
+                    newCategory.push({ 'p': 'men-footwear-sandals-slides', 'c': 'men-footwear-sandals-slides' });
                     break;
                 case 'Tennis':
                     newCategory.push({ 'p': 'men-footwear', 'c': 'men-footwear' });
                     break;
                 case 'Train':
                     newCategory.push({ 'p': 'men-footwear-training', 'c': 'men-footwear' });
+                    break;
+                case 'Sportstyle':
+                    newCategory.push({ 'p': 'men-footwear-sportstyle', 'c': '' });
                     break;
             }
             break;
@@ -559,7 +579,10 @@ function getWomensCategories(product) {
                                         newCategory.push({ 'p': 'women-accessories-sport-gloves', 'c': 'women-accessories-sport-gloves' });
                                         break;
                                     case 'Train':
-                                        newCategory.push({ 'p': 'women-accessories-beanies-cold-weather', 'c': 'women-accessories-sport-gloves' });
+                                        newCategory.push({ 'p': 'women-accessories-beanies-cold-weather', 'c': 'women-accessories-beanies-cold-weather' });
+                                        break;
+                                    case 'Sportstyle':
+                                        newCategory.push({ 'p': 'women-accessories-beanies-cold-weather', 'c': '' });
                                         break;
                                 }
                                 break;
@@ -573,7 +596,10 @@ function getWomensCategories(product) {
                             case 'Mittens':
                                 switch (product.custom.enduse) {
                                     case 'Train':
-                                        newCategory.push({ 'p': 'women-accessories-beanies-cold-weather', 'c': 'women-accessories-sport-gloves' });
+                                        newCategory.push({ 'p': 'women-accessories-beanies-cold-weather', 'c': 'women-accessories-beanies-cold-weather' });
+                                        break;
+                                    case 'Sportstyle':
+                                        newCategory.push({ 'p': 'women-accessories-beanies-cold-weather', 'c': '' });
                                         break;
                                 }
                                 break;
@@ -698,7 +724,7 @@ function getWomensCategories(product) {
                     newCategory.push({ 'p': 'women-footwear-running', 'c': 'women-footwear' });
                     break;
                 case 'Sideline':
-                    newCategory.push({ 'p': 'women-footwear-sandals-slides', 'c': 'women-footwear' });
+                    newCategory.push({ 'p': 'women-footwear-sandals-slides', 'c': 'women-footwear-sandals-slides' });
                     break;
                 case 'Softball':
                     newCategory.push({ 'p': 'women-footwear-softball', 'c': 'women-footwear' });
@@ -708,6 +734,9 @@ function getWomensCategories(product) {
                     break;
                 case 'Volleyball':
                     newCategory.push({ 'p': 'women-footwear-volleyball', 'c': 'women-footwear' });
+                    break;
+                case 'Sportstyle':
+                    newCategory.push({ 'p': 'women-footwear-sportstyle', 'c': '' });
                     break;
             }
             break;
@@ -887,28 +916,31 @@ function getUnisexCategories(product) {
                 case 'Adult':
                     switch (product.custom.enduse) {
                         case 'Basketball':
-                            newCategory.push({ 'p': 'shoes-basketball', 'c': 'men-footwear' });
+                            newCategory.push({ 'p': 'shoes-basketball', 'c': 'footwear' });
                             break;
                         case 'Golf':
-                            newCategory.push({ 'p': 'shoes-golf', 'c': 'men-footwear' });
+                            newCategory.push({ 'p': 'shoes-golf', 'c': 'footwear' });
                             break;
                         case 'Hunt':
-                            newCategory.push({ 'p': 'shoes-hiking-hunting', 'c': 'men-footwear' });
+                            newCategory.push({ 'p': 'shoes-hiking-hunting', 'c': 'footwear' });
                             break;
                         case 'Lifestyle':
-                            newCategory.push({ 'p': 'shoes-sportstyle', 'c': 'men-footwear' });
+                            newCategory.push({ 'p': 'shoes-sportstyle', 'c': 'footwear' });
                             break;
                         case 'Outdoor':
-                            newCategory.push({ 'p': 'shoes-hiking-hunting', 'c': 'men-footwear' });
+                            newCategory.push({ 'p': 'shoes-hiking-hunting', 'c': 'footwear' });
                             break;
                         case 'Run':
-                            newCategory.push({ 'p': 'shoes-running', 'c': 'men-footwear' });
+                            newCategory.push({ 'p': 'shoes-running', 'c': 'footwear' });
                             break;
                         case 'Sideline':
-                            newCategory.push({ 'p': 'shoes-sandals-slides', 'c': 'men-footwear' });
+                            newCategory.push({ 'p': 'shoes-sandals-slides', 'c': 'footwear' });
                             break;
                         case 'Train':
-                            newCategory.push({ 'p': 'shoes-training', 'c': 'men-footwear' });
+                            newCategory.push({ 'p': 'shoes-training', 'c': 'footwear' });
+                            break;
+                        case 'Sportstyle':
+                            newCategory.push({ 'p': 'shoes-sportstyle', 'c': '' });
                             break;
                     }
                     break;
@@ -935,6 +967,9 @@ function getUnisexCategories(product) {
                         case 'Train':
                             newCategory.push({ 'p': 'boys-footwear-running', 'c': 'boys-footwear' });
                             break;
+                        case 'Sportstyle':
+                            newCategory.push({ 'p': 'boys-footwear-sportstyle', 'c': '' });
+                            break;
                     }
                     break;
                 case 'Infant':
@@ -950,6 +985,9 @@ function getUnisexCategories(product) {
                             break;
                         case 'Sideline':
                             newCategory.push({ 'p': 'boys-footwear-sandals-slides', 'c': 'boys-footwear' });
+                            break;
+                        case 'Sportstyle':
+                            newCategory.push({ 'p': 'boys-footwear-sportstyle', 'c': '' });
                             break;
                     }
                     break;
@@ -967,6 +1005,9 @@ function getUnisexCategories(product) {
                         case 'Sideline':
                             newCategory.push({ 'p': 'boys-footwear-sandals-slides', 'c': 'boys-footwear' });
                             break;
+                        case 'Sportstyle':
+                            newCategory.push({ 'p': 'boys-footwear-sportstyle', 'c': '' });
+                            break;
                     }
                     break;
             }
@@ -975,6 +1016,313 @@ function getUnisexCategories(product) {
     return newCategory;
 }
 
+function getAdultUnisexCategories(product) {
+    var newCategory = [];
+    switch (product.custom.division) {
+        case 'Accessories':
+            switch (product.custom.silhouette) {
+                case 'Bags':
+                    newCategory.push({ 'p': 'accessories-bags', 'c': 'accessories-bags' });
+                    break;
+                case 'Bands':
+                    newCategory.push({ 'p': 'accessories-headbands', 'c': 'accessories-headbands' });
+                    break;
+                case 'Gloves':
+                    switch (product.custom.subsilhouette) {
+                        case 'Full Finger Gloves':
+                            switch (product.custom.enduse) {
+                                case 'Football':
+                                case 'Golf':
+                                case 'Hunt':
+                                case 'Train':
+                                    newCategory.push({ 'p': 'accessories-sport-gloves', 'c': 'accessories-sport-gloves' });
+                                    break;
+                            }
+                            break;
+                        case 'Half Finger Gloves':
+                            switch (product.custom.enduse) {
+                                case 'Train':
+                                    newCategory.push({ 'p': 'accessories-sport-gloves', 'c': 'accessories-sport-gloves' });
+                                    break;
+                            }
+
+                            break;
+                    }
+                    break;
+                case 'Headwear':
+                    switch (product.custom.enduse) {
+                        case 'Fanwear':
+                            newCategory.push({ 'p': 'collections-fan-gear', 'c': 'accessories-headwear' });
+                            break;
+                    }
+                    if (newCategory.length == 0) {
+                        switch (product.custom.subsilhouette) {
+                            case 'Beanies':
+                                newCategory.push({ 'p': 'accessories-beanies-cold-weather', 'c': 'men-accessories-headwear' });
+                                break;
+                            case 'Caps':
+                                newCategory.push({ 'p': 'accessories-hats-visors', 'c': 'men-accessories-headwear' });
+                                break;
+                            case 'Face Masks':
+                                newCategory.push({ 'p': 'accessories-facemasks-hoods-gaiters', 'c': 'accessories-facemasks-hoods-gaiters' });
+                                break;
+                            case 'Hoods':
+                                newCategory.push({ 'p': 'accessories-facemasks-hoods-gaiters', 'c': 'men-accessories-headwear' });
+                                break;
+                            case 'Visors':
+                                newCategory.push({ 'p': 'accessories-hats-visors', 'c': 'men-accessories-headwear' });
+                                break;
+                        }
+                    }
+                    break;
+                case 'Inflatables':
+                    newCategory.push({ 'p': 'accessories-equipment', 'c': 'accessories-equipment' });
+                    break;
+                case 'Misc':
+                    switch (product.custom.subsilhouette) {
+                        case 'Water Bottles':
+                            newCategory.push({ 'p': 'accessories-water-bottles-coolers', 'c': 'accessories-water-bottles-coolers' });
+                            break;
+                        default:
+                            newCategory.push({ 'p': 'accessories-equipment', 'c': 'accessories-equipment' });
+                            break;
+                    }
+                    break;
+                case 'Protective':
+                    switch (product.custom.subsilhouette) {
+                        case 'Eyewear':
+                            if (product.custom.subsubsilhouette == 'Sunglass') {
+                                newCategory.push({ 'p': 'accessories-sunglasses', 'c': 'accessories-sunglasses' });
+                            } else {
+                                newCategory.push({ 'p': 'accessories-equipment', 'c': 'accessories-equipment' });
+                            }
+                            break;
+                        default:
+                            newCategory.push({ 'p': 'accessories-equipment', 'c': 'accessories-equipment' });
+                            break;
+                    }
+                    break;
+                case 'Socks':
+                    newCategory.push({ 'p': 'accessories-socks', 'c': 'accessories-socks' });
+                    break;
+            }
+            break;
+        case 'Apparel':
+            switch (product.custom.silhouette) {
+                case 'Bottoms':
+                    switch (product.custom.enduse) {
+                        case 'Fanwear':
+                            newCategory.push({ 'p': 'collections-fan-gear', 'c': 'collections-unisex' });
+                            break;
+                    }
+                    if(newCategory.length == 0) {
+                        if (product.custom.subsilhouette == 'Fleece Bottoms' || product.custom.subsilhouette == 'Pants') {
+                            newCategory.push({ 'p': 'collections-unisex', 'c': 'collections-unisex' });
+                        }
+                        else {
+                            newCategory.push({ 'p': 'collections-unisex', 'c': 'collections-unisex' });
+                        }
+                        break;
+                    }
+                break;
+                case 'Tops':
+                    switch (product.custom.enduse) {
+                        case 'Fanwear':
+                            newCategory.push({ 'p': 'collections-fan-gear', 'c': 'collections-unisex' });
+                            break;
+                    }
+                    if(newCategory.length == 0) {
+                        newCategory.push({ 'p': 'collections-unisex', 'c': 'collections-unisex' });
+                        break;
+                    }
+                break;
+                case 'One Piece':
+                case 'Outerwear':
+                case 'Sets':
+                    newCategory.push({ 'p': 'collections-unisex', 'c': 'collections-unisex' });
+                    break;
+            }
+            break;
+        case 'Footwear':
+            switch (product.custom.enduse) {
+                case 'Basketball':
+                    newCategory.push({ 'p': 'shoes-basketball', 'c': 'footwear' });
+                    break;
+                case 'Golf':
+                    newCategory.push({ 'p': 'shoes-golf', 'c': 'footwear' });
+                    break;
+                case 'Hunt':
+                    newCategory.push({ 'p': 'shoes-hiking-hunting', 'c': 'footwear' });
+                    break;
+                case 'Lifestyle':
+                    newCategory.push({ 'p': 'shoes-sportstyle', 'c': 'footwear' });
+                    break;
+                case 'Outdoor':
+                    newCategory.push({ 'p': 'shoes-hiking-hunting', 'c': 'footwear' });
+                    break;
+                case 'Run':
+                    newCategory.push({ 'p': 'shoes-running', 'c': 'footwear' });
+                    break;
+                case 'Sideline':
+                    newCategory.push({ 'p': 'shoes-sandals-slides', 'c': 'shoes-sandals-slides' });
+                    break;
+                case 'Train':
+                    newCategory.push({ 'p': 'shoes-training', 'c': 'footwear' });
+                    break;
+                case 'Global Football':
+                    newCategory.push({ 'p': 'shoes-soccer', 'c': 'footwear' });
+                    break;
+                case 'Military/Tactical':
+                    newCategory.push({ 'p': 'shoes-tactical', 'c': 'footwear' });
+                    break;
+                case 'Fish':
+                    newCategory.push({ 'p': 'shoes-fishing', 'c': 'footwear' });
+                    break;
+                case 'Sportstyle':
+                    newCategory.push({ 'p': 'shoes-sportstyle', 'c': '' });
+                    break;
+            }
+            break;
+    }
+    return newCategory;
+}
+
+function getYouthUnisexCategories(product) {
+    var newCategory = [];
+    switch (product.custom.division) {
+        case 'Accessories':
+            switch (product.custom.silhouette) {
+                case 'Bags':
+                    newCategory.push({ 'p': 'accessories-bags', 'c': 'accessories-bags' });
+                    break;
+                case 'Bands':
+                    newCategory.push({ 'p': 'accessories-headbands', 'c': 'accessories-headbands' });
+                    break;
+                case 'Gloves':
+                    switch (product.custom.subsilhouette) {
+                        case 'Full Finger Gloves':
+                            switch (product.custom.enduse) {
+                                case 'Football':
+                                case 'Golf':
+                                case 'Hunt':
+                                case 'Train':
+                                    newCategory.push({ 'p': 'accessories-sport-gloves', 'c': 'accessories-sport-gloves' });
+                                    break;
+                            }
+                            break;
+                        case 'Half Finger Gloves':
+                            switch (product.custom.enduse) {
+                                case 'Train':
+                                    newCategory.push({ 'p': 'accessories-sport-gloves', 'c': 'accessories-sport-gloves' });
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+                case 'Headwear':
+                    case 'Beanies':
+                        newCategory.push({ 'p': 'accessories-beanies-cold-weather', 'c': 'boys-accessories-headwear' });
+                        break;
+                    case 'Caps':
+                        newCategory.push({ 'p': 'accessories-hats-visors', 'c': 'boys-accessories-headwear' });
+                        break;
+                    case 'Face Masks':
+                        newCategory.push({ 'p': 'accessories-facemasks-hoods-gaiters', 'c': 'accessories-facemasks-hoods-gaiters' });
+                        break;
+                    case 'Hoods':
+                        newCategory.push({ 'p': 'accessories-facemasks-hoods-gaiters', 'c': 'boys-accessories-headwearr' });
+                        break;
+                    case 'Visors':
+                        newCategory.push({ 'p': 'accessories-hats-visors', 'c': 'boys-accessories-headwear' });
+                        break;
+                    break;
+                case 'Inflatables':
+                    newCategory.push({ 'p': 'accessories-equipment', 'c': 'accessories-equipment' });
+                    break;
+                case 'Misc':
+                    switch (product.custom.subsilhouette) {
+                        case 'Water Bottles':
+                            newCategory.push({ 'p': 'accessories-water-bottles-coolers', 'c': 'accessories-water-bottles-coolers' });
+                            break;
+                        default:
+                            newCategory.push({ 'p': 'accessories-equipment', 'c': 'accessories-equipment' });
+                            break;
+                    }
+                    break;
+                case 'Protective':
+                    switch (product.custom.subsilhouette) {
+                        case 'Eyewear':
+                            if (product.custom.subsubsilhouette == 'Sunglass') {
+                                newCategory.push({ 'p': 'accessories-sunglasses', 'c': 'accessories-sunglasses' });
+                            } else {
+                                newCategory.push({ 'p': 'accessories-equipment', 'c': 'accessories-equipment' });
+                            }
+                            break;
+                        default:
+                            newCategory.push({ 'p': 'accessories-equipment', 'c': 'accessories-equipment' });
+                            break;
+                    }
+                    break;
+                case 'Socks':
+                    newCategory.push({ 'p': 'accessories-socks', 'c': 'accessories-socks' });
+                    break;
+            }
+            break;
+        case 'Apparel':
+            switch (product.custom.silhouette) {
+                case 'Bottoms':
+                    if (product.custom.subsilhouette == 'Fleece Bottoms' || product.custom.subsilhouette == 'Pants') {
+                        newCategory.push({ 'p': 'boys-clothing-bottoms', 'c': 'boys-clothing-bottoms' });
+                    }
+                    else {
+                        newCategory.push({ 'p': 'boys-clothing-bottoms', 'c': 'boys-clothing-bottoms' });
+                    }
+                    break;
+                case 'Tops':
+                       newCategory.push({ 'p': 'boys-clothing-tops', 'c': '	boys-clothing-tops' });
+                        break;
+                case 'Sets':
+                    newCategory.push({ 'p': 'boys-clothing-one-piece', 'c': 'boys-clothing-one-piece' });
+                    break;
+                case 'Outerwear':
+                    newCategory.push({ 'p': 'boys-clothing-outerwear', 'c': 'boys-clothing-outerwear' });
+                    break;
+                case 'One Piece':
+                    newCategory.push({ 'p': 'boys-clothing-one-piece', 'c': 'boys-clothing-one-piece' });
+                    break;
+            }
+            break;
+        case 'Footwear':
+            switch (product.custom.enduse) {
+                case 'Basketball':
+                    newCategory.push({ 'p': 'boys-footwear-basketball', 'c': 'boys-footwear' });
+                    break;
+                case 'Golf':
+                    newCategory.push({ 'p': 'boys-footwear-golf', 'c': 'boys-footwear' });
+                    break;
+                case 'Lifestyle':
+                    newCategory.push({ 'p': 'boys-footwear-sportstyle', 'c': 'boys-footwear' });
+                    break;
+                case 'Run':
+                    newCategory.push({ 'p': 'boys-footwear-running', 'c': 'boys-footwear' });
+                    break;
+                case 'Sideline':
+                    newCategory.push({ 'p': 'boys-footwear-sandals-slides', 'c': 'boys-footwear-sandals-slides' });
+                    break;
+                case 'Train':
+                    newCategory.push({ 'p': 'boys-footwear-running', 'c': 'boys-footwear' });
+                    break;
+                case 'Global Football':
+                    newCategory.push({ 'p': 'boys-footwear-soccer', 'c': 'boys-footwear' });
+                    break;
+                case 'Sportstyle':
+                    newCategory.push({ 'p': 'boys-footwear-sportstyle', 'c': '' });
+                    break;
+            }
+            break;
+    }
+    return newCategory;
+}
 
 function getNewCategories(product) {
     var newCategories = [];
@@ -994,6 +1342,18 @@ function getNewCategories(product) {
             break;
         case 'Unisex':
             newCategories = getUnisexCategories(product);
+            break;
+        case 'Adult Unisex':
+        case 'AdultUnisex':
+        case 'Adultunisex':
+        case 'adult_unisex':
+            newCategories = getAdultUnisexCategories(product);
+            break;
+        case 'Youth Unisex':
+        case 'YouthUnisex':
+        case 'Youthunisex':
+        case 'youth_unisex':
+            newCategories = getYouthUnisexCategories(product);
             break;
     }
     return newCategories;

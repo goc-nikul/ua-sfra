@@ -1,4 +1,7 @@
-/* eslint-disable no-empty-function */
+/* eslint-disable no-empty-function, no-unused-vars */
 module.exports = class FileWriter {
-    constructor() { }
+    constructor(file) { }
+    flush() {}
+    close() {}
+    write() {}
 };

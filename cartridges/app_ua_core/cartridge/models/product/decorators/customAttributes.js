@@ -50,6 +50,11 @@ module.exports = function (object, apiProduct, options) {
             custom.division = 'division' in apiProduct.custom ? apiProduct.custom.division : '';
             custom.showFitScale = custom.division === 'Apparel' && custom.fittype !== 'No Fit Type';
             custom.icons = 'icons' in apiProduct.custom && apiProduct.custom.icons ? require('int_ocapi/cartridge/hooks/shop/product/productHookUtils').beautifySelectedFeatureAndBenifits(apiProduct) : null; // feature/benefit icons
+            custom.masterQtyLimit = 'masterQtyLimit' in apiProduct.custom ? apiProduct.custom.masterQtyLimit : null;
+            var HookMgr = require('dw/system/HookMgr');
+            if (HookMgr.hasHook('app.earlyAccess.isEarlyAccessCustomer')) {
+                custom.earlyAccess = HookMgr.callHook('app.earlyAccess.isEarlyAccessCustomer', 'isEarlyAccessCustomer', apiProduct);
+            }
             return custom;
         }())
     });

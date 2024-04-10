@@ -11,24 +11,25 @@ function getModalHtmlElement($container = null) {
     if ($('#quickViewModal').length !== 0) {
         $('#quickViewModal').remove();
     }
+
     var htmlString = '<!-- Modal -->'
-        + '<div class="modal g-modal fade" id="quickViewModal" role="dialog">'
-        + '<span class="enter-message sr-only" ></span>'
-        + '<div class="modal-dialog g-modal-dialog quick-view-dialog">'
-        + '<!-- Modal content-->'
-        + '<div class="modal-content g-modal-content">'
-        + '<div class="modal-header">'
-        + '    <a class="full-pdp-link" href=""></a>'
-        + '    <button type="button" class="close pull-right" data-dismiss="modal">'
-        + '        <span aria-hidden="true">&times;</span>'
-        + '        <span class="sr-only"> </span>'
-        + '    </button>'
-        + '</div>'
-        + '<div class="modal-body"></div>'
-        + '<div class="modal-footer"></div>'
-        + '</div>'
-        + '</div>'
-        + '</div>';
+    + '<div class="modal g-modal fade" id="quickViewModal" role="dialog">'
+    + '<span class="enter-message sr-only" ></span>'
+    + '<div class="modal-dialog g-modal-dialog quick-add-dialog">'
+    + '<!-- Modal content-->'
+    + '<div class="modal-content g-modal-content">'
+    + '<div class="g-modal-header">'
+    + '    <a class="full-pdp-link" href=""></a>'
+    + '    <h2 class="g-modal-title g-quickview-modal-title quickview-title"></h2>'
+    + '    <div class="g-modal-close">'
+    + '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>'
+    + '    </div>'
+    + '</div>'
+    + '<div class="g-modal-body"></div>'
+    + '<div class="modal-footer"></div>'
+    + '</div>'
+    + '</div>'
+    + '</div>';
     if ($container && $container.length) {
         $container.append(htmlString);
     } else {
@@ -104,37 +105,56 @@ function updateQuickViewAddToCartText($modal) {
         return false;   // eslint-disable-line consistent-return
     });
 }
+/**
+ * addsClass to scrollable modal content
+ */
+function checkIfModalContentIsScrollable() {
+    const $modal = $('#quickViewModal');
+
+    if ($modal && $modal.hasClass('show')) {
+        // timeout for sliders initializations
+        setTimeout(() => {
+            const $productInfo = $modal.find('.b-product-quickview-info');
+            const isScrolable = $productInfo[0].scrollHeight > $productInfo[0].clientHeight;
+
+            $productInfo.toggleClass('scrollable', isScrolable);
+        });
+    }
+}
 
 /**
  * replaces the content in the modal window on for the selected product variation.
  * @param {string} selectedValueUrl - url to be used to retrieve a new product model
  */
 function fillModalElement(selectedValueUrl) {
-    $('.modal-body').spinner().start();
+    const $modal = $('#quickViewModal');
+    $modal.addClass('loading').find('.g-modal-body').spinner().start();
     $.ajax({
         url: selectedValueUrl,
         method: 'GET',
         dataType: 'json',
         success: function (data) {
-            var parsedHtml = parseHtml(data.renderedTemplate);
+            const parsedHtml = parseHtml(data.renderedTemplate);
 
-            $('.modal-header').html(parsedHtml.header);
-            $('.modal-body').empty();
-            $('.modal-body').html(parsedHtml.body);
-            $('.modal-footer').html(parsedHtml.footer);
-            $('.full-pdp-link').text(data.quickViewFullDetailMsg);
-            $('#quickViewModal .full-pdp-link').attr('href', data.productUrl);
-            $('#quickViewModal .size-chart').attr('href', data.productUrl);
-            $('#quickViewModal .modal-header .close .sr-only').text(data.closeButtonText);
-            $('#quickViewModal .enter-message').text(data.enterDialogMessage);
-            $('#quickViewModal').modal('show');
+            $modal.find('.g-modal-header').replaceWith(parsedHtml.header);
+            $modal.find('.g-modal-body').empty().html(parsedHtml.body);
+            $modal.find('.modal-footer').html(parsedHtml.footer);
+            $modal.find('.full-pdp-link').text(data.quickViewFullDetailMsg).attr('href', data.productUrl);
+            $modal.find('.size-chart').attr('href', data.productUrl);
+
+            $modal.find('.g-modal-header .close .sr-only').text(data.closeButtonText);
+            $modal.find('.enter-message').text(data.enterDialogMessage);
+            $modal.removeClass('loading').modal('show');
 
             // quickview within product tile
-            if ($('#quickViewModal').closest('.b-tile-quickview').length) {
-                setModalPosition($('#quickViewModal'));
-                updateQuickViewAddToCartText($('#quickViewModal'));
+            if ($modal.closest('.b-tile-quickview').length) {
+                setModalPosition($modal);
+                updateQuickViewAddToCartText($modal);
             }
 
+            checkIfModalContentIsScrollable();
+
+            $('body').trigger('quickview:ready', data);
             $.spinner().stop();
         },
         error: function () {
@@ -177,27 +197,173 @@ function updateQuickViewAddToCart(tile) {
         return '';
     }
 
-    let qvURL = $(tile).find('.js-tile-quickView_button').attr('href');
+    let qvURL = $(tile).find('.js-tile-quickView_button').data('href');
     if (qvURL.indexOf('dwvar_') > -1) {
         const regex = /dwvar_[\d]*_color=\d*/g;
         qvURL = qvURL.replace(regex, dwvarParam);
     } else {
         qvURL += '&' + dwvarParam;
     }
-    $(tile).find('.js-tile-quickView_button').attr('href', qvURL);
+    $(tile).find('.js-tile-quickView_button').data('href', qvURL);
     return qvURL;
 }
 module.exports = {
+    quickAdd: function () {
+        $('body').on('click', '.js-tile-quickAdd_button', function (e) {
+            const $btn = $(this);
+            const addToCartUrl = $btn.data('url');
+            e.preventDefault();
+
+            const qty = $btn.data('qty');
+
+            $btn.trigger('product:beforeAddToCart', $btn);
+
+            const form = {
+                options: [],
+                pid: $btn.data('pid'),
+                quantity: qty,
+                mpid: $btn.data('mpid') || $btn.data('pid')
+            };
+
+            form.isQuickAdd = false;
+            if ($btn.data('quickadd')) {
+                form.isQuickAdd = $btn.data('quickadd');
+            }
+
+            $.ajax({
+                url: addToCartUrl,
+                method: 'POST',
+                data: form,
+                success: (data) => {
+                    if (data.error) {
+                        var availabilityMessages = '';
+                        try {
+                            availabilityMessages = JSON.parse(data.message);
+                        } catch (error) {
+                            availabilityMessages = '';
+                        }
+                        // if (availabilityMessages.outOfStockMsg && availabilityMessages.isNotAvailable) {
+                        if (availabilityMessages) {
+                            $btn.siblings('.b-notify-cta').eq(0).removeClass('hide').trigger('click');
+                        }
+                        return;
+                    }
+                    $('.minicart').trigger('count:update', data);
+
+                    if (!$btn.data('confirmation-modal-url') && data.isQuickAdd === 'true') {
+                        $('body').trigger('product:updateAddToCartModal', data);
+                    }
+
+                    if ($btn.data('confirmation-modal-url')) {
+                        $.ajax({
+                            url: $btn.data('confirmation-modal-url'),
+                            type: 'get',
+                            data: Object.assign({}, form, { quickAdd: true, uuid: data.pliUUID }),
+                            success: function (response) {
+                                var $cartConfirmationModal = $('#quickAddConfirmationModal');
+                                var $responseHtml = $('<div>').append(response || '');
+                                var $responseModal = $responseHtml.find('[id="confirmationModal"]');
+                                if ($cartConfirmationModal.length > 0) {
+                                    $cartConfirmationModal.html($responseModal.html());
+                                } else {
+                                    $responseModal.appendTo('body');
+                                    $cartConfirmationModal = $responseModal;
+                                }
+                                if (!$cartConfirmationModal.is(':visible')) {
+                                    $cartConfirmationModal.modal('show');
+                                }
+                                if ($('.b-add-to-cart-confirmation-modal-container').data('giftcard') === true) {
+                                    $('.b-cart-added-confirmation-modal').find('.b-cart-content-recommendation').hide();
+                                }
+
+                                $cartConfirmationModal.on('click', '.remove-product-button', function (event) {
+                                    event.preventDefault();
+                                    $.ajax({
+                                        url: $(this).attr('href'),
+                                        type: 'get',
+                                        success: function (basketData) {
+                                            $cartConfirmationModal.modal('hide');
+                                            const basket = basketData.basket || basketData.basketModel;
+                                            if (basket) {
+                                                $('.minicart').trigger('count:update', {
+                                                    cart: basket,
+                                                    quantityTotal: basket.numItems,
+                                                    minicartCountOfItems: basket.resources.minicartCountOfItems
+                                                });
+                                            }
+                                        }
+                                    });
+                                });
+                                setTimeout(function () {
+                                    $('body').trigger('components:init');
+                                }, 500);
+                            },
+                            error: function (err) {
+                                console.log(err);
+                            }
+                        });
+                    }
+
+                    // show add to cart toast
+                    if (data.newBonusDiscountLineItem && Object.keys(data.newBonusDiscountLineItem).length !== 0) {
+                        $('[data-cmp="detailBonusProductModal"]').trigger('product:showBonusProducts', data.newBonusDiscountLineItem);
+                    }
+                    if ($('.b-cart-content.cart').length > 0) {
+                        if (data.renderedTemplate) {
+                            $('body').trigger('cart:updateCartTotals', [data.cart, this]);
+                            if ($('.cart').find('.b-cartlineitem').length === 0) {
+                                window.location.reload();
+                            } else {
+                                // update cart product cards markup
+                                $('.js-cart-items').replaceWith(data.renderedTemplate);
+
+                                $('body').trigger('cart:update');
+                            }
+                        }
+                        $('.b-cart_klarna-placement').toggleClass('hide', (data.cart.hasGiftCards || data.cart.hasPreOrder));
+                    }
+
+                    var srContainer = $('.b-cart-content_right .b-cart_shoprunner').closest('div');
+                    if (data.cart && data.cart.srEligible && srContainer.hasClass('hide')) {
+                        srContainer.removeClass('hide');
+                    }
+                    var analyticsData = {
+                        analytics: {
+                            isWishlist: true,
+                            quantityAdded: qty,
+                            isQuickAdd: $btn.closest('.quick-add-dialog, .js-tile-quickAdd_button').length > 0
+                        }
+                    };
+                    $('body').trigger('product:afterAddToCart', $.extend(data, analyticsData));
+                },
+                beforeSend: $.spinner().start,
+                complete: $.spinner().stop,
+                error: function () {
+                    $('.js-add-to-cart').text($('.js-add-to-cart').data('has-error'));
+                }
+            });
+        });
+    },
     showQuickview: function () {
         $('body').on('click', '.quickview', function (e) {
             e.preventDefault();
             var $qvButton = $(this).closest('a.quickview');
-            var selectedValueUrl = $qvButton.attr('href');
+            var selectedValueUrl = $qvButton.data('href');
             var $container = $qvButton.closest($qvButton.attr('data-modal-container')) || null;
             $(e.target).trigger('quickview:show');
             getModalHtmlElement($container);
             fillModalElement(selectedValueUrl);
+
+            const $modal = $('#quickViewModal');
+            $modal.on('submodal:hide', function () {
+                $modal.removeClass('submodal-shown');
+            });
+            $modal.on('submodal:shown', function () {
+                $modal.addClass('submodal-shown');
+            });
         });
+        $(window).on('resize', checkIfModalContentIsScrollable);
+        $(window).on('product:updateAvailability', checkIfModalContentIsScrollable);
     },
     focusQuickview: function () {
         $('body').on('shown.bs.modal', '#quickViewModal', function () {
@@ -323,6 +489,16 @@ module.exports = {
             // prevent base add to cart handler from firing
             e.preventDefault();
             e.stopImmediatePropagation();
+        });
+
+        $('body').on('product:afterAttributeSelect', '#quickViewModal', function (e, response) {
+            const firstProductImage = response && response.data && response.data.product && response.data.product.images && response.data.product.images.pdpMainDesktop && response.data.product.images.pdpMainDesktop[0];
+            if (firstProductImage) {
+                $('#quickViewModal').find('.b-product-quickview-product-img')
+                    .attr('src', firstProductImage.url)
+                    .attr('title', firstProductImage.title)
+                    .attr('alt', firstProductImage.alt);
+            }
         });
     }
 };

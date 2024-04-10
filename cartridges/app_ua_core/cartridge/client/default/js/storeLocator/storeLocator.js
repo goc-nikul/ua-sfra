@@ -110,7 +110,7 @@ function updateStoresResults(data, element) {
     if ($mapDiv.data('has-google-api')) {
         maps();
     } else {
-        $('.store-locator-no-apiKey').show();
+        $('.store-locator-no-api-key').show();
     }
 
     if (data.storesResultsHtml) {
@@ -190,7 +190,7 @@ module.exports = {
         if ($('.map-canvas').data('has-google-api')) {
             maps();
         } else {
-            $('.store-locator-no-apiKey').show();
+            $('.store-locator-no-api-key').show();
         }
 
         if (!$('.results').data('has-results')) {

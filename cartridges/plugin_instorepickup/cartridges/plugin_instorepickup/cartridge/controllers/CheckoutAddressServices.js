@@ -7,10 +7,9 @@ server.extend(module.superModule);
 server.append('AddNewAddress', function (req, res, next) {
     var storeId = req.form.storeId;
     var viewData = res.getViewData();
-    viewData.shippingMethod =
-        viewData.form.shippingAddress.shippingMethodID.value
-            ? viewData.form.shippingAddress.shippingMethodID.value.toString()
-            : null;
+    viewData.shippingMethod = viewData.form.shippingAddress.shippingMethodID.value
+        ? viewData.form.shippingAddress.shippingMethodID.value.toString()
+        : null;
 
     if (storeId && viewData.error) {
         viewData.error = false;

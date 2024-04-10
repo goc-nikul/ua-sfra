@@ -36,7 +36,7 @@
                                <div class="invalid-feedback" id="emailInvalidMessage"></div>
                            </div>
                        </div>
-                       <isif condition="${dw.system.Site.getCurrent().getID() !== 'OC'}">
+                       <isif condition="${(dw.system.Site.getCurrent().getID() !== 'OC') || pdict.membersonEnabled}">
                         <isset name="customerPhonePrefix" value="${pdict.customer && pdict.customer.profile && pdict.customer.profile.countryDialingCode ? pdict.customer.profile.countryDialingCode : ''}" scope="page"/>
                         <isset name="countryCode" value="${pdict.customer && pdict.customer.profile && pdict.customer.profile.countryDialingCode ? pdict.customer.profile.countryDialingCode : pdict.currentCountryDialingCode}" scope="page"/>
                         <div class="form-group b-form_group b-input_row country-DialingCode
@@ -63,7 +63,8 @@
                                <label class="form-control-label b-input_row-label" for="phoneNumber">${Resource.msg('field.customer.phone.number','checkout',null)}<isif condition=${pdict.forms.billingForm.contactInfoFields.phone.mandatory === true || pdict.isPhoneNumberMandatory}> *</isif></label>
                                <input type="tel" class="form-control phone b-input_row-input validatePhoneField js-custom-input <isif condition=${pdict.forms.billingForm.contactInfoFields.phone.mandatory === true || pdict.isPhoneNumberMandatory}>defaultMandatory</isif>" <isif condition=${pdict.forms.billingForm.contactInfoFields.phone.mandatory === true || pdict.isPhoneNumberMandatory}>required</isif> id="phoneNumber"
                                    data-range-error="${Resource.msg('error.message.phonenumber.invalid.emea','forms',null)}" data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid.emea','forms',null)}" data-missing-error="${​​​​​Resource.msg('error.message.required', 'forms', null)}​​​​​"
-                                   value="${customerPhone ? customerPhone : (pdict.order.billing.billingAddress.address && pdict.order.billing.billingAddress.address.phone || '')}"
+                                   value="${customerPhone ? customerPhone : (pdict.order.billing.billingAddress.address && pdict.order.billing.billingAddress.address.phone || '')}" 
+                                   <isif condition="${pdict.membersonEnabled}"> pattern="${Resource.msg('input.validate.phoneNumber', 'forms', null)}"</isif>
                                    <isprint value=${pdict.forms.billingForm.contactInfoFields.phone.attributes} encoding="off"/>
                                    data-analytics-track="contact info : phone"
                                    aria-describedby="phoneInvalidMessage" >

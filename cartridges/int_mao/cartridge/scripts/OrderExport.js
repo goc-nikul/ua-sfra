@@ -13,7 +13,9 @@ const Transaction = require('dw/system/Transaction');
 const OrderExportUtils = require('~/cartridge/scripts/OrderExportUtils');
 const MaoService = require('~/cartridge/scripts/services/MaoService');
 const SQSQueueService = require('~/cartridge/scripts/services/SQSQueueService');
+const GooglePubSubQueueService = require('~/cartridge/scripts/services/GooglePubSubQueueService');
 const MAOPreferences = require('~/cartridge/scripts/MaoPreferences');
+const PubSubPreferences = require('~/cartridge/scripts/PubSubPreferences');
 
 /**
  * Constructs search order query
@@ -56,17 +58,23 @@ function getOrders(searchQuery) {
  * @param {dw.Order.order} order object
  * @param {string} accessToken to make save order call
  * @param {Object} sqsQueueConfigs SQS queue configurations
+ * @param {boolean} saveMAOExportJSON Saves MAO Export request JSON - used on lower environments for troubleshooting
  * @return {boolean} returns true if order saved successfully in MAO, else false
  */
-function saveOrderInMAO(order, accessToken, sqsQueueConfigs) {
+function saveOrderInMAO(order, accessToken, sqsQueueConfigs, saveMAOExportJSON) {
     let orderJSON = OrderExportUtils.getOrderJSON(order);
     let saveOrderStatus;
-    if (!empty(orderJSON) && !orderJSON.error && (!empty(accessToken) || (sqsQueueConfigs && sqsQueueConfigs.isSQSEnabled))) {
+    if (!empty(orderJSON) && !orderJSON.error && (!empty(accessToken) || (sqsQueueConfigs && sqsQueueConfigs.isSQSEnabled) || PubSubPreferences.isEnabled)) {
         Logger.debug('Save order request JSON :: {0}', orderJSON);
 
         var saveOrderService;
         var response;
         try {
+            if (saveMAOExportJSON) {
+                Transaction.wrap(function () {
+                    order.custom.MAOExportJSON = orderJSON; // eslint-disable-line no-param-reassign
+                });
+            }
             var saveOrderRequest;
             if (sqsQueueConfigs && sqsQueueConfigs.isSQSEnabled) {
                 var orderJSONObject = JSON.parse(orderJSON);
@@ -103,7 +111,21 @@ function saveOrderInMAO(order, accessToken, sqsQueueConfigs) {
                     messageHdr: messageHdr
                 };
                 response = saveOrderService.call(saveOrderRequest);
-                Logger.error('response : {0}', response.status);
+                Logger.info('response : {0}', response.status);
+            } else if (PubSubPreferences.isEnabled) {
+                var queueMessage = JSON.parse(orderJSON);
+                queueMessage.MessageHeader.Organization = PubSubPreferences.organization;
+                queueMessage.MessageHeader.User = PubSubPreferences.user;
+
+                saveOrderService = GooglePubSubQueueService.saveOrderService();
+                saveOrderRequest = PubSubPreferences;
+                saveOrderRequest.queueMessage = queueMessage;
+                saveOrderRequest.queueMessageAttributes = {
+                    Organization: PubSubPreferences.organization,
+                    User: PubSubPreferences.user
+                };
+                response = saveOrderService.call(saveOrderRequest);
+                Logger.info('response : {0}', response.status);
             } else {
                 saveOrderService = MaoService.saveOrderService();
                 saveOrderRequest = {
@@ -171,15 +193,17 @@ function handleFailedOrders(order) {
     }
     return isOrderMarkedExportFailed;
 }
+
 /**
  * Main function of the script to start order export process.
- * @param {void}
+ * @param {void} args passed in from job config
  * @return {dw.system.Status} Return "OK" if orders exported successfully, else "ERROR"
  */
-
 module.exports.execute = function (args) {
     const MAOAuthTokenHelper = require('~/cartridge/scripts/MAOAuthTokenHelper');
     const maxLimit = args.MaxLimit && args.MaxLimit > -1 ? args.MaxLimit : null;
+    const saveMAOExportJSON = args.saveMAOExportJSON;
+    const Site = require('dw/system/Site');
     var currentCount = 0; // Tracks the number of orders that has been processed.
 
     if (!empty(maxLimit)) {
@@ -206,7 +230,6 @@ module.exports.execute = function (args) {
         var isSQSEnabled = false;
         var sqsQueueConfigs;
         try {
-            var Site = require('dw/system/Site');
             var sqsQueueConfigsPreference = Site.current.getCustomPreferenceValue('sqsQueueConfigs');
             sqsQueueConfigs = sqsQueueConfigsPreference ? JSON.parse(Site.current.getCustomPreferenceValue('sqsQueueConfigs')) : '';
             isSQSEnabled = sqsQueueConfigs ? sqsQueueConfigs.isSQSEnabled : false;
@@ -215,12 +238,12 @@ module.exports.execute = function (args) {
         }
 
         var accessToken;
-        if (!isSQSEnabled) {
+        if (!isSQSEnabled && !PubSubPreferences.isEnabled) {
             var tokenHelper = new MAOAuthTokenHelper();
             accessToken = tokenHelper.getValidToken().accessToken;
         }
 
-        if (isSQSEnabled || accessToken) {
+        if (isSQSEnabled || accessToken || PubSubPreferences.isEnabled) {
             while (orders.hasNext()) {
                 if (!empty(maxLimit) && currentCount >= maxLimit) {
                     Logger.info('Reached max number of orders to process. Max limit: {0}, Current Count: {1}', maxLimit, currentCount);
@@ -230,7 +253,17 @@ module.exports.execute = function (args) {
 
                 let order = orders.next();
                 try {
-                    let saveOrderStatus = saveOrderInMAO(order, accessToken, sqsQueueConfigs);
+                    // If order is loyalty and contains invalid coupons, it will be Cancelled and not exported
+                    if (Site.getCurrent().getCustomPreferenceValue('isLoyaltyEnable')) {
+                        const loyaltyOrderHelper = require('*/cartridge/scripts/helpers/loyaltyOrderHelpers');
+                        let success = loyaltyOrderHelper.processLoyaltyOrder(order);
+                        if (!success) {
+                            Logger.error('Loyalty coupons are not processed correctly for order {0}', order.orderNo);
+                            throw new Error('Order was cancelled due to invalid Loyalty Coupons!');
+                        }
+                    }
+
+                    let saveOrderStatus = saveOrderInMAO(order, accessToken, sqsQueueConfigs, saveMAOExportJSON);
                     if (!saveOrderStatus) {
                         let isOrderMarkedExportFailed = handleFailedOrders(order);
                         if (isOrderMarkedExportFailed) {

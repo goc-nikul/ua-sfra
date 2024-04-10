@@ -501,6 +501,10 @@
 }
 
 #checkout-main.data-checkout-stage {
+    .checkout-privacy {
+        display: none;
+    }
+
     &[data-customer-type=guest] {
         .multi-shipping {
             .shipment-selector-block {
@@ -678,6 +682,24 @@
     @include respond-to(mobile) {
         max-width: 100%;
     }
+
+    &.b-account-privacy-desktop {
+        display: block;
+
+        @include respond-to(mobile) {
+            display: none;
+        }
+    }
+
+    &.b-account-privacy-mobile {
+        display: none;
+
+        @include respond-to(mobile) {
+            display: block;
+            margin-top: 0;
+            margin-bottom: rem-calc(16);
+        }
+    }
 }
 
 .g-accordion--mobile {
@@ -769,4 +791,8 @@
 
 .d-none {
     display: none !important;
+}
+
+.pe-none {
+    pointer-events: none !important;
 }

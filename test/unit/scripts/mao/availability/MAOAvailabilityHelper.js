@@ -223,4 +223,41 @@ describe('int_mao/cartridge/scripts/MAOAvailability', function () {
         assert.isArray(response);
         assert.equal(response[0], 'SKU001');
     });
+    it('getGiftBoxSKUS() - should return an empty array when productSearchHits is null', function() {
+        const productSearchHits = null;
+        const result = MAOAvailabilityHelper.getGiftBoxSKUS(productSearchHits);
+        assert.isArray(result);
+        assert.deepEqual(Array.isArray(result) && result.length, 0);
+    });
+    it('getGiftBoxSKUS() - should return an empty array when productSearchHits is an empty array', function() {
+        const productSearchHits = [];
+        const result = MAOAvailabilityHelper.getGiftBoxSKUS(productSearchHits);
+        assert.isArray(result);
+        assert.deepEqual(Array.isArray(result) && result.length, 0);
+    });
+    it('getGiftBoxSKUS() - should return an array of SKU values', function() {
+        const productSearchHits = [
+            {
+                getProduct: () => ({
+                    isMaster: () => true,
+                    getVariationModel: () => ({ getDefaultVariant: () => ({ custom: { sku: 'SKU1' } }) })
+                })
+            },
+            {
+                getProduct: () => ({
+                    isMaster: () => false,
+                    custom: { sku: 'SKU2' }
+                })
+            },
+            {
+                getProduct: () => ({
+                    isMaster: () => true,
+                    getVariationModel: () => ({ getDefaultVariant: () => ({ custom: { sku: 'SKU3' } }) })
+                })
+            }
+        ];
+        const result = MAOAvailabilityHelper.getGiftBoxSKUS(productSearchHits);
+        assert.isArray(result);
+        assert.deepEqual(result, ['SKU1', 'SKU2', 'SKU3']);
+    });
 });

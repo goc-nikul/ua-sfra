@@ -1,4 +1,6 @@
 /* eslint-disable no-undef */
+var scrollAnimate = require('org/components/scrollAnimate');
+
 module.exports = function () {
     var validateFields = function () {
         var error = false;
@@ -27,11 +29,24 @@ module.exports = function () {
         var error = false;
         var emailField = document.getElementById('email');
         var emailConfirmField = document.getElementById('emailConfirm');
+        var nameField = document.getElementById('name');
+        var orderNumberField = document.getElementsByClassName('orderNumber-field')[0];
+        var descriptionField = document.getElementById('description');
         var emailInput = emailField.value;
         var emailConfirm = emailConfirmField.value;
+        var nameFieldInput = nameField.value;
+        var orderNumberFieldInput = orderNumberField.value;
+        var descriptionFieldInput = descriptionField.value;
+
+        var customRegex = $('[name$="xssRegex"]').val();
+        var customRegexExp = new RegExp(customRegex, '');
 
         emailField.setCustomValidity('');
         emailConfirmField.setCustomValidity('');
+        nameField.setCustomValidity('');
+        orderNumberField.setCustomValidity('');
+
+        descriptionField.setCustomValidity('');
 
         if (emailConfirm !== emailInput || !emailConfirm || !emailInput) {
             if (!emailInput) {
@@ -56,11 +71,30 @@ module.exports = function () {
             );
             error = true;
         }
+
+        var nameRegexExp = /^(?!-)[a-zA-Z0-9{L}{Nd}\s.-]*$/;
+        if (!nameRegexExp.test(nameFieldInput)) {
+            nameField.setCustomValidity(window.faqResources.faqInvalidInput);
+            error = true;
+        }
+        if (!nameRegexExp.test(orderNumberFieldInput)) {
+            orderNumberField.setCustomValidity(window.faqResources.faqInvalidInput);
+            error = true;
+        }
+        if (!/\S/.test(descriptionFieldInput)) {
+            descriptionField.setCustomValidity(window.faqResources.invalidField);
+            error = true;
+        }
+        if (customRegexExp.test(descriptionFieldInput)) {
+            descriptionField.setCustomValidity(window.faqResources.faqInvalidInput);
+            error = true;
+        }
+
         return error;
     };
 
     var onInputChangeMethod = function (e) {
-        if ($(e.target).val().length < 1) {
+        if ($(e.target).val().length < 1 && e.target.id !== '00N4V00000ECopn') {
             e.target.setCustomValidity(window.faqResources.invalidField);
         } else {
             e.target.setCustomValidity('');
@@ -114,6 +148,13 @@ module.exports = function () {
     $('[type="submit"]').on('click', function () {
         // this adds 'required' class to all the required inputs under the same <form> as the submit button
         $(this).closest('form').find('[required]').addClass('required');
+    });
+
+    $('.cu-form-field').on('focus', function () {
+        var position = $(this).offset().top - $(window).scrollTop();
+        if (position < 115) {
+            scrollAnimate($(this).prevUntil('label'));
+        }
     });
 
     $('#sendNoteForm').on('submit', function (e) {

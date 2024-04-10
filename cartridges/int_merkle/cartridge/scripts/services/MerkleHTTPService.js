@@ -63,7 +63,8 @@ function createJsonRequestBody(params) {
     if (empty(language) || language === undefined) language = getCurrentLanguage();
     if (empty(language) || language === undefined) language = 'en';
 
-    var countryJSON = preferencesUtil.getJsonValue('emailWebSourceCodesJSON')[currentCountry];
+    var emailWebSourceCodesJSON = preferencesUtil.getJsonValue('emailWebSourceCodesJSON');
+    var countryJSON = emailWebSourceCodesJSON ? emailWebSourceCodesJSON[currentCountry] : null;
     var country = countryJSON && countryJSON['countryCode'] ? countryJSON['countryCode'] : currentCountry; // eslint-disable-line
     var triggerName = country.toLowerCase() + '_welcome';
 
@@ -84,6 +85,46 @@ function createJsonRequestBody(params) {
 }
 
 /**
+ * @param {Object} params - additional parameters
+ * @returns {Object} requestBody - builded request body
+ */
+function createStatusJsonRequestBody(params) {
+    if (empty(params.email)) {
+        return MerkleLogger.error('MERKLE - no email provided!');
+    }
+
+    var currentCountry = '';
+    var language = '';
+
+    if ('country' in params && params.country) {
+        currentCountry = params.country;
+    }
+
+    if (empty(currentCountry) || currentCountry === undefined) {
+        currentCountry = session.custom.currentCountry || getCurrentCountry();
+    }
+
+    if ('lng' in params && params.lng) {
+        language = params.lng;
+    }
+
+    if (empty(language) || language === undefined) language = getCurrentLanguage();
+    if (empty(language) || language === undefined) language = 'en';
+
+    var emailWebSourceCodesJSON = preferencesUtil.getJsonValue('emailWebSourceCodesJSON');
+    var countryJSON = emailWebSourceCodesJSON ? emailWebSourceCodesJSON[currentCountry] : null;
+    var country = countryJSON && countryJSON['countryCode'] ? countryJSON['countryCode'] : currentCountry; // eslint-disable-line
+
+    var requestBody = {
+        email: params.email,
+        country: country,
+        language: language.toUpperCase()
+    };
+
+    return requestBody;
+}
+
+/**
  * getSubscriptionStatus function create merkle subscription status service
  * @return {void}
  */
@@ -92,17 +133,22 @@ function getSubscriptionStatus() {
         /**
          * @param {dw.svc.HTTPService} svc - service instance
          * @param {Object} params - additional params
+         * @returns {string} - payload
          */
         createRequest: function (svc, params) {
-            var securityKey = svc.configuration.credential.password;
+            var clientId = svc.configuration.credential.user;
+            var clientSecret = svc.configuration.credential.password;
+            var payload = createStatusJsonRequestBody(params);
 
-            svc.setRequestMethod('GET');
-            svc.addParam('sk', securityKey);
-            svc.addParam('email', params.email);
-            svc.addParam('a', 'c');
+            svc.setRequestMethod('POST');
+            svc.addHeader('Content-type', 'application/json');
+            svc.addHeader('client_id', clientId);
+            svc.addHeader('client_secret', clientSecret);
+
+            return JSON.stringify(payload);
         },
         parseResponse: function (svc, client) {
-            return client;
+            return JSON.parse(client.text);
         },
         mockCall: function () {
             return null;

@@ -104,6 +104,9 @@ server.append('Begin', function (req, res, next) {
     var viewData = res.getViewData();
     var currentBasket = BasketMgr.getCurrentBasket();
     viewData.smsOptInEnabled = COHelpers.smsOptInEnabled();
+    var mobileAuthProvider = require('*/cartridge/modules/providers').get('MobileAuth');
+    viewData.mobileAuthEnabled = mobileAuthProvider.mobileAuthEnabled;
+
     // eslint-disable-next-line no-undef
     var country = session.custom.customerCountry || request.getLocale().slice(-2).toUpperCase();
     var customerRawData = req.currentCustomer.raw;
@@ -313,6 +316,12 @@ server.append('Begin', function (req, res, next) {
             viewData.billPhone2 = (viewData.order.shipping[0].shippingAddress && viewData.order.shipping[0].shippingAddress.phone2) || '';
             viewData.billPhone3 = (viewData.order.shipping[0].shippingAddress && viewData.order.shipping[0].shippingAddress.phone3) || '';
             viewData.billPhone = (viewData.order.shipping[0].shippingAddress && viewData.order.shipping[0].shippingAddress.phone) || '';
+        }
+
+        var shipment = currentBasket.getDefaultShipment();
+
+        if (!empty(shipment.custom.carrierMessage)) {
+            viewData.carrierMessage = shipment.custom.carrierMessage;
         }
     }
     res.setViewData(viewData);

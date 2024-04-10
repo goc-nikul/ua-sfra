@@ -615,7 +615,7 @@ function updateCurrentCustomerInfo(customerProfile, externalProfile) {
         // Update customer birthday
         // Setting customer birthdate only when we receive Month and Day in response
         if (custBirthMonth && custBirthDay) {
-            var custYearStatic = '1900'; // As we are not receving the customer year, keeping it static
+            var custYearStatic = '1904'; // As we are not receving the customer year, keeping it static
             custBirthMonth = parseInt(custBirthMonth, 10);
             custBirthDay = parseInt(custBirthDay, 10);
             if (custBirthYear) {
@@ -958,9 +958,10 @@ function createSocialUser(createUserObj) {
  * @Param {Object} profileObj - Profile Form
  * @Param {Object} customer - Current Customer
  * @Param {boolean} saveProfile - only save profile
+ * @Param {string} customerPreferences - customer preferences
  * @return {boolean} userUpdated - user Updated or not
  */
-function updateUser(profileObj, customer, saveProfile) {
+function updateUser(profileObj, customer, saveProfile, customerPreferences) {
     var userID = '';
     let userObject = {};
     userObject.updated = false;
@@ -1018,15 +1019,15 @@ function updateUser(profileObj, customer, saveProfile) {
             }
 
             var tokenResponse = empty(session.privacy.userId) ? authenticateCustomerResult.accessToken : takeAccessToken; // eslint-disable-line block-scoped-var
-            var bdyYear = profileObj.customer && profileObj.customer.birthYear ? profileObj.customer.birthYear : 0;
+            var bdyYear = profileObj.customer && profileObj.customer.birthYear ? profileObj.customer.birthYear : customer.profile.custom.birthYear;
             if (bdyYear === 0) {
                 bdyYear = null;
             }
-            var bdyMonth = profileObj.customer && profileObj.customer.birthMonth ? profileObj.customer.birthMonth : 0;
+            var bdyMonth = profileObj.customer && profileObj.customer.birthMonth ? profileObj.customer.birthMonth : customer.profile.custom.birthMonth;
             if (bdyMonth === 0) {
                 bdyMonth = null;
             }
-            var bdyDay = profileObj.customer && profileObj.customer.birthDay ? profileObj.customer.birthDay : 0;
+            var bdyDay = profileObj.customer && profileObj.customer.birthDay ? profileObj.customer.birthDay : customer.profile.custom.birthDay;
             if (bdyDay === 0) {
                 bdyDay = null;
             }
@@ -1036,7 +1037,7 @@ function updateUser(profileObj, customer, saveProfile) {
             } else if (profileObj.customer && profileObj.customer.gender == 2) {// eslint-disable-line
                 gender = 'FEMALE';
             }
-            var preferences = accountHelpers.getPreferences(profileObj);
+            var preferences = !empty(customerPreferences) ? customerPreferences : accountHelpers.getPreferences(profileObj);
 
             if (!empty(tokenResponse)) {
                 const accessToken = tokenResponse;
@@ -1447,6 +1448,40 @@ function updateNewPasswordIDMAccount(token, newPassword) {
     };
 }
 
+/**
+ * Deletes the given account link
+ * @param {string} linkDomainUID account link domain uid
+ * @param {string} dwDomain IDM domain
+ * @returns {Object} api response or error object
+ */
+function deleteAccountLink(linkDomainUID, dwDomain) {
+    try {
+        const tokenResponse = getAccessToken('client_credentials', null);
+        if (!empty(tokenResponse.access_token)) {
+            const service = idmService.createIDMService();
+            service.URL += '/accountlinks/' + linkDomainUID + '-' + dwDomain; // eslint-disable-line spellcheck/spell-checker
+            service.setRequestMethod('DELETE');
+            service.addHeader('content-type', 'application/json');
+            service.addHeader('Accept', 'application/json');
+            service.addHeader('Authorization', 'Bearer ' + tokenResponse.access_token);
+            service.addHeader('X-HTTP-Method-Override', 'DELETE');
+            const result = service.call();
+            if (!empty(result) && !empty(result.status) && result.status === 'OK') {
+                return {
+                    status: true
+                };
+            } else if (result.errorMessage) {
+                idmLogger.error('Error in IDMHelper.js -> deleteAccountLink() :: {0}', result.errorMessage);
+            }
+        }
+    } catch (e) {
+        idmLogger.error('Error in IDMHelper.js -> deleteAccountLink() :: {0}', e.message);
+    }
+    return {
+        status: false
+    };
+}
+
 module.exports = {
     authenticateCustomer: authenticateCustomer,
     loginCustomer: loginCustomer,
@@ -1467,5 +1502,6 @@ module.exports = {
     updateSizePreferences: updateSizePreferences,
     updateCurrentCustomerInfo: updateCurrentCustomerInfo,
     updateTokenOnLogin: updateTokenOnLogin,
-    getNewAccessTokenIfExpired: getNewAccessTokenIfExpired
+    getNewAccessTokenIfExpired: getNewAccessTokenIfExpired,
+    deleteAccountLink: deleteAccountLink
 };

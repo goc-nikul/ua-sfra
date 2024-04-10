@@ -1,0 +1,99 @@
+<iscontent type="text/html" charset="UTF-8" compact="true" />
+<isdecorate template="application/MenuFrame">
+	<isinclude template="inc/Modules">
+
+		<isset name="TOP_URL"
+			value="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', 'customers')}"
+			scope="PAGE">
+			<ISBreadcrumb name1="Merchant Tools" url1="${URLUtils.url('ViewApplication-SelectSite').toString()}"
+				name2="Customers" url2="${TOP_URL.toString()}"
+				name3="${Resource.msg('customerreport.title', 'customerreport', null)}">
+
+				<isscript>
+		var timezoneHelper = new (require("*/cartridge/scripts/util/TimezoneHelper"))(),
+		reportsEnd = new dw.util.Calendar(timezoneHelper.getCurrentSiteTime()),
+		reportsStartDate = pdict.customerReportData.success ? pdict.customerReportData.reportsStartDate : ''
+	</isscript>
+				<div id="wraper">
+					<h1 class="report_title">${Resource.msg('customerreport.title', 'customerreport', null)}</h1>
+					<hr>
+
+					<div class="date-range-search">
+						<span class="date-range-search-title">${Resource.msg('customerreport.daterange', 'customerreport', null)}</span>
+						<form action="#" id="date-range-form">
+							<fieldset>
+								<table class="date-range-table">
+									<tbody>
+										<tr>
+											<td><label for="date-from">${Resource.msg('customerreport.datefrom', 'customerreport', null)}</label></td>
+											<td>
+												<input type="text" id="time-from" class="datepicker"
+													value="${dw.util.StringUtils.formatCalendar(new dw.util.Calendar(reportsStartDate), Resource.msg('customerreport.dateformat',
+                	'customerreport', null))}">
+												<span class="date-comment">${Resource.msg('customerreport.dateformat', 'customerreport', null)}</span>
+											</td>
+										</tr>
+										<tr>
+											<td><label for="date-to">${Resource.msg('customerreport.dateto', 'customerreport', null)}</label></td>
+											<td>
+												<input type="text" id="time-to" class="datepicker"
+													value="${dw.util.StringUtils.formatCalendar(reportsEnd, Resource.msg('customerreport.dateformat', 'customerreport', null))}">
+												<span class="date-comment">${Resource.msg('customerreport.dateformat', 'customerreport', null)}</span>
+											</td>
+										</tr>
+										<tr>
+											<td class="date-range-actions" colspan="2">
+												<button name="searchReport"
+													data-handler-link="${URLUtils.url('CustomerReport-HandleDeleteFilter')}"
+													class="button">${Resource.msg('customerreport.findreports', 'customerreport', null)}</button>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</fieldset>
+						</form>
+					</div>
+
+					<div class='export-block-action'>
+						<button name="exportCsv"><a href="#" name="export-reports" class="export-reports">Export to
+								CSV</a></button>
+					</div>
+
+					<div>
+						<!-- Reports table -->
+						<table id="reports-table">
+							<thead>
+								<tr>
+									<isif condition="${pdict.columnItemsList.length}">
+										<isloop items="${pdict.columnItemsList}" alias="item">
+											<th class="cell-header" data-item-name="${item}">
+												${Resource.msg('customerreport.' + item.toLowerCase(), 'customerreport', null)}</th>
+										</isloop>
+										<th class="cell-header" data-item-name="creationTime">
+											${Resource.msg('customerreport.creationtime', 'customerreport', null)}</th>
+									</isif>
+								</tr>
+							</thead>
+							<!-- deleted customer reports table body-->
+							<isif condition="${pdict.customerReportData.success}">
+								<tbody>
+									<isinclude template="customerreport/components/deleteRecordsBody" />
+								</tbody>
+							</isif>
+						</table>
+					</div>
+					<div class="error-msg ${pdict.customerReportData.success ? 'hidden' : ''}" id="error-technical">
+						<h1 class="error-msg-text">${Resource.msg('customerreport.techincalerror', 'customerreport', null)}</h1>
+					</div>
+					<div class="error-msg ${pdict.customerReportData.success && !pdict.customerReportData.customerReportDataBody.length ? '' : 'hidden'}" id="error-records-not-found">
+						<h1 class="error-msg-text">${Resource.msg('customerreport.norecords', 'customerreport', null)}</h1>
+					</div>
+				</div>
+
+				<link rel="stylesheet" href="${URLUtils.staticURL('/css/customerreport.css')}" />
+				<link rel="stylesheet" href="${URLUtils.staticURL('/css/jquery-ui.min.css')}" />
+				<script type="text/javascript" src="${URLUtils.absStatic('/lib/jquery-2.2.1.min.js')}"></script>
+				<script type="text/javascript" src="${URLUtils.absStatic('/lib/jquery-ui.min.js')}"></script>
+				<script type="text/javascript" src="${URLUtils.absStatic('/js/customerreport.js')}"></script>
+
+</isdecorate>

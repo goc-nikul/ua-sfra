@@ -26,11 +26,45 @@ function updateResponse(order, orderResponse) {
 }
 
 /**
+ * This method saves the error in order object to be used later. And also returns an OK status.
+ *
+ * @param {dw.order.Order} order - B2C Script Order object
+ * @param {string} errorCode - Error code
+* @param {string} errorMessage - Error messages
+ * @returns{dw.system.Status} - OK to continue further hook processing, ERROR to abort
+ */
+function failOrderUpdateErrorResponse(order, errorCode, errorMessage) {
+    const Order = require('dw/order/Order');
+    var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
+
+    try {
+        if (order) {
+            let data = {
+                error: true,
+                errorCode: errorCode,
+                errorMessage: errorMessage
+            };
+            order.custom.failedStatus = JSON.stringify(data);
+
+            COHelpers.failOrder(order);
+
+            if (order && order.status.value === Order.ORDER_STATUS_FAILED) {
+                return new Status(Status.OK, errorCode, errorMessage);
+            }
+        }
+    } catch (e) {
+        Logger.error('Error while updating order failed status failOrderUpdateErrorResponse() :: {0}', e.message);
+    }
+    // return error if system is unable to fail order or add failed status. Error state will automatically roll back order creation process.
+    return new Status(Status.ERROR, errorCode, errorMessage);
+}
+
+/**
  * This method gets the estimated Loyalty points for Loyalty users
  *
  * @param {dw.order} order - order
  */
-function estimateLoyaltyPionts(order) {
+function estimateLoyaltyPoints(order) {
     let PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
     if (PreferencesUtil.getValue('isLoyaltyEnable')) {
         const loyaltyHelper = require('*/cartridge/scripts/helpers/loyaltyHelper');
@@ -44,35 +78,6 @@ function estimateLoyaltyPionts(order) {
     }
 }
 
-/**
- * This method update the loyalty coupon status in loyalty for Loyalty users
- *
- * @param {dw.order} order - order
- */
-function updateLoyaltyCouponStatus(order) {
-    let PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
-    if (PreferencesUtil.getValue('isLoyaltyEnable') && customer.isMemberOfCustomerGroup('Loyalty')) {
-        const loyaltyHelper = require('*/cartridge/scripts/helpers/loyaltyHelper');
-        var loyaltyCoupons = loyaltyHelper.getLoyaltyCouponsFromLineItemCtnr(order);
-        var customerNo = order.customerNo;
-        if (!empty(loyaltyCoupons)) {
-            var updateCouponResponse = loyaltyHelper.updateCoupon(loyaltyCoupons, customerNo);
-
-            if (updateCouponResponse.ok && updateCouponResponse.object && updateCouponResponse.object.couponUpdated) {
-                Logger.info('Coupon Status updated successfully');
-            } else {
-                const Transaction = require('dw/system/Transaction');
-                Transaction.wrap(function () {
-                    // eslint-disable-next-line no-param-reassign
-                    order.custom.loyaltyCouponNotUpdated = true;
-                    // eslint-disable-next-line no-param-reassign
-                    order.custom.loyaltyCouponUpdateRetries = 0;
-                });
-                Logger.error('Error while updating the coupon status at LoyaltyPlus');
-            }
-        }
-    }
-}
 /**
  * This Method updates order for BOPIS only
  *
@@ -155,23 +160,6 @@ function updateBOPIS(order) {
     }
 }
 
-/**
- * This method Remove Invalid Loyalty Coupon Code from Basket for Loyalty users
- *
- * @param {dw.order.Basket} basket - basket
- */
-function removeInvalidLoyaltyCouponsBeforePlaceOrder(basket) {
-    let PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
-    if (PreferencesUtil.getValue('isLoyaltyEnable') && customer.isMemberOfCustomerGroup('Loyalty')) {
-        const loyaltyHelper = require('*/cartridge/scripts/helpers/loyaltyHelper');
-        try {
-            loyaltyHelper.removeInvalidLoyaltyCoupons(basket);
-        } catch (e) {
-            errorLogHelper.handleOcapiHookErrorStatus(e);
-        }
-    }
-}
-
 exports.afterPOST = function (order) {
     var BasketMgr = require('dw/order/BasketMgr');
     const giftcardsHooks = require('*/cartridge/scripts/giftcard/hooks/giftcardsHooks');
@@ -246,7 +234,7 @@ exports.afterPOST = function (order) {
                     paymentErrorMessage = 'Klarna status is pending';
                     orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, true, paymentErrorMessage));
                 }
-                return new Status(Status.ERROR, 'placeOrderError', Resource.msg('error.ocapi.klarna.payment.pending', 'checkout', null));
+                return failOrderUpdateErrorResponse(order, 'placeOrderError', Resource.msg('error.ocapi.klarna.payment.pending', 'checkout', null));
             }
 
             // Payment approved
@@ -271,13 +259,11 @@ exports.afterPOST = function (order) {
                     if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
                         orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
                     }
-                    return new Status(Status.ERROR, 'placeOrderError', Resource.msg('error.ocapi.placeorder', 'checkout', null));
+                    return failOrderUpdateErrorResponse(order, 'placeOrderError', Resource.msg('error.ocapi.placeorder', 'checkout', null));
                 }
                 // Update Loyalty Estimation Points
-                estimateLoyaltyPionts(order);
+                estimateLoyaltyPoints(order);
 
-                // Update Loyalty Coupon Status
-                updateLoyaltyCouponStatus(order);
                 if (Site.getCurrent().getCustomPreferenceValue('isSetOrderConfirmationEmailStatusForJob')) {
                     order.custom.orderConfirmationEmailStatus = 'READY_FOR_PROCESSING'; // eslint-disable-line no-param-reassign
                 } else {
@@ -297,7 +283,7 @@ exports.afterPOST = function (order) {
                 currentBasket = BasketMgr.getCurrentBasket();
                 basketHasGCPaymentInstrument = giftCardHelper.basketHasGCPaymentInstrument(currentBasket);
                 if (currentBasket && basketHasGCPaymentInstrument) {
-                    giftcardsHooks.reverseGiftCardsAmount(currentBasket);
+                    giftcardsHooks.reverseGiftCardsAmount(order);
                 }
 
                 if (currentBasket && vipDataHelpers.isVIPOrder(currentBasket)) {
@@ -320,7 +306,7 @@ exports.afterPOST = function (order) {
                 if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
                     orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
                 }
-                return new Status(Status.ERROR, 'placeOrderError', Resource.msg('error.ocapi.fraud', 'checkout', null));
+                return failOrderUpdateErrorResponse(order, 'placeOrderError', Resource.msg('error.ocapi.fraud', 'checkout', null));
             }
         }
 
@@ -332,7 +318,7 @@ exports.afterPOST = function (order) {
         currentBasket = BasketMgr.getCurrentBasket();
         basketHasGCPaymentInstrument = giftCardHelper.basketHasGCPaymentInstrument(currentBasket);
         if (currentBasket && basketHasGCPaymentInstrument) {
-            giftcardsHooks.reverseGiftCardsAmount(currentBasket);
+            giftcardsHooks.reverseGiftCardsAmount(order);
         }
         if (currentBasket && vipDataHelpers.isVIPOrder(currentBasket)) {
             vipHooks.reverseVipPoints(currentBasket);
@@ -341,15 +327,15 @@ exports.afterPOST = function (order) {
         if (handlePaymentResult.errorCode) {
             if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
                 paymentErrorMessage = handlePaymentResult.errorMessage ? handlePaymentResult.errorMessage : Resource.msg('error.handlePayment.msg', 'checkout', null);
-                orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, true, paymentErrorMessage));
+                orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, true, paymentErrorMessage, handlePaymentResult.errorCode));
             }
-            return new Status(Status.ERROR, handlePaymentResult.resultCode, handlePaymentResult.errorMessage);
+            return failOrderUpdateErrorResponse(order, handlePaymentResult.resultCode || 'placeOrderError', handlePaymentResult.errorMessage);
         }
         if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
             paymentErrorMessage = handlePaymentResult.errorMessage ? handlePaymentResult.errorMessage : Resource.msg('error.handlePayment.msg', 'checkout', null);
             orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, true, paymentErrorMessage));
         }
-        return new Status(Status.ERROR, 'placeOrderError', handlePaymentResult.errorMessage || Resource.msg('billingaddress.invalidcard.errormessage', 'checkout', null));
+        return failOrderUpdateErrorResponse(order, 'placeOrderError', handlePaymentResult.errorMessage || Resource.msg('billingaddress.invalidcard.errormessage', 'checkout', null));
     }
     // log the order details for dataDog.
     if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
@@ -358,12 +344,25 @@ exports.afterPOST = function (order) {
     return new Status(Status.OK);
 };
 
-exports.beforePOST = function (basket) {
-    removeInvalidLoyaltyCouponsBeforePlaceOrder(basket);
-    return new Status(Status.OK);
-};
 
 exports.modifyPOSTResponse = function (order, orderResponse) {
+    const Order = require('dw/order/Order');
+
+    // return failed status stored in order object from afterPOST().
+    if (order && order.status.value === Order.ORDER_STATUS_FAILED) {
+        try {
+            let failedStatus = 'failedStatus' in order.custom && order.custom.failedStatus ? JSON.parse(order.custom.failedStatus) : {
+                errorCode: null,
+                errorMessage: null
+            };
+
+            return new Status(Status.ERROR, failedStatus.errorCode, failedStatus.errorMessage);
+        } catch (e) {
+            Logger.error('Error while retriving the failed status - orderNo {0} :: {1}', order.orderNo, e.message);
+            return new Status(Status.ERROR, 'placeOrderError');
+        }
+    }
+
     // validates MAO Order Type
     if (!order.custom.maoOrderType.value) {
         var Resource = require('dw/web/Resource');

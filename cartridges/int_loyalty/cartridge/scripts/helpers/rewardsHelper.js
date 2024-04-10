@@ -161,14 +161,15 @@ var dollarOffReward = function (rewardId) {
                 throw new Error(REWARD_REJECT_ERROR);
             }
 
-            if (!this.reject()) {
-                throw new Error(REWARD_REJECT_ERROR);
-            }
-
             const currentBasket = require('dw/order/BasketMgr').getCurrentBasket();
             const success = removeCouponLineItem(currentBasket, this.couponCode);
-            updateBasket(currentBasket);
 
+            if (success) {
+                if (!this.reject()) {
+                    throw new Error(REWARD_REJECT_ERROR);
+                }
+                updateBasket(currentBasket);
+            }
             return success;
         }
     });
@@ -217,17 +218,18 @@ var freeProductReward = function (rewardId, productId) {
                 throw new Error(REWARD_REJECT_ERROR);
             }
 
-            if (!this.reject()) {
-                throw new Error(REWARD_REJECT_ERROR);
-            }
-
             const currentBasket = require('dw/order/BasketMgr').getCurrentBasket();
             let productToDelete = findProductByRewardID(currentBasket, rewardId);
             let success = removeCouponLineItem(currentBasket, this.couponCode);
             const cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
             success = cartHelper.removeProductFromCart(productToDelete);
-            updateBasket(currentBasket);
 
+            if (success) {
+                if (!this.reject()) {
+                    throw new Error(REWARD_REJECT_ERROR);
+                }
+                updateBasket(currentBasket);
+            }
             return success;
         }
     });

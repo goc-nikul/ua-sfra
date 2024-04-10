@@ -1,0 +1,269 @@
+@import '~org/1-settings/all';
+
+.embeddedServiceHelpButton .helpButton .uiButton {
+    background-color: #dc0019;
+    font-family: "NeuePlakUA", sans-serif;
+    border: none;
+    padding: 5px 12px;
+    margin: 0;
+    box-shadow: none;
+    font-size: 1em;
+    font-weight: var(--lwc-fontWeightBold, 700);
+    text-shadow: none;
+    line-height: 50px;
+    transition: background 0.8s ease;
+    max-width: 16em;
+    display: flex;
+    align-content: space-around;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+}
+
+.sidebarHeader.minimizedContainer.embeddedServiceSidebarMinimizedDefaultUI {
+    background: #dc0019;
+    font-family: "NeuePlakUA", sans-serif;
+    border: none;
+}
+
+.embeddedServiceSidebarMinimizedDefaultUI .content,
+.embeddedServiceSidebarMinimizedDefaultUI .content .messageContent {
+    margin: 0;
+}
+
+.helpButtonEnabled .embeddedServiceIcon {
+    height: 2rem;
+    margin-top: 0.5rem;
+    margin-right: 0 !important;
+    width: 2.5rem;
+    background: url('https://help.underarmour.com/resource/1660921968000/chat') no-repeat;
+}
+
+.helpButtonEnabled .embeddedServiceIcon::before {
+    content: none !important;
+}
+
+.embeddedServiceHelpButton .embeddedServiceIcon::before {
+    content: none !important;
+}
+
+.helpButtonLabel > .message {
+    margin-left: 5px !important;
+    margin-right: 5px !important;
+    background-color: inherit;
+    color: white;
+    border: none;
+}
+
+.minimizedContainer.embeddedServiceSidebarMinimizedDefaultUI .message {
+    background-color: inherit;
+    color: white;
+    border: none;
+}
+
+@include respond-to(tablet-landscape) {
+    .helpButtonEnabled .helpButtonLabel .message,
+    .minimizedContainer.embeddedServiceSidebarMinimizedDefaultUI .message {
+        display: block !important;
+    }
+
+    .embeddedServiceHelpButton .helpButton {
+        right: 160px;
+    }
+
+    .embeddedServiceSidebarMinimizedDefaultUI.hideLogoForMobile .minimizedImage {
+        display: block !important;
+    }
+
+    .embeddedServiceSidebarMinimizedDefaultUI .content,
+    .embeddedServiceSidebarMinimizedDefaultUI .content .messageContent {
+        display: block;
+    }
+
+    .embeddedServiceSidebarMinimizedDefaultUI .minimizedQueuePosition {
+        display: inline-block;
+        vertical-align: text-bottom;
+    }
+
+    .embeddedServiceSidebarMinimizedDefaultUI .queuePositionNumber {
+        font-size: 16px;
+    }
+
+    .embeddedServiceSidebarMinimizedDefaultUI:not(.helpButton) .minimizedText {
+        display: inline-block;
+        width: auto;
+        font-size: 0.875em;
+        margin: 0 10px;
+    }
+
+    .embeddedServiceSidebarMinimizedDefaultUI.hideLogoForMobile .minimizedImage {
+        display: inline-block !important;
+        vertical-align: -14px;
+    }
+
+    .sidebarHeader.minimizedContainer.embeddedServiceSidebarMinimizedDefaultUI {
+        width: auto;
+        height: auto;
+        right: 0 !important;
+        bottom: 12.5% !important;
+        border-radius: 15px 0 0 15px;
+    }
+
+    .embeddedServiceSidebarMinimizedDefaultUI .minimizedImage {
+        display: inline-block;
+        vertical-align: -13px;
+    }
+
+    .embeddedServiceSidebarMinimizedDefaultUI .embeddedServiceIcon {
+        display: inline-block;
+    }
+
+    .embeddedServiceSidebarMinimizedDefaultUI:not(.waiting) .minimizedText {
+        display: inline-block;
+    }
+
+    .sidebarHeader.minimizedContainer.newMessage.embeddedServiceSidebarMinimizedDefaultUI .minimizedText {
+        margin: 14px 32px !important;
+    }
+
+    .sidebarHeader.minimizedContainer.newMessage.embeddedServiceSidebarMinimizedDefaultUI {
+        border-radius: 13px 8px 0 0 !important;
+    }
+}
+
+@include respond-to(mobile) {
+    .embeddedServiceSidebarMinimizedDefaultUI .minimizedImage img,
+    .embeddedServiceSidebarMinimizedDefaultUI .minimizedImage .uiImage {
+        width: 45px;
+        height: 45px;
+        display: block;
+    }
+
+    .helpButtonEnabled .helpButtonLabel .message,
+    .minimizedContainer.embeddedServiceSidebarMinimizedDefaultUI .message {
+        display: none;
+    }
+
+    .embeddedServiceHelpButton .helpButtonEnabled {
+        position: absolute;
+        top: -250%;
+        left: -45px;
+        min-width: 4em;
+    }
+
+    .sidebarHeader.minimizedContainer.embeddedServiceSidebarMinimizedDefaultUI {
+        bottom: 23%;
+        right: -15px;
+        min-width: 4em;
+    }
+
+    .sidebarHeader.minimizedContainer.newMessage.embeddedServiceSidebarMinimizedDefaultUI .minimizedText {
+        margin: 14px 32px !important;
+    }
+
+    .sidebarHeader.minimizedContainer.newMessage.embeddedServiceSidebarMinimizedDefaultUI {
+        border-radius: 8px 8px 0 0 !important;
+    }
+
+    .helpButtonEnabled .embeddedServiceIcon {
+        display: inline-block !important;
+    }
+
+    .sidebarHeader.minimizedContainer.newMessage.embeddedServiceSidebarMinimizedDefaultUI .message {
+        display: inline !important;
+        width: 1rem;
+        height: 1rem;
+        padding: 0;
+        margin: 0;
+    }
+}
+
+@include respond-to(phones) {
+    .sidebarHeader.minimizedContainer.embeddedServiceSidebarMinimizedDefaultUI {
+        width: 64px;
+        height: 46px;
+        right: -7px !important;
+        bottom: 19% !important;
+        border-radius: 8px 0 0;
+    }
+
+    .helpButtonEnabled .helpButtonLabel .message,
+    .minimizedContainer.embeddedServiceSidebarMinimizedDefaultUI .message {
+        display: none !important;
+    }
+
+    .embeddedServiceSidebarMinimizedDefaultUI.hideLogoForMobile .minimizedImage {
+        display: none !important;
+    }
+
+    .embeddedServiceSidebarMinimizedDefaultUI .minimizedImage,
+    .embeddedServiceSidebarMinimizedDefaultUI .embeddedServiceIcon {
+        display: none !important;
+    }
+
+    .embeddedServiceHelpButton .helpButton {
+        right: 12px;
+    }
+
+    .embeddedServiceSidebarMinimizedDefaultUI .content,
+    .embeddedServiceSidebarMinimizedDefaultUI .content .messageContent {
+        display: flex;
+        background: url(https://help.underarmour.com/resource/1660921968000/chat) no-repeat;
+        background-position: center;
+    }
+
+    .sidebarHeader.minimizedContainer.embeddedServiceBottomTabBar.embeddedServiceSidebarMinimizedDefaultUI .messageContent {
+        width: 2.5rem !important;
+        background: url(https://help.underarmour.com/resource/1660921968000/chat) no-repeat;
+        background-position: center;
+    }
+
+    .minimizedContainer.helpButton.embeddedServiceSidebarMinimizedDefaultUI .embeddedServiceIcon {
+        display: none;
+    }
+
+    .sidebarHeader.minimizedContainer.newMessage.embeddedServiceBottomTabBar.embeddedServiceSidebarMinimizedDefaultUI .minimizedImage {
+        display: none;
+    }
+
+    .sidebarHeader.minimizedContainer.embeddedServiceBottomTabBar.embeddedServiceSidebarMinimizedDefaultUI .minimizedImage {
+        display: none !important;
+    }
+
+    .sidebarHeader.minimizedContainer.queue.embeddedServiceBottomTabBar.embeddedServiceSidebarMinimizedDefaultUI .minimizedQueuePosition {
+        position: absolute;
+        margin-top: 12px;
+    }
+
+    .sidebarHeader.minimizedContainer.idleTimeout.embeddedServiceSidebarMinimizedDefaultUI {
+        border-radius: 8px 8px 0 0 !important;
+    }
+}
+
+.embeddedServiceHelpButton .helpButtonDisabled {
+    display: none !important;
+}
+
+@include respond-to(desktop) {
+    .b-back_to_top {
+        &-button {
+            bottom: 30px;
+        }
+    }
+
+    .embeddedServiceHelpButton .helpButton {
+        right: 55px;
+    }
+}
+
+.minimizedContainer.helpButton.embeddedServiceSidebarMinimizedDefaultUI .embeddedServiceIcon {
+    height: 2rem;
+    margin-top: 0.5rem;
+    margin-right: 0 !important;
+    width: 2.5rem;
+    background: url(https://help.underarmour.com/resource/1660921968000/chat) no-repeat;
+    vertical-align: -10px;
+}
+
+.minimizedContainer.helpButton.embeddedServiceSidebarMinimizedDefaultUI svg {
+    display: none;
+}

@@ -57,10 +57,16 @@ function createProductListObject(productListObject, config) {
             var sortComparatorRule = new PropertyComparator('custom.wishlistedFromCart', true);
             listProducts.sort(sortComparatorRule);
         }
+        var displayCount = 0;
 
         listProducts.toArray().forEach(function (item) {
             productListItem = new ProductListItemModel(item).productListItem;
             if (productListItem && item.product) {
+                // Count only display products
+                if ((enableAvailablePerLocale && item.product.custom.availableForLocale.value !== 'No') || !enableAvailablePerLocale) {
+                    displayCount++;
+                }
+
                 if (config.publicView && item.product.master) {
                     count--;
                 } else if (totalNumber < (pageSize * pageNumber)) {
@@ -76,7 +82,8 @@ function createProductListObject(productListObject, config) {
             }
         });
 
-        result.length = count;
+        result.length = displayCount;
+        result.productCount = count;
         result.showMore = !(totalNumber <= pageSize * pageNumber);
         result.pageNumber = pageNumber;
     } else {

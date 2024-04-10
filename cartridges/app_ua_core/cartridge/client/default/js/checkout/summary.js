@@ -18,7 +18,15 @@ function updateTotals(totals) {
     }
 
     $('.tax-total').text(totals.totalTax);
-    $('.sub-total').text(totals.subTotal);
+
+    if ($('.sub-total-na').length > 0) {
+        $('.sub-total-na').empty().append(totals.newSubTotalWithoutCoupon.formatted);
+    } else if ($('.sub-total-emea').length > 0) {
+        $('.sub-total-emea').text(totals.subTotal);
+    } else {
+        $('.sub-total').text(totals.totalListPrice.formatted);
+    }
+
     $('.grand-total-sum').text(totals.grandTotal);
 
     if (totals.estimatedLoyaltyPoints > 0) {
@@ -47,7 +55,7 @@ function updateTotals(totals) {
             if (totals.discountDistribution.orderLevelDiscountValue > 0) {
                 $('.order-discount').show();
                 $('.order-discount-total').text('- ' + totals.discountDistribution.orderLevelDiscountFormatted);
-            } else if (!$('.order-employee-discount').is(':visible') && totals.orderLevelDiscountTotal && totals.orderLevelDiscountTotal.value && totals.orderLevelDiscountTotal.value > 0) {
+            } else if (!($('.order-employee-discount').is(':visible') || $('.order-loyalty-discount').is(':visible')) && totals.orderLevelDiscountTotal && totals.orderLevelDiscountTotal.value && totals.orderLevelDiscountTotal.value > 0) {
                 $('.order-discount').show();
                 $('.order-discount-total').text('- ' + totals.orderLevelDiscountTotal.formatted);
             } else {

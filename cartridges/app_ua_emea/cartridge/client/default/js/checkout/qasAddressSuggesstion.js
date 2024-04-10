@@ -290,6 +290,10 @@ function addressSuggestion(options) { // eslint-disable-line
             instance.currentCountryCode = currentCountryInfo[0];
             instance.currentDataSet = currentCountryInfo[1] || '';
 
+            //  Add dataset value eircode to Ireland for pincode population
+            if (instance.currentCountryCode === 'IE') {
+                instance.currentDataSet = 'EIRCODE';
+            }
 
             //  (Re-)set the property stating whether the search input has been reset.
             //  This is needed for instances when the search input is also an address

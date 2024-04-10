@@ -936,7 +936,7 @@ function addRequiredAttribute(data) {
 function singleShippingAddressSelect(scope) {
     var form = $(scope).parents('form')[0];
     var selectedOption = $(scope);
-    var attrs = selectedOption.data();
+    var attrs = selectedOption.length > 0 ? selectedOption[0].dataset : selectedOption.data();
     var shipmentUUID = $(selectedOption[0]).attr('value');
     var originalUUID = $('input[name=shipmentUUID]', form).val();
     var element;
@@ -1818,5 +1818,12 @@ module.exports = {
             $(this).val($('.b-shipping_saveas-default').is(':checked'));
         });
         $('body').trigger('shipping:updateShipToOfficeView');
+
+        $(window).on('load', function () {
+            if ($('.js-ship-to-office').length > 0 && $('.js-ship-to-office').is(':visible') && $('.js-ship-to-office').find('.shipping-address-section').length > 0) {
+                $('.js-ship-to-office').find('.shipping-address-option:first').trigger('click');
+                $('.js-shipto-office-error').addClass('hide');
+            }
+        });
     }
 };

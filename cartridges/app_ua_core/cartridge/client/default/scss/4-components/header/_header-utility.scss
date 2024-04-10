@@ -35,18 +35,19 @@
                     white-space: nowrap;
                     margin: 0 0.7rem;
 
-                    &::after {
-                        content: "|";
-                        position: absolute;
-                        right: 0;
-                        top: 0;
-                        font-size: 0.5rem;
-                    }
-
                     &:hover {
                         text-decoration: underline;
                     }
                 }
+            }
+        }
+
+        &.b-header-extole {
+            position: absolute;
+            z-index: 1;
+            font-size: 0.75rem;
+            @include respond-to(mobile) {
+                display: none;
             }
         }
     }

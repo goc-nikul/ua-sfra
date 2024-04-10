@@ -38,7 +38,6 @@ function getOutletData(product, updateUnorderableVariants) {
 
     try {
         // Product filter
-        var merchOverrideActive = product.custom.experienceType && product.custom.experienceType.value && product.custom.experienceType.value.indexOf('Merch') !== -1;
         var locales = Site.getCurrent().getAllowedLocales();
 
         while(variants.hasNext()){
@@ -54,6 +53,7 @@ function getOutletData(product, updateUnorderableVariants) {
                 request.setLocale(locale);
                 let countryCode = Locale.getLocale(locale).getCountry();
                 let currencyCode = getCurrencyCode(countryCode);
+                var merchOverrideActive = product.custom.experienceType && product.custom.experienceType.value && product.custom.experienceType.value.indexOf('Merch') !== -1;
                 localizedData[locale] = {};
                 if (!(locale in outletColors)) {
                     outletColors[locale] = [];
@@ -65,12 +65,12 @@ function getOutletData(product, updateUnorderableVariants) {
                 let standardPrice = productUtils.getPriceByPricebook(variant, currencyCode, 'list', locale),
                     salesPrice = productUtils.getPriceByPricebook(variant, currencyCode, 'sale', locale);
 
-                if (salesPrice === 0) {
+                if (salesPrice.valueOrNull == null || salesPrice.valueOrNull === 0) {
                     salesPrice = standardPrice;
                 }
 
                 // Check if Standard price is not equal to Sale price
-                if ((currencyCode + standardPrice).toString() != (currencyCode + salesPrice).toString()) {
+                if ( salesPrice.value < standardPrice.value ) {
                     // Variant is Outlet
                     premiumFilter = merchOverrideActive ? 'both' : 'outlet';
                     if (variant.custom.isOutlet.value !== "Yes" || variant.custom.premiumFilter.value !== premiumFilter) {
@@ -121,7 +121,8 @@ function assignOutletStatus(args) {
             xsw,
             dir = new File(File.IMPEX + "/src/feeds/outletStatus"),
             locales = getLocaleStrings(),
-            updateUnorderableVariants = args.updateUnorderableVariants;
+            updateUnorderableVariants = args.updateUnorderableVariants,
+            processOnlineOrEcommAssortmentProductsOnly = args.processOnlineOrEcommAssortmentProductsOnly || false;
 
         dir.mkdirs();
 
@@ -147,6 +148,10 @@ function assignOutletStatus(args) {
 
             //Used to get master items from search hit
             if (product.isMaster()) {
+                // Skip the product if the processOnlineOrEcommAssortmentProductsOnly flag is enabled for the job and the product is not online or ecomm assortment
+                if (processOnlineOrEcommAssortmentProductsOnly && !(product.online || (product.custom && 'ecommAssortment' in product.custom && product.custom.ecommAssortment))) {
+                    continue;
+                }
                 outletData = getOutletData(product, updateUnorderableVariants);
                 if (!empty(outletData)) {
                     writeProductData(product, outletData, locales, xsw);
@@ -174,12 +179,13 @@ function writeProductData(product, outletData, locales, xsw){
 
 	for each(let locale in locales){
         let dataLocale = (locale === 'x-default') ? Site.current.getDefaultLocale() : locale.replace('-','_');
+        request.setLocale(dataLocale);
         // Set outletColors master attribute
 		xsw.writeStartElement("custom-attribute");
 		xsw.writeAttribute("xml:lang", locale);
 	    xsw.writeAttribute("attribute-id", "outletColors");
-        xsw.writeCharacters(outletData.outletColors[dataLocale] ? outletData.outletColors[dataLocale] : '00' ); //00 required so empty value does not trigger fallback to default locale 
-	    xsw.writeEndElement();//</custom-attribute>	
+        xsw.writeCharacters(outletData.outletColors[dataLocale] ? outletData.outletColors[dataLocale] : '00' ); //00 required so empty value does not trigger fallback to default locale
+	    xsw.writeEndElement();//</custom-attribute>
 
 	    if (!product.custom.experienceType.value || (product.custom.experienceType.value && product.custom.experienceType.value.indexOf('Merch') == -1)) {
             // Set experienceType master attribute
@@ -250,7 +256,7 @@ function findSalesCategories(product) {
             case 'infant':
                 if(productCatIDs.indexOf('sale-boys') == -1) categories.push('sale-boys');
                 if(productCatIDs.indexOf('sale-boys') == -1) categories.push('sale-girls');
-                
+
                 break;
             case 'adult':
             default:
@@ -260,7 +266,7 @@ function findSalesCategories(product) {
     }
     else if(!empty(trim)) if(productCatIDs.indexOf('sale-' + trim) == -1) categories.push('sale-' + trim);
     return categories;
-    
+
 }
 
 function getCatIDs(categories){
@@ -277,15 +283,15 @@ function cleanUpOutletCategories(args) {
             storefrontCatalogID = args.storefrontCatalogID || CatalogMgr.getSiteCatalog().getID(),
             xsw,
             dir = new File(File.IMPEX + "/src/feeds/outletStatus");
-    
+
         dir.mkdirs();
-    
+
         let file = new File(File.IMPEX + "/src/feeds/outletStatus/outletCategoryAssignments_" + siteID + ".xml");
         file.createNewFile();
-    
+
         let fw = new FileWriter(file, "UTF-8");
         xsw = new XMLStreamWriter(fw);
-    
+
         //XML Header
         xsw.writeStartDocument("UTF-8", "1.0");
         xsw.writeCharacters("\n");
@@ -303,10 +309,10 @@ function cleanUpOutletCategories(args) {
             //Used to get master items from search hit
             if (product.isMaster()) {
 	            outletColors = product.custom.outletColors;
-	            
+
 	            if (!product.master || product.custom.outletColors == '00' ) continue;
 	            let findSalesCats = findSalesCategories(product);
-	
+
                 for (let i=0; i < findSalesCats.length; i++) {
                     xsw.writeStartElement("category-assignment");
                     xsw.writeAttribute("category-id", findSalesCats[i]);
@@ -318,7 +324,7 @@ function cleanUpOutletCategories(args) {
         xsw.writeEndElement(); //</catalog>
         xsw.flush();
         xsw.close();
-    
+
         return new Status(Status.OK);
     } catch (e) {
         Logger.error("cleanUpOutletCategories step failed.  Error: " + e);
@@ -359,5 +365,8 @@ function getCurrencyCode(countryCode) {
 /* Exported Methods */
 module.exports = {
     assignOutletStatus: assignOutletStatus,
-    cleanUpOutletCategories : cleanUpOutletCategories
+    cleanUpOutletCategories : cleanUpOutletCategories,
+    getCurrencyCode: getCurrencyCode,
+    getLocaleStrings: getLocaleStrings
+
 };

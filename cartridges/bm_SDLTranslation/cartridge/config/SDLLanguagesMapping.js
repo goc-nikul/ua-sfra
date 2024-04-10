@@ -631,6 +631,15 @@ var LocalesJSON = {
 				},
 			],
 		},
+        {
+            Name: "Polish",
+            LanguageCode: "pl",
+            Variants: [{
+                    VariantName: "Polish (Poland)",
+                    VariantCode: "pl-PL",
+                },
+            ],
+        },
     ],
 };
 

@@ -208,8 +208,9 @@ export default class Form extends Component {
             var isLoginForm = $(this).parents('form.login');
             var isCreateAccount = $(this).parents('form.registration');
             var isEmailsignup = $(this).parents('form.email-pop-up_signup-form');
+            var isSinglePage = $(this).parents('.single-page-checkout');
             if (errorForm.length > 0) {
-                if (!isLoginForm.length > 0 || !isCreateAccount.length > 0 || !isEmailsignup.length > 0) {
+                if ((!isLoginForm.length > 0 || !isCreateAccount.length > 0 || !isEmailsignup.length > 0) && !isSinglePage.length > 0) {
                     if (isGCForm && $('.b-payment-info').length) {
                         $('html, body').animate({
                             scrollTop: $('.b-payment-info .b-shipping-summary_header-line').position().top

@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
+'use strict';
 
-require('@babel/polyfill');
+require('core-js');
+require('@babel/runtime/regenerator');
 
 var processInclude = require('base/util');
 var pageData = require('org/utils/pageData');
@@ -25,9 +27,11 @@ $(document).ready(function () {
     processInclude(require('org/components/common/emailSubscriptionPopUp'));
     processInclude(require('org/components/common/TrustArc'));
     processInclude(require('org/orderDetails/orderDetails'));
+    processInclude(require('./mobileAuth/mobileAuth'));
     processInclude(require('./login/login'));
     processInclude(require('./login/register'));
     processInclude(require('./consent/consentPopup'));
+    processInclude(require('./product/base'));
 });
 
 require('org/components/spinner');

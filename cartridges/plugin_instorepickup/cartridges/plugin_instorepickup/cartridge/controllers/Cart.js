@@ -80,13 +80,13 @@ server.replace('AddProduct', function (req, res, next) {
         addToCartUrl: URLUtils.url('Cart-AddBonusProducts').toString()
     };
 
-    var newBonusDiscountLineItem =
-        cartHelper.getNewBonusDiscountLineItem(
-            currentBasket,
-            previousBonusDiscountLineItems,
-            urlObject,
-            result.uuid
+    var newBonusDiscountLineItem = cartHelper.getNewBonusDiscountLineItem(
+        currentBasket,
+        previousBonusDiscountLineItems,
+        urlObject,
+        result.uuid
     );
+
     if (newBonusDiscountLineItem) {
         var allLineItems = currentBasket.allProductLineItems;
         var collections = require('*/cartridge/scripts/util/collections');

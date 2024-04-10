@@ -1,0 +1,324 @@
+<iscontent type="text/html" charset="UTF-8" compact="true"/>
+
+<isset name="currentSite" value="${dw.system.Site.current}" scope="page"/>
+<isif condition="${pdict.isEmailLabel}">
+    <link rel="stylesheet" href="${URLUtils.staticURL('/css/fonts.css')}" />
+    <link rel="stylesheet" href="${URLUtils.staticURL('/css/normalize.css')}" />
+    <link rel="stylesheet" href="${URLUtils.staticURL('/css/style.css')}" />
+    <isloop items="${ require('*/cartridge/scripts/assets.js').styles }" var="style">
+        <link rel="stylesheet" href="${style.src}" <isif condition="${style.integrity != null}">integrity="${style.integrity}" crossorigin="anonymous"</isif> />
+    </isloop>
+
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/lib/pdf.worker.js');
+        assets.addJs('/lib/pdf.js');
+        assets.addJs('/js/returnEmailLabel.js');
+    </isscript>
+</isif>
+
+<div class="return-label-print${pdict.isEmailLabel ? ' l-body' : ''} ${typeof pdict.returnService !== 'undefined' ? pdict.returnService : ''}">
+    <div class="return-label--header header-emea">
+        <isif condition="${!pdict.isEmailLabel}">
+            <div class="return-label--header-body">
+                <div class="return-label--head-column">
+                    <div class="return-label--head-line">
+                        <div class="return-label--circle">
+                            1
+                        </div>
+                        <div class="return-label--instructions">
+                            <p class="return-label--instructions-label">
+                                ${Resource.msg('returns.refunds.freelabel','refunds',null)}
+                            </p>
+                            <p class="return-label--instructions-text">
+                                ${Resource.msg('returns.refunds.affix','refunds',null)}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="return-label--head-line">
+                        <div class="return-label--circle">
+                            2
+                        </div>
+                        <div class="return-label--instructions">
+                            <p class="return-label--instructions-label">
+                            ${Resource.msg('order.print.pack.heading','account',null)}
+                            </p>
+                            <p class="return-label--instructions-text">
+                            ${Resource.msg('order.print.pack','account',null)}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="return-label--head-line">
+                        <div class="return-label--circle">
+                            3
+                        </div>
+                        <div class="return-label--instructions">
+                            <p class="return-label--instructions-label">
+                                ${Resource.msg('returns.refunds.ship','refunds',null)}
+                            </p>
+                            <p class="return-label--instructions-text">
+                                ${pdict.returnInstructionText}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="return-label--head-column">
+                    <div class="return-label--btn">
+                        <button type="button" class="js-orderLabel-printPage-emea btn btn-primary btn-block g-button_base g-button_primary--black">${Resource.msg('returns.refunds.button','refunds',null)}</button>
+                    </div>
+                </div>
+            </div>
+        </isif>
+    </div>
+
+    <iscomment>To print multiple pages of PDF for SEA and TH site.</iscomment>
+    <isif condition="${dw.system.Site.getCurrent().getID() === 'SEA' || dw.system.Site.getCurrent().getID() === 'TH'}" >
+        <div class="img-heading-hide SEA-pdfImg-value">
+            ${pdict.imageObj}
+        </div>
+        <div id="multi-page-print-label-pdf" class="multi-page-print-label-pdf"></div>
+    <iselse/>
+        <div class="return-label--slip-emea">
+            <div class="b-heading-print img-heading-hide emea-label">
+                <p>
+                    ${Resource.msg('returns.refunds.head','refunds',null)}
+                </p>
+                <span>
+                    ${pdict.authFormObject.address1}
+                </span>
+                <span>
+                    ${pdict.authFormObject.city} ${pdict.authFormObject.province} ${pdict.authFormObject.postalCode}
+                </span>
+            </div>
+            <div class="return-label--page-1">
+                <div class="label-printarea-emea">
+                    <isif condition="${pdict.authFormObject.country == 'CA' || pdict.authFormObject.country == 'AU' || pdict.isPDF}">
+                        <div class="img-heading-hide CA-pdfImg-value">
+                            ${pdict.imageObj}
+                        </div>
+                        <input type="hidden" name="returnServiceValue" value="${pdict.returnServiceValue || ''}"/>
+                        <canvas class="return-label-EUimg" id="return-label-pdf"></canvas>
+                    <iselse/>
+                        <div><img class="return-label-imgEMEA"
+                            src="${pdict.imageObj}"
+                            title="${Resource.msg('returns.refunds.returnexchange', 'refunds', null)}"
+                            alt="orderReturnImage">
+                        </img></div>
+                    </isif>
+                </div>
+                <div class="return-label--cut-line ${pdict.authFormObject.country === 'CA' || pdict.authFormObject.country === 'AU' ? '' : 'us-cut-line'}">
+                    ${Resource.msg('returns.refunds.cutline','refunds',null)}
+                </div>
+                <div class="return-label--section">
+    
+                    <div class="return-label--sub-section">
+                        <h4 class="return-label--section-title">
+                            ${Resource.msg('returns.refunds.keep','refunds',null)}
+                        </h4>
+                    </div>
+    
+                    <div class="return-label--sub-section">
+                        <div class="return-label--columns-3">
+                            <p class="return-label--minor-label">
+                                ${Resource.msg('returns.refunds.tracking','refunds',null)}
+                            </p>
+                            <p>
+                                <span>
+                                    ${pdict.authFormObject.carrierName}- 
+                                </span>
+                                <span>
+                                    ${pdict.authFormObject.trackingNumber}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="return-label--columns-3">
+                            <p class="return-label--minor-label">
+                                <isprint value="${pdict.authFormObject.carrierName === 'UPS' || pdict.authFormObject.purchaseLocation === 'UA_WEBSITE' || pdict.authFormObject.carrierName === 'aupost' || pdict.authFormObject.carrierName === 'nzpost'? Resource.msg('returns.refunds.order','refunds',null) : Resource.msg('returns.refunds.transaction','refunds',null)}"/>
+                            </p>
+                            <span>
+                                ${pdict.authFormObject.transactionNumber}
+                            </span>
+                        </div>
+                        <div class="return-label--columns-3">
+                            <p class="return-label--minor-label">
+                                ${pdict.authFormObject.rmaNumber ? Resource.msg('returns.refunds.rma','refunds',null) : Resource.msg('returns.refunds.deliverynumber','refunds',null)} 
+                            </p>
+                            <span>
+                                ${pdict.authFormObject.rmaNumber ? pdict.authFormObject.rmaNumber : pdict.authFormObject.deliveryNumber}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="return-label--sub-section">
+                    <isset name="contentAsset" value="${require('dw/content/ContentMgr').getContent('return-need-help')}" scope="page"/>
+                        <div class="return-label--minor-heading">
+                            ${Resource.msg('returns.refunds.help','refunds',null)} 
+                        </div>
+                        <p class="return-label--help-info">
+                            <isif condition="${!empty(contentAsset) && !empty(contentAsset.custom.body)}">
+                                <isprint value="${contentAsset.custom.body}" encoding="off" >
+                            <iselse>
+                                <span>
+                                    ${Resource.msg('returns.refunds.call','refunds',null)} 
+                                    <a href="https://underarmour.custhelp.com/">
+                                        ${Resource.msg('returns.refunds.link','refunds',null)} 
+                                    </a>
+                                    ${Resource.msg('returns.refunds.answar','refunds',null)} 
+                                </span>
+                            </isif>
+                        </p>
+                        <p class="return-label--help-info">
+                        ${Resource.msg('returns.refunds.paragraph','refunds',null)} 
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="return-label--page-2">
+                <div class="return-label--section">
+                    <h4 class="return-label--section-title">
+                        <svg width="54" height="32" viewBox="0 0 54 32" class="return-label--ua-icon">
+                        </svg>
+                        <span>
+                            ${Resource.msg('returns.refunds.authorizationform','refunds',null)} 
+                        </span>
+                    </h4>
+                    <p>
+                        ${Resource.msg('returns.refunds.include','refunds',null)} 
+                    </p>
+                </div>
+                <div>
+                    <div class="return-label--column-2">
+                        <div class="return-label--address-field">
+                            <p class="return-label--minor-label">
+                                ${Resource.msg('returns.refunds.name','refunds',null)} 
+                            </p>
+                            <span>
+                                ${pdict.authFormObject.fullName}
+                            </span>
+                        </div>
+                        <div class="return-label--address-field">
+                            <p class="return-label--minor-label">
+                                ${Resource.msg('returns.refunds.address','refunds',null)} 
+                            </p>
+                            <span>
+                                ${pdict.authFormObject.address1}
+                            </span>
+                        </div>
+                        <div class="return-label--address-field">
+                            <p class="return-label--minor-label">
+                            <isif condition="${pdict.authFormObject.carrierName !== 'aupost'}">
+                                <span class="address-line3">
+                                    ${Resource.msg('returns.refunds.city','refunds',null)} 
+                                </span>
+                            </isif>
+                                <isif condition="${!empty(pdict.authFormObject.suburb)}">
+                                    <span class="address-line3">
+                                        ${Resource.msg('returns.refunds.suburb','refunds',null)} 
+                                    </span>
+                                </isif>
+                                <isif condition="${!empty(pdict.authFormObject.province)}">
+                                    <span class="address-line3">
+                                        ${Resource.msg('returns.refunds.state','refunds',null)} 
+                                    </span>
+                                </isif>
+                                <span class="address-line3">
+                                    ${Resource.msg('returns.refunds.zip','refunds',null)} 
+                                </span>
+                            </p>
+                            <p>
+                            <isif condition="${pdict.authFormObject.carrierName !== 'aupost'}">
+                                <span class="address-line3">
+                                    ${pdict.authFormObject.city}
+                                </span>
+                            </isif>
+                                <isif condition="${!empty(pdict.authFormObject.suburb)}">
+                                    <span class="address-line3">
+                                        ${pdict.authFormObject.suburb}
+                                    </span>
+                                </isif>
+                                <isif condition="${!empty(pdict.authFormObject.province)}">
+                                    <span class="address-line3">
+                                        ${pdict.authFormObject.province}
+                                    </span>
+                                </isif>
+                                <span class="address-line3">
+                                    ${pdict.authFormObject.postalCode}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="return-label--address-field">
+                            <p class="return-label--minor-label">
+                                <span class="address-line3">
+                                    ${Resource.msg('returns.refunds.phone','refunds',null)} 
+                                </span>
+                                <span class="address-line3">
+                                    ${Resource.msg('returns.refunds.email','refunds',null)} 
+                                </span>
+                            </p>
+                            <p>
+                                <span class="address-line3">
+                                    ${pdict.authFormObject.phone}
+                                </span>
+                                <span class="address-line3">
+                                    ${pdict.authFormObject.email}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="return-label--column-2">
+                        <div class="return-label--address-field">
+                            <p class="return-label--minor-label">
+                                <isprint value="${pdict.authFormObject.purchaseLocation === 'UA_WEBSITE' || pdict.authFormObject.carrierName === 'UPS' || pdict.authFormObject.carrierName === 'aupost' || pdict.authFormObject.carrierName === 'nzpost'? Resource.msg('returns.refunds.order','refunds',null) : Resource.msg('returns.refunds.transaction','refunds',null)}">
+                            </p>
+                            <span>
+                                ${pdict.authFormObject.transactionNumber}
+                            </span>
+                        </div>
+                        <div class="return-label--address-field">
+                            <p class="return-label--minor-label">
+                                ${pdict.authFormObject.rmaNumber ? Resource.msg('returns.refunds.rma','refunds',null) : Resource.msg('returns.refunds.deliverynumber','refunds',null)} 
+                            </p>
+                            <span>
+                                ${pdict.authFormObject.rmaNumber ? pdict.authFormObject.rmaNumber : pdict.authFormObject.deliveryNumber}
+                            </span>
+                        </div>
+                        <isif condition="${pdict.authFormObject.purchaseLocation}">
+                            <div class="return-label--address-field">
+                                <p class="return-label--minor-label">
+                                    ${Resource.msg('returns.refunds.returnexchangepl','refunds',null)}
+                                </p>
+                                <span>
+                                    ${pdict.authFormObject.purchaseLocation}
+                                </span>
+                            </div>
+                        </isif>
+                    </div>
+                </div>
+            </div>
+            <isif condition="${!empty(pdict.authFormObject.returnItemsData) && pdict.authFormObject.returnItemsData.length > 0}">
+                <div class="return-label--product-field">
+                    <isloop items="${pdict.authFormObject.returnItemsData}" var="returnItem">
+                        <isset name="product" value="${returnItem.orderItem.productItem.product}" scope="page"/>
+                        <p class="return-label--minor-label">
+                            <span class="product-details"><isprint value="${product.copy.name}"/></span>
+                            <span class="product-details qty"><isprint value="${returnItem.orderItem.productItem.quantity}"/></span>
+                            <span class="product-details"><isprint value="${pdict.authFormObject.returnReasonModel[returnItem.returnReason] ? pdict.authFormObject.returnReasonModel[returnItem.returnReason] : returnItem.returnReason}"/></span>
+                        </p>
+                        <p>
+                            <isprint value="${product.sku}"/>
+                            <isif condition="${'color' in product && !empty(product.color.colorway)}"><isprint value="${' / ' + product.color.colorway}"/></isif>
+                            <isif condition="${product.sku && product.sku.split('-').length === 3}"><isprint value="${' / ' + product.sku.split('-')[2]}"/></isif>
+                        </p>
+                    </isloop>
+                </div>
+            </isif>
+        </div>
+    </isif>
+</div>
+
+<isif condition="${pdict.isEmailLabel}">
+    <isinclude template="/components/modules" sf-toolkit="off" />
+    <isinclude sf-toolkit="off" template="/common/scripts" />
+    <script>window.pageContext = <isprint value="${JSON.stringify(pdict.pageContext || new Object())}" encoding="off"/>;</script>
+    <isinclude template="tealium/footer_include.isml"/>
+</isif>

@@ -1,5 +1,25 @@
-<isif condition="${pdict.division && pdict.division === 'Footwear'}">
-    <a href="${URLUtils.url('Product-SizeChart', 'cid', product.sizeChartId)}" data-cmp="sizeChart">${Resource.msg('link.size_chart_footwear', 'product', null)}</a>
-<iselse/>
-    <a href="${URLUtils.url('Product-SizeChart', 'cid', product.sizeChartId)}" data-cmp="sizeChart">${Resource.msg('link.size_chart', 'product', null)}</a>
+
+<isset name="isQuickAdd" value="${typeof isQuickAdd !== 'undefined' ? isQuickAdd : false}" scope="page" />
+
+<isif condition="${isQuickAdd}">
+    <isscript>
+        var config = {
+            customTitle: Resource.msg('link.size_chart', 'product', null),
+            parentModal: '#quickViewModal',
+            backLabel: Resource.msg('button.back', 'common', null),
+            isSubmodal: true
+        }
+    </isscript>
 </isif>
+
+<a href="${URLUtils.url('Product-SizeChart', 'cid', product.sizeChartId)}" data-cmp="sizeChart"
+<isif condition="${isQuickAdd}">
+    data-json-config="${JSON.stringify(config)}"
+</isif>
+>
+    <isif condition="${pdict.division && pdict.division === 'Footwear'}">
+        ${Resource.msg('link.size_chart_footwear', 'product', null)}
+    <iselse/>
+        ${Resource.msg('link.size_chart', 'product', null)}
+    </isif>
+</a>

@@ -455,5 +455,32 @@ describe('int_first_data/cartridge/scripts/firstDataHelper.js', () => {
             assert.isDefined(result.data.accessToken);
         });
     });
+
+    describe('Testing Method: getCachedGC', () => {
+        var result;
+        it('should return null when giftCards or giftCardsResponse are not presented in session.privacy', () => {
+            result = firstDataHelper.getCachedGC();
+            assert.isDefined(result);
+            assert.isNull(result);
+        });
+
+        it('should return null when session does not contain gift card data passed to the function', () => {
+            session.privacy.giftCardsResponse = '{"success":true,"errorMessage":null,"giftCardsData":[{"cardNumber":"111111111111111","currentBalance":50,"cardClass":190}]}';
+            session.privacy.giftCards = '[{"gcNumber":"111111111111111","gcPin":"11111111"}]';
+            var giftCards = [{gcNumber: '7777777777777777', gcPin: '77777777'}];
+            result = firstDataHelper.getCachedGC(giftCards);
+            assert.isDefined(result);
+            assert.isNull(result);
+        });
+
+        it('should return the cached giftCardsResponse when session contain gift card data passed to the function', () => {
+            session.privacy.giftCardsResponse = '{"success":true,"errorMessage":null,"giftCardsData":[{"cardNumber":"7777777777777777","currentBalance":50,"cardClass":190}]}';
+            session.privacy.giftCards = '[{"gcNumber":"7777777777777777","gcPin":"11111111"}]';
+            var giftCards = [{gcNumber: '7777777777777777', gcPin: '11111111'}];
+            result = firstDataHelper.getCachedGC(giftCards);
+            assert.isDefined(result);
+            assert.isNotNull(result);
+        });
+    });
 });
 

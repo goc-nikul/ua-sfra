@@ -82,9 +82,10 @@ function getPriceDetailsForReturn(lineItemContainer, selectedPidsArray, pidQtyOb
  * @param {dw.order.ProductLineItem} productLineItem - productLineItem
  * @param {dw.order.LineItemCtnr} order - order object
  * @param {dw.order.Shipment} shipment - shipment object
+ * @param {string} requestLocale - requestLocale
  * @returns {Object} result
  */
-function getItemReturnDetails(productLineItem, order, shipment) {
+function getItemReturnDetails(productLineItem, order, shipment, requestLocale) {
     var qtyInfo = returnsUtils.getQTYInformation(productLineItem, order.getReturnCaseItems(), order.custom.shippingJson);
     var Resource = require('dw/web/Resource');
     var ineligibilityReasonTxt = '';
@@ -92,6 +93,7 @@ function getItemReturnDetails(productLineItem, order, shipment) {
     var isProductReturnBlocked = productLineItem.product && returnsUtils.isProductReturnBlocked(productLineItem.product);
     var displayTooltip = false;
 
+    request.setLocale(requestLocale); // eslint-disable-line no-undef
     if (shipment.shippingStatus === 'SHIPPING_STATUS_NOTSHIPPED' || !pliShippingDate) {
         ineligibilityReasonTxt = Resource.msg('orderdetails.notshipped', 'order', null);
     } else if (!empty(qtyInfo) && qtyInfo.shippedQty >= 0 && qtyInfo.availableQTY === 0) {
@@ -104,6 +106,7 @@ function getItemReturnDetails(productLineItem, order, shipment) {
         displayTooltip = true;
         ineligibilityReasonTxt = Resource.msg('returns.not.eligible', 'refunds', null);
     }
+    request.setLocale(order.customerLocaleID); // eslint-disable-line no-undef
 
     var result = {
         isEligibleForReturn: qtyInfo && qtyInfo.availableQTY > 0 && !isProductReturnBlocked,
@@ -145,8 +148,9 @@ function isOrderEligibleForReturn(lineItemContainer, orderItems) {
  * @param {dw.order.LineItemCtnr} lineItemContainer - LineItemCtnr object
  * @param {Object} options - The current order's line items
  * @param {Object} orderItems - productLineItems object
+ * @param {string} requestLocale - requestLocale
  */
-function updateItemInfo(lineItemContainer, options, orderItems) {
+function updateItemInfo(lineItemContainer, options, orderItems, requestLocale) {
     var URLUtils = require('dw/web/URLUtils');
 
     var AddressModel = require('*/cartridge/models/address');
@@ -162,7 +166,7 @@ function updateItemInfo(lineItemContainer, options, orderItems) {
 
         if (options && (options.containerView === 'orderDetails')) {
             var shipment = productLineItem.getShipment();
-            var itemReturnInfo = getItemReturnDetails(productLineItem, lineItemContainer, shipment);
+            var itemReturnInfo = getItemReturnDetails(productLineItem, lineItemContainer, shipment, requestLocale);
 
             if (product) {
                 var masterProduct = product.isVariant() ? product.getMasterProduct() : product;
@@ -371,8 +375,12 @@ function OrderModel(lineItemContainer, options) {
         }
 
         if (this.status) {
+            // Order shipment status is displayed according to current selected locale setting
+            request.setLocale(requestLocale); // eslint-disable-line no-undef
             this.displayStatus = getOrderDisplayStatus(lineItemContainer);
             this.status = updateOrderStatus(lineItemContainer);
+            request.setLocale(lineItemContainer.customerLocaleID); // eslint-disable-line no-undef
+
             if ('refundsJson' in lineItemContainer.custom && !empty(lineItemContainer.custom.refundsJson) && (this.status === 'SHIPPED' || this.status === 'PARTIAL_SHIPPED')) {
                 var refundsJson = lineItemContainer.custom.refundsJson;
                 var refunds = returnsUtils.parseJsonSafely(refundsJson);
@@ -408,7 +416,7 @@ function OrderModel(lineItemContainer, options) {
             hasMultipleShipments = (shippedData && shippedData.length > 1) || returnsUtils.isPartiallyShipped(lineItemContainer);
         }
         this.orderItems = [];
-        updateItemInfo(lineItemContainer, options, this.orderItems);
+        updateItemInfo(lineItemContainer, options, this.orderItems, requestLocale);
 
         if (hasMultipleShipments) {
             var shipmentCounter = 0;
@@ -485,7 +493,10 @@ function OrderModel(lineItemContainer, options) {
             ? StringUtils.formatCalendar(new Calendar(lineItemContainer.creationDate), 'dd/MM/yyyy')
             : null;
         if (this.status) {
+            // Order shipment status is displayed according to current selected locale setting
+            request.setLocale(requestLocale); // eslint-disable-line no-undef
             this.displayStatus = getOrderDisplayStatus(lineItemContainer);
+            request.setLocale(lineItemContainer.customerLocaleID); // eslint-disable-line no-undef
         }
         if (this.billing && !empty(this.billing.payment.selectedPaymentInstruments)) {
             selectedPaymentInstrument = this.billing.payment.selectedPaymentInstruments[0];
@@ -494,7 +505,7 @@ function OrderModel(lineItemContainer, options) {
         this.orderTotal = totalsModel ? totalsModel.grandTotal : null;
 
         this.orderItems = [];
-        updateItemInfo(lineItemContainer, options, this.orderItems);
+        updateItemInfo(lineItemContainer, options, this.orderItems, requestLocale);
 
         if (this.orderItems && this.orderItems.length > 4) {
             this.moreItemsCount = this.orderItems.length - 4;

@@ -12,19 +12,29 @@
                 max-width: 100%;
             }
         }
+
+        #wishlistItemCards {
+            @include respond-to(mobile) {
+                margin-top: rem-calc(60);
+
+                .b-wishlist-grid {
+                    margin-top: rem-calc(-80);
+                }
+            }
+        }
     }
 
     &-container-top {
         margin-top: rem-calc(56);
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
+        display: block;
         padding-bottom: rem-calc(32);
         border-bottom: 1px solid #d0d0d0;
         margin-bottom: rem-calc(24);
+        text-align: center;
+
         @include respond-to(mobile) {
+            margin-top: rem-calc(24);
             padding-bottom: rem-calc(24);
-            flex-wrap: wrap;
         }
     }
 }
@@ -85,7 +95,7 @@
         margin: 0 -1rem;
         margin-top: rem-calc(32);
         @include respond-to(mobile) {
-            margin: 0 -0.5rem;
+            margin: 0 rem-calc(-20);
         }
     }
 
@@ -99,11 +109,50 @@
             height: auto;
             width: auto;
             margin-right: 0;
+
+            @include respond-to(mobile) {
+                flex-basis: 30%;
+                position: unset;
+            }
+
+            .b-tile-badge_bottom_right {
+                bottom: rem-calc(16);
+                right: rem-calc(20);
+
+                @include respond-to(mobile) {
+                    bottom: rem-calc(14);
+                }
+            }
+
+            .b-wishlist_tile-fav_defultButton {
+                top: rem-calc(12);
+
+                @include respond-to(mobile) {
+                    right: unset;
+                    left: calc(30% - 32px);
+                    top: rem-calc(16);
+                }
+            }
+
+            .b-wishlist_tile-fav_selectButton {
+                &::before {
+                    font-size: rem-calc(16);
+                    padding: rem-calc(7);
+                    background: $white;
+                    border-radius: 50%;
+                    display: block;
+                }
+            }
         }
         @include respond-to(mobile) {
             max-width: 100%;
-            flex-basis: 50%;
-            padding: 0 0.5rem;
+            flex-basis: 100%;
+            padding: 0 rem-calc(20) rem-calc(20);
+            align-items: flex-start;
+            position: relative;
+            display: flex;
+            border-bottom: 1px solid $grey3;
+            margin-bottom: rem-calc(20);
         }
 
         &-outofstock {
@@ -129,6 +178,41 @@
                 @include t-text-oos;
             }
         }
+
+        .b-tile-info {
+            .variation-attr {
+                margin: rem-calc(5) 0;
+
+                .t-lineitem_attributes {
+                    color: $boulder;
+                    font-weight: 700;
+
+                    span {
+                        font-weight: 400;
+                    }
+                }
+
+                @include respond-to(mobile) {
+                    margin-bottom: rem-calc(16);
+                }
+            }
+
+            .b-tile-name {
+                @include respond-to(mobile) {
+                    font-size: rem-calc(16);
+                    font-weight: 600;
+                }
+            }
+
+            .b-price-value {
+                line-height: rem-calc(24);
+            }
+
+            @include respond-to(mobile) {
+                padding: rem-calc(4) 0 rem-calc(16) rem-calc(16);
+                flex-basis: 70%;
+            }
+        }
     }
 
     &-products_img {
@@ -138,13 +222,12 @@
     &-result_countandsort {
         display: flex;
         flex-basis: 100%;
-
         @include respond-to(desktop) {
             margin-top: rem-calc(-30);
         }
 
         @include respond-to(mobile) {
-            margin-bottom: rem-calc(24);
+            margin-bottom: rem-calc(92);
         }
     }
 
@@ -152,18 +235,20 @@
         flex-basis: 80%;
         text-align: right;
         font-weight: bold;
-        padding-right: rem-calc(24);
+        padding-right: rem-calc(40);
+        font-size: rem-calc(16);
+
         @include respond-to(mobile) {
-            text-align: center;
+            text-align: left;
             flex-basis: 100%;
             padding: 0;
-            margin-top: rem-calc(16);
         }
     }
 
     &-btn {
+        margin-top: rem-calc(32);
         @include respond-to(mobile) {
-            margin-top: rem-calc(24);
+            margin-top: rem-calc(16);
             max-width: 100%;
         }
     }
@@ -176,17 +261,26 @@
     }
 
     &-saved_item {
-        margin-bottom: rem-calc(24);
+        margin-bottom: rem-calc(8);
         font-size: spacing(md);
         font-weight: bold;
         line-height: 1.25;
         letter-spacing: 1px;
         color: $black;
+
+        @include respond-to(mobile) {
+            margin-bottom: 0;
+        }
     }
 
     &-saved_item_desc {
-        font-size: rem-calc(12);
+        font-size: rem-calc(14);
         font-weight: 600;
+        line-height: rem-calc(24);
+
+        @include respond-to(mobile) {
+            font-size: rem-calc(12);
+        }
 
         .b-tile-fav_selectButton {
             box-shadow: none;

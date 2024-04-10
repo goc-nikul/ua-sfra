@@ -6,6 +6,8 @@ var availabilityHelper = require('./availability');
 var summaryHelpers = require('./summary');
 var formHelpers = require('./formErrors');
 var scrollAnimate = require('../components/scrollAnimate');
+var location = window.location;
+var history = window.history;
 var addressSuggestionHelpers = require('./qasAddressSuggesstion');
 var clientSideValidation = require('../components/common/clientSideValidation');
 var isAurusEnabled = $('.payment-information').attr('data-isaurusenabled') === 'true';
@@ -214,6 +216,8 @@ if (isAurusEnabled) {
                                     }
                                 });
                             }
+                        } else {
+                            defer.reject();
                         }
                     } else {
                         $('#shippingAddressUseAsBillingAddress').val($('#shippingAsBilling').is(':checked'));
@@ -300,6 +304,7 @@ if (isAurusEnabled) {
                                             $('.js-giftcard-container').hide();
                                         }
                                         updateVipData(data);
+                                        updatePaymentMethodStatus(data);
                                         if ($('.js-giftcard-form').length > 0) {
                                             var giftCardFormInstance = $('.js-giftcard-form').data().cmpInstance;
                                             giftCardFormInstance.handleGiftCardSectionDisplay(data);
@@ -391,6 +396,8 @@ if (isAurusEnabled) {
                                     }
                                 });
                             }
+                        } else {
+                            defer.reject();
                         }
                     }
                     return defer;
@@ -467,6 +474,7 @@ if (isAurusEnabled) {
                                 success: function (data) {
                                     // enable the next:Place Order button here
                                     $('body').trigger('checkout:enableButton', '.next-step-button button');
+                                    $('.checkout-card-header').removeClass('pe-none');
                                     // look for field validation errors
                                     if (data.error) {
                                         if (data.fieldErrors.length) {
@@ -489,6 +497,8 @@ if (isAurusEnabled) {
                                 }
                             });
                         }
+                    } else {
+                        defer.reject();
                     }
 
                     if ($('.data-checkout-stage').data('customer-type') === 'registered') {
@@ -737,6 +747,8 @@ if (isAurusEnabled) {
                                         }
                                     }
                                 });
+                            } else {
+                                defer.reject();
                             }
                         }
                     }
@@ -776,6 +788,11 @@ if (isAurusEnabled) {
                 // set the initial state of checkout
                 members.currentStage = checkoutStages
                     .indexOf($('.data-checkout-stage').data('checkout-stage'));
+                // v6.3.0 has a new stage called 'customer' which is passed in by default during Checkout-Begin
+                // UA has not upgraded the extended cartridges from the upgrade yet.
+                if (members.currentStage < 0) {
+                    members.currentStage = 0;
+                }
                 $(plugin).attr('data-checkout-stage', checkoutStages[members.currentStage]);
 
                 // get iframe for Aurus alt payments
@@ -800,12 +817,14 @@ if (isAurusEnabled) {
                 //
                 $(plugin).on('click', '.next-step-button button, .checkout-card-header', function () {
                     $('.next-step-button button').attr('data-clicked', 'true');
+                    $('.checkout-card-header').addClass('pe-none');
                     members.nextStage();
                 });
 
                 $(window).on('load', function () {
                     if ($('#checkout-main').data('checkout-stage') === 'payment') {
                         if ($('#checkout-main').data('onlybopisitemexist')) {
+                            selectDefaultPaymentMethod();
                             scrollAnimate($('#checkout-main'));
                         } else {
                             scrollAnimate($('#payment'));
@@ -1013,10 +1032,12 @@ if (isAurusEnabled) {
                     // Update UI with new stage
                     members.handleNextStage(true);
                     $('.next-step-button button').removeAttr('data-clicked');
+                    $('.checkout-card-header').removeClass('pe-none');
                 });
 
                 promise.fail(function (data) {
                     $('.next-step-button button').removeAttr('data-clicked');
+                    $('.checkout-card-header').removeClass('pe-none');
                     // show errors
                     if (data) {
                         if (data.errorStage) {
@@ -1066,6 +1087,10 @@ if (isAurusEnabled) {
                     aurusCheckout.methods.getAurusAltPaymentSession();
                 }
                 hideOrShowSubmitPayment();
+
+                if (checkoutStages[members.currentStage] === 'payment') {
+                    selectDefaultPaymentMethod();
+                }
             },
 
             /**
@@ -1091,6 +1116,10 @@ if (isAurusEnabled) {
                     aurusCheckout.methods.getAurusAltPaymentSession();
                 }
                 hideOrShowSubmitPayment();
+
+                if (checkoutStages[members.currentStage] === 'payment') {
+                    selectDefaultPaymentMethod();
+                }
             },
 
             /**
@@ -1112,6 +1141,10 @@ if (isAurusEnabled) {
                     aurusCheckout.methods.getAurusAltPaymentSession();
                 }
                 hideOrShowSubmitPayment();
+
+                if (checkoutStages[members.currentStage] === 'payment') {
+                    selectDefaultPaymentMethod();
+                }
             }
         };
 
@@ -1326,12 +1359,19 @@ var exports = {
                 $(this).parents('.form-group').addClass('manual-input-init');
             });
         }
+
+        setTimeout(function () {
+            if ($('.prompted-login-button').length > 0) {
+                $('.prompted-login-button').trigger('click');
+            }
+        }, 500);
     },
 
     updateCheckoutView: function () {
         $('body').on('checkout:updateCheckoutView', function (e, data) {
             shippingHelpers.methods.updateMultiShipInformation(data.order);
             updateVipData(data);
+            updatePaymentMethodStatus(data);
             summaryHelpers.updateTotals(data.order.totals);
             summaryHelpers.updatePromotionSummaryInformation(data.order);
             summaryHelpers.updateShippingSummarySection(data.order.shipping);
@@ -1416,8 +1456,10 @@ var exports = {
                         }
                         $('body').trigger('checkout:updateCheckoutView', {
                             order: response.order,
-                            customer: response.customer
+                            customer: response.customer,
+                            gcResults: response.gcResults ? response.gcResults : ''
                         });
+                        selectDefaultPaymentMethod();
                     },
                     error: function () {
                         $('.gift-card-payment').spinner().stop();
@@ -1474,7 +1516,8 @@ var exports = {
                     }
                     $('body').trigger('checkout:updateCheckoutView', {
                         order: response.order,
-                        customer: response.customer
+                        customer: response.customer,
+                        gcResults: response.gcResults ? response.gcResults : ''
                     });
                 },
                 error: function () {
@@ -1591,19 +1634,36 @@ var exports = {
                             }
                             $button.find('.b-cart-loader').addClass('hide');
                         } else {
-                            var continueUrl = data.continueUrl;
-                            var urlParams = {
-                                ID: data.orderID,
-                                token: data.orderToken,
-                                order_checkout_optin: data.order_checkout_optin
-                            };
+                            // Changes due to SFRA cartridge upgrade!
+                            let redirect = $('<form>')
+                                    .appendTo(document.body)
+                                    .attr({
+                                        method: 'POST',
+                                        action: data.continueUrl
+                                    });
+                            $('<input>')
+                            .appendTo(redirect)
+                            .attr({
+                                name: 'orderID',
+                                value: data.orderID,
+                                type: 'hidden'
+                            });
 
-                            continueUrl += (continueUrl.indexOf('?') !== -1 ? '&' : '?') +
-                                Object.keys(urlParams).map(function (key) {
-                                    return key + '=' + encodeURIComponent(urlParams[key]);
-                                }).join('&');
-
-                            window.location.href = continueUrl;
+                            $('<input>')
+                                .appendTo(redirect)
+                                .attr({
+                                    name: 'orderToken',
+                                    value: data.orderToken,
+                                    type: 'hidden'
+                                });
+                            $('<input>')
+                                .appendTo(redirect)
+                                .attr({
+                                    name: 'order_checkout_optin',
+                                    value: data.order_checkout_optin,
+                                    type: 'hidden'
+                                });
+                            redirect.trigger('submit');
                             defer.resolve(data);
                         }
                     },
@@ -1690,13 +1750,16 @@ function updateVipData(data) {
             $('.b-checkout_subheader-express-login').removeClass('hide');
         }
         if (data.order && data.order.isVipUser && !data.order.isVIPOrder && !data.order.hasGiftCards) {
+            $('.js-giftcard-container').show();
             $('.g-tabs-chip.klarna-payment-item').removeClass('hide');
+            $('.g-tabs-pane.klarna_payments-content').removeClass('hide');
         }
         var klarnaMinimumThreshold = $('.klarna-min-threshold').length > 0 ? $('.klarna-min-threshold').val() : 1000;
         var klarnaMaximumThreshold = $('.klarna-max-threshold').length > 0 ? $('.klarna-max-threshold').val() : 100000;
         if ($('.payment-information').hasClass('gc-pay-applied') || (data.order.totals.klarnaTotal < klarnaMinimumThreshold || data.order.totals.klarnaTotal > klarnaMaximumThreshold)) {
             $('.g-tabs-chip.klarna-payment-item').addClass('hide');
             $('.b-checkout_subheader-express-login').addClass('hide');
+            $('.g-tabs-pane.klarna_payments-content').addClass('hide');
         }
 
         if ($('.gift_card_applied_amount.active').length > 0 && !($('.b-checkout_subheader-express-login').hasClass('hide'))) {
@@ -1806,4 +1869,39 @@ $('.shippingFirstName, .shippingLastName, .shippingAddressOne, .shippingAddressT
     }
 });
 
+/**
+ * updating payment method status if gift cart applied
+ *
+ * @param {string} data of the current form
+ */
+function updatePaymentMethodStatus(data) {
+    if (data && data.gcResults) {
+        if (data.gcResults.isOrderTotalRedeemed === false) {
+            $('.payment-information').attr('data-eligiblepaymentmethods-nongcpayment', true);
+        } else if (data.gcResults.isOrderTotalRedeemed === true) {
+            $('.payment-information').attr('data-eligiblepaymentmethods-nongcpayment', false);
+        }
+    }
+}
+
+/**
+* Credit Card is selected by default if apply generated gift card and amount is left to pay
+*/
+function selectDefaultPaymentMethod() {
+    var currentPayment = $('.payment-information').data('payment-method-id');
+    var isNonGCPayment = $('.payment-information').attr('data-eligiblepaymentmethods-nongcpayment');
+    if (isNonGCPayment === 'true') {
+        if (currentPayment === 'CREDIT_CARD' || currentPayment === 'AURUS_CREDIT_CARD' || isAurusEnabled) {
+            $('.nav-link:first').trigger('click');
+            if ($(window).width() < 1024) {
+                $('.b-payment-tab_content .tab-pane:first .b-payment-accordion-head').click();
+                $('.g-accordion-item.g-tabs-pane.tab-pane.active').each(function () {
+                    $(this).children('.b-payment-accordion-head').removeClass('collapsed');
+                    $(this).children('.b-payment-accordion-head').attr('aria-expanded', true);
+                    $(this).children('.g-accordion-content').addClass('show');
+                });
+            }
+        }
+    }
+}
 module.exports = exports;

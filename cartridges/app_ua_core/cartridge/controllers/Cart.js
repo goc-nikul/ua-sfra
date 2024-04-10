@@ -186,6 +186,20 @@ server.replace(
             var validatedProducts = validationHelpers.validateProductsInventory(currentBasket, 'CartView');
             var validatedBopisProducts = validationHelpers.validateBOPISProductsInventory(currentBasket, 'BOPIS');
             basketModel = new CartModel(currentBasket);
+
+            if (!empty(basketModel.freeShippingBar) && basketModel.freeShippingBar.isFreeShippingBarEnabled) {
+                var discounts = basketModel.totals.discounts;
+                var promoShip = discounts.find(function (discount) {
+                    if (discount.promotionClass === 'SHIPPING') {
+                        return true;
+                    }
+
+                    return false;
+                });
+
+                basketModel.freeShippingBar.promoShip = promoShip;
+            }
+
             if (validatedProducts && validatedProducts.availabilityError) {
                 availabilityHelper.updateLineItemQuantityOption(validatedProducts.lineItemQtyList, basketModel);
                 availabilityHelper.getInvalidItems(basketModel, validatedProducts);
@@ -268,14 +282,17 @@ server.append('RemoveProductLineItem', function (req, res, next) {
 });
 
 // eslint-disable-next-line consistent-return
-server.get('ShowOutOfStockPopUp', function (req, res, next) {
+server.get('ShowCartValidationPopUp', function (req, res, next) {
     var BasketMgr = require('dw/order/BasketMgr');
     var validationHelpers = require('*/cartridge/scripts/helpers/basketValidationHelpers');
     var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
+    var renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
     var result = {};
     var currentBasket = BasketMgr.getCurrentBasket();
     var executeType;
     var allProductLineItems;
+    var template;
+    var renderedTemplate;
     try {
         if (currentBasket) {
             if (currentBasket.getAllProductLineItems().getLength() > 0) {
@@ -305,12 +322,23 @@ server.get('ShowOutOfStockPopUp', function (req, res, next) {
                     fullyRemoveItems: fullyRemoveItems
                 };
 
-                var renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
-                var template = 'checkout/cart/availabilityModal.isml';
-                var renderedTemplate = renderTemplateHelper.getRenderedHtml(result, template);
+                template = 'checkout/cart/availabilityModal.isml';
+                renderedTemplate = renderTemplateHelper.getRenderedHtml(result, template);
                 res.json({
                     error: true,
-                    renderedTemplate: renderedTemplate
+                    renderedTemplate: renderedTemplate,
+                    modalId: 'cartAvailabilityModal'
+                });
+                return next();
+            }
+
+            if (currentBasket.getTotalGrossPrice().getValue() === 0) {
+                template = 'checkout/cart/noChargeOrderModal.isml';
+                renderedTemplate = renderTemplateHelper.getRenderedHtml({}, template);
+                res.json({
+                    error: true,
+                    renderedTemplate: renderedTemplate,
+                    modalId: 'noChargeOrderModal'
                 });
                 return next();
             }
@@ -533,7 +561,7 @@ server.get('RemoveFromSaved', function (req, res, next) {
     var BasketMgr = require('dw/order/BasketMgr');
     var CartModel = require('*/cartridge/models/cart');
     var cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
-    var currentBasket = BasketMgr.getCurrentBasket();
+    var currentBasket = BasketMgr.getCurrentOrNewBasket();
     var isWishListItem;
     if (currentBasket) {
         wishlist = productListHelper.getList(req.currentCustomer.raw, {
@@ -630,6 +658,135 @@ server.append('RemoveCouponLineItem', function (req, res, next) {
     });
     next();
 });
+
+/**
+ * Cart-AddCoupon : The Cart-AddCoupon endpoint is responsible for adding a coupon to a basket
+ * @name Base/Cart-AddCoupon
+ * @function
+ * @memberof Cart
+ * @param {middleware} - server.middleware.https
+ * @param {middleware} - csrfProtection.validateAjaxRequest
+ * @param {querystringparameter} - couponCode - the coupon code to be applied
+ * @param {querystringparameter} - csrf_token - hidden input field csrf token
+ * @param {category} - sensitive
+ * @param {returns} - json
+ * @param {serverfunction} - get
+ */
+server.replace(
+    'AddCoupon',
+    server.middleware.https,
+    csrfProtection.validateAjaxRequest,
+    function (req, res, next) {
+        var BasketMgr = require('dw/order/BasketMgr');
+        var Resource = require('dw/web/Resource');
+        var Locale = require('dw/util/Locale');
+        var secureEncoder = require('dw/util/SecureEncoder');
+        var Transaction = require('dw/system/Transaction');
+        var CartModel = require('*/cartridge/models/cart');
+        var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
+
+        var currentBasket = BasketMgr.getCurrentBasket();
+
+        if (!currentBasket) {
+            res.setStatusCode(500);
+            res.json({
+                error: true,
+                redirectUrl: URLUtils.url('Cart-Show').toString()
+            });
+
+            return next();
+        }
+
+        if (!currentBasket) {
+            res.setStatusCode(500);
+            res.json({
+                errorMessage: Resource.msg('error.add.coupon', 'cart', null)
+            });
+            return next();
+        }
+
+        var error = false;
+        var errorMessage;
+
+        var previousBonusDiscountLineItems = currentBasket.getBonusDiscountLineItems();
+
+        try {
+            Transaction.wrap(function () {
+                return currentBasket.createCouponLineItem(
+                    req.querystring.couponCode,
+                    true
+                );
+            });
+        } catch (e) {
+            error = true;
+            var errorCodes = {
+                COUPON_CODE_ALREADY_IN_BASKET: 'error.coupon.already.in.cart',
+                COUPON_ALREADY_IN_BASKET: 'error.coupon.cannot.be.combined',
+                COUPON_CODE_ALREADY_REDEEMED: 'error.coupon.already.redeemed',
+                COUPON_CODE_UNKNOWN: 'error.unable.to.add.coupon',
+                COUPON_DISABLED: 'error.unable.to.add.coupon',
+                REDEMPTION_LIMIT_EXCEEDED: 'error.unable.to.add.coupon',
+                TIMEFRAME_REDEMPTION_LIMIT_EXCEEDED:
+                    'error.unable.to.add.coupon',
+                NO_ACTIVE_PROMOTION: 'error.unable.to.add.coupon',
+                default: 'error.unable.to.add.coupon'
+            };
+
+            var errorMessageKey = errorCodes[e.errorCode] || errorCodes.default;
+            var currentLocale = Locale.getLocale(req.locale.id);
+
+            if (currentLocale.country === 'MX') {
+                errorMessage = Resource.msgf(errorMessageKey, 'cart', null, secureEncoder.forHtmlContent(req.querystring.couponCode));
+            } else {
+                errorMessage = Resource.msg(errorMessageKey, 'cart', null);
+            }
+        }
+
+        if (error) {
+            res.json({
+                error: error,
+                errorMessage: errorMessage
+            });
+            return next();
+        }
+
+        Transaction.wrap(function () {
+            basketCalculationHelpers.calculateTotals(currentBasket);
+        });
+
+        var allLineItems = currentBasket.allProductLineItems;
+        var cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
+
+        var urlObject = {
+            url: URLUtils.url('Cart-ChooseBonusProducts').toString(),
+            configureProductstUrl: URLUtils.url(
+                'Product-ShowBonusProducts'
+            ).toString(),
+            addToCartUrl: URLUtils.url('Cart-AddBonusProducts').toString()
+        };
+
+        collections.forEach(allLineItems, function (pli) {
+            var newBonusDiscountLineItem = cartHelper.getNewBonusDiscountLineItem(
+                currentBasket,
+                previousBonusDiscountLineItems,
+                urlObject,
+                pli.UUID
+            );
+
+            if (newBonusDiscountLineItem) {
+                Transaction.wrap(function () {
+                    pli.custom.bonusProductLineItemUUID = 'bonus'; // eslint-disable-line no-param-reassign
+                    pli.custom.preOrderUUID = pli.UUID; // eslint-disable-line no-param-reassign
+                });
+            }
+        });
+
+        var basketModel = new CartModel(currentBasket);
+
+        res.json(basketModel);
+        return next();
+    }
+);
 
 server.append('AddCoupon', function (req, res, next) {
     var BasketMgr = require('dw/order/BasketMgr');
@@ -913,6 +1070,15 @@ server.replace('EditProductLineItem', function (req, res, next) {
         return next();
     }
 
+    if ('earlyAccess' in prod.custom && ((prod.custom.earlyAccess.isEarlyAccessProduct && !prod.custom.earlyAccess.isEarlyAccessCustomer) || prod.custom.earlyAccess.hideProduct)) {
+        res.setStatusCode(500);
+        res.json({
+            error: true,
+            redirectUrl: URLUtils.url('Product-Show', 'pid', prod.id).toString()
+        });
+        return next();
+    }
+
     var uuid = req.form.uuid;
     var maoAvaialability = null;
     var productLineItems = currentBasket.allProductLineItems;
@@ -923,6 +1089,7 @@ server.replace('EditProductLineItem', function (req, res, next) {
         return item.UUID === uuid;
     });
     var availableToSell = 0;
+    var masterQtyLimitError = false;
     var product = (requestLineItem.productID === productId) ? (requestLineItem.product) : ProductMgr.getProduct(productId);
     if (requestLineItem) {
         if (isMAOEnabled) {
@@ -985,7 +1152,9 @@ server.replace('EditProductLineItem', function (req, res, next) {
 
         var totalQtyRequested = 0;
         var qtyAlreadyInCart = 0;
+        var masterQtyInCart = 0;
         var minOrderQuantity = 0;
+        var masterQtyLimit = product.custom.masterQtyLimit ? product.custom.masterQtyLimit : null;
         var canBeUpdated = false;
         var perpetual = false;
         var bundleItems;
@@ -1008,6 +1177,31 @@ server.replace('EditProductLineItem', function (req, res, next) {
                     return (totalQtyRequested <= availableToSell || perpetual) &&
                         (quantityToUpdate >= minOrderQuantity);
                 });
+            } else if (masterQtyLimit) {
+                masterQtyInCart = cartHelper.getQtyAlreadyInCartWithSameMaster(
+                    product,
+                    productLineItems
+                );
+
+                if (updateQuantity < requestLineItem.quantityValue) {
+                    totalQtyRequested = masterQtyInCart - updateQuantity;
+                } else {
+                    totalQtyRequested = (updateQuantity - requestLineItem.quantityValue) + masterQtyInCart;
+                }
+
+                minOrderQuantity = product.minOrderQuantity.value;
+                canBeUpdated = (updateQuantity <= availableToSell && totalQtyRequested <= masterQtyLimit) &&
+                (updateQuantity >= minOrderQuantity);
+                if (!canBeUpdated) {
+                    masterQtyLimitError = totalQtyRequested > masterQtyLimit;
+                    res.setStatusCode(401);
+                    res.json({
+                        error: true,
+                        masterQtyLimitError: masterQtyLimitError,
+                        errorMessage: Resource.msgf('error.alert.master.quantity.limit.reached', 'product', null, product.custom.masterQtyLimit)
+                    });
+                    return next();
+                }
             } else {
                 availableToSell = product.availabilityModel.inventoryRecord.ATS.value;
                 perpetual = product.availabilityModel.inventoryRecord.perpetual;
@@ -1016,9 +1210,8 @@ server.replace('EditProductLineItem', function (req, res, next) {
                     productLineItems,
                     requestLineItem.UUID
                 );
-                totalQtyRequested = updateQuantity + qtyAlreadyInCart;
                 minOrderQuantity = product.minOrderQuantity.value;
-                canBeUpdated = (totalQtyRequested <= availableToSell || perpetual) &&
+                canBeUpdated = (updateQuantity <= availableToSell || perpetual) &&
                     (updateQuantity >= minOrderQuantity);
             }
         }
@@ -1108,6 +1301,7 @@ server.replace('GetProduct', function (req, res, next) {
     var Resource = require('dw/web/Resource');
     var ProductFactory = require('*/cartridge/scripts/factories/product');
     var renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
+    var productHelpers = require('*/cartridge/scripts/helpers/productHelpers');
 
     var requestUuid = req.querystring.uuid;
 
@@ -1137,14 +1331,18 @@ server.replace('GetProduct', function (req, res, next) {
         options: selectedOptions
     };
 
+    var product = ProductFactory.get(pliProduct);
+    var CallOutMessagepromotions = productHelpers.getCallOutMessagePromotions(product.promotions, product);
+
     var context = {
-        product: ProductFactory.get(pliProduct),
+        product: product,
         selectedQuantity: requestQuantity,
         selectedOptionValueId: selectedOptionValueId,
         uuid: requestUuid,
         updateCartUrl: URLUtils.url('Cart-EditProductLineItem'),
         closeButtonText: Resource.msg('link.editProduct.close', 'cart', null),
         enterDialogMessage: Resource.msg('msg.enter.edit.product', 'cart', null),
+        CallOutMessagepromotions: CallOutMessagepromotions,
         template: 'product/quickView.isml'
     };
 
@@ -1181,10 +1379,10 @@ server.append('GetProduct', function (req, res, next) {
 
     res.setViewData(viewData);
     var product = ProductMgr.getProduct(viewData.product.id);
-    var BVConstants = require('bc_bazaarvoice/cartridge/scripts/lib/libConstants').getConstants();
-    var BVHelper = require('bc_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
-    var ratingPref = Site.getCurrent().getCustomPreferenceValue('bvEnableInlineRatings_C2013');
-    var quickviewPref = Site.getCurrent().getCustomPreferenceValue('bvQuickViewRatingsType_C2013');
+    var BVConstants = require('bm_bazaarvoice/cartridge/scripts/lib/libConstants').getConstants();
+    var BVHelper = require('bm_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
+    var ratingPref = Site.getCurrent().getCustomPreferenceValue('bvEnableInlineRatings');
+    var quickviewPref = Site.getCurrent().getCustomPreferenceValue('bvQuickViewRatingsType');
 
     if (quickviewPref && quickviewPref.value && !quickviewPref.value.equals('none')) {
         viewData.bvScout = BVHelper.getBvLoaderUrl();
@@ -1194,7 +1392,8 @@ server.append('GetProduct', function (req, res, next) {
 
         viewData.bvDisplay = {
             bvPid: pid,
-            qvType: quickviewPref.value
+            qvType: quickviewPref.value,
+            productUrl: URLUtils.url('Product-Show', 'pid', pid)
         };
 
         if (quickviewPref.value.equals('inlineratings')) {
@@ -1298,6 +1497,9 @@ server.prepend('AddProduct', function (req, res, next) {
     var renderedSavedItemErrorTemplate = renderTemplateHelperForSavedItem.getRenderedHtml(viewData, SavedItemErrorTemplate);
     var savedProduct = ProductMgr.getProduct(req.form.pid);
     var isfromSaveForLater = req.querystring.isfromSaveForLater;
+    viewData.isPickupItem = req.form.isPickupItem;
+    viewData.isQuickAdd = req.form.isQuickAdd;
+
     if (isfromSaveForLater && !savedProduct.isOnline()) {
         var responseJSON = {
             savedItemAvailabilityError: true,
@@ -1556,11 +1758,40 @@ server.get('cartAddedConfirmationModal', function (req, res, next) {
         var sizeVariationAttribute = productDetails.variationModel.getProductVariationAttribute('size');
         var sizeVariationValue = productDetails.variationModel.getVariationValue(productDetails, sizeVariationAttribute);
     }
-    res.render('checkout/cart/cartAddedConfirmationModal', {
+    var colorVariationAttribute = productDetails ? productDetails.variationModel.getProductVariationAttribute('color') : null;
+    var colorVariationValue = productDetails ? productDetails.variationModel.getVariationValue(productDetails, colorVariationAttribute) : null;
+
+    var isQuickAdd = req.querystring.quickAdd === 'true';
+    var template = isQuickAdd ? 'checkout/cart/cartAddedConfirmationModalWithRemove' : 'checkout/cart/cartAddedConfirmationModal';
+
+    var uuid = req.querystring.uuid;
+    var removeAddedProductURL = URLUtils.https('Cart-RemoveProductLineItem', 'pid', productDetails.ID, 'uuid', uuid);
+
+    var BasketMgr = require('dw/order/BasketMgr');
+    var currentBasket = BasketMgr.getCurrentOrNewBasket();
+    var productLineItems = currentBasket.productLineItems;
+
+    var qtyAlreadyInCart = quantity;
+    collections.forEach(productLineItems, function (item) {
+        if (item.productID === productId && uuid === item.UUID) {
+            qtyAlreadyInCart = item.quantityValue;
+        }
+    });
+    var prevQty = (qtyAlreadyInCart || 0) - (parseInt(quantity, 10) || 1);
+    if (prevQty > 0) {
+        removeAddedProductURL = URLUtils.https('Cart-UpdateQuantity', 'pid', productDetails.ID, 'uuid', uuid, 'quantity', prevQty);
+    }
+
+    res.render(template, {
+        prevQty: prevQty > 0 ? prevQty : 0,
+        removeAddedProductURL: removeAddedProductURL,
+        isQuickAdd: isQuickAdd,
         ProductDetails: productDetails,
         Quantity: quantity,
         Amount: amount,
         sizeValue: sizeVariationValue,
+        colorVariationAttribute: colorVariationAttribute,
+        colorVariationValue: colorVariationValue,
         isGiftCard: isGiftCard
     });
     next();
@@ -1604,7 +1835,7 @@ server.replace('AddBonusProducts', function (req, res, next) {
             error: true,
             success: false
         });
-    } else if (totalQty > data.bonusProducts.length) {
+    } else if (totalQty > qtyAllowed) {
         res.json({
             errorMessage: Resource.msgf(
                 'error.alert.choiceofbonus.max.quantity',
@@ -1664,7 +1895,6 @@ server.replace('AddBonusProducts', function (req, res, next) {
     }
     next();
 });
-
 
 module.exports = server.exports();
 

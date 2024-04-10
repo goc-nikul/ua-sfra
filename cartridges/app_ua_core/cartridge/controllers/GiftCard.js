@@ -96,7 +96,7 @@ server.post(
                     if (req.form.gcNumber && req.form.gcPin) {
                         var giftCardResponse = firstDataHelper.checkBalance(req.form.gcNumber, req.form.gcPin);
                         if (giftCardResponse.success) {
-                            responseJson = giftcardHelper.applyGiftCard(currentBasket, req.form.gcNumber, req.form.gcPin);
+                            responseJson = giftcardHelper.applyGiftCard(currentBasket, req.form.gcNumber, req.form.gcPin, giftCardResponse.giftCardData);
                         } else {
                             responseJson = giftCardResponse;
                         }

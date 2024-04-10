@@ -29,7 +29,7 @@ server.replace('Show', cache.applyPromotionSensitiveCache, consentTracking.conse
         var productId = params.pid;
         var product = ProductMgr.getProduct(productId);
         var isAvailableForLocale = productHelper.isProductAvailableForLocale(product);
-        if (!isAvailableForLocale) {
+        if (!isAvailableForLocale || ('earlyAccessConfigs' in product.custom && product.custom.earlyAccessConfigs.value === 'HIDE')) {
             var template;
             template = new Template('error/notFound');
             template.setStatusCode(404);
@@ -47,6 +47,8 @@ server.replace('Show', cache.applyPromotionSensitiveCache, consentTracking.conse
             var isVIP = Site.getCurrent().getCustomPreferenceValue('enableVIPCheckoutExperience') && !empty(currentCustomer.profile) && 'vipAccountId' in currentCustomer.profile.custom && !empty(currentCustomer.profile.custom.vipAccountId);
             let experienceType = '';
             var isProductHasSizeModel = false;
+            var isDLInventoryEnabled = Site.getCurrent().getCustomPreferenceValue('isDLInventoryEnabled');
+
             // Decide for which product view model drop-down will display
             var enableFitModel = 'enableFitModels' in Site.current.preferences.custom ? Site.current.getCustomPreferenceValue('enableFitModels') : false;
             if ('hasSizeModel' in product.custom) {
@@ -64,18 +66,34 @@ server.replace('Show', cache.applyPromotionSensitiveCache, consentTracking.conse
             else if (params.exp === 'p') experienceType = 'premium';
             viewData.experienceType = experienceType;
             var availableVariant = false;
-            if (product.isMaster() && product.custom.defaultColorway !== null && product.custom.defaultColorway.length > 0 && !request.httpParameters.containsKey('dwvar_' + product.ID + '_color')) { // eslint-disable-line no-undef
-                var colors = product.custom.defaultColorway.split(',');
-                for (var i = 0; i < colors.length; ++i) {
-                    var variant = productHelper.getVariantForColor(product, colors[i]);
-                    if (variant.isVariant() && variant.onlineFlag && variant.availabilityModel.availability !== 0 && variant.availabilityModel.orderable && variant.availabilityModel.inStock) {
-                        variantProduct = variant;
-                        availableVariant = true;
-                        break;
-                    }
+
+            if (!request.getHttpParameters().containsKey('dwvar_' + product.ID + '_color')) {
+                variantProduct = productHelper.getDefaultColorVariant(product);
+                if (variantProduct.isVariant()) {
+                    availableVariant = true;
                 }
             }
 
+            var selectedColor = {};
+            if (!empty(viewData.earlyAccessSelectedVarAttrs) && viewData.earlyAccessSelectedVarAttrs.color) {
+                selectedColor = {
+                    key: 'dwvar_' + product.ID + '_color',
+                    value: viewData.earlyAccessSelectedVarAttrs.color
+                };
+                params.variables.color.value = viewData.earlyAccessSelectedVarAttrs.color;
+            } else if (request.httpParameters.containsKey('dwvar_' + product.ID + '_color')) {
+                selectedColor = {
+                    key: 'dwvar_' + product.ID + '_color',
+                    value: request.httpParameters.get('dwvar_' + product.ID + '_color')[0]
+                };
+            }
+            var selectedSize = {};
+            if (request.httpParameters.containsKey('dwvar_' + product.ID + '_size')) {
+                selectedSize = {
+                    key: 'dwvar_' + product.ID + '_size',
+                    value: request.httpParameters.get('dwvar_' + product.ID + '_size')[0]
+                };
+            }
             if (!availableVariant && product.isMaster() && !('variables' in params)) {
                 variantProduct = productHelper.getOrderableVariant(product, experienceType);
             } else if (!availableVariant && product.isMaster() && ('color' in params.variables && !('size' in params.variables))) {
@@ -84,19 +102,27 @@ server.replace('Show', cache.applyPromotionSensitiveCache, consentTracking.conse
                     delete params.variables.color;
                     variantProduct = productHelper.getOrderableVariant(product, experienceType);
                 }
+            } else if (!availableVariant && product.isMaster() && ('color' in params.variables && ('size' in params.variables))) {
+                variantProduct = productHelper.getVariantForColorSize(product, params.variables.color.value, params.variables.size.value);
             }
-
-            if (variantProduct && variantProduct.variationModel && variantProduct.variationModel.productVariationAttributes && (variantProduct.variationModel.productVariationAttributes.length === 2 || variantProduct.variationModel.productVariationAttributes.length === 3)) {
+            var sizeParam = { pid: variantProduct ? variantProduct.ID : params.pid };
+            var productVariationAttributes = ProductFactory.get(sizeParam).variationAttributes || [];
+            var sizeVariationAttributes = productVariationAttributes ? productVariationAttributes.find(object => object.id === 'size') : null;
+            var sizeVariationAttributeLength = sizeVariationAttributes ? sizeVariationAttributes.values.length : 0;
+            if (variantProduct && variantProduct.variationModel && variantProduct.variationModel.productVariationAttributes && (variantProduct.variationModel.productVariationAttributes.length === 2 || variantProduct.variationModel.productVariationAttributes.length === 3) && (('variables' in params && ('color' in params.variables && 'size' in params.variables)) || sizeVariationAttributeLength === 1)) {
                 params.pid = variantProduct ? variantProduct.ID : params.pid;
             }
-            // Adding condition to always load variation product for EGC
-            if (variantProduct && variantProduct.custom.giftCard.value === 'EGIFT_CARD') {
+            // Adding condition to always load variation product
+            if (isDLInventoryEnabled && variantProduct) {
+                params.pid = variantProduct ? variantProduct.ID : params.pid;
+            } else if (variantProduct && variantProduct.custom.giftCard.value === 'EGIFT_CARD') {
                 params.pid = variantProduct ? variantProduct.ID : params.pid;
             }
             params.variantColor = variantProduct.custom && variantProduct.custom.color ? variantProduct.custom.color : '';
             params.variantLength = variantProduct.custom && variantProduct.custom.length ? variantProduct.custom.length : '';
             params.variantSize = variantProduct.custom && variantProduct.custom.size ? variantProduct.custom.size : '';
             params.colorway = 'colorway' in variantProduct.custom && variantProduct.custom.colorway ? variantProduct.custom.colorway : '';
+            params.PDPSelectedPID = isDLInventoryEnabled && variantProduct ? variantProduct.ID : '';
             // Start - PayPal related code,paypal not in scope for EMEA sites
             /* eslint-disable spellcheck/spell-checker */
             var paypalPayment = PaymentMgr.getPaymentMethod('PayPal');
@@ -126,10 +152,10 @@ server.replace('Show', cache.applyPromotionSensitiveCache, consentTracking.conse
 
             res.setViewData(viewData);
             /* Bazaarvoice Reviews and Ratings */
-            var BV_SEO = require('bc_bazaarvoice/cartridge/scripts/lib/libCloudSEO.ds');
-            var ratingPref = Site.current.getCustomPreferenceValue('bvEnableInlineRatings_C2013');
-            var BVConstants = require('bc_bazaarvoice/cartridge/scripts/lib/libConstants').getConstants();
-            var BVHelper = require('bc_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
+            var BV_SEO = require('bm_bazaarvoice/cartridge/scripts/lib/libCloudSEO');
+            var ratingPref = Site.current.getCustomPreferenceValue('bvEnableInlineRatings');
+            var BVConstants = require('bm_bazaarvoice/cartridge/scripts/lib/libConstants').getConstants();
+            var BVHelper = require('bm_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
 
             if (BVHelper.isRREnabled() || BVHelper.isQAEnabled()) {
                 viewData.bvScout = BVHelper.getBvLoaderUrl();
@@ -152,11 +178,10 @@ server.replace('Show', cache.applyPromotionSensitiveCache, consentTracking.conse
                     var seoData = BV_SEO.getBVSEO({ 'product_id': pid }); // eslint-disable-line
                     var seoReviews = seoData.reviews();
                     var seoQuestions = seoData.questions();
-                    var fetchedContent = seoReviews.fetchReviewContent('getReview');
 
                     viewData.bvDisplay.rr.seo = {
-                        aggregateRating: seoReviews.getAggregateRating(fetchedContent),
-                        reviews: seoReviews.getReviews(fetchedContent)
+                        aggregateRating: seoReviews.getAggregateRating(),
+                        reviews: seoReviews.getReviews()
                     };
                     viewData.bvDisplay.qa.seo = {
                         seo: {
@@ -193,6 +218,20 @@ server.replace('Show', cache.applyPromotionSensitiveCache, consentTracking.conse
             }
             var start = req.querystring.start;
             var showProductPageHelperResult = productHelpers.showProductPage(params, req.pageMetaData);
+            if (product.isMaster() && ('variables' in req.querystring && 'color' in req.querystring.variables && !('size' in req.querystring.variables))) {
+                variantProduct = productHelper.getVariantForColor(product, req.querystring.variables.color.value);
+                let paramsNew = req.querystring;
+                if (variantProduct.custom && variantProduct.custom.size) {
+                    paramsNew.variables.size = { id: req.querystring.variables.color.id, value: variantProduct.custom.size };
+                }
+                if (variantProduct.custom && variantProduct.custom.length) {
+                    paramsNew.variables.length = { id: req.querystring.variables.color.id, value: variantProduct.custom.length };
+                }
+                let priceProduct = ProductFactory.get(paramsNew);
+                showProductPageHelperResult.product.price = priceProduct.price;
+                showProductPageHelperResult.product.price.html = priceProduct.renderedPrice;
+                showProductPageHelperResult.product.renderedPrice = priceProduct.renderedPrice;
+            }
             // For products that have variation attributes, only color should be selected on PDP load. (PHX-3587)
             var productPageAttributes = showProductPageHelperResult.product.variationAttributes || [];
             productPageAttributes.forEach(function (attr) {
@@ -253,11 +292,16 @@ server.replace('Show', cache.applyPromotionSensitiveCache, consentTracking.conse
                 var vipDataHelpers = require('*/cartridge/scripts/vipDataHelpers');
                 isVIPOrder = vipDataHelpers.isVIPOrder(currentBasket);
             }
+            var isNotifyMeEnabled = Site.getCurrent().getCustomPreferenceValue('IsNotifyMeEnabled');
             if ((!showProductPageHelperResult.product.online && productType !== 'set' && productType !== 'bundle') || (isMFOItem === true)) {
                 res.setStatusCode(410);
                 res.render('error/notFound');
             } else {
+                var storeHelpers = require('*/cartridge/scripts/helpers/storeHelpers');
+                var storeInfo = storeHelpers.updateSelectedStore(product, variantProduct, isVIP);
+
                 res.render(showProductPageHelperResult.template, {
+                    selectedStore: storeInfo.selectedStore,
                     product: showProductPageHelperResult.product,
                     addToCartUrl: showProductPageHelperResult.addToCartUrl,
                     cartPageUrl: URLUtils.url('Cart-Show'),
@@ -286,7 +330,11 @@ server.replace('Show', cache.applyPromotionSensitiveCache, consentTracking.conse
                     sizeModelSpecs: sizeModelSpecs,
                     isEnablePdpIcons: isEnablePdpIcons,
                     enablePayPalCTAOnPDP: enablePayPalCTAOnPDP,
-                    isPdpReturnExchangeMsgEnable: isPdpReturnExchangeMsgEnable
+                    isPdpReturnExchangeMsgEnable: isPdpReturnExchangeMsgEnable,
+                    isNotifyMeEnabled: isNotifyMeEnabled,
+                    selectedColor: selectedColor,
+                    selectedSize: selectedSize,
+                    isDLInventoryEnabled: isDLInventoryEnabled
                 });
             }
         } else {
@@ -352,8 +400,20 @@ server.append('Variation', function (req, res, next) {
             if (empty(variantProduct) || !(variantProduct.availabilityModel.orderable)) {
                 variantProduct = productHelper.getOrderableVariant(product);
             }
-        } else if (product.isMaster() && ('color' in params.variables && !('size' in params.variables))) {
+        } else if (product.isMaster() && 'color' in params.variables) {
             variantProduct = productHelper.getVariantForColor(product, params.variables.color.value);
+            let paramsNew = req.querystring;
+            if (variantProduct.custom && variantProduct.custom.size) {
+                paramsNew.variables.size = { id: params.variables.color.id, value: variantProduct.custom.size };
+            }
+            if (variantProduct.custom && variantProduct.custom.length) {
+                paramsNew.variables.length = { id: params.variables.color.id, value: variantProduct.custom.length };
+            }
+            let priceProduct = ProductFactory.get(paramsNew);
+            viewData.product.price = priceProduct.price;
+            viewData.product.price.html = priceProduct.renderedPrice;
+            viewData.product.renderedPrice = priceProduct.renderedPrice;
+            viewData.product.images = priceProduct.images;
         }
         if (variantProduct) {
             viewData.product.custom.colorway = 'colorway' in variantProduct.custom && variantProduct.custom.colorway ? variantProduct.custom.colorway : '';
@@ -363,6 +423,8 @@ server.append('Variation', function (req, res, next) {
         var currentCustomer = req.currentCustomer.raw;
         var isVIP = Site.getCurrent().getCustomPreferenceValue('enableVIPCheckoutExperience') && !empty(currentCustomer.profile) && 'vipAccountId' in currentCustomer.profile.custom && !empty(currentCustomer.profile.custom.vipAccountId);
         viewData.isVIP = isVIP;
+        // Code to check if NotifyMe is enabled or not
+        viewData.isNotifyMeEnabled = Site.getCurrent().getCustomPreferenceValue('IsNotifyMeEnabled');
         // below code is to get model specs for the product color.
         var productObj = viewData.product;
         let selectedSwatch = productObj.swatches && productObj.swatches.values && productObj.swatches.values.length > 0 && productObj.swatches.values[0].value;
@@ -388,10 +450,13 @@ server.append('Variation', function (req, res, next) {
         viewData.shopThisOutfitSize = shopThisOutfitSize;
 
         var pickUpInStoreEnabled = 'isBOPISEnabled' in Site.current.preferences.custom && Site.current.getCustomPreferenceValue('isBOPISEnabled') && (product.custom.availableForInStorePickup !== false || variantProduct.custom.availableForInStorePickup !== false);
+        var isBorderFreeUser = cartHelper.isBorderFreeUser(req);
         var pickUpInStore = {
             actionUrl: URLUtils.url('Stores-InventorySearch', 'showMap', false, 'horizontalView', true, 'isForm', true).toString(),
             atsActionUrl: URLUtils.url('Stores-getAtsValue').toString(),
-            enabled: pickUpInStoreEnabled && !isVIP
+            enabled: pickUpInStoreEnabled && !isVIP && !isBorderFreeUser,
+            productAvailabile: viewData.product.available,
+            productId: viewData.product.id
         };
         var pickUpInStoreContext = {};
         pickUpInStoreContext.pickUpInStore = pickUpInStore;
@@ -435,7 +500,7 @@ server.append('Variation', function (req, res, next) {
             req: req,
             type: TYPE_WISH_LIST
         };
-        var isItemExistsInWishList = (list && !list.items.empty) ? productListHelper.itemExists(list, masterProductID, config) : false;
+        var isItemExistsInWishList = (list && !list.items.empty) ? productListHelper.itemExists(list, productId, config) : false;
         viewData.isItemExistsInWishList = isItemExistsInWishList;
         var currentBasket = BasketMgr.getCurrentBasket();
         hasPreOrder = variantProduct.custom.isPreOrder || false;
@@ -468,6 +533,12 @@ server.append('Variation', function (req, res, next) {
             }
         } else {
             viewData.hasLowInventory = viewData.product.quantities.length <= lowInventoryLevel;
+        }
+
+        var isDLInventoryEnabled = Site.getCurrent().getCustomPreferenceValue('isDLInventoryEnabled');
+        var productInventoryRecord = variantProduct.availabilityModel && variantProduct.availabilityModel.inventoryRecord ? variantProduct.availabilityModel.inventoryRecord.ATS.value : null;
+        if (isDLInventoryEnabled && productInventoryRecord) {
+            viewData.inventoryATSValue = productInventoryRecord;
         }
     }
     viewData.hasPreOrder = hasPreOrder;
@@ -502,15 +573,20 @@ server.get('ChoosePickUpInStore', function (req, res, next) {
     var productId = req.querystring.pid;
     var quickViewEnable = 'quickViewEnable' in req.querystring ? req.querystring.quickViewEnable : false;
     var product = ProductMgr.getProduct(productId);
+
     var pickUpInStoreEnabled = 'isBOPISEnabled' in Site.current.preferences.custom && Site.current.getCustomPreferenceValue('isBOPISEnabled') && product.custom.availableForInStorePickup !== false;
     var currentCustomer = req.currentCustomer.raw;
     var isVIP = Site.getCurrent().getCustomPreferenceValue('enableVIPCheckoutExperience') && !empty(currentCustomer.profile) && 'vipAccountId' in currentCustomer.profile.custom && !empty(currentCustomer.profile.custom.vipAccountId);
+    var cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
+    var isBorderFreeUser = cartHelper.isBorderFreeUser(req);
 
     viewData.pickUpInStore = {
         actionUrl: URLUtils.url('Stores-InventorySearch', 'showMap', false, 'horizontalView', true, 'isForm', true).toString(),
         atsActionUrl: URLUtils.url('Stores-getAtsValue').toString(),
-        enabled: pickUpInStoreEnabled && !isVIP,
-        quickViewEnable: quickViewEnable
+        enabled: pickUpInStoreEnabled && !isVIP && !isBorderFreeUser,
+        quickViewEnable: quickViewEnable,
+        productAvailabile: product.getAvailabilityModel().isInStock(),
+        productId: productId
     };
     var cookieHelper = require('*/cartridge/scripts/helpers/cookieHelpers');
     var preSelectedStoreCookie = cookieHelper.read('preSelectedStore');
@@ -568,24 +644,45 @@ server.append('ShowQuickView', function (req, res, next) {
             variantProduct = colorProduct;
             params.variables = [];
             params.variables.color = { id: product.ID, value: colorProduct.custom.color };
+        } else if (product.isMaster() && ('dwvar_' + product.ID + '_color') in params.variables) {
+            var variant = productHelper.getVariantForColor(product, params.variables['dwvar_' + product.ID + '_color'].value);
+            if (variant.isVariant() && variant.onlineFlag) {
+                variantProduct = variant;
+            }
         } else if (product.isMaster() && ('color' in params.variables && !('size' in params.variables))) {
             variantProduct = productHelper.getVariantForColor(product, params.variables.color.value);
         }
-        if (variantProduct && variantProduct.variationModel && variantProduct.variationModel.productVariationAttributes && (variantProduct.variationModel.productVariationAttributes.length === 2 || variantProduct.variationModel.productVariationAttributes.length === 3)) {
+        var sizeParam = { pid: variantProduct ? variantProduct.ID : params.pid };
+        var sizeVariationAttributeLength = ProductFactory.get(sizeParam).variationAttributes.find(object => object.id === 'size').values.length;
+        var isDLInventoryEnabled = Site.getCurrent().getCustomPreferenceValue('isDLInventoryEnabled');
+        if (variantProduct && variantProduct.variationModel && variantProduct.variationModel.productVariationAttributes && (variantProduct.variationModel.productVariationAttributes.length === 2 || variantProduct.variationModel.productVariationAttributes.length === 3) && (('variables' in params && 'color' in params.variables && 'size' in params.variables) || sizeVariationAttributeLength === 1 || isDLInventoryEnabled)) {
             params.pid = variantProduct ? variantProduct.ID : params.pid;
+            params.variantSize = variantProduct.custom && variantProduct.custom.size ? variantProduct.custom.size : '';
         }
-        params.variantColor = colorProduct.custom && colorProduct.custom.color ? colorProduct.custom.color : '';
         params.variantLength = variantProduct.custom && variantProduct.custom.length ? variantProduct.custom.length : '';
-        params.variantSize = variantProduct.custom && variantProduct.custom.size ? variantProduct.custom.size : '';
+        params.variantColor = colorProduct.custom && colorProduct.custom.color ? colorProduct.custom.color : (variantProduct.custom && variantProduct.custom.color ? variantProduct.custom.color : '');
         params.colorway = 'colorway' in colorProduct.custom && colorProduct.custom.colorway ? colorProduct.custom.colorway : '';
-        product = ProductFactory.get(params);
-        var viewData = res.getViewData();
-        viewData.product = product;
-        viewData.masterProduct = productIDToRemove;// Product ID to remove from saved section in cart page
-
-        if (params.source && params.source === 'recommendation') {
-            viewData.template = 'product/recQuickView.isml';
+        var productToReturn = ProductFactory.get(params);
+        if (product.isMaster() && 'variables' in req.querystring && 'color' in req.querystring.variables) {
+            variantProduct = productHelper.getVariantForColor(product, params.variables.color.value);
+            let paramsNew = req.querystring;
+            if (variantProduct.custom && variantProduct.custom.size) {
+                paramsNew.variables.size = { id: params.variables.color.id, value: variantProduct.custom.size };
+            }
+            if (variantProduct.custom && variantProduct.custom.length) {
+                paramsNew.variables.length = { id: params.variables.color.id, value: variantProduct.custom.length };
+            }
+            let priceProduct = ProductFactory.get(paramsNew);
+            productToReturn.price = priceProduct.price;
+            productToReturn.price.html = priceProduct.renderedPrice;
+            productToReturn.renderedPrice = priceProduct.renderedPrice;
+            productToReturn.images = priceProduct.images;
+            productToReturn.custom.colorway = variantProduct.custom.colorway;
         }
+        var viewData = res.getViewData();
+        viewData.product = productToReturn;
+        viewData.masterProduct = productIDToRemove;// Product ID to remove from saved section in cart page
+        viewData.isQuickAdd = params.quickAdd === 'true';
 
         res.setViewData(viewData);
     }
@@ -703,29 +800,30 @@ server.get('RefreshVariationCache', function (req, res, next) {
             variantProduct = productHelper.getVariantForColor(product, params.variables.color.value);
         }
 
-        if (variantProduct && variantProduct.variationModel && variantProduct.variationModel.productVariationAttributes && (variantProduct.variationModel.productVariationAttributes.length === 2 || variantProduct.variationModel.productVariationAttributes.length === 3)) {
+        var isDLInventoryEnabled = Site.getCurrent().getCustomPreferenceValue('isDLInventoryEnabled');
+        if (variantProduct && variantProduct.variationModel && variantProduct.variationModel.productVariationAttributes && (variantProduct.variationModel.productVariationAttributes.length === 2 || variantProduct.variationModel.productVariationAttributes.length === 3) && (('variables' in params && 'color' in params.variables && 'size' in params.variables) || isDLInventoryEnabled)) {
             params.pid = variantProduct ? variantProduct.ID : params.pid;
+            params.variantSize = variantProduct.custom && variantProduct.custom.size ? variantProduct.custom.size : '';
         }
-        params.variantColor = variantProduct.custom && variantProduct.custom.color ? variantProduct.custom.color : '';
         params.variantLength = variantProduct.custom && variantProduct.custom.length ? variantProduct.custom.length : '';
-        params.variantSize = variantProduct.custom && variantProduct.custom.size ? variantProduct.custom.size : '';
+        params.variantColor = variantProduct.custom && variantProduct.custom.color ? variantProduct.custom.color : '';
         params.colorway = 'colorway' in variantProduct.custom && variantProduct.custom.colorway ? variantProduct.custom.colorway : '';
         variatAttrLength = variantProduct && variantProduct.variationModel && variantProduct.variationModel.productVariationAttributes && variantProduct.variationModel.productVariationAttributes.length;
 
         product = ProductFactory.get(params);
         showProductPageHelperResult = productHelpers.showProductPage(params, req.pageMetaData);
-        var productPageAttributes = showProductPageHelperResult.product.variationAttributes || [];
-        productPageAttributes.forEach(function (attr) {
-            if (attr.id === 'size') {
-                attr.values.forEach(function (value) {
-                    var attrValue = value;
-                    attrValue.selected = false;
-                    if (attrValue.id === params.variantSize) {
-                        attrValue.selected = true;
-                    }
-                });
-            }
-        });
+
+        if (!isDLInventoryEnabled) {
+            var productPageAttributes = showProductPageHelperResult.product.variationAttributes || [];
+            productPageAttributes.forEach(function (attr) {
+                if (attr.id === 'size') {
+                    attr.values.forEach(function (value) {
+                        var attrValue = value;
+                        attrValue.selected = false;
+                    });
+                }
+            });
+        }
         var viewData = res.getViewData();
         viewData.product = product;
         res.setViewData(viewData);
@@ -745,9 +843,9 @@ server.get('PriceOnHover', cache.applyPromotionSensitiveCache, consentTracking.c
     var productHelper = require('*/cartridge/scripts/helpers/ProductHelper');
     var showProductPageHelperResult = productHelpers.showProductPage(params, req.pageMetaData);
     var productType = showProductPageHelperResult.product.productType;
-    var mastProduct = showProductPageHelperResult.product;
+    var mastProduct = showProductPageHelperResult.product.raw;
     if (productType === 'variant') {
-        var varProduct = ProductMgr.getProduct(mastProduct.id);
+        var varProduct = ProductMgr.getProduct(mastProduct.ID);
         mastProduct = varProduct.masterProduct;
     }
     var priceHelper = require('*/cartridge/scripts/helpers/pricing');

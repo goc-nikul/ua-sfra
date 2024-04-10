@@ -124,6 +124,13 @@ function normalizeSelectedAttributes(apiProduct, params) {
     var variables = params.variables || {};
     var productVariationAttributes = [];
     if (apiProduct.variationModel) {
+        var variantProduct;
+        var httpPath = (!empty(request) && !empty(request.httpPath)) ? request.httpPath.split('/') : [];
+        var action = httpPath && httpPath.length > 0 ? httpPath[httpPath.length - 1] : '';
+        var productHelper = require('*/cartridge/scripts/helpers/ProductHelper');
+        if (action === 'Product-Variation' && !request.getHttpParameters().containsKey('dwvar_' + apiProduct.ID + '_color')) {
+            variantProduct = productHelper.getDefaultColorVariant(apiProduct);
+        }
         collections.forEach(apiProduct.variationModel.productVariationAttributes, function (attribute) {
             var allValues = apiProduct.variationModel.getAllValues(attribute);
             productVariationAttributes.push(attribute.ID);
@@ -131,6 +138,14 @@ function normalizeSelectedAttributes(apiProduct, params) {
                 variables[attribute.ID] = {
                     id: apiProduct.ID,
                     value: allValues.get(0).ID
+                };
+            } else if (action === 'Product-Variation' && !request.getHttpParameters().containsKey('dwvar_' + apiProduct.ID + '_color') && attribute.ID === 'color') {
+                // In the SFCC base file the code is written to auto-select a single attribute if allValues.length === 1
+                // The code was modified, and 2 extra conditions were added under JIRA PHX-3768 which prevents the auto-select behavior of the SFCC base code
+                // Adding an extra condition/else-if block for 'Product-Variation' to auto-select the color attribute to resolve EPMD-13375
+                variables[attribute.ID] = {
+                    id: apiProduct.ID,
+                    value: variantProduct.custom && variantProduct.custom.color ? variantProduct.custom.color : allValues.get(0).ID
                 };
             }
         });
@@ -142,16 +157,25 @@ function normalizeSelectedAttributes(apiProduct, params) {
                 } else if (params.variantColor && productVariationAttributes[i] === 'length') {
                     attr = params.variantLength;
                 }
-                if (attr) {
+                if (variables[productVariationAttributes[i]]) {
+                    if (attr) {
+                        variables[productVariationAttributes[i]] = {
+                            id: apiProduct.ID,
+                            value: attr
+                        };
+                    }
+                } else if (action === 'Product-Variation' && !empty(variables['color']) && productVariationAttributes[i] === 'length' && empty(variables['length'])) { // eslint-disable-line
+                    if (empty(variantProduct) || (!empty(variantProduct) && variantProduct.isMaster())) {
+                        variantProduct = productHelper.getVariantForColor(apiProduct, variables['color'].value); // eslint-disable-line
+                    }
                     variables[productVariationAttributes[i]] = {
                         id: apiProduct.ID,
-                        value: attr
+                        value: variantProduct.custom && variantProduct.custom.length ? variantProduct.custom.length : ''
                     };
                 }
             }
         }
     }
-
     return Object.keys(variables) ? variables : null;
 }
 
@@ -300,6 +324,20 @@ function showGiftBoxes() {
 }
 
 /**
+ * Function to check if early access swatch should be hidden
+ * @param {Object} colorValue colour object
+ * @param {dw.catalog.ProductVariationModel} variationModel product variation model
+ * @returns {boolean} true if all color variants are set to 'HIDE'
+ */
+function hideEASwatch(colorValue, variationModel) {
+    var HashMap = require('dw/util/HashMap');
+    var variationMap = new HashMap();
+    variationMap.put('color', colorValue.id);
+    var colorVariants = variationModel.getVariants(variationMap);
+    return colorVariants.toArray().every(colorVariant => 'earlyAccessConfigs' in colorVariant.custom && colorVariant.custom.earlyAccessConfigs.value === 'HIDE');
+}
+
+/**
  * Filters the color product swatches
  * @param {Object} sourceValues - original object for color variationattributes
  * @param {Object} product - Product model
@@ -310,11 +348,17 @@ function filterColorSwatches(sourceValues, product, experienceType) {
     let retObj = [];
     let outletColors = product.raw.custom.outletColors;
     // Nothing to use for filter, return source (all) colors
-    if (empty(outletColors)) return sourceValues;
+    if (empty(outletColors)) {
+        return sourceValues.filter((val) => {
+            return !hideEASwatch(val, product.raw.variationModel);
+        });
+    }
 
     /* eslint-disable no-continue */
     for (let i = 0; i < sourceValues.length; i++) {
         let valueObj = sourceValues[i];
+        var hideSwatch = hideEASwatch(valueObj, product.raw.variationModel);
+        if (hideSwatch) continue;
         if (experienceType === 'premium' && outletColors && outletColors.indexOf(valueObj.id) > -1) continue; // Premium experience enabled, skip outlet item
         else if (experienceType === 'outlet' && outletColors && outletColors.indexOf(valueObj.id) === -1) continue; // Outlet experience enabled, skip premium item
         else retObj.push(valueObj);
@@ -648,7 +692,7 @@ function sizeModelImagesMapping(selectedSizeModel) {
         case 'xxl':
             imageMapViewType = 'sizeModelXXL';
             break;
-        default :
+        default:
             imageMapViewType = null;
             break;
     }
@@ -1055,6 +1099,9 @@ function getFitModelOptions(sizeModelSpecs) {
     var Resource = require('dw/web/Resource');
     let currentCountry = Locale.getLocale(request.locale).country; //eslint-disable-line
     var chooseYourSizeOptions = [];
+    let EmeaCountriesCodes = ['AT', 'BE', 'DK', 'FR', 'DE', 'IT', 'NL', 'NO', 'PL', 'PT', 'ES', 'SE', 'NO', 'CH', 'UK', 'IE', 'GB', 'IE'];
+    const foundCountry = EmeaCountriesCodes.find((element) => element === currentCountry);
+
     try {
         if (sizeModelSpecs && !sizeModelSpecs.error && !empty(sizeModelSpecs.options)) {
             for (var i = 0; i < sizeModelSpecs.options.length; i++) {
@@ -1065,6 +1112,12 @@ function getFitModelOptions(sizeModelSpecs) {
                     chooseYourSizeOptions.push({ id: option.modelSize, label: Resource.msgf('product.model.specification.dropdownCA', 'product', null, option.modelHeightCm, option.modelHeightFt, option.modelSize.toUpperCase()) });
                 } else if (option.modelSize && option.modelHeightFt && currentCountry === 'US') {
                     chooseYourSizeOptions.push({ id: option.modelSize, label: Resource.msgf('product.model.specification.dropdown', 'product', null, option.modelHeightFt, option.modelSize.toUpperCase()) });
+                } else if (option.modelSize && (!(option.modelHeightFt && option.modelHeightCm)) && foundCountry !== undefined && option.modelSize !== 'default') {
+                    chooseYourSizeOptions.push({ id: option.modelSize, label: Resource.msgf('product.model.size.specification.dropdown', 'product', null, option.modelSize.toUpperCase()) });
+                } else if (option.modelSize && option.modelHeightFt && foundCountry !== undefined && option.modelSize !== 'default' && currentCountry === 'GB') {
+                    chooseYourSizeOptions.push({ id: option.modelSize, label: Resource.msgf('product.model.specification.dropdown', 'product', null, option.modelHeightFt, option.modelSize.toUpperCase()) });
+                } else if (option.modelSize && option.modelHeightCm && foundCountry !== undefined && option.modelSize !== 'default') {
+                    chooseYourSizeOptions.push({ id: option.modelSize, label: Resource.msgf('product.model.specification.dropdown.cm', 'product', null, option.modelHeightCm, option.modelSize.toUpperCase()) });
                 }
             }
         } else {
@@ -1092,7 +1145,7 @@ function getFitModelOptions(sizeModelSpecs) {
 */
 base.getPageDesignerProductPage = function (reqProduct) {
     if (reqProduct.template) {
-       // this product uses an individual template, for backwards compatibility this has to be handled as a non-PD page
+        // this product uses an individual template, for backwards compatibility this has to be handled as a non-PD page
         return {
             page: null,
             invisiblePage: null,
@@ -1105,8 +1158,8 @@ base.getPageDesignerProductPage = function (reqProduct) {
 
     var product = reqProduct.raw;
     var category = product.variant
-            ? product.masterProduct.primaryCategory
-            : product.primaryCategory;
+        ? product.masterProduct.primaryCategory
+        : product.primaryCategory;
     if (!category) {
         category = product.variant
             ? product.masterProduct.classificationCategory

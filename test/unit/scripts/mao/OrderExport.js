@@ -26,6 +26,7 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
 
     it('Testing method execute OrderExport.js --> Test in case no orders returned from the search query', () => {
         var orderExport = proxyquire('../../../../cartridges/int_mao/cartridge/scripts/OrderExport.js', {
+            'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
             'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
             'dw/util/StringUtils': {
@@ -43,8 +44,16 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
             '~/cartridge/scripts/OrderExportUtils': {},
             '~/cartridge/scripts/services/MaoService': {},
             '~/cartridge/scripts/MaoPreferences': {},
+            '~/cartridge/scripts/PubSubPreferences': {},
             '~/cartridge/scripts/MAOAuthTokenHelper': {},
-            '~/cartridge/scripts/services/SQSQueueService': {}
+            '~/cartridge/scripts/services/SQSQueueService': {},
+            '~/cartridge/scripts/services/GooglePubSubQueueService': {},
+            '*/cartridge/scripts/helpers/sitePreferencesHelper': {
+                isAurusEnabled: function () {
+                    return true;
+                }
+            }
+
         });
         var args = {
             'MaxLimit': 10
@@ -65,6 +74,7 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
             }
         }
         var orderExport = proxyquire('../../../../cartridges/int_mao/cartridge/scripts/OrderExport.js', {
+            'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
             'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
             'dw/util/StringUtils': {
@@ -109,8 +119,15 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
                 MaoDomTokenChildOrgPassword: 'passw0rd',
                 MaoDomSaveOrderEndpointUrl: 'www.maotest.com'
             },
+            '~/cartridge/scripts/PubSubPreferences': {},
             '~/cartridge/scripts/MAOAuthTokenHelper': MAOAuthTokenHelpers,
-            '~/cartridge/scripts/services/SQSQueueService': {}
+            '~/cartridge/scripts/services/SQSQueueService': {},
+            '~/cartridge/scripts/services/GooglePubSubQueueService': {},
+            '*/cartridge/scripts/helpers/sitePreferencesHelper': {
+                isAurusEnabled: function () {
+                    return true;
+                }
+            }
         });
         var args = {
             'MaxLimit': 10
@@ -121,6 +138,7 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
 
     it('Testing method OrderExport --> Required Site Preferences not available', () => {
         var orderExport = proxyquire('../../../../cartridges/int_mao/cartridge/scripts/OrderExport.js', {
+            'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
             'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
             'dw/util/StringUtils': {
@@ -147,8 +165,15 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
                 MaoDomTokenChildOrgPassword: 'passw0rd',
                 MaoDomSaveOrderEndpointUrl: ''
             },
+            '~/cartridge/scripts/PubSubPreferences': {},
             '~/cartridge/scripts/MAOAuthTokenHelper': {},
-            '~/cartridge/scripts/services/SQSQueueService': {}
+            '~/cartridge/scripts/services/SQSQueueService': {},
+            '~/cartridge/scripts/services/GooglePubSubQueueService': {},
+            '*/cartridge/scripts/helpers/sitePreferencesHelper': {
+                isAurusEnabled: function () {
+                    return true;
+                }
+            }
         });
         var args = {
             'MaxLimit': 10
@@ -159,6 +184,7 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
 
     it('Testing method orderExport --> queryOrders return one order and order not saved successfully in MAO and OrderJSON is empty', () => {
         var orderExport = proxyquire('../../../../cartridges/int_mao/cartridge/scripts/OrderExport.js', {
+            'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
             'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
             'dw/util/StringUtils': {
@@ -222,8 +248,15 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
                 MaoDomTokenChildOrgPassword: 'passw0rd',
                 MaoDomSaveOrderEndpointUrl: 'www.maotest.com'
             },
+            '~/cartridge/scripts/PubSubPreferences': {},
             '~/cartridge/scripts/MAOAuthTokenHelper': MAOAuthTokenHelper,
-            '~/cartridge/scripts/services/SQSQueueService': {}
+            '~/cartridge/scripts/services/SQSQueueService': {},
+            '~/cartridge/scripts/services/GooglePubSubQueueService': {},
+            '*/cartridge/scripts/helpers/sitePreferencesHelper': {
+                isAurusEnabled: function () {
+                    return true;
+                }
+            }
         });
         var args = {
             'MaxLimit': 10
@@ -234,6 +267,7 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
 
     it('Testing method orderExport --> queryOrders return one order and order saved successfully in MAO', () => {
         var orderExport = proxyquire('../../../../cartridges/int_mao/cartridge/scripts/OrderExport.js', {
+            'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
             'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
             'dw/util/StringUtils': {
@@ -297,8 +331,107 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
                 MaoDomTokenChildOrgPassword: 'passw0rd',
                 MaoDomSaveOrderEndpointUrl: 'www.maotest.com'
             },
+            '~/cartridge/scripts/PubSubPreferences': {},
             '~/cartridge/scripts/MAOAuthTokenHelper': MAOAuthTokenHelper,
-            '~/cartridge/scripts/services/SQSQueueService': {}
+            '~/cartridge/scripts/services/SQSQueueService': {},
+            '~/cartridge/scripts/services/GooglePubSubQueueService': {},
+            '*/cartridge/scripts/helpers/sitePreferencesHelper': {
+                isAurusEnabled: function () {
+                    return true;
+                }
+            }
+        });
+        var args = {
+            'MaxLimit': 10
+        };
+        var result = orderExport.execute(args);
+        assert.isNotNull(result);
+    });
+
+    it('Testing method orderExport --> queryOrders return one order and order saved successfully in MAO through Pub/Sub queue', () => {
+        var orderExport = proxyquire('../../../../cartridges/int_mao/cartridge/scripts/OrderExport.js', {
+            'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
+            'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
+            'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
+            'dw/util/StringUtils': {
+                format: function () {
+                    return 'formatted number';
+                }
+            },
+            'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction'),
+            'dw/order/OrderMgr': {
+                searchOrders: () => {
+                    var customObj = [{
+                        status: {
+                            value: 3
+                        },
+                        custom: {
+                            maoStatusUpdateFailedCount: null,
+                            updates: 'paymentDetailsUpdate',
+                            onHold: false,
+                            sapCarrierCode: ''
+                        },
+                        setExportStatus: function () {
+                            return 'exported';
+                        },
+                        setConfirmationStatus: function () {
+                            return 'confirmed';
+                        }
+                    }];
+                    var cnt = 0;
+                    return {
+                        count: 1,
+                        hasNext: () => {
+                            cnt++;
+                            return cnt === 1;
+                        },
+                        next: () => customObj[0]
+                    };
+                }
+            },
+            'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
+            '~/cartridge/scripts/OrderExportUtils': {
+                getOrderJSON: function () {
+                    return '{"MessageHeader":{"organization":"org", "user":"user"},"CapturedDate":"Some Date","CurrencyCode":"USD","CustomerFirstName":"UA","CustomerLastName":"UA","DocType":"","Extended":"","IsConfirmed":"true","OrderActions":{},"OrderId":"12345","OrderChargeDetail":{},"OrderTaxDetail":{},"OrderLine":[{"Extended":{"sapCarrierCode":"12345"}}],"OrderType":{"OrderTypeId":""},"Payment":"payment"}';
+                }
+            },
+            '~/cartridge/scripts/services/MaoService': {},
+            '~/cartridge/scripts/MaoPreferences': {
+                MaoDomTokenChildOrgUsername: 'underarmour',
+                MaoDomTokenChildOrgPassword: 'passw0rd',
+                MaoDomSaveOrderEndpointUrl: 'www.maotest.com'
+            },
+            '~/cartridge/scripts/PubSubPreferences': {
+                isEnabled: true,
+                organization: 'UA-TEST',
+                user: 'ua-test@ua-test.com'
+            },
+            '~/cartridge/scripts/MAOAuthTokenHelper': MAOAuthTokenHelper,
+            '~/cartridge/scripts/services/SQSQueueService': {},
+            '~/cartridge/scripts/services/GooglePubSubQueueService': {
+                saveOrderService: () => {
+                    return {
+                        call: () => {
+                            return {
+                                status: 'OK',
+                                object: {
+                                    statusCode: 200
+                                }
+                            }
+                        }
+                    };
+                }
+            },
+            '*/cartridge/scripts/helpers/sitePreferencesHelper': {
+                isAurusEnabled: function () {
+                    return true;
+                }
+            },
+            '*/cartridge/scripts/helpers/loyaltyOrderHelpers': {
+                processLoyaltyOrder: () => {
+                    return true;
+                }
+            }
         });
         var args = {
             'MaxLimit': 10
@@ -309,6 +442,7 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
 
     it('Testing method orderExport --> queryOrders return one order and order saved successfully in MAO, sapCarrierCode custom attribute is not empty', () => {
         var orderExport = proxyquire('../../../../cartridges/int_mao/cartridge/scripts/OrderExport.js', {
+            'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
             'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
             'dw/util/StringUtils': {
@@ -372,8 +506,15 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
                 MaoDomTokenChildOrgPassword: 'passw0rd',
                 MaoDomSaveOrderEndpointUrl: 'www.maotest.com'
             },
+            '~/cartridge/scripts/PubSubPreferences': {},
             '~/cartridge/scripts/MAOAuthTokenHelper': MAOAuthTokenHelper,
-            '~/cartridge/scripts/services/SQSQueueService': {}
+            '~/cartridge/scripts/services/SQSQueueService': {},
+            '~/cartridge/scripts/services/GooglePubSubQueueService': {},
+            '*/cartridge/scripts/helpers/sitePreferencesHelper': {
+                isAurusEnabled: function () {
+                    return true;
+                }
+            }
         });
         var args = {
             'MaxLimit': 10
@@ -384,6 +525,7 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
 
     it('Testing method orderExport --> queryOrders return one order and order not saved successfully in MAO', () => {
         var orderExport = proxyquire('../../../../cartridges/int_mao/cartridge/scripts/OrderExport.js', {
+            'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
             'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
             'dw/util/StringUtils': {
@@ -447,8 +589,15 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
                 MaoDomTokenChildOrgPassword: 'passw0rd',
                 MaoDomSaveOrderEndpointUrl: 'www.maotest.com'
             },
+            '~/cartridge/scripts/PubSubPreferences': {},
             '~/cartridge/scripts/MAOAuthTokenHelper': MAOAuthTokenHelper,
-            '~/cartridge/scripts/services/SQSQueueService': {}
+            '~/cartridge/scripts/services/SQSQueueService': {},
+            '~/cartridge/scripts/services/GooglePubSubQueueService': {},
+            '*/cartridge/scripts/helpers/sitePreferencesHelper': {
+                isAurusEnabled: function () {
+                    return true;
+                }
+            }
         });
         var args = {
             'MaxLimit': 10
@@ -459,6 +608,7 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
 
     it('Testing method orderExport --> queryOrders return one order and order not saved successfully in MAO and  order marked to "Export Failed"', () => {
         var orderExport = proxyquire('../../../../cartridges/int_mao/cartridge/scripts/OrderExport.js', {
+            'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
             'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
             'dw/util/StringUtils': {
@@ -523,8 +673,15 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
                 MaoDomSaveOrderEndpointUrl: 'www.maotest.com',
                 maoMaxFailedCount: 1
             },
+            '~/cartridge/scripts/PubSubPreferences': {},
             '~/cartridge/scripts/MAOAuthTokenHelper': MAOAuthTokenHelper,
-            '~/cartridge/scripts/services/SQSQueueService': {}
+            '~/cartridge/scripts/services/SQSQueueService': {},
+            '~/cartridge/scripts/services/GooglePubSubQueueService': {},
+            '*/cartridge/scripts/helpers/sitePreferencesHelper': {
+                isAurusEnabled: function () {
+                    return true;
+                }
+            }
         });
         var args = {
             'MaxLimit': 10
@@ -541,6 +698,7 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
         };
         var stubFormat = sinon.stub();
         var orderExport = proxyquire('../../../../cartridges/int_mao/cartridge/scripts/OrderExport.js', {
+            'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
             'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
             'dw/util/StringUtils': {
@@ -608,8 +766,15 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
                 MaoDomSaveOrderEndpointUrl: 'www.maotest.com',
                 maoMaxFailedCount: 1
             },
+            '~/cartridge/scripts/PubSubPreferences': {},
             '~/cartridge/scripts/MAOAuthTokenHelper': MAOAuthTokenHelper,
-            '~/cartridge/scripts/services/SQSQueueService': {}
+            '~/cartridge/scripts/services/SQSQueueService': {},
+            '~/cartridge/scripts/services/GooglePubSubQueueService': {},
+            '*/cartridge/scripts/helpers/sitePreferencesHelper': {
+                isAurusEnabled: function () {
+                    return true;
+                }
+            }
         });
         stubFormat.throws(new Error('custom exception'));
         var args = {
@@ -629,6 +794,7 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
         };
         var stubFormat = sinon.stub();
         var orderExport = proxyquire('../../../../cartridges/int_mao/cartridge/scripts/OrderExport.js', {
+            'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
             'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
             'dw/util/StringUtils': {
@@ -696,8 +862,15 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
                 MaoDomSaveOrderEndpointUrl: 'www.maotest.com',
                 maoMaxFailedCount: 1
             },
+            '~/cartridge/scripts/PubSubPreferences': {},
             '~/cartridge/scripts/MAOAuthTokenHelper': MAOAuthTokenHelper,
-            '~/cartridge/scripts/services/SQSQueueService': {}
+            '~/cartridge/scripts/services/SQSQueueService': {},
+            '~/cartridge/scripts/services/GooglePubSubQueueService': {},
+            '*/cartridge/scripts/helpers/sitePreferencesHelper': {
+                isAurusEnabled: function () {
+                    return true;
+                }
+            }
         });
         stubFormat.throws(new Error('custom exception'));
         var args = {
@@ -710,6 +883,7 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
     it('Testing method orderExport -->  Test custom exception in saveOrderInMAO function', () => {
         var stubFormat = sinon.stub();
         var orderExport = proxyquire('../../../../cartridges/int_mao/cartridge/scripts/OrderExport.js', {
+            'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
             'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
             'dw/util/StringUtils': {
@@ -775,8 +949,15 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
                 MaoDomSaveOrderEndpointUrl: 'www.maotest.com',
                 maoMaxFailedCount: 1
             },
+            '~/cartridge/scripts/PubSubPreferences': {},
             '~/cartridge/scripts/MAOAuthTokenHelper': MAOAuthTokenHelper,
-            '~/cartridge/scripts/services/SQSQueueService': {}
+            '~/cartridge/scripts/services/SQSQueueService': {},
+            '~/cartridge/scripts/services/GooglePubSubQueueService': {},
+            '*/cartridge/scripts/helpers/sitePreferencesHelper': {
+                isAurusEnabled: function () {
+                    return true;
+                }
+            }
         });
         stubFormat.throws(new Error('custom exception'));
         var args = {
@@ -789,6 +970,7 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
     it('Testing method orderExport -->  Test custom exception in handleFailedOrders function', () => {
         var stubFormat = sinon.stub();
         var orderExport = proxyquire('../../../../cartridges/int_mao/cartridge/scripts/OrderExport.js', {
+            'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
             'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
             'dw/util/StringUtils': {
@@ -856,8 +1038,15 @@ describe('int_mao/cartridge/scripts/OrderExport.js', () => {
                 MaoDomSaveOrderEndpointUrl: 'www.maotest.com',
                 maoMaxFailedCount: 1
             },
+            '~/cartridge/scripts/PubSubPreferences': {},
             '~/cartridge/scripts/MAOAuthTokenHelper': MAOAuthTokenHelper,
-            '~/cartridge/scripts/services/SQSQueueService': {}
+            '~/cartridge/scripts/services/SQSQueueService': {},
+            '~/cartridge/scripts/services/GooglePubSubQueueService': {},
+            '*/cartridge/scripts/helpers/sitePreferencesHelper': {
+                isAurusEnabled: function () {
+                    return true;
+                }
+            }
         });
         stubFormat.throws(new Error('custom exception'));
         var args = {

@@ -1,3 +1,5 @@
+'use strict';
+
 const I = actor();
 
 module.exports = {
@@ -19,7 +21,8 @@ module.exports = {
         removeProductBox: '.hidden-md-down',
         removeProductBtn: '.remove-btn-lg.remove-product.btn.btn-light',
         removeProductModal: '.modal-content',
-        removeProductModalConfirm: '.btn.btn-primary.cart-delete-confirmation-btn',
+        removeProductModalConfirm:
+            '.btn.btn-primary.cart-delete-confirmation-btn',
         updateEditWishlist: '.btn-update-wishlist-product',
         itemAttributes: '.line-item-attributes',
         removeFromWishlist: '.remove-btn-lg.remove-from-wishlist.btn.btn-light',
@@ -138,11 +141,13 @@ module.exports = {
         I.uncheckOption(this.locators.wishlistCheckbox);
     },
     hideWishlistItem(pid) {
-        let checkbox = this.locators.pid + pid + this.locators.wishlistItemCheckbox;
+        let checkbox =
+            this.locators.pid + pid + this.locators.wishlistItemCheckbox;
         I.checkOption(checkbox);
     },
     unhideWishlistItem(pid) {
-        let checkbox = this.locators.pid + pid + this.locators.wishlistItemCheckbox;
+        let checkbox =
+            this.locators.pid + pid + this.locators.wishlistItemCheckbox;
         I.uncheckOption(checkbox);
     },
     deleteAllWishlistItems() {

@@ -114,10 +114,24 @@ function updateBillingAddressSelector(order, customer) {
         $('.addressSelector .billing-address-option[data-addr-id=""]').closest('.billing-address-section').addClass('remove-links');
         $('.addressSelector .billing-address-option[selected="selected"]').closest('.billing-address-section').addClass('default-address remove-links');
 
+        var isRatePay = $('input#rb_ratepay').is(':checked');
+        var rpFirstName = '';
+        var rpLastName = '';
+
+        if (isRatePay) {
+            rpFirstName = $('.adyen-checkout__input--firstName').val();
+            rpLastName = $('.adyen-checkout__input--lastName').val();
+        }
+
         // If default saved address as international address then we need to update the billing form.
         var $billingSelectorOption = $('.addressSelector .billing-address-option[selected="selected"]');
         if ($billingSelectorOption.length > 0 && $billingSelectorOption.attr('data-country-code') !== '' && $billingSelectorOption.attr('data-country-code') !== undefined) {
             $('.addressSelector .billing-address-option[selected="selected"]').trigger('click');
+        }
+
+        if (isRatePay) {
+            $('.adyen-checkout__input--firstName').val(rpFirstName);
+            $('.adyen-checkout__input--lastName').val(rpLastName);
         }
     }
 

@@ -86,8 +86,12 @@ function convertDateFormat(responseDate) {
  * @returns {boolean} status of order details
  */
 function updateOrderDetails(responseObj) {
+    var Site = require('dw/system/Site');
+    var Resource = require('dw/web/Resource');
+    var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
     var OrderMgr = require('dw/order/OrderMgr');
     var order = OrderMgr.getOrder(responseObj.invoiceNo);
+    var orderInfoLogger = require('dw/system/Logger').getLogger('orderInfo', 'orderInfo');
     if (!order) {
         logger.writelog(logger.LOG_TYPE.DEBUG, 'Order Number: ' + responseObj.invoiceNo + ' Not found in DW');
         return false;
@@ -115,6 +119,10 @@ function updateOrderDetails(responseObj) {
                 Logger.error('Unable to unutlize Loyalty voucher ' + e.message + e.stack);
             }
             OrderMgr.failOrder(order, true);
+            // log the order details for dataDog.
+            if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+                orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, true, Resource.msg('error.payment.msg', 'checkout', null)));
+            }
             return true;
         }
         order.custom.PaymentCode2c2 = responseObj.approvalCode;
@@ -160,6 +168,10 @@ function updateOrderDetails(responseObj) {
             }
         } else {
             require('*/cartridge/scripts/checkout/checkoutHelpers').sendConfirmationEmail(order, order.customerLocaleID);
+        }
+        // log the order details for dataDog.
+        if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+            orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
         }
         return true;
     });

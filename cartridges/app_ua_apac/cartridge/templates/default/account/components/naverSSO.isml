@@ -7,13 +7,16 @@
     if (isIdmEnabled) {
         executeController = 'Login-SocialLogin';
     }
-    var callbackUrl = URLUtils.https(executeController, 'oauthProvider', 'naver');
+    var callbackUrl = URLUtils.https(executeController, 'oauthProvider', 'naver', 'accountDeletion', naverAccountDeletion);
+    var encodedCallbackUrl = encodeURIComponent(callbackUrl);
     var clientId = dw.system.Site.current.getCustomPreferenceValue('naverSSOClientID');
-    var apiURL = naverAuthUrl + clientId +"&redirect_uri="+ callbackUrl +"&state="+ uniqueString;
+    var apiURL = naverAuthUrl + clientId +"&redirect_uri="+ encodedCallbackUrl +"&state="+ uniqueString;
     session.custom.naverRedirectURL = pdict.naverRedirectURL;
     session.custom.redirectDestination = naverButtonDestination;
 </isscript>
-<isinclude template="/components/modules" sf-toolkit="off" />
+<isif condition="${!naverAccountDeletion}">
+    <isinclude template="/components/modules" sf-toolkit="off" />
 
-<iscontentasset aid="login-sso-top-message" />
+    <iscontentasset aid="login-sso-top-message" />
+</isif>
 <a class="naverBtn" href="${apiURL}" role="button"><img height="50px" src="${naverButtonImgURL}" alt="NaverSSO" /></a>

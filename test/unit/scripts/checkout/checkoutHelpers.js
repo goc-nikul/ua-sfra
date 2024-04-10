@@ -11,6 +11,41 @@ var ArrayList = require('../../../mocks/scripts/util/dw.util.Collection');
 var giftCardHelper = require('../../../../test/mocks/scripts/giftcard/giftcardHelper').giftCardHelper;
 var Money = require('../../../mocks/dw/dw_value_Money');
 
+// Path to scripts
+var pathToCartridges = '../../../../cartridges/';
+var pathToLinkScripts = pathToCartridges + 'int_aurus_custom/cartridge/scripts/';
+
+// Path to test scripts
+var pathToCoreMock = '../../../mocks/';
+
+class Calendar {
+    constructor(date) {
+        this.date = date;
+        this.DATE = 5;
+        this.DAY_OF_WEEK = 7;
+        this.SATURDAY = 7;
+        this.SUNDAY = 1;
+    }
+
+    add(field, value) {
+        if (field === this.DATE) {
+            this.date.setDate(this.date.getDate() + value);
+        }
+    }
+
+    before() {
+        return false;
+    }
+
+    toTimeString() {
+        return this.date ? this.date.toDateString() : '';
+    }
+
+    get() {
+        return 2;
+    }
+}
+
 global.empty = (data) => {
     return !data;
 };
@@ -243,6 +278,14 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
 
         assert.equal(false, result.error, 'no errors during operation');
         assert.equal(order.status.value, Order.ORDER_STATUS_CANCELLED, 'order status updated');
+
+        // Case: already failed order
+        order = new Order();
+        order.status = { value: Order.ORDER_STATUS_FAILED };
+        result = checkoutHelpers.failOrder(order);
+
+        assert.equal(false, result.error, 'no errors during operation');
+        assert.equal(order.status.value, Order.ORDER_STATUS_FAILED, 'order status remains failed');
     });
 
     it('Testing method: sendConfirmationEmail', () => {
@@ -735,6 +778,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     return;
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             '*/cartridge/scripts/helpers/sitePreferencesHelper': {
                 isAurusEnabled: function () {
                      return false;
@@ -773,6 +822,7 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
         order.setPaymentStatus = function () {
             return {};
         }
+
         var result = checkoutHelpers.handlePayments(order, '1234567890');
         assert.isNotNull(result);
     });
@@ -839,6 +889,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     eGiftCard: 9,
                     returnLabel: 10
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
             },
             'plugin_instorepickup/cartridge/scripts/checkout/checkoutHelpers': {},
             '*/cartridge/scripts/firstDataHelper': {},
@@ -962,6 +1018,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
             '*/cartridge/scripts/basketHelper': {},
             '*/cartridge/scripts/checkout/shippingHelpers': {
                 selectShippingMethod: function () {}
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
             },
             '*/cartridge/modules/providers': function () {},
             '*/cartridge/scripts/helpers/emailHelpers': {
@@ -1113,6 +1175,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
             '*/cartridge/scripts/checkout/shippingHelpers': {
                 selectShippingMethod: function () {}
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             '*/cartridge/modules/providers': function () {},
             'plugin_instorepickup/cartridge/scripts/checkout/checkoutHelpers': {},
             '*/cartridge/scripts/firstDataHelper': {},
@@ -1237,6 +1305,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                      kpFraudStatus: 'PENDING'
                 }};
             }},
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             '*/cartridge/scripts/util/klarnaPaymentsConstants.js': { FRAUD_STATUS : 'ACCEPTED'},
             '*/cartridge/scripts/basketHelper': {
                 updateAddressType: function () {
@@ -1318,6 +1392,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                 hasPreOrderItems: function () {
                     return false;
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
             },
             'dw/catalog/ProductMgr': require('../../../mocks/dw/dw_catalog_ProductMgr'),
             '*/cartridge/models/address': require('../../../../cartridges/storefront-reference-architecture/test/mocks/models/address'),
@@ -1415,6 +1495,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     return false;
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             'dw/catalog/ProductMgr': require('../../../mocks/dw/dw_catalog_ProductMgr'),
             '*/cartridge/models/address': require('../../../../cartridges/storefront-reference-architecture/test/mocks/models/address'),
             'dw/order/PaymentInstrument': require('../../../mocks/dw/dw_order_PaymentInstrument'),
@@ -1505,6 +1591,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
             '*/cartridge/scripts/checkout/shippingHelpers': {
                 selectShippingMethod: function () {}
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             '*/cartridge/modules/providers': function () {},
             'plugin_instorepickup/cartridge/scripts/checkout/checkoutHelpers': {},
             '*/cartridge/scripts/firstDataHelper': {},
@@ -1593,6 +1685,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                         error: false
                     };
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
             },
             '*/cartridge/scripts/giftcard/giftcardHelper': {
                 authorizeGiftCards: function () {
@@ -1689,6 +1787,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                         }
                     }
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
             },
             'dw/system/HookMgr': {
                 hasHook: function () {
@@ -1814,6 +1918,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     }
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             'dw/system/HookMgr': {
                 hasHook: function () {
                     return false
@@ -1934,6 +2044,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                         paymentProcessor: null
                     }
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
             },
             'dw/system/HookMgr': {
                 hasHook: function () {
@@ -2061,6 +2177,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     }
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             'dw/system/HookMgr': {
                 hasHook: function () {
                     return false
@@ -2180,6 +2302,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                         }
                     }
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
             },
             'dw/system/HookMgr': {
                 hasHook: function () {
@@ -2311,6 +2439,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     };
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             '*/cartridge/scripts/giftcard/giftcardHelper': {
                 authorizeGiftCards: function () {
                     return {
@@ -2422,6 +2556,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     }
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             'dw/system/HookMgr': {
                 hasHook: function () {
                     return false
@@ -2526,6 +2666,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                 cancelOrder: function() {
                     return 1;
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
             },
             'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
@@ -2648,6 +2794,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     return 1;
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
             'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction'),
@@ -2769,6 +2921,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                 cancelOrder: function() {
                     return 1;
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
             },
             'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
@@ -2922,6 +3080,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                         }
                     }
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
             },
             'dw/system/HookMgr': {
                 hasHook: function () {
@@ -3129,6 +3293,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                 basketHasInStorePickUpShipment: function () {
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             'app_storefront_base/cartridge/scripts/checkout/checkoutHelpers': {},
             '*/cartridge/scripts/basketHelper': {},
             '*/cartridge/scripts/checkout/shippingHelpers': {
@@ -3253,6 +3423,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                 cancelOrder: function() {
                     return 1;
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
             },
             'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
@@ -3591,6 +3767,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     }
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             'dw/order/BasketMgr': require('../../../mocks/dw/dw_order_BasketMgr'),
             'dw/order/PaymentMgr':{
                 getPaymentMethod: function () {
@@ -3731,6 +3913,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                 cancelOrder: function() {
                     return 1;
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
             },
             'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
@@ -3966,6 +4154,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     return 1;
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
             'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction'),
@@ -4112,6 +4306,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     return 1;
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
             'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction'),
@@ -4256,6 +4456,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                 cancelOrder: function() {
                     return 1;
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
             },
             'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
@@ -4436,6 +4642,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     };
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             '*/cartridge/scripts/giftcard/giftcardHelper': {
                 authorizeGiftCards: function () {
                     return {
@@ -4594,6 +4806,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     }
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             'dw/order/BasketMgr': require('../../../mocks/dw/dw_order_BasketMgr'),
             'dw/order/PaymentMgr':{
                 getPaymentMethod: function () {
@@ -4741,6 +4959,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     }
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             'dw/system/HookMgr': {
                 hasHook: function () {
                     return false
@@ -4887,6 +5111,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     };
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             '*/cartridge/scripts/giftcard/giftcardHelper': {
                 authorizeGiftCards: function () {
                     return {
@@ -5005,6 +5235,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     }
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             'dw/system/HookMgr': {
                 hasHook: function () {
                     return false
@@ -5075,6 +5311,18 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
             '*/cartridge/scripts/helpers/cookieHelpers': {
                 read: function () {
                     return '22';
+                }
+            },
+            'dw/util/Locale': {
+                getLocale: function () {
+                    return {
+                        country: 'US'
+                    }
+                }
+            },
+            '*/cartridge/scripts/utils/PreferencesUtil': {
+                getValue: function () {
+                    return ['US'];
                 }
             }
         });
@@ -5173,6 +5421,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     }
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             '*/cartridge/scripts/helpers/instorePickupStoreHelpers': {
                 basketHasInStorePickUpShipment: function () {
                 }
@@ -5262,6 +5516,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                 cancelOrder: function() {
                     return 1;
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
             },
             'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
@@ -5412,6 +5672,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     }
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             'dw/order/BasketMgr': require('../../../mocks/dw/dw_order_BasketMgr'),
             'dw/order/PaymentMgr':{
                 getPaymentMethod: function () {
@@ -5554,6 +5820,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     }
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             'dw/system/HookMgr': {
                 hasHook: function () {
                     return false
@@ -5658,6 +5930,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                 cancelOrder: function() {
                     return 1;
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
             },
             'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
@@ -5795,6 +6073,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                         }
                     }
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
             },
             'dw/system/HookMgr': {
                 hasHook: function () {
@@ -5981,6 +6265,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                     }
                 }
             },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
+            },
             'dw/system/HookMgr': {
                 hasHook: function () {
                     return false
@@ -6108,6 +6398,42 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
        assert.isNotNull(result);
     });
 
+    it('Testing method: setOrderPurchaseSite', function () {
+        var checkoutHelpers = proxyquire('../../../../cartridges/app_ua_core/cartridge/scripts/checkout/checkoutHelpers', {
+            'app_storefront_base/cartridge/scripts/checkout/checkoutHelpers': {},
+            'dw/util/ArrayList': require('../../../mocks/dw/dw_util_ArrayList'),
+            'dw/value/Money': require('../../../mocks/dw/dw_value_Money'),
+            'dw/order/OrderMgr': require('../../../mocks/dw/dw_order_OrderMgr'),
+            'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
+            'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
+            'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction'),
+            'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
+            'dw/web/Resource': require('../../../mocks/dw/dw_web_Resource'),
+            'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
+            'dw/order/BasketMgr': require('../../../mocks/dw/dw_order_BasketMgr'),
+            'plugin_instorepickup/cartridge/scripts/checkout/checkoutHelpers': {},
+            '*/cartridge/scripts/checkout/shippingHelpers': {},
+            '*/cartridge/scripts/giftcard/giftcardHelper': {},
+            '*/cartridge/scripts/util/loggerHelper': {},
+            'dw/order/PaymentMgr' : {},
+            'dw/system/HookMgr' : {},
+            'dw/system/Site': {
+                getCurrent: function () {
+                    return {
+                        getID: function () {
+                            return 'US';
+                        }
+                    };
+                }
+            }
+        });
+        var order = new Order();
+        order = {
+            custom: {}
+        };
+        checkoutHelpers.setOrderPurchaseSite(order);
+    });
+
     it('Testing method: getRenderedPaymentInstruments --> AurusEnabled', () => {
         var checkoutHelpers = proxyquire('../../../../cartridges/app_ua_core/cartridge/scripts/checkout/checkoutHelpers', {
             'dw/util/ArrayList': require('../../../mocks/dw/dw_util_ArrayList'),
@@ -6119,6 +6445,12 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
                 cancelOrder: function() {
                     return 1;
                 }
+            },
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
+            '*/cartridge/scripts/util/loggerHelper.js': {
+                maskPIIAuruspayInfo: () => ''
             },
             'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
             'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
@@ -6261,5 +6593,140 @@ describe('app_ua_core/cartridge/scripts/checkout/checkoutHelpers test', () => {
         }
        var result = checkoutHelpers.getRenderedPaymentInstruments(req, {});
        assert.isNotNull(result);
+    });
+});
+
+describe('isCountryShippable', () => {
+    var checkoutHelpers = proxyquire('../../../../cartridges/app_ua_core/cartridge/scripts/checkout/checkoutHelpers', {
+        'app_storefront_base/cartridge/scripts/checkout/checkoutHelpers': {},
+        'dw/util/ArrayList': require('../../../mocks/dw/dw_util_ArrayList'),
+        'dw/value/Money': require('../../../mocks/dw/dw_value_Money'),
+        'dw/order/OrderMgr': require('../../../mocks/dw/dw_order_OrderMgr'),
+        'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
+        'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
+        'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction'),
+        'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
+        'dw/web/Resource': require('../../../mocks/dw/dw_web_Resource'),
+        'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
+        'dw/order/BasketMgr': require('../../../mocks/dw/dw_order_BasketMgr'),
+        'plugin_instorepickup/cartridge/scripts/checkout/checkoutHelpers': {},
+        '*/cartridge/scripts/checkout/shippingHelpers': {},
+        '*/cartridge/scripts/giftcard/giftcardHelper': {},
+        '*/cartridge/scripts/util/loggerHelper': {},
+        'dw/order/PaymentMgr' : {},
+        'dw/system/HookMgr' : {},
+        'dw/system/Site': {
+            getCurrent: function () {
+                return {
+                    getID: function () {
+                        return 'US';
+                    }
+                };
+            }
+        },
+        '*/cartridge/scripts/utils/PreferencesUtil': {
+            getValue: function () {
+                return ['US'];
+            }
+        }
+    });
+    it('should return true for shippable country', () => {
+        const countryCode = 'US';
+        const result = checkoutHelpers.isCountryShippable(countryCode);
+        assert.isTrue(result);
+    });
+
+    it('should return false for non-shippable country', () => {
+        const countryCode = 'UK';
+        const result = checkoutHelpers.isCountryShippable(countryCode);
+        assert.isFalse(result);
+    });
+
+    it('should return false for undefined countryCode', () => {
+        const result = checkoutHelpers.isCountryShippable(undefined);
+        assert.isFalse(result);
+    });
+
+    it('should return false for null or empty countryCode', () => {
+        const result = checkoutHelpers.isCountryShippable(null);
+        assert.isFalse(result);
+    });
+
+    it('should handle case-insensitive country codes', () => {
+        const countryCode = 'us';
+        const result = checkoutHelpers.isCountryShippable(countryCode);
+        assert.isTrue(result);
+    });
+});
+
+
+describe('checkEGiftCardAmount', () => {
+    const errorMsg = 'errorMsg';
+    var checkoutHelpers = proxyquire('../../../../cartridges/app_ua_core/cartridge/scripts/checkout/checkoutHelpers', {
+        'app_storefront_base/cartridge/scripts/checkout/checkoutHelpers': {},
+        'dw/util/ArrayList': require('../../../mocks/dw/dw_util_ArrayList'),
+        'dw/value/Money': require('../../../mocks/dw/dw_value_Money'),
+        'dw/order/OrderMgr': require('../../../mocks/dw/dw_order_OrderMgr'),
+        'dw/order/Order': require('../../../mocks/dw/dw_order_Order'),
+        'dw/system/Status': require('../../../mocks/dw/dw_system_Status'),
+        'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction'),
+        'dw/system/Logger': require('../../../mocks/dw/dw_system_Logger'),
+        'dw/web/Resource': {
+            msg: function () {
+                return errorMsg;
+            }
+        },
+        'dw/system/Site': require('../../../mocks/dw/dw_system_Site'),
+        'dw/order/BasketMgr': require('../../../mocks/dw/dw_order_BasketMgr'),
+        'plugin_instorepickup/cartridge/scripts/checkout/checkoutHelpers': {},
+        '*/cartridge/scripts/checkout/shippingHelpers': {},
+        '*/cartridge/scripts/giftcard/giftcardHelper': {},
+        '*/cartridge/scripts/util/loggerHelper': {},
+        'dw/order/PaymentMgr' : {},
+        'dw/system/HookMgr' : {},
+        'dw/system/Site': {
+            getCurrent: function () {
+                return {
+                    getID: function () {
+                        return 'US';
+                    }
+                };
+            }
+        },
+        '*/cartridge/scripts/utils/PreferencesUtil': {
+            getValue: function () {
+                return ['US'];
+            }
+        }
+    });
+    let mockGiftCardForm = {
+        gcAmount: '25.00',
+    };
+
+    it('should return empty errors for a valid gift card amount', () => {
+        mockGiftCardForm.gcAmount = '25.00';
+        const result = checkoutHelpers.checkEGiftCardAmount(mockGiftCardForm);
+
+        assert.deepEqual(result, {});
+    });
+
+    it('should handle missing gift card amount', () => {
+        mockGiftCardForm.gcAmount = '';
+
+        const result = checkoutHelpers.checkEGiftCardAmount(mockGiftCardForm);
+
+        assert.deepEqual(result, {
+            gcAmount: errorMsg,
+        });
+    });
+
+    it('should handle negative gift card amount', () => {
+        mockGiftCardForm.gcAmount = '-5.00';
+
+        const result = checkoutHelpers.checkEGiftCardAmount(mockGiftCardForm);
+
+        assert.deepEqual(result, {
+            gcAmount: errorMsg,
+        });
     });
 });

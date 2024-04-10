@@ -1,0 +1,33 @@
+<div class="b-promo">
+    <div class="display-promo-code-form-btn <isif condition="${session.custom.showPromoCodeForm}">hidden</isif>" data-action-url="${URLUtils.url('Cart-showPromoCodeForm')}">
+        <span class="display-promo-code-form-btn-prefix">${Resource.msgf('plus.extra', 'common', null, '')}</span>
+        <span class="display-promo-code-form-btn-text">${Resource.msg('label.promo.code.desktop','cart',null)}</span>
+    </div>
+    <div class="b-promo_code <isif condition="${!session.custom.showPromoCodeForm}">hidden</isif>">
+        <form action="${pdict.actionUrls.submitCouponCodeUrl}" class="js-promo-code-form b-promo_form" method="GET" name="promo-code-form" data-cmp="cartTile">
+            <div class="form-group">
+                <p class="newDesktopLabel">${Resource.msg('label.promo.code.desktop','cart',null)}</p>
+                <div class="b-promo_input">
+                    <div class="b-input_row">
+                        <label for="couponCode" class="b-input_row-label">${Resource.msg('label.promo.code','cart',null)}</label>
+                        <input type="text" class="b-input_row-input form-control coupon-code-field bfx-coupon-form-input" id="couponCode" name="couponCode" data-analytics-track="order summary : promo_code">
+                    </div>
+
+                    <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+
+                    <div class="col-5 promo-code-submit">
+                        <button type="submit" class="btn btn-primary btn-block promo-code-btn t-apply_code bfx-coupon-form-submit">
+                            <span class="hide-mobile">${Resource.msg('button.submit.promo.code.desktop','cart',null)}</span>
+                            <span class="hide-desktop">${Resource.msg('button.submit.promo.code','cart',null)}</span>
+                        </button>
+                    </div>
+                    <div class="coupon-error">
+                        <span class="coupon-missing-error b-promo-missing-error" id="missingCouponCode" role="alert">${Resource.msg('error.missing.coupon.code', 'cart', null)}</span>
+                        <span class="coupon-error-message b-promo-error-message" id="invalidCouponCode" role="alert"></span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+

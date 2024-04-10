@@ -61,6 +61,164 @@ server.get('Get', server.middleware.https, function (req, res, next) {
 });
 
 /**
+ * Validates the given form and creates response JSON if there are errors.
+ * @param {string} form - the customer form to validate
+ * @return {Object} validation result
+ */
+function validateCustomerForm(form) {
+    var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
+
+    var result = COHelpers.validateCustomerForm(form);
+
+    if (result.formFieldErrors.length) {
+        result.customerForm.clear();
+        // prepare response JSON with form data and errors
+        result.json = {
+            form: result.customerForm,
+            fieldErrors: result.formFieldErrors,
+            serverErrors: [],
+            error: true
+        };
+    }
+
+    return result;
+}
+
+/**
+ * Handles the route:BeforeComplete for a customer form submission.
+ * @param {Object} req - request
+ * @param {Object} res - response
+ * @param {Object} accountModel - Account model object to include in response
+ * @param {string} redirectUrl - redirect URL to send back to client
+ */
+function handleCustomerRouteBeforeComplete(req, res, accountModel, redirectUrl) {
+    var URLUtils = require('dw/web/URLUtils');
+    var BasketMgr = require('dw/order/BasketMgr');
+    var Locale = require('dw/util/Locale');
+    var Transaction = require('dw/system/Transaction');
+    var OrderModel = require('*/cartridge/models/order');
+
+    var customerData = res.getViewData();
+    var currentBasket = BasketMgr.getCurrentBasket();
+    if (!currentBasket) {
+        res.json({
+            error: true,
+            cartError: true,
+            fieldErrors: [],
+            serverErrors: [],
+            redirectUrl: URLUtils.url('Cart-Show').toString()
+        });
+        return;
+    }
+
+    Transaction.wrap(function () {
+        currentBasket.setCustomerEmail(customerData.customer.email.value);
+    });
+
+    var usingMultiShipping = req.session.privacyCache.get('usingMultiShipping');
+    if (usingMultiShipping === true && currentBasket.shipments.length < 2) {
+        req.session.privacyCache.set('usingMultiShipping', false);
+        usingMultiShipping = false;
+    }
+
+    var currentLocale = Locale.getLocale(req.locale.id);
+    var basketModel = new OrderModel(
+        currentBasket,
+        { usingMultiShipping: usingMultiShipping, countryCode: currentLocale.country, containerView: 'basket' }
+    );
+
+    res.json({
+        customer: accountModel,
+        error: false,
+        order: basketModel,
+        csrfToken: customerData.csrfToken,
+        redirectUrl: redirectUrl
+    });
+}
+
+/**
+ * Handle Ajax guest customer form submit.
+ */
+server.post(
+    'SubmitCustomer',
+    server.middleware.https,
+    csrfProtection.validateAjaxRequest,
+    function (req, res, next) {
+        // validate guest customer form
+        var coCustomerForm = server.forms.getForm('coCustomer');
+        var result = validateCustomerForm(coCustomerForm);
+        if (result.json) {
+            res.json(result.json);
+            return next();
+        }
+
+        res.setViewData(result.viewData);
+
+        this.on('route:BeforeComplete', function (req, res) { // eslint-disable-line no-shadow
+            var AccountModel = require('*/cartridge/models/account');
+            var accountModel = new AccountModel(req.currentCustomer);
+            handleCustomerRouteBeforeComplete(req, res, accountModel, null);
+        });
+        return next();
+    }
+);
+
+/**
+ * Handle Ajax registered customer form submit.
+ */
+server.post(
+    'LoginCustomer',
+    server.middleware.https,
+    csrfProtection.validateAjaxRequest,
+    function (req, res, next) {
+        var apiCsrfProtection = require('dw/web/CSRFProtection');
+        var Resource = require('dw/web/Resource');
+        var accountHelpers = require('*/cartridge/scripts/helpers/accountHelpers');
+
+        // validate registered customer form
+        var coRegisteredCustomerForm = server.forms.getForm('coRegisteredCustomer');
+        var result = validateCustomerForm(coRegisteredCustomerForm);
+        if (result.json) {
+            res.json(result.json);
+            return next();
+        }
+
+        // login the registered customer
+        var viewData = result.viewData;
+        var customerForm = result.customerForm;
+        var formFieldErrors = result.formFieldErrors;
+
+        viewData.customerLoginResult = accountHelpers.loginCustomer(customerForm.email.value, customerForm.password.value, false);
+        if (viewData.customerLoginResult.error) {
+            // add customer error message for invalid password
+            res.json({
+                form: customerForm,
+                fieldErrors: formFieldErrors,
+                serverErrors: [],
+                customerErrorMessage: Resource.msg('error.message.login.wrong', 'checkout', null),
+                error: true
+            });
+            return next();
+        }
+
+        // on login the session transforms so we need to retrieve new tokens
+        viewData.csrfToken = apiCsrfProtection.generateToken();
+
+        res.setViewData(viewData);
+
+        this.on('route:BeforeComplete', function (req, res) { // eslint-disable-line no-shadow
+            var AccountModel = require('*/cartridge/models/account');
+            var URLUtils = require('dw/web/URLUtils');
+
+            var accountModel = new AccountModel(viewData.customerLoginResult.authenticatedCustomer);
+            var redirectUrl = URLUtils.https('Checkout-Begin', 'stage', 'shipping').abs().toString();
+            handleCustomerRouteBeforeComplete(req, res, accountModel, redirectUrl);
+        });
+        return next();
+    }
+);
+
+/**
  *  Handle Ajax payment (and billing) form submit
  */
 /**
@@ -132,10 +290,6 @@ server.post(
         if (Object.keys(contactInfoFormErrors).length) {
             formFieldErrors.push(contactInfoFormErrors);
         } else {
-            viewData.email = {
-                value: paymentForm.contactInfoFields.email.value
-            };
-
             viewData.phone = { value: paymentForm.contactInfoFields.phone.value };
         }
 
@@ -152,7 +306,8 @@ server.post(
 
         var paymentFormResult;
         if (HookManager.hasHook('app.payment.form.processor.' + paymentProcessor.ID.toLowerCase())) {
-            paymentFormResult = HookManager.callHook('app.payment.form.processor.' + paymentProcessor.ID.toLowerCase(),
+            paymentFormResult = HookManager.callHook(
+                'app.payment.form.processor.' + paymentProcessor.ID.toLowerCase(),
                 'processForm',
                 req,
                 paymentForm,
@@ -246,17 +401,14 @@ server.post(
                     billingAddress.setStateCode(billingData.address.stateCode.value);
                 }
                 billingAddress.setCountryCode(billingData.address.countryCode.value);
-
                 billingAddress.setPhone(billingData.phone.value);
-                currentBasket.setCustomerEmail(billingData.email.value);
             });
 
             // if there is no selected payment option and balance is greater than zero
             if (!paymentMethodID && currentBasket.totalGrossPrice.value > 0) {
                 var noPaymentMethod = {};
 
-                noPaymentMethod[billingData.paymentMethod.htmlName] =
-                    Resource.msg('error.no.selected.payment.method', 'payment', null);
+                noPaymentMethod[billingData.paymentMethod.htmlName] = Resource.msg('error.no.selected.payment.method', 'payment', null);
 
                 delete billingData.paymentInformation;
 
@@ -281,7 +433,8 @@ server.post(
             }
 
             if (HookMgr.hasHook('app.payment.processor.' + processor.ID.toLowerCase())) {
-                result = HookMgr.callHook('app.payment.processor.' + processor.ID.toLowerCase(),
+                result = HookMgr.callHook(
+                    'app.payment.processor.' + processor.ID.toLowerCase(),
                     'Handle',
                     currentBasket,
                     billingData.paymentInformation,
@@ -306,7 +459,8 @@ server.post(
             }
 
             if (HookMgr.hasHook('app.payment.form.processor.' + processor.ID.toLowerCase())) {
-                HookMgr.callHook('app.payment.form.processor.' + processor.ID.toLowerCase(),
+                HookMgr.callHook(
+                    'app.payment.form.processor.' + processor.ID.toLowerCase(),
                     'savePaymentInformation',
                     req,
                     currentBasket,
@@ -342,7 +496,7 @@ server.post(
                 usingMultiShipping = false;
             }
 
-            hooksHelper('app.customer.subscription', 'subscribeTo', [paymentForm.subscribe.checked, paymentForm.contactInfoFields.email.htmlValue], function () {});
+            hooksHelper('app.customer.subscription', 'subscribeTo', [paymentForm.subscribe.checked, currentBasket.customerEmail], function () {});
 
             var currentLocale = Locale.getLocale(req.locale.id);
 

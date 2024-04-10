@@ -6,7 +6,7 @@
             </label>
             <input
                 type="text" class="form-control b-input_row-input order-return-form-input" id="firstName"
-                data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
+                data-missing-error="${Resource.msg('error.message.name.required', 'forms', null)}"
                 <isprint value="${pdict.profileForm.customer.firstname.attributes}" encoding="off" />>
             <div class="invalid-feedback"><isprint value="${(typeof(pdict.profileFieldsError.firstName) !== 'undefined' && !empty(pdict.profileFieldsError.firstName) && !empty(pdict.firstName)) ?  pdict.profileFieldsError.firstName : ''}"/></div>
         </div>
@@ -23,7 +23,9 @@
         </label>
         <input
             type="text" class="form-control b-input_row-input order-return-form-input" id="lastName"
-            data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
+            value="${pdict.profileForm.customer.lastname.htmlValue}"
+            ${pdict.mobileAuthDisableRegistrationFields && !empty(pdict.profileForm.customer.lastname.htmlValue) ? 'readonly': ''}
+            data-missing-error="${Resource.msg('error.message.name.required', 'forms', null)}"
             <isprint value="${pdict.profileForm.customer.lastname.attributes}" encoding="off" />>
         <div class="invalid-feedback"><isprint value="${(typeof(pdict.profileFieldsError.lastName) !== 'undefined' && !empty(pdict.profileFieldsError.lastName) && !empty(pdict.lastName)) ?  pdict.profileFieldsError.lastName : ''}"/></div>
     </div>

@@ -22,22 +22,24 @@ function updateBillingAddressSelector(order, customer) {
             null,
             false,
             order,
-            { type: 'billing' }));
+            { type: 'billing' }
+        ));
 
         // Separator -
-        $billingAddressSelector.append(addressHelpers.methods.optionValueForAddress(
-            order.resources.shippingAddresses, false, order, {
-                // className: 'multi-shipping',
-                type: 'billing'
-            }
-        ));
+        $billingAddressSelector.append(addressHelpers.methods.optionValueForAddress(order.resources.shippingAddresses, false, order, {
+            // className: 'multi-shipping',
+            type: 'billing'
+        }));
 
         shippings.forEach(function (aShipping) {
             var isSelected = order.billing.matchingAddressId === aShipping.UUID;
             hasSelectedAddress = hasSelectedAddress || isSelected;
             // Shipping Address option
             $billingAddressSelector.append(
-                addressHelpers.methods.optionValueForAddress(aShipping, isSelected, order,
+                addressHelpers.methods.optionValueForAddress(
+                    aShipping,
+                    isSelected,
+                    order,
                     {
                         // className: 'multi-shipping',
                         type: 'billing'
@@ -47,8 +49,7 @@ function updateBillingAddressSelector(order, customer) {
         });
 
         if (customer.addresses && customer.addresses.length > 0) {
-            $billingAddressSelector.append(addressHelpers.methods.optionValueForAddress(
-                order.resources.accountAddresses, false, order));
+            $billingAddressSelector.append(addressHelpers.methods.optionValueForAddress(order.resources.accountAddresses, false, order));
             customer.addresses.forEach(function (address) {
                 var isSelected = order.billing.matchingAddressId === address.ID;
                 hasSelectedAddress = hasSelectedAddress || isSelected;
@@ -75,10 +76,10 @@ function updateBillingAddressSelector(order, customer) {
 }
 
 /**
- * updates the billing address form values within payment forms
+ * Updates the billing address form values within payment forms without any payment instrument validation
  * @param {Object} order - the order model
  */
-function updateBillingAddressFormValues(order) {
+function updateBillingAddress(order) {
     var billing = order.billing;
     if (!billing.billingAddress || !billing.billingAddress.address) return;
 
@@ -96,16 +97,35 @@ function updateBillingAddressFormValues(order) {
     $('select[name$=_country]', form).val(billing.billingAddress.address.countryCode.value);
     $('input[name$=_phone]', form).val(billing.billingAddress.address.phone);
     $('input[name$=_email]', form).val(order.orderEmail);
+}
 
-    if (billing.payment && billing.payment.selectedPaymentInstruments
-        && billing.payment.selectedPaymentInstruments.length > 0) {
-        var instrument = billing.payment.selectedPaymentInstruments[0];
-        $('select[name$=expirationMonth]', form).val(instrument.expirationMonth);
-        $('select[name$=expirationYear]', form).val(instrument.expirationYear);
-        // Force security code and card number clear
-        $('input[name$=securityCode]', form).val('');
-        $('input[name$=cardNumber]').data('cleave').setRawValue('');
-    }
+/**
+ * Validate and update payment instrument form fields
+ * @param {Object} order - the order model
+ */
+function validateAndUpdateBillingPaymentInstrument(order) {
+    var billing = order.billing;
+    if (!billing.payment || !billing.payment.selectedPaymentInstruments
+        || billing.payment.selectedPaymentInstruments.length <= 0) return;
+
+    var form = $('form[name=dwfrm_billing]');
+    if (!form) return;
+
+    var instrument = billing.payment.selectedPaymentInstruments[0];
+    $('select[name$=expirationMonth]', form).val(instrument.expirationMonth);
+    $('select[name$=expirationYear]', form).val(instrument.expirationYear);
+    // Force security code and card number clear
+    $('input[name$=securityCode]', form).val('');
+    $('input[name$=cardNumber]').data('cleave').setRawValue('');
+}
+
+/**
+ * Updates the billing address form values within payment forms
+ * @param {Object} order - the order model
+ */
+function updateBillingAddressFormValues(order) {
+    module.exports.methods.updateBillingAddress(order);
+    module.exports.methods.validateAndUpdateBillingPaymentInstrument(order);
 }
 
 /**
@@ -124,6 +144,25 @@ function clearBillingAddressFormValues() {
 }
 
 /**
+ * update billing address summary and contact information
+ * @param {Object} order - checkout model to use as basis of new truth
+ */
+function updateBillingAddressSummary(order) {
+    // update billing address summary
+    addressHelpers.methods.populateAddressSummary(
+        '.billing .address-summary',
+        order.billing.billingAddress.address
+    );
+
+    // update billing parts of order summary
+    $('.order-summary-email').text(order.orderEmail);
+
+    if (order.billing.billingAddress.address) {
+        $('.order-summary-phone').text(order.billing.billingAddress.address.phone);
+    }
+}
+
+/**
  * Updates the billing information in checkout, based on the supplied order model
  * @param {Object} order - checkout model to use as basis of new truth
  * @param {Object} customer - customer model to use as basis of new truth
@@ -135,16 +174,8 @@ function updateBillingInformation(order, customer) {
     // update billing address form
     updateBillingAddressFormValues(order);
 
-    // update billing address summary
-    addressHelpers.methods.populateAddressSummary('.billing .address-summary',
-        order.billing.billingAddress.address);
-
-    // update billing parts of order summary
-    $('.order-summary-email').text(order.orderEmail);
-
-    if (order.billing.billingAddress.address) {
-        $('.order-summary-phone').text(order.billing.billingAddress.address.phone);
-    }
+    // update billing address summary and billing parts of order summary
+    updateBillingAddressSummary(order);
 }
 
 /**
@@ -189,7 +220,10 @@ module.exports = {
         clearBillingAddressFormValues: clearBillingAddressFormValues,
         updateBillingInformation: updateBillingInformation,
         updatePaymentInformation: updatePaymentInformation,
-        clearCreditCardForm: clearCreditCardForm
+        clearCreditCardForm: clearCreditCardForm,
+        updateBillingAddress: updateBillingAddress,
+        validateAndUpdateBillingPaymentInstrument: validateAndUpdateBillingPaymentInstrument,
+        updateBillingAddressSummary: updateBillingAddressSummary
     },
 
     showBillingDetails: function () {
@@ -253,10 +287,10 @@ module.exports = {
             $(this).addClass('selected-payment');
             $('.saved-payment-instrument .card-image').removeClass('checkout-hidden');
             $('.saved-payment-instrument .security-code-input').addClass('checkout-hidden');
-            $('.saved-payment-instrument.selected-payment' +
-                ' .card-image').addClass('checkout-hidden');
-            $('.saved-payment-instrument.selected-payment ' +
-                '.security-code-input').removeClass('checkout-hidden');
+            $('.saved-payment-instrument.selected-payment'
+                + ' .card-image').addClass('checkout-hidden');
+            $('.saved-payment-instrument.selected-payment '
+                + '.security-code-input').removeClass('checkout-hidden');
         });
     },
 

@@ -85,7 +85,7 @@ module.exports = {
             var selectID = '';
             var selectName = '';
             var selectBox;
-            var $formStateError = $formState.closest('.form-group').data('missing-error');
+            var $formStateError = ($formState.length > 0 ? $formState : $formStateInput).closest('.form-group').data('missing-error');
 
             $formState.closest('.form-group').removeClass('error-field').find('.invalid-feedback').empty();
             $formState.removeClass('is-invalid');

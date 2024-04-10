@@ -24,9 +24,15 @@ function cancelOrder(order) {
     return Status.OK;
 }
 
+function createOrder(currentBasket) {
+    return currentBasket;
+}
+
 module.exports = {
     getOrder: getOrder,
     placeOrder: placeOrder,
     failOrder: failOrder,
-    cancelOrder: cancelOrder
+    cancelOrder: cancelOrder,
+    createOrder: createOrder
 };
+

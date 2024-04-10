@@ -74,6 +74,7 @@ Popup element can be modified
     right: 0;
     bottom: 0;
     left: 0;
+    height: 100%;
     z-index: 1051;
     display: none;
     overflow-y: auto;
@@ -285,6 +286,30 @@ Popup element can be modified
             }
         }
     }
+
+    &-title {
+        @include font(main_bold, rem-calc(24), 1);
+
+        letter-spacing: 0.5px;
+    }
+
+    &-back {
+        @include icon(caret-left, 'before', 24, 1);
+
+        border: none;
+        margin-left: -6px;
+        width: 24px;
+        height: 24px;
+        background-color: transparent;
+        outline: none;
+        color: $black;
+        margin-right: 8px;
+        cursor: pointer;
+
+        @include respond-to(mobile) {
+            margin-right: 16px;
+        }
+    }
 }
 
 .modal-backdrop {
@@ -301,4 +326,8 @@ Popup element can be modified
     &.overlay {
         z-index: 101;
     }
+}
+
+html.modal-open .QSIFeedbackButton {
+    z-index: 1050 !important;
 }

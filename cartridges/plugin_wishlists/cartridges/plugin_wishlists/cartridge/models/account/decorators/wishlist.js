@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 
-var ProductListItemModel = require('*/cartridge/models/productListItem');
+var ProductListItemModel = require("*/cartridge/models/productListItem");
 
 /**
  * add the last two items from the wishlist to the account model
@@ -18,7 +18,8 @@ function addWishList(apiWishList) {
     }
 
     while (i >= 0 && numberOfItems > 0) {
-        productListItem = new ProductListItemModel(apiWishList.items[i], {}).productListItem;
+        productListItem = new ProductListItemModel(apiWishList.items[i], {})
+            .productListItem;
         result.push(productListItem);
         i--;
         numberOfItems--;
@@ -27,7 +28,7 @@ function addWishList(apiWishList) {
 }
 
 module.exports = function (object, apiWishList) {
-    Object.defineProperty(object, 'wishlist', {
+    Object.defineProperty(object, "wishlist", {
         enumerable: true,
         value: addWishList(apiWishList)
     });

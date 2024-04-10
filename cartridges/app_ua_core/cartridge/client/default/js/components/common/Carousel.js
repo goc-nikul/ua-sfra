@@ -32,6 +32,7 @@ export default class Carousel extends Component {
         }
 
         this.settings = {
+            blank: {},
             default: {
                 direction: 'horizontal',
                 loop: false,
@@ -94,11 +95,11 @@ export default class Carousel extends Component {
         };
 
         this.initConfig(this.settings[this.$el.data('carousel-type')] || this.settings.default);
-        if (this.eligibleOnDevice() && this.hasSlides()) {
+        if (this.eligibleOnDevice() && (this.hasSlides() || this.config.initWithLowQty)) {
             this.$el.removeClass('is--hidden');
             this.$el.find('.js-carousel-title').removeClass('is--hidden');
 
-            if (this.$el.closest('.hidden').length > 0 || !this.hasSlidesToScroll()) {
+            if (this.$el.closest('.hidden').length > 0 || !(this.hasSlidesToScroll() || this.config.initWithLowQty)) {
                 if (this.$el[0].swiper && this.$el[0].initialized) {
                     this.$el[0].swiper.destroy(this.$el[0], true);
                 }
@@ -129,7 +130,7 @@ export default class Carousel extends Component {
     reInit() {
         if (this.swiperInstance) {
             if (this.config.destroyOnModeChange) {
-                this.swiperInstance.swiper.destroy(this.swiperInstance, true);
+                this.swiperInstance.destroy(this.swiperInstance, true);
                 this.initCarouselEvents(true);
             } else {
                 this.swiperInstance.update();
@@ -143,6 +144,7 @@ export default class Carousel extends Component {
         var activatedSpan = this.$el.find('.swiper-slide-activated');
         if (activatedSpan.length) {
             this.config.activeIndex = activatedSpan.index();
+            this.config.initialSlide = activatedSpan.index();
         }
         this.swiperInstance = new Swiper(this.$el[0], this.config);
         this.swiperInstance.on('slideChange', function () {
@@ -187,12 +189,16 @@ export default class Carousel extends Component {
     hasSlidesToScroll() {
         let currentBreakpointWidth = layout.getCurrentBreakpointWidth();
         let slidesPerView = this.config.slidesPerView || 1;
+        let slidesCount = this.$el.find('.swiper-slide:not(.swiper-slide-duplicate)').length;
+
+        if (slidesPerView === 'auto') {
+            return this.$el[0].scrollWidth > this.$el[0].clientWidth || this.$el[0].scrollHeight > this.$el[0].clientHeight;
+        }
         if (this.config.breakpoints && this.config.breakpoints[currentBreakpointWidth] &&
             this.config.breakpoints[currentBreakpointWidth].slidesPerView) {
             slidesPerView = this.config.breakpoints[currentBreakpointWidth].slidesPerView;
         }
 
-        let slidesCount = this.$el.find('.swiper-slide:not(.swiper-slide-duplicate)').length;
 
         return slidesPerView < slidesCount;
     }

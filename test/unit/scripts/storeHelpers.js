@@ -1379,4 +1379,224 @@ describe('app_ua_core/cartridge/scripts/helpers/storeHelpers.js', () => {
         let result = storeHelpers.getStoreAvailability(storeModel, products);
         assert.isNotNull(result);
     });
+
+    it('Testing method: updateSelectedStore --> Test the result object based on params: selected store object returned', () => {
+        storeHelpers = proxyquire('../../../cartridges/app_ua_core/cartridge/scripts/helpers/storeHelpers', {
+            'dw/system/Logger': {
+                getLogger: function () {
+                    return {
+                        info: function () {
+                            return {};
+                        }
+                    };
+                },
+                error: function () {
+                    return 'error';
+                }
+            },
+            'dw/system/Site': {
+                getCurrent: function () {
+                    return {
+                        getCustomPreferenceValue: function (param) {
+                            if (param === 'pickupAvailableDuration')
+                            return '19'
+                            if (param === 'inStorePickUpRadiusOptions')
+                            return '{}'
+                            return {};
+                        }
+                    }
+                },
+                current: {
+                    preferences: {
+                        custom: {
+                            inStorePickUpRadiusOptions: 'inStorePickUpRadiusOptions',     
+                            isBOPISEnabled: true                       
+                        }                            
+                    },
+                    getCustomPreferenceValue: function (param) {
+                        if (param === 'pickupAvailableDuration')
+                            return '19'
+                        if (param === 'inStorePickUpRadiusOptions')
+                            return '{}'
+                        if (param === 'isBOPISEnabled')
+                            return true
+                        return {};
+                    }
+                }
+            },
+            'dw/web/Resource': {
+                msg: function (){
+                    return 'msg';
+                },
+                msgf: function () {
+                    return 'msgf';
+                }
+            },
+            'dw/util/Locale': {
+                getLocale: function () {
+                    return {};
+                }
+            },
+            'dw/catalog/StoreMgr': {
+                searchStoresByPostalCode:function () {
+                    return {
+                        get: function () {
+                            return {
+                                toFixed: function () {
+                                    return 2;
+                                }
+                            };
+                        },
+                    };
+                },
+                searchStoresByCoordinates: function () {
+                    return {
+                        get: function () {
+                            return {
+                                toFixed: function () {
+                                    return 2;
+                                }
+                            };
+                        }
+                    };
+                },
+                getStore: function () {
+                    return {}
+                }
+            },
+            'dw/util/StringUtils': {
+                formatCalendar: function () {
+                    return '1'
+                }
+            },
+            'dw/util/Calendar': function () { return {
+                setTimeZone: function () {
+                    return {
+                        get: function () {
+                            return 11;
+                        }
+                    };
+                },
+                get: function () {
+                    return 14;
+                },
+                DAY_OF_WEEK: 1
+            }; },
+            'dw/catalog/ProductMgr': {
+                getProduct: function () {
+                    return {
+                        custom: {
+                            sku: 'sku'
+                        }
+                    };
+                }
+            },
+            'int_mao/cartridge/scripts/availability/MAOAvailability': {
+                getMaoAvailability: function () {
+                    return {
+                       sku: '{"storeId":[{"enableStore": true}]}'
+                    };
+                }
+            },
+            'int_mao/cartridge/scripts/availability/MAOAvailabilityHelper': {
+                isCheckPointEnabled: function () {
+                    return {};
+                }
+            },
+            'dw/catalog/ProductInventoryMgr': {
+                getInventoryList: function () {
+                    return {
+                        getRecord: function () {
+                            return {
+                                ATS: {
+                                    value: 1
+                                }
+                            }
+                        }
+                    };
+                }
+            },
+            '*/cartridge/models/store': function (){},
+            '*/cartridge/scripts/helpers/cookieHelpers': {
+                read: function () {
+                    return '{"ID":"123"}'
+                },
+                deleteCookie: function () {
+                    return {};
+                },
+                create: function () {
+                    return {};
+                }
+            },
+            '*/cartridge/scripts/helpers/storeHelpers': {
+                findStoreById: function() {
+                    return {}
+                },
+                getStoreAvailability: function() {
+                    return {}
+                },
+                updateSelectedStoreCookie: function() {
+                    return {}
+                }
+            },
+            '*/cartridge/scripts/util/collections': require('../../../cartridges/storefront-reference-architecture/test/mocks/util/collections'),
+        });
+        var product = {
+            custom: {
+                availableForInStorePickup : true
+            }
+        };
+        var variantProduct = {
+            custom: {
+                availableForInStorePickup : true
+            }
+        };
+        let result = storeHelpers.updateSelectedStore(product, variantProduct, false);
+        assert.isObject(result.selectedStore);
+    });
+
+    it('Testing method: updateSelectedStore --> Test the result object based on params: masterProduct storePickupDisabled', () => {
+        var product = {
+            custom: {
+                availableForInStorePickup : false
+            }
+        };
+        var variantProduct = {
+            custom: {
+                availableForInStorePickup : true
+            }
+        };
+        let result = storeHelpers.updateSelectedStore(product, variantProduct, true);
+        assert.isNull(result.selectedStore);
+    });
+
+    it('Testing method: updateSelectedStore --> Test the result object based on params: varaintProduct storePickupDisabled', () => {
+        var product = {
+            custom: {
+                availableForInStorePickup : true
+            }
+        };
+        var variantProduct = {
+            custom: {
+                availableForInStorePickup : false
+            }
+        };
+        let result = storeHelpers.updateSelectedStore(product, variantProduct, true);
+        assert.isNull(result.selectedStore);
+    });
+
+    it('Testing method: updateSelectedStore --> Test the result object based on params: isVIP customer', () => {
+        var product = {
+            custom: {
+                availableForInStorePickup : true
+            }
+        };
+        var variantProduct = {
+            custom: {
+                availableForInStorePickup : true
+            }
+        };
+        let result = storeHelpers.updateSelectedStore(product, variantProduct, true);
+        assert.isNull(result.selectedStore);
+    });
 });

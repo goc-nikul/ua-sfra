@@ -93,7 +93,7 @@ server.replace(
             }
         }
 
-        var BVHelper = require('bc_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
+        var BVHelper = require('bm_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
         if (BVHelper.isRREnabled() || BVHelper.isQAEnabled()) {
             viewData.bvScout = BVHelper.getBvLoaderUrl();
         }
@@ -610,11 +610,21 @@ server.append('EditProfile', function (req, res, next) {
 }, pageMetaData.computedPageMetaData);
 
 server.prepend('Login', server.middleware.https, csrfProtection.validateAjaxRequest, function (req, res, next) { // eslint-disable-line no-unused-vars
+    if (req.querystring && req.querystring.responseErr) {
+        res.setStatusCode(req.querystring.responseErr);
+        return;
+    }
     var Site = require('dw/system/Site');
     var accountHelpers = require('*/cartridge/scripts/helpers/accountHelpers');
     var responseJSON = {
         error: [Resource.msg('error.message.login.form', 'login', null)]
     };
+    // Wishlist prepend code
+    var listGuest;
+    if (req.currentCustomer.raw) {
+        listGuest = productListHelper.getList(req.currentCustomer.raw, { type: 10 });
+    }
+
     // Server side validation against xss regex
     var inputFieldsValidation = accountHelpers.validateLoginInputFields(req.form);
     if (inputFieldsValidation.error && (Object.keys(inputFieldsValidation.customerAccountErrors).length > 0)) {
@@ -816,6 +826,10 @@ server.prepend('Login', server.middleware.https, csrfProtection.validateAjaxRequ
                             }
                         });
                     }
+                    // Remove store info from basket as BOPIS is not available for VIP users
+                    if (isVIP) {
+                        cartHelper.removeStoreInfoFromBasket(basket);
+                    }
                 }
                 res.setViewData({
                     authenticatedCustomer: authenticatedCustomer
@@ -830,7 +844,9 @@ server.prepend('Login', server.middleware.https, csrfProtection.validateAjaxRequ
                 responseJSON = {
                     success: true,
                     customerNo: customerNo,
-                    redirectUrl: returnUrl || accountHelpers.getLoginRedirectURL(req.querystring.rurl, req.session.privacyCache, profileFieldsValidation.error), // eslint-disable-line spellcheck/spell-checker
+                    shouldRedirect: !Site.current.getCustomPreferenceValue('remainLoggedCustomersOnCurrentPage'),
+                    returnUrl: returnUrl,
+                    redirectUrl: accountHelpers.getLoginRedirectURL(req.querystring.rurl, req.session.privacyCache, profileFieldsValidation.error), // eslint-disable-line spellcheck/spell-checker
                     isEmployee: isEmployee,
                     isVIP: isVIP,
                     errorInProfileValues: profileFieldsValidation.error
@@ -850,6 +866,27 @@ server.prepend('Login', server.middleware.https, csrfProtection.validateAjaxRequ
         if (req.querystring && req.querystring.refreshTokenAjax) {
             var csrfTokGen = require('dw/web/CSRFProtection');
             responseJSON.csrfToken = { tokenName: csrfTokGen.getTokenName(), token: csrfTokGen.generateToken() };
+        }
+
+        // Early Access Product
+        if (req.querystring.earlyAccessPid) {
+            var ProductMgr = require('dw/catalog/ProductMgr');
+            var HookMgr = require('dw/system/HookMgr');
+            var productId = req.querystring.earlyAccessPid;
+            var prod = ProductMgr.getProduct(productId);
+            if (HookMgr.hasHook('app.earlyAccess.isEarlyAccessCustomer')) {
+                var productEarlyAccess = HookMgr.callHook('app.earlyAccess.isEarlyAccessCustomer', 'isEarlyAccessCustomer', prod);
+                res.setViewData({
+                    earlyAccess: productEarlyAccess
+                });
+            }
+        }
+
+        // Wislist append code
+        var viewData = res.getViewData();
+        if (viewData.authenticatedCustomer) {
+            var listLoggedIn = productListHelper.getCurrentOrNewList(viewData.authenticatedCustomer, { type: TYPE_WISH_LIST });
+            productListHelper.mergelists(listLoggedIn, listGuest, req, { type: TYPE_WISH_LIST });
         }
 
         res.json(responseJSON);
@@ -1044,13 +1081,6 @@ server.replace('SetNewPassword',
         next();
     }
 );
-server.append('Header', function (req, res, next) {
-    var viewData = res.getViewData();
-    viewData.name = req.currentCustomer.profile ? !empty(req.currentCustomer.profile.firstName) ? req.currentCustomer.profile.firstName : Resource.msg('header.account.myaccount', 'account', '') : null;
-    viewData.CurrentCustomer = customer;
-    res.setViewData(viewData);
-    next();
-});
 
 server.replace('PasswordReset', function (req, res, next) {
     res.setStatusCode(410);
@@ -1069,6 +1099,22 @@ server.get('MobileLoginDetails', server.middleware.include, function (req, res, 
     res.render('account/mobileLoginDetails', { name:
         req.currentCustomer.profile ? req.currentCustomer.profile.firstName : null
     });
+    next();
+});
+
+server.append('Header', function (req, res, next) {
+    var viewData = res.getViewData();
+    viewData.CurrentCustomer = customer;
+    if (customer) {
+        var customerGroups = customer.getCustomerGroups().toArray();
+        var customerGroupIds = [];
+        customerGroups.forEach(function (customerGroup) {
+            customerGroupIds.push(customerGroup.ID);
+        });
+        viewData.customerGroupIDs = JSON.stringify(customerGroupIds);
+    }
+
+    res.setViewData(viewData);
     next();
 });
 

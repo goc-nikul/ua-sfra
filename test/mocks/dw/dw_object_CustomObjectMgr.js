@@ -10,6 +10,59 @@ var objects = {
                 isProcessed: false
             }
         };
+    },
+    ConstructorIOFeedData: function (key) {
+        return [
+            {
+                custom: {
+                    constructorKey: 'season',
+                    sfccAttribute: 'custom.season',
+                    constructorFeedType: [
+                        {
+                            displayValue: 'Master (parent product or stand-alone) feed',
+                            value: 'master'
+                        },
+                        {
+                            displayValue: 'Variation product feed',
+                            value: 'variation'
+                        }
+                    ],
+                    constructorDataType: [
+                        {
+                            displayValue: 'Metadata',
+                            value: 'metadata'
+                        }
+                    ]
+                }
+            },
+            {
+                custom: {
+                    constructorKey: 'alphaTechnology',
+                    sfccAttribute: 'custom.alphaTechnology',
+                    constructorFeedType: [
+                        {
+                            displayValue: 'Variation product feed',
+                            value: 'variation'
+                        }
+                    ],
+                    constructorDataType: [
+                        {
+                            displayValue: 'Facet',
+                            value: 'facet'
+                        }
+                    ]
+                }
+            }
+        ];
+    },
+    NiceIDAuthToken: function (key) {
+        return {
+            custom: {
+                siteID: key,
+                token: '12345',
+                expires: 2524608000000
+            }
+        };
     }
 };
 
@@ -26,7 +79,7 @@ function getCustomObject(type, key) {
 
 function queryCustomObjects(type) {
     var obj = createCustomObject(type, 'test');
-    var items = [obj];
+    var items = Array.isArray(obj) ? obj : [obj];
 
     var index = 0;
     return {

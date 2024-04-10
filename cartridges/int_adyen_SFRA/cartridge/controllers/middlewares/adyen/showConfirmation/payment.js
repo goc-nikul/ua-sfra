@@ -4,6 +4,9 @@ var URLUtils = require('dw/web/URLUtils');
 var Resource = require('dw/web/Resource');
 var Transaction = require('dw/system/Transaction');
 var OrderMgr = require('dw/order/OrderMgr');
+var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
+var orderInfoLogger = require('dw/system/Logger').getLogger('orderInfo', 'orderInfo');
+var Site = require('dw/system/Site');
 function handleRedirect(page, _ref) {
   var res = _ref.res;
   res.redirect(URLUtils.url('Checkout-Begin', 'stage', page, 'paymentError', Resource.msg('error.payment.not.valid', 'checkout', null)));
@@ -14,6 +17,10 @@ function handlePaymentError(order, page, _ref2) {
   Transaction.wrap(function () {
     OrderMgr.failOrder(order, true);
   });
+  // log the order details for dataDog.
+  if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+    orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+  }
   handleRedirect(page, {
     res: res
   });

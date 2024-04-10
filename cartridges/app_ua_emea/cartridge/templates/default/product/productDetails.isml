@@ -13,12 +13,14 @@
     <isset name="rvbExpireDate" value="${pdict.rvbExpireDate}" scope="page" />
     <isset name="isQuickView" value="${false}" scope="page" />
     <isset name="isProductSet" value="${pdict.product.productType === 'set'}" scope="page" />
-    <isset name="productObject" value="${dw.catalog.ProductMgr.getProduct(product.id)}" scope="page"/>    
+    <isset name="productObject" value="${dw.catalog.ProductMgr.getProduct(product.id)}" scope="page"/>
     <isset name="productHelpers" value="${require('*/cartridge/scripts/helpers/productHelpers')}" scope="page"/>
     <isset name="currentCountry" value="${pdict.CurrentRequest.locale && pdict.CurrentRequest.locale != 'default' ? pdict.CurrentRequest.locale.split('_')[1] : 'DE'}" scope="page" />
     <isset name="upsellType" value="${productHelpers.getUpsellType(product.variationAttributes[0].values, product, pdict.experienceType)}" scope="page"/>
     <isset name="klarnaEnabled" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('isKlarnaEnabled')}" scope="page"/>
     <isset name="currentCountry" value="${pdict.CurrentRequest.locale && pdict.CurrentRequest.locale != 'default' ? pdict.CurrentRequest.locale.split('_')[1] : 'DE'}" scope="page" />
+    <isset name="showOffPercentage" value="${true}" scope="page" />
+
     <isinclude template="/components/modules" sf-toolkit="off" />
 
     <isobject object="${product.raw}" view="detail">
@@ -61,13 +63,10 @@
                                 <span class="flameIcon-text">${product.productTileUpperLeftFlameIconBadge.displayValue}</span>
                             </span>
                         </div>
-                    <iselseif condition="${pdict.ExperienceType}">
-                        <isif condition="${product.outletProductTileUpperLeftBadge.value}">
+                    <iselseif condition="${pdict.ExperienceType && product.outletProductTileUpperLeftBadge.value}"/>
                             <div class="l-tile-badge_top_left">${product.outletProductTileUpperLeftBadge.displayValue}</div>
-                        </isif>
-                    <iselseif condition="${product.productTileUpperLeftBadge && product.productTileUpperLeftBadge.value}">
+                    <iselseif condition="${product.productTileUpperLeftBadge && product.productTileUpperLeftBadge.value}"/>
                         <div class="l-tile-badge_top_left">${product.productTileUpperLeftBadge.displayValue}</div>
-                    </iselseif>
                     </isif>
 
                     <isif condition="${product.productTileBottomLeftBadge}">
@@ -84,12 +83,26 @@
                             data-not-availability="${Resource.msg('product.choosemysize.notavailable', 'product', null)}"
                             data-fitmodel-availability="${JSON.stringify(product.fitModelImagesAvailability)}">
                             <div class="g-selectric-container form-group ">
-                                <select data-cmp="customSelect" data-cmp-id="selectric"
-                                    class="js-input_field input-select js-pdp-select-model" id="size-model" name="size-model" tabindex="-1">
-                                    <isloop items="${pdict.sizeModelValues}" var="sizeModel">
-                                        <option class="select-option ${sizeModel.id}"
-                                            value="${sizeModel.id !== 'default' ? sizeModel.id : ''}">${sizeModel.label}</option>
-                                    </isloop>
+                                <select data-cmp="customSelect" data-cmp-id="selectric" class="js-input_field input-select js-pdp-select-model" id="size-model" name="size-model" tabindex="-1">
+                                    <isif condition="${pdict.sizeModelSpecs && !pdict.sizeModelSpecs.error && !empty(pdict.sizeModelSpecs.options)}">
+                                        <isloop items="${pdict.sizeModelSpecs.options}" var="option">
+                                            <option class="select-option ${option.modelSize}"  value="${option.modelSize !== 'default' ? option.modelSize :''}">
+                                                <isif condition="${option.modelSize === 'default'}">
+                                                    <isprint value="${Resource.msg('sizemodel.label', 'product', null)}" encoding="off" />
+                                                <iselseif condition="${option.modelSize && (!(option.modelHeightFt && option.modelHeightCm))}">
+                                                    <isprint value="${Resource.msgf('product.model.size.specification.dropdown', 'product', null, option.modelSize.toUpperCase())}" encoding="off" />
+                                                <iselseif condition="${option.modelSize && option.modelHeightFt && currentCountry === 'GB'}">
+                                                    <isprint value="${Resource.msgf('product.model.specification.dropdown', 'product', null, option.modelHeightFt, option.modelSize.toUpperCase())}" encoding="off" />
+                                                <iselseif condition="${option.modelSize && option.modelHeightCm}">
+                                                    <isprint value="${Resource.msgf('product.model.specification.dropdown.cm', 'product', null, option.modelHeightCm, option.modelSize.toUpperCase())}" encoding="off" />
+                                                </isif>
+                                           </option>
+                                       </isloop>
+                                    <iselse>
+                                        <isloop items="${pdict.sizeModelValues}" var="sizeModel">
+                                            <option class="select-option ${sizeModel.id}" value="${sizeModel.id !== 'default' ? sizeModel.id : ''}">${sizeModel.label}</option>
+                                        </isloop>
+                                    </isif>
                                 </select>
                                 <label class="g-selectric-label form-control-label js-input-label" for="size-model">
                                     <isprint value="${Resource.msg('sizemodel.label', 'product', null)}" /></label>
@@ -130,7 +143,7 @@
                         <div class="b-product_breadcrumbs desktop_only" data-attribute="breadcrumb">
                             <isinclude template="components/breadcrumbs/pageBreadcrumbs"/>
                         </div>
-                        <!-- Wishlist Button 
+                        <!-- Wishlist Button
                         <div class="wishlist-pdp-button">
                             <button type="submit" class="btn btn-block btn-outline-primary add-to-wish-list" data-href="${URLUtils.url('Wishlist-AddProduct')}" data-pid="${product.id}">
                                 <i class="fa fa-heart"></i> <span>${Resource.msg('button.add_to_wishlist.txt', 'wishlist', null)}</span>
@@ -143,7 +156,11 @@
                         </div>
 
                         <div class="mobile_only">
-                            <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp, 'attribute', 'color')}"/>
+                            <isif condition="${!empty(pdict.selectedColor.key)}">
+                                <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp, 'attribute', 'color', pdict.selectedColor.key, pdict.selectedColor.value)}"/>
+                            <iselse>
+                                <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp, 'attribute', 'color')}"/>
+                            </isif>
                         </div>
 
                         <!-- Prices -->
@@ -156,11 +173,11 @@
                             <div class="b-product_prices bvWrap">
                                 <isset name="price" value="${product.price}" scope="page" />
                                 <isinclude template="product/components/pricing/main" />
-                                <isif condition="${'bvEnableRR_C2013' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR_C2013}">
+                                <isif condition="${'bvEnableRR' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR}">
 						            <isinclude template="bv/display/pdpsummary"/>
 					            </isif>
                             </div>
-                            <isif condition="${product.custom.exclusive === 'out-of-stock'}"> 
+                            <isif condition="${product.custom.exclusive === 'out-of-stock'}">
                                 <div class="b-product_availability-pdp-outofstock js-pdp-outofstock">
 	                                ${Resource.msg('label.outofstock.soldOut','common', null)}
 	                            </div>
@@ -187,56 +204,59 @@
                                 <isinclude template="product/components/promotions" />
                             </div>
 
-                            <isif condition="${productObject.custom.exemptEmployeeDiscount == 'yes'}">    
+                            <isif condition="${productObject.custom.exemptEmployeeDiscount == 'yes'}">
                                 <isinclude url="${URLUtils.url('Product-EmployeeNotification', 'showEmployeeTerms', product.showTerms)}" />
                             </isif>
-                            
+
                             <!-- Availability -->
                             <div class="b-product_availability"
                                 data-ready-to-order="${product.readyToOrder}"
                                 data-available="${product.available}">
-                                <isif condition="${!product.available}"> 
-                                <isif condition="${product.readyToOrder}">
+                                <isif condition="${!product.available && product.custom.exclusive !== 'coming-soon'}">
                                     <isloop items="${product.availability.messages}" var="message">
                                         <div class="b-product_availability-message ${!product.available ? 'm-out-of-stock' : ''}">${message}</div>
                                     </isloop>
                                 </isif>
-                                </isif>
                             </div>
-                            
+
                             <div class="b-product_attrs">
                                 <!-- Attributes -->
                                 <isinclude template="product/components/mainAttributes" />
-    
+
                                 <isset name="isBundle" value="${false}" scope="page" />
                                 <isset name="loopState" value="{count: 1}" scope="page" />
                                 <div class="b-product_attrs">
                                     <div class="desktop_only">
-                                        <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp, 'attribute', 'color')}"/>
+                                       <isif condition="${!empty(pdict.selectedColor.key)}">
+                                           <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp, 'attribute', 'color', pdict.selectedColor.key, pdict.selectedColor.value)}"/>
+                                       <iselse>
+                                           <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp, 'attribute', 'color')}"/>
+                                       </isif>
                                     </div>
-                                    <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp)}"/>
+                                    <isif condition="${!empty(pdict.selectedColor.key)}">
+                                        <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp, pdict.selectedColor.key, pdict.selectedColor.value)}"/>
+                                    <iselse>
+                                        <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp)}"/>
+                                    </isif>
 
                                     <isif condition="${product.options && product.options.length > 0}">
                                         <isinclude template="product/components/options" />
                                     </isif>
 
+                                    <isinclude template="product/components/inventoryMessaging" />
                                     <isinclude template="product/components/uaFitScale"/>
-    
+
                                     <div class="b-product_actions prices-add-to-cart-actions">
                                         <!-- Quantity Drop Down Menu -->
                                         <isif condition="${!isBundle && product.options.length === 0 && product.exclusive.value !== 'coming-soon' && product.exclusive.value !== 'out-of-stock'}">
                                             <isinclude template="product/components/quantity" />
                                         </isif>
-    
+
                                         <!-- Cart and [Optionally] Apple Pay -->
                                         <div class="b-product_actions-inner">
                                             <isinclude template="product/components/addToCartProduct" />
                                         </div>
                                     </div>
-                                    <!-- Pick up in Store -->
-                                    <isif condition="${!isQuickView}">
-                                        <isinclude url="${URLUtils.url('Product-ChoosePickUpInStore', 'pid', product.id)}"/>
-                                    </isif>
                                 </div>
                             </div>
                         </isif>
@@ -276,7 +296,7 @@
                 <islcinclude pageId="${pageId}" categoryId="${categoryId}" productId="${productId}" placement="pdp-inherited-content" prefetch="true" ajax="true" parameter="${pdict.coremediaParameters}"/>
                 <islcinclude pageId="${pageId}" categoryId="${categoryId}" productId="${productId}" placement="pdp-after-inherited" prefetch="true" ajax="true" parameter="${pdict.coremediaParameters}"/>
             </isif>
-            
+
             <iscomment>User Generated Slot</iscomment>
             <div class="b-product-slot m-slot_1">
                 <isslot id="pdp-ugc-slot" description="PDP User Generated Content 1" context="global" />
@@ -296,7 +316,7 @@
             </div>
 
             <div class="b-pdp__review-setion">
-            <isif condition="${'bvEnableRR_C2013' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR_C2013}">
+            <isif condition="${'bvEnableRR' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR}">
                 <isif condition="${pdict.bvDisplay.rr.enabled}">
                     <hr class="d-sm-none">
                 </isif>
@@ -306,11 +326,11 @@
                 </div>
             </isif>
 
-           <isif condition="${'bvEnableAA_C2013' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableAA_C2013}">
+           <isif condition="${'bvEnableAA' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableAA}">
              <isif condition="${pdict.bvDisplay.qa.enabled}">
                 <hr class="d-sm-none">
              </isif>
-            
+
              <div class="row questions collapsible-xs <isif condition="${!pdict.bvDisplay.qa.enabled}">hidden-xl-down</isif>">
                <isinclude template="bv/display/qa/questions" />
              </div>

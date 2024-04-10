@@ -15,10 +15,21 @@
     padding: 1em;
 
     @keyframes fade {
-        0% { opacity: 0; }
-        10% { opacity: 1; }
-        90% { opacity: 1; }
-        100% { opacity: 0; }
+        0% {
+            opacity: 0;
+        }
+
+        10% {
+            opacity: 1;
+        }
+
+        90% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0;
+        }
     }
 
     &.show {
@@ -26,7 +37,14 @@
     }
 }
 
-.wishlistTile {
+// stylelint complains about kebab case for this class name,
+// but we can't change the name because it is used across other plugins
+// prettier-ignore
+.wishlistTile {  /* stylelint-disable-line */
+    position: absolute;
+    top: 8px;
+    right: 16px;
+
     i {
         &.fa-heart-o {
             color: rgba(0, 0, 0, 0.7);
@@ -38,16 +56,6 @@
         }
     }
 
-    span {
-        &.fa-stack {
-            position: absolute;
-            top: 8px;
-            right: 16px;
-        }
-    }
-}
-
-.wishlistTile {
     .fa-heart {
         color: black;
     }

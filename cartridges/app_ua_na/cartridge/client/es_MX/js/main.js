@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
+'use strict';
 
-require('@babel/polyfill');
+require('core-js');
+require('regenerator-runtime/runtime');
 
 var processInclude = require('base/util');
 var pageData = require('org/utils/pageData');

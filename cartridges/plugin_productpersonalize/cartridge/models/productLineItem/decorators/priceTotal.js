@@ -20,7 +20,7 @@ function getTotalPrice(product, lineItem) {
     var template = 'checkout/productCard/productCardProductRenderedTotalPrice';
     var productPrice = product.price;
     var strikeThroughPrice;
-    if (productPrice.list != null) {
+    if (!empty(product.price) && productPrice.list != null) {
         strikeThroughPrice = productPrice.list;
 
         var Money = require('dw/value/Money');

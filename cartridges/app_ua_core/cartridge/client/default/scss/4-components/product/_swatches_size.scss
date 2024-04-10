@@ -26,7 +26,7 @@
 
                     color: $black;
                     text-decoration: none;
-                    margin: spacing(xs) / 2;
+                    margin: calc(spacing(xs) / 2);
                     text-align: center;
                     font-weight: $font-regular;
                     vertical-align: middle;
@@ -176,12 +176,65 @@
 
         .content-asset {
             &::before {
-                vertical-align: middle;
+                vertical-align: top;
             }
 
             a {
                 color: $black;
                 text-decoration: underline;
+            }
+        }
+    }
+}
+
+.b-product_promoCallout {
+    flex: 1 1 100%;
+
+    &.b-is_egiftcard {
+        flex: 1 1 84%;
+        align-items: end;
+        display: flex;
+
+        .b-product-promo {
+            @include respond-to(desktop) {
+                margin-bottom: 0 !important;
+            }
+        }
+    }
+
+    .b-product_text-callout {
+        font-size: rem-calc(12);
+        margin-bottom: 1.5rem;
+        color: $grey5;
+        flex: 1 1 100%;
+        text-align: left;
+
+        .content-asset {
+            @include icon(alert);
+
+            &::before {
+                margin-right: rem-calc(5);
+                @include respond-to(desktop) {
+                    vertical-align: top;
+                }
+            }
+        }
+
+        &.b-product-promo {
+            @include respond-to(desktop) {
+                margin-bottom: 1rem;
+            }
+
+            @include respond-to(mobile) {
+                padding: 0;
+                border: 0;
+            }
+
+            .content-asset {
+                a {
+                    color: $black;
+                    text-decoration: underline;
+                }
             }
         }
     }

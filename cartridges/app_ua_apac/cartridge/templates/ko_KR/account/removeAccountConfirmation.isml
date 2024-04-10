@@ -1,0 +1,35 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/js/account.js');
+    </isscript>
+
+    <div class="b-account b-account-delete js-account-delete-page">
+        <div class="b-account-container b-account-container-top">
+            <div class="b-account-left"></div>
+            <div class="b-account-right b-account-address_book">
+                <div class="b-account-address_book-pageHeading js-account-page-heading">
+                    <div class="heading-addresses">
+                        ${Resource.msg('heading.account.remove', 'account', null)}<span class="account-icon"></span></div>
+                </div>
+            </div>
+        </div>
+        <div class="b-account-container b-account-container-bottom">
+            <div class="b-account-left js-account-left">
+                <isinclude template="account/leftNavLinks" />
+            </div>
+            <div class="b-account-right b-account-address_book-heading b-account-edit-profile b-account-profile-heading">
+                <div class="deleting-account-withdrawal-content">
+                    <iscontentasset aid="deleting-account-withdrawal-page" />
+                </div>
+                <isif condition="${!pdict.isNaverSSOUser}">
+                    <isinclude template="account/removeAccountConfirmationForm"/>
+                <iselse/>
+                    <isinclude template="account/removeNaverAccountConfirmationForm"/>
+                </isif>
+            </div>
+        </div>
+    </div>
+
+</isdecorate>

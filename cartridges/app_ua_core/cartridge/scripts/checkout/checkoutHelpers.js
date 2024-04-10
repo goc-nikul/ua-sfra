@@ -14,12 +14,15 @@ var Site = require('dw/system/Site');
 var BasketMgr = require('dw/order/BasketMgr');
 var PaymentMgr = require('dw/order/PaymentMgr');
 var HookMgr = require('dw/system/HookMgr');
+const logger = require('dw/system/Logger').getLogger('constructor', 'constructor');
 
 /* Script modules */
 var base = require('app_storefront_base/cartridge/scripts/checkout/checkoutHelpers');
 var plugin = require('plugin_instorepickup/cartridge/scripts/checkout/checkoutHelpers');
 var ShippingHelper = require('*/cartridge/scripts/checkout/shippingHelpers');
 var giftCardHelper = require('*/cartridge/scripts/giftcard/giftcardHelper');
+var errorLogger = require('dw/system/Logger').getLogger('OrderFail', 'OrderFail');
+var LogHelper = require('*/cartridge/scripts/util/loggerHelper');
 /**
  * @description Checks for invalid eGift Card Amount
  * @param {Object} giftCardForm eGift Card data form
@@ -118,6 +121,26 @@ function isPaymentAmountMatches(currentBasket) {
 }
 
 /**
+ * Function returns error code based on Processor Response
+ * @param {Object} authorizationResult dw object
+ * @returns {string} returns the payment error code
+ */
+function getPaymentErrorCode(authorizationResult) {
+    var errorCode = null;
+    // AurusPay
+    if (authorizationResult.AurusPayResponseCode) {
+        errorCode = authorizationResult.AurusPayResponseCode;
+        // Paymetric
+    } else if (authorizationResult.paymetricResponseCode) {
+        errorCode = authorizationResult.paymetricResponseCode;
+        // Paypal and others
+    } else if (authorizationResult.errorCode) {
+        errorCode = authorizationResult.errorCode;
+    }
+    return errorCode;
+}
+
+/**
  * handles the payment authorization for each payment instrument
  * @param {dw.order.Order} order - the order object
  * @param {string} orderNumber - The order number for the order
@@ -133,12 +156,16 @@ function handlePayments(order, orderNumber, scope) {
             var paymentInstruments = order.paymentInstruments;
 
             if (paymentInstruments.length === 0) {
-                Transaction.wrap(function () { OrderMgr.failOrder(order, true); });
+                Transaction.wrap(function () {
+                    order.trackOrderChange('Order Failed Reason: payment instrument is missing');
+                    OrderMgr.failOrder(order, true);
+                });
                 result.error = true;
             }
 
             var isPaymentAmountMatch = isPaymentAmountMatches(order);
             if (!isPaymentAmountMatch) {
+                errorLogger.error('!isPaymentAmountMatch {0} ', LogHelper.getLoggingObject(order));
                 Transaction.wrap(function () {
                     order.trackOrderChange('Order Failed Reason: Order total and Payment Amount Mismatch');
                     OrderMgr.failOrder(order, true);
@@ -157,7 +184,14 @@ function handlePayments(order, orderNumber, scope) {
                 if (gcpaymentInstruments.length > 0) {
                     var gcAuthResult = giftCardHelper.authorizeGiftCards(order);
                     if (gcAuthResult.error) {
-                        return gcAuthResult;
+                        result.error = true;
+                        result.errorMessage = gcAuthResult.errorMessage;
+                        Transaction.wrap(function () {
+                            order.trackOrderChange('Order Failed Reason: Error during gift card authorization');
+                            OrderMgr.failOrder(order, true);
+                        });
+
+                        return result;
                     }
                 }
 
@@ -214,22 +248,40 @@ function handlePayments(order, orderNumber, scope) {
                             });
                         }
                         if (authorizationResult.error) {
-                            Transaction.wrap(function () { OrderMgr.failOrder(order, true); });
+                            errorLogger.error('!authorizationResult {0} ', LogHelper.getLoggingObject(order));
+                            var authErrorCode = getPaymentErrorCode(authorizationResult);
+                            Transaction.wrap(function () { // eslint-disable-line
+                                order.trackOrderChange('Order Failed Reason: could not Authorize.' + (authErrorCode ? 'Error Code: ' + authErrorCode : ''));
+                                OrderMgr.failOrder(order, true);
+                            });
                             result.error = true;
-                            result.errorCode = authorizationResult.errorCode || '';
-                            result.errorMessage = authorizationResult.errorMessage || '';
+                            result.errorCode = authErrorCode;
                             result.resultCode = authorizationResult.resultCode;
+                            result.errorMessage = authorizationResult.errorMessage ? authorizationResult.errorMessage : authorizationResult.paypalErrorMessage ? authorizationResult.paypalErrorMessage : '';
                             break;
                         }
                     }
                 }
             }
+        } else {
+            Transaction.wrap(function () {
+                order.trackOrderChange('Order Failed Reason: Order total is 0.00');
+                OrderMgr.failOrder(order, true);
+            });
+            result.error = true;
+            errorLogger.error('Order total is 0.00 {0} ', LogHelper.getLoggingObject(order));
         }
 
         handlePaymetricPayload(order);
     } catch (e) {
         result.error = true;
         Logger.error('Error during payment authorization: handlePayments() : ' + JSON.stringify(e));
+
+        Transaction.wrap(function () {
+            order.trackOrderChange('Order Failed Reason: Error during payment authorization. Please see order note');
+            order.addNote('Order Failed Reason', JSON.stringify(e).substring(0, 4000));
+            OrderMgr.failOrder(order, true);
+        });
     }
     return result;
 }
@@ -281,6 +333,8 @@ function placeOrder(order) {
         Logger.error('Error during order placement: ' + JSON.stringify(e));
         Transaction.wrap(function () {
             OrderMgr.failOrder(order, true);
+            order.trackOrderChange('Order Failed Reason: Error during order placement');
+            order.addNote('Order Failed Reason: Error during order placement', JSON.stringify(e).substring(0, 4000));
         });
         result.error = true;
     }
@@ -858,7 +912,7 @@ function getEligiblePaymentMethods(currentBasket, giftCardFormData, vipPoints, c
         nonGCPayment: true, // Here NonGC payment means CC, Paypal, Apple pay
         creditCard: true,
         payPal: !basketHasGiftCardItems.eGiftCards && !cartHelper.hasPreOrderItems(currentBasket),
-        applePay: !basketHasGiftCardItems.eGiftCards && !basketHasBopisItems,
+        applePay: (!basketHasGiftCardItems.eGiftCards && !basketHasGiftCardItems.giftCards) && !basketHasBopisItems,
         giftCard: !((basketHasGiftCardItems.giftCards || isEmployee)),
         klarna: !basketHasGiftCardItems.giftCards && !isEmployee && ((isKlarnaEnabledForPreOrder) || (!isKlarnaEnabledForPreOrder && !cartHelper.hasPreOrderItems(currentBasket)))
     };
@@ -1227,7 +1281,7 @@ function validatePaymentCards(currentBasket, countryCode, currentCustomer) {
     );
 
     var invalid = true;
-
+    var paymentInfo = [];
     for (var i = 0; i < paymentInstruments.length; i++) {
         var paymentInstrument = paymentInstruments[i];
 
@@ -1236,11 +1290,11 @@ function validatePaymentCards(currentBasket, countryCode, currentCustomer) {
         }
 
         var paymentMethod = PaymentMgr.getPaymentMethod(paymentInstrument.getPaymentMethod());
-
+        paymentInfo.push('paymentMethod : ' + paymentMethod.ID);
         if (paymentMethod && applicablePaymentMethods.contains(paymentMethod)) {
             if ((PaymentInstrument.METHOD_CREDIT_CARD) === (paymentInstrument.paymentMethod)) {
                 var card = PaymentMgr.getPaymentCard(paymentInstrument.creditCardType);
-
+                paymentInfo.push('cardType : ' + (!empty(card) ? card.cardType : ''));
                 // Checks whether payment card is still applicable.
                 if (card && applicablePaymentCards.contains(card)) {
                     invalid = false;
@@ -1251,6 +1305,14 @@ function validatePaymentCards(currentBasket, countryCode, currentCustomer) {
         }
 
         if (invalid) {
+            var basketInfo = {
+                cust_no: currentBasket.customerNo || customer.ID,
+                basket_id: currentBasket.UUID,
+                paymentInfo: paymentInfo, // It contains only card type and payment method ID
+                totalGrossPrice: paymentAmount,
+                shippingMethodID: !empty(currentBasket.defaultShipment) ? currentBasket.defaultShipment.shippingMethodID : ''
+            };
+            Logger.getLogger('validatePaymentCards').error('Invalid Payment Type :: {0}', JSON.stringify(basketInfo));
             break; // there is an invalid payment instrument
         }
     }
@@ -1285,7 +1347,7 @@ function ensureValidAddressType(lineItemContainer) {
         allValid = true;
     } else {
         allValid = collections.every(shipments, function (shipment) {
-            if (shipment.ID !== giftCardShipmentID) {
+            if (shipment.ID !== giftCardShipmentID && !shipment.getProductLineItems().isEmpty()) {
                 var address = shipment.shippingAddress;
 
                 Transaction.wrap(function () {
@@ -1533,7 +1595,7 @@ function checkEmptyEmojiNonLatinChars(object, addressFieldsToVerify, countryCode
             if (field === 'postalCode' || field === 'city') {
                 regex = patterns[field][countryCode];
             } else if (field === 'countryCode') {
-                value = object[field].value;
+                value = object[field].value ? object[field].value : value;
             }
 
             // checking required fields from validateInputFields function
@@ -1548,6 +1610,26 @@ function checkEmptyEmojiNonLatinChars(object, addressFieldsToVerify, countryCode
         // TODO:
     }
     return errors;
+}
+
+/**
+ * validate if country is a supported shipping country
+ * @param {string} countryCode - two letter country code
+ * @returns {boolean} true if country is supported. Also true if attribute is not defined.
+ */
+function isCountryShippable(countryCode) {
+    const prefName = 'shippableCountries';
+    const shippableCountries = require('*/cartridge/scripts/utils/PreferencesUtil').getValue(prefName);
+
+    // Account for instances that do not have this attribute defined.
+    if (shippableCountries === null || empty(shippableCountries)) return true;
+
+    if (countryCode) {
+        for (let item of shippableCountries) {
+            if (item.toLowerCase() === countryCode.toLowerCase()) return true;
+        }
+    }
+    return false;
 }
 
 /**
@@ -1574,9 +1656,13 @@ function validateInputFields(lineItemCtnr) {
     // Validate shipping address
     if (shippingAddress) {
         countryCode = shippingAddress.countryCode.value;
-        inputValidationErrors.shippingAddressErrors = checkEmptyEmojiNonLatinChars(shippingAddress, addressFieldsToVerify, countryCode);
-        if (Object.keys(inputValidationErrors.shippingAddressErrors).length === 0) {
-            inputValidationErrors.shippingAddressErrors = checkCrossSiteScript.crossSiteScriptPatterns(shippingAddress, addressFieldsToVerify);
+        if (!isCountryShippable(countryCode)) {
+            inputValidationErrors.shippingAddressErrors.countryCode = Resource.msg('invalid.country', 'checkout', null);
+        } else {
+            inputValidationErrors.shippingAddressErrors = checkEmptyEmojiNonLatinChars(shippingAddress, addressFieldsToVerify, countryCode);
+            if (Object.keys(inputValidationErrors.shippingAddressErrors).length === 0) {
+                inputValidationErrors.shippingAddressErrors = checkCrossSiteScript.crossSiteScriptPatterns(shippingAddress, addressFieldsToVerify);
+            }
         }
     }
     // Validate billing address
@@ -1624,6 +1710,8 @@ function validateInputFields(lineItemCtnr) {
             inputValidationErrors.genericErrorMessage = Resource.msg('checkout.nonlatincharacters.specificerror', 'checkout', null);
         } else if (Object.keys(inputValidationErrors.billingAddressErrors).length > 0) {
             inputValidationErrors.genericErrorMessage = Resource.msg('billingaddress.invalid.errormessage', 'checkout', null);
+        } else if (!empty(inputValidationErrors.shippingAddressErrors.countryCode) || !empty(inputValidationErrors.billingAddressErrors.countryCode)) {
+            inputValidationErrors.genericErrorMessage = Resource.msg('invalid.country', 'checkout', null);
         } else {
             inputValidationErrors.genericErrorMessage = Resource.msg('checkout.nonlatincharacters.error', 'checkout', null);
         }
@@ -1772,6 +1860,9 @@ function handlePendingKlarnaOrder(order) {
                 kpFraudStatus = klarnaPaymentTransaction && klarnaPaymentTransaction.custom ? klarnaPaymentTransaction.custom.kpFraudStatus : null;
             }
             if (kpFraudStatus === KLARNA_FRAUD_STATUSES.PENDING) {
+                Transaction.wrap(function () {
+                    order.trackOrderChange('Order Failed Reason: Klarna Fraud Status - Pending');
+                });
                 throw new Error();
             }
         }
@@ -1986,6 +2077,10 @@ function createOrder(currentBasket, orderNo) {
             }
             return OrderMgr.createOrder(currentBasket);
         });
+
+        Transaction.wrap(function () {
+            order.addNote('session', session.sessionID.toString());
+        });
     } catch (error) {
         Logger.error('Error during create an order from the current basket: createOrder() : ' + JSON.stringify(error));
         return;
@@ -2025,11 +2120,13 @@ function setDefaultBillingAddress(customer, isInternationalBillingAddress) {
  * @param {dw.order.Order} order - current order
  * @param {boolean} paymentError - payment error
  * @param {string} paymentErrorMessage - payment error message
+ * @param {string} paymentErrorCode - payment error code
  * @returns {Object} - orderDataDogDetails.
  */
-function getOrderDataForDatadog(order, paymentError, paymentErrorMessage) {
+function getOrderDataForDatadog(order, paymentError, paymentErrorMessage, paymentErrorCode) {
     var orderDataDogDetails = {};
     var collections = require('*/cartridge/scripts/util/collections');
+    var isLoyalCouponApplied = false;
     try {
         orderDataDogDetails.orderid = order.orderNo;
         orderDataDogDetails.sessionid = session && session.sessionID;
@@ -2038,6 +2135,7 @@ function getOrderDataForDatadog(order, paymentError, paymentErrorMessage) {
         customerInfo.customerid = order.customer.registered && order.customerNo ? order.customerNo : '';
         customerInfo.registered = order.customer.registered ? 'registered' : 'unregistered';
         customerInfo.loyalty_flag = order.customer.registered && order.customer.isMemberOfCustomerGroup('Loyalty') ? order.customer.isMemberOfCustomerGroup('Loyalty') : '';
+        customerInfo.customerEmail = order.customerEmail;
         orderCustomerInfo.push(customerInfo);
         orderDataDogDetails.customer_info = orderCustomerInfo;
         var orderPaymentInfo = [];
@@ -2056,14 +2154,25 @@ function getOrderDataForDatadog(order, paymentError, paymentErrorMessage) {
             }
         });
         paymentInfo.payment_method = paymentMethods;
+        paymentInfo.order_total = order.getTotalGrossPrice().value;
         paymentInfo.card_type = cardType;
         paymentInfo.error = paymentError;
         paymentInfo.OOT = paymentOOT;
         paymentInfo.message = paymentError ? Resource.msg('error.payment.msg', 'checkout', null) : '';
         paymentInfo.errorMessage = paymentError && paymentErrorMessage ? paymentErrorMessage : '';
+        paymentInfo.errorReasonCode = paymentError && paymentErrorCode ? paymentErrorCode : '';
+        if ('isCurrencyCodeRequired' in Site.current.preferences.custom && Site.current.getCustomPreferenceValue('isCurrencyCodeRequired')) {
+            paymentInfo.currencyCode = order.currencyCode ? order.currencyCode : '';
+        }
+        var promoCodeList = [];
+        var couponIterator = order.couponLineItems ? order.couponLineItems.iterator() : '';
+        while (!empty(couponIterator) && couponIterator.hasNext()) {
+            promoCodeList.push(couponIterator.next().getCouponCode());
+        }
         orderPaymentInfo.push(paymentInfo);
         orderDataDogDetails.payment_info = orderPaymentInfo;
         orderDataDogDetails.order_status = order.getStatus().displayValue;
+        orderDataDogDetails.promo_code = !empty(promoCodeList) ? promoCodeList : '';
         orderDataDogDetails.confirmation_status = order.confirmationStatus.displayValue;
         orderDataDogDetails.source = order.custom.maoOrderType && !empty(order.custom.maoOrderType.value) ? order.custom.maoOrderType.value : '';
         orderDataDogDetails.site = Site.getCurrent().getID();
@@ -2071,11 +2180,90 @@ function getOrderDataForDatadog(order, paymentError, paymentErrorMessage) {
         orderDataDogDetails.vip_order = order.custom.isVipOrder ? order.custom.isVipOrder : '';
         orderDataDogDetails.bopis_only_order = order.custom.isBOPISOrder ? order.custom.isBOPISOrder : '';
         orderDataDogDetails.mixed_bopis_order = order.custom.isMixedBOPISOrder ? order.custom.isMixedBOPISOrder : '';
+        orderDataDogDetails.aurusTerminalID = (order.custom.aurusTerminalID) ? order.custom.aurusTerminalID : '';
+        if (Object.prototype.hasOwnProperty.call(order.custom, 'purchaseSite')) {
+            orderDataDogDetails.purchase_site = order.custom.purchaseSite;
+        }
+        var isLoyaltyEnabled = 'isLoyaltyEnable' in Site.current.preferences.custom && Site.current.getCustomPreferenceValue('isLoyaltyEnable');
+        isLoyalCouponApplied = isLoyaltyEnabled ? !empty(require('*/cartridge/scripts/helpers/loyaltyHelper').getLoyaltyCouponsFromLineItemCtnr(order)) : false;
+        if (isLoyaltyEnabled || ('isLoyaltyCouponLogEnabled' in Site.current.preferences.custom && Site.current.getCustomPreferenceValue('isLoyaltyCouponLogEnabled'))) {
+            orderDataDogDetails.isLoyalCouponApplied = isLoyalCouponApplied;
+        }
     } catch (e) {
         Logger.error('Error in getOrderDataForDatadog()' + e.message);
     }
     return JSON.stringify(orderDataDogDetails);
 }
+
+/**
+ * This method set and return CC value for order .
+ * @param {dw.order.Order} order - the order object
+ */
+function setOrderPurchaseSite(order) {
+    var siteId = Site.getCurrent().getID();
+
+    if (!order) return;
+    try {
+        if (siteId === 'US' || siteId === 'CA' || siteId === 'MX') {
+            if (order && 'custom' in order && !Object.prototype.hasOwnProperty.call(order.custom, 'purchaseSite')) {
+                Transaction.wrap(function () {
+                    order.custom.purchaseSite = 'CC'; // eslint-disable-line
+                });
+            }
+        }
+    } catch (e) {
+        Logger.error('checkoutHelper.js - Error while setOrderPurchaseSite: ' + e.message);
+    }
+}
+
+/**
+ * Prepares and sends line item inventory to Constructor.IO.
+ * @param {dw.util.Collection} productLineItems - product line items from order
+ */
+function sendInventoryToConstructor(productLineItems) {
+    logger.info('BEGIN sendInventoryToConstructor');
+    var constructor = {
+        deltasEnabled: Site.current.getCustomPreferenceValue('Constructor_DeltaInventoryManager')
+    };
+
+    if (constructor.deltasEnabled) {
+        const inventoryMgr = require('*/cartridge/scripts/constructorio/inventoryStateManager');
+        var itemId;
+        var styleId;
+        var available;
+        var availabilityModel;
+        var inventoryRecord;
+
+        // add each item to ConstructorIO custom object
+        for (var i = 0; i < productLineItems.length; ++i) {
+            itemId = productLineItems[i].product.custom.sku;
+            logger.info('itemId: ' + itemId);
+            styleId = productLineItems[i].product.custom.style;
+            logger.info('styleId: ' + styleId);
+
+            // get available inventory from SFCC
+            available = 0;
+            availabilityModel = productLineItems[i].product.getAvailabilityModel();
+            inventoryRecord = availabilityModel.getInventoryRecord();
+            logger.info('inventoryRecord: ' + inventoryRecord);
+            if (typeof inventoryRecord !== 'undefined' && inventoryRecord !== null && inventoryRecord !== '' && inventoryRecord) {
+                // if the inventory is perpetual, get the highest allowed value for positive integers
+                if (inventoryRecord.isPerpetual()) {
+                    available = 2147483647;
+                } else {
+                    // get inventory amount
+                    available = inventoryRecord.ATS.value;
+                }
+            }
+            logger.info('available: ' + available);
+
+            // Send delta to Constructor.io
+            inventoryMgr.addMAODeltas(styleId, itemId, available);
+        }
+    }
+    logger.info('END sendInventoryToConstructor');
+}
+
 base.validatePayment = validatePayment;
 module.exports = base;
 module.exports = plugin;
@@ -2131,3 +2319,7 @@ module.exports.handleInvalidBopisItems = handleInvalidBopisItems;
 module.exports.getRenderedPaymentInstruments = getRenderedPaymentInstruments;
 module.exports.createOrder = createOrder;
 module.exports.getOrderDataForDatadog = getOrderDataForDatadog;
+module.exports.setOrderPurchaseSite = setOrderPurchaseSite;
+module.exports.sendInventoryToConstructor = sendInventoryToConstructor;
+module.exports.isCountryShippable = isCountryShippable;
+module.exports.checkEGiftCardAmount = checkEGiftCardAmount;

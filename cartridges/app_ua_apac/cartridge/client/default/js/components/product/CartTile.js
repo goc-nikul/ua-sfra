@@ -1,7 +1,45 @@
 'use strict';
 import CartTileCore from 'org/components/product/CartTile';
+var promotionSummary = require('../../checkout/promotionSummary');
 
 export default class CartTile extends CartTileCore {
+
+
+    /**
+     * re-renders the order totals and the number of items in the cart
+     * @param {Object} data - AJAX response from the server
+     */
+    updateCartTotals(data) {
+        super.updateCartTotals(data);
+
+        if (data.totals.totalDiscount.value > 0) {
+            $('.order-discount.order-summary_discount').removeClass('hide-order-discount');
+            $('.order-discount.order-summary_discount').show();
+            $('.order-summary_discount .order-discount-total').empty()
+                .append('- ' + data.totals.totalDiscount.formatted);
+        } else {
+            $('.order-discount.order-summary_discount').addClass('hide-order-discount');
+        }
+
+        // update subtotal for APAC in order summary
+        $('.order-summary_items .sub-total').empty().append(data.totals.subTotalWithoutAdjustments);
+
+        promotionSummary.updatePromotionInformation(data);
+
+        data.items.forEach(function (item) {
+            var itemPriceContainer = $('.uuid-' + item.UUID + ' .b-cartlineitem_price');
+            itemPriceContainer.each(function (index) {
+                var cartMemberPrice = $(itemPriceContainer[index]).find('.cart-member-price');
+                cartMemberPrice.empty();
+                if (
+                    item.memberPricing.hasMemberPrice &&
+                    item.memberPricing.memberPromoApplied
+                ) {
+                    cartMemberPrice.append(item.memberPricing.pricing.badgeHtml);
+                }
+            });
+        });
+    }
 
     onCouponRemove(event) {
         event.preventDefault();
@@ -198,8 +236,20 @@ export default class CartTile extends CartTileCore {
         }
 
         var qtySelector = `.js-quantity-select[data-uuid="${uuid}"]`;
+        if (lineItem.quantity > 10) {
+            $(qtySelector).empty();
+            for (var optionNum = 0; optionNum < lineItem.quantity; optionNum++) {
+                $(qtySelector).append('<option>' + (optionNum + 1) + '</option>');
+            }
+        }
         $(qtySelector).val(lineItem.quantity);
         $(qtySelector).data('pid', data.newProductId);
+
+        var $updatedSpanQuantity = $('.js-quantity-' + uuid);
+        $updatedSpanQuantity.empty().html(lineItem.quantity);
+        if (lineItem.quantity > 1) {
+            $('.b-cartlineitem_quantity-update').removeClass('hide');
+        }
 
         $(`.remove-product-item[data-uuid="${uuid}"]`).attr('data-pid', data.newProductId);
         $(`.edit-link.js-save-later[data-uuid="${uuid}"]`).attr('data-pid', data.newProductId);
@@ -299,6 +349,9 @@ export default class CartTile extends CartTileCore {
                             basket: data.cartModel
                         });
                         $('body').trigger('cart:update');
+                        if (lineItem && Object.hasOwnProperty.call(lineItem.custom, 'masterQtyLimit') && lineItem.custom.masterQtyLimit) {
+                            $('#quantity-' + uuid).attr('disabled', true);
+                        }
                         $.spinner().stop();
                     }
                 }.bind(this),
@@ -306,7 +359,7 @@ export default class CartTile extends CartTileCore {
                     if (err.responseJSON.redirectUrl) {
                         window.location.href = err.responseJSON.redirectUrl;
                     } else {
-                        if (err.responseJSON.messages) {
+                        if (err.responseJSON.messages && !err.responseJSON.masterQtyLimitError) {
                             var availabilityMessages = [];
                             var availabilityValue = '';
                             availabilityMessages = err.responseJSON.messages;
@@ -321,6 +374,11 @@ export default class CartTile extends CartTileCore {
                             }
                             $('.b-product-quickview-stock_Message').removeClass('hide');
                             $('.b-product-quickview-stock_Message').empty().html(availabilityValue);
+                        } else if (err.responseJSON.masterQtyLimitError) {
+                            var masterQtyLimitErrorMessage = '';
+                            masterQtyLimitErrorMessage = '<div class="selection-error-message"><div>' + err.responseJSON.errorMessage + '</div></div>';
+                            $('.selection-error-message').removeClass('hide');
+                            $('.selection-error-message').empty().html(masterQtyLimitErrorMessage);
                         } else {
                             this.createErrorNotification(err.responseJSON.errorMessage, $target);
                         }

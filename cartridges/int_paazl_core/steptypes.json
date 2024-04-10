@@ -40,6 +40,39 @@
                         }
                     ]
                 }
+            },
+            {
+                "@type-id": "custom.Paazl.CommitOrdersShipping",
+                "module": "int_paazl_core/cartridge/scripts/jobs/CommitOrderShippingJob.js",
+                "function": "process",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "disabled",
+                            "@description": "Indicates if this step should be skipped.",
+                            "@type": "boolean",
+                            "@required": false,
+                            "default-value": false,
+                            "@trim": true
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "DISABLED",
+                            "description": "This step was disabled."
+                        },
+                        {
+                            "@code": "ERROR",
+                            "description": "Processing failed."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Order Tracking Successfully committed in Paazl system."
+                        }
+                    ]
+                }
             }
         ]
     }

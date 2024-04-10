@@ -15,10 +15,9 @@ server.get('Google', function (req, res, next) {
     var siteMapResult = '500';
 
     if (fileName) {
-        var SendGoogleSiteMapResult =
-            new dw.system.Pipelet('SendGoogleSiteMap').execute({ // eslint-disable-line
-                FileName: fileName
-            });
+        var SendGoogleSiteMapResult = new dw.system.Pipelet('SendGoogleSiteMap').execute({ // eslint-disable-line
+            FileName: fileName
+        });
         if (SendGoogleSiteMapResult.result === PIPELET_ERROR) { // eslint-disable-line
             siteMapResult = '404';
         } else {

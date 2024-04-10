@@ -15,7 +15,9 @@ server.append('PlaceOrder', function (req, res, next) {
         var order = OrderMgr.getOrder(viewData.orderID);
 
         collections.forEach(order.productLineItems, function (productLineItem) {
-            productListHelper.removeItem(req.currentCustomer.raw, productLineItem.productID, { req: req, type: 10, optionId: null, optionValue: null }); // get these values
+            productListHelper.removeItem(req.currentCustomer.raw, productLineItem.productID, {
+                req: req, type: 10, optionId: null, optionValue: null
+            }); // get these values
         });
     }
 

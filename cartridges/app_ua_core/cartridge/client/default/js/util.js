@@ -332,7 +332,7 @@ var util = {
             }
         });
     },
-    
+
     /**
      * Genereal wrapper for JSON.parse(...) with error catching
      * @result {Object}
@@ -500,9 +500,9 @@ var util = {
 
     /**
      * loadScript: appends a script tag to document and returns a promise that resolves when loaded.
-     * 
+     *
      * It's kind of like $.getScript, but promisified, de-duped, and resolves relative urls
-     * 
+     *
      * @param {*} src - the src of the script
      * @returns - Promise<void>
      */
@@ -530,6 +530,30 @@ var util = {
             elbody.style.margin = '0';
             elbodypage.style.margin = '0';
         }
+    },
+
+    /**
+     * Scale size to fit Canvas pixel limitation for Safari mobile
+     * @param {number} width canvas required width
+     * @param {number} height canvas required height
+     * @returns {Object} scaled size
+     */
+    limitMobileCanvasSize: function (width, height) {
+        var maximumPixels = 16777216; // Safari Canvas area maximum limit
+        const requiredPixels = width * height;
+        if (requiredPixels <= maximumPixels) {
+            return {
+                width: width,
+                height: height,
+                scalar: 1
+            };
+        }
+        const scalar = Math.sqrt(maximumPixels) / Math.sqrt(requiredPixels);
+        return {
+            width: Math.floor(width * scalar),
+            height: Math.floor(height * scalar),
+            scalar: scalar
+        };
     }
 };
 const loadedScripts = new Map() // Map<src,promise>

@@ -32,7 +32,7 @@ describe('SetOrderStatus: app_ua_core/cartridge/scripts/util/SetOrderStatus test
         SetOrderStatus.setEmployeeOrder(order);
         assert.equal(order.custom.isEmployeeOrder, true);
     });
-    
+
     it('Testing method: setEmployeeOrder order is empty', () => {
         SetOrderStatus.setEmployeeOrder();
         assert.equal(order.custom.isEmployeeOrder, true);
@@ -42,12 +42,12 @@ describe('SetOrderStatus: app_ua_core/cartridge/scripts/util/SetOrderStatus test
         var result = SetOrderStatus.setEmployeeOrder(null);
         assert.isUndefined(result);
     });
-    
+
     it('Testing method: setCustomerName', () => {
         SetOrderStatus.setCustomerName(order);
         assert.isDefined(order.customerName);
     });
-    
+
     it('Testing method: setCSREmailAddress', () => {
 	 global.customer = {
             isMemberOfCustomerGroup: function () {
@@ -86,7 +86,7 @@ describe('SetOrderStatus: app_ua_core/cartridge/scripts/util/SetOrderStatus test
         SetOrderStatus.setCSREmailAddress(order, customer);
         assert.equal(order.custom.csrEmailAddress, '');
        });
-    
+
     it('Testing method: setCSREmailAddress', () => {
         SetOrderStatus.setCSREmailAddress();
     });
@@ -101,6 +101,16 @@ describe('SetOrderStatus: app_ua_core/cartridge/scripts/util/SetOrderStatus test
             value: ''
         }
         order.custom.sr_token = '12345678';
+        var Shipment = order.getDefaultShipment();
+        Shipment.shippingMethodID = 'shoprunner';
+        Shipment.shippingMethod = {
+            currencyCode : '',
+            description : 'ShopRunner - 2 Business Days',
+            displayName : 'ShopRunner',
+            ID : 'shoprunner',
+            taxClassID : '0',
+        };
+        order.shipment = [{ Shipment }];
         SetOrderStatus.setOrderType(order);
         assert.equal(order.custom.maoOrderType, 'SHRU');
 
@@ -163,7 +173,10 @@ describe('loggerHelper: app_ua_core/cartridge/scripts/util/loggerHelper test', (
                 return '';
             }
         },
-        'dw/value/Money': require('../../../mocks/dw/dw_value_Money')
+        'dw/value/Money': require('../../../mocks/dw/dw_value_Money'),
+        '*/cartridge/scripts/factories/price': {},
+        '*/cartridge/scripts/util/collections' : {},
+		'dw/util/StringUtils':{},
     });
 
     // global.customer = {};
@@ -174,7 +187,7 @@ describe('loggerHelper: app_ua_core/cartridge/scripts/util/loggerHelper test', (
         var result  = PriceHelper.getLocalizedPrice(amount);
         assert.equal(result.value, 10);
     });
-    
+
     // global.customer = {};
     it('Testing method: getLocalizedPrice ', () => {
         var Money = require('../../../mocks/dw/dw_value_Money');
@@ -184,7 +197,7 @@ describe('loggerHelper: app_ua_core/cartridge/scripts/util/loggerHelper test', (
         var result  = PriceHelper.getLocalizedPrice(amount);
         assert.equal(result.value, 10);
     });
-    
+
     // global.customer = {};
     it('Testing method: getLocalizedPrice ', () => {
         var amount;
@@ -203,7 +216,7 @@ describe('loggerHelper: app_ua_core/cartridge/scripts/util/loggerHelper test', (
         var result  = PriceHelper.getLocalizedPrice(amount);
         assert.notEqual(result, 10);
     });
-    
+
     it('Testing method: setSitesApplicablePriceBooks ', () => {
         var countryCode = 'SG';
         var countriesJSON = [{"countryCode":"SG","locales":["en_SG"],"currencyCode":"SGD","hostname":"development-ap01.ecm.underarmour.com.sg","priceBooks":["SGD-list","SGD-sale"],"countryDialingCode":"+65","regexp":"^[0-9]{8}$"},{"countryCode":"AU","locales":["en_AU"],"currencyCode":"AUD","hostname":"development-ap01.ecm.underarmour.com.au","priceBooks":["AUD-list","AUD-sale"]}];

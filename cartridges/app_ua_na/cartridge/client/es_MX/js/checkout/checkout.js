@@ -6,6 +6,8 @@ var availabilityHelper = require('org/checkout/availability');
 var summaryHelpers = require('org/checkout/summary');
 var formHelpers = require('org/checkout/formErrors');
 var scrollAnimate = require('org/components/scrollAnimate');
+var location = window.location;
+var history = window.history;
 var addressSuggestionHelpers = require('org/checkout/qasAddressSuggesstion');
 var clientSideValidation = require('org/components/common/clientSideValidation');
 var isAurusEnabled = $('.payment-information').attr('data-isaurusenabled') === 'true';
@@ -106,7 +108,13 @@ if (isAurusEnabled) {
                 stageLabel: checkoutStages[currentStage],
                 stageEnum: currentStage
             });
-            history.pushState(checkoutStages[currentStage], document.title, location.pathname + '?stage=' + checkoutStages[currentStage] + '#' + checkoutStages[currentStage]);
+            //eslint-disable-next-line
+            var isPayPal = new RegExp('[?&]isPayPal=true([^&]*)').exec(location.search);
+            if (isPayPal && currentStage === 2) {
+                history.pushState(checkoutStages[currentStage], document.title, location.pathname + '?stage=' + checkoutStages[currentStage] + '&isPayPal=true#' + checkoutStages[currentStage]);
+            } else {
+                history.pushState(checkoutStages[currentStage], document.title, location.pathname + '?stage=' + checkoutStages[currentStage] + '#' + checkoutStages[currentStage]);
+            }
         }
 
         //
@@ -199,6 +207,8 @@ if (isAurusEnabled) {
                                     }
                                 });
                             }
+                        } else {
+                            defer.reject();
                         }
                     } else {
                         $('#shippingAddressUseAsBillingAddress').val($('#shippingAsBilling').is(':checked'));
@@ -380,6 +390,8 @@ if (isAurusEnabled) {
                                     }
                                 });
                             }
+                        } else {
+                            defer.reject();
                         }
                     }
                     return defer;
@@ -441,6 +453,7 @@ if (isAurusEnabled) {
                                 success: function (data) {
                                     // enable the next:Place Order button here
                                     $('body').trigger('checkout:enableButton', '.next-step-button button');
+                                    $('.checkout-card-header').removeClass('pe-none');
                                     // look for field validation errors
                                     if (data.error) {
                                         if (data.fieldErrors.length) {
@@ -463,6 +476,8 @@ if (isAurusEnabled) {
                                 }
                             });
                         }
+                    } else {
+                        defer.reject();
                     }
 
                     if ($('.data-checkout-stage').data('customer-type') === 'registered') {
@@ -614,6 +629,8 @@ if (isAurusEnabled) {
                                         }
                                     }
                                 });
+                            } else {
+                                defer.reject();
                             }
                         }
                     }
@@ -660,6 +677,11 @@ if (isAurusEnabled) {
                 // set the initial state of checkout
                 members.currentStage = checkoutStages
                     .indexOf($('.data-checkout-stage').data('checkout-stage'));
+                // v6.3.0 has a new stage called 'customer' which is passed in by default during Checkout-Begin
+                // UA has not upgraded the extended cartridges from the upgrade yet.
+                if (members.currentStage < 0) {
+                    members.currentStage = 0;
+                }
                 $(plugin).attr('data-checkout-stage', checkoutStages[members.currentStage]);
 
                 // get iframe for Aurus alt payments
@@ -684,6 +706,7 @@ if (isAurusEnabled) {
                 //
                 $(plugin).on('click', '.next-step-button button, .checkout-card-header', function () {
                     $('.next-step-button button').attr('data-clicked', 'true');
+                    $('.checkout-card-header').addClass('pe-none');
                     members.nextStage();
                 });
 
@@ -868,10 +891,12 @@ if (isAurusEnabled) {
                     // Update UI with new stage
                     members.handleNextStage(true);
                     $('.next-step-button button').removeAttr('data-clicked');
+                    $('.checkout-card-header').removeClass('pe-none');
                 });
 
                 promise.fail(function (data) {
                     $('.next-step-button button').removeAttr('data-clicked');
+                    $('.checkout-card-header').removeClass('pe-none');
                     // show errors
                     if (data) {
                         if (data.errorStage) {
@@ -1137,19 +1162,36 @@ exports.placeOrderMethod = function () {
                         window.orderToken = data.orderToken;
                         adyenCheckout.actionHandler(data.adyenAction);
                     } else {
-                        var continueUrl = data.continueUrl;
-                        var urlParams = {
-                            ID: data.orderID,
-                            token: data.orderToken,
-                            order_checkout_optin: data.order_checkout_optin
-                        };
+                        // Changes due to SFRA cartridge upgrade!
+                        let redirect = $('<form>')
+                                .appendTo(document.body)
+                                .attr({
+                                    method: 'POST',
+                                    action: data.continueUrl
+                                });
+                        $('<input>')
+                        .appendTo(redirect)
+                        .attr({
+                            name: 'orderID',
+                            value: data.orderID,
+                            type: 'hidden'
+                        });
 
-                        continueUrl += (continueUrl.indexOf('?') !== -1 ? '&' : '?') +
-                            Object.keys(urlParams).map(function (key) {
-                                return key + '=' + encodeURIComponent(urlParams[key]);
-                            }).join('&');
-
-                        window.location.href = continueUrl;
+                        $('<input>')
+                            .appendTo(redirect)
+                            .attr({
+                                name: 'orderToken',
+                                value: data.orderToken,
+                                type: 'hidden'
+                            });
+                        $('<input>')
+                            .appendTo(redirect)
+                            .attr({
+                                name: 'order_checkout_optin',
+                                value: data.order_checkout_optin,
+                                type: 'hidden'
+                            });
+                        redirect.trigger('submit');
                         defer.resolve(data);
                     }
                     $.spinner().stop();

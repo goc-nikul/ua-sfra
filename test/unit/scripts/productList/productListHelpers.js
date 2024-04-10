@@ -165,6 +165,24 @@ describe('app_ua_core/cartridge/scripts/productList/productListHelpers.js', () =
             assert.equal(pids, '');
         });
     });
+
+    describe('Testing method ==> getProductIdsArray', () => {
+        var pids;
+        it('should return productIds array when list of products passed', () => {
+            config.id = 'TEST123';
+            pids = productListHelpers.getProductIdsArray(Customer, config);
+            assert.isDefined(pids);
+            assert.isArray(pids);
+        });
+
+        it('should return empty array when an empty list is passed', () => {
+            config.id = '';
+            pids = productListHelpers.getProductIdsArray(Customer, config);
+            assert.isDefined(pids);
+            assert.isArray(pids);
+        });
+    });
+
     describe('Testting method ==> addItem', () => {
         config.qty = 2;
         var result;

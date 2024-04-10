@@ -17,6 +17,7 @@ describe('int_ocapi/cartridge/hooks/shop/basket/basket_hook_scripts.js', () => {
         'dw/web/Resource': require('../../../../../mocks/dw/dw_web_Resource'),
         'dw/system/Site': require('../../../../../mocks/dw/dw_system_Site'),
         'dw/system/Logger': require('../../../../../mocks/dw/dw_system_Logger'),
+        'dw/campaign/PromotionMgr': require('../../../../../mocks/dw/dw_campaign_PromotionMgr'),
         '~/cartridge/scripts/basketHelper': {
             updateResponse: () => 'updateResponse',
             updateShippingAddressToGiftCardShipment: () => '',
@@ -29,11 +30,7 @@ describe('int_ocapi/cartridge/hooks/shop/basket/basket_hook_scripts.js', () => {
             updateShippingEstimatedDeliveryDate: () => '',
             isShippingAddressValid: shippingAddressValidStub
         },
-        '*/cartridge/scripts/util/collections': {
-            forEach: (array, callback) => {
-                callback(array.get(0));
-            }
-        },
+        '*/cartridge/scripts/util/collections': require('../../../../../mocks/util/collections'),
         '*/cartridge/scripts/giftcard/giftcardHelper': {
             updateGiftCardShipments: () => ''
         },
@@ -85,11 +82,12 @@ describe('int_ocapi/cartridge/hooks/shop/basket/basket_hook_scripts.js', () => {
             replaceDummyGiftLineItem: replaceDummyGiftLineItemStub,
             updatePaypalTokenExpirationTime: () => '',
             updateShippingEstimatedDeliveryDate: () => '',
-            isShippingAddressValid: shippingAddressValidStub
+            isShippingAddressValid: shippingAddressValidStub,
+            reapplyIDMeToSessionForCurrentCustomer: () => ''
         },
         '*/cartridge/scripts/checkout/shippingHelpers': {
             getApplicableShippingMethods: function () {
-                return [{ id: 'test1' }];
+                return [{ ID: 'test1' }];
             }
         }
     });
@@ -191,13 +189,44 @@ describe('int_ocapi/cartridge/hooks/shop/basket/basket_hook_scripts.js', () => {
         basketHookScripts.afterDELETE(basket);
     });
 
-    it('Testing method: modifyGETResponse_v2', () => {
-        var ArrayList = require('../../../../../mocks/scripts/util/dw.util.Collection');
+    it('Testing method: modifyGETResponse_v2 does not throw error and keeps price', () => {
         var shipment = new (require('../../../../../mocks/dw/dw_order_Shipment'))();
-        assert.doesNotThrow(() => basketHookScripts.modifyGETResponse_v2(shipment, {
-            applicable_shipping_methods: new ArrayList([{ id: 'test1' }]),
+        var shipmentResult = {
+            applicable_shipping_methods: [{ id: 'test1', price: 4.99 }],
             default_shipping_method_id: 'test1'
-        }));
+        }
+        assert.doesNotThrow(() => basketHookScripts.modifyGETResponse_v2(shipment, shipmentResult));
+        assert.equal(shipmentResult.applicable_shipping_methods[0].price, 4.99);
+    });
+
+    it('Testing method: modifyGETResponse_v2 sets price to 0 for valid promotion', () => {
+        var shipment = new (require('../../../../../mocks/dw/dw_order_Shipment'))();
+        var shipmentResult = {
+            applicable_shipping_methods: [{ id: 'test1', shipping_promotions:[{promotionId: 'FREESHIPPING'}], c_showFreeOnShippingButton: true, price: 4.99 }],
+            default_shipping_method_id: 'test1',
+        };
+        assert.doesNotThrow(() => basketHookScripts.modifyGETResponse_v2(shipment, shipmentResult));
+        assert.equal(shipmentResult.applicable_shipping_methods[0].price, 0);
+    });
+
+    it('Testing method: modifyGETResponse_v2 keeps price when showFreeOnShippingButton is false', () => {
+        var shipment = new (require('../../../../../mocks/dw/dw_order_Shipment'))();
+        var shipmentResult = {
+            applicable_shipping_methods: [{ id: 'test1', shipping_promotions:[{promotionId: 'FREESHIPPING'}], c_showFreeOnShippingButton: false, price: 4.99 }],
+            default_shipping_method_id: 'test1',
+        };
+        assert.doesNotThrow(() => basketHookScripts.modifyGETResponse_v2(shipment, shipmentResult));
+        assert.equal(shipmentResult.applicable_shipping_methods[0].price, 4.99);
+    });
+
+    it('Testing method: modifyGETResponse_v2 ignores other promotions and keeps price', () => {
+        var shipment = new (require('../../../../../mocks/dw/dw_order_Shipment'))();
+        var shipmentResult = {
+            applicable_shipping_methods: [{ id: 'test1', shipping_promotions:[{promotionId: 'NOTFREESHIPPING'}], c_showFreeOnShippingButton: true, price: 4.99 }],
+            default_shipping_method_id: 'test1',
+        };
+        assert.doesNotThrow(() => basketHookScripts.modifyGETResponse_v2(shipment, shipmentResult));
+        assert.equal(shipmentResult.applicable_shipping_methods[0].price, 4.99);
     });
 
     it('Testing method: beforePUT', () => {

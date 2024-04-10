@@ -68,40 +68,56 @@ server.get(
         var error = false;
         var order;
         var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
+        var Site = require('dw/system/Site');
+        var orderInfoLogger = require('dw/system/Logger').getLogger('orderInfo', 'orderInfo');
 
         try {
             order = OrderMgr.getOrder(orderNo);
             if (order && parseFloat(amount) === order.getTotalGrossPrice().value) {
-                Transaction.wrap(() => {
-                    order.custom.tossPaymentsKey = paymentKey;
-                    var tossPaymentService = require('*/cartridge/scripts/service/tossPaymentService').paymentService;
-                    // call Payment Approval API
-                    tossPaymentService.call({
-                        orderId: orderNo,
-                        amount: amount,
-                        paymentKey: paymentKey
-                    });
-                    var httpClient = tossPaymentService.getClient();
-                    if (httpClient.statusCode === 200) {
-                        var responseObject = JSON.parse(httpClient.getText());
-                        tossPaymentHelpers.updateOrderJSON(order, httpClient.getText());
-                        order.custom.tossPaymentsStatus = responseObject.status;
-                        order.custom.tossPaymentsSecret = responseObject.secret;
-                        tossPaymentHelpers.saveTransactionID(order, paymentKey);
-
-                        if (tossPaymentConstants.PAYMENT_STATUS.DONE.equalsIgnoreCase(responseObject.status)) {
-                            var placeOrderResult = COHelpers.placeOrder(order);
-                            if (!placeOrderResult.error) {
-                                tossPaymentHelpers.confirmOrder(order);
-                            } else {
-                                error = true;
-                            }
-                        }
-                    } else {
-                        Logger.error('Toss Payments - Failed to place order - ' + httpClient.statusCode + httpClient.errorText);
-                        error = true;
-                    }
+                Transaction.begin();
+                order.custom.tossPaymentsKey = paymentKey;
+                var tossPaymentService = require('*/cartridge/scripts/service/tossPaymentService').paymentService;
+                // call Payment Approval API
+                tossPaymentService.call({
+                    orderId: orderNo,
+                    amount: amount,
+                    paymentKey: paymentKey
                 });
+                var httpClient = tossPaymentService.getClient();
+                if (httpClient.statusCode === 200) {
+                    var responseObject = JSON.parse(httpClient.getText());
+                    tossPaymentHelpers.updateOrderJSON(order, httpClient.getText());
+                    order.custom.tossPaymentsStatus = responseObject.status;
+                    order.custom.tossPaymentsSecret = responseObject.secret;
+                    tossPaymentHelpers.saveTransactionID(order, paymentKey);
+
+                    var totalPayAmount = order.getTotalGrossPrice().value;
+                    var Order = require('dw/order/Order');
+                    if (order.status.value === Order.ORDER_STATUS_FAILED) {
+                        // If order is already failed, cancel the payment and redirect customer to checkout with error message
+                        tossPaymentHelpers.cancelPayment(order, totalPayAmount, totalPayAmount, '');
+                        // log the order details for dataDog.
+                        if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+                            orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+                        }
+                        var errorMessage = Resource.msg('subheading.error.general', 'error', null);
+                        res.redirect(URLUtils.https('Checkout-Begin', 'stage', 'payment', 'paymentError', errorMessage).toString());
+                        return next();
+                    }
+
+                    if (tossPaymentConstants.PAYMENT_STATUS.DONE.equalsIgnoreCase(responseObject.status)) {
+                        var placeOrderResult = COHelpers.placeOrder(order);
+                        if (!placeOrderResult.error) {
+                            tossPaymentHelpers.confirmOrder(order);
+                        } else {
+                            error = true;
+                        }
+                    }
+                } else {
+                    Logger.error('Toss Payments - Failed to place order - ' + httpClient.statusCode + httpClient.errorText);
+                    error = true;
+                }
+                Transaction.commit();
             } else {
                 Logger.error('Toss Payments - Failed to place order - amount mismatch');
                 error = true;
@@ -114,10 +130,17 @@ server.get(
             Transaction.wrap(() => {
                 OrderMgr.failOrder(order, true);
             });
+            // log the order details for dataDog.
+            if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+                orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+            }
             var message = Resource.msg('subheading.error.general', 'error', null);
             res.redirect(URLUtils.https('Checkout-Begin', 'stage', 'payment', 'paymentError', message).toString());
         } else {
-            var Site = require('dw/system/Site');
+            // log the order details for dataDog.
+            if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+                orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+            }
             if (Site.getCurrent().getCustomPreferenceValue('isSetOrderConfirmationEmailStatusForJob')) {
                 Transaction.wrap(() => {
                     order.custom.orderConfirmationEmailStatus = 'READY_FOR_PROCESSING'; // eslint-disable-line no-undef
@@ -125,7 +148,14 @@ server.get(
             } else {
                 COHelpers.sendConfirmationEmail(order, order.customerLocaleID);
             }
-            res.redirect(URLUtils.url('Order-Confirm', 'ID', orderNo, 'token', order.orderToken));
+            if (Site.getCurrent().getCustomPreferenceValue('tossPayments_SFRA6_Compatibility')) {
+                res.render('orderConfirmForm', {
+                    orderID: orderNo,
+                    orderToken: order.orderToken
+                });
+            } else {
+                res.redirect(URLUtils.url('Order-Confirm', 'ID', orderNo, 'token', order.orderToken));
+            }
         }
         return next();
     }
@@ -140,6 +170,9 @@ server.get(
         var message = httpParameterMap.message.stringValue;
         var URLUtils = require('dw/web/URLUtils');
         var order = OrderMgr.getOrder(orderId);
+        var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
+        var Site = require('dw/system/Site');
+        var orderInfoLogger = require('dw/system/Logger').getLogger('orderInfo', 'orderInfo');
 
         if (Resource.msg('toss.message.error.' + message.toLowerCase(), 'tosspayments', '') !== '') {
             message = Resource.msg('toss.message.error.' + message.toLowerCase(), 'tosspayments', '');
@@ -148,6 +181,10 @@ server.get(
         Transaction.wrap(() => {
             OrderMgr.failOrder(order, true);
         });
+        // log the order details for dataDog.
+        if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+            orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+        }
         res.redirect(URLUtils.https('Checkout-Begin', 'stage', 'payment', 'paymentError', message).toString());
         next();
     }

@@ -1,0 +1,79 @@
+.g-adyen3ds-verification {
+    pointer-events: none;
+
+    &-modal {
+        overflow: auto;
+    }
+
+    &-modal-dialog {
+        max-width: rem-calc(448);
+        margin: rem-calc(40) auto;
+        min-height: calc(100% - (2.5rem * 2));
+        text-align: center;
+
+        @include respond-to(phones) {
+            max-width: 92%;
+            width: 100%;
+        }
+    }
+
+    &-modal-content {
+        padding: 0;
+        border-radius: rem-calc(4);
+        align-items: end;
+
+        @include respond-to(phones-portrait) {
+            align-items: normal;
+        }
+    }
+
+    &-modal-header {
+        margin: 0;
+
+        .g-modal-close {
+            box-shadow: none !important;
+            position: absolute;
+            top: rem-calc(-14);
+            right: rem-calc(-8);
+            border-radius: 50%;
+
+            .g-modal-close-button {
+                width: rem-calc(40);
+                height: rem-calc(40);
+                background-color: $red;
+                border-radius: 50%;
+
+                &::after,
+                &::before {
+                    background-color: $white;
+                    height: rem-calc(2);
+                    top: 50%;
+                    left: 50%;
+                    width: rem-calc(20);
+                    border-radius: rem-calc(2);
+                }
+
+                &::before {
+                    transform: translate(-50%, -50%) rotate(45deg);
+                }
+
+                &::after {
+                    transform: translate(-50%, -50%) rotate(135deg);
+                }
+            }
+        }
+    }
+}
+
+#action-container {
+    @include respond-to(phones-portrait) {
+        .adyen-checkout__threeds2__challenge {
+            width: 100% !important;
+        }
+
+        iframe {
+            width: 100% !important;
+            overflow: scroll !important;
+        }
+    }
+}

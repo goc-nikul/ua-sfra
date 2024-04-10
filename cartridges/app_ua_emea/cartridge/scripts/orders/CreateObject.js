@@ -74,6 +74,8 @@ function createObj(order, retCase, exportStatus) {
         retObj.custom.dwOrderNo = order.getOrderNo();
         retObj.custom.trackingNumber = retCase.custom.trackingNumber;
         retObj.custom.consignmentId = retCase.custom.consignmentId;
+        retObj.custom.returnShipmentProvider = retCase.custom.returnShipmentProvider;
+        retObj.custom.trackingLink = retCase.custom.trackingLink;
         if (!holdExport) {
             retObj.custom.readyToExport = true;
         }

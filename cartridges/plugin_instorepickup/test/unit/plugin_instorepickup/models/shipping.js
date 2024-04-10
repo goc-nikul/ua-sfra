@@ -8,10 +8,10 @@ var baseShippingMock = require('../../../mocks/models/baseShipping');
 var collections = require('../../../mocks/util/collections');
 var URLUtils = {
     url: function (endPoint, param1, value1, param2, value2, param3, value3) {
-        return endPoint + '?' +
-            param1 + '=' + value1 + '&' +
-            param2 + '=' + value2 + '&' +
-            param3 + '=' + value3;
+        return endPoint + '?'
+            + param1 + '=' + value1 + '&'
+            + param2 + '=' + value2 + '&'
+            + param3 + '=' + value3;
     }
 };
 

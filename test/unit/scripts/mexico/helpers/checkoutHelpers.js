@@ -407,4 +407,46 @@ describe('app_ua_na/cartridge/scripts/checkout/checkoutHelpers test', () => {
             assert.isString(result.regimenFiscalMapJSON, 'Cached getMxTaxMap returns an object with string parameter regimenFiscalMapJSON');
         }
     });
+
+    it('Testing method: saveOxxoDetails', () => {
+        var checkoutHelpers = proxyquire('../../../../../cartridges/app_ua_mx/cartridge/scripts/checkout/checkoutHelpers', {
+            'dw/util/Calendar': require('../../../../mocks/dw/dw_util_Calendar'),
+            'dw/value/Money': require('../../../../mocks/dw/dw_value_Money'),
+            'dw/order/BasketMgr': require('../../../../mocks/dw/dw_order_BasketMgr'),
+            'dw/order/Order': require('../../../../mocks/dw/dw_order_Order'),
+            'dw/web/Resource': require('../../../../mocks/dw/dw_web_Resource'),
+            'dw/system/Site': require('../../../../mocks/dw/dw_system_Site'),
+            'dw/util/StringUtils': require('../../../../mocks/dw/dw_util_StringUtils'),
+            'dw/system/Transaction': require('../../../../mocks/dw/dw_system_Transaction'),
+            'app_ua_core/cartridge/scripts/checkout/checkoutHelpers': {},
+            'app_storefront_base/cartridge/scripts/checkout/checkoutHelpers': {}
+        });
+
+        var order = {
+            custom: {}
+        };
+
+        var oxxoDetailsResponse = {
+            "alternativeReference": "10000000021779",
+            "downloadUrl": "https://test.adyen.com/",
+            "expiresAt": "2023-03-27T00:00:00",
+            "initialAmount": {
+                "currency": "MXN",
+                "value": 99800
+            },
+            "instructionsUrl": "https://checkoutshopper-test.adyen.com/",
+            "merchantName": "UnderArmourMX",
+            "merchantReference": "orderNo",
+            "reference": "1111111",
+            "shopperEmail": "some@email.com",
+            "shopperName": "Name",
+            "totalAmount": {
+                "currency": "MXN",
+                "value": 99800
+            },
+            "type": "voucher"
+        }
+
+        assert.isUndefined(checkoutHelpers.saveOxxoDetails(order, oxxoDetailsResponse), 'saveOxxoDetails function finished without errors');
+    });
 });

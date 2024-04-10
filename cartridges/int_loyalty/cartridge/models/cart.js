@@ -10,7 +10,7 @@ var base = module.superModule;
 function CartModel(basket) {
     base.call(this, basket);
 
-    if ('loyaltyPointsBalance' in basket.custom) {
+    if (basket && 'custom' in basket && 'loyaltyPointsBalance' in basket.custom) {
         this.loyaltyPointsBalance = basket.custom.loyaltyPointsBalance;
     }
     const PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');

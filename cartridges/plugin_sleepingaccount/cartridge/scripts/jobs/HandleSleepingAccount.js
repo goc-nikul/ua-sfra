@@ -1,14 +1,28 @@
 /**
  * This module provides often-needed helper methods for sending responses.
- *
- * @module account/HandleSleepingAccount
- */
+*
+* @module account/HandleSleepingAccount
+*/
 
 'use strict';
 
 // Helpers
 var Transaction = require('dw/system/Transaction');
 var Calendar = require('dw/util/Calendar');
+
+/**
+ *
+ * @param {string} profile profile
+ */
+function createUnsubscribeListCustomObject(profile) {
+    // Sleeping Customer Emails for unsubscribing Newsletter
+    var CustomObjectMgr = require('dw/object/CustomObjectMgr');
+    var customerEmail = profile.email;
+    var objectEmail = CustomObjectMgr.getCustomObject('SleepingAccountEmails', customerEmail);
+    if (empty(objectEmail)) {
+        CustomObjectMgr.createCustomObject('SleepingAccountEmails', customerEmail);
+    }
+}
 
 /**
  * Function to handle sleeping accounts
@@ -25,7 +39,7 @@ function handleSleepingAccount(params) {
     Logger.getLogger('SleepingDeleting', 'SleepingAccount').info('Starting scan sleeping account');
     var query = '(custom.isSleptAccount = {0} OR custom.isSleptAccount != {1}) AND lastLoginTime < {2}';
 
-    CustomerMgr.processProfiles(function (profile) {
+    var handleProcessProfiles = function (profile) {
         var sleepingCutoffCal = new Calendar();
         try {
             sleepingCutoffCal.add(Calendar.DAY_OF_YEAR, parseInt(params.sleepingAccountCutoffDays) * -1); // eslint-disable-line radix
@@ -36,6 +50,7 @@ function handleSleepingAccount(params) {
                     if (profile.custom.isSleptAccount !== true) {
                         profile.custom.isSleptAccount = true;   // eslint-disable-line no-param-reassign
                         profile.custom.smsOptIn = false; // eslint-disable-line no-param-reassign
+                        createUnsubscribeListCustomObject(profile);
                     }
                 });
 
@@ -61,7 +76,14 @@ function handleSleepingAccount(params) {
             var err = error;
             Logger.getLogger('SleepingDeleting', 'SleepingAccount').error(err);
         }
-    }, query, null, true, notificationDate);
+    };
+
+    if (!empty(params.emailId)) {
+        query = '(custom.isSleptAccount = {0} OR custom.isSleptAccount != {1}) AND lastLoginTime < {2} AND email = {3}';
+        CustomerMgr.processProfiles(handleProcessProfiles, query, null, true, notificationDate, params.emailId);
+    } else {
+        CustomerMgr.processProfiles(handleProcessProfiles, query, null, true, notificationDate);
+    }
 
     Logger.getLogger('SleepingDeleting', 'SleepingAccount').info('Processed sleeping account(s) successfully');
     return true;

@@ -344,7 +344,8 @@ export default class BonusProductModal extends Modal {
             removeBonusProduct: '.selected-pid',
             showMoreBonusProducts: '.show-more-bonus-products',
             colorAttribute: '[data-attr-variation="color"] button',
-            selectAttribute: 'select[class*="selectvariation-"], .options-select'
+            selectAttribute: 'select[class*="selectvariation-"], .options-select',
+            selectBonusQuantity: 'select.bonus-quantity-select'
         };
     }
 
@@ -363,6 +364,7 @@ export default class BonusProductModal extends Modal {
         this.eventDelegate('click', this.selectors.showMoreBonusProducts, this.showMoreBonusProducts.bind(this), this.$target);
         this.eventDelegate('click', this.selectors.colorAttribute, this.colorAttribute.bind(this), this.$target);
         this.eventDelegate('change', this.selectors.selectAttribute, this.selectAttribute.bind(this), this.$target);
+        this.eventDelegate('change', this.selectors.selectBonusQuantity, this.selectBonusQuantity.bind(this), this.$target);
     }
 
     parseHtml(html) {
@@ -383,7 +385,7 @@ export default class BonusProductModal extends Modal {
         $(targetIdSelector + ' .modal-body').html(parsedHtml.body);
         $(targetIdSelector + ' .modal-footer').html(parsedHtml.footer);
         $(targetIdSelector).modal('show');
-
+        $('.select-bonus-product').attr('data-url', data.removeProductUrl);
         $.spinner().stop();
     }
 
@@ -427,6 +429,17 @@ export default class BonusProductModal extends Modal {
             if ($productContainer.length) {
                 $productContainer = $(this).closest('.product-detail');
                 attributeSelect(e.currentTarget.value, $productContainer);
+            }
+        });
+    }
+
+    selectBonusQuantity() {
+        $(document).off('change').on('change', 'select.bonus-quantity-select', function (e) {
+            e.preventDefault();
+            if ($(this).val() > $('#bonusProduct').data('maxpids')) {
+                $('.bonus-product-btn .select-bonus-product').attr('disabled', true);
+            } else {
+                $('.bonus-product-btn .select-bonus-product').attr('disabled', false);
             }
         });
     }
@@ -481,12 +494,14 @@ export default class BonusProductModal extends Modal {
             success: function (data) {
                 $.spinner().stop();
                 if (data.error) {
+                    if ($('.add-to-cart-messages').length === 0) {
+                        $('body').append('<div class="alert bonus-error-text add-to-cart-messages" role="alert"></div>');
+                    }
                     $('.error-choice-of-bonus-products')
                         .html(data.errorMessage);
                 } else {
                     $('.configure-bonus-product-attributes').html(data);
                     $('.bonus-products-step2').removeClass('hidden-xl-down');
-                    this.$target.modal('hide');
 
                     if ($('.add-to-cart-messages').length === 0) {
                         $('body').append(
@@ -495,8 +510,7 @@ export default class BonusProductModal extends Modal {
                     }
                     $('.minicart-quantity').html(data.totalQty);
                     $('.add-to-cart-messages').append(
-                        `<div class="alert alert-success add-to-basket-alert text-center"
-                         role="alert">${data.msgSuccess}</div>`
+                        `<div class="alert alert-success add-to-basket-alert text-center bonus-error-text add-to-cart-messages" role="alert">${data.msgSuccess}</div>`
                     );
                     if ($('.card-product-info').hasClass('bonus-product-line-item') && $('.b-cart-content_left').length) {
                         location.reload();
@@ -504,6 +518,7 @@ export default class BonusProductModal extends Modal {
 
                     $('.add-to-basket-alert').remove();
                     if ($('.cart-page').length) {
+                        this.$target.modal('hide');
                         location.reload();
                     }
                 }
@@ -521,6 +536,7 @@ export default class BonusProductModal extends Modal {
         var maxPids = $('.choose-bonus-product-dialog').data('total-qty');
         var submittedQty = parseInt($clickedElement.parents('.choice-of-bonus-product').find('.bonus-quantity-select').val(), 10);
         var totalQty = 0;
+        var removeButtonUrl = $clickedElement.data('remove-icon-url');
         $.each($(`#${this.targetID} .selected-bonus-products .selected-pid`), function () {
             totalQty += $(this).data('qty');
         });
@@ -528,18 +544,18 @@ export default class BonusProductModal extends Modal {
         var optionID = $clickedElement.parents('.choice-of-bonus-product').find('.product-option').data('option-id');
         var valueId = $clickedElement.parents('.choice-of-bonus-product').find('.options-select option:selected').data('valueId');
         if (totalQty <= maxPids) {
-            var selectedBonusProductHtml = `
-            <div class="selected-pid row"
+            var selectedBonusProductHtml = `<div class="selected-bonus-product-container">
+            <div class="selected-pid"
             data-pid="${pid}"
             data-qty="${submittedQty}"
             data-optionID="${optionID || ''}"
-            data-option-selected-value="${valueId || ''}"
-            >
-            <div class="col-sm-11 col-9 bonus-product-name" >
-            ${$choiceOfBonusProduct.find('.product-name').html()}
+            data-option-selected-value="${valueId || ''}">
+                <img src="${removeButtonUrl}" alt="remove-bonus-product"/>
             </div>
-            <div class="col-1"><i class="fa fa-times" aria-hidden="true"></i></div>
-            </div>`
+            <div class="col-sm-11 col-9 bonus-product-name" >
+                ${$choiceOfBonusProduct.find('.product-name').html()}
+            </div>
+            <div class="col-1"><i class="fa fa-times" aria-hidden="true"></i></div></div>`
             ;
             $(`#${this.targetID} .selected-bonus-products`).append(selectedBonusProductHtml);
             $('.pre-cart-products').html(totalQty);
@@ -550,15 +566,17 @@ export default class BonusProductModal extends Modal {
     }
 
     removeBonusProduct(event) {
-        $(event.target).closest(this.selectors.removeBonusProduct).remove();
-        var $selected = $(`${this.selectors.chooseBonusProductModal} .selected-bonus-products ${this.selectors.removeBonusProduct}`);
+        $(event.target).closest(this.selectors.removeBonusProduct).parent().remove();
+        var $selected = $(`#${this.targetID} .selected-bonus-products ${this.selectors.removeBonusProduct}`);
         var count = 0;
         if ($selected.length) {
             $selected.each(function () {
                 count += parseInt($(this).data('qty'), 10);
             });
         }
-
+        if ($('button.select-bonus-product').data('product-availability')) {
+            $('button.select-bonus-product').attr('disabled', false);
+        }
         $('.pre-cart-products').html(count);
         $('.selected-bonus-products .bonus-summary').removeClass('alert-danger');
     }

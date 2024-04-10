@@ -21,15 +21,15 @@
        }
     </isscript>
 
-    <isif condition="${pdict.productSearch.isCategorySearch}">
-        <div class="b-sort js-cmp-inited js-cmp-sortMobile" data-cmp="sortMobile">
-            <label for="sort-order" class="b-sort-label js-sort-label js-categories-label">${displayName}</label>
-            <isif condition="${!hasHideSubCategoriesInCategoryMenu}">
+    <isif condition="${!hasHideSubCategoriesInCategoryMenu}">
+        <isif condition="${pdict.productSearch.isCategorySearch}">
+            <div class="b-sort js-cmp-inited js-cmp-sortMobile" data-cmp="sortMobile">
+                <label for="sort-order" class="b-sort-label js-sort-label js-categories-label">${displayName}</label>
                 <div class="b-sort-content js-mob_sort js-categories-content">
                     <isinclude template="search/refinements/categories" />
                 </div>
-            </isif>
-        </div>
+            </div>
+        </isif>
     </isif>
 
     <button class="b-mob_header-filter js-open-filter">

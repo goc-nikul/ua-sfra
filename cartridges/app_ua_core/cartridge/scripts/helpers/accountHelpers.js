@@ -627,6 +627,27 @@ function getPasswordRequirements() {
     return result;
 }
 
+/**
+ * Deletes UA/IDM cookies to complete logout
+ */
+function deleteIDMCookies() {
+    var cookieHelper = require('*/cartridge/scripts/helpers/cookieHelpers');
+    var idmID = cookieHelper.read('UAExternalID');
+    var sizePreferences = cookieHelper.read('UAExternalSizePreferences0');
+    if (idmID !== undefined || sizePreferences !== undefined) {
+        for (var i = 0; i < i + 1; i++) {
+            var uaExternalSizePreferences = cookieHelper.read('UAExternalSizePreferences' + i);
+            if (uaExternalSizePreferences !== undefined) {
+                cookieHelper.deleteCookie('UAExternalSizePreferences' + i);
+            } else {
+                break;
+            }
+        }
+        cookieHelper.deleteCookie('UAExternalID');
+        cookieHelper.deleteCookie('UAActiveSession');
+    }
+}
+
 
 module.exports = base;
 module.exports.getLoginRedirectURL = getLoginRedirectURL;
@@ -649,3 +670,4 @@ module.exports.getPreferences = getPreferences;
 module.exports.updateProfileObj = updateProfileObj;
 module.exports.getCardType = getCardType;
 module.exports.getPasswordRequirements = getPasswordRequirements;
+module.exports.deleteIDMCookies = deleteIDMCookies;

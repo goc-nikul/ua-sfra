@@ -1,0 +1,36 @@
+name: Post Deployment Steps
+run-name: ${{ github.actor }} has triggered the ${{ github.event.inputs.releaseType }} post deployment Jira status update for release ${{ github.event.inputs.releaseVersion }}
+on:
+  workflow_dispatch:
+    inputs:
+      releaseVersion:
+        description: Release version
+        required: true
+      releaseType:
+            type: choice
+            description: Choose Staging or Production release type.
+            options:
+            - Staging
+            - Production
+      projectIds:
+        description: Project Ids separated by comma.
+        required: true
+        default: EPMD,AGLA,CSVT,LOYAL,MGP,OMS,OA,FALX,SFMC,AECOM
+jobs:
+  update-ticket-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: echo "Inputs - ${{ github.event.inputs.releaseVersion }} - ${{ github.event.inputs.projectIds }} - ${{ github.event.inputs.releaseType }}"
+      - run: cd build_tools/release && npm install && npm list
+      - name: Update ticket status to Staging
+        if: ${{ contains('Staging', github.event.inputs.releaseType) }}
+        env:
+          TRIGGER_ACTOR: ${{ github.actor }}
+        run: cd build_tools/release && node index.js staging -v ${{ github.event.inputs.releaseVersion }} -d ${{ vars.JIRA_DOMAIN }} -u ${{ vars.JIRA_USERNAME }} -p ${{ secrets.JIRA_PASSWORD }} -k ${{ github.event.inputs.projectIds }}
+      - name: Update ticket status to Production
+        if: ${{ contains('Production', github.event.inputs.releaseType) }}
+        env:
+          TRIGGER_ACTOR: ${{ github.actor }}
+        run: cd build_tools/release && node index.js production -v ${{ github.event.inputs.releaseVersion }} -d ${{ vars.JIRA_DOMAIN }} -u ${{ vars.JIRA_USERNAME }} -p ${{ secrets.JIRA_PASSWORD }} -k ${{ github.event.inputs.projectIds }}

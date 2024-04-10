@@ -13,7 +13,6 @@ var ContentMgr = require('dw/content/ContentMgr');
 var productHookUtils = require('./productHookUtils');
 var Currency = require('dw/util/Currency');
 
-
 exports.modifyGETResponse = function (Product, productResponse) {
     /**
      * Changes Related to Features/Benefits Icons Values Display
@@ -67,6 +66,12 @@ exports.modifyGETResponse = function (Product, productResponse) {
         productResponse.c_productTileUpperLeftFlameIconBadgeDisplayValue = productTileUpperLeftFlameIconBadge.displayValue; // eslint-disable-line
     }
 
+    if (promotions) {
+        var productPromotions = productHookUtils.mapProductPromotions(promotions);
+        productResponse.c_productPromotions = productPromotions; // eslint-disable-line
+    }
+
+    // TODO: need to look into why this block returns early as it seems to prevent future code from being run
     if (productResponse && productResponse.type && !productResponse.type.master && productResponse.type.variant) {
         if (promotionPrice && promotionPrice.value && !isNaN(promotionPrice.value) && productResponse.price > promotionPrice.value) {
             var listPrice = productUtils.getPriceByPricebook(Product, currencyCode, 'list');
@@ -84,6 +89,11 @@ exports.modifyGETResponse = function (Product, productResponse) {
     if (promotionPrice && promotionPrice.value && !isNaN(promotionPrice.value) && AllPriceRanges.minSalePrice.value > promotionPrice.value) {
         AllPriceRanges.minSalePrice = promotionPrice;
         AllPriceRanges.maxSalePrice = promotionPrice;
+    }
+
+    // grab product pageMetaTags regardless of product type, will loop through variants as well
+    if (!empty(productItem) && productItem.pageMetaTags && productItem.pageMetaTags.length > 0) {
+        productResponse.c_pageMetaTags = productHookUtils.mapAndFormatTags(productItem.pageMetaTags); // eslint-disable-line
     }
 
     if (Product.master && Product.priceModel.isPriceRange()) {
@@ -108,6 +118,12 @@ exports.modifyGETResponse = function (Product, productResponse) {
             }
         }
 
+        if (!productItem.isMaster()) {
+            const category = productItem.getMasterProduct().getPrimaryCategory();
+            productResponse.c_masterCategoryId = category ? category.ID : null; // eslint-disable-line
+            productResponse.c_masterCategoryExperienceType = category && category.custom && category.custom.experienceType ? category.custom.experienceType.value : null; // eslint-disable-line
+        }
+
         var StandardPrice = productUtils.getPriceByPricebook(Product, currencyCode, 'list');
         var SalesPrice = productUtils.getPriceByPricebook(Product, currencyCode, 'sale');
         if (promotionPrice && promotionPrice.value && !isNaN(promotionPrice.value) && SalesPrice.value > promotionPrice.value) {
@@ -119,6 +135,10 @@ exports.modifyGETResponse = function (Product, productResponse) {
             prices.put(listPriceBookID, StandardPrice.value);
             prices.put(salePriceBookID, SalesPrice.value);
         }
+    }
+
+    if (productItem && !empty(productItem) && productItem.isMaster() && productItem.variants && productItem.variants.length > 0) {
+        productResponse.c_variantColors = productHookUtils.mapVariantColors(productItem.variants); // eslint-disable-line
     }
 
     if (promotionPrice && promotionPrice.value && !isNaN(promotionPrice.value) && Product.priceModel.minPrice.value > promotionPrice.value) {

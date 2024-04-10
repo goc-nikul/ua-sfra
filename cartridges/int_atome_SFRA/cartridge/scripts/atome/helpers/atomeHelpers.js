@@ -40,10 +40,10 @@ function getItems(productLineItems) {
         var itemObj = {
             itemId: item.productID,
             name: item.product.name,
-            price: item.adjustedGrossPrice * 100,
+            price: Math.round(item.adjustedGrossPrice * 100),
             quantity: item.quantity.value,
             variationName: item.product.name,
-            originalPrice: originalPrice * 100
+            originalPrice: Math.round(originalPrice * 100)
         };
         items.push(itemObj);
     }
@@ -90,12 +90,12 @@ function createOrderRequest(orderNo) {
         amount = order.getTotalGrossPrice().value;
         originalAmount = originalPrice;
     } else if (order.getCurrencyCode() == 'SGD'||  order.getCurrencyCode() == 'MYR'||  order.getCurrencyCode() == 'HKD'|| order.getCurrencyCode() == 'THB'){
-        amount = order.getTotalGrossPrice().value * 100;
-        originalAmount = originalPrice * 100;
+        amount = Math.round(order.getTotalGrossPrice().value * 100);
+        originalAmount = Math.round(originalPrice * 100);
     }
     else{
-        amount = order.getTotalGrossPrice().value * 100;
-        originalAmount = originalPrice * 100;
+        amount = Math.round(order.getTotalGrossPrice().value * 100);
+        originalAmount = Math.round(originalPrice * 100);
     }
 
 
@@ -123,8 +123,8 @@ function createOrderRequest(orderNo) {
             lines: billingAddress,
             postCode: order.getBillingAddress().postalCode
         },
-        taxAmount: order.getTotalTax().value * 100,
-        shippingAmount: order.getShippingTotalPrice().value * 100,
+        taxAmount: Math.round(order.getTotalTax().value * 100),
+        shippingAmount: Math.round(order.getShippingTotalPrice().value * 100),
         originalAmount: originalAmount,
         items: getItems(order.getProductLineItems())
     };

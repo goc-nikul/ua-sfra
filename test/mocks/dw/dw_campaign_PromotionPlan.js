@@ -6,6 +6,19 @@ class PromotionPlan {
             ID: 'testID'
         }];
 
+        this.shippingPromotions = [{
+            ID: 'FREESHIPPING',
+            custom: {
+                isFreeShipping: true
+            }
+        },
+        {
+            ID: 'NOTFREESHIPPING',
+            custom: {
+                isFreeShipping: false
+            }
+        }]
+
         this.productPromotions = () => {
             var index = 0;
             return {
@@ -27,6 +40,10 @@ class PromotionPlan {
 
     getProductPromotions() {
         return this.productPromotions();
+    }
+
+    getShippingPromotions() {
+        return this.shippingPromotions();
     }
 }
 

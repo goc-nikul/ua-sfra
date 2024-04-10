@@ -69,6 +69,9 @@ server.append('UpdateShippingAddress', function (req, res, next) {
     var viewData = res.getViewData();
     var Transaction = require('dw/system/Transaction');
     var address = viewData.address;
+    if (!address) {
+        return next();
+    }
     var addressBook = customer.getProfile().getAddressBook();
     var customerAddress = addressBook.getAddress(address.ID);
     var showSplitPhoneMobileField = require('*/cartridge/config/preferences').isShowSplitPhoneMobileField;
@@ -130,7 +133,7 @@ server.append('UpdateShippingAddress', function (req, res, next) {
             address.phone3 = viewData.phone3;
         }
     }
-    next();
+    return next();
 });
 
 server.append('AddNewAddress', function (req, res, next) {

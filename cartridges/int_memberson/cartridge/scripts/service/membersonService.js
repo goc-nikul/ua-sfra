@@ -6,7 +6,8 @@ var Encoding = require('dw/crypto/Encoding');
 var Bytes = require('dw/util/Bytes');
 
 // Logger includes
-var LOGGER = dw.system.Logger.getLogger('UAMemberson', 'UAMemberson');
+var Logger = require('dw/system/Logger');
+var LOGGER = Logger.getLogger('UAMemberson', 'UAMemberson');
 
 // Helper Files
 var PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');

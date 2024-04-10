@@ -13,6 +13,16 @@
         background-color: $white;
     }
 
+    &-divider-emea {
+        @include respond-to(mobile) {
+            position: relative;
+        }
+
+        height: 1px;
+        border: 0;
+        background-color: $white;
+    }
+
     &-section_top,
     &-section_bottom {
         @include grid-container;
@@ -36,6 +46,13 @@
     &-inner {
         display: flex;
         height: 100%;
+
+        @include respond-to(desktop) {
+            --navbar-gap: 16px;
+
+            padding: 0 16px;
+            gap: var(--navbar-gap);
+        }
     }
 
     &-utility {
@@ -52,6 +69,8 @@
 
         @include respond-to(desktop) {
             justify-content: flex-end;
+            // min-width: 185px;
+            min-width: 221px;
         }
     }
 
@@ -77,30 +96,30 @@
         }
     }
 
-    &-logo,
-    &-utility {
-        display: flex;
-        align-items: center;
-
-        @include respond-to(desktop) {
-            @include grid-col(3);
-        }
-    }
-
     &-logo {
+        flex: 1;
+        min-width: 42px;
+
         @include respond-to(mobile) {
             flex: 1 1 auto;
             justify-content: center;
         }
     }
 
-    &-nav {
-        @include respond-to(desktop) {
-            @include grid-col(6);
+    &-logo,
+    &-utility {
+        $nav-utilityWidth: 280px;
+
+        display: flex;
+        align-items: center;
+        flex: 1;
+
+        @include respond-to(tablets-landscape) {
+            flex: 1 1 auto;
         }
 
-        @media screen and (min-width: 1000px) and (max-width: 1440px) {
-            padding-right: 5.75rem;
+        @include respond-to(desktop-large) {
+            flex: 1 1 calc(#{$nav-utilityWidth} - var(--navbar-gap, 0));
         }
     }
 }

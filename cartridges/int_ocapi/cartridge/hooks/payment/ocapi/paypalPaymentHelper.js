@@ -44,9 +44,13 @@ function updatePaymentInstrument(paymentInstrumentRequest) {
             var paymentInstrumentRequestObject = JSON.parse(paymentInstrumentRequest);
             paymentInstrumentRequestObject.amount = nonGiftCertificateAmount.value;
             var basketPaymentInstrumentRequest = paymentInstrumentRequestObject ? paymentInstrumentRequestObject.basket_payment_instrument_request : null;
-            if (basketPaymentInstrumentRequest && basketPaymentInstrumentRequest.c_paypalPayerID_s) {
+            if (basketPaymentInstrumentRequest && basketPaymentInstrumentRequest.c_paypalPayerID_s && basketPaymentInstrumentRequest.payment_method_id) {
                 var expressCheckoutToken = basketPaymentInstrumentRequest.c_paypalToken_s || null;
-                if (expressCheckoutToken) {
+                // Check paypal payment processor.
+                var PaymentMgr = require('dw/order/PaymentMgr');
+                var paymentMethodId = basketPaymentInstrumentRequest.payment_method_id;
+                var paymentProcessorId = PaymentMgr.getPaymentMethod(paymentMethodId).getPaymentProcessor().getID();
+                if (expressCheckoutToken && paymentProcessorId.toString().toUpperCase() === paymentMethodId.toString().toUpperCase()) {
                     var shippingAddressOverride = true;
                     var getExpressCheckoutDetailsResult = paypalApi.getExpressCheckoutDetails(expressCheckoutToken, basket.getCurrencyCode());
 
@@ -65,21 +69,71 @@ function updatePaymentInstrument(paymentInstrumentRequest) {
                         if (shippingAddressOverride) {
                             paypalHelper.updateShippingAddress(responseData, shippingAddress, 0);
                         }
-                     // Update shipping address type | PayPal express checkout flow
+
+                        // Update shipping address type | PayPal express checkout flow
+                        var defaultShipment = basket.getDefaultShipment();
+                        var shippingHelpers = require('app_ua_core/cartridge/scripts/checkout/shippingHelpers');
+                        var address = {};
+                        address.countryCode = shippingAddress.countryCode.value;
+                        address.stateCode = shippingAddress.stateCode;
+                        address.postalCode = shippingAddress.postalCode;
+                        address.city = shippingAddress.city;
+                        address.address1 = shippingAddress.address1;
+                        address.address2 = shippingAddress.address2;
+                        var applicableShippingMethods = shippingHelpers.getApplicableShippingMethods(defaultShipment, address);
+                        if (applicableShippingMethods.length > 0) {
+                            var isApplicableShippingMethod = false;
+                            if (defaultShipment.getShippingMethod()) {
+                                for (var i = 0; i < applicableShippingMethods.length; i++) {
+                                    if (defaultShipment.getShippingMethod().ID.equals(applicableShippingMethods[i].ID)) {
+                                        isApplicableShippingMethod = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            // set first applicable shipping method if the selected shipping method is not applicable or no shipping method is set to the shipment
+                            if (!isApplicableShippingMethod || !defaultShipment.getShippingMethod()) {
+                                Transaction.wrap(function () {
+                                    defaultShipment.setShippingMethod(applicableShippingMethods[0].raw);
+                                });
+                            }
+                        }
                         Transaction.wrap(function () {
                             if (shippingAddress && empty(shippingAddress.custom.addressType)) {
                                 require('*/cartridge/modules/providers').get('AddressType', shippingAddress).addressType();
                             }
                         });
                         if (prefs.PP_API_RequestBillingAddressFromPayPal && prefs.PP_API_BillingAddressOverride) {
-                            var billingAddress = basket.getBillingAddress();
+                            var billingAddress;
                             // added for ocapi paypal payment
-                            if (billingAddress == null) {
+                            // removing the address check because of EPMD-10977
+                            Transaction.wrap(function () {
+                                billingAddress = basket.createBillingAddress();
+                            });
+                            paypalHelper.updateBillingAddress(responseData, billingAddress);
+                        }
+
+                        // Restricting US address from Canada checkout
+                        // Validate Shipping/Billing address field
+                        var paymentInstrument = paypalHelper.getPaypalPaymentInstrument(basket);
+                        var isValidShipToAddress = shippingAddress ? paypalHelper.validateShippingAddress(shippingAddress) : false;
+                        var isValidBillToAddress = basket.getBillingAddress() ? paypalHelper.validateBillingAddress(basket.getBillingAddress()) : false;
+                        if (!isValidShipToAddress || !isValidBillToAddress) {
+                            var paypalAddressErrorMessage = !isValidShipToAddress ?
+                                dw.web.Resource.msg('paypal.error.code10736', 'locale', null) : dw.web.Resource.msg('paypal.error.billing', 'locale', null);
+
+                            if (!isValidShipToAddress && paymentInstrument) {
                                 Transaction.wrap(function () {
-                                    billingAddress = basket.createBillingAddress();
+                                    basket.removePaymentInstrument(paymentInstrument);
+                                    basket.custom.paypalAlreadyHandledPayerID = null;
+                                    basket.custom.paypalAlreadyHandledToken = null;
+                                    basket.custom.paypalAlreadyHandledEmail = null;
                                 });
                             }
-                            paypalHelper.updateBillingAddress(responseData, billingAddress);
+                            result.error = true;
+                            result.msg = paypalAddressErrorMessage;
+                            result.errorCode = 'InvalidAddress';
+                            return result;
                         }
                     }
                 }

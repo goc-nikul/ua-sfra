@@ -8,6 +8,7 @@ Template Notes:
   Quantity drop-down menu
 
 </iscomment>
+<isset name="isQuickAdd" value="${typeof isQuickAdd !== 'undefined' ? isQuickAdd : false}" scope="page" />
 <isscript>
     var lengthFlag = false;
     var attrs = pdict.product.variationAttributes;
@@ -18,8 +19,8 @@ Template Notes:
         }
     }
 </isscript>
-<input type="hidden" name="lengthFlag" value="${lengthFlag}">
-<div class="b-product_attribute m-${attr.id}" data-error-message-label="${Resource.msg('error.message.required.selection.' + attr.id, 'product', null)}">
+<input type="hidden" name="lengthFlag" value="${lengthFlag}"/>
+<div class="b-product_attribute m-${attr.id}" data-error-limitedmasterquantity-message-label="${Resource.msgf('error.alert.master.quantity.limit.reached', 'product', null, product.custom.masterQtyLimit)}" data-error-message-label="${Resource.msg('error.message.required.selection.' + attr.id, 'product', null)}">
     <isif condition="${product.custom.isPreSizeSelectionEligible}">
         <input type="hidden" name="sizePrefrencesurl" value="${URLUtils.url('Product-DefaultSizePreferences')}"/>
     </isif>
@@ -31,17 +32,33 @@ Template Notes:
             <!-- Select <Attribute> Label -->
             <isif condition="${product.custom.colorway || product.custom.color}">
                 <isset name="fixProductColorNames" value="${productHelpers.fixProductColorNames(product.custom.colorway)}" scope="page"/>
-                <span class="b-product_attribute-title js-selected-color m-${attr.id}"> 
+                <span class="b-product_attribute-title js-selected-color m-${attr.id}">
                     <isif condition="${product.custom.colorway}"> <isprint value="${!empty(fixProductColorNames) ? fixProductColorNames : product.custom.colorway}"/> - </isif> <isprint value="${product.custom.color}"/>
                 </span>
-            <iselse>
+            <iselse/>
                 <span class="b-product_attribute-title js-selected-color m-${attr.id}">
                     ${Resource.msg('label.select', 'common', null)} ${attr.displayName}
                 </span>
             </isif>
-            <isinclude template="product/components/productCircleSwatch" />
-        <iselse>
-            <isinclude template="product/components/productTextSwatch" />
+            <isif condition="${isQuickAdd}">
+                <div class="swiper-container b-swatches_slider swatch-carousel" data-cmp="carousel" data-carousel-type="blank" data-json-config='${JSON.stringify(require('*/cartridge/config/carousel').quickAddSwatches)}' >
+                    <button class="b-swatches_slider_button js-swiper-button-prev m-left"></button>
+                    <button class="b-swatches_slider_button js-swiper-button-next m-right"></button>
+                    <isinclude template="product/components/productCircleSwatch" />
+                </div>
+            <iselse/>
+                <isinclude template="product/components/productCircleSwatch" />
+            </isif>
+        <iselse/>
+            <isif condition="${isQuickAdd}">
+                <div class="swiper-container b-swatches_slider swatch-carousel" data-cmp="carousel" data-carousel-type="blank" data-json-config='${JSON.stringify(require('*/cartridge/config/carousel').quickAddSwatches)}' >
+                    <button class="b-swatches_slider_button js-swiper-button-prev m-left"></button>
+                    <button class="b-swatches_slider_button js-swiper-button-next m-right"></button>
+                    <isinclude template="product/components/productTextSwatch" />
+                </div>
+            <iselse/>
+                <isinclude template="product/components/productTextSwatch" />
+            </isif>
         </isif>
 
     <iselse/>
@@ -49,57 +66,67 @@ Template Notes:
             <isinclude template="product/components/sizeCalloutMessage" />
         </isif>
         <!-- Select <Attribute> Label -->
-		<div class="b-size_pdp b-${attr.id}_outer">
-		    <div class="b-size_top-labels">
-		        <isif condition="${attr.id === 'size'}">
-		          <!-- Size Chart -->
+        <div class="b-size_pdp b-${attr.id}_outer">
+            <div class="b-size_top-labels">
+                <isif condition="${attr.id === 'size'}">
+                  <!-- Size Chart -->
                     <isif condition="${product.variationAttributes && product.sizeChartId}">
                         <div class="b-product_attrs-item b-product_sizeChart">
                             <isinclude template="product/components/sizeChart" />
                         </div>
                     </isif>
-			        <span class="l-size_selected-label js-selected-size">
-			            <iscomment>Append through JS</iscomment>
-			        </span>
+                    <span class="l-size_selected-label js-selected-size">
+                        <iscomment>Append through JS</iscomment>
+                    </span>
                 </isif>
-                
+
                 <!-- Message to display on top of Amount Variation Attribute which is specific to Physical Gift Card -->
                 <isif condition="${attr.id === 'Amount'}">
                     <isprint value="${Resource.msg('product.giftcard.selectamount', 'product', null)}"/>
                 </isif>
-		    </div>
+            </div>
             <!-- Attribute Values Drop Down Menu -->
             <div class="b-select-size-outer">
-                <ul class="js-input_field input-select form-control b-swatches_sizes" id="${attr.id}-${attributeStatus && attributeStatus.count ? attributeStatus.count : '1' }" ${ product.productType === "variant" && typeof isBundle !=='undefined' && isBundle ? "disabled" : "" } data-attrlength=${pdict.variatAttrLength}>
+                <isif condition="${isQuickAdd}">
+                    <div class="swiper swiper-container b-swatches_slider swatch-carousel d-block" data-cmp="carousel" data-carousel-type="blank" data-json-config='${JSON.stringify(require('*/cartridge/config/carousel').quickAddSwatches)}' >
+                        <button class="b-swatches_slider_button js-swiper-button-prev m-left"></button>
+                        <button class="b-swatches_slider_button js-swiper-button-next m-right"></button>
+                </isif>
+                <ul class="js-input_field input-select form-control b-swatches_sizes swiper-wrapper js-swiper-wrapper" id="${attr.id}-${attributeStatus && attributeStatus.count ? attributeStatus.count : '1' }" ${ product.productType === "variant" && typeof isBundle !=='undefined' && isBundle ? "disabled" : "" } data-attrlength=${pdict.variatAttrLength}>
+                    <isset name="isSingleSizeProduct" value="${attr.id == 'size' && attr.values.length == 1 ? true : false}" scope="page" />
                     <isloop items="${attr.values}" var="attrValue" status="loopState">
-                        <li class="js-sizeAttributes ${loopState.first ? 'first' : ''} ${loopState.count > 30 ? 'hideNow' : ''} ${loopState.count > 20 ? 'hideNowMobile' : ''}" data-url="${attrValue.url}">
+                        <li class="js-sizeAttributes swiper-slide ${loopState.first ? 'first' : ''} ${loopState.count > 30 ? 'hideNow' : ''} ${loopState.count > 20 ? 'hideNowMobile' : ''}" data-url="${attrValue.url}">
                             <a href="${URLUtils.url('Product-Show', 'pid', product.id)}"
-                                data-attr-url="${attrValue.url}" 
-                                class="pdp-open-new-tab js-size-select ${attrValue.selected ? 'selected' : ''} ${!attrValue.selectable ? 'disabled' : ''} 
-                                <isif condition="${attr.id == 'size' && pdict.product.custom.gender.toLowerCase() === 'unisex'}">f-unisex_sizechips</isif>"
-                                title="${attr.id == 'size' ? Resource.msgf('product.select.size', 'product', null, attrValue.displayValue) : Resource.msgf('product.select.length', 'product', null, attrValue.displayValue)}"  
+                                data-attr-url="${attrValue.url}"
+                                class="pdp-open-new-tab js-size-select ${attrValue.selected ? 'selected' : ''} ${!attrValue.selectable ? 'disabled' : ''}
+                                 ${attr.id == 'size' && (pdict.product.custom.gender.toLowerCase() === 'unisex' || pdict.product.custom.gender.toLowerCase() === 'adult_unisex' || pdict.product.custom.gender.toLowerCase() === 'youth_unisex') ? 'f-unisex_sizechips' : ''} ${isSingleSizeProduct ? 'selectable m-active selected' : ''}"
+                                title="${attr.id == 'size' ? Resource.msgf('product.select.size', 'product', null, attrValue.displayValue) : Resource.msgf('product.select.length', 'product', null, attrValue.displayValue)}"
                                 data-attr-value="${attrValue.value}" data-size-attr="${attrValue.displayValue}"
                                 aria-label="${attr.id}"
                                 ${attrValue.selected ? 'selected' : ''}
                             >
-                            <span>
-                                <isif condition="${attrValue.value.toLowerCase() === 'osfa' || attrValue.displayValue.length > 13 || (attr.id == 'size' && lengthFlag)}">
-                                    ${attrValue.value}
-                                <iselse>
-                                    ${attrValue.displayValue}
-                                </isif>
-                            </span>
+                                <span>
+                                    <isif condition="${attrValue.value.toLowerCase() === 'osfa' || attrValue.displayValue.length > 18 || (attr.id == 'size' && lengthFlag)}">
+                                        ${attrValue.value}
+                                    <iselse/>
+                                        ${attrValue.displayValue}
+                                    </isif>
+                                </span>
                             </a>
                         </li>
                     </isloop>
                 </ul>
-                <isif condition="${attr.id === 'size'}">
-                    <div class="b-size-more_less ">
-                       <span class="l-show-more js-show-more">${Resource.msg('label.item.showmore', 'product', null)}</span>
-                       <span class="l-show-less js-show-less">${Resource.msg('label.item.showless', 'product', null)}</span>
+                <isif condition="${isQuickAdd}">
                     </div>
+                <iselse/>
+                    <isif condition="${attr.id === 'size'}">
+                        <div class="b-size-more_less ">
+                        <span class="l-show-more js-show-more">${Resource.msg('label.item.showmore', 'product', null)}</span>
+                        <span class="l-show-less js-show-less">${Resource.msg('label.item.showless', 'product', null)}</span>
+                        </div>
+                    </isif>
                 </isif>
             </div>
-		</div>
+        </div>
     </isif>
 </div>

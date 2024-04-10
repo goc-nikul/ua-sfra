@@ -1,5 +1,3 @@
-'use strict';
-
 var proxyquire = require('proxyquire').noCallThru().noPreserveCache();
 
 var productImagesMock = function () {
@@ -36,7 +34,9 @@ function proxyModel() {
         '*/cartridge/models/product/decorators/readyToOrder': function () {},
         '*/cartridge/config/preferences': {
             maxOrderQty: 10
-        }
+        },
+        'dw/web/Resource': require('../dw/web/Resource'),
+        '*/cartridge/scripts/util/collections': require('../util/collections')
     });
 }
 

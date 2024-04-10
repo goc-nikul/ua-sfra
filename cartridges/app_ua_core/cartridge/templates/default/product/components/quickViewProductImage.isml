@@ -1,0 +1,7 @@
+<div class="b-product-quickview-product-img-wrapper">
+    <isset name="productImages" value="${product.images['pdpMainDesktop'] ? product.images['pdpMainDesktop'] : []}" scope="page" />
+    <isset name="firstImage" value="${productImages[0]}" scope="page" />
+    <img class="b-product-quickview-product-img" src="${firstImage ? firstImage.url : ''}"
+        title="<isprint value="${firstImage ? firstImage.title : ''}" encoding="htmldoublequote" />"
+        alt="<isprint value="${firstImage ? firstImage.alt : ''}" encoding="htmldoublequote" />" />
+</div>

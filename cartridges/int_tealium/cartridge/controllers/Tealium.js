@@ -166,8 +166,8 @@ function getCartDataObject(logicArgs) {
     var cartData = cache.getCartCache();
 
     // checks cart state from cache if the cart Data is present in the cache and current page is not cart or checkout pages
-    if(cartData && action 
-    && action !== 'Cart-Show' && action !== 'Checkout-Begin' && ['Order-Confirm', 'COPlaceOrder-Submit'].indexOf(action) === -1)
+    if(cartData && action
+    && action !== 'Cart-Show' && action !== 'Checkout-Begin' && action !== 'SinglePageCheckout-Begin' && ['Order-Confirm', 'COPlaceOrder-Submit'].indexOf(action) === -1)
     {
         isCartCached = cache.checkCartCache(currentBasket);
     }
@@ -212,6 +212,8 @@ function buildServerData(req) {
     const currentCustomerProfile = req.currentCustomer.raw && req.currentCustomer.raw.profile && req.currentCustomer.raw.profile;
     const sizePreferenceObj = req.session.privacyCache.get('sizePreferences');
     const ABTestData = require('~/cartridge/scripts/tealiumUtils').getABTestData();
+    const features = require('~/cartridge/scripts/tealiumUtils').getfeatures();
+    const isDLInventoryEnabled = getQueryParam(req, 'isDLInventoryEnabled') === 'true' ? true : false;
     const logicArgs = {
         srcParam: getQueryParam(req, 'srcParam'),
         action: pdictAction,
@@ -239,7 +241,9 @@ function buildServerData(req) {
         currentCustomerProfile: currentCustomerProfile,
         productSizePrefs: sizePreferenceObj,
         complete_look: getQueryParam(req, 'complete_look'),
-        ABTestData : ABTestData
+        ABTestData : ABTestData,
+        features : features,
+        productId : productId
     };
     logicArgs.cartData = getCartDataObject(logicArgs);
 
@@ -346,6 +350,7 @@ function buildServerData(req) {
           pdp_experience_type: PDP.pdp_experience_type,
           pdp_feature_icons: PDP.pdp_feature_icons // feature/benefit icons
     };
+    
     var productData = {
         products: PRODUCTS && PRODUCTS.length && PRODUCTS.map(function (p) {
             return {
@@ -395,6 +400,13 @@ function buildServerData(req) {
             };
         }) || []
     };
+
+    if (isDLInventoryEnabled && PDP.product_inventory_stock_level) {
+        productData.products[0].product_inventory_stock_level = PDP.product_inventory_stock_level        
+    } else if(isDLInventoryEnabled && Object.keys(PDP).length > 0) {
+        productData.products[0].product_inventory_stock_level = 0            
+    }
+    
     var searchData = {
         page_finding_method: SEARCH.page_finding_method,
         search_location: SEARCH.search_location,
@@ -416,6 +428,7 @@ function buildServerData(req) {
         grid_paging_offset: GRID.grid_paging_offset,
         grid_top_content: GRID.grid_top_content,
         sfTestVariants : GRID.sfTestVariants,
+        features: GRID.features,
         grid_refinement_attributes: (logicArgs.gridRefinementAttributes || '').split(',')
           .filter(function (val) { return val; })
           .map(function(a) {

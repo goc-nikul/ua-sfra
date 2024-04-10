@@ -1,7 +1,7 @@
 <isif condition="${product.swatches && product.swatches.count > 0}">
-    <ul class="b-swatches_text">
+    <ul class="b-swatches_text swiper-wrapper js-swiper-wrapper">
         <isloop items="${attr.values}" var="swatch" status="loopState">
-            <li class="b-swatches_text-item">
+            <li class="b-swatches_text-item swiper-slide">
                 <a href="${swatch.url}"
                     data-index="${loopState.count-1}"
                     aria-label="${swatch.id}"

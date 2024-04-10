@@ -61,16 +61,16 @@
             <input name="OwnerId" type="hidden" value="${customerServiceContactUsOwnerID}" />
 
             <label class="required name-label" for="name">${faqResources.faqName}</label><br/>
-            <input required class="name-field" id="name" maxlength="80" name="name" type="text" /><br/><br/>
+            <input required class="name-field cu-form-field" id="name" maxlength="80" name="name" type="text" /><br/><br/>
 
             <label class="required email-label" for="email">${faqResources.faqEmail}</label><br/>
-            <input required id="email" class="email-field" maxlength="80" name="email" size="20" type="text" /><br/><br/>
+            <input required id="email" class="email-field cu-form-field" maxlength="80" name="email" size="20" type="text" /><br/><br/>
 
             <label class="required emailConfirm-label" for="email">${faqResources.faqEmailConfirm}</label><br/>
-            <input required id="emailConfirm" class="emailConfirm-field" maxlength="80" name="emailConfirm" type="text" /><br/><br/>
+            <input required id="emailConfirm" class="emailConfirm-field cu-form-field" maxlength="80" name="emailConfirm" type="text" /><br/><br/>
 
             <label class="required topic" for="type">${faqResources.faqTopic}</label><br/>
-            <select required class="topic-field" id="type" name="type">
+            <select required class="topic-field cu-form-field" id="type" name="type">
                 <option value="">${faqResources.faqSelectOne}</option>
                 <option value="Privacy">${faqResources.faqPrivacy}</option>
                 <option value="Orders & Tracking">${faqResources.faqOrderStatus}</option>
@@ -80,16 +80,16 @@
             </select><br/><br/>
 
             <label class="required subCategory" for="00N4V00000ECopw">${faqResources.faqSubCat}</label><br/>
-            <select required class="subCategory-field" id="00N4V00000ECopw" name="00N4V00000ECopw" title="${faqResources.faqSubCatTitle}">
+            <select required class="subCategory-field cu-form-field" id="00N4V00000ECopw" name="00N4V00000ECopw" title="${faqResources.faqSubCatTitle}">
                 <option value="">${faqResources.faqPleaseSelect}</option>
             </select><br/><br/>
 
             <label class="orderNumber-label" for="00N4V00000ECopn">${faqResources.faqOrderNumber}</label><br/>
             <span class="orderNumber-title">${faqResources.faqOrderNumberTitle}</span>
-            <input class="orderNumber-field" id="00N4V00000ECopn" maxlength="50" name="00N4V00000ECopn" size="20" type="text" /><br/><br/>
+            <input class="orderNumber-field cu-form-field" id="00N4V00000ECopn" maxlength="50" name="00N4V00000ECopn" size="20" type="text" /><br/><br/>
 
             <label class="required description-label" for="description">${faqResources.faqDescription}</label><br/>
-            <textarea required class="description-field" name="description"  maxlength="3000"></textarea><br/><br/>
+            <textarea required id="description" class="description-field cu-form-field" name="description"  maxlength="3000"></textarea><br/><br/>
             <div class="g-recaptcha" data-sitekey="${grecaptchaSiteKey}"></div>
             <input ${grecaptchaSiteKey ? 'required' : ''} type="hidden" id="g-recaptcha"/>
             <input type="submit" class="form" id="sendNote" value="${faqResources.faqSendNote}" />

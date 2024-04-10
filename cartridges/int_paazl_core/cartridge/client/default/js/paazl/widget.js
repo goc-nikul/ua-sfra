@@ -145,6 +145,9 @@ function updateWidgetView() {
                     }
                     clearInterval(showPickUpPointResult);
                 }
+                if ($('.delivery-option').hasClass('active')) {
+                    $('#paazl-checkout').removeClass('hide');
+                }
             }
         }, 500);
     }

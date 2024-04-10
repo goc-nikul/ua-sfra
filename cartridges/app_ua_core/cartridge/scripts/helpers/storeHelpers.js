@@ -630,6 +630,52 @@ function getBopisDataOCAPI(basketResponse) {
     return bopisData;
 }
 
+/**
+ * Get selected radius or default radius
+ * @param {Object} product Product
+ * @param {Object} variantProduct Product
+ * @param {boolean} isVIP Is a VIP customer
+* @returns {Object} storeInfo selected Store information
+ */
+function updateSelectedStore(product, variantProduct, isVIP) {
+    var storeInfo = {
+        selectedStore: null
+    };
+    if (!variantProduct && !variantProduct.ID) {
+        return storeInfo;
+    }
+
+    var pickUpInStoreEnabled = 'isBOPISEnabled' in Site.current.preferences.custom && Site.current.getCustomPreferenceValue('isBOPISEnabled') && (product.custom.availableForInStorePickup !== false || variantProduct.custom.availableForInStorePickup !== false);
+    if (pickUpInStoreEnabled && !isVIP) {
+        // get selectedStoreID
+        var cookieHelper = require('*/cartridge/scripts/helpers/cookieHelpers');
+        var preSelectedStoreCookie = cookieHelper.read('preSelectedStore');
+        if (preSelectedStoreCookie) {
+            var storeData = JSON.parse(preSelectedStoreCookie);
+            var storeID = storeData && storeData.ID;
+            if (storeID) {
+                var storeHelpers = require('*/cartridge/scripts/helpers/storeHelpers');
+                storeInfo.selectedStore = storeHelpers.findStoreById(storeID);
+                var productList = [{ id: variantProduct.ID, quantity: 1 }];
+                var storeModel = { stores: [storeInfo.selectedStore] };
+                var storeAvailabilityObj = storeHelpers.getStoreAvailability(storeModel, productList);
+                var availabilityMessage = storeAvailabilityObj && storeAvailabilityObj.stores && storeAvailabilityObj.stores[0] ? storeAvailabilityObj.stores[0].availabilityMessage : null;
+                var Resource = require('dw/web/Resource');
+                var bopisSelected = false;
+                var bopisStock = false;
+                if (storeAvailabilityObj && storeAvailabilityObj.stores && storeAvailabilityObj.stores[0] && 'productInStoreInventory' in storeAvailabilityObj.stores[0] && storeAvailabilityObj.stores[0].productInStoreInventory) {
+                    bopisSelected = true;
+                    bopisStock = true;
+                } else {
+                    availabilityMessage = Resource.msg('cart.store.tealium.pickup.unavailable', 'storeLocator', null);
+                }
+                storeHelpers.updateSelectedStoreCookie(storeData, availabilityMessage, bopisSelected, bopisStock);
+            }
+        }
+    }
+    return storeInfo;
+}
+
 module.exports = exports = {
     createStoresResultsHtml: base.createStoresResultsHtml,
     getStores: getStores,
@@ -644,5 +690,6 @@ module.exports = exports = {
     getStoreOpenHours: getStoreOpenHours,
     getStoreHoursforSFMC: getStoreHoursforSFMC,
     getStoreGoogleMapLink: getStoreGoogleMapLink,
-    getBopisDataOCAPI: getBopisDataOCAPI
+    getBopisDataOCAPI: getBopisDataOCAPI,
+    updateSelectedStore: updateSelectedStore
 };

@@ -1,4 +1,5 @@
 'use strict';
+
 var Resource = require('dw/web/Resource');
 var base = module.superModule;
 
@@ -15,8 +16,8 @@ function OrderModel(lineItemContainer, options) {
     base.call(this, lineItemContainer, options);
     this.resources.storeAddress = Resource.msg('label.instore.pickup.from', 'instorePickup', null);
     if (this.firstLineItem) {
-        this.firstLineItem.isPickUpInStore = lineItemContainer.productLineItems[0] ?
-            lineItemContainer.productLineItems[0].shipment.shippingMethod.custom.storePickupEnabled : null;
+        this.firstLineItem.isPickUpInStore = lineItemContainer.productLineItems[0]
+            ? lineItemContainer.productLineItems[0].shipment.shippingMethod.custom.storePickupEnabled : null;
     }
 }
 

@@ -1,0 +1,189 @@
+/**
+*	Script file EODReportHelper.ds provide functionality 
+*	to run query to get different types of reports
+*
+* Usage: 
+* 		var eodReportHelper = require("./EODReportHelper.ds");
+*		- OR -
+*		var eodReportHelper = require("bm_underarmour/cartridge/scripts/reports/EODReportHelper");
+*
+*		var reportValue = eodReportHelper.getSiteReportTypes();
+*/
+importPackage( dw.system );
+importPackage( dw.order );
+importPackage( dw.util );
+
+var timezoneHelper = new (require("*/cartridge/scripts/util/TimezoneHelper"));
+
+var EODReportHelper = function() {
+	
+	this.getSiteReportTypes = function() : Array {
+    	var eodCheckPreference = getEODCheckPreference();
+    	
+        if (empty(eodCheckPreference) || empty(eodCheckPreference.reports)) {
+    		Logger.error("EODReportHelper.ds: site custom preference 'eodCheck' is empty or not definite.");
+    		return [];
+    	}
+    
+    	return eodCheckPreference.reports;
+    },
+    
+    this.getSiteReportDaysCount = function() : Number {
+    	var eodCheckPreference = getEODCheckPreference();
+    	
+        if (empty(eodCheckPreference) || empty(eodCheckPreference.eodCheckLimit)) {
+    		Logger.error("EODReportHelper.ds: site custom preference 'eodCheck' is empty or not definite.");
+    		return 0;
+    	}
+    
+    	return eodCheckPreference.eodCheckLimit;
+    },
+	
+    this.performNotExportedOrderReport = function(day : Calendar) : Object {
+    	var NotExportedOrderReport,
+    		date : Object = transformDateForQuery(day),
+    		queryString : String = "(status= {0} OR status= {1}) AND exportStatus = {2} AND creationDate >= {3} AND creationDate < {4}";
+		
+	    NotExportedOrderReport = OrderMgr.searchOrders(queryString, "orderNo ASC",
+	    		dw.order.Order.ORDER_STATUS_NEW, dw.order.Order.ORDER_STATUS_OPEN,
+				dw.order.Order.EXPORT_STATUS_NOTEXPORTED, date.dateFrom, date.dateTo);
+    	
+    	return {
+            count: NotExportedOrderReport.getCount(),
+            orders: NotExportedOrderReport
+        };	
+    },
+
+    this.performNotConfirmedOrderReport = function(day : Calendar) : Object {
+    	var NotConfirmedOrderReport,
+    		date : Object = transformDateForQuery(day),
+    		queryString : String = "(status= {0} OR status= {1}) AND exportStatus = {2} AND confirmationStatus = {3} AND creationDate >= {4} " +
+    				"AND creationDate < {5}";
+		
+	    NotConfirmedOrderReport = OrderMgr.searchOrders(queryString, "orderNo ASC",
+	    		dw.order.Order.ORDER_STATUS_NEW, dw.order.Order.ORDER_STATUS_OPEN,
+	    		dw.order.Order.EXPORT_STATUS_EXPORTED,
+				dw.order.Order.CONFIRMATION_STATUS_NOTCONFIRMED, date.dateFrom, date.dateTo);
+		
+    	return {
+            count: NotConfirmedOrderReport.getCount(),
+            orders: NotConfirmedOrderReport
+        };
+    },
+
+    this.performNotShippedOrderReport = function(day : Calendar) : Object {
+    	var NotShippedOrderReportNew,
+    		NotShippedOrderReportOpen,
+    		count : Number = 0,
+    		date : Object = transformDateForQuery(day),
+    		queryStringStatusNew : String = "status= {0} AND exportStatus = {1} AND confirmationStatus = {2} AND shippingStatus = {3} " +
+    				"AND creationDate >= {4} AND  creationDate < {5}",
+    		queryStringStatusOpen : String = "status= {0} AND exportStatus = {1} AND confirmationStatus = {2} AND shippingStatus = {3} " +
+    				"AND creationDate >= {4} AND  creationDate < {5}";
+		// Due to searchOrders has Quota limit of 6 items and performance reasons 
+		// We create 2 requests for Open & New statuses 
+		NotShippedOrderReportNew = OrderMgr.searchOrders(queryStringStatusNew, "orderNo ASC",
+				dw.order.Order.ORDER_STATUS_NEW, dw.order.Order.EXPORT_STATUS_EXPORTED, 
+				dw.order.Order.CONFIRMATION_STATUS_CONFIRMED, 
+				dw.order.Order.SHIPPING_STATUS_NOTSHIPPED, date.dateFrom, date.dateTo);
+				
+		NotShippedOrderReportOpen = OrderMgr.searchOrders(queryStringStatusOpen, "orderNo ASC",
+				dw.order.Order.ORDER_STATUS_OPEN, dw.order.Order.EXPORT_STATUS_EXPORTED, 
+				dw.order.Order.CONFIRMATION_STATUS_CONFIRMED,
+				dw.order.Order.SHIPPING_STATUS_NOTSHIPPED, date.dateFrom, date.dateTo);
+			
+	    count = NotShippedOrderReportNew.getCount() + NotShippedOrderReportOpen.getCount();
+		
+	    return {
+            count: count,
+            orders: NotShippedOrderReportNew,
+            moreOrders: NotShippedOrderReportOpen
+        };
+    },
+
+    this.performNotPaidOrderReport = function(day : Calendar) : Object {
+    	var NotPaidOrderReport,
+    		date : Object = transformDateForQuery(day),
+    		queryString : String = "status = {0} AND paymentStatus = {1} AND creationDate >= {2} AND creationDate < {3}",
+    		notPaidTill : Date = timezoneHelper.getSiteTimeFromUTC(new Date());
+    		
+    	// get orders created earlier than 3 days ago
+		notPaidTill.setDate(notPaidTill.getDate() - 2);	
+    	
+    	if ( date.dateFrom > notPaidTill ) {
+            return false;
+    	}
+
+        NotPaidOrderReport = OrderMgr.searchOrders(queryString, "orderNo ASC", Order.ORDER_STATUS_CREATED, Order.PAYMENT_STATUS_NOTPAID, date.dateFrom, date.dateTo);
+        NotPaidOrderReport = getCashPMOrders(NotPaidOrderReport);
+
+    	return {
+            count: NotPaidOrderReport.getLength(),
+            orders: NotPaidOrderReport.iterator()
+        }		
+    },
+    
+    /**
+      *	Call preform function according to
+      * specified report type
+      *
+      */
+    this.performOrderReportByType = function(reportType : String, day : Calendar) : Object {
+    	var performFunctionName = "perform" + reportType + "Report";
+    	
+    	// Checking for method in eodReports
+    	// if method exist then call this
+    	// else return empty object
+    	if (this.hasOwnProperty(performFunctionName)) {
+			return this[performFunctionName](day);
+    	} else {
+    		return null;
+    	}
+    }
+};
+
+module.exports = new EODReportHelper();
+
+
+/******** private functions of EODReportHelper.ds **********/
+
+function getEODCheckPreference() : Object {
+	var eodCheckPreferenceJson : Object = Site.getCurrent().getCustomPreferenceValue('eodCheck');
+    var JSONUtils = require("int_customfeeds/cartridge/scripts/util/JSONUtils");
+
+    return JSONUtils.parse(eodCheckPreferenceJson, {});
+}
+
+function transformDateForQuery(day : Calendar) : Object {
+	var dateFrom : Date = timezoneHelper.getSiteTimeFromUTC(day.getTime());
+	
+	var dateTo : Date = new Date(dateFrom);
+	dateTo.setDate(dateFrom.getDate() + 1);
+    
+	return {"dateFrom": dateFrom, "dateTo" : dateTo};
+}
+
+/**	Get orders with cash payment methods only	**/
+function getCashPMOrders(allOrders : Iterator) : ArrayList {
+	// Get cash payment methods
+	var cashPaymentMethodsString : String = dw.web.Resource.msg('order.payment.cash.methods','config','');
+	if ( empty(cashPaymentMethodsString) ) {
+		Logger.error("EODReportHelper.ds error. Cannot find cash payment methods.");
+		return allOrders;
+	}
+	var cashPaymentMethods : Array = cashPaymentMethodsString.split(',');
+	var cashPMOrders = new ArrayList();
+	
+	while(allOrders.hasNext()) {
+		var order : Order = allOrders.next();
+		try {
+			if ( 'Adyen_paymentMethod' in order.custom && !empty(order.custom.Adyen_paymentMethod) && cashPaymentMethods.indexOf(order.custom.Adyen_paymentMethod) >= 0 ) {
+				cashPMOrders.push(order);
+			}
+		} catch (e) {
+			Logger.debug("EODReportHelper.ds error. Cannot check order payment method. OrderNo {0}. Error: {1}", order.orderNo, e);
+		}
+	}
+		
+ 	return cashPMOrders;
+}

@@ -5,6 +5,7 @@ class Product {
         this.master = false;
         this.ID = productID || '883814258849';
         this.name = 'test';
+        this.online = true;
         this.image = {
             'small': {
                 URL: 'testUrlSmall'
@@ -21,7 +22,21 @@ class Product {
             giftCard: {
                 value: 'NONE'
             },
-            customerLineItemQtyLimit: 5
+            customerLineItemQtyLimit: 5,
+            skipResetActivationDate: false,
+            activationDate: '2023-09-01T04:00:00.000Z',
+            outletColors: '003',
+            defaultColorway: '003',
+            division: 'Footwear',
+            experienceType: {
+                value: 'outlet'
+            },
+            productTileUpperLeftFlameIconBadge: {
+                value: 'new'
+            },
+            productTileUpperLeftBadge: {
+                value: 'new-colors-available'
+            }
         };
         this.optionModel = {};
         this.availabilityModel = {
@@ -31,6 +46,8 @@ class Product {
                 ATS: {
                     value: 10
                 },
+                inStockDate: new Date(),
+                lastModified: new Date(),
                 getATS() {
                     return {
                         value: 10,
@@ -48,14 +65,26 @@ class Product {
                             return 10;
                         }
                     };
+                },
+                getInStockDate: function () {
+                    return this.inStockDate;
                 }
+            },
+            getInventoryRecord: function () {
+                return this.inventoryRecord;
+            },
+            isInStock: function () {
+                return this.inventoryRecord.allocation > 0;
             }
+        };
+        this.isOnline = function () {
+            return this.online;
         };
         this.isMaster = function () {
             return this.master;
         };
         this.isVariant = function () {
-            return false;
+            return true;
         };
         this.getVariants = function () {
             var variants = {
@@ -122,6 +151,13 @@ class Product {
 
     getImage(size) {
         return this.image[size];
+    }
+
+    getAvailabilityModel() {
+        return this.availabilityModel;
+    }
+    getMasterProduct(){
+        return this;
     }
 }
 

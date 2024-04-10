@@ -25,11 +25,11 @@
         >
             <isloop items="${pdict.optionlist}" var="option">
                 <option class="select-option ${option.id ? option.id.replace(/\s/g,'') : ''}" label="${option.displayName}" value="${option.url}"
-                    <isif condition="${pdict.ruleid && pdict.ruleid.replace(/-/g, '').toLowerCase() === option.id.replace(/-/g, '')}">
+                    <isif condition="${pdict.ruleid && pdict.ruleid.replace(/-/g, '') === option.sortingRuleId.replace(/-/g, '')}">
                         selected="selected"
                     </isif>
-                    <isif condition="${option.id}">
-                        data-id="${option.id.replace(/\s/g,'')}"
+                    <isif condition="${option.sortingRuleId}">
+                        data-id="${option.sortingRuleId.replace(/\s/g,'')}"
                     </isif>
                     >${option.displayName}</option>
             </isloop>

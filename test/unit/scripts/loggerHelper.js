@@ -25,5 +25,8 @@ describe('app_ua_core/cartridge/scripts/util/loggerHelper test', () => {
 
         var result = loggerHelper.maskSensitiveInfo('test');
         assert.equal(result, '', 'String returns empty result');
+
+        var result3 = loggerHelper.getLoggingObject();
+        assert.isString(result3, 'stringified object');
     });
 });

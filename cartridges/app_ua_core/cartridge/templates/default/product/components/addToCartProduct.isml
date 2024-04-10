@@ -1,4 +1,4 @@
-<div class="b-add_to_bag_container">
+<div class="b-add_to_bag_container js-add_to_bag_notify ${(!product.available && pdict.isNotifyMeEnabled && pdict.isNotifyMeEnabled != null) ?"hide":""}">
     <div class="b-add_to_bag">
         <input type="hidden" class="add-to-cart-url bfx-disable-element" value="${pdict.addToCartUrl}">
         <input type="hidden" class="cart-page-url bfx-disable-element" value="${pdict.cartPageUrl}">
@@ -7,6 +7,7 @@
             class="js-add-to-cart g-button_base g-button_tertiary b-add_to_bag-cta"
             ${product.exclusive.value === 'coming-soon' ? 'disabled' :''}
             data-pid="${product.id}"
+            data-quickadd=""
             data-added-msg="${Resource.msg('button.addedtocart', 'common', null)}"
             data-add-another="${Resource.msg('button.addanother', 'common', null)}"
             data-addto-bag="${Resource.msg('button.addtocart', 'common', null)}"

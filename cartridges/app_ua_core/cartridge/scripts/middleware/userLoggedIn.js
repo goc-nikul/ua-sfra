@@ -16,7 +16,7 @@ function validateLoggedIn(req, res, next) {
         }
 
         var target = req.querystring.rurl || 1;
-
+        res.setRedirectStatus(301);
         res.redirect(URLUtils.url('Home-Show', 'rurl', target, 'login', true));
     }
     next();

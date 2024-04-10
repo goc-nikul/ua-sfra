@@ -1,0 +1,29 @@
+<isset name="mobileImages" value="${(!empty(product.images) && !empty(product.images.mobile)) ? product.images.mobile.all : null}" scope="page"/>
+<isif condition="${mobileImages && mobileImages.length > 1}">
+    <div class="g-carousel b-tile-image-carousel js-carousel swiper-container" data-cmp="carousel" data-json-config='${JSON.stringify(require('*/cartridge/config/carousel').tileMobileImages)}'>
+        <div class="g-carousel-wrapper swiper-wrapper js-swiper-wrapper">
+            <isloop items="${mobileImages}" var="item" status="loopstatus">
+                <div class="g-carousel-slide swiper-slide">
+                    <isif condition="${disableProductLink}">
+                        <div class="b-tile-images_container">
+                    <iselse/>
+                        <a href="${productURL}" class="b-tile-images_container">
+                    </isif>
+                        <picture>
+                            <img class="b-tile-image lazyload" data-expand="0"
+                                src="${URLUtils.staticURL('/images/Tile_Skeleton_Loader.svg')}"
+                                data-src="${item ? item.URL : ''}"
+                                onerror="this.style.visibility='hidden'" alt="${product.productName}"
+                                title="${item ? item.title : ''}" />
+                        </picture>
+                    <isif condition="${disableProductLink}">
+                        </div>
+                    <iselse/>
+                        </a>
+                    </isif>
+                </div>
+            </isloop>
+        </div>
+        <div class="g-carousel-scrollbar swiper-scrollbar"></div>
+    </div>
+</isif>

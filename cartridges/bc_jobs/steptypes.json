@@ -75,6 +75,64 @@
                 }
             },
             {
+                "@type-id": "custom.autoCategorizeNewArrivals",
+                "module": "bc_jobs/cartridge/scripts/catalog/AutoCategorizeNewArrivals.js",
+                "description": "",
+                "function": "autoCategorizeNewArrivals",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "masterCatalogID",
+                            "description": "StorefrontCatalogID",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "storefrontCatalogID",
+                            "description": "StorefrontCatalogID",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "isDisabled",
+                            "description": "To disable the step select this checkbox",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "default-value": "false"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.autoUncategorizeNewArrivals",
+                "module": "bc_jobs/cartridge/scripts/catalog/AutoUncategorizeNewArrivals.js",
+                "description": "",
+                "function": "autoUncategorizeNewArrivals",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "masterCatalogID",
+                            "description": "StorefrontCatalogID",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "storefrontCatalogID",
+                            "description": "StorefrontCatalogID",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "isDisabled",
+                            "description": "To disable the step select this checkbox",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "default-value": "false"
+                        }
+                    ]
+                }
+            },
+            {
                 "@type-id": "custom.assignOutletStatus",
                 "module": "bc_jobs/cartridge/scripts/catalog/AssignOutletStatus.js",
                 "description": "Find price-descrepancies and create outlet configurations ",
@@ -90,6 +148,13 @@
                         {
                             "@name": "updateUnorderableVariants",
                             "description": "Also update isOutlet status of unorderable variants and add the color to the master product's outlet color array.",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "default-value": "false"
+                        },
+                        {
+                            "@name": "processOnlineOrEcommAssortmentProductsOnly",
+                            "description": "Process online or e-comm assortment product only",
                             "@type": "boolean",
                             "@required": "false",
                             "default-value": "false"
@@ -186,6 +251,28 @@
                 }
             },
             {
+                "@type-id": "custom.autoCleanCategory",
+                "module": "bc_jobs/cartridge/scripts/catalog/AutoCleanCategory.js",
+                "description": "Generate Category Cleanup XML",
+                "function": "generateCategoryCleanupXML",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "storefrontCatalogID",
+                            "description": "StorefrontCatalogID ID",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "CleanCategoryIDs",
+                            "description": "Category IDs",
+                            "@type": "string",
+                            "@required": "true"
+                        }
+                    ]
+                }
+            },
+            {
                 "@type-id": "custom.assignImages",
                 "module": "bc_jobs/cartridge/scripts/catalog/AssignImages.js",
                 "description": "Assign Scene7 Images to products",
@@ -228,6 +315,13 @@
                             "@type": "boolean",
                             "@required": "false",
                             "default-value": "false"
+                        },
+                        {
+                            "@name": "teamFanGearCategoryForSwatchImage",
+                            "description": "Team fan gear category for swatch image. This parameter supports multiple category IDs separated by commas.",
+                            "@type": "string",
+                            "@required": "false",
+                            "default-value": "collections-fan-gear"
                         }
                     ]
                 }
@@ -332,6 +426,20 @@
                         {
                             "@name": "IsQueryAllForSiteProducts",
                             "description": "Enable for all site products if disable then use prep category assigned products",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "default-value": "false"
+                        },
+                        {
+                            "@name": "ignoreProductSTLStatus",
+                            "description": "Enable flag to ignore existing Shop The Look status and reprocess STL",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "default-value": "false"
+                        },
+                        {
+                            "@name": "excludeOfflineVariants",
+                            "description": "Exclude Offline Variants",
                             "@type": "boolean",
                             "@required": "false",
                             "default-value": "false"
@@ -950,7 +1058,6 @@
                             "@type": "double",
                             "@required": true,
                             "@trim": true,
-                            "description": "A required double parameter were the raw value is trimmed, value must be betwenn 0 and 5.",
                             "min-value": "0",
                             "max-value": "10"
                         },
@@ -960,7 +1067,6 @@
                             "@type": "double",
                             "@required": true,
                             "@trim": true,
-                            "description": "A required double parameter were the raw value is trimmed, value must be betwenn 0 and 3.",
                             "min-value": "0",
                             "max-value": "10"
                         }
@@ -1307,6 +1413,123 @@
                         }
                     ]
                 }
+            },
+            {
+                "@type-id": "custom.ConstructorIOInventoryExport",
+                "module": "bc_jobs/cartridge/scripts/constructorio/exportToCIO.js",
+                "description": "Export inventory deltas to CIO",
+                "function": "exportToCIO",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "ApiKeyOverride",
+                            "description": "Allows overriding the API key defined in the site preferences. Useful to send data to multiple indexes from the same site (e.g. different locales).",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "Locale",
+                            "description": "The locale ID to use when filling category data (e.g. `en_US`). Will fallback to the default catalog locale if not provided.",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "purge",
+                            "description": "Purge Custom Object Data",
+                            "@type": "boolean",
+                            "@required": false,
+                            "@trim": true
+                        },
+                        {
+                            "@name": "onMissing",
+                            "description": "Action to perform for missing products",
+                            "@type": "string",
+                            "@required": false,
+                            "@trim": true,
+                            "enum-values": {
+                                "value": [
+                                    "",
+                                    "IGNORE",
+                                    "CREATE"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.combineProducts",
+                "module": "bc_jobs/cartridge/scripts/export/combineProducts.js",
+                "description": "Combine products together by IDs",
+                "function": "execute",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "MasterCatalogId",
+                            "@type": "string",
+                            "@required": "true",
+                            "description": "Master catalog ID",
+                            "default-value": "NACatalog"
+                        },
+                        {
+                            "@name": "fileName",
+                            "@type": "string",
+                            "@required": "true",
+                            "description": "Filename without the file extension",
+                            "default-value": "combine_products"
+                        },
+                        {
+                            "@name": "directory",
+                            "@type": "string",
+                            "@required": "true",
+                            "description": "File path",
+                            "default-value": "src/catalog/custom"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.LogExportedOrders",
+                "description": "Logging scessfully exported orders",
+                "@supports-site-context": "true",
+                "module": "bc_jobs/cartridge/scripts/datadog/exportedOrderLoggerJob.js",
+                "function": "executeLog",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "FilePath",
+                            "description": "File path to impex",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true"
+                       },
+                        {
+                            "@name": "filePattern",
+                            "description": "File pattern (Regexp. e.g. ^cat.*xml$)",
+                            "@type": "string",
+                            "@required": "true",
+                            "@trim": "true"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.ExportCustomersDataCSV",
+                "module": "bc_jobs/cartridge/scripts/export/ExportCustomersDataCSV.js",
+                "description": "Export Customers Data in csv file",
+                "function": "exportCustomersDataCSV",
+                "parameters": {
+                    "parameters": [
+                        {
+                            "@name": "emailList",
+                            "description": "List of emails to send missing images viewtypes log",
+                            "@type": "string",
+                            "@required": "false"
+                        }
+                    ]
+                }
             }
         ],
         "chunk-script-module-step": [
@@ -1390,6 +1613,138 @@
                             "description": "List of locales for which badges should be reset. Example - default, en_US, en_CA. Default configuration is default.",
                             "@type": "string",
                             "@required": "false"
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.UpdateDiscountPercentage",
+                "@supports-parallel-execution": "true",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "module": "bc_jobs/cartridge/scripts/catalog/UpdateDiscountPercentage.js",
+                "description": "Update Discount Percentages",
+                "before-step-function": "beforeStep",
+                "total-count-function": "getTotalCount",
+                "read-function": "read",
+                "process-function": "process",
+                "write-function": "write",
+                "after-step-function": "afterStep",
+                "chunk-size": 100,
+                "transactional": "true",
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when the step failed with an error."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when the step finished successfully."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.assignOutletStatusChunk",
+                "@supports-parallel-execution": "true",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "module": "bc_jobs/cartridge/scripts/catalog/AssignOutletStatusChunk.js",
+                "description": "Find price-descrepancies and create outlet configurations",
+                "before-step-function": "beforeStep",
+                "total-count-function": "getTotalCount",
+                "read-function": "read",
+                "process-function": "process",
+                "write-function": "write",
+                "after-step-function": "afterStep",
+                "chunk-size": 350,
+                "transactional": "false",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "storefrontCatalogID",
+                            "description": "StorefrontCatalogID ID",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "updateUnorderableVariants",
+                            "description": "Also update isOutlet status of unorderable variants and add the color to the master product's outlet color array.",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "default-value": "false"
+                        },
+                        {
+                            "@name": "processOnlineOrEcommAssortmentProductsOnly",
+                            "description": "Process online or e-comm assortment product only",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "default-value": "false"
+                        },
+                        {
+                            "@name": "useProductSearchModel",
+                            "description": "Use Product Search Model instead of ProductMgr",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "default-value": "false"
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when the step failed with an error."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when the step finished successfully."
+                        }
+                    ]
+                }
+            },
+            {
+                "@type-id": "custom.assignSizeChartCode",
+                "@supports-parallel-execution": "true",
+                "@supports-site-context": "true",
+                "@supports-organization-context": "false",
+                "module": "bc_jobs/cartridge/scripts/catalog/AssignSizeChartCode.js",
+                "description": "Find price-descrepancies and create outlet configurations",
+                "before-step-function": "beforeStep",
+                "total-count-function": "getTotalCount",
+                "read-function": "read",
+                "process-function": "process",
+                "write-function": "write",
+                "after-step-function": "afterStep",
+                "chunk-size": 350,
+                "transactional": "false",
+                "parameters": {
+                    "parameter": [
+                        {
+                            "@name": "storefrontCatalogID",
+                            "description": "StorefrontCatalogID ID",
+                            "@type": "string",
+                            "@required": "true"
+                        },
+                        {
+                            "@name": "isQueryAllForSiteProducts",
+                            "description": "Run Job for all Products on the site.",
+                            "@type": "boolean",
+                            "@required": "false",
+                            "default-value": "false"
+                        }
+                    ]
+                },
+                "status-codes": {
+                    "status": [
+                        {
+                            "@code": "ERROR",
+                            "description": "Used when the step failed with an error."
+                        },
+                        {
+                            "@code": "OK",
+                            "description": "Used when the step finished successfully."
                         }
                     ]
                 }

@@ -3,7 +3,6 @@
 var assert = require('chai').assert;
 var proxyquire = require('proxyquire').noCallThru().noPreserveCache();
 
-
 describe('BaseAttributeValue model', function () {
     var refinementDefinition = {};
     var baseAttributeValue = {};
@@ -39,6 +38,7 @@ describe('BaseAttributeValue model', function () {
 
         assert.deepEqual(baseAttributeValue, {
             actionEndpoint: 'Search-ShowAjax',
+            seoRefineEndpoint: 'Search-Show',
             hitCount: 10,
             id: 'product 1',
             presentationId: 'prez',

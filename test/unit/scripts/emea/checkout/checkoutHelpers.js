@@ -50,6 +50,9 @@ var checkoutHelpers = proxyquire('../../../../../cartridges/app_ua_emea/cartridg
     '*/cartridge/scripts/utils/checkCrossSiteScript': {
         crossSiteScriptPatterns: crossSiteScriptPatternsStub
     },
+    '*/cartridge/scripts/util/loggerHelper': {
+        getLoggingObject: () => ''
+    },
     '*/cartridge/scripts/giftcard/giftcardHelper': {
         basketHasOnlyEGiftCards: basketHasOnlyEGiftCardsStub
     },

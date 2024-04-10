@@ -17,6 +17,23 @@ function Shipment() {
     this.adjustedMerchandizeTotalPrice = {
         value: 5
     };
+    this.shippingTotalGrossPrice = {
+        available: true,
+        value: 5
+    };
+    this.shippingTotalNetPrice = {
+        available: true,
+        value: 5
+    };
+    this.adjustedShippingTotalGrossPrice = {
+        available: true,
+        value: 5
+    };
+    this.adjustedShippingTotalNetPrice = {
+        available: true,
+        value: 5
+    };
+    this.shippingPriceAdjustments = new ArrayList();
     this.isGift = false;
     this.gift = true;
     this.message = '';

@@ -26,7 +26,7 @@
         responseCartItem.quantity = qtyOverride;
       }
       var qty = qtyOverride || responseCartItem.quantity;
-      var msrp = responseCartItem.price.list || responseCartItem.price.priceBookSalesPrice;
+      var msrp = responseCartItem.price ? (responseCartItem.price.list || responseCartItem.price.priceBookSalesPrice) : undefined;
       var bopisMessage = uaDatalayer.getPageData().products && uaDatalayer.getPageData().products.length > 0 ? uaDatalayer.getPageData().products[0].product_bopis_message : '';
       var bopisStock =  uaDatalayer.getPageData().products && uaDatalayer.getPageData().products.length > 0 ? uaDatalayer.getPageData().products[0].product_bopis_stock : false;
       if ($('.isStoreAvailable').val() == 'true') {
@@ -115,7 +115,7 @@
           }
           addedProduct = {
               pid: $btn.attr('data-pid'),
-              qty: $btn.find('.js-quantity-select').val()
+              qty: $btn.find('.js-quantity-select').val() || $btn.attr('data-qty') || "1"
           };
       });
       /**
@@ -145,7 +145,7 @@
           if (initiatedByPaypalButton) {
               payload.abandon_checkout_field = 'checkout : paypal PDP';
           }
-          if ($('.isBopisEnabled').val() == 'true') { 
+          if ($('.isBopisEnabled').val() == 'true') {
               try {
                   var msg = 'unavailable for pickup';
                   var selected = false;

@@ -2,7 +2,7 @@
 set -e
 DIR=$(dirname $(realpath $0))
 BASEDIR=$(dirname $DIR)
-if [ -f "${BASEDIR}/.env" ] ; then
+if [ -f "${BASEDIR}/.env" ]; then
     . "${BASEDIR}/.env"
 fi
 
@@ -14,15 +14,15 @@ jobId=$5
 
 POD_SUFFIX=""
 case $region in
-    emea)
-        POD_SUFFIX="_eu03"
-        ;;
-    apac)
-        POD_SUFFIX="_ap01"
-        ;;
-    na-oms)
-        POD_SUFFIX="_ua03"
-        ;;
+emea)
+    POD_SUFFIX="_eu03"
+    ;;
+apac)
+    POD_SUFFIX="_ap01"
+    ;;
+na-oms)
+    POD_SUFFIX="_ua03"
+    ;;
 esac
 
 ARTIFACTS_PATH=${ARTIFACTS_PATH:-$BASEDIR/out/artifacts}
@@ -34,9 +34,9 @@ siteArchive=$(find "$ARTIFACTS_PATH" -type f -name '*-meta'"${POD_SUFFIX}"'.zip'
 # This just grabs the code package.  (the only one without `-meta` in the name)
 codeArchive=$(find "$ARTIFACTS_PATH" -type f -name '*.zip' -not -name '*-meta*.zip')
 
-if ! [ -z "$instanceType" ] ; then
+if ! [ -z "$instanceType" ]; then
     maybeSiteArchive=$(echo "$siteArchive" | sed -e "s/-meta${POD_SUFFIX}.zip/-${instanceType}-meta${POD_SUFFIX}.zip/g")
-    if [ -e $maybeSiteArchive ] ;then
+    if [ -e $maybeSiteArchive ]; then
         siteArchive=${maybeSiteArchive}
     fi
 fi
@@ -50,7 +50,7 @@ codeArchiveBase=$(basename -s .zip $codeArchive)
 echo "code artifact: $codeArchive"
 echo "meta artifact: $siteArchive"
 
-if [ -f "$(dirname $DIR)/dw.json" ] ; then
+if [ -f "$(dirname $DIR)/dw.json" ]; then
     cd $(dirname $DIR)
     npm run uploadAll
     exit $?
@@ -60,7 +60,7 @@ if [ -z "$SFCC_OAUTH_CLIENT_ID" ] || [ -z "$SFCC_OAUTH_CLIENT_SECRET" ]; then
     echo "SFCC Credentials required"
     exit 1
 fi
-if [ -z "$host" ] ; then
+if [ -z "$host" ]; then
     echo "Host required"
     exit 1
 fi
@@ -82,20 +82,23 @@ if [ ! -z "$SFCC_CERT_URL" ]; then
 fi
 
 CERT_PARAMS=
-if ! [[ -z "$SFCC_CERT_P12" ]] ; then
+if ! [[ -z "$SFCC_CERT_P12" ]]; then
     SFCC_CERT_PATH=$(mktemp)
     chmod 600 $SFCC_CERT_PATH
-    echo "$SFCC_CERT_P12" | base64 -d > $SFCC_CERT_PATH
+    echo "$SFCC_CERT_P12" | base64 -d >$SFCC_CERT_PATH
 fi
-if ! [[ "$SFCC_CERT_PATH" == */* ]] ; then
+if ! [[ "$SFCC_CERT_PATH" == */* ]]; then
     SFCC_CERT_PATH="${SFCC_CERT_BASE}/${SFCC_CERT_PATH}"
 fi
 if [ ! -z "$SFCC_CERT_PATH" ] && [ -f "$SFCC_CERT_PATH" ]; then
     CERT_PARAMS="-c '${SFCC_CERT_PATH}'"
-    if [ ! -z "$SFCC_CERT_SECRET" ] ; then
+    if [ ! -z "$SFCC_CERT_SECRET" ]; then
         CERT_PARAMS="${CERT_PARAMS} -p '${SFCC_CERT_SECRET}'"
     fi
 fi
+
+# Fix for node.js >= 17: Legacy OpenSSL is required for SFCC 2FA client certs
+export NODE_OPTIONS=--openssl-legacy-provider
 
 function execSfccCI {
     if [ ! -z "$DRY_RUN" ] && [[ "$DRY_RUN" != "false" ]] && [[ "$DRY_RUN" != "null" ]]; then
@@ -106,11 +109,11 @@ function execSfccCI {
 }
 
 execSfccCI client:auth
-if [ "$instanceType" == "prd" ] ; then
+if [ "$instanceType" == "prd" ]; then
     execSfccCI job:run "${jobId}" -i "${host}" --sync
 else
     certhost=${SFCC_CERT_URL-$HOST}
-    if  [ -e "$siteArchive" ] ; then
+    if [ -e "$siteArchive" ]; then
         execSfccCI instance:upload ${siteArchive} -i "${certhost}" "${CERT_PARAMS[@]}"
         execSfccCI instance:import ${siteArchiveBase} -i ${host} --sync
     fi

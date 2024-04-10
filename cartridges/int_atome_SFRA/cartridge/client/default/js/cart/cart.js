@@ -607,7 +607,7 @@ module.exports = function () {
             }
         });
     });
-    $('body').on('click', '.cart-page .bonus-product-button', function () {
+    $('body').on('click', '.cart-page .bonus-product-button button', function () {
         $.spinner().start();
         $(this).addClass('launched-modal');
         $.ajax({

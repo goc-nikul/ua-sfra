@@ -1,6 +1,5 @@
 'use strict';
 
-
 /**
  * appends params to a url
  * @param {string} data - data returned from the server's ajax call
@@ -17,9 +16,10 @@ function displayMessage(data, button) {
 
     if ($('.add-to-wishlist-messages').length === 0) {
         $('body').append(
-        '<div class="add-to-wishlist-messages "></div>'
+            '<div class="add-to-wishlist-messages "></div>'
         );
     }
+
     $('.add-to-wishlist-messages')
         .append('<div class="add-to-wishlist-alert text-center ' + status + '">' + data.msg + '</div>');
 

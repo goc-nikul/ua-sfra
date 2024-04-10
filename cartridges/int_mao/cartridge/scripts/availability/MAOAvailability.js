@@ -4,6 +4,7 @@
 const AvailabilityHelper = require('int_mao/cartridge/scripts/availability/MAOAvailabilityHelper');
 const MaoService = require('int_mao/cartridge/scripts/services/MaoService');
 const MAOAuthTokenHelper = require('int_mao/cartridge/scripts/MAOAuthTokenHelper');
+const logger = require('dw/system/Logger').getLogger('constructor', 'constructor');
 
 /**
  *
@@ -35,6 +36,13 @@ function getMaoAvailability(items, locations, saveToken) {
             responseObject = availabilityService.call(availabilityServiceRequest, endPointUrl);
             if (!empty(responseObject) && !empty(responseObject.status) && responseObject.status === 'OK') {
                 availabilityResponse = responseObject.object;
+
+                // if we get the quantity of the item(s) from MAO, send inventory to Constructor
+                if (typeof availabilityResponse === 'object' && Object.keys(availabilityResponse).length > 0) {
+                    logger.info('item: ' + items[0]);
+                    logger.info('MAO availability response: ' + availabilityResponse[items[0]]);
+                    AvailabilityHelper.sendInventoryToConstructor(availabilityResponse);
+                }
             }
         }
     } catch (e) {

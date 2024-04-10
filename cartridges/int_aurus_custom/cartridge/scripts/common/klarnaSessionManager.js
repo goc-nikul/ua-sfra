@@ -53,29 +53,29 @@ supermdl.prototype.createSessionOCAPI = function (klarnaPaymentInstrument, scope
         return null;
     }
 
-    AurusLogger.info('createSessionOCAPI');
-    var enableAurusPay = require('*/cartridge/scripts/helpers/sitePreferencesHelper').isAurusEnabled();
-    if (enableAurusPay) {
-        try {
+    try {
+        AurusLogger.info('createSessionOCAPI');
+        var enableAurusPay = require('*/cartridge/scripts/helpers/sitePreferencesHelper').isAurusEnabled();
+        if (enableAurusPay) {
             var aurusPayHelper = require('*/cartridge/scripts/util/aurusPayHelper');
             response = aurusPayHelper.getSession(basket);
 
             Transaction.wrap(function () {
                 klarnaPaymentInstrument.custom.ott = response['session_id']; // eslint-disable-line
             });
-        } catch (error) {
-            log.error('createSessionOCAPI OCAPI: {0}', JSON.stringify(error));
+        } else {
+            var createSessionHelper = require('*/cartridge/scripts/session/klarnaPaymentsCreateSession');
+            response = createSessionHelper.createSession(basket, localeObject, scope);
         }
-    } else {
-        var createSessionHelper = require('*/cartridge/scripts/session/klarnaPaymentsCreateSession');
-        response = createSessionHelper.createSession(basket, localeObject, scope);
-    }
 
-    AurusLogger.info('createSessionOCAPI response: {0}', JSON.stringify(response));
-    Transaction.wrap(function () {
-        klarnaPaymentInstrument.custom.KlarnaPaymentsSessionID = response.session_id; // eslint-disable-line
-        klarnaPaymentInstrument.custom.KlarnaPaymentsClientToken = response.client_token; // eslint-disable-line
-    });
+        AurusLogger.info('createSessionOCAPI response: {0}', JSON.stringify(response));
+        Transaction.wrap(function () {
+            klarnaPaymentInstrument.custom.KlarnaPaymentsSessionID = response.session_id; // eslint-disable-line
+            klarnaPaymentInstrument.custom.KlarnaPaymentsClientToken = response.client_token; // eslint-disable-line
+        });
+    } catch (error) {
+        log.error('createSessionOCAPI OCAPI: {0}', JSON.stringify(error));
+    }
 
     return response;
 };
@@ -90,7 +90,8 @@ supermdl.prototype.createOrUpdateSessionOCAPI = function (basket) { // eslint-di
         if (basket && basket.getPaymentInstruments('KLARNA_PAYMENTS').length > 0) {
             var klarnaPaymentInstrument = basket.getPaymentInstruments('KLARNA_PAYMENTS')[0];
             // Klarna session creation/updation call
-            if (klarnaPaymentInstrument.custom.KlarnaPaymentsSessionID) {
+            let kpSessionId = 'kpSessionId' in basket.custom && basket.custom.kpSessionId ? basket.custom.kpSessionId : null;
+            if (klarnaPaymentInstrument.custom.KlarnaPaymentsSessionID && kpSessionId) {
                 AurusLogger.info('KlarnaPaymentsSessionID: {0}', klarnaPaymentInstrument.custom.KlarnaPaymentsSessionID);
                 // refresh klarna session
                 return this.refreshSessionOCAPI(klarnaPaymentInstrument, 'OCAPI');

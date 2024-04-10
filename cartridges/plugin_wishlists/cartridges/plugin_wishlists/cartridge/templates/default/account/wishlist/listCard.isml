@@ -8,7 +8,11 @@
         <div class="col-2 hidden-xs-down"> <!---hide xs--->
             <button type="button" class="remove-btn remove-from-wishlist btn btn-light"
                 data-url="${URLUtils.url('Wishlist-RemoveProductAccount','pid', item.pid)}"
-                aria-label="remove">
+                <isif condition="${item.variantAttributes}">
+                aria-label="${Resource.msgf('wishlist.remove.item.variant', 'wishlist', null, item.name, item.variantAttributes)}">
+                <iselse>
+                aria-label="${Resource.msgf('wishlist.remove.item', 'wishlist', null, item.name)}">
+                </isif>
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>

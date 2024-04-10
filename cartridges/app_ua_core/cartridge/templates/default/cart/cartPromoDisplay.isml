@@ -10,7 +10,7 @@
         </isif>
     </isloop>
 --->
-    <div class="order-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.orderLevelDiscountTotal.value === 0}">hide-order-discount</isif>">
+    <div class="order-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.totals.orderLevelDiscountTotal.value === 0 && pdict.totals.discountDistribution.employeeDiscountTotalValue === 0}">hide-order-discount</isif>">
         <span class="order-summary_itemsattr">
             <isif condition="${customer.authenticated && customer.profile.custom.isEmployee}">
                 <span>${Resource.msg('employee.order.discount', 'common', null)}:</span>

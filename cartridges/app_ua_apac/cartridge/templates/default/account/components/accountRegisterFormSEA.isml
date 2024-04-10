@@ -5,8 +5,11 @@
     data-cmp="formGeneric"
     name="${pdict.profileForm.htmlName}">
     
+    <span id="mobileauth-register" class="d-none" data-mobileauth-enabled="${pdict.mobileAuthEnabled}"></span>
     <isinclude template="account/components/accountName" />
-
+    <isif condition="${dw.system.Site.getCurrent().getID() === 'OC'}">
+        <isinclude template="account/components/accountSplitPhoneMobile" />
+    </isif>
     <isinclude template="account/components/accountEmail" />
     <isinclude template="account/components/minimumAgePreferences" />
     <div class="form-group b-order-return-input b-input_row
@@ -32,7 +35,10 @@
         <div class="invalid-feedback-email"></div>
     </div>
 
-    <isinclude template="account/components/accountSplitPhoneMobile" />
+    <isif condition="${dw.system.Site.getCurrent().getID() !== 'OC'}">
+        <isinclude template="account/components/accountSplitPhoneMobile" />
+    </isif>
+
     <!-- adding site spesific class for KR to display brith and gender field in single row for small devices -->
     <div class="b-account_form-row b-account_form-row-three clear ${dw.system.Site.getCurrent().getID() === 'KR' ? 'b-account_form-row-bday-kr' : 'b-account_form-row-bday' }">
 
@@ -42,7 +48,11 @@
                     <label class="form-control-label b-year-label"  for="birthYear">
                         <isprint value="${pdict.profileForm.customer.birthYear.label}" encoding="htmlcontent" />
                     </label>
-                    <select class="form-control b-year-select order-return-form-input" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" id="birthYear" data-minimum-age="${Resource.msgf('msg.age.validation','forms',null,pdict.minimumAgeRestriction)}"
+                    <select class="form-control b-year-select order-return-form-input"
+                    ${pdict.mobileAuthDisableRegistrationFields ? 'disabled': ''}
+                    data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}"
+                    id="birthYear"
+                    data-minimum-age="${Resource.msgf('msg.age.validation','forms',null,pdict.minimumAgeRestriction)}"
                         <isprint value="${pdict.profileForm.customer.birthYear.attributes}" encoding="off" />>
                         <isloop items=${pdict.profileForm.customer.birthYear.options} var="birthYear">
                             <option id="${birthYear.id}" value="${birthYear.htmlValue}" <isif condition="${birthYear.selected}">selected</isif>>${birthYear.label || ' '}</option>
@@ -61,7 +71,11 @@
                 <label class="form-control-label b-month-label"  for="birthMonth">
                     <isprint value="${pdict.profileForm.customer.birthMonth.label}" encoding="htmlcontent" />
                 </label>
-                <select class="form-control b-month-select order-return-form-input" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" id="birthMonth"
+                <select class="form-control b-month-select order-return-form-input"
+                ${pdict.mobileAuthDisableRegistrationFields ? 'disabled': ''}
+                data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}"
+                id="birthMonth"
+                    <isif condition="${dw.system.Site.getCurrent().getID() === 'OC'}">required</isif>
                     <isprint value="${pdict.profileForm.customer.birthMonth.attributes}" encoding="off" />>
                     <isloop items=${pdict.profileForm.customer.birthMonth.options} var="birthMonth">
                         <option id="${birthMonth.id}" value="${birthMonth.htmlValue}" <isif condition="${birthMonth.selected}">selected</isif>>${birthMonth.label || ' '}</option>
@@ -79,7 +93,11 @@
                 <label class="form-control-label b-day-label" for="birthDay">
                     <isprint value="${pdict.profileForm.customer.birthDay.label}" encoding="htmlcontent" />
                 </label>
-                <select class="form-control b-day-select order-return-form-input" data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" id="birthDay"
+                <select class="form-control b-day-select order-return-form-input"
+                ${pdict.mobileAuthDisableRegistrationFields ? 'disabled': ''}
+                data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}"
+                id="birthDay"
+                    <isif condition="${dw.system.Site.getCurrent().getID() === 'OC'}">required</isif>
                     <isprint value="${pdict.profileForm.customer.birthDay.attributes}" encoding="off" />>
                     <isloop items=${pdict.profileForm.customer.birthDay.options} var="birthDay">
                         <option id="${birthDay.id}" value="${birthDay.htmlValue}" <isif condition="${birthDay.selected}">selected</isif>>${birthDay.label || ' '}</option>
@@ -117,8 +135,10 @@
                     <label class="form-control-label b-gender-label" for="gender">
                         <isprint value="${pdict.profileForm.customer.gender.label}" encoding="htmlcontent" />
                     </label>
-                    <select class="form-control b-gender-select order-return-form-input" id="gender"
-                        <isprint value="${pdict.profileForm.customer.gender.attributes}" encoding="off" />>
+                    <select class="form-control b-gender-select order-return-form-input"
+                    ${pdict.mobileAuthDisableRegistrationFields ? 'disabled': ''}
+                    id="gender"
+                    <isprint value="${pdict.profileForm.customer.gender.attributes}" encoding="off" />>
                         <isloop items=${pdict.profileForm.customer.gender.options} var="gender">
                             <option id="${gender.id}" value="${gender.htmlValue}" <isif condition="${gender.selected}">selected</isif>>${gender.label || ' '}</option>
                         </isloop>
@@ -148,6 +168,7 @@
 
     <div class=" form-group submit-section text-center mb-4 submit-tans-sec">
     <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+    <input type="hidden" name="customer-ci" value="${session.privacy.ci || ''}">
     <button class="btn btn-primary btn-block js-createaccount-button g-button_base g-button_primary--black" name="${pdict.CurrentForms.profile.create.htmlName}">
         ${Resource.msg('button.createaccount.registration', 'login', null)}
     </button>
@@ -159,8 +180,9 @@
     <isinclude template="account/components/oauth" />
 </isif>
 <iscomment> NAVER SSO LOGIN </iscomment>
-<isif condition="${dw.system.Site.current.getCustomPreferenceValue('isNaverSSOEnabled')}">
+<isif condition="${dw.system.Site.current.getCustomPreferenceValue('isNaverSSOEnabled') && !!dw.system.Site.current.getCustomPreferenceValue('displayNaverButtonOnRegistration')}">
     <isset name="naverButtonImgURL" value="${dw.system.Site.current.getCustomPreferenceValue('naverRegisterBtnImageUrl').getAbsURL()}" scope="page" />
     <isset name="naverButtonDestination" value="showRegisterModal" scope="page" />
+    <isset name="naverAccountDeletion" value="${false}" scope="page" />
     <isinclude template="account/components/naverSSO.isml" />
 </isif>

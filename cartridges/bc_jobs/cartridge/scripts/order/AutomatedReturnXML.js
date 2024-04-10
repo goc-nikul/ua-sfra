@@ -72,6 +72,14 @@ function execute() {
             xsw.writeCharacters(ret.custom.trackingNumber);
             xsw.writeEndElement(); //</tracking-no>
             xsw.writeCharacters("\n");
+            xsw.writeStartElement("tracking-link");
+            xsw.writeCharacters(ret.custom.trackingLink);
+            xsw.writeEndElement(); //</tracking-link>
+            xsw.writeCharacters("\n");
+            xsw.writeStartElement("shipment-provider");
+            xsw.writeCharacters(ret.custom.returnShipmentProvider);
+            xsw.writeEndElement(); //</shipment-provider>
+            xsw.writeCharacters("\n");
         }
         
         if (new (ReturnsUtils)().getPreferenceValue("includeReturnCurrency") == true) {

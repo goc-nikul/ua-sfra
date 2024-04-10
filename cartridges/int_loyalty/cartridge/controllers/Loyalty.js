@@ -18,16 +18,38 @@ server.get(
     csrfProtection.generateToken,
     server.middleware.include,
     function (req, res, next) {
-        const pilotForm = server.forms.getForm('pilotCheck');
-        pilotForm.clear();
-        res.render('loyalty/pilotZipCheck', {
-            forms: {
-                pilot: pilotForm
-            },
-            formActions: {
-                pilot: URLUtils.url('Loyalty-PilotZipCheckEnrollment').toString()
+        if (!loyaltyHelper.isLoyaltyPilotEnabled()) {
+            if (!customer.isAuthenticated()) {
+                res.render('components/pilotZipCheck/pilotZipCheckAccountLogin');
+            } else if (!customer.isMemberOfCustomerGroup('Loyalty')) {
+                res.render('components/pilotGatedEnrollRegistred', {
+                    pageData: {
+                        formActions: {
+                            enrollRegistred: URLUtils.url('Loyalty-Enroll', 'marketing', 'true').toString()
+                        }
+                    }
+                });
+            } else {
+                const rewardsLockerURL = loyaltyHelper.getRewardsLockerURL();
+
+                res.render('components/loyaltyAlreadyEnrolled', {
+                    pageData: {
+                        rewardsLockerURL: rewardsLockerURL
+                    }
+                });
             }
-        });
+        } else {
+            const pilotForm = server.forms.getForm('pilotCheck');
+            pilotForm.clear();
+            res.render('loyalty/pilotZipCheck', {
+                forms: {
+                    pilot: pilotForm
+                },
+                formActions: {
+                    pilot: URLUtils.url('Loyalty-PilotZipCheckEnrollment').toString()
+                }
+            });
+        }
         return next();
     }
 );

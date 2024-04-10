@@ -244,6 +244,21 @@
             </step>
         </flow>
         <flow>
+            <context site-id="MX"/>
+            <step step-id="Logging-Exported-Orders" type="custom.LogExportedOrders" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FilePath">/src/export/orders/</parameter>
+                    <parameter name="filePattern">^.*export_orders_MX.*xml</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-flow/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
             <context site-id="Sites"/>
             <step step-id="Archive Orders - MX" type="custom.ZipFiles" enforce-restart="true">
                 <description/>
@@ -469,6 +484,74 @@
                     </day-of-week>
                 </recurrence>
             </run-recurring>
+        </triggers>
+    </job>
+
+    <job job-id="UpdatePreorderInventory" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="updatePreorderInventory" type="custom.updatePreorderInventory" enforce-restart="false">
+                <description>Accepts a CSV list of products from site preference preOrderProductList and sets inventory preorder-backorder-handling flag to 'preorder' on the inventory record.
+Accepts a CSV list of products from site preference inStockProductList and sets inventory preorder-backorder-handling flag to 'none' on the inventory record.
+When master product is provided, all variants under the master are updated.
+Updates product custom attributes isPreOrder, preOrderPDPMessage, preOrderProductTileMessage with ShipBy date (MAO date + Number of days from site preference preOrderShipByDateDiff)</description>
+                <parameters>
+                    <parameter name="fileNamePrefix">US_UpdatePreorderInventory</parameter>
+                    <parameter name="targetDirectoryPath">src/inventory/preorder</parameter>
+                    <parameter name="inventoryListId">US_Ecomm_Inventory</parameter>
+                    <parameter name="inventoryListDefaultInStockFlag">false</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportPreorderInventoryList" type="ImportInventoryLists" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">inventory/preorder</parameter>
+                    <parameter name="FileNamePattern">US_UpdatePreorderInventory.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">ERROR</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">/src/archive/inventory/preorder</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="false">
+                <mark-job-as-hanging/>
+            </on-running>
+        </rules>
+        <triggers>
+            <run-once enabled="false">
+                <date>2023-03-27Z</date>
+                <time>10:00:00.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
+    <job job-id="wishlistCleanup" priority="0">
+        <description>Removes products from wishlists that are not in catalog anymore, that are offline, that have stock 0 longer than 356 days. It also removes wishlists that are without products</description>
+        <parameters/>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="wishlistCleanup" type="custom.wishlistCleanup" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="stockDateDaysLimit">365</parameter>
+                    <parameter name="exceptionProducts">GC00001</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2023-10-13Z</date>
+                <time>19:54:00.000Z</time>
+            </run-once>
         </triggers>
     </job>
 

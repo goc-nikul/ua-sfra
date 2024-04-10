@@ -1,21 +1,45 @@
+<isset name="loyaltyHelper" value="${require('*/cartridge/scripts/helpers/loyaltyHelper')}" scope="page" />
+<isset name="isLoyaltyPilotEnabled" value="${loyaltyHelper.isLoyaltyPilotEnabled()}" scope="page" />
+
 <div class="b-gated-enrollment_header b-gated-enrollment_header-login">
-    <div class="b-gated-enrollment_header_bold">
-        ${Resource.msg('loyalty.gated.win','loyalty', null)}
-    </div>
-    <isprint value="${Resource.msg('label.enroll.paragraph','loyalty', null)}" encoding="off" />
+    <isif condition="${isLoyaltyPilotEnabled}">
+        <div class="b-gated-enrollment_header_bold">
+            ${Resource.msg('loyalty.gated.win','loyalty', null)}
+        </div>
+        <div>
+            <isprint value="${Resource.msg('label.enroll.paragraph.rewards.launched', 'loyalty', null)}" encoding="off" />
+        </div>
+        <div>
+            <isprint value="${Resource.msg('label.enroll.paragraph.rewards.chance', 'loyalty', null)}" encoding="off" />
+        </div>
+    <iselse/>
+        <div class="b-gated-enrollment_header_bold">
+            ${Resource.msg('loyalty.gated.win.nozip','loyalty', null)}
+        </div>
+        <div>
+            <isprint value="${Resource.msg('label.enroll.paragraph.nozip','loyalty', null)}" encoding="off" />
+        </div>
+    </isif>
 </div>
-<div class="b-block-group">
+<div class="
+        b-block-group
+        ${!isLoyaltyPilotEnabled ? 'no-zip-check' : ''}
+">
     <a
         href="${URLUtils.https('Account-Show', 'pilotEnroll', true)}"
         class="btn btn-block g-button_base g-button_secondary--black js-login"
         data-href="${URLUtils.https('Login-Show', 'pilotEnroll', true)}"
         role="button"
         aria-label="${Resource.msg('label.header.loginbutton', 'account', null)}"
-        >${Resource.msg('loyalty.gated.login','loyalty', null)}</a>
+    >
+        ${Resource.msg('loyalty.gated.login','loyalty', null)}
+    </a>
     <a
         href="javascript:void(0);"
         data-href="${URLUtils.https('Login-CreateAccountModal', 'pilotEnroll', true)}"
         class="btn btn-block g-button_primary--black g-button_base js-register b-block-group_create-account"
         role="button"
-        >${Resource.msg('loyalty.gated.create.account','loyalty', null)}</a>
+    >
+        ${Resource.msg('loyalty.gated.create.account','loyalty', null)}
+    </a>
 </div>

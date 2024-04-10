@@ -1,0 +1,120 @@
+<isscript>
+    var assets = require('*/cartridge/scripts/assets.js');
+    assets.addJs('/js/sharedBasketPage.js');
+    assets.addCss('/css/cart.css');
+</isscript>
+
+<link rel="stylesheet" href="${URLUtils.staticURL('/css/sharedBasket.css')}" />
+
+<isdecorate template="common/layout/page">
+    <iscomment> Products </iscomment>
+    <div class="b-cart-content b-cart-inner-content_left cart-left-inner" id="productsDiv">
+        <div class="b-sharebasket">
+            <h1 class="b-sharebasket_title">
+                ${Resource.msg('title.landing.page', 'sharedBasket', null)}
+            </h1>
+        </div>
+        <div class="b-cart-content_row sharedbasket-products">
+            <div class="b-cart-content_left">
+                <div class="list-items_select-all">
+                    <input type="checkbox" name="selectAll" id="cbSelectAll" class="sharedBasket-checkbox select-all"/>
+                    <label for="cbSelectAll" class="select-all_text" >${Resource.msg('option.return.selectall', 'account', null)}</label>
+                </div>
+                <isloop items="${pdict.items}" var="lineItem" status="loopState">
+                    <div class="list-items">
+                        <label for="${lineItem.id}">
+                            <div class="product-card ${lineItem.id}-card" ${lineItem.id === pdict.items[ pdict.items.length-1].id ? 'id = last' : ''}>
+                                <isinclude template="cart/sharedBasketProductCard"/>
+                            </div>
+                        </label>
+                    </div>
+                </isloop>
+            </div>
+        </div>
+        <div class="add-to-cart-btn">
+            <div class="sharedbasket-add-error d-none">
+                ${Resource.msg('error.addtocart', 'sharedBasket', null)}
+            </div>
+            <button type="button" data-action-url="${URLUtils.https('QRcode-AddToCart')}" name="addBtn" id="addBtn"
+            class="g-button_base g-button_tertiary btn-block js-checkout-button">
+                ${Resource.msg('button.addtocart', 'common', null)}
+            </button>
+        </div>
+        <isif condition="${!empty(pdict.countries)}">
+            <div class="country-switch-container">
+                <div class="b-localeswitch">
+                    <h1 class="b-localeswitch_title">
+                        ${Resource.msg('localization.country.title', 'content', null)}
+                    </h1>
+                </div>
+                <iscomment> Country Switcher </iscomment>
+                <div class="country-selector-wrapper">
+                    <div class="country-selector-btn-wrapper" id="countryBtn">
+                        <button class="country-selector-btn" aria-controls="countrySelector">
+                            <div id="countryBtnText" class="country-selector">
+                                <i class="country-selector b-header_utility-toggle_icon fflag fflag-${pdict.currCountry.toUpperCase()}"></i>
+                                ${pdict.currCountry}
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="country-selector bi bi-caret-down-fill" viewBox="0 0 16 16">
+                                <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                            </svg>
+                            <span id="current-country" hidden>${pdict.currCountry}</span>
+                            <span id="new-country" data-url="${URLUtils.https('QRcode-UpdateLocale')}" hidden>${pdict.currCountry}</span>
+                        </button>
+                    </div>
+                    <div id="countrySelector" class="country-selector selector locale-switcher">
+                        <ul>
+                            <isloop items="${pdict.countries}" var="country">
+                                <li class="b-header_utility-subitem countries">
+                                    <div class="country-div">
+                                        <i class="b-header_utility-icon fflag fflag-${country.countryCode.toUpperCase()}"></i>
+                                        <span class="countryCode" color="black" data-url=${country.url}>${country.countryCode}</span>
+                                        <span class="${country.countryCode}-locales" hidden>${JSON.stringify(country.locales)}</span>
+                                        <span class="${country.countryCode}-languages" hidden>${JSON.stringify(country.displayLanguages)}</span>
+                                    </div>
+                                </li>
+                            </isloop>
+                        </ul>
+                    </div>
+                </div>
+                <iscomment> Locale Switcher </iscomment>
+                <div class="language-selector-wrapper">
+                    <div class="language-selector-btn-wrapper" id="langBtn">
+                        <button class="language-selector-btn" aria-controls="localeSelector">
+                            <div id="langBtnText" class="language-selector"> ${pdict.currLanguage[0].toUpperCase() + pdict.currLanguage.substring(1)} </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="language-selector bi bi-caret-down-fill" viewBox="0 0 16 16">
+                                <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <span id="new-language" hidden>${pdict.currLanguage}</span>
+                    <span id="currLang" hidden>${pdict.currLanguage}</span>
+                    <div id="localeSelector" class="language-selector selector locale-switcher">
+                        <ul id="langList">
+                            <isloop items="${pdict.languages}" var="option">
+                                <li class="b-header_utility-subitem locales" data-language="${option.id}">
+                                    ${option.displayName} 
+                                </li>
+                            </isloop>
+                        </ul>
+                    </div>
+                </div>
+                <div class="submit-btn">
+                    <button type="button" data-action-url="${URLUtils.https('QRcode-UpdateLocale')}" id="changeLocaleBtn"
+                    class="g-button_base g-button_primary--black btn-block locale-switch">${Resource.msg('button.submit.promo.code.desktop', 'cart', null)}</button>
+                </div>
+            </div>
+        </isif>
+    </div>
+    <div class="b-cart-content b-cart-content-recommendation cart-recommendation-sec">
+        <div class="b-cart-content_row">
+            <div class="b-cart-content_left" id="slot-recommendation-sharedBasket">
+                <div class="b-cart-inner-content_left">
+                    <div class="recommendations">
+                        <isslot id="cart-recommendations-2" description="Recommended products" context="global" context-object="${pdict.productCollection}"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</isdecorate>

@@ -30,11 +30,11 @@ function updateShippingAddressSelector(productLineItem, shipping, order, custome
         $shippingAddressSelector.append(addressHelpers.methods.optionValueForAddress(
             null,
             false,
-            order));
-        // Separator -
-        $shippingAddressSelector.append(addressHelpers.methods.optionValueForAddress(
-            order.resources.shippingAddresses, false, order, { className: 'multi-shipping' }
+            order
         ));
+
+        // Separator -
+        $shippingAddressSelector.append(addressHelpers.methods.optionValueForAddress(order.resources.shippingAddresses, false, order, { className: 'multi-shipping' }));
 
         shippings.forEach(function (aShipping) {
             if (!aShipping.selectedShippingMethod || !aShipping.selectedShippingMethod.storePickupEnabled) {
@@ -42,10 +42,10 @@ function updateShippingAddressSelector(productLineItem, shipping, order, custome
                 hasSelectedAddress = hasSelectedAddress || isSelected;
 
                 var addressOption = addressHelpers.methods.optionValueForAddress(
-                        aShipping,
-                        isSelected,
-                        order,
-                        { className: 'multi-shipping' }
+                    aShipping,
+                    isSelected,
+                    order,
+                    { className: 'multi-shipping' }
                 );
                 var newAddress = addressOption.html() === order.resources.addNewAddress;
                 var matchingUUID = aShipping.UUID === shipping.UUID;
@@ -58,8 +58,7 @@ function updateShippingAddressSelector(productLineItem, shipping, order, custome
             }
         });
         if (customer.addresses && customer.addresses.length > 0) {
-            $shippingAddressSelector.append(addressHelpers.methods.optionValueForAddress(
-                order.resources.accountAddresses, false, order));
+            $shippingAddressSelector.append(addressHelpers.methods.optionValueForAddress(order.resources.accountAddresses, false, order));
             customer.addresses.forEach(function (address) {
                 var isSelected = shipping.matchingAddressId === address.ID;
                 $shippingAddressSelector.append(
@@ -185,45 +184,46 @@ base.saveMultiShipInfo = function () {
                 dataType: 'json',
                 data: data
             })
-            .done(function (response) {
-                baseFormHelpers.clearPreviousErrors(form);
-                if (response.error) {
-                    if (response.fieldErrors && response.fieldErrors.length) {
-                        response.fieldErrors.forEach(function (error) {
-                            if (Object.keys(error).length) {
-                                baseFormHelpers.loadFormErrors(form, error);
-                            }
-                        });
-                    } else if (response.serverErrors && response.serverErrors.length) {
-                        $.each(response.serverErrors, function (index, element) {
-                            base.methods.createErrorNotification(element);
-                        });
-                    }
-                } else {
-                    // Update UI from response
-                    $('body').trigger('checkout:updateCheckoutView',
-                        {
-                            order: response.order,
-                            customer: response.customer
+                .done(function (response) {
+                    baseFormHelpers.clearPreviousErrors(form);
+                    if (response.error) {
+                        if (response.fieldErrors && response.fieldErrors.length) {
+                            response.fieldErrors.forEach(function (error) {
+                                if (Object.keys(error).length) {
+                                    baseFormHelpers.loadFormErrors(form, error);
+                                }
+                            });
+                        } else if (response.serverErrors && response.serverErrors.length) {
+                            $.each(response.serverErrors, function (index, element) {
+                                base.methods.createErrorNotification(element);
+                            });
                         }
-                    );
+                    } else {
+                    // Update UI from response
+                        $('body').trigger(
+                            'checkout:updateCheckoutView',
+                            {
+                                order: response.order,
+                                customer: response.customer
+                            }
+                        );
 
-                    base.methods.viewMultishipAddress($rootEl);
-                }
+                        base.methods.viewMultishipAddress($rootEl);
+                    }
 
-                if (response.order && response.order.shippable) {
-                    $('button.submit-shipping').attr('disabled', null);
-                }
+                    if (response.order && response.order.shippable) {
+                        $('button.submit-shipping').attr('disabled', null);
+                    }
 
-                $rootEl.spinner().stop();
-            })
-            .fail(function (err) {
-                if (err.responseJSON.redirectUrl) {
-                    window.location.href = err.responseJSON.redirectUrl;
-                }
+                    $rootEl.spinner().stop();
+                })
+                .fail(function (err) {
+                    if (err.responseJSON.redirectUrl) {
+                        window.location.href = err.responseJSON.redirectUrl;
+                    }
 
-                $rootEl.spinner().stop();
-            });
+                    $rootEl.spinner().stop();
+                });
         }
         return false;
     });

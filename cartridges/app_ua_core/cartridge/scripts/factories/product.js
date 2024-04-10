@@ -174,11 +174,21 @@ module.exports = {
                     default:
                         if (!exchangeOrderItem && params.variantColor && (empty(options.variationModel.selectedVariant) || options.variationModel.selectedVariant.variationModel.getImages('pdpMainDesktop').toArray().length === 0)) {
                             var ATTRIBUTE_NAME = 'color';
+                            var LENGTH_ATTRIBUTE_NAME = 'length';
+                            var SIZE_ATTRIBUTE_NAME = 'size';
                             if (options.apiProduct.variant) {
                                 apiProduct = options.apiProduct.getVariationModel().getMaster();
                             }
                             var variationModel = apiProduct.getVariationModel();
                             variationModel.setSelectedAttributeValue(ATTRIBUTE_NAME, params.variantColor);
+                            if (params.variantLength != null) {
+                                variationModel.setSelectedAttributeValue(LENGTH_ATTRIBUTE_NAME, params.variantLength);
+                            }
+                            if (params.variantSize != null) {
+                                variationModel.setSelectedAttributeValue(SIZE_ATTRIBUTE_NAME, params.variantSize);
+                            }
+                            options.PDPSelectedPID = params.PDPSelectedPID;
+                            options.variationModel = variationModel;
                             if (variationModel.getImages('pdpMainDesktop') && variationModel.getImages('pdpMainDesktop').toArray().length === 0) {
                                 var desktopImages = [];
                                 var hit = productHelper.getProductSearchHit(apiProduct);
@@ -197,7 +207,11 @@ module.exports = {
                                                 desktopImages = variationModel.getImages('pdpMainDesktop').toArray();
                                                 if (desktopImages.length > 0) {
                                                     options.apiProduct = variants[i];
-                                                    options.variationModel = variants[i].getVariationModel();
+                                                    if ('variables' in options && 'color' in options.variables && 'size' in options.variables) {
+                                                        options.variationModel = variants[i].getVariationModel();
+                                                    } else {
+                                                        options.variationModel = variationModel;
+                                                    }
                                                     options.colorAttrSelection.color = colorVariationValues.get(m).ID;
                                                     options.colorAttrSelection.colorway = variants[i].custom.colorway;
                                                     break;

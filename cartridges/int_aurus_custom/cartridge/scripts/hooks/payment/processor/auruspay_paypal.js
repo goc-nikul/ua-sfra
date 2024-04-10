@@ -3,7 +3,10 @@
 var Transaction = require('dw/system/Transaction');
 var server = require('server');
 var Site = require('dw/system/Site');
+var errorLogger = require('dw/system/Logger').getLogger('OrderFail', 'OrderFail');
 var Logger = require('dw/system/Logger').getLogger('AurusPayHelper', 'AurusPayHelper');
+var aurusPayHelper = require('*/cartridge/scripts/util/aurusPayHelper');
+var LogHelper = require('*/cartridge/scripts/util/loggerHelper');
 
 /**
  * Updates basket address from aurus response
@@ -11,9 +14,8 @@ var Logger = require('dw/system/Logger').getLogger('AurusPayHelper', 'AurusPayHe
  * @param {Object} address - address response from aurus
  */
 function updateShippingAddress(basket, address) {
-    var shippingAddress = basket.getDefaultShipment() && basket.getDefaultShipment().getShippingAddress() ? basket.getDefaultShipment().getShippingAddress() : null;
-
     Transaction.wrap(function () {
+        var shippingAddress = basket.getDefaultShipment() && basket.getDefaultShipment().getShippingAddress() ? basket.getDefaultShipment().getShippingAddress() : null;
         if (!shippingAddress) {
             shippingAddress = basket.getDefaultShipment().createShippingAddress();
         }
@@ -34,12 +36,10 @@ function updateShippingAddress(basket, address) {
  * @param {Object} address - address response from aurus
  */
 function updateBillingAddress(basket, address) {
-    var billingAddress = basket.getBillingAddress();
-
+    // EPMD-10122 : removing basket.getBillingAddress()
     Transaction.wrap(function () {
-        if (!billingAddress) {
-            billingAddress = basket.createBillingAddress();
-        }
+        // EPMD-10122 : removing billingAddress check
+        var billingAddress = basket.createBillingAddress();
         billingAddress.setFirstName(address.BillingFirstName);
         billingAddress.setLastName(address.BillingLastName);
         billingAddress.setAddress1(address.BillingAddressLine1);
@@ -64,25 +64,30 @@ function Handle(basket, isFromCart) {
     var currentBasket = basket;
     var billingAddress = currentBasket.getBillingAddress();
 
-    Transaction.wrap(function () {
-        var paymentInstruments = currentBasket.getPaymentInstruments();
-        var iterator = paymentInstruments.iterator();
-        var paymentInstrument = null;
+    try {
+        Transaction.wrap(function () {
+            var paymentInstruments = currentBasket.getPaymentInstruments();
+            var iterator = paymentInstruments.iterator();
+            var paymentInstrument = null;
 
-        while (iterator.hasNext()) {
-            paymentInstrument = iterator.next();
-            currentBasket.removePaymentInstrument(paymentInstrument);
-        }
+            while (iterator.hasNext()) {
+                paymentInstrument = iterator.next();
+                currentBasket.removePaymentInstrument(paymentInstrument);
+            }
 
-        currentBasket.createPaymentInstrument('PayPal', currentBasket.totalGrossPrice);
+            currentBasket.createPaymentInstrument('PayPal', currentBasket.totalGrossPrice);
 
-        // Create a billing address
-        if (!billingAddress && !isFromCart) {
-            billingAddress = currentBasket.createBillingAddress();
-            server.forms.getFrom('billing.billingAddress.addressFields').copyTo(billingAddress);
-            server.forms.getFrom('billing.billingAddress.addressFields.states').copyTo(billingAddress);
-        }
-    });
+            // Create a billing address
+            if (!billingAddress && !isFromCart) {
+                billingAddress = currentBasket.createBillingAddress();
+                server.forms.getFrom('billing.billingAddress.addressFields').copyTo(billingAddress);
+                server.forms.getFrom('billing.billingAddress.addressFields.states').copyTo(billingAddress);
+            }
+        });
+    } catch (error) {
+        errorLogger.error('Handle {0} : {1}', JSON.stringify(error), LogHelper.getLoggingObject());
+        Logger.error('Handle : {0}', JSON.stringify(error));
+    }
 
     return { success: true };
 }
@@ -90,24 +95,35 @@ function Handle(basket, isFromCart) {
 /**
 * This function handles the auth call
 * @param {Object} params contains shipping, billing, and OTT
+* @param {dw.order} order - the current order
 * @returns {Object} Pre auth object from service call
 */
-function aurusPayPalPreAuth(params) {
+function aurusPayPalPreAuth(params, order) {
     // Custom Scripts for Auth call
     var aurusPaySvc = require('*/cartridge/scripts/services/aurusPayServices');
-    var aurusPayHelper = require('*/cartridge/scripts/util/aurusPayHelper');
-    var auth;
+    var auth = null;
     try {
         var reqBody = aurusPayHelper.createPaypalAuthReqBody(params);
         auth = aurusPaySvc.getAuthService().call(reqBody);
-    } catch (error) {
-        Logger.error('ERROR: Error while executing pre auth for Paypal :: {0}', JSON.stringify(error));
-    }
 
-    if (auth.ok) {
-        auth = JSON.parse(auth.object.text);
-    } else {
-        auth = null;
+        if (auth.ok) {
+            auth = JSON.parse(auth.object.text);
+        } else {
+            if (auth && auth.errorMessage && order) {
+                Transaction.wrap(function () {
+                    order.trackOrderChange('Paypal Authorization Issue: ' + auth.errorMessage);
+                });
+            }
+            auth = null;
+        }
+    } catch (error) {
+        errorLogger.error('aurusPayPalPreAuth {0} : {1}', JSON.stringify(error), LogHelper.getLoggingObject());
+        Logger.error('ERROR: Error while executing pre auth for Paypal :: {0}', JSON.stringify(error));
+        if (order) {
+            Transaction.wrap(function () {
+                order.addNote('Authorization Issue', JSON.stringify(error).substring(0, 4000));
+            });
+        }
     }
 
     return auth;
@@ -122,20 +138,20 @@ function aurusPayPalPreAuth(params) {
 function getSessionToken(sessionId, baToken) {
     // Custom Scripts for Auth call
     var aurusPaySvc = require('*/cartridge/scripts/services/aurusPayServices');
-    var aurusPayHelper = require('*/cartridge/scripts/util/aurusPayHelper');
     var sessionTokenRes;
     try {
         var reqBody = aurusPayHelper.getSessionTokenReqBody(sessionId, baToken);
 
         sessionTokenRes = aurusPaySvc.getSessionTokenService().call(reqBody);
-    } catch (error) {
-        Logger.error('ERROR: Error while executing pre auth.', JSON.stringify(error));
-    }
 
-    if (sessionTokenRes.ok) {
-        sessionTokenRes = JSON.parse(sessionTokenRes.object.text);
-    } else {
-        sessionTokenRes = null;
+        if (sessionTokenRes.ok) {
+            sessionTokenRes = JSON.parse(sessionTokenRes.object.text);
+        } else {
+            sessionTokenRes = null;
+        }
+    } catch (error) {
+        errorLogger.error('getSessionToken {0} : {1}', JSON.stringify(error), LogHelper.getLoggingObject());
+        Logger.error('ERROR: Error while executing pre auth.', JSON.stringify(error));
     }
 
     return sessionTokenRes;
@@ -152,7 +168,6 @@ function getSessionToken(sessionId, baToken) {
 function Authorize(orderNumber, paymentInstrument, paymentProcessor, scope) {
     // Models for Auth call
     var BillingAddressModel = require('*/cartridge/models/billingAddressPayPal');
-    var aurusPayHelper = require('*/cartridge/scripts/util/aurusPayHelper');
     var ShippingAddressModel = require('*/cartridge/models/shippingAddress');
     var EcommInfoModel = require('*/cartridge/models/ecommInfo');
     var TransAmountDetails = require('*/cartridge/models/transactionDetails');
@@ -176,10 +191,12 @@ function Authorize(orderNumber, paymentInstrument, paymentProcessor, scope) {
             }
         }
     } catch (e) {
+        errorLogger.error('Authorize 1 {0} : {1}', JSON.stringify(e), LogHelper.getLoggingObject(order));
         Logger.error('{0} :: customer browser details : {1} :: customer authenticated : {2} :: order No : {3} :: paymentType : {4}', JSON.stringify(e), request.httpUserAgent, session.customerAuthenticated, orderNumber, 'PayPal');
     }
 
     if (!ott) {
+        errorLogger.error('OTT or Session ID missing : {0}', LogHelper.getLoggingObject(order));
         Logger.error('OTT or Session ID missing :: customer browser details : {0} :: customer authenticated : {1} :: order No : {2} :: paymentType : {3}', request.httpUserAgent, session.customerAuthenticated, orderNumber, 'PayPal');
         return {
             error: true
@@ -221,9 +238,10 @@ function Authorize(orderNumber, paymentInstrument, paymentProcessor, scope) {
         orderNo: aurusInvoiceNumber,
         currencyCode: order.currencyCode,
         Level3ProductsData: aurusProducts
-    });
+    }, order);
 
     if (empty(authResult) || empty(authResult.TransResponse) || empty(authResult.TransResponse.TransDetailsData) || empty(authResult.TransResponse.TransDetailsData.TransDetailData)) {
+        errorLogger.error('TransResponse : {0}', LogHelper.getLoggingObject(order));
         Logger.error('ERROR: Error in Paypal Pre-Auth response object :: customer browser details : {0} :: customer authenticated : {1} :: order No : {2} :: paymentType : {3}', request.httpUserAgent, session.customerAuthenticated, orderNumber, 'Paypal');
         return {
             error: true
@@ -244,10 +262,12 @@ function Authorize(orderNumber, paymentInstrument, paymentProcessor, scope) {
                 /* eslint-enable no-param-reassign */
             });
         } catch (e) {
+            errorLogger.error('aurusProcessorResponseCode {0} : {1}', JSON.stringify(e), LogHelper.getLoggingObject(order));
             Logger.error('ERROR: Error in executing Pre-Auth OCAPI call for Paypal :: {0}', JSON.stringify(e));
         }
     }
     if (aurusPayResponseCode > 0) {
+        errorLogger.error('aurusPayResponseCode : {0}', LogHelper.getLoggingObject(order));
         // Response code not 0000
         session.privacy.apResponseCode = aurusPayResponseCode;
         return {
@@ -274,6 +294,7 @@ function Authorize(orderNumber, paymentInstrument, paymentProcessor, scope) {
         });
     } catch (e) {
         session.privacy.apResponseCode = aurusPayResponseCode;
+        errorLogger.error('Authorize 2 {0} : {1}', JSON.stringify(e), LogHelper.getLoggingObject(order));
         Logger.error('ERROR: Error while setting payment Instruments custom attributes :: {0}', JSON.stringify(e));
     }
 
@@ -303,14 +324,19 @@ function OOTAuthorize(basket, paymentInstrument, paymentInstrumentRequest) { // 
     var sessionTokenResponse = getSessionToken(aurusPayPalSession, aurusPayPalBATokenSession);
 
     // Handle Session Token Respnse Errors
+    const sessionErrorMsg = 'ERROR: Error while executing getSessionToken for Paypal';
     if (sessionTokenResponse == null) {
-        Logger.error('ERROR: Error while executing getSessionToken for Paypal');
+        errorLogger.error('sessionTokenResponse = null {0}', LogHelper.getLoggingObject());
+        Logger.error(sessionErrorMsg);
         return {
+            serverErrors: serverErrors.concat(sessionErrorMsg),
             error: true
         };
     } else if (sessionTokenResponse.GetSessionTokenResponse.ResponseText === 'INVALID SESSION ID') {
-        Logger.error('ERROR: Error while executing getSessionToken for Paypal');
+        errorLogger.error('sessionTokenResponse.GetSessionTokenResponse.ResponseText {0} : {1}', sessionTokenResponse.GetSessionTokenResponse.ResponseText, LogHelper.getLoggingObject());
+        Logger.error(sessionErrorMsg);
         return {
+            serverErrors: serverErrors.concat(sessionErrorMsg),
             error: true
         };
     }
@@ -324,6 +350,7 @@ function OOTAuthorize(basket, paymentInstrument, paymentInstrumentRequest) { // 
         }
 
         if (!ott) {
+            errorLogger.error('OTT is missing: {0}', LogHelper.getLoggingObject());
             serverErrors.push('OTT is missing');
 
             return {
@@ -354,6 +381,7 @@ function OOTAuthorize(basket, paymentInstrument, paymentInstrumentRequest) { // 
                     }
                 }
             } catch (e) {
+                errorLogger.error('OOTAuthorize 1 {0} : {1}', JSON.stringify(e), LogHelper.getLoggingObject());
                 Logger.error(JSON.stringify(e));
             }
         }
@@ -374,11 +402,13 @@ function OOTAuthorize(basket, paymentInstrument, paymentInstrumentRequest) { // 
                     }
                 }
             } catch (e) {
+                errorLogger.error('OOTAuthorize 2 {0} : {1}', JSON.stringify(e), LogHelper.getLoggingObject());
                 Logger.error(JSON.stringify(e));
             }
         }
 
         if (error) {
+            errorLogger.error('OOTAuthorize 3 {0} : {1}', error, LogHelper.getLoggingObject());
             return {
                 error: true,
                 serverErrors: serverErrors
@@ -395,9 +425,11 @@ function OOTAuthorize(basket, paymentInstrument, paymentInstrumentRequest) { // 
         if (emailId) {
             Transaction.wrap(function () {
                 basket.setCustomerEmail(emailId); // eslint-disable-line no-param-reassign
+                paymentInstrument.custom.paypalEmail = emailId; // eslint-disable-line no-param-reassign
             });
         }
     } catch (e) {
+        errorLogger.error('OOTAuthorize 4 {0} : {1}', JSON.stringify(e), LogHelper.getLoggingObject());
         Logger.error(JSON.stringify(e));
         error = true;
         serverErrors.push(e.message);

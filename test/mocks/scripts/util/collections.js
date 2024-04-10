@@ -50,10 +50,19 @@ function every() {
     }
     return true;
 }
+function first() {
+    var args = Array.from(arguments);
+    var list = args[0];
+    if (list && Object.prototype.hasOwnProperty.call(list, 'toArray')) {
+        list = list.toArray();
+    }
+    return list && list.length > 0 ? list[0] : null;
+}
 
 module.exports = {
     find: find,
     forEach: forEach,
     map: map,
-    every: every
+    every: every,
+    first: first
 };

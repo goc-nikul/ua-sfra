@@ -18,6 +18,7 @@ var basketHelper = require('*/cartridge/scripts/basketHelper');
 exports.beforePOST = function (basket, paymentInstrumentRequest) {
     if (basketHelper.isCCPaymentInstrumentRequest(paymentInstrumentRequest)) {
         basketHelper.removeCCPaymentInstruments(basket); // remove any existing cc pi before adding a new one.
+        basketHelper.removeApplePayPI(basket); // remove any existing Apple Pay PI before adding a CC PI.
     }
 
     var paymentUpdateStatus = paymentHelper.updatePaymentInstrument(paymentInstrumentRequest);

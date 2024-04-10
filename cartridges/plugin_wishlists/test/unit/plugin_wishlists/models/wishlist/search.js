@@ -83,7 +83,6 @@ var wishlistSearchModel = proxyquire('../../../../../cartridges/plugin_wishlists
     }
 });
 
-
 describe('Wishlist search', function () {
     it('should return null if there is no search terms entered', function () {
         var firstName = null;

@@ -63,12 +63,16 @@ server.append('SubmitShipping', function (req, res, next) {
             Transaction.wrap(function () {
                 currentBasket.defaultShipment.custom.carrierMessage = form.shippingAddress.addressFields.carrierMessage.value;
             });
+        } else {
+            Transaction.wrap(function () {
+                currentBasket.defaultShipment.custom.carrierMessage = '';
+            });
         }
-    }
-    if (Object.prototype.hasOwnProperty
-        .call(form.shippingAddress.addressFields, 'state')) {
-        result.address.stateCode =
-        form.shippingAddress.addressFields.state.value;
+        if (Object.prototype.hasOwnProperty
+            .call(form.shippingAddress.addressFields, 'state')) {
+            result.address.stateCode =
+            form.shippingAddress.addressFields.state.value;
+        }
     }
 
     var customerData = {};
@@ -173,6 +177,30 @@ server.append('UpdateShippingMethodsList', function (req, res, next) {
                     shippingAddress.setPhone(combinePhone);
                 });
                 viewData.order.shipping[0].shippingAddress.phone = combinePhone;
+            } else {
+                var phone1 = req.form.phone1;
+                var phone2 = req.form.phone2;
+                var phone3 = req.form.phone3;
+
+                Transaction.wrap(function () {
+                    if (!empty(phone1)) {
+                        shippingAddress.custom.phone1 = phone1;
+                        viewData.order.shipping[0].shippingAddress.phone1 = phone1;
+                    }
+                    if (!empty(phone2)) {
+                        shippingAddress.custom.phone2 = phone2;
+                        viewData.order.shipping[0].shippingAddress.phone2 = phone2;
+                    }
+                    if (!empty(phone3)) {
+                        shippingAddress.custom.phone3 = phone3;
+                        viewData.order.shipping[0].shippingAddress.phone3 = phone3;
+                    }
+                    if (!empty(phone1) && !empty(phone2) && !empty(phone3)) {
+                        var shipPhone = phone1 + '-' + phone2 + '-' + phone3;
+                        shippingAddress.setPhone(shipPhone);
+                        viewData.order.shipping[0].shippingAddress.phone = shipPhone;
+                    }
+                });
             }
         }
     }

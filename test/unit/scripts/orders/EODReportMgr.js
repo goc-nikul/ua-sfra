@@ -14,6 +14,14 @@ var orders = new ArrayList ([{
 		     return ''
      }
 }]);
+var moreOrders = new ArrayList ([{
+    custom: {
+        adyenPaymentMethod: true,
+    },
+    getOrderNo: function () {
+		     return ''
+     }
+}]);
 
 class Calendar {
     constructor(date) {
@@ -83,6 +91,7 @@ describe('app_ua_core/cartridge/scripts/orders/EODReportMgr', () => {
 		var reportType = 'aaaa';
 		var value = {
 			orders: orders,
+			moreOrders: moreOrders,
 			count : 2222
 		};
 		var incDec = 'aaaa';
@@ -111,6 +120,7 @@ describe('app_ua_core/cartridge/scripts/orders/EODReportMgr', () => {
 		var reportType = 'aaaa';
 		var value = {
 			orders: newOrders,
+			moreOrders: moreOrders,
 			count : 10002
 		};
 		var incDec = 'aaaa';

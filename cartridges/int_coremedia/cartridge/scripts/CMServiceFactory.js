@@ -96,7 +96,8 @@ exports.createUrlService = function () {
     url = url.substring(0, url.indexOf('//')+2);
     url = url + (cmsHost);
 
-    url += decodeHTMLEntities(context.getUrl());
+    // ensure "/" between cmsHost and context url to prevent SSRF
+    url = url.replace(/\/$/, '') + "/" + decodeHTMLEntities(context.getUrl()).replace(/^\//, '');
 
     url = CMServiceFactory.addContexts(context, preview, url, svc);
 
@@ -146,6 +147,8 @@ exports.buildFragmentUrl = function (preview, serviceUrl, context) {
     if (context.ajax) {
       matrixParamsStr = matrixParamsStr + ";ajax=true";
     }
+    // Filter out percent symbols from params
+    matrixParamsStr = matrixParamsStr.replace(/%25/g, '');
 
     url = url.replace("{params}", matrixParamsStr);
 

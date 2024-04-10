@@ -141,10 +141,13 @@ export default class FormAPAC extends FormGenericEMEA {
                     }
                     // Display error messages
                     $('.js-checkout-forms').find('input:visible, select:visible').each((index, input) => {
-                        if (!input.validity.valid) {
-                            this.handleInvalidInput.call(input);
-                            if (input.id === 'contactInfoIdentificationValue_' && $('select#identificationValue').find('option:selected').attr('id')) {
-                                $('#contactInfoIdentificationValue').text($(input).attr('data-valid'));
+                        var isSinglePageCheckout = $('#checkout-main').hasClass('single-page-checkout');
+                        if (!isSinglePageCheckout || (isSinglePageCheckout && event.currentTarget.id === 'dwfrm_billing' && input.id !== 'email' && input.id !== 'phoneNumber')) {
+                            if (!input.validity.valid) {
+                                this.handleInvalidInput.call(input);
+                                if (input.id === 'contactInfoIdentificationValue_' && $('select#identificationValue').find('option:selected').attr('id')) {
+                                    $('#contactInfoIdentificationValue').text($(input).attr('data-valid'));
+                                }
                             }
                         }
                     });

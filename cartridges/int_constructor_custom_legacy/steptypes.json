@@ -1,0 +1,151 @@
+{
+  "step-types": {
+    "script-module-step": [
+      {
+        "@type-id": "custom.constructor.writeCategorySectionFiles",
+        "@supports-parallel-execution": "true",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "module": "int_constructor_custom_legacy/cartridge/scripts/jobs/writeCategorySectionFiles",
+        "function": "execute",
+        "transactional": "false",
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "Locale",
+              "description": "The locale ID to use when filling category data (e.g. `en_US`). Will fallback to the default catalog locale if not provided.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            },
+            {
+              "@name": "WriteFolder",
+              "description": "Folder in which XML feed should be generated",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "/src/Constructor/"
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.constructor.sendCategorySectionDeltas",
+        "@supports-parallel-execution": "true",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "module": "int_constructor_custom_legacy/cartridge/scripts/jobs/sendCategorySectionDeltas",
+        "function": "execute",
+        "transactional": "false",
+        "timeout-in-seconds": "180000",
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "ApiKeyOverride",
+              "description": "Allows overriding the API key defined in the site preferences. Useful to send data to multiple indexes from the same site (e.g. different locales).",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            },
+            {
+              "@name": "FileAction",
+              "description": "Action to take with files after successful import",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "ARCHIVE",
+              "enum-values": {
+                "value": ["KEEP", "ARCHIVE", "DELETE"]
+              }
+            },
+            {
+              "@name": "ArchivePath",
+              "description": "The file archive directory",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "/src/Constructor/archive"
+            },
+            {
+              "@name": "ErrorPath",
+              "description": "The file error directory",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "/src/Constructor/error"
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.constructor.updateIngestionStrategy",
+        "@supports-parallel-execution": "false",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "module": "int_constructor_custom_legacy/cartridge/scripts/custom/jobHelper",
+        "function": "updateIngestionStrategy",
+        "transactional": "true",
+        "timeout-in-seconds": "180000",
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "DataType",
+              "description": "Type of data to be updated: product, inventory or category",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "product",
+              "enum-values": {
+                "value": ["product", "inventory", "category"]
+              }
+            },
+            {
+              "@name": "Strategy",
+              "description": "The new ingestion strategy: FULL, PATCH, PATCH_DELTA_FAIL, PATCH_DELTA_CREATE, PATCH_DELTA_IGNORE",
+              "@type": "string",
+              "@required": true,
+              "@trim": true,
+              "default-value": "PATCH_DELTA_CREATE",
+              "enum-values": {
+                "value": [
+                  "FULL",
+                  "PATCH",
+                  "PATCH_DELTA_FAIL",
+                  "PATCH_DELTA_CREATE",
+                  "PATCH_DELTA_IGNORE"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.constructor.buildFacetMetadata",
+        "@supports-parallel-execution": "true",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "module": "int_constructor_custom_legacy/cartridge/scripts/jobs/buildFacetMetadata",
+        "function": "execute",
+        "transactional": "false",
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "Locale",
+              "description": "The locale ID to use when filling product data (e.g. `en_US`). Will fallback to the default catalog locale if not provided.",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            },
+            {
+              "@name": "ApiKeyOverride",
+              "description": "Allows overriding the API key defined in the site preferences. Useful to send data to multiple indexes from the same site (e.g. different locales).",
+              "@type": "string",
+              "@required": false,
+              "@trim": true
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

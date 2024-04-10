@@ -39,5 +39,6 @@ The following Secrets are used.
 | `TEST_QUEUE_PASSWORD`      | The password used for triggering automation tests. (only used for environments with tests configured) |
 | `TEST_QUEUE_USER_xxx`      | Realm override for user used for triggering automation tests.                 |
 | `TEST_QUEUE_PASSWORD_xxx`  | Realm override for password used for triggering automation tests.             |
+| `MS_TEAM_WEBHOOK_URI`      | Webhook URL for MS Teams Notifications.  Please see the (https://github.com/marketplace/actions/notify-microsoft-teams)
 
 > *Note:*

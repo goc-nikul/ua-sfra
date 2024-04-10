@@ -262,11 +262,20 @@ function getOrderDisplayStatus(lineItemContainer) {
         RETURNED: Resource.msg('order.status.returned', 'account', null),
         PARTIALLY_RETURNED: Resource.msg('order.status.partially.returned', 'account', null),
         PARTIAL_SHIPPED: Resource.msg('order.status.partial.shipped', 'account', null),
-        FAILED: Resource.msg('order.status.failed', 'account', null)
+        FAILED: Resource.msg('order.status.failed', 'account', null),
+        OXXO_NOT_PAID: Resource.msg('order.status.oxxo.pending', 'account', null)
     };
     var orderStatus = lineItemContainer.getStatus().value;
+    var orderPaymentStatus = lineItemContainer.getPaymentStatus().value;
     var shippingStatus = lineItemContainer.getShippingStatus().value;
     var orderDisplayStatus = orderStatus;
+
+    // Special case for Oxxo if order is Not Paid
+    if ('adyenPaymentMethod' in lineItemContainer.paymentInstrument.custom
+        && lineItemContainer.paymentInstrument.custom.adyenPaymentMethod === 'Oxxo'
+        && orderPaymentStatus !== Order.PAYMENT_STATUS_PAID) {
+            return resources.OXXO_NOT_PAID; // eslint-disable-line indent
+    }
 
     if (orderStatus === Order.ORDER_STATUS_COMPLETED || (shippingStatus === Order.SHIPPING_STATUS_SHIPPED && (orderStatus === Order.ORDER_STATUS_NEW || orderStatus === Order.ORDER_STATUS_OPEN))) {
         var returnStatus = null;
@@ -501,6 +510,14 @@ function OrderModel(lineItemContainer, options) {
         }
         // Reverting back to original locale at end
         request.setLocale(requestLocale); // eslint-disable-line no-undef
+    }
+
+    if ('oxxoDetails' in lineItemContainer.custom && lineItemContainer.custom.oxxoDetails) {
+        try {
+            this.oxxoDetails = JSON.parse(lineItemContainer.custom.oxxoDetails);
+        } catch (e) {
+            dw.system.Logger.error('order.js: Can not parse oxxoDetails JSON: ' + e.message);
+        }
     }
 }
 

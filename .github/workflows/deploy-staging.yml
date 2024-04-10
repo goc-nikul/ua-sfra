@@ -1,0 +1,58 @@
+name: Deploy to Staging
+on:
+  workflow_dispatch:
+    branches:
+      - .*release.*
+      - .*hotfix.*
+      - main
+jobs:
+  build:
+    name: Build and Deploy to Staging
+    runs-on: ubuntu-latest
+    environment: staging
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v2
+        with:
+          ssh-key: ${{ secrets.GH_SSH_KEY }}
+          persist-credentials: true
+          submodules: recursive
+      - uses: ./.github/actions/lint-and-test
+      - uses: ./.github/actions/build-packages
+      - name: Deploy
+        run: .build/deploy-branch.sh
+        env:
+            SFCC_OAUTH_CLIENT_ID: ${{ secrets.SFCC_OAUTH_CLIENT_ID }}
+            SFCC_OAUTH_CLIENT_SECRET: ${{ secrets.SFCC_OAUTH_CLIENT_SECRET }}
+            SFCC_CERT_UA03_P12: ${{ secrets.SFCC_CERT_UA03_P12 }}
+            SFCC_CERT_UA03_SECRET: ${{ secrets.SFCC_CERT_UA03_SECRET }}
+            SFCC_CERT_NA04_P12: ${{ secrets.SFCC_CERT_NA04_P12 }}
+            SFCC_CERT_NA04_SECRET: ${{ secrets.SFCC_CERT_NA04_SECRET }}
+            SFCC_CERT_EU03_P12: ${{ secrets.SFCC_CERT_EU03_P12 }}
+            SFCC_CERT_EU03_SECRET: ${{ secrets.SFCC_CERT_EU03_SECRET }}
+            SFCC_CERT_AP01_P12: ${{ secrets.SFCC_CERT_AP01_P12 }}
+            SFCC_CERT_AP01_SECRET: ${{ secrets.SFCC_CERT_AP01_SECRET }}
+            SFCC_CERT_EU02_P12: ${{ secrets.SFCC_CERT_EU02_P12 }}
+            SFCC_CERT_EU02_SECRET: ${{ secrets.SFCC_CERT_EU02_SECRET }}
+            SFCC_CERT_UA002_P12: ${{ secrets.SFCC_CERT_UA002_P12 }}
+            SFCC_CERT_UA002_SECRET: ${{ secrets.SFCC_CERT_UA002_SECRET }}
+            DEBUG_DEPLOY: ${{ secrets.DEBUG_DEPLOY }}
+            DRY_RUN: ${{ secrets.DRY_RUN }}
+      - name: Run Tests
+        run: .build/run_tests-branch.sh
+        env:
+            TEST_QUEUE_USER: ${{ secrets.TEST_QUEUE_USER }}
+            TEST_QUEUE_PASSWORD: ${{ secrets.TEST_QUEUE_PASSWORD }}
+            DRY_RUN: ${{ secrets.DRY_RUN }}
+      - name: MS_Teams-Notification
+        uses: Skitionek/notify-microsoft-teams@v1.0.8
+        if: ${{ always() }}
+        with:
+          webhook_url: ${{ secrets.MS_TEAM_WEBHOOK_URI }}
+          job: ${{ toJson(job) }}
+          steps: ${{ toJson(steps) }}
+          needs: ${{ toJson(needs) }}
+          dry_run: ${{ secrets.DRY_RUN }}
+
+

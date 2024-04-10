@@ -1,6 +1,5 @@
 .b-header_minicart {
     position: relative;
-    padding: 0 0 rem-calc(30);
     text-decoration: none;
     color: $white;
 
@@ -43,15 +42,17 @@
         margin-top: 12px;
         display: inline-block;
 
+        @include respond-to(desktop) {
+            margin-right: -rem-calc(12);
+        }
+
         @include respond-to(mobile) {
             margin: rem-calc(12) 0 rem-calc(20);
             padding: rem-calc(8) rem-calc(16) 0;
         }
 
-        &.mac-only {
-            .minicart-quantity {
-                line-height: rem-calc(16);
-            }
+        .minicart-quantity {
+            line-height: rem-calc(16) !important;
         }
     }
 
@@ -381,6 +382,17 @@
         p {
             color: $green;
             @include font(main_med, rem-calc(10), rem-calc(14));
+        }
+    }
+
+    &-b-order-mini-saved-total {
+        margin-top: rem-calc(10);
+
+        span {
+            color: $red;
+            letter-spacing: rem-calc(0.25);
+            font-size: rem-calc(16);
+            font-weight: $font-medium;
         }
     }
 }

@@ -20,7 +20,7 @@ $(document).ready(function () {
             $('.error-message-text').text(decodeURIComponent(error[1]));
         }
 
-        if ($('div#adyen-component-content').length > 0) require('adyen/adyenCheckout').renderGenericComponent();
+        if ($('div#adyen-component-content').length > 0) require('falcon/adyen_checkout/adyenCheckout').renderGenericComponent();
     }
 
     processInclude(require('./checkout/checkout'));

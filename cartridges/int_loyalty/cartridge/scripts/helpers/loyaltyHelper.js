@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 'use strict';
 
 var Logger = require('dw/system/Logger').getLogger('loyalty', 'Loyalty');
@@ -89,6 +90,15 @@ function isVIPCustomer() {
 }
 
 /**
+ * Checks if the Reward Reconciliation site preference is enabled
+ * @returns {boolean} - is VIP customer
+ */
+function isRewardReconciliationEnabled() {
+    var Site = require('dw/system/Site');
+    return Site.getCurrent().getCustomPreferenceValue('isLoyaltyRewardsReconciliationEnabled');
+}
+
+/**
  * Returns bearer token string needed for graphql
  * @returns {string} - token string
  */
@@ -100,9 +110,9 @@ function getToken() {
 }
 
 /**
- * Checks if basket's attribute loyaltyPointsBalance is empty and if necessary updtes it
- * @param {dw.order.Basket} liCtnr - basket to be updated
- * @param {string} referenceCustomerNo - apple pay customer no for isolated basket
+ * Checks if basket's attribute loyaltyPointsBalance is empty and if necessary updates it
+ * @param {dw.order.LineItemCtnr} liCtnr - basket to be updated
+ * @param {string | undefined} referenceCustomerNo - apple pay customer no for isolated basket
  * @returns {boolean} - Successfull
  */
 function updateBasketBallance(liCtnr, referenceCustomerNo) {
@@ -114,7 +124,7 @@ function updateBasketBallance(liCtnr, referenceCustomerNo) {
     var params = loyaltyServiceHelper.getGraphQLParams('confirmedPoints', liCtnr, referenceCustomerNo);
     const confirmedPointsResponse = confirmedPointsCall.call(params);
 
-    if (confirmedPointsResponse.ok && confirmedPointsResponse.object) {
+    if (confirmedPointsResponse.ok && !confirmedPointsResponse.error && confirmedPointsResponse.object) {
         const Transaction = require('dw/system/Transaction');
         let lineItems = liCtnr;
         let estimatedPoints = 0;
@@ -383,6 +393,7 @@ function enroll(req) {
  */
 function estimate(liCtnr, referenceCustomerNo) {
     var estimatedLoyaltyPoints = 0;
+    var estimatedItemPoints;
     let success = false;
     const Transaction = require('dw/system/Transaction');
     if (liCtnr.getAllProductLineItems().getLength() > 0 && liCtnr.getAdjustedMerchandizeTotalPrice().getValue() > 0) {
@@ -394,8 +405,17 @@ function estimate(liCtnr, referenceCustomerNo) {
         var estimationResponse = null;
         try {
             estimationResponse = estimationCall.call(params);
-            if (estimationResponse.ok && estimationResponse.object && estimationResponse.object.estimatedPoints >= 0) {
+            if (estimationResponse.ok && estimationResponse.object && estimationResponse.object.estimatedPoints >= 0 && estimationResponse.object.products) {
                 var lineItems = liCtnr;
+                estimationResponse.object.products.forEach(product => {
+                    estimatedItemPoints = product.points;
+                    var productLineItem = lineItems.getProductLineItems(product.productID);
+                    if (productLineItem.length > 0) {
+                        Transaction.begin();
+                        productLineItem[0].custom.estimatedItemLoyaltyPoints = estimatedItemPoints;
+                        Transaction.commit();
+                    }
+                });
                 estimatedLoyaltyPoints = estimationResponse.object.estimatedPoints;
                 Transaction.begin();
                 lineItems.custom.estimatedLoyaltyPoints = estimatedLoyaltyPoints;
@@ -418,7 +438,7 @@ function estimate(liCtnr, referenceCustomerNo) {
 }
 
 /**
- * Update coupon status as used
+ * Batch operation to mark coupons as used.
  * @param {array} loyaltyCoupons - loyalty coupon
  * @param {string} customerNo - customer number
  * @returns {Object} - updateCouponResponse
@@ -427,16 +447,36 @@ function updateCoupon(loyaltyCoupons, customerNo) {
     const loyaltyDataService = require('~/cartridge/scripts/services/loyaltyDataService');
     const loyaltyServiceHelper = require('~/cartridge/scripts/services/serviceHelper');
     const token = getToken();
-    const updateCouponCall = loyaltyDataService.getGraphQL('updateCoupon', token);
-    let params = loyaltyServiceHelper.getGraphQLParams('updateCoupon', { loyaltyCoupons: loyaltyCoupons, customerNo: customerNo });
-    var updateCouponResponse = null;
-    try {
-        updateCouponResponse = updateCouponCall.call(params, loyaltyCoupons.length);
-    } catch (e) {
-        updateCouponResponse.ok = false;
-        updateCouponResponse.object.errorMessage = e;
-    }
-    return updateCouponResponse;
+    let batchedResponses = [];
+    let failedServiceCalls = 0;
+    let failedUpdate = [];
+    loyaltyCoupons.forEach((coupon)=> {
+        let updateCouponCall = loyaltyDataService.getGraphQL('updateCoupon', token);
+        let params = loyaltyServiceHelper.getGraphQLParams('updateCoupon', { loyaltyCoupons: [coupon], customerNo: customerNo });
+        try {
+            var res = updateCouponCall.call(params, 1);
+            batchedResponses.push(res);
+            if (!res || !res.ok) {
+                failedServiceCalls++;
+                throw new Error('Loyalty Plus Service Call Failed');
+            }
+            if (!res.object.couponUpdated) {
+                throw new Error('Loyalty coupon ' + coupon + ' is invalid or missing in L+.');
+            }
+        } catch (e) {
+            failedUpdate.push(e.message);
+        }
+    });
+
+    return {
+        object: {
+            failedServiceCalls: failedServiceCalls,
+            couponUpdated: failedUpdate.length === 0,
+            errorMessage: failedUpdate ? failedUpdate.join(' ') : '',
+            batchedResponses: batchedResponses
+        },
+        ok: failedServiceCalls === 0
+    };
 }
 
 /**
@@ -468,14 +508,15 @@ function redeemReward(rewardID) {
 /**
 * Reject a Reward
 * @param {string} couponCode - coupon code
+* @param {string} referenceCustomerNo - optional customerNo if we don't have a Customer object
 * @returns {boolean} couponCode
 */
-function rejectReward(couponCode) {
+function rejectReward(couponCode, referenceCustomerNo) {
     const loyaltyDataService = require('~/cartridge/scripts/services/loyaltyDataService');
     const loyaltyServiceHelper = require('~/cartridge/scripts/services/serviceHelper');
     const token = getToken();
     const rejectRewardCall = loyaltyDataService.getGraphQL('rejectEvent', token);
-    let params = loyaltyServiceHelper.getGraphQLParams('rejectEvent', couponCode);
+    let params = loyaltyServiceHelper.getGraphQLParams('rejectEvent', couponCode, referenceCustomerNo);
     var rejectRewardResponse = null;
     var rejected = false;
     try {
@@ -618,9 +659,13 @@ function checkRewardRedeemed(reward, redeemedRewards) {
  * @param {dw.order.Basket} currentBasket - Basket to get currently applied coupon code
  */
 function checkCustomerReconcile(currentBasket) {
-    if (isLoyaltyEnabled() && isLoyalCustomer()) {
+    if (isLoyaltyEnabled() && isLoyalCustomer() && isRewardReconciliationEnabled()) {
         var currentCustomer = session.customer;
-        var lastReconcileDate = '';
+        if (!currentCustomer) {
+            return;
+        }
+
+        var lastReconcileDate;
         try {
             lastReconcileDate = currentCustomer.profile.custom.loyaltyLastReconcileDate;
         } catch (e) {
@@ -657,6 +702,7 @@ function checkCustomerReconcile(currentBasket) {
             }
         }
     }
+
     return;
 }
 

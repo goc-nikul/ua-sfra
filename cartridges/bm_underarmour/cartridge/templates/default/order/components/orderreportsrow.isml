@@ -1,0 +1,62 @@
+<iscontent compact="true">
+<isscript>
+	var dayData = dayData || pdict.dayData;
+	var dateFormated = dateFormated || pdict.dateFormated;
+	var reportTypesList = reportTypesList || pdict.reportTypesList;
+</isscript>
+<isset name="OrderMgr" value="${require('dw/order/OrderMgr')}" scope="page" />
+
+<isif condition="${!empty(dayData) && !empty(dateFormated) && !empty(reportTypesList)}">
+	<tr data-report-date="${dateFormated}">
+		<th class="cell date">${dateFormated}</th>
+		<isloop items="${reportTypesList}" alias="reportType">
+			<isset name="reportTypeVal" value="${!empty(dayData[reportType]) && !empty(dayData[reportType].orders.length) ? dayData[reportType].orders.length.toFixed() : '0'}" scope="page" />
+            <isscript>
+                var isMultiple = !!(dayData[reportType] && dayData[reportType].count && dayData[reportType].count > 0 && dayData[reportType].orders[0] instanceof Array);
+            </isscript>
+			<td class="cell" data-${reportType}="${reportTypeVal}" data-multiple="${isMultiple}">
+				<span>${reportTypeVal}</span>
+				
+				<isif condition="${!empty(dayData[reportType]) && !empty(dayData[reportType].orders) && dayData[reportType].orders.length}">
+					<div class="orders-accordion">
+						<a class="accordion-header" href="#">${Resource.msg('orderreports.orders', 'bm', null)}</a>
+						<div class="orders-accordion-content">
+							<isif condition="${!isMultiple}" >
+                                <isloop items="${dayData[reportType].orders}" alias="order" status="i">
+                                    <isif condition="${typeof order == 'object'}">
+                                        <isset name="uuidOrder" value="${Object.keys(order)[0]}" scope="page" />
+                                        <span><a href="${URLUtils.url('ViewOrder-FindByUUID','OrderUUID', uuidOrder)}" title="${order[uuidOrder]}" class="table_detail_link">${order[uuidOrder]}</a><isif condition="${!i.last}">,</isif></span>
+                                    <iselse>
+                                        <isset name="Order" value="${OrderMgr.getOrder(order)}" scope="page" />
+                                        <isif condition="${!empty(Order)}">
+                                            <isset name="uuidOrder" value="${Order.getUUID()}" scope="page" />
+                                            <span><a href="${URLUtils.url('ViewOrder-FindByUUID','OrderUUID', uuidOrder)}" title="${order}" class="table_detail_link">${order}</a><isif condition="${!i.last}">,</isif></span>
+                                        </isif>
+                                    </isif>
+							    </isloop>
+                            <iselse/>
+                                <isloop items="${dayData[reportType].orders}" alias="orders" status="i">
+                                    <isloop items="${orders}" var="order">
+                                        <isif condition="${typeof order == 'object'}">
+                                            <isset name="uuidOrder" value="${Object.keys(order)[0]}" scope="page" />
+                                            <span><a href="${URLUtils.url('ViewOrder-FindByUUID','OrderUUID', uuidOrder)}" title="${order[uuidOrder]}" class="table_detail_link">${order[uuidOrder]}</a><isif condition="${!i.last}">,</isif></span>
+                                        <iselse>
+                                            <isset name="Order" value="${OrderMgr.getOrder(order)}" scope="page" />
+                                            <isif condition="${!empty(Order)}">
+                                                <isset name="uuidOrder" value="${Order.getUUID()}" scope="page" />
+                                                <span><a href="${URLUtils.url('ViewOrder-FindByUUID','OrderUUID', uuidOrder)}" title="${order}" class="table_detail_link">${order}</a><isif condition="${!i.last}">,</isif></span>
+                                            </isif>
+                                        </isif>
+                                    </isloop>
+							    </isloop>
+                            </isif>
+						</div>
+					</div>
+				</isif>
+			</td>
+		</isloop>
+		<td class="cell action" style="white-space: nowrap">
+			<a href="${URLUtils.url('BMOrders-RefreshReportsDayData','reportDate', dateFormated)}" title="${Resource.msg('orderreports.refresh', 'bm', null)}" class="table_detail_link refresh-day-data">${Resource.msg('orderreports.refresh', 'bm', null)}</a>
+		</td>
+	</tr>
+</isif>

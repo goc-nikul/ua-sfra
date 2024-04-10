@@ -13,6 +13,13 @@ var Site = {
     current: {
         preferences: null,
         getCustomPreferenceValue: getCustomPreferenceValueStub
+    },
+    getCurrent() {
+        return {
+            getID() {
+                return 'KR';
+            }
+        };
     }
 };
 var preferences = {
@@ -68,6 +75,10 @@ describe('app_ua_core/cartridge/scripts/request/OnRequest.js', () => {
                 loginCustomer() {
                     return true;
                 }
+            },
+            '*/cartridge/scripts/helpers/accountHelpers': {
+                deleteIDMCookies: function () { },
+                deleteCookie: function (cookie) { } // eslint-disable-line no-unused-vars
             }
         });
 
@@ -91,6 +102,11 @@ describe('app_ua_core/cartridge/scripts/request/OnRequest.js', () => {
         global.session = {
             custom: {
                 currentCountry: 'CA'
+            },
+            customer: {
+                profile: {
+                    email: 'test@test.com'
+                }
             }
         };
 
@@ -134,6 +150,10 @@ describe('app_ua_core/cartridge/scripts/request/OnRequest.js', () => {
                 loginCustomer() {
                     return true;
                 }
+            },
+            '*/cartridge/scripts/helpers/accountHelpers': {
+                deleteIDMCookies: function () { },
+                deleteCookie: function (cookie) { } // eslint-disable-line no-unused-vars
             }
         });
         getCustomPreferenceValueStub.withArgs('cookieToSessionVariableMap').returns(JSON.stringify(cookieToSessionVariableMap));
@@ -207,5 +227,36 @@ describe('app_ua_core/cartridge/scripts/request/OnRequest.js', () => {
         assert.isDefined(status);
         assert.isNotNull(status);
         assert.isFalse(readStub.withArgs('uaidm').called);
+    });
+
+    it('Test OnRequest: Check the OnRequest file for different browsers account deletion behaviour', () => {
+        global.request = {
+            session: {
+                custom: {
+                    customerLoggedOut: false
+                }
+            }
+        };
+        global.customer = {
+            profile: {
+                email: null
+            }
+        };
+        global.response = {
+            redirect() {}
+        };
+        var status = onRequest.onRequest();
+        assert.isNotNull(status);
+    });
+
+    it('OnRequest => Checking when no customer in session', () => {
+        global.session = {
+            custom: {
+                currentCountry: 'CA'
+            }
+        };
+        var status = onRequest.onRequest();
+        assert.isDefined(status);
+        assert.isNotNull(status);
     });
 });

@@ -3,19 +3,16 @@
 var assert = require('chai').assert;
 var proxyquire = require('proxyquire').noCallThru().noPreserveCache();
 
-
 describe('PriceAttributeValue model', function () {
     var refinementDefinition = {};
     var priceAttributeValue = {};
 
     var PriceAttributeValue = proxyquire('../../../../../../cartridges/app_storefront_base/cartridge/models/search/attributeRefinementValue/price', {
-        '*/cartridge/models/search/attributeRefinementValue/base': proxyquire(
-            '../../../../../../cartridges/app_storefront_base/cartridge/models/search/attributeRefinementValue/base', {
-                'dw/web/Resource': {
-                    msgf: function () { return 'some product title'; }
-                }
+        '*/cartridge/models/search/attributeRefinementValue/base': proxyquire('../../../../../../cartridges/app_storefront_base/cartridge/models/search/attributeRefinementValue/base', {
+            'dw/web/Resource': {
+                msgf: function () { return 'some product title'; }
             }
-        ),
+        }),
         'dw/web/Resource': {
             msg: function () { return 'some display value'; }
         }
@@ -57,7 +54,8 @@ describe('PriceAttributeValue model', function () {
             displayValue: 'some display value',
             selected: true,
             title: 'some product title',
-            url: 'relax url'
+            url: 'relax url',
+            seoRefineUrl: 'relax url'
         });
     });
 
@@ -71,7 +69,8 @@ describe('PriceAttributeValue model', function () {
             displayValue: 'some display value',
             selected: false,
             title: 'some product title',
-            url: 'select url'
+            url: 'select url',
+            seoRefineUrl: 'select url'
         });
     });
 });

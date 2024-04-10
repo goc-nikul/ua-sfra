@@ -1,0 +1,56 @@
+<isset name="isLoyaltyEnabled" value="${'isLoyaltyEnable' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.isLoyaltyEnable}" scope="page" />
+<isset name="couponText" value="${'loyaltyCouponText' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.loyaltyCouponText}" scope="page" />
+<isif condition="${!empty(pdict.totals) && !empty(pdict.totals.discounts)}">
+    <isloop items="${pdict.totals.discounts}" var="discount">
+        <isif condition="${discount.type === 'coupon'}">
+            <div class="b-coupons_price coupon-price-adjustment coupon-uuid-${discount.UUID}"
+                data-uuid="${discount.UUID}"
+                data-cmp="cartTile">
+                <div class="clear">
+                    <div class="coupon-code">
+                        <div class="coupon-code_left">
+                            <div class="coupon-code_left_body">
+                                <isif condition="${isLoyaltyEnabled && discount.couponCode.indexOf('LYLD') !== -1}">
+                                    <span class="discount-coupon-code"> ${couponText} </span> -
+                                <iselse/>
+                                    <span class="discount-coupon-code"> ${discount.couponCode} </span> -
+                                </isif>
+                                <isif condition="${discount.applied}">
+                                    <span class="coupon-applied b-coupons_applied">
+                                        <isif condition="${!empty(discount.callOutMsg)}">
+                                            <isprint value="${discount.callOutMsg}" encoding="off" />
+                                        <iselse/>
+                                            <isprint value="${Resource.msg('msg.coupon.applied','cart',null)}"/>
+                                        </isif>
+                                    </span>
+                                <iselse/>
+                                    <span class="coupon-not-applied b-coupons_notapplied test">
+                                        <isif condition="${!empty(discount.promoErrorMsg)}">
+                                            <isprint value="${discount.promoErrorMsg}" encoding="off" />
+                                        <iselse/>
+                                            ${Resource.msg('error.unable.to.add.coupon.emea','cart',null)}
+                                        </isif>
+                                    </span>
+                                </isif>
+                            </div>
+                        </div>
+                        <div class="coupon-code_right">
+                            <button type="button" class="float-right remove-coupon b-coupons_removecoupon js-delete-coupon-confirmation-btn"
+                                    data-code="${discount.couponCode}"
+                                    aria-label="${Resource.msgf('text.remove.coupon','cart', null, discount.couponCode)}"
+                                    data-uuid="${discount.UUID}"
+                                    data-action="${URLUtils.url('Cart-RemoveCouponLineItem')}">
+                                <span aria-hidden="true">${Resource.msg('link.remove.item','cart',null)}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <ul class="coupon-promotion-relationship b-coupons_promotion">
+                    <isloop items="${discount.relationship}" var="relatedPromotion">
+                        <li><isprint value="${relatedPromotion.callOutMsg}"/></li>
+                    </isloop>
+                </ul>
+            </div>
+        </isif>
+    </isloop>
+</isif>

@@ -14,8 +14,8 @@ var guard = require('~/cartridge/scripts/guard');
  */
 function keepAlive() {
     app.getView({
-    	mainmenuname: request.httpParameterMap.mainmenuname.value,
-    	CurrentMenuItemId: request.httpParameterMap.CurrentMenuItemId.value
+        mainmenuname: request.httpParameterMap.mainmenuname.value,
+        CurrentMenuItemId: request.httpParameterMap.CurrentMenuItemId.value
     }).render('bmsession/keepalive');
 }
 

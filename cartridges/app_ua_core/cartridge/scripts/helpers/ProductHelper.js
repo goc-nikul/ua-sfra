@@ -5,6 +5,8 @@ var ProductHelpers = require('*/cartridge/scripts/helpers/productHelpers');
 
 var IMAGE_SIZE = 'medium';
 
+var Site = require('dw/system/Site');
+var Logger = require('dw/system/Logger');
 /**
  * Get product search hit for a given product
  * @param {dw.catalog.Product} apiProduct - Product instance returned from the API
@@ -58,6 +60,54 @@ function getVariantForColor(prod, colorId) {
 }
 
 /**
+ * Get default color variant of a product
+ *
+ * @param {dw.catalog.Product} product - apiProduct
+ * @return {dw.catalog.Product} - product -  available default color variant
+ */
+function getDefaultColorVariant(product) {
+    var defaultColorVarinat = product;
+
+    if (product.isMaster() && product.custom.defaultColorway !== null && product.custom.defaultColorway.length > 0) {
+        var colors = product.custom.defaultColorway.split(',');
+        for (var i = 0; i < colors.length; ++i) {
+            var variant = getVariantForColor(product, colors[i]);
+            if (variant.isVariant() && variant.onlineFlag && variant.availabilityModel.availability !== 0 && variant.availabilityModel.orderable && variant.availabilityModel.inStock) {
+                defaultColorVarinat = variant;
+                break;
+            }
+        }
+    }
+    return defaultColorVarinat;
+}
+
+/**
+ * Get Product variant for color & size
+ *
+ * @param {dw.catalog.Product} prod - apiProduct
+ * @param {string} colorId - color of the product
+ * @param {string} sizeID - size of the product
+ * @return {dw.catalog.Product} - product - color variant
+ */
+function getVariantForColorSize(prod, colorId, sizeID) {
+    var collections = require('*/cartridge/scripts/util/collections');
+    var newProduct = prod;
+    var variants = prod.getVariants();
+    var variantProduct = null;
+    if (variants === null || variants.length === 0) {
+        return newProduct;
+    }
+
+    collections.forEach(variants, function (variant) {
+        if (variant.onlineFlag && variant.availabilityModel.orderable && variant.custom.color === colorId && variant.custom.size === sizeID && variantProduct == null) {
+            variantProduct = variant;
+            newProduct = variant;
+        }
+    });
+    return newProduct;
+}
+
+/**
  * Get Product default variant for color
  *
  * @param {dw.catalog.Product} prod - apiProduct
@@ -89,6 +139,26 @@ function getVariantForCustomAttribute(prod, colorId, isShopthisOutfit) {
 }
 
 /**
+ * Checks if this product is hidden
+ * @param {dw.catalog.Product} prod product
+ * @returns {boolean} true if variant is hidden
+ */
+function isHiddenProduct(prod) {
+    return 'earlyAccessConfigs' in prod.custom && prod.custom.earlyAccessConfigs.value === 'HIDE';
+}
+
+/**
+ * Check if all variants of a color are hidden
+ * @param {dw.util.Collection} productVariants color variants
+ * @returns {boolean} true if all variants are hidden
+ */
+function isHiddenColor(productVariants) {
+    return productVariants.toArray().every((variant) => {
+        return isHiddenProduct(variant);
+    });
+}
+
+/**
  * Get Product orderable variant for master product
  *
  * @param {dw.catalog.Product} prod - apiProduct
@@ -100,7 +170,7 @@ function getOrderableVariant(prod, experienceType) {
     let outletColors = prod.custom.outletColors; //eslint-disable-line
 
     // Return defaultVariant if orderable
-    if (!empty(defaultVariant) && defaultVariant.availabilityModel.orderable) {
+    if (!empty(defaultVariant) && defaultVariant.availabilityModel.orderable && !isHiddenProduct(defaultVariant)) {
         if (empty(outletColors) || experienceType == '') return defaultVariant; // eslint-disable-line
         else if (experienceType === 'premium' && outletColors.indexOf(defaultVariant.custom.color) === -1) return defaultVariant;
         else if (experienceType === 'outlet' && outletColors.indexOf(defaultVariant.custom.color) > -1) return defaultVariant;
@@ -120,7 +190,12 @@ function getOrderableVariant(prod, experienceType) {
             var map = new HashMap();
             map.put(colorVariationAttribute.ID, colorVariationValue.ID);
             // Contains variants which have the same color as default variant
-            productVariants = prod.variationModel.getVariants(map).iterator();
+            productVariants = prod.variationModel.getVariants(map);
+            if (isHiddenColor(productVariants)) {
+                productVariants = null;
+            } else {
+                productVariants = productVariants.iterator();
+            }
         }
     }
 
@@ -137,7 +212,7 @@ function getOrderableVariant(prod, experienceType) {
     if (productVariants) {
         while (productVariants.hasNext()) {
             let productVariant = productVariants.next(); //eslint-disable-line
-            if (productVariant.availabilityModel.orderable) {
+            if (productVariant.availabilityModel.orderable && !isHiddenProduct(productVariant)) {
                 if(empty(outletColors) || experienceType == '') return productVariant; // eslint-disable-line
                 else if (experienceType === 'premium' && outletColors.indexOf(productVariant.custom.color) === -1) return productVariant;
                 else if (experienceType === 'outlet' && outletColors.indexOf(productVariant.custom.color) > -1) return productVariant;
@@ -201,8 +276,6 @@ function variationPriceColorJSON(productObj, color, variantPrice) {
  * @return {boolean} - If item
  */
 function isProductAvailableForLocale(product) {
-    var Site = require('dw/system/Site');
-    var Logger = require('dw/system/Logger');
     var isAvailablePerLocale = ('enableAvailablePerLocale' in Site.current.preferences.custom) && Site.current.getCustomPreferenceValue('enableAvailablePerLocale');
     try {
         if (empty(product)) {
@@ -225,8 +298,6 @@ function isProductAvailableForLocale(product) {
  * @return {boolean} - If enableAvailablePerLocale
  */
 function enableAvailablePerLocale() {
-    var Site = require('dw/system/Site');
-    var Logger = require('dw/system/Logger');
     try {
         var isAvailablePerLocale = ('enableAvailablePerLocale' in Site.current.preferences.custom) && Site.current.getCustomPreferenceValue('enableAvailablePerLocale');
         if (isAvailablePerLocale) {
@@ -239,12 +310,34 @@ function enableAvailablePerLocale() {
     }
 }
 
+/**
+ * Identify if product tile image slider site preference value is enabled
+ * @return {boolean} - If enablePLPImageSlider
+ */
+function enablePLPImageSlider() {
+    try {
+        var showPLPImageSlider = ('enablePLPImageSlider' in Site.current.preferences.custom) && Site.current.getCustomPreferenceValue('enablePLPImageSlider');
+        if (showPLPImageSlider) {
+            return true;
+        }
+        return false;
+    } catch (e) {
+        Logger.error('productHelpers.js::enablePLPImageSlider() ' + e.message);
+        return false;
+    }
+}
+
 ProductHelpers.getProductSearchHit = getProductSearchHit;
 ProductHelpers.getProductImageUrl = getProductImageUrl;
 ProductHelpers.getVariantForColor = getVariantForColor;
+ProductHelpers.getDefaultColorVariant = getDefaultColorVariant;
+ProductHelpers.isHiddenProduct = isHiddenProduct;
+ProductHelpers.isHiddenColor = isHiddenColor;
 ProductHelpers.getOrderableVariant = getOrderableVariant;
 ProductHelpers.getVariantForCustomAttribute = getVariantForCustomAttribute;
 ProductHelpers.variationPriceColorJSON = variationPriceColorJSON;
 ProductHelpers.isProductAvailableForLocale = isProductAvailableForLocale;
 ProductHelpers.enableAvailablePerLocale = enableAvailablePerLocale;
+ProductHelpers.enablePLPImageSlider = enablePLPImageSlider;
+ProductHelpers.getVariantForColorSize = getVariantForColorSize;
 module.exports = ProductHelpers;

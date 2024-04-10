@@ -3,6 +3,7 @@ var collections = require('*/cartridge/scripts/util/collections');
 var errorLogHelper = require('*/cartridge/scripts/errorLogHelper');
 var Transaction = require('dw/system/Transaction');
 var Resource = require('dw/web/Resource');
+const Logger = require('dw/system/Logger').getLogger('basketHelper');
 
 var CurrentSite = Site.getCurrent();
 var bopisEnabled = CurrentSite.getCustomPreferenceValue('isBOPISEnabled');
@@ -11,6 +12,51 @@ const CCPaymentMethodIds = {
     AURUS: 'AURUS_CREDIT_CARD',
     PAYMETRIC: 'Paymetric'
 };
+
+/**
+ * Retrieve the basket information JSON string format.
+ * @param {dw.order.Basket} basket - current basket
+ * @returns {string | null} basketInfo JSON string
+ */
+function getBasketInfoForLog(basket) {
+    try {
+        var basketJSON = {
+            cust_no: basket.getCustomerNo() || customer.getID(),
+            basket_id: basket.getUUID(),
+            shipments: [],
+            paymentInstruments: []
+        };
+        collections.forEach(basket.getShipments(), function (shipment) {
+            var productIds = [];
+            collections.forEach(shipment.getProductLineItems(), function (pli) {
+                productIds.push(pli.getProductID());
+            });
+            basketJSON.shipments.push({
+                shipment_id: shipment.getID(),
+                products: productIds
+            });
+        });
+
+        // Payment instrucments
+        collections.forEach(basket.paymentInstruments, function (paymentInstrument) {
+            basketJSON.paymentInstruments.push({
+                paymentMethod: paymentInstrument.paymentMethod,
+                amount: paymentInstrument.paymentTransaction.amount.available ? paymentInstrument.paymentTransaction.amount.value : 0
+            });
+        });
+
+        // Order amount
+        basketJSON.order_amount = basket.totalGrossPrice.available ? basket.totalGrossPrice.value : 0;
+
+        return JSON.stringify(basketJSON);
+    } catch (e) {
+        Logger.error('Unable to retrieve basket info for logging: {0} {1}', e.message, e.stack);
+    }
+
+    return JSON.stringify({
+        errorMsg: 'Unable to retrieve basket info for logging'
+    });
+}
 
 /**
  * This helper gets the real-time inventory records
@@ -40,16 +86,26 @@ function getRealTimeInventory(basket) {
  * @param {Object} maoAvailability - MAO availability object
  */
 function setInventoryRecord(basket, maoAvailability) {
-    var lineItems = basket.getProductLineItems().iterator();
-    while (lineItems.hasNext()) {
-        var productLineItem = lineItems.next();
-        var product = productLineItem.product;
-        if (maoAvailability && !empty(maoAvailability[product.custom.sku])) {
-            var MAOStockLevel = JSON.parse(maoAvailability[product.custom.sku]).TotalQuantity;
-            var availabilityModel = product.availabilityModel;
-            var inventoryRecord = !empty(availabilityModel) ? availabilityModel.inventoryRecord : null;
-            if (!empty(inventoryRecord) && inventoryRecord.getAllocation().getValue() !== MAOStockLevel) {
-                inventoryRecord.setAllocation(MAOStockLevel, new Date());
+    const isMAOEnabled = Site.current.getCustomPreferenceValue('MAOEnabled');
+    if (isMAOEnabled && basket.getProductLineItems()) {
+        var lineItems = basket.getProductLineItems().iterator();
+        while (lineItems.hasNext()) {
+            var productLineItem = lineItems.next();
+            var product = productLineItem.product;
+            if (maoAvailability && product && !empty(maoAvailability[product.custom.sku])) {
+                var MAOStockLevel = JSON.parse(maoAvailability[product.custom.sku]).TotalQuantity;
+                var availabilityModel = product.availabilityModel;
+                var inventoryRecord = !empty(availabilityModel) ? availabilityModel.inventoryRecord : null;
+                if (!empty(inventoryRecord) && inventoryRecord.getAllocation().getValue() !== MAOStockLevel) {
+                    try {
+                        Transaction.begin();
+                        inventoryRecord.setAllocation(MAOStockLevel, new Date());
+                        Transaction.commit();
+                    } catch (e) {
+                        Transaction.rollback();
+                        Logger.warn('Unable to setInventoryRecord with MAO value for logging: {0} {1}', e.message, e.stack);
+                    }
+                }
             }
         }
     }
@@ -266,7 +322,6 @@ function validateBOPISProductsInventoryOCAPI(basketResponse, checkPoint) {
             });
         }
     } catch (e) {
-        const Logger = require('dw/system/Logger');
         Logger.error('basketValidationHelper.js - Error while executing validateBOPISProductsInventoryOCAPI: ' + e.message);
     }
     return result;
@@ -326,6 +381,70 @@ function updateBasket(basketResponse) {
 }
 
 /**
+ * This method gets customer groups for a price adjustment
+ * @param {Object} priceAdjustment - dw.order.PriceAdjustment
+ * @returns {Array} of customer groups
+ */
+function getCustomerGroups(priceAdjustment) {
+    return priceAdjustment.promotion && priceAdjustment.promotion.basedOnCustomerGroups && priceAdjustment.promotion.customerGroups ? collections.map(priceAdjustment.promotion.customerGroups || [], function (cg) { return { id: cg.ID, UUID: cg.UUID }; }) : [];
+}
+
+/**
+ * This method finds a price adjustmemnt by id from an array of price adjustments.
+ * @param {Array} priceAdjustments - dw.order.PriceAdjustment
+ * @param {string} priceAdjustmentId - Price adjustment id to search for
+ * @returns {PriceAdjustment | null} found PriceAdjustment
+ */
+function findPriceAdjustment(priceAdjustments, priceAdjustmentId) {
+    return collections.find(priceAdjustments, function (p) { return p.price_adjustment_id === priceAdjustmentId; });
+}
+
+/**
+ * This method applies customer groups to price adjustments in the basket
+ * @param {Object} basketResponse - basket response
+ */
+function applyCustomerGroupsAndProratedPriceAdjustments(basketResponse) {
+    var BasketMgr = require('dw/order/BasketMgr');
+    var currentBasket = BasketMgr.getCurrentBasket();
+    var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
+
+    collections.forEach(basketResponse.order_price_adjustments, function (priceAdjustment) { // eslint-disable-line
+        const basketPriceAdjustment = currentBasket.getPriceAdjustmentByPromotionID(priceAdjustment.promotion_id);
+        if (basketPriceAdjustment) {
+            // eslint-disable-next-line no-param-reassign
+            priceAdjustment.c_customerGroups = getCustomerGroups(basketPriceAdjustment);
+        }
+    });
+
+    collections.forEach(basketResponse.product_items, function (productItem) { // eslint-disable-line
+        collections.forEach(productItem.price_adjustments, function (priceAdjustment) {
+            const basketPriceAdjustment = currentBasket.getPriceAdjustmentByPromotionID(priceAdjustment.promotion_id);
+            if (basketPriceAdjustment) {
+                // eslint-disable-next-line no-param-reassign
+                priceAdjustment.c_customerGroups = getCustomerGroups(basketPriceAdjustment);
+            }
+        });
+
+        const productLineItem = COHelpers.getProductLineItem(currentBasket, productItem.item_id);
+        const priceAdjustmentsValues = productLineItem.proratedPriceAdjustmentPrices.entrySet().toArray();
+
+        const proratedPriceAdjustments = [];
+        for (let i = 0; i < priceAdjustmentsValues.length; i++) {
+            let priceAdjustment = findPriceAdjustment(productItem.price_adjustments, priceAdjustmentsValues[i].key.UUID)
+                || findPriceAdjustment(basketResponse.order_price_adjustments, priceAdjustmentsValues[i].key.UUID);
+            if (priceAdjustment) {
+                proratedPriceAdjustments.push({
+                    price_adjustment: priceAdjustment,
+                    price: priceAdjustmentsValues[i].value.value
+                });
+            }
+        }
+        // eslint-disable-next-line no-param-reassign
+        productItem.c_proratedPriceAdjustments = proratedPriceAdjustments;
+    });
+}
+
+/**
  * This method updates the necessary custom attributes to the basket response
  *
  * @param {Object} basketResponse - basket response to ocapi call
@@ -360,7 +479,6 @@ function updateResponse(basketResponse) {
             var qty = productItem.quantity;
             var product = ProductMgr.getProduct(productItem.product_id);
             var lineItemQtyLimit = basketValidationHelpers.getLineItemInventory(product, true, false);
-            productItem.c_isPreOrder = product.custom.isPreOrder; // eslint-disable-line no-param-reassign
             if (qty > lineItemQtyLimit) {
                 arrayOfLimits.push({
                     itemID: productItem.item_id,
@@ -370,14 +488,17 @@ function updateResponse(basketResponse) {
                 });
             }
             var AdjustmentPriceArray = [];
-            productItem.c_masterSizePreferJSON = product.variant ? product.variationModel.master.custom.masterSizePrefJSON : ''; // eslint-disable-line no-param-reassign
-            productItem.c_variationSizePrefJSON = product.variant ? product.custom.variationSizePrefJSON : '';  // eslint-disable-line no-param-reassign
             for (var j = 0; j < priceAdjustmentsArrayObj.length; j++) {
                 if (priceAdjustmentsArrayObj[j].product_id === productItem.productId) {
                     AdjustmentPriceArray.push(priceAdjustmentsArrayObj[j]);
                 }
             }
             productItem.c_lineItemPriceAdjustments = AdjustmentPriceArray; // eslint-disable-line no-param-reassign
+            if (!empty(product)) {
+                productItem.c_isPreOrder = product.custom.isPreOrder; // eslint-disable-line no-param-reassign
+                productItem.c_masterSizePreferJSON = product.variant ? product.variationModel.master.custom.masterSizePrefJSON : ''; // eslint-disable-line no-param-reassign
+                productItem.c_variationSizePrefJSON = product.variant ? product.custom.variationSizePrefJSON : '';  // eslint-disable-line no-param-reassign
+            }
         });
 
         response.c_LimitedExceeded = false;
@@ -442,10 +563,21 @@ function updateResponse(basketResponse) {
     }
 
     try {
+        applyCustomerGroupsAndProratedPriceAdjustments(basketResponse);
+    } catch (e) {
+        errorLogHelper.handleOcapiHookErrorStatus(e, 'applyCustomerGroupsAndProratedPriceAdjustmentsError', Resource.msgf('error.ocapi.update.basket', 'cart', null, e.message));
+    }
+
+    try {
         // Updating MAO Price Adjustment Object
         var BasketMgr = require('dw/order/BasketMgr');
         var currentBasket = BasketMgr.getCurrentBasket();
         var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
+        // Ensure shipments have shipping method
+        if (currentBasket != null || currentBasket !== undefined) {
+            var cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
+            cartHelper.ensureAllShipmentsHaveMethods(currentBasket);
+        }
         collections.forEach(response.product_items, function (productItem) { // eslint-disable-line
             let productLineItem = COHelpers.getProductLineItem(currentBasket, productItem.item_id);
             collections.forEach(productItem.price_adjustments, function (priceAdjustment) {
@@ -555,6 +687,45 @@ function removeCCPaymentInstruments(basket) {
     }
 }
 
+/**
+ * Session does not carry over between OCAPI requests. IDME functionality needs this data to be set.
+ */
+function reapplyIDMeToSessionForCurrentCustomer() {
+    var BasketMgr = require('dw/order/BasketMgr');
+    var basket = BasketMgr.getCurrentBasket();
+    if (basket && 'verifiedIdmeScope' in basket.custom && !empty(basket.custom.verifiedIdmeScope)) {
+        let PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
+        let customerGroup = PreferencesUtil.getJsonValue('IDMEUnifiedCustomerGroupMappingJSON'); // eslint-disable-line
+        customerGroup = customerGroup[basket.custom.verifiedIdmeScope]; // IDmeVerifiedMilitary or IDmeVerifiedResponder
+        if (session.custom[customerGroup] !== 'Verified') {
+            session.custom[customerGroup] = 'Verified';
+            session.custom.idmeVerified = customerGroup;
+        }
+    }
+}
+
+/**
+ * Remove all Apple Pay Payment Instruments from the basket
+ * @param {dw.order.Basket} basket - current basket
+ * @returns {void}
+ */
+function removeApplePayPI(basket) {
+    if (basket) {
+        var paymentInstruments = basket.getPaymentInstruments();
+        const apPaymentMethodId = require('~/cartridge/scripts/constants').PAYMENT_METHODS.APPLE_PAY;
+
+        if (!empty(paymentInstruments)) {
+            collections.forEach(paymentInstruments, function (pi) {
+                if (pi.paymentMethod.toLowerCase() === apPaymentMethodId.toLowerCase()) {
+                    Transaction.wrap(function () {
+                        basket.removePaymentInstrument(pi);
+                    });
+                }
+            });
+        }
+    }
+}
+
 exports.getRealTimeInventory = getRealTimeInventory;
 exports.setInventoryRecord = setInventoryRecord;
 exports.updateShippingAddressToGiftCardShipment = updateShippingAddressToGiftCardShipment;
@@ -568,4 +739,8 @@ exports.manageKlarnaSession = manageKlarnaSession;
 exports.isCCPaymentInstrumentRequest = isCCPaymentInstrumentRequest;
 exports.removeCCPaymentInstruments = removeCCPaymentInstruments;
 exports.updateBasket = updateBasket;
+exports.applyCustomerGroupsAndProratedPriceAdjustments = applyCustomerGroupsAndProratedPriceAdjustments;
 exports.validateBOPISProductsInventoryOCAPI = validateBOPISProductsInventoryOCAPI;
+exports.reapplyIDMeToSessionForCurrentCustomer = reapplyIDMeToSessionForCurrentCustomer;
+exports.removeApplePayPI = removeApplePayPI;
+exports.getBasketInfoForLog = getBasketInfoForLog;

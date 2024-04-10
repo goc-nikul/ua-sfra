@@ -74,8 +74,7 @@ function getTaxObject(product) {
                 attDataObj[item].silhouette.indexOf(product.custom.silhouette) !== -1 &&
                 attDataObj[item].subsilhouette.indexOf(product.custom.subsilhouette) !== -1 &&
                 attDataObj[item].subsubsilhouette.indexOf(product.custom.subsubsilhouette) !== -1 &&
-                attDataObj[item].ageGroup.indexOf(product.custom.agegroup) !== -1 &&
-                product.getTaxClassID() !== attDataObj[item].taxClass) {
+                attDataObj[item].ageGroup.indexOf(product.custom.agegroup) !== -1) {
                 var taxClass = ('taxClass' in attDataObj[item] && attDataObj[item].taxClass) ? attDataObj[item].taxClass : 'standard';
                 taxClassObj = {
                     productID: product.getID(),

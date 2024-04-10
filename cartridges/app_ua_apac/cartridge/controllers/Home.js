@@ -5,7 +5,7 @@ var Resource = require('dw/web/Resource');
 
 server.extend(module.superModule);
 
-server.append('Start', function (req, res, next) {
+server.append('Show', function (req, res, next) {
     var PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
 
     if (PreferencesUtil.getValue('isNaverSSOEnabled') && (req.querystring.login || req.querystring.showRegisterModal) && req.querystring.isNaverSSOFail) {
@@ -32,6 +32,15 @@ server.append('Start', function (req, res, next) {
             res.setViewData({
                 showLogin: req.querystring.login || false,
                 validateProfileObj: validateProfileMsg
+            });
+        }
+    }
+
+    if (req.querystring.initiateMobileAuth) {
+        var mobileAuthProvider = require('*/cartridge/modules/providers').get('MobileAuth');
+        if (mobileAuthProvider.mobileAuthEnabled) {
+            res.setViewData({
+                initiateMobileAuth: true
             });
         }
     }

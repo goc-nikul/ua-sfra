@@ -86,7 +86,7 @@ server.append('AddCoupon', function (req, res, next) {
                 while (couponsIterator.hasNext()) {
                     // this will loop through all the coupons applied
                     var couponLineItem = couponsIterator.next();
-                    if (couponLineItem.isApplied() && couponLineItem.couponCode === viewData.voucherCode && !empty(viewData.voucherNumber)) {
+                    if (couponLineItem.isApplied() && couponLineItem.couponCode.equalsIgnoreCase(viewData.voucherCode) && !empty(viewData.voucherNumber)) {
                         // Store the voucherNumber on the cart level
                         Transaction.wrap(function () {
                             currentBasket.custom['Loyalty-VoucherName'] = viewData.voucherCode + '=' + viewData.voucherNumber;
@@ -113,10 +113,7 @@ server.append('RemoveCouponLineItem', function (req, res, next) {
                 var countryConfig = HookMgr.callHook('app.memberson.CountryConfig', 'getMembersonCountryConfig', countryCode);
                 if (countryConfig.membersonEnabled) {
                     var currentBasket = BasketMgr.getCurrentBasket();
-                    // Remove the voucherNumber on the cart level if it is not empty
-                    if (!empty(currentBasket.custom['Loyalty-VoucherName'])) {
-                        membersonHelpers.checkIfMembersonCouponApplied(req.currentCustomer.raw);
-                    }
+                    membersonHelpers.checkIfMembersonCouponApplied(currentBasket, req.currentCustomer.raw);
                 }
             }
         }

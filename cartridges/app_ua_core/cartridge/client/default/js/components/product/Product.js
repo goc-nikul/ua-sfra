@@ -12,6 +12,7 @@ var carouselWrapperWidth;
 var defaultImageUrl;
 var defaultVideoPosterUrl;
 var defaultModelSpec;
+var freeShippingBar = require('org/components/cart/FreeShippingBar');
 
 export default class Product extends Component {
     init() {
@@ -34,15 +35,14 @@ export default class Product extends Component {
         this.initEvents();
         this.updateSizeVal();
         this.showMoreLess();
+        this.videoHover();
+        this.showMoreLessColor();
         this.initSaveLaterEvents();
         this.zoomModalPaginationScroll();
         // this.updateDate();
         this.$mainImage = $('.js-product_carousel-image', this.$el);
         this.$swatchesContainer = $('.b-product_attribute', this.$el);
         this.prepopulateSize();
-        // fix for hover issue
-        var newWidth = $('.b-product_attrs .b-product_attribute ul').width();
-        $('.b-product_attrs .b-product_attribute ul').parent('.b-product_attribute').width(newWidth);
     }
 
     initEvents() {
@@ -70,6 +70,7 @@ export default class Product extends Component {
         defaultModelSpec = $('.js-swatch-link.m-active', this.$el).attr('data-product-modelspec');
         this.eventDelegate('change', '.js-pdp-select-model', this.onColorChange.bind(this));
         this.event('product:updateModelSizeOptions', this.updateAvailableModelSize, this.$body);
+        this.event('product:updateNotifyMe', (e, data) => this.updateNotifyMe(data), this.$body);
     }
 
     initSaveLaterEvents() {
@@ -140,65 +141,112 @@ export default class Product extends Component {
         }
     } */
     updateSizeVal() {
-        var variantAttrLength = $('.b-select-size-outer .b-swatches_sizes', this.$el).attr('data-attrlength');
-        var $swatchColorVaraint = $('.l-pdp-info .b-swatches_circle .b-swatches_circle-item', this.$el);
         var $swatchSizeVaraint = $('.b-size_outer .js-sizeAttributes', this.$el);
-        if ($(this.$el).hasClass('product-quickview')) {
-            $swatchColorVaraint = $('.b-swatches_circle .b-swatches_circle-item', this.$el);
-        }
         var self = this;
         $('.b-select-size-outer .b-swatches_sizes', this.$el).each(function () {
+            var siteValue = $('#size-selected', self.$el).attr('data-attr-site') ? $('#size-selected', self.$el).attr('data-attr-site') : '';
             var sizeSelect = $('.b-size_outer .js-sizeAttributes a.selected', self.$el).parent('li');
             var lengthSelected = $('.b-length_outer .js-sizeAttributes a.selected', self.$el).parent('li');
             var sizeSelectValue = $('.b-size_outer .js-sizeAttributes a.selected', self.$el).attr('data-size-attr');
-            if (sizeSelect.length === 0) {
-                var sizesList = $('.b-size_outer .js-sizeAttributes a', self.$el).not('.disabled');
-                if (sizesList.length === 1 && variantAttrLength !== '3') {
-                    sizesList.first().addClass('m-active selected');
-                    // Enable Add to Cart button on QuickView
-                    if (self.config && self.config.cmp === 'productQuickView') {
-                        $('.b-product-quickview-qty-button .js-add-to-cart', self.$el).prop('disabled', false);
-                    }
-                }
-            }
 
-            if (lengthSelected.length > 0 && sizeSelect.length > 0) {
+            if (siteValue !== 'EU' && siteValue !== 'UKIE' && lengthSelected.length > 0 && sizeSelect.length > 0) {
                 $('.js-selected-size', self.$el).html(sizeSelectValue);
-            } else if (sizeSelect.length > 0) {
+            } else if (siteValue !== 'EU' && siteValue !== 'UKIE' && sizeSelect.length > 0) {
                 $('.js-selected-size', self.$el).html(sizeSelectValue);
             }
         });
 
-        var $colorMoreLess = $('.b-color-more_less', this.$el);
         var $sizeMoreLess = $('.b-size-more_less', this.$el);
         if ($(window).width() >= 1024) {
             if ($swatchSizeVaraint.length > 30) {
                 $sizeMoreLess.show();
             }
-            if ($swatchColorVaraint.length > 30) {
-                $colorMoreLess.show();
-            }
         } else if ($(window).width() < 1024) {
             if ($swatchSizeVaraint.length > 20) {
                 $sizeMoreLess.show();
             }
-            if ($swatchColorVaraint.length > 20) {
-                $colorMoreLess.show();
-            }
         }
     }
+    showMoreLessColor() {
+        const lastVisibleClassName = 'last-visible';
+        const visibleMobileRows = 3;
+        const visibleDesktopRows = 4;
+
+        $(this.$el).find('.b-product_attribute.m-color').each((i, el) => {
+            const $colorSwatchBlock = $(el);
+            const $swatchesListContainer = $colorSwatchBlock.find('.b-swatches_circle');
+            const $colorSwatchItems = $colorSwatchBlock.find('.b-swatches_circle-item');
+            const $colorSwatchActionCTAs = $colorSwatchBlock.find('.b-color-more_less');
+            let initial = true;
+
+            const calculateVisibleSwatches = () => {
+                // in order to skip desktop version for mobile view
+                if (!$colorSwatchItems.is(':visible')) {
+                    return;
+                }
+                const showMoreLessWidth = Math.ceil($colorSwatchActionCTAs.width() || 0);
+                const swatchWidth = Math.ceil($colorSwatchItems.eq(0).width() || 0);
+                const cssGap = $swatchesListContainer.css('column-gap') || '';
+                const gap = Number(cssGap.replace(/[\D]/g, '')) || 0;
+                const swatchesListContainerWidth = Math.floor($swatchesListContainer.width() || 0);
+                let leftFreeRowSpace = swatchesListContainerWidth;
+                let itemsInTheRow = 0;
+                while (leftFreeRowSpace > swatchWidth) {
+                    leftFreeRowSpace -= (swatchWidth + gap);
+                    itemsInTheRow++;
+                }
+
+                const visibleRows = $(window).width() < 1025 ? visibleMobileRows : visibleDesktopRows;
+                const totalVisibleSwatches = visibleRows * itemsInTheRow;
+
+                $colorSwatchItems.filter(`.${lastVisibleClassName}`).removeClass(lastVisibleClassName);
+                if ($colorSwatchItems.length > totalVisibleSwatches) {
+                    let overlappedWidth = showMoreLessWidth - leftFreeRowSpace;
+                    let overlappedSwatchCount = 0;
+
+                    while (overlappedWidth > 0) {
+                        overlappedWidth -= (swatchWidth + gap);
+                        overlappedSwatchCount++;
+                    }
+
+                    const lastVisibleIndex = (visibleRows * itemsInTheRow) - overlappedSwatchCount - 1;
+                    $colorSwatchItems.eq(lastVisibleIndex).addClass(lastVisibleClassName);
+
+                    if (initial && lastVisibleIndex < $colorSwatchItems.filter('.swiper-slide-activated').eq(0).index()) {
+                        $colorSwatchBlock.addClass('show-all');
+                        $('body').trigger('product:showMoreFired', {
+                            type: 'color',
+                            name: 'product: showMoreFired'
+                        });
+                    }
+                }
+            };
+
+            $(window).on('resize', () => {
+                calculateVisibleSwatches();
+            });
+            calculateVisibleSwatches();
+
+            $colorSwatchBlock.on('click', '.js-color-show-more', function () {
+                $colorSwatchBlock.addClass('show-all');
+                initial = false;
+
+                $('body').trigger('product:showMoreFired', {
+                    type: 'color',
+                    name: 'product: showMoreFired'
+                });
+            });
+            $colorSwatchBlock.on('click', '.js-color-show-less', function () {
+                $colorSwatchBlock.removeClass('show-all');
+                initial = false;
+            });
+        });
+    }
+
     showMoreLess() {
         $(this.$el).on('click', '.js-show-more', function (e) {
-            var isSizeClicked = $(this).parent().hasClass('b-size-more_less');
-            var element;
-            var parent;
-            if (isSizeClicked) {
-                element = $('.b-size-more_less', this.$el);
-                parent = $('.b-swatches_sizes', this.$el);
-            } else {
-                element = $('.b-color-more_less', this.$el);
-                parent = $('.b-swatches_circle', this.$el);
-            }
+            var element = $('.b-size-more_less', this.$el);
+            var parent = $('.b-swatches_sizes', this.$el);
             if (!e.isTrigger) {
                 parent.find('li').removeClass('colorChange sizeChange');
             }
@@ -218,22 +266,14 @@ export default class Product extends Component {
                     element.find('.js-show-less').removeClass('hide');
                 }
                 $('body').trigger('product:showMoreFired', {
-                    type: isSizeClicked ? 'size' : 'color',
+                    type: 'size',
                     name: 'product: showMoreFired'
                 });
             }
         });
         $(this.$el).on('click', '.js-show-less', function (e) {
-            var isSizeClicked = $(this).parent().hasClass('b-size-more_less');
-            var element;
-            var parent;
-            if (isSizeClicked) {
-                element = $('.b-size-more_less', this.$el);
-                parent = $('.b-swatches_sizes', this.$el);
-            } else {
-                element = $('.b-color-more_less', this.$el);
-                parent = $('.b-swatches_circle', this.$el);
-            }
+            var element = $('.b-size-more_less', this.$el);
+            var parent = $('.b-swatches_sizes', this.$el);
             if (!e.isTrigger) {
                 parent.find('li').removeClass('colorChange sizeChange');
             }
@@ -254,6 +294,29 @@ export default class Product extends Component {
                 }
             }
         });
+    }
+
+    /**
+* A function that handles the hover event of a specific element and plays the video contained within it.
+*
+* @function
+* @returns {void}
+*/
+    videoHover() {
+/**
+* A nested function that plays the video when the user hovers over it.
+*
+* @function
+* @returns {void}
+*/
+        function hoverVideo() {
+            const videoEl = $('video', this).get(0);
+            if (videoEl) {
+                videoEl.play();
+            }
+        }
+    // Attach the hoverVideo function to the mouseenter event of the ".js-pdp-open-zoommodal" element.
+        $('.product-detail .js-pdp-open-zoommodal').on('mouseenter', hoverVideo);
     }
 
     onQualtricModal(e) {
@@ -343,6 +406,17 @@ export default class Product extends Component {
                 form.eGiftCardData = JSON.stringify(eGiftCardFormData);
             }
 
+            form.isPickupItem = false;
+            if (this.$el.find('.b-store-choose-link').find('.b-ship-pick.selected').data('delivery') === 'storepickup') {
+                form.isPickupItem = true;
+            }
+
+            form.isQuickAdd = false;
+            if ($('.b-add_to_bag .js-add-to-cart', this.$el).attr('data-quickadd') === 'true') {
+                form.isQuickAdd = $('.b-add_to_bag .js-add-to-cart', this.$el).attr('data-quickadd');
+            }
+
+
             this.$addToCartButton.trigger('updateAddToCartFormData', form);
             $('.error-message-text').empty();
             const self = this;
@@ -424,10 +498,15 @@ export default class Product extends Component {
     }
 
     onSuccessAddToCart(data) {
+        if (data && data.pdpRedirect) {
+            // Redirect to Early Access Product PDP
+            window.location.href = data.pdpRedirect;
+        }
         this.handlePostCartAdd(data);
         var addedToCart = $('.js-add-to-cart', this.$el).data('added-msg');
         var addAnother = $('.js-add-to-cart', this.$el).data('add-another');
-        var hasError = $('.js-add-to-cart', this.$el).data('has-error');
+        var addToBagMsg = $('.js-add-to-cart').data('addto-bag');
+        var hasError = $('.js-add-to-cart', this.$el).data('has-error') || addToBagMsg;
         var resetQuantity = true;
 
         if ($('.b-cart-content.cart').length > 0) {
@@ -435,8 +514,13 @@ export default class Product extends Component {
                 $('.availability-err', this.$el).removeClass('hide');
                 $.spinner().stop();
                 $('.b-add_to_bag', this.$el).spinner().stop();
-                $('.js-add-to-cart', this.$el).text($('.js-add-to-cart').data('addto-bag'));
+                $('.js-add-to-cart', this.$el).text(addToBagMsg);
                 return;
+            }
+
+            if (data && data.cart.freeShippingBar) {
+                freeShippingBar.methods.updateShippingBar(data.cart.freeShippingBar);
+                freeShippingBar.methods.getShippingPromo(data.cart.totals);
             }
 
             if (!this.$el.hasClass('product-recommendation-quickview')) {
@@ -477,7 +561,8 @@ export default class Product extends Component {
         var analyticsData = {
             analytics: {
                 isWishlist: true,
-                quantityAdded: this.getQuantitySelected(this.$addToCartButton) || 1
+                quantityAdded: this.getQuantitySelected(this.$addToCartButton) || 1,
+                isQuickAdd: this.$addToCartButton.closest('.quick-add-dialog, .js-tile-quickAdd_buttonn').length > 0
             }
         };
         $('body').trigger('product:afterAddToCart', $.extend(data, analyticsData));
@@ -486,24 +571,33 @@ export default class Product extends Component {
         $('.b-add_to_bag').spinner().stop();
         if (!data.error) {
             this.$el.find('.js-add-to-cart').addClass('f-added-check').html(addedToCart);
+            var self = this;
             setTimeout(function () {
-                this.$el.find('.js-add-to-cart.f-added-check').removeClass('f-added-check').html(addAnother);
+                self.$el.find('.js-add-to-cart.f-added-check').removeClass('f-added-check').html(addAnother);
             }, 5000);
         } else {
             this.$el.find('.js-add-to-cart').html(hasError);
         }
         if (resetQuantity) {
-            $('.js-quantity-select option:selected').removeAttr('selected');
-            $('.js-quantity-select').val($('.js-quantity-select option:first').attr('selected', 'selected').val());
-            if ($('.b-cart-content.cart').length === 0) {
-                $('.js-quantity-select', this.$el).change();
-            }
+            const resetDelay = 3000;
+
+            setTimeout(() => {
+                if (this.$el.length && this.$el.is(':visible')) {
+                    var $qtySelect = $('.js-quantity-select', this.$el);
+                    $qtySelect.find('option:selected').removeAttr('selected');
+                    $qtySelect.val($('.js-quantity-select option:first').attr('selected', 'selected').val());
+                    if ($('.b-cart-content.cart').length === 0) {
+                        $qtySelect.trigger('change');
+                    }
+                }
+            }, resetDelay);
         }
     }
 
     isWishListItemExist(event) {
         event.preventDefault();
         var $target = this.$el.find('.js-save-later');
+        $target.css('pointer-events', 'none');
         var url = $target.attr('data-wishlistexist');
         var productID = $target.attr('data-pid');
         var uuid = $target.data('uuid');
@@ -519,6 +613,7 @@ export default class Product extends Component {
             dataType: 'json',
             context: this,
             success: function (data) {
+                $target.css('pointer-events', '');
                 if (data !== null && data.isWishListItem) {
                     var status = 'b-alert-success js-alert-success';
                     var msg = $target.data('msg');
@@ -540,6 +635,7 @@ export default class Product extends Component {
                 }
             },
             error: function (err) {
+                $target.css('pointer-events', '');
                 if (err.responseJSON.redirectUrl) {
                     window.location.href = err.responseJSON.redirectUrl;
                 } else {
@@ -697,6 +793,10 @@ export default class Product extends Component {
                 if (data.basket && !data.basket.srEligible && !srContainer.hasClass('hide')) {
                     srContainer.addClass('hide');
                 }
+                if (data && data.basket.freeShippingBar) {
+                    freeShippingBar.methods.updateShippingBar(data.basket.freeShippingBar);
+                    freeShippingBar.methods.getShippingPromo(data.basket.totals);
+                }
                 $.spinner().stop();
                 if ($bopis) { // eslint-disable-line
                     window.location.reload();
@@ -777,6 +877,10 @@ export default class Product extends Component {
                 this.updateApproachingDiscounts(data.basket.approachingDiscounts);
                 $('body').trigger('setShippingMethodSelection', data.basket);
                 this.validateBasket(data.basket);
+                if (data && data.basket.freeShippingBar) {
+                    freeShippingBar.methods.updateShippingBar(data.basket.freeShippingBar);
+                    freeShippingBar.methods.getShippingPromo(data.basket.totals);
+                }
                 if ($('.cart').find('.b-cartlineitem').length === 0) {
                     window.location.reload();
                 } else {
@@ -880,7 +984,7 @@ export default class Product extends Component {
             $('.number-of-items').empty().append('(' + data.resources.numberOfItems + ')');
         }
         $('.number-of-items-summary').empty().append('(' + data.numItems + ')');
-        $('.shipping-cost').closest('.order-summary_itemsvalue').removeClass('order-summary_discount');
+        $('.shipping-cost').not('.shipping-bopis').closest('.order-summary_itemsvalue').removeClass('order-summary_discount');
         if (!data.totals) {
             return;
         }
@@ -888,14 +992,22 @@ export default class Product extends Component {
             $('.shipping-cost').empty().append(freeText);
             $('.shipping-cost').closest('.order-summary_itemsvalue').addClass('order-summary_discount');
         } else {
-            $('.shipping-cost').empty().append(data.totals.totalShippingCost);
+            $('.shipping-cost').not('.shipping-bopis').empty().append(data.totals.totalShippingCost);
         }
         $('.tax-total').empty().append(data.totals.totalTax);
         $('.grand-total').empty().append(data.totals.grandTotal);
         if ($('.afterpay-data').data('isafterpayenabled')) {
             $('.afterPayCartPrice').empty().append($('.afterpay-data').data('afterpaydata1') + ' ' + data.totals.afterPayCartPrice + ' ' + $('.afterpay-data').data('afterpaydata2'));
         }
-        $('.sub-total').empty().append(data.totals.subTotal);
+
+        if ($('.sub-total-na').length > 0) {
+            $('.sub-total-na').empty().append(data.totals.newSubTotalWithoutCoupon.formatted);
+        } else if ($('.sub-total-emea').length > 0) {
+            $('.sub-total-emea').text(data.totals.subTotal);
+        } else {
+            $('.sub-total').text(data.totals.totalListPrice.formatted);
+        }
+
         $('.minicart-quantity').empty().append(data.numItems);
         $('.minicart-link').attr({
             'aria-label': data.resources.minicartCountOfItems,
@@ -952,6 +1064,15 @@ export default class Product extends Component {
             $('.order-employee-discount').hide();
             $('.order-loyalty-discount').addClass('hide-order-discount');
             $('.order-loyalty-discount').hide();
+        }
+        if (data.totals.totalDiscount && data.totals.totalDiscount > 0) {
+            $('.order-discount-total').empty().append('- ' + data.totals.totalDiscount.formatted);
+        }
+        if (data.totals.totalEmployeeDiscount && data.totals.totalEmployeeDiscount.value > 0) {
+            $('.order-discount-total').empty().append('- ' + data.totals.totalEmployeeDiscount.formatted);
+        }
+        if (data.totals.saveTotal) {
+            $('.order-saved-total').empty().append(data.totals.saveTotal.formatted);
         }
 
         if (data.totals.shippingLevelDiscountTotal.value > 0) {
@@ -1188,7 +1309,7 @@ export default class Product extends Component {
     }
 
     getQuantitySelector() {
-        return (this.$el && $('.set-items').length) || (this.$el && this.$el.closest('.g-modal-quick-view').length)
+        return (this.$el && $('.set-items').length) || (this.$el && this.$el.closest('.g-modal-quick-view, .quick-add-dialog').length)
             ? this.$el.closest('.product-detail').find('.js-quantity-select')
             : $('.js-quantity-select');
     }
@@ -1212,7 +1333,10 @@ export default class Product extends Component {
     handlePostCartAdd(response) {
         if (!response.error) {
             $('.minicart').trigger('count:update', response);
-            $('body').trigger('product:updateAddToCartModal', response);
+
+            if (response.isQuickAdd !== 'true') {
+                $('body').trigger('product:updateAddToCartModal', response);
+            }
         }
         // show add to cart toast
         if (response.newBonusDiscountLineItem && Object.keys(response.newBonusDiscountLineItem).length !== 0) {
@@ -1243,12 +1367,14 @@ export default class Product extends Component {
                 }
                 $('.b-product_availability').empty();
                 $('.inventory-message').html(availabilityValue);
-                var attribute = $('.b-product_attrs-item[data-attr]:last', this.$el);
+                var attribute = $('.b-product_attrs-item[data-attr]:last, .b-product_qvattrs-item[data-attr]:last', this.$el);
                 attribute.find('.selection-error-message').remove();
-                attribute.append('<div class="selection-error-message">' + attribute.find('.m-' + attribute.data('attr')).data('error-message-label') + '</div>');
+                if (Array.isArray(availabilityMessages) && availabilityMessages.length > 0 && availabilityMessages[0] === 'masterQtyLimitError') {
+                    attribute.append('<div class="selection-error-message">' + attribute.find('.m-' + attribute.data('attr')).data('error-limitedmasterquantity-message-label') + '</div>');
+                } else {
+                    attribute.append('<div class="selection-error-message">' + attribute.find('.m-' + attribute.data('attr')).data('error-message-label') + '</div>');
+                }
                 attribute.find('li a.m-active').addClass('disabled');
-                var addedToBag = $('.js-add-to-cart').attr('data-addto-bag');
-                $('.b-add_to_bag .js-add-to-cart').html(addedToBag);
                 $('.js_paypal_button').addClass('disabled');
                 $('.error-msg').append(outOfStockValue);
             }
@@ -1354,6 +1480,7 @@ export default class Product extends Component {
         }
 
         $('.b-select-size-outer .js-sizeAttributes').each(function () {
+            var siteValue = $('#size-selected').attr('data-attr-site') ? $('#size-selected').attr('data-attr-site') : '';
             var num = $('.b-size_outer .js-sizeAttributes a.selected').parent('li');
             var lengthSelected = $('.b-length_outer .js-sizeAttributes a.selected').parent('li');
             var sizeSelectValue = $('.b-size_outer .js-sizeAttributes a.selected').attr('data-size-attr');
@@ -1380,11 +1507,21 @@ export default class Product extends Component {
             } else {
                 $('.js-show-less.show:visible').trigger('click');
             }
-            if (lengthSelected.length > 0 && num.length > 0) {
+            if (siteValue === 'EU' || siteValue === 'UKIE') {
+                if (sizeSelectValue !== undefined && ((lengthSelected.length > 0 && num.length > 0) || num.length > 0)) {
+                    $('#size-not-selected').hide();
+                    $('#size-selected').show();
+                    $('.js-selected-size-emea').html(sizeSelectValue);
+                } else if (sizeSelectValue !== undefined && num.length === 0) {
+                    $('#size-not-selected').hide();
+                    $('#size-selected').show();
+                    $('.js-selected-size-emea').html('');
+                }
+            } else if (siteValue !== 'EU' && siteValue !== 'UKIE' && lengthSelected.length > 0 && num.length > 0) {
                 $('.js-selected-size').html(sizeSelectValue);
-            } else if (num.length > 0) {
+            } else if (siteValue !== 'EU' && siteValue !== 'UKIE' && num.length > 0) {
                 $('.js-selected-size').html(sizeSelectValue);
-            } else if (num.length === 0) {
+            } else if (siteValue !== 'EU' && siteValue !== 'UKIE' && num.length === 0) {
                 $('.js-selected-size').html('');
             }
         });
@@ -1528,7 +1665,7 @@ export default class Product extends Component {
         product.variationAttributes.forEach((attributeGroup) => {
             if (attributeGroup.attributeId === 'size') {
                 attributeGroup.values.forEach((attribute) => {
-                    html += `<li class="js-sizeAttributes" data-url="${attribute.url}">
+                    html += `<li class="js-sizeAttributes swiper-slide" data-url="${attribute.url}">
                     <a href="${varitionTab || ''}" data-size-attr="${attribute.displayValue}" data-attr-value="${attribute.id}" role="button" title="${sizeMsg + ' ' + attribute.value}" class="js-size-select ${!attribute.selectable ? 'disabled' : ''} ${attribute.selected ? attrSelected : ''}`;
                     if (product.custom.gender && (product.custom.gender.toLowerCase() === 'unisex' || product.custom.gender.toLowerCase() === 'adult_unisex' || product.custom.gender.toLowerCase() === 'youth_unisex')) { // size chips values for unisex products
                         var useValue = attribute.value.toLowerCase() === 'osfa'; // if unisex product is of size osfa ,use the value instead and Removing the displayValue length check as it always takes the value and DisplayValue will be empty.
@@ -1580,17 +1717,25 @@ export default class Product extends Component {
         var notAvailableText = $('.b-plp-sidebar-modelSize.b-pdp-modelSize', this.$el).data('not-availability');
         var selectedValue = $('body').find('.js-pdp-select-model', this.$el).val();
         var selectedOpt = $('body').find('.js-pdp-select-model option:selected', this.$el).text();
+        var region = $('.l-pdp.product-detail').attr('data-region');
         $('.b-pdp-modelSize .g-selectric .label', this.$el).removeClass('not-available');
         if (availableModelSize.fitModelAvailable) {
             Object.keys(availableModelSize.fitModelImageViewType).forEach((size) => {
                 var labelText = $(`.b-plp-sidebar-modelSize .g-selectric-items .select-option.${size}`, this.$el).text();
                 if (!availableModelSize.fitModelImageViewType[size]) {
+                    var emNotAvailableText = notAvailableText;
                     if (labelText.indexOf(notAvailableText) === -1) {
-                        $(`.b-plp-sidebar-modelSize .g-selectric-items .select-option.${size}`, this.$el).text(labelText + ' ' + notAvailableText);
+                        if (region === 'emea') {
+                            emNotAvailableText = '';
+                        }
+                        $(`.b-plp-sidebar-modelSize .g-selectric-items .select-option.${size}`, this.$el).text(labelText + ' ' + emNotAvailableText);
                         $(`.b-plp-sidebar-modelSize .g-selectric-items .select-option.${size}`, this.$el).addClass('disabled');
                     }
                     if (size === selectedValue) {
-                        $('.b-pdp-modelSize .g-selectric .label', this.$el).text(selectedOpt + ' ' + notAvailableText);
+                        if (region === 'emea') {
+                            emNotAvailableText = '';
+                        }
+                        $('.b-pdp-modelSize .g-selectric .label', this.$el).text(selectedOpt + ' ' + emNotAvailableText);
                         $('.b-pdp-modelSize .g-selectric .label', this.$el).addClass('not-available');
                     }
                 } else {
@@ -1647,6 +1792,11 @@ export default class Product extends Component {
             if ($('.b-add_to_bag .js-add-to-cart').find('disabled')) {
                 $('.b-add_to_bag .js-add-to-cart', this.$el).removeAttr('disabled');
             }
+        }
+        if (response.product.custom.exclusive === 'out-of-stock') {
+            $('.b-add_to_bag .js-add-to-cart', this.$el).attr('exclusive-oos', true);
+        } else {
+            $('.b-add_to_bag .js-add-to-cart', this.$el).attr('exclusive-oos', false);
         }
         /* if (isVariant) {
             $('.product-sku').html(response.product.custom.sku);
@@ -1760,6 +1910,9 @@ export default class Product extends Component {
                 ? $('.b-product_prices .b-price', this.$el)
                 : ($('.b-product-quickview-prices .b-price', this.$el).length ? $('.b-product-quickview-prices .b-price', this.$el) : $('.b-product_prices .b-price'));
             $priceSelector.replaceWith(response.product.price.html);
+            if ($('.sticky-cta .b-product_actions .product-details .b-price-header .b-price ', this.$el).length) {
+                $('.sticky-cta .b-product_actions .product-details .b-price-header .b-price ', this.$el).replaceWith(response.product.price.html);
+            }
         }
 
         // Update exchange button
@@ -1851,26 +2004,80 @@ export default class Product extends Component {
         // Update attributes
         this.$el.find('.main-attributes').empty()
             .html(this.getAttributesHtml(response.product.attributes));
-        var addedToBag = $('.js-add-to-cart').attr('data-addto-bag');
+        var addToBag = $('.js-add-to-cart').attr('data-addto-bag');
         var preOrderBag = $('.js-add-to-cart').attr('data-pre-order');
         var comingSoon = $('.js-add-to-cart').attr('data-coming-soon');
         var OOS = $('.js-add-to-cart').attr('data-oos');
-        if ((response.product.custom.exclusive === 'coming-soon')) {
+        var isCartEdit = $('.js-add-to-cart').hasClass('js-update-cart-product-global');
+        var memberPrice = response.product.memberPricing && response.product.memberPricing.hasMemberPrice && response.product.memberPricing.guestUser && response.product.memberPricing.memberPricingUnlockCTA;
+        if (!isCartEdit && !$('.js-add-to-cart').hasClass('add-to-cart-global') && memberPrice) {
+            $('.js-add-to-cart').removeClass('g-button_tertiary f-added-check').html(response.product.memberPricing.memberPricingUnlockCTA);
+            $('.js-add-to-cart').toggleClass('g-button_primary--black js-unlock-access', true);
+        } else if ((response.product.custom.exclusive === 'coming-soon')) {
             $('.js-add-to-cart').html(comingSoon);
             $('.b-product_preorder').empty().html('<p class="b-product_preorder-maskpdp">' + response.product.custom.comingSoonMessage + '</p>');
             $('.b-add_to_bag .js-add-to-cart').prop('disabled', true);
             $('.js_paypal_button').addClass('disabled');
+            $('.b-product_availability').empty();
         } else if (response.product.custom.isPreOrder) {
             $('.js-add-to-cart').removeClass('f-added-check').html(preOrderBag);
             $('.b-product_preorder').empty().html('<p class="b-product_preorder-maskpdp">' + response.product.custom.preOrderPDPMessage + '</p>');
         } else if (response.product.custom.exclusive === 'out-of-stock') {
             $('.js-add-to-cart').html(OOS);
             $('.js_paypal_button').addClass('disabled');
-        } // eslint-disable-line
-        else {
-            $('.js-add-to-cart').removeClass('f-added-check').html(addedToBag);
+        } else {
+            $('.js-add-to-cart').removeClass('f-added-check').html(addToBag);
             $('.b-product_preorder').empty();
         }
+
+        if (!isCartEdit && !$('.js-add-to-cart').hasClass('add-to-cart-global') && !memberPrice) {
+            $('.js-add-to-cart').removeClass('g-button_primary--black js-unlock-access').addClass('g-button_tertiary');
+        }
+
+        // Update member pricing badge and text above ATC CTA
+        var memberPricingModel;
+        if (response.product.productType === 'master' && response.variantModel && response.variantModel.memberPricing) {
+            memberPricingModel = response.variantModel.memberPricing;
+        } else if (response.product.memberPricing) {
+            memberPricingModel = response.product.memberPricing;
+        }
+        if (memberPricingModel && !memberPricingModel.hasMemberPrice) {
+            $('.pdp-member-pricing-message, .pdp-member-price').empty();
+        } else if (memberPricingModel) {
+            if (memberPricingModel.memberPricingTextAboveCTA) {
+                $('.pdp-member-pricing-message').html(memberPricingModel.memberPricingTextAboveCTA);
+            }
+            if (memberPricingModel.hasMemberPrice && memberPricingModel.pricing) {
+                $('.pdp-member-price').html(memberPricingModel.pricing.priceHtml);
+            }
+        }
+
+        // enable the selected variation if prodcut has inventory for store pickup
+        var isProductAvailableForInStore = response && response.selectedStore && response.selectedStore.enableStore && response.selectedStore.productInStoreInventory;
+        if (isProductAvailableForInStore) {
+            this.$el.find('.b-product_attribute.m-size .js-size-select.selected').removeClass('disabled');
+            this.$el.find('.b-product_attribute.m-color .js-swatch-link.m-active').removeClass('m-disabled');
+        }
+        this.updateNotifyMe(response);
+
+        // Update Early Access data
+        if (response.product.custom.earlyAccess) {
+            var earlyAccess = require('./earlyAccess');
+            earlyAccess.updateEarlyAccessAttributes(response.product.custom.earlyAccess);
+        }
+    }
+
+    toggleNotifyMe(showNotiyMe) {
+        this.$el.find('.js-notify-product-actions, .js-add_to_bag_notify').toggleClass('hide', showNotiyMe);
+        this.$el.find('.js-notify_product').toggleClass('hide', !showNotiyMe);
+    }
+
+    updateNotifyMe(response) {
+        var $notifyMeButton = $('.b-notify-cta');
+        var $shippingMethogCTA = $('.js-ship-pick-check.selected');
+        var isAvaliableForSelectedShippingMethod = ($shippingMethogCTA.length === 0 && response && response.product && response.product.available) || $shippingMethogCTA.data('availability');
+        var showNotiyMe = (response && response.isNotifyMeEnabled && response.isNotifyMeEnabled != null) || (!response && $notifyMeButton.length);
+        this.toggleNotifyMe(!isAvaliableForSelectedShippingMethod && showNotiyMe);
     }
 
     tabsUpdate(response) {
@@ -1949,7 +2156,7 @@ export default class Product extends Component {
                 }
             }
 
-            this.$swatchesContainer.on('mouseleave', this.onChangeToDefault.bind(this));
+            this.$swatchesContainer.find('.js-swatch-link').on('mouseleave', this.onChangeToDefault.bind(this));
         }
 
         if ($(window).width() > 1023) {
@@ -2002,7 +2209,7 @@ export default class Product extends Component {
         } else {
             $(this.$el).find('.b-store-choose-link .b-choose-store').removeClass('no-store');
         }
-        $('body').find('.add-to-wish-list').attr('data-pid', data.product.custom.masterID);
+        $('body').find('.add-to-wish-list').attr('data-pid', data.product.id);
         if (data.isItemExistsInWishList !== null && data.isItemExistsInWishList) {
             this.$el.find('.b-product_info .js-whislist-icon').addClass('product-added b-product_name-fav_selectButton').removeClass('b-product_name-fav_button');
         } else {
@@ -2048,7 +2255,7 @@ export default class Product extends Component {
                         modelSpecs = `${modelHeightText} ${image.modelSpec.modelHeightFtIn}
                         ${prdSizeText} ${image.modelSpec.modelSize}`;
                     } else if ((region === 'emea') && image.modelSpec && image.modelSpec.showModelInfo === true && image.modelSpec.modelSize && image.modelSpec.modelHeightCm) {
-                        modelSpecs = `${modelHeightText} ${image.modelSpec.modelHeightCm} cm 
+                        modelSpecs = `${modelHeightText} ${image.modelSpec.modelHeightCm} cm
                         ${prdSizeText} ${image.modelSpec.modelSize}`;
                     } else if (image.modelSpec && image.modelSpec.showModelInfo === true && image.modelSpec.modelSize && image.modelSpec.modelHeightFtIn) {
                         modelSpecs = `${modelHeightText} ${image.modelSpec.modelHeightFtIn}
@@ -2164,7 +2371,7 @@ export default class Product extends Component {
         var videoDiv = `<div class='b-product_carousel-slide js-product_carousel-slide swiper-slide b-product-360-carousel-slide'>
         <div class="b-product-360_video" id="product-360-video--${video360Material[0].masterID_selectedColor}">
             <div class="b-product-360_video-player">
-                <video poster="${video360Material[0].poster_url}" class="js-product-360-video" preload="metadata" autoplay loop muted playsinline>
+                <video poster="${video360Material[0].poster_url}" class="js-product-360-video" preload="none" loop muted playsinline>
                     <source src="${video360Material[0].video_url_mp4}" type="video/mp4">
                 </video>
             </div>

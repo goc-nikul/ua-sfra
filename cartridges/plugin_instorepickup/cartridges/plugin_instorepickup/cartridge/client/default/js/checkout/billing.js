@@ -22,7 +22,8 @@ function updateBillingAddressSelector(order, customer) {
             null,
             false,
             order,
-            { type: 'billing' }));
+            { type: 'billing' }
+        ));
 
         // Separator -
         $billingAddressSelector.append(
@@ -41,8 +42,7 @@ function updateBillingAddressSelector(order, customer) {
         });
 
         if (customer.addresses && customer.addresses.length > 0) {
-            $billingAddressSelector.append(addressHelpers.methods.optionValueForAddress(
-                order.resources.accountAddresses, false, order));
+            $billingAddressSelector.append(addressHelpers.methods.optionValueForAddress(order.resources.accountAddresses, false, order));
             customer.addresses.forEach(function (address) {
                 var isSelected = order.billing.matchingAddressId === address.ID;
                 hasSelectedAddress = hasSelectedAddress || isSelected;
@@ -81,8 +81,10 @@ function updateBillingInformation(order, customer) {
     base.methods.updateBillingAddressFormValues(order);
 
     // update billing address summary
-    addressHelpers.methods.populateAddressSummary('.billing .address-summary',
-        order.billing.billingAddress.address);
+    addressHelpers.methods.populateAddressSummary(
+        '.billing .address-summary',
+        order.billing.billingAddress.address
+    );
 
     // update billing parts of order summary
     $('.order-summary-email').text(order.orderEmail);

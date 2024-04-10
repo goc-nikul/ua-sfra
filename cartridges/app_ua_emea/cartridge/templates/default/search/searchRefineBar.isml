@@ -1,0 +1,70 @@
+<isif condition="${!empty(pdict.productSearch)}">
+<isset name="hideRefinements" value="${dw.system.Site.current.getCustomPreferenceValue('hideRefinements')}"  scope="page"/>
+    <div class="b-refinements js-refinements">
+        <div class="b-refinements-container js-canonical-url" data-action-sizeModelUrl="${URLUtils.url('Search-ShowAjax')}" data-queryString="${pdict.queryString}">
+            <div class="b-refinements_header">
+                <isinclude template="search/filterBar" />
+            </div>
+            <div class="b-refinements-item js-refinements-item m-sort-filter">
+                <div class="b-refinements-header collapsed"
+                    data-toggle="collapse"
+                    aria-expanded="false"
+                    aria-controls="refinement-sort"
+                    data-target="#refinement-sort"
+                    >
+                        ${Resource.msgf('label.sort', 'search', null)}
+                </div>
+                <div class="b-refinements-content collapse" id="refinement-sort">
+                    <isinclude template="components/coreModules" />
+                    <isif condition="${pdict.productSearch.productIds.length > 0}">
+                        <ul class="b-refinement_sort-list">
+                            <isloop items="${pdict.productSearch.productSort.options}" var="option">
+                                <li class="b-refinement_sort-item">
+                                    <input type="radio" id="id-sort-${option.id.replace(/\s/g,'')}" name="sortMobileOption" value="${option.sortingRuleId.replace(/\s/g,'')}">
+                                    <label for="id-sort-${option.id.replace(/\s/g,'')}">${option.displayName}</label>
+                                </li>
+                            </isloop>
+                        </ul>
+                    </isif>
+                </div>
+            </div>
+            <isloop items="${pdict.productSearch.refinements}" var="refinement">
+                <iscomment>TODO: Pass list of refinements to suppress (not hardcoded)</iscomment>
+                <isif condition="${(!hideRefinements || (hideRefinements && hideRefinements.indexOf(refinement.displayName) === -1)) && !refinement.isCategoryRefinement}">
+                    <div class="b-refinements-item js-refinements-item ${refinement.isCategoryRefinement ? 'm-category' : 'm-'+ ( refinement.displayName ? refinement.displayName.toLowerCase().replace(/[ '%]+/g, '-') : '' )}"
+                    data-analytics-plp-filter-title="${refinement.displayName}" data-refinement-id="${refinement.values[0].id}">
+                        <div class="b-refinements-header ${!refinement.amountSelectedValues ? 'collapsed' : ''} ${refinement.isCategoryRefinement ? 'js-parent-category' : ''}"
+                             data-toggle="collapse"
+                             aria-expanded="false"
+                             aria-controls="refinement-${refinement.displayName ? refinement.displayName.toLowerCase().replace(/[ '%]+/g, '-') : ''}"
+                             data-target="${'#refinement-'+ ( refinement.displayName ? refinement.displayName.toLowerCase().replace(/[ '%]+/g, '-') : '' )}"
+                             data-amount-selected-items="${refinement.amountSelectedValues}"
+                        >
+                            ${refinement.displayName}
+                            <isif condition="${refinement.isAttributeRefinement && refinement.amountSelectedValues > 0}">
+                                ${Resource.msgf('refinements.amount', 'search', null, refinement.amountSelectedValues)}
+                            </isif>
+                        </div>
+                        <isset name="selectedFilter" value="${refinement.isAttributeRefinement ? refinement.values[0].id : refinement.displayName}" scope="page" />
+                        <div class="b-refinements-content collapse ${refinement.amountSelectedValues || (refinement.refinementOpen && selectedFilter == refinement.refinementOpen) ? 'show' : ''}"
+                             id="refinement-${refinement.displayName ? refinement.displayName.toLowerCase().replace(/[ '%]+/g, '-') : ''}" data-refinementAttr="${selectedFilter}">
+                            <isset name="cutoffThreshold" value="${refinement.cutoffThreshold}" scope="page" />
+                            <!--- ATTRIBUTE REFINEMENTS --->
+                            <isif condition="${refinement.isAttributeRefinement}">
+                                <isinclude template="search/refinements/attributes" />
+                            </isif>
+    
+                            <!--- PRICE REFINEMENTS --->
+                            <isif condition="${refinement.isPriceRefinement}">
+                                <isinclude template="search/refinements/prices" />
+                            </isif>
+                        </div>
+                    </div>
+                </isif>
+            </isloop>
+            <div class="b-refinements-footer">
+                <button class="b-refinements-apply g-button_base g-button_primary--black js-close-filter">${Resource.msgf('refinements.apply', 'search', null, pdict.productSearch.count)}</button>
+            </div>
+        </div>
+    </div>
+</isif>

@@ -20,7 +20,6 @@ var Logger = require('dw/system/Logger');
 const eGiftCard = 'EGIFT_CARD';
 var ShippingMgr = require('dw/order/ShippingMgr');
 
-
 /**
  * Adds a line item for this product to the Cart
  *
@@ -138,8 +137,6 @@ function isListItemExistInBasket(currentBasket, list) {
                 collections.forEach(list[0].items, function (listItem) {
                     if (listItem.productID === pli.productID) {
                         savedForLaterList[pli.UUID] = true;
-                    } else {
-                        savedForLaterList[pli.UUID] = false;
                     }
                 });
             }
@@ -216,6 +213,26 @@ function getQtyAlreadyInCart(productId, lineItems, uuid, fromStoreId) {
     });
     return qtyAlreadyInCart;
 }
+
+
+/**
+ * Calculate the quantities of products in the cart that belong to the same master product
+ *
+ * @param {dw.catalog.Product} product - Product to be added or updated
+ * @param {dw.util.Collection<dw.order.ProductLineItem>} lineItems - Cart product line items
+ * @returns {number} - Total quantity of requested product's master product in the Cart
+ */
+function getQtyAlreadyInCartWithSameMaster(product, lineItems) {
+    var masterQtyInCart = 0;
+
+    collections.forEach(lineItems, function (item) {
+        if (product.masterProduct.ID === item.product.masterProduct.ID) {
+            masterQtyInCart += item.quantityValue;
+        }
+    });
+    return masterQtyInCart;
+}
+
 /**
  * Determines whether a product's current options are the same as those just selected
  *
@@ -327,6 +344,101 @@ function getAllExistingProductLineItemInCart(product, productId, productLineItem
  * @param {boolean} bypassMAOCheck - set this to true if you are passing in maoItemsArray with all items in the cart (used for merge cart process)
  *  @return {Object} returns an error object
  */
+
+/**
+ * Determines whether a product's current instore pickup store setting are
+ * the same as the previous selected
+ *
+ * @param {string} existingStoreId - store id currently associated with this product
+ * @param {string} selectedStoreId - store id just selected
+ * @return {boolean} - Whether a product's current store setting is the same as
+ * the previous selected
+ */
+function hasSameStore(existingStoreId, selectedStoreId) {
+    return existingStoreId === selectedStoreId;
+}
+
+/**
+ * Get the existing in store pickup shipment in cart by storeId
+ * @param {dw.order.Basket} basket - the target Basket object
+ * @param {string} storeId - store id
+ * @return {dw.order.Shipment} returns Shipment object if the existing shipment has the same storeId
+ */
+function getInStorePickupShipmentInCartByStoreId(basket, storeId) {
+    var existingShipment = null;
+    if (basket && storeId) {
+        var shipments = basket.getShipments();
+        if (shipments.length) {
+            existingShipment = arrayHelper.find(shipments, function (shipment) {
+                return hasSameStore(shipment.custom.fromStoreId, storeId);
+            });
+        }
+    }
+    return existingShipment;
+}
+
+/**
+ * create a new instore pick shipment if the store shipment
+ * is not exist in the basket for adding product line item
+ * @param {dw.order.Basket} basket - the target Basket object
+ * @param {string} storeId - store id
+ * @param {Object} req - The local instance of the request object
+ * @return {dw.order.Shipment} returns Shipment object
+ */
+function createInStorePickupShipmentForLineItem(basket, storeId, req) {
+    var shipment = null;
+    if (basket && storeId) {
+        // check if the instore pickup shipment is already exist.
+        shipment = getInStorePickupShipmentInCartByStoreId(basket, storeId);
+        if (!shipment) {
+            // create a new shipment to put this product line item in
+            shipment = basket.createShipment(UUIDUtils.createUUID());
+            shipment.custom.fromStoreId = storeId;
+            shipment.custom.shipmentType = 'in-store';
+            req.session.privacyCache.set(shipment.UUID, 'valid');
+
+            // Find in-store method in shipping methods.
+            var shippingMethods =
+                ShippingMgr.getShipmentShippingModel(shipment).getApplicableShippingMethods();
+            var shippingMethod = collections.find(shippingMethods, function (method) {
+                return method.custom.storePickupEnabled;
+            });
+            var store = StoreMgr.getStore(storeId);
+            var storeAddress = {
+                address: {
+                    firstName: store.name,
+                    lastName: store.name,
+                    address1: store.address1,
+                    address2: store.address2,
+                    city: store.city,
+                    stateCode: store.stateCode,
+                    postalCode: store.postalCode,
+                    countryCode: store.countryCode.value,
+                    phone: store.phone
+                },
+                shippingMethod: shippingMethod.ID
+            };
+            COHelpers.copyShippingAddressToShipment(storeAddress, shipment);
+        }
+    }
+    return shipment;
+}
+
+/**
+ * Adds a product to the cart. If the product is already in the cart it increases the quantity of
+ * that product.
+ * @param {dw.order.Basket} currentBasket - Current users's basket
+ * @param {string} productId - the productId of the product being added to the cart
+ * @param {number} quantity - the number of products to the cart
+ * @param {string[]} childProducts - the products' sub-products
+ * @param {SelectedOption[]} options - product options
+ * @param {string} storeId - store id
+ * @param {Object} req - The local instance of the request object
+ * @param {boolean} isGiftItem - if it is a gift item
+ * @param {string} giftMessage - the gift message
+ * @param {boolean} bypassMAOCheck - skip product MAO inventory check
+ * @return {Object} returns an object
+ */
 function addProductToCart(currentBasket, productId, quantity, childProducts, options, storeId, req, isGiftItem, giftMessage, bypassMAOCheck) {
     var Site = require('dw/system/Site');
     const isMAOEnabled = Site.current.getCustomPreferenceValue('MAOEnabled');
@@ -345,6 +457,12 @@ function addProductToCart(currentBasket, productId, quantity, childProducts, opt
     var productLineItems = currentBasket.productLineItems;
     var productLineItem;
     var productQuantityInCart;
+    var masterQuantityInCart;
+    var remainingQty;
+    var remainingATS;
+    var qtyLimitReached;
+    var outOfStock;
+    var masterQtyLimit = product.custom.masterQtyLimit ? product.custom.masterQtyLimit : null;
     var lineItemQuantity = isNaN(quantity) ? base.DEFAULT_LINE_ITEM_QUANTITY : quantity;
     var quantityToSet;
     var optionModel = productHelper.getCurrentOptionModel(product.optionModel, options);
@@ -353,7 +471,8 @@ function addProductToCart(currentBasket, productId, quantity, childProducts, opt
         // eslint-disable-next-line spellcheck/spell-checker
         message: Resource.msg('text.alert.addedtobasket', 'product', null)
     };
-    storeId = null; // eslint-disable-line
+    var isPickupItem = req.form && req.form.isPickupItem === 'true';
+    var storeId = isPickupItem && storeId ? storeId : null; // eslint-disable-line
 
     var totalQtyRequested = 0;
     var canBeAdded = false;
@@ -406,7 +525,11 @@ function addProductToCart(currentBasket, productId, quantity, childProducts, opt
     }
     productsInCart = getAllExistingProductLineItemInCart(product, productId, productLineItems, childProducts, options);
     for (let m = 0; m < productsInCart.length; m++) {
-        productInCart = !productsInCart[m].shipment.custom.fromStoreId ? productsInCart[m] : null;
+        if (isPickupItem && storeId) {
+            productInCart = productsInCart[m].shipment.custom.fromStoreId === storeId ? productsInCart[m] : null;
+        } else {
+            productInCart = !productsInCart[m].shipment.custom.fromStoreId ? productsInCart[m] : null;
+        }
     }
 
     if (product.custom.giftCard.value === eGiftCard) {
@@ -423,74 +546,115 @@ function addProductToCart(currentBasket, productId, quantity, childProducts, opt
     } else if (productInCart) {
         productQuantityInCart = productInCart.quantity.value;
         quantityToSet = lineItemQuantity ? lineItemQuantity + productQuantityInCart : productQuantityInCart + 1;
-
-        if (availableToSell >= quantityToSet || perpetual) {
-            productInCart.setQuantityValue(quantityToSet);
-            result.uuid = productInCart.UUID;
+        if (!masterQtyLimit) {
+            if (availableToSell >= quantityToSet || perpetual) {
+                productInCart.setQuantityValue(quantityToSet);
+                result.uuid = productInCart.UUID;
+            } else {
+                result.error = true;
+                messages = [];
+                messages.push(availableToSell === productQuantityInCart
+                    ? Resource.msg('error.alert.max.quantity.in.cart', 'product', null)
+                    : Resource.msg('error.alert.selected.quantity.cannot.be.added', 'product', null));
+                result.message = JSON.stringify(messages);
+            }
         } else {
-            result.error = true;
-            messages = [];
-            messages.push(availableToSell === productQuantityInCart
-                ? Resource.msg('error.alert.max.quantity.in.cart', 'product', null)
-                : Resource.msg('error.alert.selected.quantity.cannot.be.added', 'product', null));
-            result.message = JSON.stringify(messages);
+            masterQuantityInCart = getQtyAlreadyInCartWithSameMaster(product, productLineItems);
+            remainingQty = Math.max(masterQtyLimit - masterQuantityInCart, 0);
+            remainingATS = Math.max(availableToSell - productQuantityInCart, 0);
+            outOfStock = remainingATS < lineItemQuantity;
+            qtyLimitReached = remainingQty < lineItemQuantity;
+
+            if (!outOfStock && !qtyLimitReached) {
+                productInCart.setQuantityValue(quantityToSet);
+                result.uuid = productInCart.UUID;
+            } else {
+                result.error = true;
+                messages = [];
+                messages.push(qtyLimitReached
+                    ? 'masterQtyLimitError'
+                    : Resource.msg('error.alert.selected.quantity.cannot.be.added', 'product', null));
+                result.message = JSON.stringify(messages);
+            }
         }
     } else {
-        shipment = currentBasket.defaultShipment;
-        var fromStore = shipment.custom.fromStoreId;
-        var inStoreShippingMethod = shipment.shippingMethod;
-        if (shipment.custom.fromStoreId && shipment.productLineItems.length) {
-            var pli = shipment.productLineItems;
-            Transaction.wrap(function () {
+        if (masterQtyLimit) {
+            masterQuantityInCart = getQtyAlreadyInCartWithSameMaster(product, productLineItems);
+            remainingQty = Math.max(masterQtyLimit - masterQuantityInCart, 0);
+            outOfStock = availableToSell < lineItemQuantity;
+            qtyLimitReached = remainingQty < lineItemQuantity;
+
+            if (outOfStock || qtyLimitReached) {
+                result.error = true;
+                messages = [];
+                messages.push(qtyLimitReached
+                    ? 'masterQtyLimitError'
+                    : Resource.msg('error.alert.selected.quantity.cannot.be.added', 'product', null));
+                result.message = JSON.stringify(messages);
+                return result;
+            }
+        }
+        if (isPickupItem && storeId) {
+            // Create a new instore pickup shipment for product line item
+            // shipment if not exist in the basket
+            shipment = createInStorePickupShipmentForLineItem(currentBasket, storeId, req);
+        } else {
+            shipment = currentBasket.defaultShipment;
+            var fromStore = shipment.custom.fromStoreId;
+            var inStoreShippingMethod = shipment.shippingMethod;
+            if (shipment.custom.fromStoreId && shipment.productLineItems.length) {
+                var pli = shipment.productLineItems;
+                Transaction.wrap(function () {
+                    if ('fromStoreId' in shipment.custom && !empty(shipment.custom.fromStoreId)) {
+                        delete shipment.custom.fromStoreId;
+                    }
+                    if ('shipmentType' in shipment.custom && !empty(shipment.custom.shipmentType)) {
+                        delete shipment.custom.shipmentType;
+                    }
+                    var uuid = UUIDUtils.createUUID();
+                    shipment = currentBasket.createShipment(uuid);
+                    shipment.custom.fromStoreId = fromStore;
+                    shipment.custom.shipmentType = 'in-store';
+                    shipment.setShippingMethod(inStoreShippingMethod);
+                    var storeAddressID = fromStore;
+                    var storeObj = StoreMgr.getStore(storeAddressID);
+                    var storeAddress = {
+                        address: {
+                            firstName: storeObj.name,
+                            lastName: storeObj.name,
+                            address1: storeObj.address1,
+                            address2: storeObj.address2,
+                            city: storeObj.city,
+                            stateCode: storeObj.stateCode,
+                            postalCode: storeObj.postalCode,
+                            countryCode: storeObj.countryCode.value,
+                            phone: storeObj.phone
+                        }
+                    };
+                    COHelpers.copyShippingAddressToShipment(storeAddress, shipment);
+                    for (let m = 0; m < pli.length; m++) {
+                        pli[m].setShipment(shipment);
+                    }
+                    currentBasket.defaultShipment.createShippingAddress();
+                    var defaultShippingMethod = ShippingMgr.getDefaultShippingMethod();
+                    var shipmentModel = ShippingMgr.getShipmentShippingModel(shipment);
+                    var applicableShippingMethods = shipmentModel.applicableShippingMethods;
+                    if (collections.find(applicableShippingMethods, function (sMethod) {
+                            return sMethod.ID === defaultShippingMethod.ID; // eslint-disable-line
+                        })) { // eslint-disable-line
+                        currentBasket.defaultShipment.setShippingMethod(defaultShippingMethod);
+                    }
+                });
+            } else {
                 if ('fromStoreId' in shipment.custom && !empty(shipment.custom.fromStoreId)) {
                     delete shipment.custom.fromStoreId;
                 }
                 if ('shipmentType' in shipment.custom && !empty(shipment.custom.shipmentType)) {
                     delete shipment.custom.shipmentType;
                 }
-                var uuid = UUIDUtils.createUUID();
-                shipment = currentBasket.createShipment(uuid);
-                shipment.custom.fromStoreId = fromStore;
-                shipment.custom.shipmentType = 'in-store';
-                shipment.setShippingMethod(inStoreShippingMethod);
-                var storeAddressID = fromStore;
-                var storeObj = StoreMgr.getStore(storeAddressID);
-                var storeAddress = {
-                    address: {
-                        firstName: storeObj.name,
-                        lastName: storeObj.name,
-                        address1: storeObj.address1,
-                        address2: storeObj.address2,
-                        city: storeObj.city,
-                        stateCode: storeObj.stateCode,
-                        postalCode: storeObj.postalCode,
-                        countryCode: storeObj.countryCode.value,
-                        phone: storeObj.phone
-                    }
-                };
-                COHelpers.copyShippingAddressToShipment(storeAddress, shipment);
-                for (let m = 0; m < pli.length; m++) {
-                    pli[m].setShipment(shipment);
-                }
-                currentBasket.defaultShipment.createShippingAddress();
-                var defaultShippingMethod = ShippingMgr.getDefaultShippingMethod();
-                var shipmentModel = ShippingMgr.getShipmentShippingModel(shipment);
-                var applicableShippingMethods = shipmentModel.applicableShippingMethods;
-                if (collections.find(applicableShippingMethods, function (sMethod) {
-                        return sMethod.ID === defaultShippingMethod.ID; // eslint-disable-line
-                    })) { // eslint-disable-line
-                    currentBasket.defaultShipment.setShippingMethod(defaultShippingMethod);
-                }
-            });
-        } else {
-            if ('fromStoreId' in shipment.custom && !empty(shipment.custom.fromStoreId)) {
-                delete shipment.custom.fromStoreId;
             }
-            if ('shipmentType' in shipment.custom && !empty(shipment.custom.shipmentType)) {
-                delete shipment.custom.shipmentType;
-            }
+            shipment = currentBasket.defaultShipment;
         }
-        shipment = currentBasket.defaultShipment;
         productLineItem = addLineItem(
             currentBasket,
             product,
@@ -501,6 +665,13 @@ function addProductToCart(currentBasket, productId, quantity, childProducts, opt
             isGiftItem,
             giftMessage
         );
+        // Once the new product line item is added, set the instore pickup fromStoreId for the item
+        if (isPickupItem && productLineItem.product.custom.availableForInStorePickup) {
+            if (storeId) {
+                instorePickupStoreHelper.setStoreInProductLineItem(storeId, productLineItem);
+            }
+        }
+
         result.uuid = productLineItem.UUID;
     }
     if (!bopisEnabled) {
@@ -584,16 +755,22 @@ function removeCouponLineItems(currentBasket, isEmployee, isVIP) {
 }
 
 /**
- * Removes ineligible coupons from basket
+ * Removes ineligible coupons from basket that are not related to Loyality
  * @param {dw.order.Basket} basket - Basket
  * @returns {void}
  */
 function removeIneligibleCouponsFromBasket(basket) {
     if (basket) {
+        const PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
+        const isLoyaltyEnable = PreferencesUtil.getValue('isLoyaltyEnable');
+        const { LOYALTY_PREFIX } = isLoyaltyEnable ? require('*/cartridge/scripts/LoyaltyConstants') : '';
         var couponLineItems = basket.getCouponLineItems();
-
         collections.forEach(couponLineItems, function (couponLineItem) {
-            if (!couponLineItem.applied) {
+            // Remove coupons that are not related to Loyalty
+            // Loyalty related coupons that are not applied to the basket already being removed before placing an order
+            // in cartridges/int_loyalty/cartridge/controllers/CheckoutServices.js > PlaceOrder route
+            // and cartridges/int_ocapi/cartridge/hooks/shop/order/order_hook_scripts.js > beforePOST
+            if (!couponLineItem.applied && couponLineItem.couponCode.indexOf(LOYALTY_PREFIX) === -1) {
                 Transaction.wrap(function () {
                     basket.removeCouponLineItem(couponLineItem);
                 });
@@ -729,9 +906,9 @@ function switchShipmentsBopis(currentBasket) {
             return item.custom.fromStoreId && item.default;
         });
         var inStoreShipment = collections.find(currentBasket.shipments, function (item) {
-            return !item.default;
+            return !item.default && item.shippingMethodID !== 'eGift_Card';
         });
-        if (shipToAddress) { // bopisShipment
+        if (shipToAddress && inStoreShipment) {
             Transaction.wrap(function () {
                 // Swapping productLineItems
                 var shipToAddressLineItems = shipToAddress.productLineItems;
@@ -771,6 +948,24 @@ function switchShipmentsBopis(currentBasket) {
                 if (inStoreShipment) {
                     var defaultShippingMethod = inStoreShipment.shippingMethod;
                     shipToAddress.setShippingMethod(defaultShippingMethod);
+                    if (inStoreShipment.shippingAddress) {
+                        // save the ship to home address if it already exist in basket
+                        var shipToHomeAddress = inStoreShipment.shippingAddress;
+                        var homeAddress = {
+                            address: {
+                                firstName: shipToHomeAddress.firstName,
+                                lastName: shipToHomeAddress.lastName,
+                                address1: shipToHomeAddress.address1,
+                                address2: shipToHomeAddress.address2,
+                                city: shipToHomeAddress.city,
+                                stateCode: shipToHomeAddress.stateCode,
+                                postalCode: shipToHomeAddress.postalCode,
+                                countryCode: shipToHomeAddress.countryCode,
+                                phone: shipToHomeAddress.phone
+                            }
+                        };
+                        COHelpers.copyShippingAddressToShipment(homeAddress, shipToAddress);
+                    }
                     collections.forEach(shipToAddress.productLineItems, function (PLI) {
                         if (PLI.custom) {
                             if (PLI.custom.fromStoreId) {
@@ -984,18 +1179,20 @@ function bopisLineItemInventory(currentBasket, changeAllItemsStore, cartProdPid,
         }
         // prepare store object to calculate store availability message
         var pickupStore = storeHelpers.findStoreById(storeObj.ID);
-        var matchingShipment = collections.find(currentBasket.shipments, function (item) {
-            return !item.custom.fromStoreId;
-        });
+        var matchingShipment;
         var items = [];
         var maoAvailability = null;
         var MAOData = null;
         var storeModel;
+        // Changes done under PR#15687 causing issues on the SFRA cart page.
+        // Adding isOcapiRequest check to fix EPMD-13047
+        var isOcapiRequest = !!(request && request.clientId && request.ocapiVersion);
+        var productLineItems = isOcapiRequest ? inStoreShimpent.productLineItems : currentBasket.productLineItems;
         var realTimeInventoryCallEnabled = Site.getCurrent().getCustomPreferenceValue('realTimeInventoryCallEnabled');
-        var isBopisCheckPointEnabled = AvailabilityHelper.isCheckPointEnabled('BOPIS');
+        var isBopisCheckPointEnabled = 'isCheckPointEnabled' in AvailabilityHelper ? AvailabilityHelper.isCheckPointEnabled('BOPIS') : false;
         if (isMAOEnabled && realTimeInventoryCallEnabled && isBopisCheckPointEnabled && storeObj.ID) {
-            collections.forEach(currentBasket.productLineItems, function (PLI) {
-                if (PLI.product.custom.availableForInStorePickup !== false) {
+            collections.forEach(productLineItems, function (PLI) {
+                if (PLI.product.custom.availableForInStorePickup !== false && ((isOcapiRequest && PLI.custom.fromStoreId) || !isOcapiRequest)) {
                     if (Object.prototype.hasOwnProperty.call(PLI.product.custom, 'sku') && PLI.product.custom.sku) {
                         items.push(PLI.product.custom.sku);
                     } else {
@@ -1008,18 +1205,23 @@ function bopisLineItemInventory(currentBasket, changeAllItemsStore, cartProdPid,
                 maoAvailability = Availability.getMaoAvailability(items, locations);
             }
         }
-        collections.forEach(currentBasket.productLineItems, function (PLI) {
+        collections.forEach(productLineItems, function (PLI) {
+            if ('giftCard' in PLI.product.custom && PLI.product.custom.giftCard.value === eGiftCard) {
+                return;
+            }
             var instoreInventory = 0;
-            if (maoAvailability && !empty(maoAvailability[PLI.product.custom.sku])) {
-                MAOData = JSON.parse(maoAvailability[PLI.product.custom.sku]);
-                if (MAOData && MAOData.Quantity) {
-                    instoreInventory = MAOData.Quantity;
+            if ((isOcapiRequest && PLI.custom.fromStoreId) || !isOcapiRequest) {
+                if (maoAvailability && !empty(maoAvailability[PLI.product.custom.sku])) {
+                    MAOData = JSON.parse(maoAvailability[PLI.product.custom.sku]);
+                    if (MAOData && MAOData.Quantity) {
+                        instoreInventory = MAOData.Quantity;
+                    }
+                } else {
+                    instoreInventory = instorePickupStoreHelper.getStoreInventory(storeObj.ID, PLI.productID);
                 }
-            } else {
-                instoreInventory = instorePickupStoreHelper.getStoreInventory(storeObj.ID, PLI.productID);
             }
             Transaction.wrap(function () {
-                if (instoreInventory > 0) {
+                if (instoreInventory > 0 && ((isOcapiRequest && PLI.custom.fromStoreId) || !isOcapiRequest)) {
                     var productLineItem = null;
                     if (instoreInventory < PLI.quantityValue && PLI.shipment.custom.fromStoreId) {
                         var matchingProducts = [];
@@ -1090,6 +1292,10 @@ function bopisLineItemInventory(currentBasket, changeAllItemsStore, cartProdPid,
                     switchShipmentsBopis(currentBasket);
                     disableBOPISMatchingProduct(currentBasket, instoreInventory, PLI);
                 } else {
+                    // matchingShipment needs to be identified as it might get changed in switchShipmentsBopis() function
+                    matchingShipment = collections.find(currentBasket.shipments, function (item) {
+                        return !item.custom.fromStoreId;
+                    });
                     var fromStoresId = PLI.shipment.custom.fromStoreId;
                     if (!matchingShipment) {
                         var uuid = UUIDUtils.createUUID(); // eslint-disable-line
@@ -1121,6 +1327,7 @@ function bopisLineItemInventory(currentBasket, changeAllItemsStore, cartProdPid,
                             storeObj[PLI.UUID] = Resource.msg('label.not.available.items.instore.oos', 'common', null);
                         }
                     }
+                    switchShipmentsBopis(currentBasket);
                     mergeLineItems(currentBasket);
                 }
             });
@@ -1171,7 +1378,7 @@ function defaultShipToAddressIfAny(currentBasket) {
             }
             if (!updateToDefaultShipment) {
                 updateToDefaultShipment = collections.find(currentBasket.shipments, function (item) {
-                    return !item.default && item.productLineItems.length > 0;
+                    return !item.default && item.productLineItems.length > 0 && item.shippingMethodID !== 'eGift_Card';
                 });
                 if (updateToDefaultShipment) {
                     var pli = updateToDefaultShipment.productLineItems; // eslint-disable-line
@@ -1462,6 +1669,60 @@ function resetBasketToHomeDelivery(basket) {
     }
 }
 
+/**
+ * This method set and return CC value for basket .
+ * @param {dw.order.Basket} basket - Basket
+ */
+function setBasketPurchaseSite(basket) {
+    var Site = require('dw/system/Site');
+    var siteId = Site.getCurrent().getID();
+
+    if (!basket) return;
+    try {
+        if (siteId === 'US' || siteId === 'CA' || siteId === 'MX') {
+            if (basket && 'custom' in basket && basket.custom.purchaseSite) {
+                Transaction.wrap(function () {
+                    basket.custom.purchaseSite = 'CC'; // eslint-disable-line
+                });
+            }
+        }
+    } catch (e) {
+        Logger.error('cartHelpers.js - Error while setBasketPurchaseSite: ' + e.message);
+    }
+}
+
+/**
+ * Remove store info from basket
+ * @param {dw.order.Basket} currentBasket - Basket
+ */
+function removeStoreInfoFromBasket(currentBasket) {
+    try {
+        var shipments = currentBasket.getShipments();
+        if (shipments.length > 0) {
+            collections.forEach(shipments, function (shipment) {
+                Transaction.wrap(function () {
+                    if ('fromStoreId' in shipment.custom && !empty(shipment.custom.fromStoreId)) {
+                        delete shipment.custom.fromStoreId; // eslint-disable-line no-param-reassign
+                    }
+                    if ('shipmentType' in shipment.custom && !empty(shipment.custom.shipmentType)) {
+                        delete shipment.custom.shipmentType; // eslint-disable-line no-param-reassign
+                    }
+                    var productLineItems = shipment.getProductLineItems();
+                    if (productLineItems.length > 0) {
+                        collections.forEach(productLineItems, function (pli) {
+                            if ('fromStoreId' in pli.custom && !empty(pli.custom.fromStoreId)) {
+                                delete pli.custom.fromStoreId; // eslint-disable-line no-param-reassign
+                            }
+                        });
+                    }
+                });
+            });
+        }
+    } catch (e) {
+        Logger.error('cartHelpers.js - Error while removing store info from basket ' + e.message);
+    }
+}
+
 module.exports = base;
 module.exports.addLineItem = addLineItem;
 module.exports.addNewLineItem = addNewLineItem;
@@ -1473,6 +1734,7 @@ module.exports.isListItemExistInBasket = isListItemExistInBasket;
 module.exports.removeCouponLineItems = removeCouponLineItems;
 module.exports.removeIneligibleCouponsFromBasket = removeIneligibleCouponsFromBasket;
 module.exports.getQtyAlreadyInCart = getQtyAlreadyInCart;
+module.exports.getQtyAlreadyInCartWithSameMaster = getQtyAlreadyInCartWithSameMaster;
 module.exports.hasPreOrderItems = hasPreOrderItems;
 module.exports.bopisLineItemInventory = bopisLineItemInventory;
 module.exports.getLimitedWishlistItems = getLimitedWishlistItems;
@@ -1488,3 +1750,5 @@ module.exports.mergeBaskets = mergeBaskets;
 module.exports.getATSvalue = getATSvalue;
 module.exports.savedExperience = savedExperience;
 module.exports.resetBasketToHomeDelivery = resetBasketToHomeDelivery;
+module.exports.setBasketPurchaseSite = setBasketPurchaseSite;
+module.exports.removeStoreInfoFromBasket = removeStoreInfoFromBasket;

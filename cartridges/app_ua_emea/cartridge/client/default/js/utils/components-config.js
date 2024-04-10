@@ -1,42 +1,15 @@
 'use strict';
 
+var base = require('org/utils/components-config');
+
 /** The references object of all modules needed for components initialization */
-var references = {
-    /** Components */
-    stickyElement: require('org/components/common/StickyElement').default,
-    carousel: require('org/components/common/Carousel').default,
-    backToTop: require('org/components/common/BackToTop').default,
-    quickView: require('org/components/product/QuickView').default,
-    productDetail: require('../components/product/ProductDetailEMEA').default,
-    productQuickView: require('org/components/product/ProductQuickView').default,
-    loadProducts: require('org/components/common/LoadProducts').default,
-    cartTile: require('org/components/product/CartTile').default,
-    removeProductModal: require('org/components/common/RemoveProductModal').default,
-    editBasketProduct: require('org/components/common/EditBasketProduct').default,
-    detailBonusProductModal: require('org/components/common/DetailBonusProductModal').default,
-    cartBonusProductModal: require('org/components/common/CartBonusProductModal').default,
-    headerMobileMenu: require('org/components/header/HeaderMobileMenu').default,
-    headerMenuAccessibility: require('org/components/header/HeaderMenuAccessibility').default,
-    sizeChart: require('org/components/product/SizeChart').default,
-    searchMobile: require('org/components/header/SearchMobile').default,
-    localeSelector: require('org/components/header/LocaleSelector').default,
-    addressVerification: require('org/components/common/AddressVerification').default,
-    signUp: require('org/components/footer/SignUp').default,
-    emailNewsletterSubs: require('org/components/footer/EmailNewsletterSubs').default,
-    searchRefinement: require('org/components/search/SearchRefinement').default,
-    sortMobile: require('org/components/search/SortMobile').default,
-    productTile: require('org/components/search/ProductTile').default,
-    miniCart: require('org/components/cart/MiniCart').default,
-    customSelect: require('org/components/forms/CustomSelect').default,
-    formGeneric: require('../components/forms/FormGeneric').default,
-    showMore: require('org/components/common/ShowMore').default,
-    checkoutRegistration: require('org/components/checkout/CheckoutRegistration').default,
-    print: require('org/components/checkout/Print').default,
-    addressFormGeneric: require('../addressBook/addressFormGeneric').default,
-    paymentFormGeneric: require('org/paymentInstruments/paymentFormGeneric').default,
-    termsAndConditionsModal: require('org/components/common/dialogPopUp').default,
-    orderDetails: require('org/orderDetails/orderDetails').default
-};
+var references = base.references;
+
+references.productDetail = require('../components/product/ProductDetailEMEA').default;
+references.formGeneric = require('../components/forms/FormGeneric').default;
+references.addressFormGeneric = require('../addressBook/addressFormGeneric').default;
+references.productQuickView = require('../components/product/ProductQuickView').default;
+references.editShareBasketProduct = require('../components/common/EditShareBasketProduct').default;
 
 // eslint-disable-next-line
 /**
@@ -65,6 +38,8 @@ var configuration = {
             carousel: {},
             backToTop: {},
             quickView: {},
+            formGeneric: {},
+            notifyMe: {},
             productQuickView: {},
             loadProducts: {},
             cartTile: {},
@@ -87,6 +62,7 @@ var configuration = {
     },
     product: {
         components: {
+            notifyMe: {},
             productDetail: {},
             detailBonusProductModal: {},
             formGeneric: {}
@@ -94,8 +70,14 @@ var configuration = {
     },
     cart: {
         components: {
+            notifyMe: {},
             editBasketProduct: {},
             cartBonusProductModal: {}
+        }
+    },
+    shareBasket: {
+        components: {
+            editShareBasketProduct: {}
         }
     },
     'order.confirmation': {

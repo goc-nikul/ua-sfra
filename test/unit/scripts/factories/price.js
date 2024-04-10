@@ -16,6 +16,19 @@ describe('priceFactory', function () {
     var stubGetPromotionPrice = sinon.stub();
     var stubGetProductPromotions = sinon.stub();
     stubGetProductPromotions.returns([]);
+    var expectedPrice = { available: true };
+    var priceModel = {
+        price: { valueOrNull: 'value' },
+        priceInfo: { priceBook: {} },
+        priceRange: true,
+        minPrice: '$5',
+        getPriceTable: function () {
+            return {
+                quantities: { length: 1 }
+            };
+        },
+        getPriceBookPrice: function () { return expectedPrice; }
+    };
 
     var PROMOTION_CLASS_PRODUCT = 'awesome promotion';
 
@@ -35,6 +48,56 @@ describe('priceFactory', function () {
         '*/cartridge/models/price/default': spyDefaultPrice,
         '*/cartridge/models/price/range': stubRangePrice,
         '*/cartridge/models/price/tiered': spyTieredPrice,
+        '*/cartridge/scripts/helpers/ProductHelper': {
+            getVariantForColor: function () {
+                return {
+                    onlineFlag: true,
+                    availabilityModel: {
+                        availability: 1,
+                        orderable: true,
+                        inStock: true
+                    },
+                    isVariant: function() {
+                        return true;
+                    },
+                    getPriceModel: function () {
+                        return priceModel;
+                    },
+                };
+            },
+            getOrderableVariant: function () {
+                return {
+                    onlineFlag: true,
+                    availabilityModel: {
+                        availability: 1,
+                        orderable: true,
+                        inStock: true
+                    },
+                    isVariant: function() {
+                        return true;
+                    },
+                    getPriceModel: function () {
+                        return priceModel;
+                    },
+                };
+            },
+            getDefaultColorVariant: function () {
+                return {
+                    onlineFlag: true,
+                    availabilityModel: {
+                        availability: 1,
+                        orderable: true,
+                        inStock: true
+                    },
+                    isVariant: function() {
+                        return true;
+                    },
+                    getPriceModel: function () {
+                        return priceModel;
+                    },
+                };
+            }
+        },
         'dw/campaign/Promotion': {
             PROMOTION_CLASS_PRODUCT: PROMOTION_CLASS_PRODUCT
         },
@@ -117,6 +180,39 @@ describe('priceFactory', function () {
                 },
                 variationModel: {
                     variants: [{}, {}]
+                },
+                custom: {
+                    defaultColorway: 'defaultColorway',
+                    outletColors: '100'
+                },
+                getVariants: function () {
+                    
+                    var variants = {
+                        onlineFlag: true,
+                        availabilityModel: {
+                            orderable: true
+                        },
+                        custom: {
+                            color: 'defaultColorway',
+                            defaultColorway: 'defaultColorway'
+                        },
+                        masterProduct: {
+                            ID: productID || '883814258849'
+                        },
+                        isVariant: function() {
+                            return true;
+                        },
+                        online: true,
+                        availabilityModel: {
+                            availability: 12,
+                            orderable: true,
+                            inStock: true
+                        },
+                        getPriceModel: function () {
+                            return {};
+                        }
+                    };
+                    return [variants];
                 }
             };
         });
@@ -188,6 +284,24 @@ describe('priceFactory', function () {
                 getPriceModel: function () { return priceModel; },
                 variationModel: {
                     variants: [{ priceModel: variantPriceModel }, {}]
+                },
+                custom: {
+                    defaultColorway: 'defaultColorway',
+                },
+                getVariants: function () {
+                    [
+                        {
+                            isVariant: function(){
+                                return true;
+                            },
+                            online: true,
+                            availabilityModel: {
+                                availability: 12,
+                                orderable: true,
+                                inStock: true
+                            }
+                        }
+                    ]
                 }
             };
             price = priceFactory.getPrice(product);

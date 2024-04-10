@@ -672,6 +672,12 @@
                 width: rem-calc(240);
             }
         }
+
+        .carousel-disabled {
+            .g-carousel-slide.swiper-slide:first-child {
+                margin-left: 3%;
+            }
+        }
     }
 
     @include respond-to(mobile) {
@@ -709,6 +715,106 @@
 
     .product-listing {
         overflow: hidden;
+    }
+
+    @media screen and (min-width: 1024px) {
+        .swiper-slide {
+            .g-tooltip-text {
+                width: max-content;
+                max-width: rem-calc(165);
+                left: 50%;
+                transform: translateX(-50%);
+                right: -1.125rem;
+
+                &::after {
+                    left: 50%;
+                    right: unset;
+                }
+            }
+        }
+
+        .swiper-slide.swiper-slide-active,
+        .swiper-slide:first-child {
+            &:not(:last-child) {
+                .g-tooltip-text {
+                    left: 0;
+                    transform: none;
+
+                    &::after {
+                        left: 0.32rem;
+                        right: auto;
+                    }
+                }
+            }
+        }
+
+        .swiper-slide:last-child {
+            &:not(:first-child) {
+                .g-tooltip-text {
+                    left: auto;
+                    transform: none;
+                    right: -1.125rem;
+
+                    &::after {
+                        left: auto;
+                        right: 1rem;
+                    }
+                }
+            }
+        }
+    }
+
+    @media screen and (max-width: 1023px) {
+        .swiper-slide:first-child {
+            .g-tooltip-text {
+                left: 0;
+                transform: none;
+
+                &::after {
+                    left: 1.25rem;
+                }
+            }
+        }
+
+        .swiper-slide:last-child {
+            .g-tooltip-text {
+                left: auto;
+                transform: none;
+                right: 0;
+
+                &::after {
+                    left: auto;
+                    right: 1rem;
+                }
+            }
+        }
+
+        .b-promo-tooltip-content {
+            .g-tooltip-arrow {
+                transform: rotate(180deg);
+                bottom: 3px;
+
+                @media screen and (max-width: 768px) {
+                    bottom: 4px;
+                }
+
+                &.mac-only {    // This class is only applied on Mac devices in order to fix the tooltip issue in ShopThisOutfit promo.
+                    bottom: 4px;
+                }
+            }
+        }
+    }
+
+    .b-promo-tooltip-content {
+        .g-tooltip-text {
+            top: auto;
+            bottom: 1.8rem;
+
+            &::after {
+                bottom: -0.9rem;
+                border-color: #1d1d1d transparent transparent;
+            }
+        }
     }
 }
 
@@ -767,7 +873,7 @@
             flex-basis: 0;
             color: $grey5;
             font-size: 0.875rem;
-            line-height: (20/14);
+            line-height: calc(20 / 14);
             text-align: center;
 
             &::before {

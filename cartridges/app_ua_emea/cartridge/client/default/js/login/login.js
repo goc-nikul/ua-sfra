@@ -1,6 +1,7 @@
 'use strict';
 
 var formValidation = require('base/components/formValidation');
+var location = window.location;
 var clientSideValidation = require('../components/common/clientSideValidation');
 
 /**
@@ -167,7 +168,14 @@ function loginSubmit() {
         e.preventDefault();
         var form = $(this).closest('form');
         var url = form.attr('action');
-        form.spinner().start();
+        var button = $(this);
+        var buttonContainer = $(this).parent('div');
+        var buttonText = button.html();
+        button.html('');
+        button.blur();
+        $('.b-invalid-cred').hide();
+        buttonContainer.spinner().start();
+        button.attr('disabled', 'true');
         clientSideValidation.checkMandatoryField(form);
         if (!form.find('input.is-invalid').length) {
             $.ajax({
@@ -176,24 +184,31 @@ function loginSubmit() {
                 dataType: 'json',
                 data: form.serialize(),
                 success: function (data) {
-                    form.spinner().stop();
                     if (!data.success && data.error_code === 'ERROR_PASSWORD_RESET_REQUIRED') {
                         let resetModal = $('.g-force-password-reset-confirm-modal').clone();
                         $('#loginModal .g-modal-content').empty();
                         $('#loginModal .g-modal-content').append(resetModal);
                         $('.g-force-password-reset-confirm-modal').removeClass('hide');
+                        buttonContainer.spinner().stop();
+                        button.prop('disabled', false);
+                        button.html(buttonText);
                     } else if (!data.success) {
                         $('form.login').trigger('login:error', data);
                         $('body').trigger('login:failed', {
                             errorMessage: data && data.error && data.error[0]
                         });
                         $('.b-invalid-cred').html(data.error).show();
+                        buttonContainer.spinner().stop();
+                        button.prop('disabled', false);
+                        button.html(buttonText);
                     } else {
                         $('form.login').trigger('login:success', data);
                         $('body').trigger('login:success:analytics', {
                             customerNo: data && data.customerNo,
                             email: form.find('[name="loginEmail"]').val()
                         });
+                        button.html(buttonText);
+                        button.attr('disabled', 'true');
                         // Redirect to account page only on order confirmation, else refresh current page
                         if ($('.b-order-confirmation').length || $('.b-account-history').length || ($('#checkout-main').length > 0 && data.isEmployee) || ($('#checkout-main').length === 0 && data.errorInProfileValues)) {
                             location.href = data.redirectUrl;
@@ -203,11 +218,16 @@ function loginSubmit() {
                     }
                 },
                 error: function (data) {
-                    if (data.responseJSON.redirectUrl) {
+                    if (data.status === 418 || data.status === 406) {
+                        $('.b-invalid-cred').html($('.b-invalid-cred').attr('data-blocked-msg')).show();
+                    }
+                    if (data.responseJSON && data.responseJSON.redirectUrl) {
                         window.location.href = data.responseJSON.redirectUrl;
                     } else {
                         $('form.login').trigger('login:error', data);
-                        form.spinner().stop();
+                        buttonContainer.spinner().stop();
+                        button.prop('disabled', false);
+                        button.html(buttonText);
                     }
                 }
             });
@@ -216,8 +236,10 @@ function loginSubmit() {
                 emailErrorMessage: $('#form-email-error').text(),
                 passwordErrorMessage: $('#form-password-error').text()
             });
+            buttonContainer.spinner().stop();
+            button.prop('disabled', false);
+            button.html(buttonText);
         }
-        form.spinner().stop();
         return false;
     });
 }
@@ -326,6 +348,15 @@ function resetClosePopUp() {
     });
 }
 
+/**
+ * On close of register pop up page scrolling
+ */
+function handlePageScroll() {
+    $('body').on('hidden.bs.modal', '#newUserRegisterModal', function () {
+        $('body').css('overflow', 'auto');
+    });
+}
+
 module.exports = {
     loginModal: loginModal,
     loginSubmit: loginSubmit,
@@ -336,5 +367,6 @@ module.exports = {
     openPasswordResetOnPageLoad: openPasswordResetOnPageLoad,
     updatePasswordSubmit: updatePasswordSubmit,
     faceBookLogin: faceBookLogin,
-    resetClosePopUp: resetClosePopUp
+    resetClosePopUp: resetClosePopUp,
+    handlePageScroll: handlePageScroll
 };

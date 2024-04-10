@@ -12,6 +12,7 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
     var Resource = require('dw/web/Resource');
     var Transaction = require('dw/system/Transaction');
     var URLUtils = require('dw/web/URLUtils');
+    var orderInfoLogger = require('dw/system/Logger').getLogger('orderInfo', 'orderInfo');
     var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
     var hooksHelper = require('*/cartridge/scripts/helpers/hooks');
     var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
@@ -482,6 +483,10 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
                 errorMessage: Resource.msg('error.payment.not.valid', 'checkout', null)
             });
             COHelpers.failOrder(order);
+            // log the order details for dataDog.
+            if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+                orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, true, Resource.msg('error.payment.msg', 'checkout', null)));
+            }
             return next();
         }
 
@@ -548,16 +553,29 @@ server.replace('PlaceOrder', server.middleware.https, function (req, res, next) 
                 errorMessage: Resource.msg('error.payment.not.valid', 'checkout', null)
             });
             COHelpers.failOrder(order);
+            // log the order details for dataDog.
+            if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+                orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, true, Resource.msg('error.payment.msg', 'checkout', null)));
+            }
             return next();
         }
     }
 
     if (placeOrderResult.error) {
+        // log the order details for dataDog.
+        if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+            orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+        }
         res.json({
             error: true,
             errorMessage: Resource.msg('error.technical', 'checkout', null)
         });
         return next();
+    }
+
+    // log the order details for dataDog.
+    if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+        orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
     }
 
     // Reset usingMultiShip after successful Order placement
@@ -674,7 +692,7 @@ server.replace(
             res.json({
                 form: paymentForm,
                 fieldErrors: formFieldErrors,
-                serverErrors: paymentFormResult.serverErrors ? paymentFormResult.serverErrors : [Resource.msg('error.payment.processor.not.supported', 'checkout', null)],
+                serverErrors: paymentFormResult.serverErrors ? paymentFormResult.serverErrors : [],
                 error: true
             });
             // eslint-disable-next-line consistent-return

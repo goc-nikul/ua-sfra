@@ -6,6 +6,7 @@
 <isset name="categoryId" value="${CMUtil.categoryId(pdict)}" scope="page"/>
 <isset name="productId" value="${CMUtil.productId(pdict)}" scope="page"/>
 
+<isset name="currentSite" value="${dw.system.Site.current}" scope="page"/>
 <isset name="var1" value="{" scope="page" />
 <isset name="var2" value="}" scope="page" />
 <isset name="CMRefinements" value="${require('*/cartridge/scripts/helpers/refinementHelpers').buildRefinementsCM(pdict.productSearch.refinements)}" scope="page" />
@@ -20,8 +21,10 @@
         </div>
     </section>
 </isif>
-
-<div class="l-plp-container ${categoryId ? categoryId.toLowerCase() : ''}" data-wishlist-url="${URLUtils.url('Wishlist-Items')}">
+<isset name="constructorIOHelper" value="${require('app_ua_core/cartridge/scripts/helpers/constructorIOHelper')}" scope="page"/>
+<isset name="cio_search_enabled" value="${constructorIOHelper.isConstructorEnabled()}" scope="page"/>
+<isset name="cio_browse_enabled" value="${'Category_Data_Source' in currentSite.preferences.custom && (currentSite.getCustomPreferenceValue('Category_Data_Source') === 1 || currentSite.getCustomPreferenceValue('Category_Data_Source') === 2)}" scope="page"/>
+<div class="l-plp-container${pdict.initialSearchParams && (cio_search_enabled || cio_browse_enabled) ? ' constructor-loading' : ''} ${categoryId ? categoryId.toLowerCase() : ''}" data-wishlist-url="${URLUtils.url('Wishlist-Items')}">
     <isif condition="${pdict.reportingURLs && pdict.reportingURLs.length}">
         <isinclude template="reporting/reportingUrls" />
     </isif>
@@ -33,25 +36,21 @@
             </div>
         
                <div class="b-plp_header-row">
+               <isset name="categorySearchDisplayName" value="${!empty(pdict.category) ? (!empty(pdict.category.custom.categorySearchDisplayName) ? pdict.category.custom.categorySearchDisplayName : pdict.category.displayName) : ''}" scope="page" />
+               
                 <isif condition="${pdict.productSearch.isCategorySearch && (!pdict.isUserRefinedSearch || pdict.hasTwoOrMoreRefinementValuesOfSameType)}">
                     <div class="b-plp_cat-name b-plp_header-cat-name">
                         <h1 class="b-plp_header-category_heading">
-                            <isprint value="${!empty(pdict.category.custom.categorySearchDisplayName)
-                                                ? pdict.category.custom.categorySearchDisplayName
-                                                : pdict.category.displayName}" />
+                            <isprint value="${categorySearchDisplayName}" />
                         </h1>
                     </div>
                 <iselseif condition="${pdict.productSearch.isCategorySearch && (pdict.isUserRefinedSearch && !pdict.hasTwoOrMoreRefinementValuesOfSameType)}">
                     <div class="b-plp_cat-name b-plp_header-cat-name">
 					    <h1 class="b-plp_header-category_heading">
                             <isif condition="${!empty(pdict.refinementsDisplayTitle)}">
-                                <isprint value="${!empty(pdict.category.custom.categorySearchDisplayName)
-                                                ? pdict.category.custom.categorySearchDisplayName + pdict.refinementsDisplayTitle
-                                                : pdict.category.displayName + pdict.refinementsDisplayTitle}" />
+                                <isprint value="${categorySearchDisplayName + pdict.refinementsDisplayTitle}" />
                             <iselseif condition="${empty(pdict.refinementsDisplayTitle)}">
-                                <isprint value="${!empty(pdict.category.custom.categorySearchDisplayName)
-                                                ? pdict.category.custom.categorySearchDisplayName
-                                                : pdict.category.displayName}" />
+                                <isprint value="${categorySearchDisplayName}" />
                             </isif>
                         </h1>
                     </div>
@@ -145,4 +144,3 @@
     </div>
     <isinclude template="search/noJsPagination"/>
 </div>
-

@@ -158,3 +158,21 @@
         }
     }
 }
+
+.oxxo-voucher {
+    @include respond-to(desktop) {
+        margin-bottom: rem-calc(22);
+    }
+    @include respond-to(mobile) {
+        .adyen-checkout__voucher-result {
+            &__top,
+            &__bottom {
+                border-radius: 0;
+            }
+
+            &__bottom {
+                border-bottom: 4px solid $grey3;
+            }
+        }
+    }
+}

@@ -5,23 +5,10 @@
         <span class="order-receipt-label">${Resource.msg('label.order.subtotal','confirmation', null)} <span class="number-of-items-summary order-summary_noitems">(<isprint value="${pdict.order.items.totalQuantity.toFixed()}" encoding="off" />)</span>:</span>
     </span>
     <span class="order-summary_itemsvalue">
-    <isif condition="${customer.authenticated && customer.profile.custom.isEmployee && pdict.order.totals.orderLevelDiscountTotal.value === 0}">
-        <span class="text-right sub-total bfx-price bfx-total-subtotal">${pdict.order.totals.subTotalWithoutAdjustments}</span>
-    <iselse/>
-        <span class="text-right sub-total bfx-price bfx-total-subtotal">${pdict.order.totals.subTotal}</span>
-    </isif>
+        <span class="text-right sub-total bfx-price bfx-total-subtotal sub-total-na">${pdict.order.totals.newSubTotalWithoutCoupon.formatted}</span>
     </span>
 </div>
 
-<iscomment> Total product promotional Discount except coupon code</iscomment>   
-<div class="b-orderdiscount_except_coupon order-summary_items order-summary_discount bfx-remove-element ${!empty(pdict.order.totals) && pdict.order.totals.promotionalDiscount.value !== 0 ? '' : 'hide'}">
-     <span class="order-summary_itemsattr">
-         <span class="b-discount_calloutmsg order-receipt-label">${Resource.msg('label.genericDiscount','common',null)}</span>
-     </span>
-     <span class="order-summary_itemsvalue">
-         <span class="text-right bfx-price product-discount-total">${pdict.order.totals.promotionalDiscount.formatted}</span>
-     </span>
-</div>
 <iscomment> promo discount excluding loyality and employee  </iscomment>
 <div class="b-promo-outer-class">
     <isif condition="${!empty(pdict.order.totals) && !empty(pdict.order.totals.couponsSavedAmount) && pdict.order.totals.couponsSavedAmount.value !== 0}">
@@ -98,7 +85,7 @@
 </isif>
 <!-- Employee Discount -->
 <isif condition="${customer.authenticated && !isLoyaltyEnabled && customer.profile.custom.isEmployee && pdict.order.totals.orderLevelDiscountTotal.value === 0}">
-    <div class="order-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${pdict.order.totals.totalEmployeeDiscount.value === 0}">hide-order-discount</isif>">
+    <div class="order-discount order-summary_items order-summary_discount bfx-remove-element <isif condition="${!pdict.order.totals.discountDistribution.isEmployeeDiscount || pdict.order.totals.totalEmployeeDiscount.value === 0}">hide-order-discount</isif>">
         <span class="order-summary_itemsattr">            
             <span class="order-receipt-label">${Resource.msg('employee.order.discount', 'common', null)}:</span>
         </span>

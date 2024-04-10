@@ -27,7 +27,7 @@
 	                            ${shippingModel.selectedShippingMethod.shippingCost}
 	                        </isif>
                         </span>)
-                        <isif condition="${shippingModel.selectedShippingMethod !=null && shippingModel.selectedShippingMethod.shippingDeliveryDates && !pdict.preOrderProductTileMessage}">
+                        <isif condition="${shippingModel.selectedShippingMethod !=null && shippingModel.selectedShippingMethod.shippingDeliveryDates && !pdict.preOrderProductTileMessage && dw.system.Site.getCurrent().getID() !== 'KR'}">
                             <div class="shipping-method-arrival-time">
                                 ${shippingModel.selectedShippingMethod.shippingDeliveryDates}
                             </div>

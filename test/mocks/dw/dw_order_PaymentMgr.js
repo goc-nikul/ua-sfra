@@ -1,20 +1,24 @@
 'use strict';
 var PaymentMgr = function() {
-    
-    this.activePaymentMethods = ['PayPal', 'DW_APPLE_PAY', 'AURUS_CREDIT_CARD'];
+
+    this.activePaymentMethods = ['PayPal', 'PayPalCA', 'DW_APPLE_PAY', 'AURUS_CREDIT_CARD', 'KLARNA_PAYMENTS'];
 
     var getPaymentInstrument = function (paymentMethodID) {
         if (paymentMethodID === 'PayPal') {
             return 'AURUSPAY_PAYPAL';
+        } else if (paymentMethodID === 'PayPalCA') {
+            return 'PayPalCA';
         } else if (paymentMethodID === 'DW_APPLE_PAY') {
             return 'AURUSPAY_APPLEPAY';
         } else if (paymentMethodID === 'AURUS_CREDIT_CARD') {
             return 'AURUS_CREDIT_CARD';
+        } else if (paymentMethodID === 'KLARNA_PAYMENTS') {
+            return 'KLARNA_PAYMENTS';
         } else {
             return null;
         }
     }
-    
+
     this.getPaymentMethod = function(id) {
         var paymentMethods = this.activePaymentMethods;
         var filteredPaymentMethod;
@@ -47,7 +51,7 @@ var PaymentMgr = function() {
             }
         };
     }
-    
+
     this.getApplicablePaymentMethods= function() {
         return {
             contains: function () {

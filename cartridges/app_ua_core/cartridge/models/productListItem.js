@@ -7,6 +7,10 @@ var readyToOrder = require('*/cartridge/models/product/decorators/readyToOrder')
 var variationAttributes = require('*/cartridge/models/product/decorators/variationAttributes');
 var customAttributes = require('~/cartridge/models/product/decorators/customAttributes');
 var preferences = require('*/cartridge/config/preferences');
+var BasketMgr = require('dw/order/BasketMgr');
+var CartModel = require('*/cartridge/models/cart');
+var currentBasket = BasketMgr.getCurrentBasket();
+var basketModel = new CartModel(currentBasket);
 /**
  * returns an array of listItemobjects bundled into an array
  * @param {dw.customer.ProductListItem} listItem - productlist Item
@@ -92,10 +96,12 @@ function createProductListItemObject(productListItemObject) {
     var result = {};
     var promotions;
     var variantProduct = productListItemObject.product;
+    var lineItems = basketModel.items;
     if (productListItemObject && productListItemObject.product && productListItemObject.product.isMaster()) {
         variantProduct = productHelper.getOrderableVariant(productListItemObject.product, '');
     }
     if (productListItemObject && productListItemObject.product) {
+        var lineItem = lineItems.find(item => item.id === productListItemObject.productID);
         promotions = PromotionMgr.activeCustomerPromotions.getProductPromotions(productListItemObject.product);
         var options = getOptions(productListItemObject);
         result = {
@@ -105,6 +111,7 @@ function createProductListItemObject(productListItemObject) {
             name: productListItemObject.product.name,
             minOrderQuantity: productListItemObject.product.minOrderQuantity.value || 1,
             maxOrderQuantity: getMaxOrderQty(productListItemObject),
+            inCartQuantity: lineItem ? lineItem.quantity : 0,
             qty: productListItemObject.quantityValue,
             lastModified: productListItemObject.getLastModified().getTime(),
             creationDate: productListItemObject.getCreationDate().getTime(),

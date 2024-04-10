@@ -1,11 +1,14 @@
+'use strict';
+
 const I = actor();
 
 module.exports = {
     locators: {
         lineItemName: 'div.line-item-name',
-        checkoutAsGuestBtn: '.btn.btn-block.btn-primary.checkout-as-guest',
+        checkoutAsGuestBtn: '.btn.btn-primary.btn-block.submit-customer',
         checkoutAsRegisteredBtn: '.btn.btn-block.btn-primary',
-        email: '#login-form-email',
+        emailGuest: '#email-guest',
+        emailRegistered: '#email',
         password: '#login-form-password',
         fName: '.form-control.shippingFirstName',
         lName: '.form-control.shippingLastName',
@@ -16,7 +19,6 @@ module.exports = {
         zip: '.form-control.shippingZipCode',
         phone: '.form-control.shippingPhoneNumber',
         toPayment: '.btn.btn-primary.btn-block.submit-shipping',
-        payEmail: '#email.form-control.email',
         payPhone: '#phoneNumber',
         payCard: '#cardNumber',
         payExpMonth: '#expirationMonth',
@@ -44,21 +46,47 @@ module.exports = {
         homeLink: 'a>img.hidden-md-down',
         checkoutStage: '.data-checkout-stage'
     },
-    fillShippingInfo(fName, lName, address1, country, state, city, zipcode, phone) {
+    fillPersonalDataGuest(email) {
+        I.fillField(this.locators.emailGuest, email);
+    },
+    fillShippingInfo(
+        fName,
+        lName,
+        address1,
+        country,
+        state,
+        city,
+        zipcode,
+        phone
+    ) {
         I.scrollTo(this.locators.fName);
         I.fillField(this.locators.fName, fName);
         I.fillField(this.locators.lName, lName);
         I.fillField(this.locators.address1, address1);
         I.waitForElement(this.locators.country);
+        I.wait(2);
         I.selectOption(this.locators.country, country);
         I.waitForElement(this.locators.state);
+        I.wait(2);
         I.selectOption(this.locators.state, state);
-        I.wait(3);
+        I.wait(2);
         I.fillField(this.locators.city, city);
         I.fillField(this.locators.phone, phone);
         I.fillField(this.locators.zip, zipcode);
     },
-    fillPaymentInfoGuest(fName, lName, address1, city, stateAbr, zipcode, email, phone, ccNum, expMonth, expYear, ccSecCode) {
+    fillPaymentInfoGuest(
+        fName,
+        lName,
+        address1,
+        city,
+        stateAbr,
+        zipcode,
+        phone,
+        ccNum,
+        expMonth,
+        expYear,
+        ccSecCode
+    ) {
         I.waitForElement(this.locators.checkout_prefilledShippingInfo);
         I.see(fName, this.locators.checkout_prefilledShippingInfo);
         I.see(lName, this.locators.checkout_prefilledShippingInfo);
@@ -66,23 +94,37 @@ module.exports = {
         I.see(city, this.locators.checkout_prefilledShippingInfo);
         I.see(stateAbr, this.locators.checkout_prefilledShippingInfo);
         I.see(zipcode, this.locators.checkout_prefilledShippingInfo);
-        I.fillField(this.locators.payEmail, email);
+
+        I.scrollTo(this.locators.payPhone);
+        I.wait(2);
         I.fillField(this.locators.payPhone, phone);
         I.fillField(this.locators.payCard, ccNum);
+
         I.waitForElement(this.locators.payExpMonth, expMonth);
+        I.wait(1);
         I.selectOption(this.locators.payExpMonth, expMonth);
+
         I.waitForElement(this.locators.payExpYear, expYear);
         I.selectOption(this.locators.payExpYear, expYear);
+        I.wait(1);
         I.waitForElement(this.locators.paySecCode);
         I.fillField(this.locators.paySecCode, ccSecCode);
     },
-    fillPaymentInfoRegistered(email, phone, ccSecCode) {
-        I.fillField(this.locators.payEmail, email);
+    fillPaymentInfoRegistered(phone, ccSecCode) {
+        I.scrollTo(this.locators.payPhone);
+        I.wait(2);
         I.fillField(this.locators.payPhone, phone);
         I.waitForElement(this.locators.paySecCodeSaved);
         I.fillField(this.locators.paySecCodeSaved, ccSecCode);
     },
-    verifyCart(quantity, itemPrice, totalItemPrice, shipping, tax, estimatedTotal) {
+    verifyCart(
+        quantity,
+        itemPrice,
+        totalItemPrice,
+        shipping,
+        tax,
+        estimatedTotal
+    ) {
         I.waitForElement(this.locators.lineItemQuantity);
         I.waitForText(quantity, this.locators.lineItemQuantity);
         I.waitForElement(this.locators.totalItemQuantity);
@@ -106,8 +148,14 @@ module.exports = {
     },
     verifyShipping(fname, lname, add1, city, stateAbr, zip) {
         I.waitForElement(this.locators.shipping_addSelector);
-        I.waitForText(`${fname} ${lname} ${add1}`, this.locators.shipping_addSelector);
-        I.waitForText(`${city}, ${stateAbr} ${zip}`, this.locators.shipping_addSelector);
+        I.waitForText(
+            `${fname} ${lname} ${add1}`,
+            this.locators.shipping_addSelector
+        );
+        I.waitForText(
+            `${city}, ${stateAbr} ${zip}`,
+            this.locators.shipping_addSelector
+        );
         I.waitForElement(this.locators.shipping_methodBlock);
         I.seeNumberOfVisibleElements(this.locators.shipping_methodOptions, 3);
     },
@@ -116,8 +164,21 @@ module.exports = {
         I.waitForElement(this.locators.billingConfirmation);
         I.waitForText(fName + lName + address1);
     },
-    verifyCheckoutInfo(fName, lName, add1, city, zip, phone, email, ccNum, ccExpDate, quantity,
-        totalItemPrice, shipping, tax, estimatedTotal) {
+    verifyCheckoutInfo(
+        fName,
+        lName,
+        add1,
+        city,
+        zip,
+        phone,
+        ccNum,
+        ccExpDate,
+        quantity,
+        totalItemPrice,
+        shipping,
+        tax,
+        estimatedTotal
+    ) {
         // verify shipping address is correct
         I.scrollTo(this.locators.checkout_shippingSection);
         I.see(fName, this.locators.checkout_shippingSection);
@@ -126,6 +187,7 @@ module.exports = {
         I.see(city, this.locators.checkout_shippingSection);
         I.see(zip, this.locators.checkout_shippingSection);
         I.see(phone, this.locators.checkout_shippingSection);
+        I.wait(3);
 
         // verify billing address is correct
         I.scrollTo(this.locators.checkout_paymentSection);
@@ -134,12 +196,15 @@ module.exports = {
         I.see(add1, this.locators.checkout_paymentSection);
         I.see(city, this.locators.checkout_paymentSection);
         I.see(zip, this.locators.checkout_paymentSection);
-        I.see(email, this.locators.checkout_paymentSection);
         I.see(phone, this.locators.checkout_paymentSection);
 
         // verify payment info is correct
         // Leave the last 4 digits shown; replace everything else with '*'
-        I.see(ccNum.replace(/\d(?=\d{4})/g, '*'), this.locators.checkout_paymentSection);
+        I.see(
+            ccNum.replace(/\d(?=\d{4})/g, '*'),
+            this.locators.checkout_paymentSection
+        );
+        I.wait(3);
         I.see(ccExpDate, this.locators.checkout_paymentSection);
 
         // verify product info is correct
@@ -151,9 +216,24 @@ module.exports = {
         I.see(tax, this.locators.checkout_orderSummary);
         I.see(estimatedTotal, this.locators.checkout_orderSummary);
     },
-    verifyOrderConfirmation(fName, lName, add1, city, zip, phone, email, ccNum, ccExpDate, quantity,
-        totalItemPrice, shipping, tax, estimatedTotal) {
+    verifyOrderConfirmation(
+        fName,
+        lName,
+        add1,
+        city,
+        zip,
+        phone,
+        email,
+        ccNum,
+        ccExpDate,
+        quantity,
+        totalItemPrice,
+        shipping,
+        tax,
+        estimatedTotal
+    ) {
         // verify order is place successfully by verifying the order confirmation page
+        I.waitForElement(this.locators.orderConf_thankYou);
         I.scrollTo(this.locators.orderConf_thankYou);
         I.see('Thank you for your order.', this.locators.orderConf_thankYou);
 
@@ -178,7 +258,11 @@ module.exports = {
 
         // verify payment info is correct
         // Leave the last 4 digits shown; replace everything else with '*'
-        I.see(ccNum.replace(/\d(?=\d{4})/g, '*'), this.locators.orderConf_paymentSection);
+        I.see(
+            ccNum.replace(/\d(?=\d{4})/g, '*'),
+            this.locators.orderConf_paymentSection
+        );
+        I.wait(2);
         I.see(ccExpDate, this.locators.orderConf_paymentSection);
 
         // verify product info is correct

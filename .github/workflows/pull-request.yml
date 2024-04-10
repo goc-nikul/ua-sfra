@@ -12,9 +12,21 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout Project
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ssh-key: ${{ secrets.GH_SSH_KEY }}
           persist-credentials: true
           submodules: recursive
+          fetch-depth: 0
+          ref:  ${{ github.event.pull_request.head.sha }}
+      - name: Merge PR onto current HEAD
+        run: |
+          git config --global user.email nobody@ua.com
+          git config --global user.name uabuild
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git reset origin/${{ github.event.pull_request.base.ref }} --hard
+          git clean -fd
+          git submodule update
+          git merge ${{ github.event.pull_request.head.sha }} -m "PR Build"
+        shell: bash
       - uses: ./.github/actions/lint-and-test

@@ -1,0 +1,201 @@
+
+<isset name="isNotifyMeEnabled" value="${dw.system.Site.current.getCustomPreferenceValue('IsNotifyMeEnabled')}" scope="page" />
+<isset name="isProductAvaliable" value="${product.available}" scope="page" />
+
+<div class="b-product-quickview-images">
+    <div class="l-tile-badge_top_left b-EarlyAccess-Icon ${'earlyAccess' in product.custom && !empty(product.custom.earlyAccess.earlyAccessBadge) ? '' : 'd-none'}">
+        <span class="ea-Icon-Text">
+            ${'earlyAccess' in product.custom && !empty(product.custom.earlyAccess.earlyAccessBadge) ? product.custom.earlyAccess.earlyAccessBadge : ''}
+        </span>
+    </div>
+    <isif condition="${product.productTileUpperLeftFlameIconBadge && product.productTileUpperLeftFlameIconBadge.value}">
+        <div class="l-tile-badge_top_left b-flameIcon">
+            <span class="b-flameIcon-sec">
+                <img class="img-flameIcon" alt="${Resource.msg('badge.flameIcon.text','common',null)}" src="${URLUtils.staticURL('/images/iconimages/flame.png')}"/>
+                <span class="flameIcon-text">${product.productTileUpperLeftFlameIconBadge.displayValue}</span>
+            </span>
+        </div>
+    <iselseif condition="${product.productTileUpperLeftBadge && product.productTileUpperLeftBadge.value}"/>
+        <div class="l-tile-badge_top_left">${product.productTileUpperLeftBadge.displayValue}</div>
+    </isif>
+    <isif condition="${pdict.itemContent}">
+        <div class="l-tile-badge_bottom_left">
+            <isprint value="${pdict.badgesMarkup}" encoding="off" />
+        </div>
+    </isif>
+    <isinclude template="product/components/imageCarousel" />
+</div>
+
+<!-- Product Name and Number -->
+<div class="b-product-quickview-info">
+    <isif condition="${isQuickAdd}">
+        <isset name="isSingleSizeProduct" value="${false}" scope="page" />
+        <div class="b-product-quickview-product-info-wrapper">
+            <isif condition="${isQuickAdd}">
+                <a href="${URLUtils.url('Product-Show', 'pid', product.id)}" class="b-product-quickview-link">
+                    <isinclude template="product/components/quickViewProductImage" sf-toolkit="on" />
+                </a>
+            <iselse/>
+                <isinclude template="product/components/quickViewProductImage" sf-toolkit="on" />
+            </isif>
+            <div class="b-product-quickview-product-info">
+                <div class="b-product-quickview-heading">
+                    <isif condition="${isQuickAdd}">
+                        <a href="${URLUtils.url('Product-Show', 'pid', product.id)}" class="b-product-quickview-link">
+                            <isinclude template="product/components/quickViewProductName" sf-toolkit="on" />
+                        </a>
+                    <iselse/>
+                        <isinclude template="product/components/quickViewProductName" sf-toolkit="on" />
+                    </isif>
+                </div>
+                <div class="b-product-quickview-price-rating">
+                    <div class="b-product-quickview-prices">
+                        <isset name="price" value="${product.price}" scope="page" />
+                        <isinclude template="product/components/pricing/main" />
+                    </div>
+                    <iscomment> dropped ratings for quick add behavior
+                    <isif condition="${pdict.bvDisplay && pdict.bvDisplay.qvType}">
+                        <isif condition="${pdict.bvDisplay.qvType.equals('pdpsummary')}">
+                            <isinclude template="product/components/productRating" />
+                        <iselseif condition="${pdict.bvDisplay.qvType.equals('inlineratings')}" />
+                            <isinclude template="product/components/ratings" />
+                        </isif>
+                    </isif>
+                    </iscomment>
+                </div>
+                <isloop items="${product.variationAttributes}" var="attr" status="attributeStatus">
+                    <isif condition="${attr.id === 'size' && attr.values.length == 1}">
+                        <isset name="isSingleSizeProduct" value="${true}" scope="page" />
+                        <div class="single-size">
+                            <iscomment> ${Resource.msg('product.fittype.onesizefitsall','product',null)} </iscomment>
+                            ${attr.values[0].displayValue}
+                        </div>
+                    </isif>
+                </isloop>
+            </div>
+        </div>
+    <iselse/>
+        <div class="b-product-quickview-heading">
+            <h1 class="product-name">${product.productName}</h1>
+        </div>
+
+        <isif condition="${pdict.bvDisplay.qvType.equals('pdpsummary')}">
+            <isinclude template="product/components/productRating" />
+        <iselseif condition="${pdict.bvDisplay.qvType.equals('inlineratings')}" />
+            <isinclude template="product/components/ratings" />
+        </isif>
+    </isif>
+
+    <!-- Product Number -->
+    <div class="b-product-quickview-number-modelName">
+        <isif condition="${product.custom.modelName}">
+            <span class="b-product-quickview-modalName">
+                <span><isprint value="${product.custom.modelName}" encoding="off" /></span>
+            </span>
+        </isif>
+        <isif condition="${product.custom.style}">
+            <span class="b-product-quickview-number">
+                <isinclude template="product/components/productNumber" />
+            </span>
+        </isif>
+
+        <!-- Applicable Promotions -->
+        <div class="b-product_promo b-promo-tooltip-information">
+            <isinclude template="product/components/promotions" />
+        </div>
+    </div>
+
+    <div class="b-product-quickview-detail-panel">
+        <!-- Attributes -->
+        <section class="attributes b-product_attrs">
+            <isinclude template="product/components/mainAttributes" />
+            <isloop items="${product.variationAttributes}" var="attr" status="attributeStatus">
+                <div class="b-product_qvattrs-item swatch row${attr.id == 'size' && typeof isSingleSizeProduct !== 'undefined' && isSingleSizeProduct ? ' d-none' : ''}" data-attr="${attr.id}" data-error-label="${Resource.msg('error.message.required.' + attr.id,'product',null) ? Resource.msg('error.message.required.' + attr.id,'product',null) : Resource.msg('error.message.required.default','product',null)}">
+                    <isinclude template="product/components/variationAttribute" />
+                </div>
+            </isloop>
+        </section>
+
+        <!-- Pick up in Store -->
+        <isif condition="${pdict.isBorderFreeUser === 'false'}">
+            <div class="remote-include" data-url="${URLUtils.url('Product-ChoosePickUpInStore', 'pid', product.id, 'quickViewEnable', true)}"></div>
+        </isif>
+        <isif condition="${product.productType !== 'bundle'}">
+            <!-- Options -->
+            <isif condition="${product.options && product.options.length > 0}">
+                    <isinclude template="product/components/options" />
+            </isif>
+        </isif>
+    </div>
+
+
+    <isif condition="${isQuickView}">
+        <isinclude template="product/components/inventoryMessaging" />
+    </isif>
+    <isif condition="${!isQuickAdd}">
+        <!-- Prices -->
+        <div class="b-product-quickview-prices">
+            <isset name="price" value="${product.price}" scope="page" />
+            <isinclude template="product/components/pricing/main" />
+        </div>
+        <!-- Atome Marketing Message AtomeEnabled-->
+        <isif condition="${dw.system.Site.current.preferences.custom.atomeEnabled && dw.system.Site.current.preferences.custom.atomeContentOnPDP && pdict.isAtomeContentEnabled}">
+            <!-- Atome Marketing Message AtomeEnabled-->
+            <div class="atome-marketing">
+                <isinclude template="atome/marketing/atomePayInstallmentPdp" />
+            </div>
+        </isif>
+    </isif>
+
+    <div class="b-product-quickview-qty-button">
+        <div class="b-product-quickview-action-container${isQuickAdd && isNotifyMeEnabled ?' js-notify-product-actions' : ''}${isQuickAdd && isNotifyMeEnabled && !isProductAvaliable ? ' hide' : ''}">
+            <!-- Quantity -->
+            <div class="b-product-quickview-qty">
+                <isset name="loopState" value="{count: 1}" scope="page" />
+                <isif condition="${(pdict.addToCartUrl || pdict.updateCartUrl) && (product.exclusive.value !== 'coming-soon' && product.exclusive.value !== 'out-of-stock')}">
+                    <isinclude template="product/components/quantity" />
+                </isif>
+            </div>
+
+            <div class="b-product-quickview-button">
+                <!-- Cart and [Optionally] Apple Pay -->
+                <isif condition="${pdict.addToCartUrl}">
+                    <isinclude template="product/components/addToCartGlobal" />
+                <iselse/>
+                    <isinclude template="product/components/updateProduct" />
+                </isif>
+            </div>
+        </div>
+        <isif condition="${isQuickAdd && isNotifyMeEnabled}">
+            <!-- Notify me product -->
+            <isinclude template="product/components/notifyProduct" />
+        </isif>
+    </div>
+
+    <div class="b-product-quickview-stock_Message hide"></div>
+    <div class="selection-error-message hide"></div>
+</div>
+
+<isif condition="${product.productType === 'bundle'}">
+    <isinclude template="product/components/bundleItems" />
+
+    <!-- Quantity Drop Down Menu -->
+    <div class="row d-sm-none">
+        <div class="quantity col-10 mx-auto">
+            <isinclude template="product/components/quantity" />
+        </div>
+    </div>
+
+    <!-- Availability -->
+    <div class="row d-sm-none">
+        <div class="col-11 mx-auto availability" data-ready-to-order="${product.readyToOrder}" data-available="${product.available}">
+            <isinclude template="product/components/availability" />
+        </div>
+    </div>
+<iselse/>
+    <div class="d-none availability global-availability" data-ready-to-order="${product.readyToOrder}" data-available="${product.available}">
+        <div class="row">
+            <isinclude template="product/components/availability" />
+        </div>
+    </div>
+</isif>

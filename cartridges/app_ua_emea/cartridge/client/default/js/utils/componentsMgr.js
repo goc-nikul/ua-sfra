@@ -65,18 +65,18 @@ function initComponents($container) {
  * @description init all components manager events
  */
 function initEvents() {
+    $(document).ajaxStop(() => {
+        setTimeout(function () {
+            initComponents();
+        }, 300);
+
+        $.spinner().stop();
+    });
+
     $('body').on('components:init', () => {
         initComponents();
     });
 }
-
-$(document).ajaxStop(() => {
-    setTimeout(function () {
-        initComponents();
-    }, 300);
-
-    $.spinner().stop();
-});
 
 module.exports = {
     init: function () {

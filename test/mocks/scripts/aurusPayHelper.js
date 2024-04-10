@@ -52,7 +52,7 @@ function getMockConsumerObject() {
                 "street2": "test",
                 "city": "test",
                 "state": "CA",
-                "postalCode": "04330",
+                "postalCode": "",
                 "countryCode": "US",
                 "phoneNumber": "9234567890"
             },

@@ -303,6 +303,14 @@ var adyenHelperObj = {
     }
     return token;
   },
+  getShopperReference: function getShopperReference(orderOrBasket) {
+    var customer = orderOrBasket.getCustomer();
+    var isRegistered = customer && customer.registered;
+    var profile = isRegistered && customer.getProfile();
+    var profileCustomerNo = profile && profile.getCustomerNo();
+    var orderNo = profileCustomerNo || orderOrBasket.getCustomerNo();
+    return orderNo || customer.getID() || 'no-unique-ref';
+  },
   // populates and returns the args paymentRequest with shopper information using the order contains in the args object itself
   createShopperObject: function createShopperObject(args) {
     var _args$order, _args$order$getDefaul, _args$order$getDefaul2;
@@ -333,6 +341,8 @@ var adyenHelperObj = {
       args.paymentRequest.shopperReference = profile.getCustomerNo();
     } else if (args.order.getCustomerNo()) {
       args.paymentRequest.shopperReference = args.order.getCustomerNo();
+    } else {
+      args.paymentRequest.shopperReference = this.getShopperReference(args.order);
     }
     var shopperIP = request.getHttpRemoteAddress() ? request.getHttpRemoteAddress() : null;
     if (shopperIP) {
@@ -371,9 +381,13 @@ var adyenHelperObj = {
           shippingHouseNumberOrName = '';
           shippingStreet += " ".concat(shippingAddress.address2);
         }
+      } else {
+        // House Number needs to be filled
+        shippingHouseNumberOrName = ('custom' in shippingAddress && 'exteriorNumber' in shippingAddress.custom && shippingAddress.custom.exteriorNumber ? shippingAddress.custom.exteriorNumber : 'N/A');
       }
     } else {
       shippingStreet = 'N/A';
+      shippingHouseNumberOrName = 'N/A';
     }
 
     if (shippingAddress && shippingAddress.custom && 'suburb' in shippingAddress.custom && shippingAddress.custom.suburb) {
@@ -391,7 +405,7 @@ var adyenHelperObj = {
     paymentRequest.deliveryAddress = {
       city: !empty(citysuburbField) ? citysuburbField : 'N/A',
       country: countryCode ? countryCode : 'ZZ',
-      houseNumberOrName: shippingHouseNumberOrName,
+      houseNumberOrName: shippingHouseNumberOrName ? shippingHouseNumberOrName : 'N/A',
       postalCode: shippingAddress.postalCode ? shippingAddress.postalCode : 'N/A',
       stateOrProvince: shippingAddress.stateCode ? shippingAddress.stateCode : 'N/A',
       street: shippingStreet
@@ -408,9 +422,13 @@ var adyenHelperObj = {
           billingHouseNumberOrName = '';
           billingStreet += " ".concat(billingAddress.address2);
         }
+      } else {
+        // House Number needs to be filled
+        billingHouseNumberOrName = ('custom' in billingAddress && 'exteriorNumber' in billingAddress.custom && shippingAddress.custom.exteriorNumber ? billingAddress.custom.exteriorNumber : 'N/A');
       }
     } else {
       billingStreet = 'N/A';
+      billingHouseNumberOrName = 'N/A';
     }
 
     if (billingAddress && billingAddress.custom && 'suburb' in billingAddress.custom && billingAddress.custom.suburb) {
@@ -428,7 +446,7 @@ var adyenHelperObj = {
     paymentRequest.billingAddress = {
       city: !empty(citysuburbSBillingField) ? citysuburbSBillingField : 'N/A',
       country: billingAddress.countryCode ? billingAddress.countryCode.value.toUpperCase() : 'ZZ',
-      houseNumberOrName: billingHouseNumberOrName,
+      houseNumberOrName: billingHouseNumberOrName ? billingHouseNumberOrName : 'N/A',
       postalCode: billingAddress.postalCode ? billingAddress.postalCode : '',
       stateOrProvince: billingAddress.stateCode ? billingAddress.stateCode : 'N/A',
       street: billingStreet
@@ -565,6 +583,9 @@ var adyenHelperObj = {
           break;
         case 'cartebancaire':
           cardType = 'Carte Bancaire';
+          break;
+        case 'carnet':
+          cardType = 'Carnet';
           break;
         default:
           cardType = dw.web.Resource.msg('adyen.paymentMethodTitle.scheme', 'checkout', '');;

@@ -26,8 +26,14 @@ export default class SignUp extends Component {
             this.$signupContainer.addClass('data-success');
             this.$successHeader.removeClass('hide');
             if (data.merklecode === 10) {
+                $('.js-emailsignup-title').addClass('hide');
+                $('.js-signup-description').addClass('hide');
+                $('.b-logo-image').removeClass('hide');
                 $('.js-first-subscrption').removeClass('hide');
             } else if (data.merklecode === -40) {
+                $('.js-emailsignup-title').addClass('hide');
+                $('.js-signup-description').addClass('hide');
+                $('.b-logo-image').removeClass('hide');
                 $('.js-subscribed-user').removeClass('hide');
             }
             $('body').trigger('global:emailSubscribeSuccess', {
@@ -105,7 +111,8 @@ export default class SignUp extends Component {
         } else {
             $this.parent().addClass('error-field');
             $this.addClass('is-invalid');
-            $this.parent().find('.invalid-feedback').html($this.attr('pattern_mismatch'));
+            var errorText = $this.data('pattern_mismatch');
+            $this.parent().find('.invalid-feedback').html(errorText);
         }
     }
 }

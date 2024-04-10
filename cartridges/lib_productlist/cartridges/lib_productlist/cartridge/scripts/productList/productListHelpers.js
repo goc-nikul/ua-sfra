@@ -46,10 +46,10 @@ function addEventInfo(eventInfo, list) {
     list.setEventCity(eventInfo.eventCity);
     var dateSplit = eventInfo.eventDate.split('/');
     var eventDate = new Date(
-            parseInt(dateSplit[2], 10),
-            (parseInt(dateSplit[0], 10) - 1),
-            parseInt(dateSplit[1], 10)
-        );
+        parseInt(dateSplit[2], 10),
+        (parseInt(dateSplit[0], 10) - 1),
+        parseInt(dateSplit[1], 10)
+    );
 
     list.setEventDate(new Date(eventDate));
 }
@@ -296,7 +296,9 @@ function addItem(list, pid, config) {
         }
 
         return true;
-    } else if (itemExist && config.type === 11) {
+    }
+
+    if (itemExist && config.type === 11) {
         Transaction.wrap(function () {
             itemExist.setQuantityValue(itemExist.quantityValue + config.qty);
         });
@@ -454,7 +456,7 @@ function toggleStatus(customer, itemID, listID) {
 
         if (item && item.product.master) {
             result.error = true;
-            result.msg = Resource.msg('list.togglepublic.master.error.msg', 'productlist', null);
+            result.msg = Resource.msg('list.togglepublic.main.error.msg', 'productlist', null);
             return result;
         }
 

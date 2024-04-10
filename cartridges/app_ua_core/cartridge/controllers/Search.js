@@ -7,6 +7,7 @@ var URLUtils = require('dw/web/URLUtils');
 server.extend(module.superModule);
 var pageMetaData = require('*/cartridge/scripts/middleware/pageMetaData');
 var productHelpers = require('*/cartridge/scripts/helpers/productHelpers');
+var preferences = require('*/cartridge/config/preferences');
 
 server.prepend('Show', function (req, res, next) {
     var Site = require('dw/system/Site');
@@ -41,6 +42,10 @@ server.append('Show', function (req, res, next) {
     var CategoryObject;
     let enableExperienceTypes = ('enableExperienceTypes' in Site.current.preferences.custom) && Site.current.getCustomPreferenceValue('enableExperienceTypes'); //eslint-disable-line
     var redirectUrl;
+    var PreferencesUtil = require('~/cartridge/scripts/utils/PreferencesUtil');
+    var showSelectedFiltersOnBreadcrumbs = PreferencesUtil.isCountryEnabled(
+        'showSelectedFiltersOnBreadcrumbs'
+    );
     if (req.querystring.start && !req.querystring.sz) {
         redirectUrl = URLUtils.url('Search-Show').toString() + '?' + req.querystring.toString() + '&sz=' + result.productSearch.defaultPageSize;
         res.redirect(redirectUrl);
@@ -85,8 +90,8 @@ server.append('Show', function (req, res, next) {
     var fitModelEnabled = result.category && 'showFitModelSelection' in result.category.custom ? result.category.custom.showFitModelSelection : false;
     viewData.fitModelEnabled = fitModelEnabled;
     viewData.viewPreference = req.querystring.viewPreference ? req.querystring.viewPreference : '';
-    var BVHelper = require('bc_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
-    var ratingPref = Site.getCurrent().getCustomPreferenceValue('bvEnableInlineRatings_C2013');
+    var BVHelper = require('bm_bazaarvoice/cartridge/scripts/lib/libBazaarvoice').getBazaarVoiceHelper();
+    var ratingPref = Site.getCurrent().getCustomPreferenceValue('bvEnableInlineRatings');
     var enableFitModel = 'enableFitModels' in Site.current.preferences.custom ? Site.current.getCustomPreferenceValue('enableFitModels') : false;
     var addScout = false;
     var sizeModelObject;
@@ -122,18 +127,51 @@ server.append('Show', function (req, res, next) {
     var enableAvailablePerLocale = productHelper.enableAvailablePerLocale();
     viewData.enableAvailablePerLocale = enableAvailablePerLocale;
     var countryCode = Locale.getLocale(request.locale).country; // eslint-disable-line
-    if ((countryCode === 'US' || countryCode === 'CA') && viewData.isUserRefinedSearch) {
+    if (showSelectedFiltersOnBreadcrumbs && viewData.isUserRefinedSearch) {
         var breadcrumbSelectedFilters = viewData.productSearch.selectedFilters;
         if (!empty(breadcrumbSelectedFilters)) {
             viewData.productSearch.breadcrumbSelectedFilters = searchHelper.breadcrumRefinement(breadcrumbSelectedFilters, req.querystring);
         }
     }
-    if ((countryCode === 'US' || countryCode === 'CA') && (viewData.productSearch && viewData.productSearch.breadcrumbSelectedFilters)) {
+    if (showSelectedFiltersOnBreadcrumbs && (viewData.productSearch && viewData.productSearch.breadcrumbSelectedFilters)) {
         var ArrayList = require('dw/util/ArrayList');
         var breadcrumbSchemaMarkup = new ArrayList(breadcrumbs);
         viewData.breadcrumbForSchema = searchHelper.setupBreadcrumbSchemaMarkup(breadcrumbSchemaMarkup, viewData.productSearch.breadcrumbSelectedFilters);
         viewData.countryCode = countryCode;
     }
+    viewData.showPLPImageSlider = productHelper.enablePLPImageSlider();
+    var selectedRefinements = {};
+    if (req.querystring.preferences) {
+        Object.keys(req.querystring.preferences).forEach(function (refinementName) {
+            const value = req.querystring.preferences[refinementName];
+            selectedRefinements[refinementName] = typeof value === 'string' ? value.split('|') : value;
+        });
+    }
+    if (req.querystring.q) {
+        var priceRange;
+
+        if (req.querystring.pmin || req.querystring.pmax) {
+            const pmin = req.querystring.pmin || '';
+            const pmax = req.querystring.pmax || '';
+            priceRange = [parseInt(pmin.toString().replace(',', ''), 10) || 0, parseInt(pmax.toString().replace(',', ''), 10) || 9999];
+        }
+        var extraParams = {};
+        Object.keys(req.querystring).forEach(function (key) {
+            if (['q', 'sz', 'start', 'pmin', 'pmax', 'srule', 'preferences'].indexOf(key) === -1 && !/^(prefn|prefv)\d+$/.test(key)) {
+                extraParams[key] = req.querystring[key];
+            }
+        });
+        viewData.initialSearchParams = {
+            query: req.querystring.q,
+            sortRule: req.querystring.srule,
+            start: parseInt(req.querystring.start, 10) || 0,
+            pageSize: parseInt(req.querystring.sz, 10) || preferences.defaultPageSize || 12,
+            priceRange: priceRange,
+            filterParams: selectedRefinements,
+            extraParams: extraParams
+        };
+    }
+
     res.setViewData(viewData);
     next();
 }, pageMetaData.computedPageMetaData);
@@ -222,6 +260,10 @@ server.append('ShowAjax', function (req, res, next) {
     var searchHelper = require('*/cartridge/scripts/helpers/searchHelpers');
     var result = searchHelper.search(req, res);
     let enableExperienceTypes = ('enableExperienceTypes' in Site.current.preferences.custom) && Site.current.getCustomPreferenceValue('enableExperienceTypes'); //eslint-disable-line
+    var PreferencesUtil = require('~/cartridge/scripts/utils/PreferencesUtil');
+    var showSelectedFiltersOnBreadcrumbs = PreferencesUtil.isCountryEnabled(
+        'showSelectedFiltersOnBreadcrumbs'
+    );
 
     if (enableExperienceTypes) {
         let experienceType = null; //eslint-disable-line
@@ -262,18 +304,21 @@ server.append('ShowAjax', function (req, res, next) {
     var enableAvailablePerLocale = productHelper.enableAvailablePerLocale();
     viewData.enableAvailablePerLocale = enableAvailablePerLocale;
     var countryCode = Locale.getLocale(request.locale).country; // eslint-disable-line
-    if ((countryCode === 'US' || countryCode === 'CA') && viewData.isUserRefinedSearch) {
+    if (showSelectedFiltersOnBreadcrumbs && viewData.isUserRefinedSearch) {
         var breadcrumbSelectedFilters = viewData.productSearch.selectedFilters;
         if (!empty(breadcrumbSelectedFilters)) {
             viewData.productSearch.breadcrumbSelectedFilters = searchHelper.breadcrumRefinement(breadcrumbSelectedFilters, req.querystring);
         }
     }
-    if ((countryCode === 'US' || countryCode === 'CA') && (viewData.productSearch && viewData.productSearch.breadcrumbSelectedFilters)) {
+    if (showSelectedFiltersOnBreadcrumbs && (viewData.productSearch && viewData.productSearch.breadcrumbSelectedFilters)) {
         var ArrayList = require('dw/util/ArrayList');
         var breadcrumbSchemaMarkup = new ArrayList(viewData.breadcrumbs);
         viewData.breadcrumbForSchema = searchHelper.setupBreadcrumbSchemaMarkup(breadcrumbSchemaMarkup, viewData.productSearch.breadcrumbSelectedFilters);
         viewData.countryCode = countryCode;
     }
+
+    viewData.isPLP = true;
+    viewData.showPLPImageSlider = productHelper.enablePLPImageSlider();
     res.setViewData(viewData);
     next();
 });
@@ -309,6 +354,8 @@ server.append('UpdateGrid', function (req, res, next) {
     var productHelper = require('*/cartridge/scripts/helpers/ProductHelper.js');
     var enableAvailablePerLocale = productHelper.enableAvailablePerLocale();
     viewData.enableAvailablePerLocale = enableAvailablePerLocale;
+    viewData.showPLPImageSlider = productHelper.enablePLPImageSlider();
+    viewData.isPLP = true;
     res.setViewData(viewData);
 
     next();

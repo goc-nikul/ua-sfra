@@ -4,6 +4,7 @@ var formValidation = require('../components/formValidation');
 var cleave = require('../components/cleave');
 
 var url;
+var location = window.location;
 
 module.exports = {
     removePayment: function () {
@@ -22,10 +23,10 @@ module.exports = {
                     success: function (data) {
                         $('#uuid-' + data.UUID).remove();
                         if (data.message) {
-                            var toInsert = '<div><h3>' +
-                            data.message +
-                            '</h3><div>';
-                            $('.paymentInstruments').after(toInsert);
+                            var toInsert = '<div class="row justify-content-center h3 no-saved-payments"><p>'
+                            + data.message
+                            + '</p></div>';
+                            $('.paymentInstruments').empty().append(toInsert);
                         }
                     },
                     error: function (err) {

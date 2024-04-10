@@ -26,6 +26,7 @@ function shipment(promise, data) {
     let ShippingConfirmationXML = new XML('<ShippingConfirmation></ShippingConfirmation>'),
     requestXML = helpers.generateRequestXML(getRequestShippingObject(data.params), ShippingConfirmationXML);
     data.TransactionXML = requestXML.toString();
+    Logger.getLogger('shipment','ordershipment').info('MC Shipping Request= {0}',requestXML.toString());
     data.localeData = data.params.Order.custom.customerLocale.split('_');
     return sendTrigger(hookPath + 'shipment', promise, data);
 }
@@ -56,7 +57,14 @@ function returnOrderCreated(promise, data) {
     let requestXML = helpers.generateRequestXML(getRequestReturnObject(data.params), ReturnStartedXML);
     data.TransactionXML = requestXML.toString();
     data.localeData = data.params.Order.custom.customerLocale.split('_');
-    return sendTrigger(hookPath + 'returnOrderCreated', promise, data);
+
+    let hookID = 'app.communication.oms.returnOrderCreated';
+
+    // Check if ReturnMethod configuration custom object is available.
+    if ('pickupOption' in data.params.returnCase.custom && !empty(data.params.returnCase.custom.pickupOption)) {
+        hookID = 'app.communication.oms.returnOrderCreated.' + data.params.returnCase.custom.pickupOption.toLowerCase().replace(/\s/g, '');
+    }
+    return sendTrigger(hookID, promise, data);
 }
 
 /**
@@ -67,6 +75,65 @@ function returnOrderCreated(promise, data) {
  */
 function invoiceProcessed(promise, data) {
     return sendTrigger(hookPath + 'invoiceProcessed', promise, data);
+}
+
+/**
+ * Get the Shippinglocalcountry
+ * @param {string} shipCountry - The order shipping country
+ * @return {string} countryDisplayName
+ */
+function getShippingLocalCountry(shipCountry) {
+    var Logger = require('dw/system/Logger');
+    var PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
+    var countryListJson = PreferencesUtil.getJsonValue('billingCountryList');
+    var countryDisplayName='';
+    if(countryListJson) {
+        Object.keys(countryListJson).forEach(function (key) {
+            var countryJsonName=countryListJson[key].toLowerCase();
+            var shipCountryName=shipCountry.toLowerCase();
+            if(!empty(shipCountryName) && !empty(countryJsonName) && countryJsonName === shipCountryName) {
+                var translatedCountry = Resource.msg('select.option.country.' + shipCountryName, 'forms', '');
+                countryDisplayName = translatedCountry.indexOf('select.option.country') > -1 ? countryListJson[key] : translatedCountry;
+            }
+        });
+    }
+    return !empty(countryDisplayName) ? countryDisplayName : shipCountry;
+}
+
+/**
+ * Get the productColor
+ * @param {Object} productLineItem - productLineItem
+ * @return {string} displayColorWay
+ */
+function getProductColor(productLineItem){
+        var productColorWay='';
+        var productColor='';
+        var displayColorWay = '';
+        productColorWay='colorway' in productLineItem.product.custom && productLineItem.product.custom.colorway ? productLineItem.product.custom.colorway : '';
+        productColor='color' in productLineItem.product.custom && productLineItem.product.custom.color ? productLineItem.product.custom.color : '';
+
+        if (productColorWay != null && productColorWay !== '' && productColor != null && productColor !== '') {
+            let colorBuckets = productColorWay.split('/').map(function (item) {
+                return item.trim();
+            });
+            if (colorBuckets.length > 1) {
+                displayColorWay += colorBuckets[0];
+                if (colorBuckets[1] !== '' && colorBuckets[0] !== colorBuckets[1]) {
+                    displayColorWay += ' / ' + colorBuckets[1];
+                } else if (colorBuckets[2] && colorBuckets[2] !== '' && colorBuckets[2] !== colorBuckets[1]) {
+                    displayColorWay += ' / ' + colorBuckets[2];
+                }
+            } else {
+                displayColorWay = productColorWay;
+            }
+            displayColorWay += ' - ' + productColor;
+        } else if (productColorWay != null || productColor != null) {
+            displayColorWay = productColorWay ? productColorWay : productColor;
+        }
+        if(empty(displayColorWay)){
+            displayColorWay='colorgroup' in productLineItem.product.custom && productLineItem.product.custom.colorgroup ? productLineItem.product.custom.colorgroup : '';
+        }
+        return displayColorWay;
 }
 
 /**
@@ -97,7 +164,7 @@ function invoiceProcessed(promise, data) {
             ShippingCity: shippingAddress.city && Resource.msg('city.' + shippingAddress.city.toLowerCase(), 'forms', '') || shippingAddress.city,
             ShippingRegion: shippingAddress.stateCode != 'undefined' && shippingAddress.stateCode || '',
             ShippingPostal: shippingAddress.postalCode,
-            ShippingCountry: shippingAddress.countryCode.displayValue,
+            ShippingCountry: shippingAddress.countryCode.displayValue ? getShippingLocalCountry(shippingAddress.countryCode.displayValue) : shippingAddress.countryCode.ID,
             addToSMSList: 'addToSMSList' in shippingAddress.custom && shippingAddress.custom.addToSMSList || '',
             additionalInformation: 'additionalInformation' in shippingAddress.custom && shippingAddress.custom.additionalInformation || '',
             colony: 'colony' in shippingAddress.custom && shippingAddress.custom.colony || '',
@@ -178,11 +245,11 @@ function invoiceProcessed(promise, data) {
         }
     }
     return shipObj;
-    
+
     /*
      * Helper functions to process current/previous/future shipments
      */
-    
+
     //parses shippingObject and returns array with previous shipments
     function getPreviousShipments(shippingObj, order) {
         var productHelper = require('*/cartridge/scripts/helpers/productHelpers');
@@ -197,7 +264,7 @@ function invoiceProcessed(promise, data) {
                     ShipmentTrackingLink: returnsUtils.getShippingTrackingLink(order, shippingObj[i]),
                     Product: []
                 });
-                
+
                 for (let itemSku in shippingObj[i].items) {
                     let itemsQuantity = Number(shippingObj[i].items[itemSku]);
                     let curLineItem = findPLIBySku(itemSku, productLineItems),
@@ -209,13 +276,12 @@ function invoiceProcessed(promise, data) {
                             let imageURL = curLineItem.product ? curLineItem.product.getImage('pdpMainDesktop', 0).getURL().toString() : productHelper.getNoImageURL('gridTileDesktop');
                             var pdpUrlAction = new URLAction('Product-Show', Site.getCurrent().getID(), order.custom.customerLocale);
                             var pdpURL = URLUtils.https(pdpUrlAction, new URLParameter('pid', curLineItem.productID)).toString();
-                            let color = curLineItem.product ? curLineItem.product.custom.colorgroup : '';
                             allPreviousShipments[i].Product.push({
                                 ImageURL: imageURL,
                                 PdpURL: URLUtilsHelper.prepareURLForLocale(pdpURL.toString(), order.custom.customerLocale),
                                 Name: curLineItem.productName,
                                 SKU: itemSku,
-                                Color: color,
+                                Color: getProductColor(curLineItem),
                                 Size: size,
                                 Price: curLineItem.adjustedPrice.value / curLineItem.quantity.value,
                                 Quantity: itemsQuantity
@@ -240,13 +306,12 @@ function invoiceProcessed(promise, data) {
                 let curLineItem = findPLIBySku(itemSku, productLineItems),
                     VASize = !empty(curLineItem) && !empty(curLineItem.product) ? curLineItem.product.variationModel.getProductVariationAttribute('size') : null,
                     ProductSizeValue = !empty(curLineItem) && !empty(curLineItem.product) && VASize ? curLineItem.product.variationModel.getSelectedValue(VASize) : null,
-                    size = ProductSizeValue && ProductSizeValue.displayValue ? Resource.msg('addtobag.size.' + ProductSizeValue.displayValue.replace(/[' ']/g, '_'), 'checkout', ProductSizeValue.displayValue) : null;
+                    size = ProductSizeValue && ProductSizeValue.displayValue ? Resource.msg('addtobag.size.' + ProductSizeValue.displayValue.replace(/[' ']/g, '_'), 'checkout', ProductSizeValue.displayValue) : "";
                 
                 if (empty(size) && curLineItem) {
                     size = !empty(curLineItem.product) ? curLineItem.product.custom.size : "";
-                }else{
-                	size = "";
                 }
+
                 if (curLineItem) {
                     var jerseyName='',jerseyNumber='',sponsors='',ispersonalized='No', optionsobj = [];
 
@@ -278,13 +343,12 @@ function invoiceProcessed(promise, data) {
                         let imageURL = curLineItem.product ? curLineItem.product.getImage('pdpMainDesktop', 0).getURL().toString() : productHelper.getNoImageURL('gridTileDesktop');
                         var pdpUrlAction = new URLAction('Product-Show', Site.getCurrent().getID(), order.custom.customerLocale);
                         var pdpURL = URLUtils.https(pdpUrlAction, new URLParameter('pid', curLineItem.productID)).toString();
-                        let color = curLineItem.product ? curLineItem.product.custom.colorgroup : '';
                         allCurrentShipmentItems.push({
                             ImageURL: imageURL,
                             PdpURL: URLUtilsHelper.prepareURLForLocale(pdpURL.toString(), order.custom.customerLocale),
                             Name: curLineItem.productName,
                             SKU: itemSku,
-                            Color: color,
+                            Color: getProductColor(curLineItem),
                             Size: size,
                             Price: curLineItem.adjustedPrice.value / curLineItem.quantity.value,
                             Quantity: itemsQuantity,
@@ -447,15 +511,16 @@ function invoiceProcessed(promise, data) {
            }
            var pdpUrlAction = new URLAction('Product-Show', Site.getCurrent().getID(), order.custom.customerLocale);
            var pdpURL = URLUtils.https(pdpUrlAction, new URLParameter('pid', productLineItem.productID)).toString();
-           let color = productLineItem.product ? productLineItem.product.custom.colorgroup : '';
            refundObj.ReturnedProduct.push({
                 ImageURL: imageURL,
                 PdpURL: URLUtilsHelper.prepareURLForLocale(pdpURL.toString(), order.custom.customerLocale),
                 Name: productLineItem.productName,
                 SKU: sku,
-                Color: color,
+                Color: getProductColor(productLineItem),
                 Size: size,
                 Price: Number(productLineItem.adjustedPrice.value) / Number(refObj[refObj.length - 1].items[sku]),
+                TaxBasis: Number(productLineItem.taxBasis.value) / Number(refObj[refObj.length - 1].items[sku]),
+                TaxBasisPerItem: (Number(productLineItem.taxBasis.value) / productLineItem.quantityValue),
                 PurchasePrice: refObj[refObj.length - 1].itemAmounts[sku],
                 Quantity: refObj[refObj.length - 1].items[sku]
             });
@@ -488,13 +553,14 @@ function getRequestReturnObject(params) {
             ReprintReturnLabel: params.returnInfoLink,
             ReturnNumber: returnCase.returnCaseNumber,
             ReturnProducts: [],
-            NewArrivalsURL: URLUtilsHelper.prepareURLForLocale(newArrivalsURL.toString(), order.custom.customerLocale)
+            NewArrivalsURL: URLUtilsHelper.prepareURLForLocale(newArrivalsURL.toString(), order.custom.customerLocale),
+            ReturnProviderName: returnCase.custom.returnShipmentProvider,
+            ReturnTrackingLink: returnCase.custom.trackingLink
     };
 
     for (let i = 0; i < returnCase.items.length; i++) {
         let productLineItem = returnCase.items[i].lineItem;
         let productImage = productLineItem.product && productLineItem.product.getImage('pdpMainDesktop', 0) ? productLineItem.product.getImage('pdpMainDesktop', 0).getURL().toString() : productHelper.getNoImageURL('cartMiniDesktop');
-        let color = productLineItem.product ? productLineItem.product.custom.colorgroup : '';
         var pdpUrlAction = new URLAction('Product-Show', Site.getCurrent().getID(), order.custom.customerLocale);
         var pdpURL = URLUtils.https(pdpUrlAction, new URLParameter('pid', productLineItem.productID)).toString();
         let size = productLineItem.product ? productLineItem.product.custom.size : '';
@@ -504,10 +570,11 @@ function getRequestReturnObject(params) {
                 PdpURL: URLUtilsHelper.prepareURLForLocale(pdpURL.toString(), order.custom.customerLocale),
                 Name: productLineItem.productName,
                 SKU: productLineItem.custom.sku,
-                Color: color,
+                Color: getProductColor(productLineItem),
                 Size: size,
                 Price: productLineItem.proratedPrice.value / productLineItem.quantity.value,
-                Quantity: returnCase.items[i].authorizedQuantity.value
+                Quantity: returnCase.items[i].authorizedQuantity.value,
+                TaxBasisPerItem: (Number(productLineItem.taxBasis.value) / productLineItem.quantityValue),
             }
         });
     }

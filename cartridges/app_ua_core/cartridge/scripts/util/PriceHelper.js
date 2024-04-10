@@ -3,6 +3,8 @@
 
 const Resource = require('dw/web/Resource');
 const Money = require('dw/value/Money');
+var collections = require('*/cartridge/scripts/util/collections');
+var formatMoney = require('dw/util/StringUtils').formatMoney;
 
 /**
  * Performs rounding of incomming money instance according to region configuration.
@@ -58,7 +60,35 @@ function setSitesApplicablePriceBooks(countryCode, countriesJSON) {
     }
 }
 
+/**
+ * calculate the total diff of sale and list as well as automatic applied product level promotion
+ * @param {dw.order.LineItemCtnr} lineItemContainer - the current line item container
+ * @returns {Object} an object containing product promotional discount
+ */
+function getProductTotalDiscount(lineItemContainer) {
+    var currencyCode = lineItemContainer.currencyCode;
+    var productTotalDiscount = new Money(0, currencyCode);
+    collections.forEach(lineItemContainer.getAllProductLineItems(), function (pli) {
+        if (pli.product && pli.product.custom && (!('giftCard' in pli.product.custom) || (pli.product.custom.giftCard.value !== 'EGIFT_CARD'))) {
+            var diffPrice = new Money(0, currencyCode);
+            var promotionDiscount = new Money(0, currencyCode);
+            if (pli.priceAdjustments.length > 0) {
+                collections.forEach(pli.priceAdjustments, function (priceAdjustment) {
+                    promotionDiscount = promotionDiscount.add(priceAdjustment.price);
+                });
+            }
+            promotionDiscount = promotionDiscount.add(diffPrice);
+            productTotalDiscount = productTotalDiscount.add(promotionDiscount);
+        }
+    });
+    return {
+        value: productTotalDiscount.value,
+        formatted: formatMoney(productTotalDiscount)
+    };
+}
+
 module.exports = {
     getLocalizedPrice: getLocalizedPrice,
-    setSitesApplicablePriceBooks: setSitesApplicablePriceBooks
+    setSitesApplicablePriceBooks: setSitesApplicablePriceBooks,
+    getProductTotalDiscount: getProductTotalDiscount
 };

@@ -184,7 +184,7 @@ var items = [{
 
 var returncase = {
     returns: { empty: true },
-    status: 'STATUS_NEW',
+    status: { value: 'STATUS_NEW' },
     items: [{
         setStatus: () => {
             return {

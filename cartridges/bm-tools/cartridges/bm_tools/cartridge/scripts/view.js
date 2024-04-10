@@ -7,14 +7,15 @@
  * Get the decorator templates which is typically the passed template but in case of an AJAX request it is
  * an empty decorator
  *
- * @param decoratorName {String} the name of the decorator template to use
- * @param  customValues {Array} Array of parameter values for 'format' which indicate an AJAX response
- * @return {String} The name of the decorator template to be used
+ * @param {string} inboundDecoratorName the name of the decorator template to use
+ * @param  {Array} customValues Array of parameter values for 'format' which indicate an AJAX response
+ * @return {string} The name of the decorator template to be used
  *
  * @example
  * <isdecorate template="${require('~/view').decorate('path/to/decorator')}">
  */
-exports.decorate = function (decoratorName, customValues) {
+exports.decorate = function (inboundDecoratorName, customValues) {
+    var decoratorName = inboundDecoratorName;
     // get the value of the 'format' HTTP parameter
     var pageFormat = request.httpParameters.format && request.httpParameters.format.length && request.httpParameters.format[0];
 

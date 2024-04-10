@@ -37,6 +37,13 @@ base.selectSavedPaymentInstrument = function () {
         $(this).closest('.payment-form-fields').find('.js-payment-selection-error').addClass('hide');
         $('.payment-information').attr('data-is-new-payment', false);
     });
+
+    // if no default credit card is selected then select first credit card
+    if ($('.saved-payment-instrument').length > 0 && $('.saved-payment-instrument.selected-payment').length <= 0) {
+        if ($('.payment-information').attr('data-payment-method-id') === 'CREDIT_CARD' || $('.payment-information').attr('data-payment-method-id') === 'AURUS_CREDIT_CARD') {
+            $('.saved-payment-instrument:first').trigger('click');
+        }
+    }
 };
 
 /**

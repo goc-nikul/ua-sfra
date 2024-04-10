@@ -23,6 +23,11 @@ function handlePaymentError(order, _ref) {
       OrderMgr.failOrder(order, true);
     });
   }
+  var cancelTransaction = _ref.req.form.cancelTransaction;
+  if (cancelTransaction) {
+    res.redirect(URLUtils.url('Checkout-Begin', 'stage', 'payment'));
+    return next();
+  }
   res.redirect(URLUtils.url('Checkout-Begin', 'stage', 'payment', 'paymentError', Resource.msg('error.payment.not.valid', 'checkout', null)));
   return next();
 }

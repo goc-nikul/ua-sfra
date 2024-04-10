@@ -1,0 +1,30 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<div class="member-pricing-modal">
+    <div class="member-pricing-content">
+        <div class="g-modal-close">
+            <button type="button" class="g-modal-close_button close" data-dismiss="modal"
+                aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+        </div>
+        <iscontentasset aid="member-pricing-guest-popup" />
+    </div>
+
+    <div class="member-pricing-buttons">
+        <a href="" class="g-button_base g-button_primary--black js-member-cta-register">${Resource.msg('guestmodal.button.register', 'memberPricing', null)}</a>
+
+        <div class="register-login">
+            <span>
+                <isprint value="${Resource.msg('label.create.account.hasaccount', 'login', null)}" />
+            </span>
+        
+            <span>
+                <a class="b-header_account-link js-member-cta-login" href="${URLUtils.https('Account-Show')}"
+                    data-href="${URLUtils.https('Login-Show')}" role="button"
+                    aria-label="${Resource.msg('label.header.loginbutton', 'account', null)}">
+                    ${Resource.msg('link.header.login', 'account', null)}
+                </a>
+            </span>
+        </div>
+
+        <a href="" class="js-add-without-memberprice add-without-memberprice">${Resource.msg('guestmodal.link.continuewithoutmemberprice', 'memberPricing', null)}</a>
+    </div>
+</div>

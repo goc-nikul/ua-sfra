@@ -130,102 +130,110 @@ function materialCodesJSON(uniqueMaterialCodes) {
 * @param {dw.io.StreamWriter} fw - StreamWriter
 * @param {product} product - Product
 * @param {number} count - Product export count
+* @param {object} params - object
 * @returns {number} - Output count
 */
-function writeProduct(fw, product, count) {
-    // Image views
+function writeProduct(fw, product, count, params) {
     var allViewTypes = ['pdpMainDesktop', 'pdpMainMobile', 'sizeModelSM', 'sizeModelMD', 'sizeModelLG', 'sizeModelXL'];
     var ImageModelInfoObj = new Object();
     var outputCount = 0;
+    var allColors = [];
+
     var styleNumber = product.ID;
     var variationModel = product.getVariationModel();
-    var attr = variationModel.getProductVariationAttribute('color');
-    var attrValues = variationModel.getAllValues(attr);
     var DOMServiceStatus = false;
 
-    if (attrValues) {
-        // Loop through colors
-        var variationValues = attrValues.iterator();
-        while (variationValues.hasNext()) {
-            var vv = variationValues.next();
-            var uniqueId = styleNumber + '-' + vv.ID; // vv.displayValue
-            var productUrl = URLUtils.https('Product-Show', 'pid', product.ID, 'dwvar_' + product.ID + '_color', vv.ID);
-            var uniqueImages = [];
-            // Get variants in the selected color
-            var filter = new HashMap();
-            filter.put('color', vv.ID);
-            var variants = variationModel.getVariants(filter);
-            if (variants && variants.length) {
-                // First variant
-                var variant = variants[0];
-                // Get images assigned to pdpMainDesktop and pdpMainMobile views
-                for (var viewType = 0; viewType < allViewTypes.length; viewType++) {
-                    var images = variant.getImages(allViewTypes[viewType]);
-                    if (!empty(images)) {
-                        var imageArray = images.toArray();
-                        for (var i = 0; i < imageArray.length; i++) {
-                            var absURL = imageArray[i].absURL;
-                            if (absURL && !empty(absURL.toString())) {
-                                var imageFileName = reduceImageURL(absURL.toString());
-                                if (imageFileName && uniqueImages.indexOf(imageFileName) === -1) {
-                                    // Array will look like: ["V5-5033169-480_FC_Main", "V5-5033169-480_BC", "PS5033169-480_HF", "PS5033169-480_HB"]
-                                    uniqueImages.push(imageFileName);
-                                }
+    var productVariants = product.getVariants();
+    productVariants.toArray().forEach(function(variant) {
+        if (params.excludeOfflineVariants && !variant.isOnline()) {
+            return;
+        }
+
+        var colorAttribute = variant.getCustom().color;
+        if (colorAttribute && allColors.indexOf(colorAttribute) === -1) {
+            allColors.push(colorAttribute);
+        }
+    });
+
+    allColors.forEach(function(colorValue) {
+        var uniqueId = styleNumber + '-' + colorValue;
+        var productUrl = URLUtils.https('Product-Show', 'pid', product.ID, 'dwvar_' + product.ID + '_color', colorValue);
+        var uniqueImages = [];
+        // Get variants in the selected color
+        var filter = new HashMap();
+        filter.put('color', colorValue);
+        var variants = variationModel.getVariants(filter);
+        if (variants && variants.length) {
+            // First variant
+            var variant = variants[0];
+            // Get images assigned to pdpMainDesktop and pdpMainMobile views
+            for (var viewType = 0; viewType < allViewTypes.length; viewType++) {
+                var images = variant.getImages(allViewTypes[viewType]);
+                if (!empty(images)) {
+                    var imageArray = images.toArray();
+                    for (var i = 0; i < imageArray.length; i++) {
+                        var absURL = imageArray[i].absURL;
+                        if (absURL && !empty(absURL.toString())) {
+                            var imageFileName = reduceImageURL(absURL.toString());
+                            if (imageFileName && uniqueImages.indexOf(imageFileName) === -1) {
+                                // Array will look like: ["V5-5033169-480_FC_Main", "V5-5033169-480_BC", "PS5033169-480_HF", "PS5033169-480_HB"]
+                                uniqueImages.push(imageFileName);
                             }
                         }
                     }
                 }
-                // Call DAM service
-                if (uniqueImages.length) {
-                    Logger.getLogger('shopTheLook').info('Product: {0}, Color: {1}, Images: {2}', product.ID, vv.ID, uniqueImages.length);
-                    var param = 'assetType=photography&queryType=materialCode&queryValue=' + product.ID + '-' + vv.ID;
-                    var response = adobeAssetService.call(param);
-                    if (!empty(response)) {
-                        var responseResult = createJSONObj(JSON.parse(response));
-                        var colorId = '-' + vv.ID + '_';
-                        var colorCode = vv.ID;
-                        var ImageModelInfo = {};
-                        var uniqueMaterialCodesBySizes = {};
-                        for (var i = 0; i < responseResult.length; i++) {
-                            var ImageTypePrefix = responseResult[i].name.split('.')[0];
-                            for (var j = 0; j < uniqueImages.length; j++) {
-                                if (ImageTypePrefix === uniqueImages[j]) {
-                                    var ImagePrefix = ImageTypePrefix.split(colorId);
-                                    var imageResponse = responseResult[i];
-                                    ImageModelInfo[ImageTypePrefix] = ImageModelInfoJSON(imageResponse, uniqueId);
-                                    if (imageResponse.hasOwnProperty('ua:MaterialCode') && imageResponse.hasOwnProperty('ua:Size')) {
-                                        var uaSize = imageResponse['ua:Size'];
-                                        if (uniqueMaterialCodesBySizes[uaSize] === undefined) {
-                                            uniqueMaterialCodesBySizes[uaSize] = [];
-                                        }
-                                        var imageMaterialCodes = imageResponse['ua:MaterialCode'];
-                                        for (var n = 0; n < imageMaterialCodes.length; n++) {
-                                            if (uniqueMaterialCodesBySizes[uaSize].indexOf(imageMaterialCodes[n]) == -1) {
-                                                uniqueMaterialCodesBySizes[uaSize].push(imageMaterialCodes[n]);
-                                            }
+            }
+            // Call DAM service
+            if (uniqueImages.length) {
+                Logger.getLogger('shopTheLook').info('Product: {0}, Color: {1}, Images: {2}', product.ID, colorValue, uniqueImages.length);
+                var param = 'assetType=photography&queryType=materialCode&queryValue=' + product.ID + '-' + colorValue;
+                var response = adobeAssetService.call(param);
+                if (!empty(response)) {
+                    var responseResult = createJSONObj(JSON.parse(response));
+                    var colorId = '-' + colorValue + '_';
+                    var colorCode = colorValue;
+                    var ImageModelInfo = {};
+                    var uniqueMaterialCodesBySizes = {};
+                    for (var i = 0; i < responseResult.length; i++) {
+                        var ImageTypePrefix = responseResult[i].name.split('.')[0];
+                        for (var j = 0; j < uniqueImages.length; j++) {
+                            if (ImageTypePrefix === uniqueImages[j]) {
+                                var ImagePrefix = ImageTypePrefix.split(colorId);
+                                var imageResponse = responseResult[i];
+                                ImageModelInfo[ImageTypePrefix] = ImageModelInfoJSON(imageResponse, uniqueId);
+                                if (imageResponse.hasOwnProperty('ua:MaterialCode') && imageResponse.hasOwnProperty('ua:Size')) {
+                                    var uaSize = imageResponse['ua:Size'];
+                                    if (uniqueMaterialCodesBySizes[uaSize] === undefined) {
+                                        uniqueMaterialCodesBySizes[uaSize] = [];
+                                    }
+                                    var imageMaterialCodes = imageResponse['ua:MaterialCode'];
+                                    for (var n = 0; n < imageMaterialCodes.length; n++) {
+                                        if (uniqueMaterialCodesBySizes[uaSize].indexOf(imageMaterialCodes[n]) == -1) {
+                                            uniqueMaterialCodesBySizes[uaSize].push(imageMaterialCodes[n]);
                                         }
                                     }
                                 }
                             }
                         }
-                        var shopTheLookOutfit = {};
-
-                        var sizes = Object.keys(uniqueMaterialCodesBySizes);
-                        for (let i = 0; i < sizes.length; i++) {
-                            var size = sizes[i];
-                            var uniqueMaterialCodes = uniqueMaterialCodesBySizes[size];
-                            shopTheLookOutfit[size.toLowerCase()] = materialCodesJSON(uniqueMaterialCodes);
-                        }
-                        ImageModelInfo.shopTheLookOutfit = shopTheLookOutfit;
-                        ImageModelInfoObj[colorCode] = ImageModelInfo;
-                        DOMServiceStatus = true;
                     }
+                    var shopTheLookOutfit = {};
+
+                    var sizes = Object.keys(uniqueMaterialCodesBySizes);
+                    for (let i = 0; i < sizes.length; i++) {
+                        var size = sizes[i];
+                        var uniqueMaterialCodes = uniqueMaterialCodesBySizes[size];
+                        shopTheLookOutfit[size.toLowerCase()] = materialCodesJSON(uniqueMaterialCodes);
+                    }
+                    ImageModelInfo.shopTheLookOutfit = shopTheLookOutfit;
+                    ImageModelInfoObj[colorCode] = ImageModelInfo;
+                    DOMServiceStatus = true;
                 }
-                var shopTheLookLastUpdate = StringUtils.formatCalendar(new Calendar(), "MM/dd/YYYY H:MM:ss");
             }
+            var shopTheLookLastUpdate = StringUtils.formatCalendar(new Calendar(), "MM/dd/YYYY H:MM:ss");
         }
-        writeProductXML(fw, product, ImageModelInfoObj, shopTheLookLastUpdate, DOMServiceStatus);
-    }
+    });
+
+    writeProductXML(fw, product, ImageModelInfoObj, shopTheLookLastUpdate, DOMServiceStatus);
 
     return outputCount;
 }
@@ -241,6 +249,7 @@ function writeProducts(xsw, params) {
     var limitDAMServiceCall =  params.limitDOMServiceCall;
     var shopTheLookthresholdDays =  params.shopTheLookthresholdDays;
     var prepCategory = !empty(params.prepImageCategoryID) ? params.prepImageCategoryID : 'prep-category';
+    var ignoreProductSTLStatus = params.ignoreProductSTLStatus;
     var productIterator;
     // Added Job Step preference to ONLY look at Prep Category OR look at ALL products
     // If ALL products:
@@ -256,12 +265,11 @@ function writeProducts(xsw, params) {
     }
     while (productIterator.hasNext()) {
         var product = productIterator.next();
-        //May also need to call for !online and !searchable for future products
-        if (product.online && product.searchable && product.master) {
+        if (product.master) {
             if (product.custom.giftCard.value === 'GIFT_CARD' || product.custom.giftCard.value === 'EGIFT_CARD') { //Exclude gift cards and stuff
                 continue;
             }
-            var serviceStatus = product.custom.shopTheLookStatus;
+            var serviceStatus = ignoreProductSTLStatus ? false : product.custom.shopTheLookStatus;
             var lastupdated = product.custom.shopTheLookLastUpdate;
             var lastupdatedDate = StringUtils.formatCalendar(new Calendar(new Date(product.custom.shopTheLookLastUpdate)), 'MM/dd/yyyy H:MM:ss');
             var noOfDays = (System.getCalendar().getTime().getTime() - new Date(lastupdatedDate).getTime()) / (1000 * 60 * 60 * 24);
@@ -269,7 +277,7 @@ function writeProducts(xsw, params) {
                 continue;
             }
             // if (product.getAvailabilityModel().isInStock()) { //  Unclear if this is needed
-            count += writeProduct(xsw, product, count);
+            count += writeProduct(xsw, product, count, params);
             // }
         }
         if (IsQueryAllForSiteProducts && count >= limitDAMServiceCall) { // Limit number of DAM Calls and stop job after X calls. Should be incremental. Unless in Prep-Category mode.

@@ -156,7 +156,7 @@
                             <div class="b-product_prices bvWrap">
                                 <isset name="price" value="${product.price}" scope="page" />
                                 <isinclude template="product/components/pricing/main" />
-                                <isif condition="${'bvEnableRR_C2013' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR_C2013}">
+                                <isif condition="${'bvEnableRR' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR}">
 						            <isinclude template="bv/display/pdpsummary"/>
 					            </isif>
                             </div>
@@ -200,7 +200,7 @@
                             <div class="b-product_availability"
                                 data-ready-to-order="${product.readyToOrder}"
                                 data-available="${product.available}">
-                                <isif condition="${!product.available}"> 
+                                <isif condition="${!product.available && product.custom.exclusive !== 'coming-soon'}">  
                                 <isif condition="${product.readyToOrder}">
                                     <isloop items="${product.availability.messages}" var="message">
                                         <div class="b-product_availability-message ${!product.available ? 'm-out-of-stock' : ''}">${message}</div>
@@ -309,7 +309,7 @@
             </div>
 
             <div class="b-pdp__review-setion">
-            <isif condition="${'bvEnableRR_C2013' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR_C2013}">
+            <isif condition="${'bvEnableRR' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR}">
                 <isif condition="${pdict.bvDisplay.rr.enabled}">
                     <hr class="d-sm-none">
                 </isif>
@@ -319,7 +319,7 @@
                 </div>
             </isif>
 
-           <isif condition="${'bvEnableAA_C2013' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableAA_C2013}">
+           <isif condition="${'bvEnableAA' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableAA}">
              <isif condition="${pdict.bvDisplay.qa.enabled}">
                 <hr class="d-sm-none">
              </isif>

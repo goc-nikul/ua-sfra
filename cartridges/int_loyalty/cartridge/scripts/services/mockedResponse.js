@@ -28,7 +28,17 @@ var estimationPoints = {
             estimateLoyaltyPoints: {
                 success: true,
                 event: {
-                    estimatedPoints: 171
+                    estimatedPoints: 171,
+                    products: [
+                        {
+                            points: 330.04,
+                            productID: 887907588097
+                        },
+                        {
+                            points: 72,
+                            productID: 191169632109
+                        }
+                    ]
                 }
             }
         }

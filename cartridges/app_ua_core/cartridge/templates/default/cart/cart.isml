@@ -1,4 +1,4 @@
-<isif condition="${('bvEnableRR_C2013' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR_C2013) || (pdict.isPersonalizationEnabled)}">
+<isif condition="${('bvEnableRR' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR) || (pdict.isPersonalizationEnabled)}">
 <isscript>
 var assets = require('*/cartridge/scripts/assets');
 if (pdict.bvScout){
@@ -21,6 +21,7 @@ if ('isPersonalizationEnabled' in pdict && pdict.isPersonalizationEnabled) {
 <div class="cart-display-listener" data-cmp="cartTile"></div>
 <isset name="isLoyaltyEnabled" value="${'isLoyaltyEnable' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.isLoyaltyEnable}" scope="page" />
 <isset name="isAurusEnabled" value="${!empty(dw.system.Site.current.getCustomPreferenceValue('enableAurusPay')) && dw.system.Site.current.getCustomPreferenceValue('enableAurusPay')}" scope="page" />
+<isset name="isIDMEenabledForCart" value="${!empty(dw.system.Site.current.getCustomPreferenceValue('IDMEenabledOnShoppingCartPage')) && dw.system.Site.current.getCustomPreferenceValue('IDMEenabledOnShoppingCartPage')}" scope="page" />
 <isset name="ppStatus" value="${request.httpParameterMap.ppStatus.getStringValue()}" scope="page"/>
 <isset name="ppToken" value="${request.httpParameterMap.token.getStringValue()}" scope="page"/>
     <isif condition="${ppStatus !== null && ppToken !== null}">
@@ -121,18 +122,18 @@ if ('isPersonalizationEnabled' in pdict && pdict.isPersonalizationEnabled) {
                                     <isinclude template="cart/cartApproachingDiscount" />
                                 </div>
                                 <isset name="hasBopis" value="${false}" scope="pdict" />
-                                <isif condition="${!pdict.isVIP && dw.system.Site.current.getCustomPreferenceValue('isBOPISEnabled')}">
+                                <isif condition="${dw.system.Site.current.getCustomPreferenceValue('isBOPISEnabled')}">
                                     <isloop items="${pdict.bopisShipments}" var="shipment" status="loopState">
                                         <isif condition="${shipment.productLineItems.length > 0}">
                                             <div class="b-cart-bopis ${shipment.custom.fromStoreId && shipment.productLineItems.length > 0 && loopState.first ? 'b-cart-bopis_pickup' : 'b-cart-bopis_shipping'}">
-                                                <isif condition="${shipment.custom.fromStoreId && shipment.productLineItems.length > 0 && loopState.first}">
+                                                <isif condition="${!pdict.isVIP && shipment.custom.fromStoreId && shipment.productLineItems.length > 0 && loopState.first}">
                                                     <isset name="hasBopis" value="${true}" scope="pdict" />
                                                     <div class="b-cart-content_heading b-cart-pickup-heading">${Resource.msg('cart.pick.up','storeLocator',null)}</div>
                                                 </isif>
-                                                <isif condition="${!shipment.custom.fromStoreId}">
+                                                <isif condition="${!shipment.custom.fromStoreId || pdict.isVIP}">
                                                     <div class="b-cart-content_heading">${Resource.msg('cart.shipping','storeLocator',null)}</div>
                                                 </isif>
-                                                <isif condition="${shipment.custom.fromStoreId && shipment.productLineItems.length > 0}">
+                                                <isif condition="${!pdict.isVIP && shipment.custom.fromStoreId && shipment.productLineItems.length > 0}">
                                                     <div class="b-store-choose-link b-store-choose-link-heading bfx-remove-element">
                                                         <span class="b-store-choose-content">${Resource.msg('store.product.at','storeLocator',null)}
                                                             <a href="${URLUtils.url('Stores-InventorySearch', 'showMap', false, 'horizontalView', true, 'isForm', true)}" class="btn btn-block btn-get-in-store-inventory btn-outline-primary" data-action-url="${URLUtils.url('Stores-InventorySearch', 'showMap', false, 'horizontalView', true, 'isForm', true)}" data-ats-action-url="${pdict.pickUpInStore.atsActionUrl}">
@@ -193,6 +194,16 @@ if ('isPersonalizationEnabled' in pdict && pdict.isPersonalizationEnabled) {
 	                                        <isinclude template="cart/cartCouponDisplay" />
 	                                    </div>
                                     </isif>
+                                    <iscomment> A/B Test ID.Me button for Mobile </iscomment>
+                                    <isif condition="${isIDMEenabledForCart}">
+                                        <div class="b-cart-idmeabtest idme_mobile bfx-remove-element">
+                                            <isif condition="${(!pdict.isVIP && !pdict.isEmployee)}">
+                                                <div class="idme-content" data-cmp="idme">
+                                                    <isinclude template="customPromosList" />
+                                                </div>
+                                            </isif>
+                                        </div>
+                                    </isif>
                                 </div>
                                 <div class="b-cart_checkoutbuttons">
                                     <div class="checkout-continue b-cart_checkoutcontinue">
@@ -205,7 +216,17 @@ if ('isPersonalizationEnabled' in pdict && pdict.isPersonalizationEnabled) {
                                                 <span class="text-right grand-total bfx-total-grandtotal">${pdict.totals.grandTotal}</span>
                                             </span>
                                         </div>
-                                        <div class="b-cart_button-paypal">
+                                         <div class="b-cart_button-paypal">
+                                            <iscomment>A/B Test ID.Me button for Desktop</iscomment>
+                                            <isif condition="${isIDMEenabledForCart}">
+                                                <div class="b-cart-idmeabtest idme_desktop bfx-remove-element">
+                                                    <isif condition="${(!pdict.isVIP && !pdict.isEmployee)}">
+                                                        <div class="idme-content" data-cmp="idme">
+                                                            <isinclude template="customPromosList" />
+                                                        </div>
+                                                    </isif>
+                                            </div>
+                                           </isif>
                                             <isinclude template="cart/checkoutButtons" />
                                             <isif condition="${!pdict.isVIP && !pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && !pdict.basketHasGiftCardItems.eGiftCards}">
                                                 <span class="b-cart_paypalbutton bfx-remove-element">
@@ -290,19 +311,21 @@ if ('isPersonalizationEnabled' in pdict && pdict.isPersonalizationEnabled) {
         <div class="b-cart-content_row">
             <div class="b-cart-content_left">
                 <div class="b-cart-inner-content_left">
-                   <isif condition="${!pdict.items || pdict.items.length === 0}">
-                        <isslot id="cart-empty-m" description="Recommended products" context="global" />
-                        <iselse/>
-                    <div class="cart-recommendations-slot-1 m-slot_4" data-styleid="${(pdict.items[0].custom && 'style' in pdict.items[0].custom && pdict.items[0].custom.style) ? pdict.items[0].custom.style: ''}">
-                        <isif condition= "${('productCollection' in pdict) && pdict.productCollection !== null && pdict.productCollection.length > 0}">
-                            <isslot id="cart-recommendations-m" description="Cart recommended products" context="global" context-object="${pdict.productCollection}" />
-                        </isif>
-                    </div>
-                    <div class="cart-recommendations-slot-2">
-                     <isif condition= "${('productCollection' in pdict) && pdict.productCollection !== null && pdict.productCollection.length > 0}">
-                        <isslot id="cart-recommendations-2" description="Cart recommended products" context="global" context-object="${pdict.productCollection}" />
-                     </isif>
-                    </div>
+                    <isif condition="${!pdict.items || pdict.items.length === 0}">
+                        <div class="cart-recommendations-slot-1 m-slot_4">
+                            <isslot id="cart-empty-m" description="Recommended products" context="global" />
+                        </div>
+                    <iselse/>
+                        <div class="cart-recommendations-slot-1 m-slot_4" data-styleid="${(pdict.items[0].custom && 'style' in pdict.items[0].custom && pdict.items[0].custom.style) ? pdict.items[0].custom.style: ''}">
+                            <isif condition= "${('productCollection' in pdict) && pdict.productCollection !== null && pdict.productCollection.length > 0}">
+                                <isslot id="cart-recommendations-m" description="Cart recommended products" context="global" context-object="${pdict.productCollection}" />
+                            </isif>
+                        </div>
+                        <div class="cart-recommendations-slot-2">
+                            <isif condition= "${('productCollection' in pdict) && pdict.productCollection !== null && pdict.productCollection.length > 0}">
+                                <isslot id="cart-recommendations-2" description="Cart recommended products" context="global" context-object="${pdict.productCollection}" />
+                            </isif>
+                        </div>
                     </isif>
                 </div>
             </div>

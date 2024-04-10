@@ -5,6 +5,7 @@ var priceHelper = require('*/cartridge/scripts/helpers/pricing');
 var DefaultPrice = require('*/cartridge/models/price/default');
 var RangePrice = require('*/cartridge/models/price/range');
 var TieredPrice = require('*/cartridge/models/price/tiered');
+var productHelper = require('*/cartridge/scripts/helpers/ProductHelper');
 
 
 /**
@@ -85,10 +86,24 @@ function getPrice(inputProduct, currency, useSimplePrice, promotions, currentOpt
         ? product.getPriceModel(currentOptionModel)
         : product.getPriceModel();
     var priceTable = priceModel.getPriceTable();
+    var variantProduct = null;
 
     // TIERED
     if (priceTable.quantities.length > 1) {
         return new TieredPrice(priceTable, useSimplePrice);
+    }
+
+    // Retrieve the price model for default selected variant
+    if ((product.master || product.variationGroup) && product.variationModel.variants.length > 0) {
+        variantProduct = productHelper.getDefaultColorVariant(product);
+        if (!variantProduct.isVariant()) {
+            variantProduct = productHelper.getOrderableVariant(product, '');
+        }
+        // None of the variants are orderable return the first variant
+        if (!variantProduct.isVariant() && product.variationModel.variants.length > 0) {
+            variantProduct = product.variationModel.variants[0];
+        }
+        priceModel = variantProduct.getPriceModel();
     }
 
     // RANGE
@@ -98,12 +113,6 @@ function getPrice(inputProduct, currency, useSimplePrice, promotions, currentOpt
         if (rangePrice && rangePrice.min.sales.value !== rangePrice.max.sales.value) {
             return rangePrice;
         }
-    }
-
-    // DEFAULT
-    if ((product.master || product.variationGroup) && product.variationModel.variants.length > 0) {
-        product = product.variationModel.variants[0];
-        priceModel = product.priceModel;
     }
 
     promotionPrice = priceHelper.getPromotionPrice(product, promotions, currentOptionModel);

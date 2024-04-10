@@ -34,13 +34,12 @@
 	        ${Resource.msg('wl.socialshare.email', 'wishlist', null)}
 	    </span>
         </a>
-        <span class="share-icons" title="${Resource.msg('wl.socialshare.link.label', 'wishlist', null)}" >
+        <button class="share-icons share-icons-copy-link-btn" data-url="${shareUrl}" id="copyShareUrlBtn" aria-label="${Resource.msg('wl.socialshare.link.label', 'wishlist', null)}">
             <i class="fa fa-link"></i>
-        </span>
-        <input type="hidden" id="shareUrl" value="${shareUrl}"/>
+        </button>
     </div>
     <div class="copy-link-message d-none">
-        <div class="alert alert-success text-center">
+        <div class="alert alert-success text-center" role="alert">
             ${Resource.msg('wl.socialshare.link.msg', 'wishlist', null)}
         </div>
     </div>

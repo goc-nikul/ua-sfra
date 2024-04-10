@@ -9,7 +9,6 @@ var Transaction = require('dw/system/Transaction');
 var userLoggedIn = require('*/cartridge/scripts/middleware/userLoggedIn');
 var PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
 
-
 /**
  * Order-Confirm : Append this method to add zip reciept number after order is placed
  * @name Base/Order-Confirm
@@ -19,6 +18,23 @@ var PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
  * @param {serverfunction} - append
  */
 server.append('Confirm', function (req, res, next) {
+    var OrderMgr = require('dw/order/OrderMgr');
+
+    var order = OrderMgr.getOrder(req.form.orderID, req.form.orderToken);
+
+    var token = req.form.orderToken ? req.form.orderToken : null;
+
+    if (!order
+        || !token
+        || token !== order.orderToken
+        || order.customer.ID !== req.currentCustomer.raw.ID
+    ) {
+        res.setStatusCode(404);
+        res.render('error/notFound');
+
+        return next();
+    }
+
     session.custom.currentOrder = null;
     var zippayEnabled = require('*/cartridge/config/preferences').isZipPayEnabled;
     var accountHelpers = require('*/cartridge/scripts/helpers/accountHelpers');
@@ -31,8 +47,6 @@ server.append('Confirm', function (req, res, next) {
     }
 
     var viewData = res.getViewData();
-    var OrderMgr = require('dw/order/OrderMgr');
-    var order;
     if (viewData.order) {
         order = OrderMgr.getOrder(viewData.order.orderNumber);
     }
@@ -40,13 +54,6 @@ server.append('Confirm', function (req, res, next) {
         if (viewData.order) {
             viewData.zipReceipt = order.custom.ZipReceiptNumber;
         }
-    }
-    // Change ordr confirmation status to not confirmed, so that order acknowledment job will update the order
-    if (order) {
-        Transaction.wrap(() => {
-            order.setConfirmationStatus(require('dw/order/Order').CONFIRMATION_STATUS_NOTCONFIRMED);
-            require('*/cartridge/scripts/checkout/checkoutHelpers').setAdyenOrderStatusToNotExported(order);
-        });
     }
 
     if (!viewData.error) {
@@ -109,6 +116,8 @@ server.append('Confirm', function (req, res, next) {
         viewData.passwordRules = passwordRequirements;
         viewData.minimumAgeRestriction = minimumAgeRestriction;
         viewData.isKRCustomCheckoutEnabled = isKRCustomCheckoutEnabled;
+        var mobileAuthProvider = require('*/cartridge/modules/providers').get('MobileAuth');
+        viewData.mobileAuthEnabled = mobileAuthProvider.mobileAuthEnabled;
         res.setViewData(viewData);
     }
 
@@ -153,6 +162,7 @@ server.replace(
         // actual businness logic
         var CustomerMgr = require('dw/customer/CustomerMgr');
         var OrderMgr = require('dw/order/OrderMgr');
+        var HookMgr = require('dw/system/HookMgr');
         var formErrors = require('*/cartridge/scripts/formErrors');
         var idmPreferences = require('*/cartridge/scripts/idmPreferences');
         var showBirthYearField = require('*/cartridge/config/preferences').ShowBirthYearField;
@@ -200,8 +210,13 @@ server.replace(
                     lastName: '',
                     phone: ''
                 };
+                var countryCode = session.custom.currentCountry || Locale.getLocale(request.getLocale()).country; // eslint-disable-line
+                var countryConfig;
+                if (HookMgr.hasHook('app.memberson.CountryConfig')) {
+                    countryConfig = HookMgr.callHook('app.memberson.CountryConfig', 'getMembersonCountryConfig', countryCode);
+                }
                 var profObj = null;
-                if (dw.system.Site.getCurrent().getCustomPreferenceValue('additionalRegFields')) {
+                if (dw.system.Site.getCurrent().getCustomPreferenceValue('additionalRegFields') || countryConfig.membersonEnabled) {
                     var registrationForm = server.forms.getForm('profile');
                     var profileObj = registrationForm.toObject();
                     registrationFormObj = {
@@ -238,6 +253,27 @@ server.replace(
                     profObj.lastName = newOrder.billingAddress.lastName ? newOrder.billingAddress.lastName : '';
                     profObj.phone = newOrder && 'countryDialingCode' in newOrder.custom && newOrder.custom.countryDialingCode ? newOrder.custom.countryDialingCode + '-' + newOrder.billingAddress.phone : newOrder.billingAddress.phone;
                     profObj.gender = gender;
+
+                    var mobileAuthProvider = require('*/cartridge/modules/providers').get('MobileAuth');
+                    var mobileAuthCI;
+                    if (mobileAuthProvider.mobileAuthEnabled && session.privacy.mobileAuthCI) {
+                        var mobileAuthData = mobileAuthProvider.getDataFromSession();
+                        mobileAuthCI = mobileAuthData.mobileAuthCI;
+                        profObj.lastName = mobileAuthData.name;
+                        registrationFormObj.phone = profObj.phone = mobileAuthData.phone;
+                        profObj.gender = mobileAuthData.gender === '0' ? 'FEMALE' : 'MALE';
+                        profileObj.customer.birthYear = bdyYear = mobileAuthData.birthYear;
+                        bdyMonth = mobileAuthData.birthMonth;
+                        bdyDay = mobileAuthData.birthDay;
+                        registrationFormObj.lastName = registrationForm.customer.lastname.value = mobileAuthData.name;
+                        registrationForm.customer.phoneMobile1.value = mobileAuthData.phone1;
+                        registrationForm.customer.phoneMobile2.value = mobileAuthData.phone2;
+                        registrationForm.customer.phoneMobile3.value = mobileAuthData.phone3;
+                        registrationForm.customer.birthYear.value = mobileAuthData.birthYear;
+                        registrationForm.customer.birthMonth.value = mobileAuthData.birthMonth;
+                        registrationForm.customer.birthDay.value = mobileAuthData.birthDay;
+                    }
+
                     if (showBirthYearField) {
                         registrationFormObj.year = profileObj.customer.birthYear;
                         birthDateObj.year = bdyYear;
@@ -276,6 +312,9 @@ server.replace(
                         newOrder.setCustomer(newCustomer);
                         var paymentForm = server.forms.getForm('billing');
                         var profile = customer.getProfile();
+                        if (mobileAuthProvider.mobileAuthEnabled && !empty(mobileAuthCI)) { // eslint-disable-line block-scoped-var
+                            profile.custom.CI = mobileAuthCI; // eslint-disable-line block-scoped-var
+                        }
                         if (COHelpers.smsOptInEnabled()) {
                             var addToemaolList = order.defaultShipment.shippingAddress.custom.addToSMSList ? order.defaultShipment.shippingAddress.custom.addToSMSList : false;
                             if (addToemaolList) {
@@ -447,6 +486,7 @@ server.replace(
     function (req, res, next) {
         if (res.getViewData().loggedin) {
             var Locale = require('dw/util/Locale');
+            var Site = require('dw/system/Site');
             var countryCode = session.custom.currentCountry || Locale.getLocale(request.getLocale()).country; // eslint-disable-line
             var OrderMgr = require('dw/order/OrderMgr');
             var URLUtils = require('dw/web/URLUtils');
@@ -460,16 +500,58 @@ server.replace(
             returnHelpers.setReturnDetails(returnObj);
             var template = 'account/order/orderReturnPrintCard';
             if (dw.system.Site.getCurrent().getID() !== 'OC' && dw.system.Site.getCurrent().getID() !== 'KR') {
-                template = 'account/order/orderReturnMethodSEA';
+                template = 'account/order/orderDynamicReturnMethodSEA';
             }
             var returnInstructionText = printLabelHelpers.getReturnInstructionText(order);
             var generateLabel = Resource.msg('order.generate.button', 'account', null);
             var renderedTemplate = renderTemplateHelper.getRenderedHtml({ orderReturnItems: 'print', order: order, customerEmail: req.currentCustomer.profile.email, printLabelURL: printLabelURL, isExchangeItems: req.form.isExchangeItems, exchangeTealiumItems: analyticsProductObj, returnInstructionText: returnInstructionText, generateLabel: generateLabel }, template);
-            if (countryCode === 'SG') {
+            if (dw.system.Site.getCurrent().getID() === 'SEA' || dw.system.Site.getCurrent().getID() === 'TH') {
                 var orderReturnForm = server.forms.getForm('return');
-                getTimeRange(orderReturnForm.returnTime.options);
-                getDateRange(orderReturnForm.returnDate.options);
-                renderedTemplate = renderTemplateHelper.getRenderedHtml({ orderReturnItems: 'print', order: order, customerEmail: req.currentCustomer.profile.email, printLabelURL: printLabelURL, isExchangeItems: req.form.isExchangeItems, exchangeTealiumItems: analyticsProductObj, returnInstructionText: returnInstructionText, generateLabel: generateLabel, returnForm: orderReturnForm, returnType: 'registered' }, template);
+                var orderCountryCode = order.getDefaultShipment().shippingAddress.countryCode.value;
+                var customObjectdefinition = returnHelpers.getCustomObject('ReturnMethodsConfigurations', orderCountryCode);
+                var isDropDownCity = false;
+                var dependencyOnState = false;
+                var dependencyOnCity = false;
+                var isPostalCodeDropDown = false;
+                var isDistrictDropDown = false;
+                var countryFields;
+                if (!empty(Site.current.getCustomPreferenceValue('countryFields'))) {
+                    countryFields = Site.current.getCustomPreferenceValue('countryFields');
+                }
+                var currentCountryFields;
+                var currentCF = [];
+                if (!empty(countryFields)) {
+                    var currentCountry = session.custom.currentCountry || require('dw/util/Locale').getLocale(request.getLocale()).country; // eslint-disable-line
+                    currentCountryFields = JSON.parse(countryFields);
+                    currentCF = currentCountryFields[currentCountry];
+                }
+                if (currentCF && currentCF.fields) {
+                    for (var i = 0; i < currentCF.fields.length; i++) {
+                        var field = currentCF.fields[i];
+                        if (field.id === 'state') {
+                            dependencyOnState = field.dependency;
+                        } else if (field.id === 'city') {
+                            dependencyOnCity = field.dependency;
+                            isDropDownCity = true;
+                            isDropDownCity = isDropDownCity;    // eslint-disable-line no-self-assign
+                        } else if (field.id === 'postalCode') {
+                            isPostalCodeDropDown = true;
+                            isPostalCodeDropDown = isPostalCodeDropDown;    // eslint-disable-line no-self-assign
+                        } else if (field.id === 'district') {
+                            isDistrictDropDown = true;
+                            isDistrictDropDown = isDistrictDropDown;    // eslint-disable-line no-self-assign
+                        }
+                    }
+                }
+                if (!empty(customObjectdefinition)) {
+                    var returnMethodConfigs = returnHelpers.getReturnMethodsConfigurations(customObjectdefinition, orderReturnForm);
+                    renderedTemplate = renderTemplateHelper.getRenderedHtml({ dependencyOnState: dependencyOnState, dependencyOnCity: dependencyOnCity, isDropDownCity: isDropDownCity, isPostalCodeDropDown: isPostalCodeDropDown, isDistrictDropDown: isDistrictDropDown, orderReturnItems: 'print', order: order, customerEmail: req.currentCustomer.profile.email, printLabelURL: printLabelURL, isExchangeItems: req.form.isExchangeItems, exchangeTealiumItems: analyticsProductObj, returnInstructionText: returnInstructionText, generateLabel: generateLabel, returnForm: orderReturnForm, returnType: 'registered', returnMethodDetails: returnMethodConfigs }, template);
+                } else {
+                    template = 'account/order/orderStaticReturnMethodSEA';
+                    getTimeRange(orderReturnForm.returnTime.options);
+                    getDateRange(orderReturnForm.returnDate.options);
+                    renderedTemplate = renderTemplateHelper.getRenderedHtml({ orderReturnItems: 'print', order: order, customerEmail: req.currentCustomer.profile.email, printLabelURL: printLabelURL, isExchangeItems: req.form.isExchangeItems, exchangeTealiumItems: analyticsProductObj, returnInstructionText: returnInstructionText, generateLabel: generateLabel, returnForm: orderReturnForm, returnType: 'registered' }, template);
+                }
             }
             var resources = {
                 return_page_header: Resource.msg('heading.returns.print', 'confirmation', null)
@@ -485,6 +567,7 @@ server.replace(
     csrfProtection.validateAjaxRequest,
     function (req, res, next) {
         var Locale = require('dw/util/Locale');
+        var Site = require('dw/system/Site');
         var countryCode = session.custom.currentCountry || Locale.getLocale(request.getLocale()).country; // eslint-disable-line
         var OrderMgr = require('dw/order/OrderMgr');
         var URLUtils = require('dw/web/URLUtils');
@@ -498,17 +581,58 @@ server.replace(
         var emailLabelGuestURL = URLUtils.url('Order-EmailLabelGuest', 'trackOrderNumber', req.querystring.trackOrderNumber, 'trackOrderEmail', req.querystring.trackOrderEmail);
         var template = 'account/order/orderReturnPrintCard';
         if (dw.system.Site.getCurrent().getID() !== 'OC' && dw.system.Site.getCurrent().getID() !== 'KR') {
-            template = 'account/order/orderReturnMethodSEA';
+            template = 'account/order/orderDynamicReturnMethodSEA';
         }
         var returnInstructionText = printLabelHelpers.getReturnInstructionText(order);
         var generateLabel = Resource.msg('order.generate.button', 'account', null);
         var renderedTemplate = renderTemplateHelper.getRenderedHtml({ orderReturnItems: 'print', order: order, printLabelGuestURL: printLabelGuestURL, emailLabelGuestURL: emailLabelGuestURL, isExchangeItems: req.form.isExchangeItems, returnInstructionText: returnInstructionText, generateLabel: generateLabel, returnType: 'guest' }, template);
-
-        if (countryCode === 'SG') {
+        if (dw.system.Site.getCurrent().getID() === 'SEA' || dw.system.Site.getCurrent().getID() === 'TH') {
             var orderReturnForm = server.forms.getForm('return');
-            getTimeRange(orderReturnForm.returnTime.options);
-            getDateRange(orderReturnForm.returnDate.options);
-            renderedTemplate = renderTemplateHelper.getRenderedHtml({ orderReturnItems: 'print', order: order, customerEmail: order.customerEmail, printLabelGuestURL: printLabelGuestURL, emailLabelGuestURL: emailLabelGuestURL, isExchangeItems: req.form.isExchangeItems, returnInstructionText: returnInstructionText, generateLabel: generateLabel, returnForm: orderReturnForm, returnType: 'guest' }, template);
+            var orderCountryCode = order.getDefaultShipment().shippingAddress.countryCode.value;
+            var customObjectdefinition = returnHelpers.getCustomObject('ReturnMethodsConfigurations', orderCountryCode);
+            var isDropDownCity = false;
+            var dependencyOnState = false;
+            var dependencyOnCity = false;
+            var isPostalCodeDropDown = false;
+            var isDistrictDropDown = false;
+            var countryFields;
+            if (!empty(Site.current.getCustomPreferenceValue('countryFields'))) {
+                countryFields = Site.current.getCustomPreferenceValue('countryFields');
+            }
+            var currentCountryFields;
+            var currentCF = [];
+            if (!empty(countryFields)) {
+                var currentCountry = session.custom.currentCountry || require('dw/util/Locale').getLocale(request.getLocale()).country; // eslint-disable-line
+                currentCountryFields = JSON.parse(countryFields);
+                currentCF = currentCountryFields[currentCountry];
+            }
+            if (currentCF && currentCF.fields) {
+                for (var i = 0; i < currentCF.fields.length; i++) {
+                    var field = currentCF.fields[i];
+                    if (field.id === 'state') {
+                        dependencyOnState = field.dependency;
+                    } else if (field.id === 'city') {
+                        dependencyOnCity = field.dependency;
+                        isDropDownCity = true;
+                        isDropDownCity = isDropDownCity;    // eslint-disable-line no-self-assign
+                    } else if (field.id === 'postalCode') {
+                        isPostalCodeDropDown = true;
+                        isPostalCodeDropDown = isPostalCodeDropDown;    // eslint-disable-line no-self-assign
+                    } else if (field.id === 'district') {
+                        isDistrictDropDown = true;
+                        isDistrictDropDown = isDistrictDropDown;    // eslint-disable-line no-self-assign
+                    }
+                }
+            }
+            if (!empty(customObjectdefinition)) {
+                var returnMethodConfigs = returnHelpers.getReturnMethodsConfigurations(customObjectdefinition, orderReturnForm);
+                renderedTemplate = renderTemplateHelper.getRenderedHtml({ dependencyOnState: dependencyOnState, dependencyOnCity: dependencyOnCity, isDropDownCity: isDropDownCity, isPostalCodeDropDown: isPostalCodeDropDown, isDistrictDropDown: isDistrictDropDown, orderReturnItems: 'print', order: order, customerEmail: order.customerEmail, printLabelGuestURL: printLabelGuestURL, emailLabelGuestURL: emailLabelGuestURL, isExchangeItems: req.form.isExchangeItems, returnInstructionText: returnInstructionText, generateLabel: generateLabel, returnForm: orderReturnForm, returnType: 'guest', returnMethodDetails: returnMethodConfigs }, template);
+            } else {
+                template = 'account/order/orderStaticReturnMethodSEA';
+                getTimeRange(orderReturnForm.returnTime.options);
+                getDateRange(orderReturnForm.returnDate.options);
+                renderedTemplate = renderTemplateHelper.getRenderedHtml({ orderReturnItems: 'print', order: order, customerEmail: order.customerEmail, printLabelGuestURL: printLabelGuestURL, emailLabelGuestURL: emailLabelGuestURL, isExchangeItems: req.form.isExchangeItems, returnInstructionText: returnInstructionText, generateLabel: generateLabel, returnForm: orderReturnForm, returnType: 'guest' }, template);
+            }
         }
 
         var resources = {
@@ -545,19 +669,19 @@ server.post('SubmitPickUp', function (req, res, next) {
     var pickUpForm;
     var pickUpObj;
     var countryCode = session.custom.currentCountry || Locale.getLocale(request.getLocale()).country; // eslint-disable-line
+    pickUpForm = server.forms.getForm('return');
+    pickUpObj = pickUpForm.toObject();
 
     // Get form Obj and validate for SG
-    if (countryCode === 'SG') {
-        pickUpForm = server.forms.getForm('return');
-        pickUpObj = pickUpForm.toObject();
-        if ((!empty(pickUpObj) && pickUpObj.pickupOption === 'Courier Pickup')) {
-            var tempPhoneNumber = pickUpObj.phone;
-            var phoneNumberCombined = tempPhoneNumber ? tempPhoneNumber.split(' ') : tempPhoneNumber;
-            var phoneNumber = phoneNumberCombined ? phoneNumberCombined.join('') : tempPhoneNumber;
-            phoneNumber = phoneNumber ? phoneNumber.replace(/[^a-z0-9\s]/gi, '') : tempPhoneNumber;
-            phoneNumber = phoneNumber ? phoneNumber.replace(/[_\s]/g, '-') : tempPhoneNumber;
-            pickUpObj.phone = phoneNumber;
-            var isValidPhoneNumber = COHelpers.validatephoneNumber(pickUpObj.phone, '+65');
+    if ((!empty(pickUpObj) && pickUpObj.pickupOption === 'Courier Pickup')) {
+        var tempPhoneNumber = pickUpObj.phone;
+        var phoneNumberCombined = tempPhoneNumber ? tempPhoneNumber.split(' ') : tempPhoneNumber;
+        var phoneNumber = phoneNumberCombined ? phoneNumberCombined.join('') : tempPhoneNumber;
+        phoneNumber = phoneNumber ? phoneNumber.replace(/[^a-z0-9\s]/gi, '') : tempPhoneNumber;
+        phoneNumber = phoneNumber ? phoneNumber.replace(/[_\s]/g, '-') : tempPhoneNumber;
+        pickUpObj.phone = phoneNumber;
+        if ('countryDialingCode' in order.custom && !empty(order.custom.countryDialingCode)) {
+            var isValidPhoneNumber = COHelpers.validatephoneNumber(pickUpObj.phone, order.custom.countryDialingCode);
             if (!isValidPhoneNumber) {
                 pickUpForm.valid = false;
                 pickUpForm.phone.valid = false;
@@ -571,16 +695,16 @@ server.post('SubmitPickUp', function (req, res, next) {
                 this.emit('route:Complete', req, res);
                 return;
             }
+        }
 
-            // verify shipping form data
-            var pickUpFormErrors = COHelpers.validateFields(pickUpForm);
-            if (Object.keys(pickUpFormErrors).length > 0) {
-                res.json({
-                    fields: formErrors.getFormErrors(pickUpForm),
-                    success: false,
-                    error: true
-                });
-            }
+        // verify shipping form data
+        var pickUpFormErrors = COHelpers.validateFields(pickUpForm);
+        if (Object.keys(pickUpFormErrors).length > 0) {
+            res.json({
+                fields: formErrors.getFormErrors(pickUpForm),
+                success: false,
+                error: true
+            });
         }
     }
 
@@ -652,10 +776,25 @@ server.post('SubmitPickUp', function (req, res, next) {
         Transaction.commit();
         CreateObject.createObj(order, returnCase);
     }
-    res.json({
-        success: true,
-        redirectUrl: redirectURL
-    });
+    var orderCountryCode = order.getDefaultShipment().shippingAddress.countryCode.value;
+    var customObjectdefinition = returnHelpers.getCustomObject('ReturnMethodsConfigurations', orderCountryCode);
+    if (!empty(customObjectdefinition)) {
+        var returnMethodContent = 'sea-autoreturnconfirmation-' + pickUpObj.pickupOption.split(' ').join('-').toLowerCase();
+        var renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
+        var renderedTemplate = renderTemplateHelper.getRenderedHtml({ returnMethodContent: returnMethodContent, redirectUrl: redirectURL }, 'account/order/returnConfirmation');
+        res.json({
+            success: true,
+            renderedTemplate: renderedTemplate,
+            responseMsg: Resource.msg('heading.return.confirm', 'confirmation', null)
+        });
+    } else {
+        res.json({
+            success: true,
+            redirectUrl: redirectURL,
+            responseMsg: Resource.msg('heading.return.confirm', 'confirmation', null)
+        });
+    }
+
     next();
 });
 

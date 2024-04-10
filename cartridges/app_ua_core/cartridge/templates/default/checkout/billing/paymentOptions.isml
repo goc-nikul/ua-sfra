@@ -38,6 +38,7 @@
          </isif>
          data-is-new-payment="${pdict.customer.registeredUser && pdict.customer.customerPaymentInstruments.length ? false : true}"
          data-action-url="${URLUtils.url('Checkout-SelectPaymentMethod')}"
+         data-eligiblePaymentMethods-nonGCPayment="${pdict.eligiblePaymentMethods.nonGCPayment}"
     >
         <isif condition="${pdict.isKlarnaEnabled}">
             <isset name="klarnaForm" value="${pdict.klarnaForm}" scope="page"/>

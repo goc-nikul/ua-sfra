@@ -37,9 +37,21 @@ function getLocaleSpecificJsonPrefValue(prefsName, orderShippedCountryCode) {
         if (!countryCode) {
             countryCode = getLocaleCountry();
         }
-        if (!upsPrefs.countryOverride || !countryCode) return JSON.parse(upsPrefs[prefsName]);
+
+        var defaultPrefValues = JSON.parse(upsPrefs[prefsName]);
         var countryOveride = JSON.parse(upsPrefs.countryOverride);
-        return (countryOveride[countryCode] && countryOveride[countryCode][prefsName]) ? countryOveride[countryCode][prefsName] : JSON.parse(upsPrefs[prefsName]);
+
+        if (upsPrefs.returnCountryOverride && upsPrefs.returnCountryOverride[countryCode] && upsPrefs.returnCountryOverride[countryCode].accountNumber) {
+            defaultPrefValues.accountNumber = upsPrefs.returnCountryOverride[countryCode].accountNumber;
+            defaultPrefValues.carrierName = upsPrefs.returnCountryOverride[countryCode].carrierName;
+            countryOveride.accountNumber = upsPrefs.returnCountryOverride[countryCode].accountNumber;
+            countryOveride.carrierName = upsPrefs.returnCountryOverride[countryCode].carrierName;
+        }
+
+        if (!countryCode) return defaultPrefValues;
+
+        if (!upsPrefs.countryOverride) return defaultPrefValues;
+        return (countryOveride[countryCode] && countryOveride[countryCode][prefsName]) ? countryOveride[countryCode][prefsName] : defaultPrefValues;
     } catch (e) {
         e.stack; //eslint-disable-line
     }

@@ -41,7 +41,7 @@ function checkMandatoryField(data) {
                             if ($(input).parent().hasClass('g-selectric-hide-select')) {
                                 $(input).parents('.g-selectric-container').addClass('is-invalid');
                             }
-                            if (input.validity.patternMismatch && $(input).data('pattern-mismatch')) {
+                            if ((input.validity.patternMismatch || input.validity.typeMismatch) && $(input).data('pattern-mismatch')) {
                                 validationMessage = $(input).data('pattern-mismatch');
                             }
                             if ((input.validity.rangeOverflow || input.validity.rangeUnderflow)
@@ -75,13 +75,14 @@ function checkMandatoryField(data) {
                             var errorForm = $this.find('.is-invalid:first');
                             var isGCForm = $this.hasClass('js-giftcard-form');
                             var isLoginForm = $this.hasClass('login');
+                            var resetPasswordForm = $this.hasClass('reset-password-form');
                             var isCreateAccount = $this.hasClass('registration');
                             var isEmailsignup = $this.hasClass('.email-pop-up_signup-form');
                             var errorParent = errorForm.parents('.form-group');
                             var stickyApplyPromo = $('.b-checkout_sticky-applypromo').outerHeight();
                             var checkoutHeight = headrHeight + stickyApplyPromo + 10;
                             if (errorForm) {
-                                if (!(isLoginForm || isCreateAccount || isEmailsignup)) {
+                                if (!(isLoginForm || isCreateAccount || isEmailsignup || resetPasswordForm)) {
                                     if (isGCForm && $('.b-payment-info').length) {
                                         $('html, body').animate({
                                             scrollTop: $('.b-payment-info .b-shipping-summary_header-line').position().top

@@ -3,6 +3,8 @@
 var base = require('app_ua_core/cartridge/scripts/helpers/accountHelpers');
 var Resource = require('dw/web/Resource');
 var CustomerMgr = require('dw/customer/CustomerMgr');
+var Logger = require('dw/system/Logger');
+var LocalServiceRegistry = require('dw/svc/LocalServiceRegistry');
 
 
 /**
@@ -83,9 +85,11 @@ function saveSplitFields(form, profile) {
     phoneNumber = phoneNumber ? phoneNumber.replace(phoneCleanRegex, '') : tempPhoneNumber;
     phoneNumber = phoneNumber ? phoneNumber.replace(/[_\s]/g, '-') : tempPhoneNumber;
 
-    Transaction.wrap(function () {
-        profile.setPhoneHome(phoneNumber);
-    });
+    if (!empty(phoneNumber)) {
+        Transaction.wrap(function () {
+            profile.setPhoneHome(phoneNumber);
+        });
+    }
 }
 
 /**
@@ -288,6 +292,80 @@ function getBirthYearRange(yearOptions) {
     return birthYearOptions;
 }
 
+/**
+ * Function for request body
+ * @param {string} email email of user
+ *@return {string} email obj
+ */
+function getUnsubscribeRequestBody(email) {
+    var obj = {
+        keys: {},
+        values: {}
+    };
+    obj.keys['subscriber Key'] = email;
+    obj.values['email Address'] = email;
+    return obj;
+}
+
+/**
+ * Call marketing data event service to unsubscribe emails
+ * @param {Object} authToken marketing cloud auth token
+ * @returns {Object} service or null
+ */
+function getDataEventService(authToken) {
+    try {
+        return LocalServiceRegistry.createService('marketingcloud.rest.dataevents', {
+            createRequest: function (svc, message) {
+                svc.addHeader('Authorization', 'Bearer ' + authToken.accessToken);
+                var svcURL = authToken.restInstanceURL;
+                var svcPath = '/hub/v1/dataevents/{key}/rowset';
+
+                if (!empty(message.sendKey)) {
+                    svcPath = svcPath.replace('{key}', 'key:' + message.sendKey);
+                }
+
+                svc.addHeader('Accept', '*/*');
+                svc.addHeader('Content-Type', 'application/json');
+
+                svc.setURL(svcURL + svcPath);
+
+                return JSON.stringify(message.requestBody);
+            },
+            parseResponse: function (svc, client) {
+                return client;
+            }
+        });
+    } catch (e) {
+        Logger.error('Error occurred within marketing cloud unsubscribe service:', e.message);
+    }
+    return null;
+}
+
+/**
+ * Function for unsubscribing user email from SFMC
+ * @param {string} email customer email to unsubscribe
+ * @returns {boolean} true if unsubscription was successful
+ */
+function unsubscribeEmailSFMC(email) {
+    var Site = require('dw/system/Site');
+    var authToken = require('int_marketing_cloud').authToken();
+    var token = authToken.getValidToken();
+    var sendKey = Site.current.getCustomPreferenceValue('UnsubscribeNewsletterKey');
+    var eventService = getDataEventService(token);
+    var arr = [];
+    arr.push(getUnsubscribeRequestBody(email));
+    var params = {
+        requestBody: arr,
+        sendKey: sendKey
+    };
+    var result = eventService.call(params);
+    if (!empty(result) && !empty(result.status) && result.status === 'OK') {
+        return true;
+    }
+    return false;
+}
+
+
 module.exports = base;
 module.exports.createSFCCAccount = createSFCCAccount;
 module.exports.combineSplitFields = combineSplitFields;
@@ -297,4 +375,4 @@ module.exports.handleSplitFieldsSaveProfile = handleSplitFieldsSaveProfile;
 module.exports.loadProfileFields = loadProfileFields;
 module.exports.combinePhoneField = combinePhoneField;
 module.exports.getBirthYearRange = getBirthYearRange;
-
+module.exports.unsubscribeEmailSFMC = unsubscribeEmailSFMC;

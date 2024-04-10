@@ -7,6 +7,9 @@ const proxyquire = require('proxyquire').noCallThru().noPreserveCache();
 
 function ReturnsUtils() {
     this.processReturnToBeRefunded = function () {}
+    this.SetRefundsCountInfo = () => {
+        return true;
+    };
 }
 
 let zip = proxyquire('../../../../../cartridges/app_ua_apac/cartridge/scripts/hooks/zip.js', {
@@ -126,6 +129,21 @@ describe('app_ua_apac/cartridge/scripts/hooks/zip', () => {
         assert.isTrue(zip.getCustomerPaymentInstruments(paymentInstrument).hasZipToken);
         assert.equal(zip.getCustomerPaymentInstruments(paymentInstrument).paymentMethod, 'Adyen');
         assert.equal(zip.getCustomerPaymentInstruments(paymentInstrument).UUID, '1234');
+    });
+
+    var result;
+
+    it('Testing method: handlePayments => should call hooksHelper', () => {
+        result = zip.handlePayments({
+            paymentInstruments: []
+        });
+        assert.isDefined(result);
+    });
+
+    it('Testing method: validatePayment => will return error false', () => {
+        result = zip.validatePayment();
+        assert.isDefined(result);
+        assert.isFalse(result.error);
     });
 
 });

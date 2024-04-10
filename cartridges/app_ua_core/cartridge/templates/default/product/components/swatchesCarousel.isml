@@ -1,16 +1,16 @@
 <isif condition="${productSwatches}">
-    <div class="swiper-container b-tile-swatches_slider <isif condition="${productSwatches.length > 6}">swatch-carousel</isif>"
+    <div class="swiper-container b-tile-swatches_slider${productSwatches.length > 6 ? ' swatch-carousel': ''}"
         data-cmp="carousel"
         data-json-config='${JSON.stringify(require('*/cartridge/config/carousel').tileSwatches)}'
     >
         <isif condition="${productSwatches.length > 6}">
-            <button class="b-tile-swatches_slider_button js-swiper-button-prev m-left"></button>
+            <button class="b-tile-swatches_slider_button swatch-swiper-button-prev m-left"></button>
         </isif>
 
         <isinclude template="product/components/productCircleSwatch" />
 
         <isif condition="${productSwatches.length > 6}">
-            <button class="b-tile-swatches_slider_button js-swiper-button-next m-right"></button>
+            <button class="b-tile-swatches_slider_button swatch-swiper-button-next m-right"></button>
         </isif>
     </div>
 </isif>

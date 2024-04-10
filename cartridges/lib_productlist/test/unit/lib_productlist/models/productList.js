@@ -317,7 +317,6 @@ describe('productList Model', function () {
         assert.equal(result.productList.items[1].UUID, expectResult.productList.items[1].UUID);
         assert.equal(result.productList.items[1].name, expectResult.productList.items[1].name);
 
-
         assert.equal(result.productList.type, expectResult.productList.type);
     });
 

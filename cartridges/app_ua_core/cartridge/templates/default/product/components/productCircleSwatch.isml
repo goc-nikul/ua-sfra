@@ -2,19 +2,20 @@
 <isset name="productHelper" value="${require('*/cartridge/scripts/helpers/ProductHelper')}" scope="page"/>
 <isset name="productObj" value="${require('dw/catalog/ProductMgr').getProduct(product.id)}" scope="page"/>
 <isset name="master" value="${productObj.master ? productObj : productObj.masterProduct}" scope="page"/>
+
 <isif condition="${productSwatches}">
     <isif condition="${productSwatches.length > 0}">
         <isset name="orderableVarients" value="0" scope="page" />
-        <isset name="isPLP" value="${!empty(pdict.isPLP) && (pdict.isPLP)}" scope="page"/>
-        <ul class="b-swatches_circle swiper-wrapper js-swiper-wrapper">
-            <isloop items="${productSwatches}" var="swatch" status="loopState">
+        <isset name="isProductTile" value="${!empty(pdict.isProductTile) && (pdict.isProductTile)}" scope="page"/>
+        <ul class="b-swatches_circle swiper-wrapper js-swiper-wrapper${productSwatches[0].type === 'image' && !isProductTile ? ' b-swatches_image' : ''}">
+            <isloop items="${productSwatches}" end="40" var="swatch" status="loopState">
                 <isif condition="${swatch.selectable}">
                     <isset name="orderableVarients" value="${++orderableVarients}" scope="page" />
                 </isif>
-                <isif condition="${isPLP}">
-                	<isset name="swatchURL" value="${swatch.url}" scope="page" />
-                <iselse>
-                	<isset name="swatchURL" value="${URLUtils.url('Product-Show', 'pid', product.id)}" scope="page" />
+                <isif condition="${isProductTile}">
+                    <isset name="swatchURL" value="${swatch.url}" scope="page" />
+                <iselse/>
+                    <isset name="swatchURL" value="${URLUtils.url('Product-Show', 'pid', product.id)}" scope="page" />
                 </isif>
                 <isset name="stdLightness" value="${swatch.color.stdLightness}" scope="page" />
                 <isset name="lightnessValues" value="${swatch.color.lightnessValues}" scope="page"/>
@@ -22,7 +23,7 @@
                 <isif condition="${typeof lightnessValues !== "undefined"}">
                     <isif condition="${lightnessValues.length === 1}">
                         <isset name="lightness" value="${lightnessValues[0]}" scope="page" />
-                    <iselseif condition="${lightnessValues.length === 2}" >
+                    <iselseif condition="${lightnessValues.length === 2}" />
                         <isset name="lightnessI" value="${lightnessValues[0]}" scope="page" />
                         <isset name="lightnessII" value="${lightnessValues[1]}" scope="page" />
                     </isif>
@@ -38,14 +39,15 @@
                     <iselseif condition="${!empty(imageModelSpec) && imageModelSpec.showModelInfo === true && !empty(imageModelSpec.modelSize)}"/>
                         <isset name="modelSpecs" value="${Resource.msgf('product.model.size','product',null, imageModelSpec.modelSize)}" scope="page" />
                     </isif>
-                <iselse>
+                <iselse/>
                     <isif condition="${!empty(imageModelSpec) && imageModelSpec.showModelInfo === true && !empty(imageModelSpec.modelSize) && !empty(imageModelSpec.modelHeightFtIn) }">
                         <isset name="modelSpecs" value="${Resource.msgf('product.model.specification.dropdown','product',null,imageModelSpec.modelHeightFtIn,imageModelSpec.modelSize)}" scope="page" />
                     <iselseif condition="${!empty(imageModelSpec) && imageModelSpec.showModelInfo === true && !empty(imageModelSpec.modelSize)}"/>
                         <isset name="modelSpecs" value="${Resource.msgf('product.model.size','product',null, imageModelSpec.modelSize)}" scope="page" />
                     </isif>
                 </isif>
-                <li data-index="${loopState.count-1}" class="b-swatches_circle-item swiper-slide ${typeof loopState !=='undefined' && loopState.first ? 'first' : ''} ${typeof loopState !=='undefined' && loopState.count > 30 ? 'hideNow' : ''} ${typeof loopState !=='undefined' && loopState.count > 20 ? 'hideNowMobile' : ''} <isif condition="${swatch.type === 'image' && !isPLP}">b-swatch_image</isif>" data-url="${swatch.url}">
+                <li data-index="${loopState.count-1}"
+                    class="b-swatches_circle-item swiper-slide${typeof loopState !== 'undefined' && loopState.first ? ' first' : ''}${swatch.type === 'image' && !isProductTile ? ' b-swatch_image' : ''}${swatch.selected ? ' swiper-slide-active swiper-slide-activated': ''}" data-url="${swatch.url}">
                     <a href="${swatchURL}"
                         data-attr-url="${swatch.url}"
                         data-index="${loopState.count-1}"
@@ -55,12 +57,13 @@
                         data-product-modelSpec="${modelSpecs}"
                         data-product-hoverImageDefault="${swatch.hoverImageDefault && swatch.hoverImageDefault.URL}"
                         data-attr-value="${swatch.value}"
-                        title="${isPLP ? Resource.msg('product.view.color', 'product', null) + ' ' +swatch.displayValue +'-' + swatch.value : Resource.msgf('product.select.color', 'product', null, swatch.displayValue)}"
-                        <isif condition="${!isPLP}"> role="button" </isif>
+                        title="${isProductTile ? Resource.msg('product.view.color', 'product', null) + ' ' +swatch.displayValue +'-' + swatch.value : Resource.msgf('product.select.color', 'product', null, swatch.displayValue)}"
+                        <isif condition="${!isProductTile}"> role="button" </isif>
                         class="
                             b-swatches_circle-link
                             ${swatch.selected ? 'm-active' : ''}
-                            ${swatch.selectable ? '' : 'm-disabled'}
+
+                            ${swatch.selectable ? '' : (!master.custom.hideDisableOverlayOnSwatch ?  'm-disabled' : '')}
                             ${typeof lightnessValues !== "undefined" && lightnessValues.length === 1 && !empty(lightness) ? (lightness[2] < stdLightness ? 'no-border' : '') : ''}
                             ${typeof lightnessValues !== "undefined" && lightnessValues.length === 2 && !empty(lightnessI && lightnessII) ? (lightnessI[2] < stdLightness && lightnessII[2] < stdLightness ? 'no-border' : '') : ''}
                             js-swatch-link pdp-open-new-tab"
@@ -68,18 +71,18 @@
                         <isset name="swatchColorHex" value="${swatch.color.hex}" scope="page" />
                         <isset name="swatchColorHexII" value="${swatch.color.hexII}" scope="page" />
                         <span class="b-swatches_circle-value" style="background-image:
-                            ${swatch.type === 'image' && !isPLP && swatch.image.URL ? 'url('+swatch.image.URL+')' : 'linear-gradient(90deg, ' + swatchColorHex + ' 0%, ' + swatchColorHex + ' 50%, ' + swatchColorHexII + ' 50%, ' + swatchColorHexII + ' 100%);'}
+                            ${swatch.type === 'image' && !isProductTile && swatch.image.URL ? 'url('+swatch.image.URL+')' : 'linear-gradient(90deg, ' + swatchColorHex + ' 0%, ' + swatchColorHex + ' 50%, ' + swatchColorHexII + ' 50%, ' + swatchColorHexII + ' 100%);'}
                         ">
                         </span>
                     </a>
                 </li>
             </isloop>
             <isif condition="${typeof attr !=='undefined' && attr.id === 'color'}">
-             <li class="b-color-more_less ">
-                <span class="l-show-more js-show-more">${Resource.msg('label.item.showmore', 'product', null)}</span>
-                <span class="l-show-less js-show-less">${Resource.msg('label.item.showless', 'product', null)}</span>
-             </li>
-         </isif>
+                <li class="b-color-more_less">
+                    <button type="button" class="l-show-more js-color-show-more">${Resource.msg('label.item.showmore', 'product', null)}</button>
+                    <button type="button" class="l-show-less js-color-show-less">${Resource.msg('label.item.showless', 'product', null)}</button>
+                </li>
+            </isif>
         </ul>
     </isif>
 </isif>

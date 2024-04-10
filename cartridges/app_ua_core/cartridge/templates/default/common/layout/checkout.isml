@@ -18,6 +18,7 @@
         <isactivedatahead/>
     </head>
     <body class="l-body ${pdict.shopRunnerSignedIn ? 'shopRunner-signedin' : ''}">
+        ${dw.system.HookMgr.callHook('app.template.gaEvent', 'gaEvent', pdict) || ''}
         <isinclude template="/common/accertifydatacollecttor" />
         <div id="bodyPage" class="l-body-page js-page ${!empty(session.custom.paypalErrorMessage) && pdict.CurrentHttpParameterMap.get('showPaypalError').booleanValue === true ? 'paypal-error-message' : ''}" data-action="${pdict.action}" data-querystring="${pdict.queryString}">
             <isset name="currentSite" value="${dw.system.Site.current}" scope="page"/>

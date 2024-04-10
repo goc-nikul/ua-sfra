@@ -160,7 +160,7 @@ CustomerUtils.prototype = {
             customerCountry = session.custom.customerCountry.toUpperCase();
         }
 
-        if (customer.customerGroups && customer.customerGroups.length > 0) {
+        if (typeof customer !== 'undefined' && customer !== null && customer.customerGroups && customer.customerGroups.length > 0) {
             let groups = customer.customerGroups;
             for (let i = 0; i < groups.length; i++) {
                 try {

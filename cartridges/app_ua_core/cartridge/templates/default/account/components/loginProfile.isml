@@ -14,7 +14,9 @@
                                 </div>
                             </div>
                             <isinclude template="account/components/loginForm" />
-                            <isinclude template="account/components/oauth" />
+                            <isif condition="${dw.system.Site.current.getCustomPreferenceValue('facebookLoginEnabled')}">
+                                <isinclude template="account/components/oauth" />
+                            </isif>
                         </div>
                         <div class="js-reset-panel">
                             <isinclude template="account/password/requestPasswordResetModal"/>

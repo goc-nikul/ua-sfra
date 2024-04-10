@@ -87,7 +87,21 @@
         background: $white;
         z-index: 9;
 
-        &.b-flameIcon {
+        &.b-EarlyAccess-Icon {
+            .ea-Icon-Text {
+                font-size: rem-calc(12);
+                vertical-align: text-bottom;
+            }
+        }
+
+        &.b-EarlyAccess-Icon:not(.d-none) {
+            ~ .l-tile-badge_top_left {
+                display: none;
+            }
+        }
+
+        &.b-flameIcon,
+        .b-EarlyAccess-Icon {
             top: rem-calc(8);
             left: rem-calc(20);
 
@@ -163,8 +177,21 @@
 }
 
 .l-tile-badge_top_left,
-.b-tile-badge_top_left {
-    &.b-flameIcon {
+.b-tile-badge_top_left,
+.tile-EA-Badge-Top-Left {
+    line-height: rem-calc(20);
+    background: #fff;
+
+    .ea-Icon-Text {
+        text-transform: uppercase;
+        font-weight: $font-bold;
+        color: $black;
+        line-height: rem-calc(16);
+        vertical-align: text-bottom;
+    }
+
+    &.b-flameIcon,
+    .b-EarlyAccess-Icon {
         background: transparent;
         padding: 0;
         top: rem-calc(3);
@@ -185,12 +212,45 @@
                 max-width: rem-calc(17);
             }
 
-            .flameIcon-text {
+            .flameIcon-text,
+            .ea-Icon-Text {
                 padding-left: rem-calc(8);
                 text-transform: uppercase;
                 font-weight: $font-bold;
                 color: $black;
                 line-height: rem-calc(16);
+            }
+        }
+
+        .b-EA-Icon-sec {
+            display: flex;
+            align-items: flex-end;
+            border-radius: rem-calc(4);
+            padding: rem-calc(10);
+        }
+    }
+}
+
+.b-tile-badge-emea {
+    &.b-flameIcon {
+        .b-flameIcon-sec {
+            display: flex;
+            align-items: center;
+
+            .img-flameIcon {
+                max-width: rem-calc(13);
+
+                @include respond-to(mobile) {
+                    max-width: rem-calc(10);
+                }
+            }
+
+            .flameIcon-text {
+                padding-left: rem-calc(6);
+
+                @include respond-to(mobile) {
+                    padding-left: rem-calc(5);
+                }
             }
         }
     }
@@ -208,9 +268,25 @@
 }
 
 .b-product-quickview-images {
-    .l-tile-badge_top_left.b-flameIcon {
-        background: transparent;
-        padding: 0;
+    .l-tile-badge_top_left {
+        &.b-flameIcon {
+            background: transparent;
+            padding: 0;
+        }
+
+        &.b-EarlyAccess-Icon {
+            .ea-Icon-Text {
+                font-size: rem-calc(12);
+                padding: rem-calc(6) rem-calc(8);
+                vertical-align: text-bottom;
+            }
+        }
+
+        &.b-EarlyAccess-Icon:not(.d-none) {
+            ~ .l-tile-badge_top_left {
+                display: none;
+            }
+        }
     }
 }
 

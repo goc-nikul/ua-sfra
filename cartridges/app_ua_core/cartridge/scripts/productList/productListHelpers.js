@@ -48,6 +48,23 @@ function getProductIds(customer, config) {
     return pids;
 }
 
+/**
+ * Retrieve the list of the customer array
+ * @param {dw.customer.Customer} customer - current customer
+ * @param {Object} config - configuration object
+ * @return {Array} result ids - Wishlist Product IDs
+ */
+function getProductIdsArray(customer, config) {
+    var result = [];
+    var list = getListNew(customer, config);
+    var collections = require('*/cartridge/scripts/util/collections');
+    if (list && !list.items.empty) {
+        collections.forEach(list.items, function (item) {
+            result.push(item.productID);
+        });
+    }
+    return result;
+}
 
 /**
  * @typedef config
@@ -174,6 +191,7 @@ module.exports = {
     getListNew: getListNew,
     getList: base.getList,
     getProductIds: getProductIds,
+    getProductIdsArray: getProductIdsArray,
     updateWishlistPrivacyCache: updateWishlistPrivacyCache,
     addItem: base.addItem,
     removeItem: base.removeItem,

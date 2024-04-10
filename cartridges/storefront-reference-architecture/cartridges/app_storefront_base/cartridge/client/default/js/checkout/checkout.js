@@ -1,12 +1,14 @@
 'use strict';
 
+var customerHelpers = require('./customer');
 var addressHelpers = require('./address');
 var shippingHelpers = require('./shipping');
 var billingHelpers = require('./billing');
 var summaryHelpers = require('./summary');
 var formHelpers = require('./formErrors');
 var scrollAnimate = require('../components/scrollAnimate');
-
+var location = window.location;
+var history = window.history;
 
 /**
  * Create the jQuery Checkout Plugin.
@@ -28,6 +30,9 @@ var scrollAnimate = require('../components/scrollAnimate');
         // Collect form data from user input
         //
         var formData = {
+            // Customer Data
+            customer: {},
+
             // Shipping Address
             shipping: {},
 
@@ -45,6 +50,7 @@ var scrollAnimate = require('../components/scrollAnimate');
         // The different states/stages of checkout
         //
         var checkoutStages = [
+            'customer',
             'shipping',
             'payment',
             'placeOrder',
@@ -83,7 +89,37 @@ var scrollAnimate = require('../components/scrollAnimate');
                 var stage = checkoutStages[members.currentStage];
                 var defer = $.Deferred(); // eslint-disable-line
 
-                if (stage === 'shipping') {
+                if (stage === 'customer') {
+                    //
+                    // Clear Previous Errors
+                    //
+                    customerHelpers.methods.clearErrors();
+                    //
+                    // Submit the Customer Form
+                    //
+                    var customerFormSelector = customerHelpers.methods.isGuestFormActive() ? customerHelpers.vars.GUEST_FORM : customerHelpers.vars.REGISTERED_FORM;
+                    var customerForm = $(customerFormSelector);
+                    $.ajax({
+                        url: customerForm.attr('action'),
+                        type: 'post',
+                        data: customerForm.serialize(),
+                        success: function (data) {
+                            if (data.redirectUrl) {
+                                window.location.href = data.redirectUrl;
+                            } else {
+                                customerHelpers.methods.customerFormResponse(defer, data);
+                            }
+                        },
+                        error: function (err) {
+                            if (err.responseJSON && err.responseJSON.redirectUrl) {
+                                window.location.href = err.responseJSON.redirectUrl;
+                            }
+                            // Server error submitting form
+                            defer.reject(err.responseJSON);
+                        }
+                    });
+                    return defer;
+                } if (stage === 'shipping') {
                     //
                     // Clear Previous Errors
                     //
@@ -93,8 +129,8 @@ var scrollAnimate = require('../components/scrollAnimate');
                     // Submit the Shipping Address Form
                     //
                     var isMultiShip = $('#checkout-main').hasClass('multi-ship');
-                    var formSelector = isMultiShip ?
-                        '.multi-shipping .active form' : '.single-shipping .shipping-form';
+                    var formSelector = isMultiShip
+                        ? '.multi-shipping .active form' : '.single-shipping .shipping-form';
                     var form = $(formSelector);
 
                     if (isMultiShip && form.length === 0) {
@@ -109,16 +145,18 @@ var scrollAnimate = require('../components/scrollAnimate');
                                 // enable the next:Payment button here
                                 $('body').trigger('checkout:enableButton', '.next-step-button button');
                                 if (!data.error) {
-                                    $('body').trigger('checkout:updateCheckoutView',
-                                        { order: data.order, customer: data.customer });
+                                    $('body').trigger(
+                                        'checkout:updateCheckoutView',
+                                        { order: data.order, customer: data.customer }
+                                    );
                                     defer.resolve();
                                 } else if (data.message && $('.shipping-error .alert-danger').length < 1) {
                                     var errorMsg = data.message;
-                                    var errorHtml = '<div class="alert alert-danger alert-dismissible valid-cart-error ' +
-                                        'fade show" role="alert">' +
-                                        '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-                                        '<span aria-hidden="true">&times;</span>' +
-                                        '</button>' + errorMsg + '</div>';
+                                    var errorHtml = '<div class="alert alert-danger alert-dismissible valid-cart-error '
+                                        + 'fade show" role="alert">'
+                                        + '<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+                                        + '<span aria-hidden="true">&times;</span>'
+                                        + '</button>' + errorMsg + '</div>';
                                     $('.shipping-error').append(errorHtml);
                                     scrollAnimate($('.shipping-error'));
                                     defer.reject();
@@ -150,7 +188,7 @@ var scrollAnimate = require('../components/scrollAnimate');
                             type: 'post',
                             data: shippingFormData,
                             success: function (data) {
-                                 // enable the next:Payment button here
+                                // enable the next:Payment button here
                                 $('body').trigger('checkout:enableButton', '.next-step-button button');
                                 shippingHelpers.methods.shippingFormResponse(defer, data);
                             },
@@ -166,7 +204,7 @@ var scrollAnimate = require('../components/scrollAnimate');
                         });
                     }
                     return defer;
-                } else if (stage === 'payment') {
+                } if (stage === 'payment') {
                     //
                     // Submit the Billing Address Form
                     //
@@ -217,31 +255,30 @@ var scrollAnimate = require('../components/scrollAnimate');
                         // if payment method is credit card
                         if ($('.payment-information').data('payment-method-id') === 'CREDIT_CARD') {
                             if (!($('.payment-information').data('is-new-payment'))) {
-                                var cvvCode = $('.saved-payment-instrument.' +
-                                    'selected-payment .saved-payment-security-code').val();
+                                var cvvCode = $('.saved-payment-instrument.'
+                                    + 'selected-payment .saved-payment-security-code').val();
 
                                 if (cvvCode === '') {
-                                    var cvvElement = $('.saved-payment-instrument.' +
-                                        'selected-payment ' +
-                                        '.form-control');
+                                    var cvvElement = $('.saved-payment-instrument.'
+                                        + 'selected-payment '
+                                        + '.form-control');
                                     cvvElement.addClass('is-invalid');
                                     scrollAnimate(cvvElement);
                                     defer.reject();
                                     return defer;
                                 }
 
-                                var $savedPaymentInstrument = $('.saved-payment-instrument' +
-                                    '.selected-payment'
-                                );
+                                var $savedPaymentInstrument = $('.saved-payment-instrument'
+                                    + '.selected-payment');
 
-                                paymentForm += '&storedPaymentUUID=' +
-                                    $savedPaymentInstrument.data('uuid');
+                                paymentForm += '&storedPaymentUUID='
+                                    + $savedPaymentInstrument.data('uuid');
 
                                 paymentForm += '&securityCode=' + cvvCode;
                             }
                         }
                     }
-                     // disable the next:Place Order button here
+                    // disable the next:Place Order button here
                     $('body').trigger('checkout:disableButton', '.next-step-button button');
 
                     $.ajax({
@@ -249,7 +286,7 @@ var scrollAnimate = require('../components/scrollAnimate');
                         method: 'POST',
                         data: paymentForm,
                         success: function (data) {
-                             // enable the next:Place Order button here
+                            // enable the next:Place Order button here
                             $('body').trigger('checkout:enableButton', '.next-step-button button');
                             // look for field validation errors
                             if (data.error) {
@@ -278,8 +315,10 @@ var scrollAnimate = require('../components/scrollAnimate');
                                 //
                                 // Populate the Address Summary
                                 //
-                                $('body').trigger('checkout:updateCheckoutView',
-                                    { order: data.order, customer: data.customer });
+                                $('body').trigger(
+                                    'checkout:updateCheckoutView',
+                                    { order: data.order, customer: data.customer }
+                                );
 
                                 if (data.renderedPaymentInstruments) {
                                     $('.stored-payments').empty().html(
@@ -307,7 +346,7 @@ var scrollAnimate = require('../components/scrollAnimate');
                     });
 
                     return defer;
-                } else if (stage === 'placeOrder') {
+                } if (stage === 'placeOrder') {
                     // disable the placeOrder button here
                     $('body').trigger('checkout:disableButton', '.next-step-button button');
                     $.ajax({
@@ -325,18 +364,28 @@ var scrollAnimate = require('../components/scrollAnimate');
                                     defer.reject(data);
                                 }
                             } else {
-                                var continueUrl = data.continueUrl;
-                                var urlParams = {
-                                    ID: data.orderID,
-                                    token: data.orderToken
-                                };
+                                var redirect = $('<form>')
+                                    .appendTo(document.body)
+                                    .attr({
+                                        method: 'POST',
+                                        action: data.continueUrl
+                                    });
 
-                                continueUrl += (continueUrl.indexOf('?') !== -1 ? '&' : '?') +
-                                    Object.keys(urlParams).map(function (key) {
-                                        return key + '=' + encodeURIComponent(urlParams[key]);
-                                    }).join('&');
+                                $('<input>')
+                                    .appendTo(redirect)
+                                    .attr({
+                                        name: 'orderID',
+                                        value: data.orderID
+                                    });
 
-                                window.location.href = continueUrl;
+                                $('<input>')
+                                    .appendTo(redirect)
+                                    .attr({
+                                        name: 'orderToken',
+                                        value: data.orderToken
+                                    });
+
+                                redirect.submit();
                                 defer.resolve(data);
                             }
                         },
@@ -366,6 +415,16 @@ var scrollAnimate = require('../components/scrollAnimate');
                     .indexOf($('.data-checkout-stage').data('checkout-stage'));
                 $(plugin).attr('data-checkout-stage', checkoutStages[members.currentStage]);
 
+                $('body').on('click', '.submit-customer-login', function (e) {
+                    e.preventDefault();
+                    members.nextStage();
+                });
+
+                $('body').on('click', '.submit-customer', function (e) {
+                    e.preventDefault();
+                    members.nextStage();
+                });
+
                 //
                 // Handle Payment option selection
                 //
@@ -383,6 +442,10 @@ var scrollAnimate = require('../components/scrollAnimate');
                 //
                 // Handle Edit buttons on shipping and payment summary cards
                 //
+                $('.customer-summary .edit-button', plugin).on('click', function () {
+                    members.gotoStage('customer');
+                });
+
                 $('.shipping-summary .edit-button', plugin).on('click', function () {
                     if (!$('#checkout-main').hasClass('multi-ship')) {
                         $('body').trigger('shipping:selectSingleShipping');
@@ -408,8 +471,8 @@ var scrollAnimate = require('../components/scrollAnimate');
                     // Back button when event state less than current state in ordered
                     // checkoutStages array.
                     //
-                    if (e.state === null ||
-                        checkoutStages.indexOf(e.state) < members.currentStage) {
+                    if (e.state === null
+                        || checkoutStages.indexOf(e.state) < members.currentStage) {
                         members.handlePrevStage(false);
                     } else if (checkoutStages.indexOf(e.state) > members.currentStage) {
                         // Forward button  pressed
@@ -431,6 +494,7 @@ var scrollAnimate = require('../components/scrollAnimate');
 
                 promise.done(function () {
                     // Update UI with new stage
+                    $('.error-message').hide();
                     members.handleNextStage(true);
                 });
 
@@ -513,7 +577,6 @@ var scrollAnimate = require('../components/scrollAnimate');
     };
 }(jQuery));
 
-
 var exports = {
     initialize: function () {
         $('#checkout-main').checkout();
@@ -521,6 +584,10 @@ var exports = {
 
     updateCheckoutView: function () {
         $('body').on('checkout:updateCheckoutView', function (e, data) {
+            if (data.csrfToken) {
+                $("input[name*='csrf_token']").val(data.csrfToken);
+            }
+            customerHelpers.methods.updateCustomerInformation(data.customer, data.order);
             shippingHelpers.methods.updateMultiShipInformation(data.order);
             summaryHelpers.updateTotals(data.order.totals);
             data.order.shipping.forEach(function (shipping) {
@@ -553,10 +620,9 @@ var exports = {
         });
     }
 
-
 };
 
-[billingHelpers, shippingHelpers, addressHelpers].forEach(function (library) {
+[customerHelpers, billingHelpers, shippingHelpers, addressHelpers].forEach(function (library) {
     Object.keys(library).forEach(function (item) {
         if (typeof library[item] === 'object') {
             exports[item] = $.extend({}, exports[item], library[item]);

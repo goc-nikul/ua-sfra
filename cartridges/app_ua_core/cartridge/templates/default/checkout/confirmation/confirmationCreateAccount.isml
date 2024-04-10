@@ -4,7 +4,7 @@
 <isset name="showLoyalty" value="${false}" scope="page" />
 <isif condition="${Site.getCurrent().getCustomPreferenceValue('isLoyaltyEnable')}">
     <isset name="loyaltyHelper" value="${require('*/cartridge/scripts/helpers/loyaltyHelper')}" scope="page" />
-    <isset name="postalCode" value="${pdict.order.billing.billingAddress.address.postalCode}" scope="page">
+    <isset name="postalCode" value="${pdict.order.billing.billingAddress.address.postalCode}" scope="page"/>
     <isif condition="${loyaltyHelper.isLoyaltyPilotEnabled() ? loyaltyHelper.isLoyaltyPilotZipCode(postalCode) : true}">
         <isset name="showLoyalty" value="${true}" scope="page" />
     </isif>

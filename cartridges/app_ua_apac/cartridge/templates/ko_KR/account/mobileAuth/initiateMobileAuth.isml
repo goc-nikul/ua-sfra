@@ -1,0 +1,102 @@
+<div class="initiate-mobile-auth">
+
+    <isif condition="${!!pdict.update}">
+        <div class="g-modal-mobileAuth">
+            <div class="g-modal-header g-login-modal-header">
+                <div class="g-password-modal-close">
+                    <button type="button" class="g-password-modal-close_button close" data-dismiss="modal"
+                        aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+                </div>
+            </div>
+            <div class="g-modal-header">
+                <div class="title">${Resource.msg("msg.change.phone.heading", "mobileAuth", null)}</div>
+            </div>
+            <div class="initiate-mobile-auth-body">
+                <p>${Resource.msg("msg.change.phone.content", "mobileAuth", null)}</p>
+                <div class="initiate-mobile-auth-buttons">
+                    <a href="" data-href="${URLUtils.https('Login-MobileAuthModal')}"
+                        class="btn btn-primary btn-block g-button_base g-button_primary--black js-trigger-mobile-auth" role="button">
+                        ${Resource.msg('button.authentication.update', 'mobileAuth', null)}
+                    </a>
+                    <button class="btn btn-primary btn-block g-button_base g-button_primary--white close-btn mobile-close-btn"
+                        data-dismiss="modal" aria-label="${Resource.msg('button.close', 'common', null)}" title="${Resource.msg('button.cancel', 'mobileAuth', null)}">
+                        ${Resource.msg('button.cancel', 'mobileAuth', null)}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    <iselseif condition="${!!pdict.login}">
+        <div class="g-modal-header g-login-modal-header">
+            <div class="g-password-modal-close">
+                <a href="${URLUtils.url('Login-Logout')}" type="button" class="g-password-modal-close_button close"
+                    aria-label="${Resource.msg('button.close', 'common', null)}"></a>
+            </div>
+        </div>
+        <div class="g-modal-body g-modal-error-body">
+            <div class="initiate-mobile-auth-body">
+                <p><isprint value="${Resource.msg('subheading.initiatemobileauth.login.modal', 'mobileAuth', '')}" encoding="off" /></p>
+            
+                <p class='color-red'><isprint value="${Resource.msg('msg.initiatemobileauth.login.point1', 'mobileAuth', '')}" encoding="off" /></p>
+            
+                <p class="color-red"><isprint value="${Resource.msg('msg.initiatemobileauth.login.point2', 'mobileAuth', '')}" encoding="off" /></p>
+
+                <p class="color-red"><isprint value="${Resource.msg('msg.initiatemobileauth.login.point3', 'mobileAuth', '')}" encoding="off" /></p>
+            </div>
+            <div class="t-align-center">
+                <a href="${URLUtils.https('Login-MobileAuthModal')}" data-href="${URLUtils.https('Login-MobileAuthModal')}" class="btn btn-primary btn-block g-button_base g-button_primary--black trigger-mobile-auth-login js-trigger-mobile-auth"
+                    aria-label="${Resource.msg('button.initiatemobileauth.login.triggermobileauth', 'mobileAuth', null)}">
+                    ${Resource.msg('button.initiatemobileauth.login.triggermobileauth', 'mobileAuth', null)}
+                </a>
+            </div>
+        </div>
+        <input type="hidden" name="disableOuterClick" class="disableOuterClick" value="true">
+
+    <iselse/>
+        <div class="g-modal-header g-login-modal-header">
+            <div class="g-password-modal-close">
+                <button type="button" class="g-password-modal-close_button close" data-dismiss="modal"
+                    aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+            </div>
+        </div>
+        <div class="title">
+            ${Resource.msg('heading.initiatemobileauth.modal', 'mobileAuth', '')}
+        </div>
+        
+        <div class="initiate-mobile-auth-body">
+            <p>${Resource.msg('subheading.initiatemobileauth.modal', 'mobileAuth', '')}</p>
+        
+            <div class="icon-list">
+                <div class="icon-detail">
+                    <img src="${URLUtils.staticURL('/images/freeshipping.png')}" alt="Free Shipping Icon" width="35" />
+                    <span class="text-free-shipping">${Resource.msg('msg.initiatemobileauth.freeshipping', 'mobileAuth', '')}</span>
+                </div>
+        
+                <div class="icon-detail">
+                    <img src="${URLUtils.staticURL('/images/samedaydeparture.png')}" alt="Free Shipping Icon" width="35" />
+                    <span class="text-sameday-departure">${Resource.msg('msg.initiatemobileauth.samedaydeparture', 'mobileAuth', '')}</span>
+                </div>
+        
+                <div class="icon-detail">
+                    <img src="${URLUtils.staticURL('/images/marketingdiscount.png')}" alt="Marketing Discount Icon"
+                        width="35" />
+                    <span class="text-marketing-discount">${Resource.msg('msg.initiatemobileauth.marketingdiscount', 'mobileAuth', '')}</span>
+                </div>
+            </div>
+        
+            <p>${Resource.msg('msg.initiatemobileauth.modal', 'mobileAuth', '')}</p>
+        </div>
+        
+        <div class="initiate-mobile-auth-buttons">
+            <a href="${URLUtils.https('Login-MobileAuthModal')}" data-href="${URLUtils.https('Login-MobileAuthModal')}"
+                class="btn btn-primary btn-block g-button_base g-button_primary--black trigger-mobile-auth js-trigger-mobile-auth"
+                aria-label="${Resource.msg('label.header.registerbutton', 'account', null)}">
+                ${Resource.msg('button.initiatemobileauth.triggermobileauth', 'mobileAuth', null)}
+            </a>
+            <a href="#" class="btn btn-primary btn-block g-button_base g-button_primary--white close-btn" data-dismiss="modal"
+                aria-label="${Resource.msg('button.close', 'common', null)}">
+                ${Resource.msg('button.initiatemobileauth.close', 'mobileAuth', null)}
+            </a>
+        </div>
+    </isif>
+</div>

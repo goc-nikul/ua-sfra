@@ -13,7 +13,6 @@ var shippingMethodModel = function (method) {
     this.ID = method.ID;
 };
 
-
 describe('shippingHelpers', function () {
     describe('getApplicableShippingMethods', function () {
         var shippingHelpers;

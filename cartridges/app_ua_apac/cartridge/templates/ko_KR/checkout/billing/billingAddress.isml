@@ -130,7 +130,7 @@
                 <input type="text"
                     id="billingEmail"
                     class="billingEmailaddressName form-control order-return-form-input b-input_row-input js-custom-input js-email-field"
-                    pattern="^([A-Za-z]|[0-9]|[!$%&'*+-/=?_`{|}~])+$"
+                    pattern="^[a-zA-Z0-9.+_\-]*$"
                     value="${(pdict.forms.billingForm.emailaddressName.htmlValue) || (pdict.customer && pdict.customer.customerData && pdict.customer.customerData.emailaddressName) || ''}" data-missing-error="${Resource.msg('error.card.info.missing.email', 'forms', null)}" data-pattern-mismatch="${Resource.msg('error.message.parse.email.profile.form','forms',null)}" required
                     <isprint value="${pdict.forms.billingForm.emailaddressName.attributes}" encoding="off" /> />
                 <div class="invalid-feedback"></div>

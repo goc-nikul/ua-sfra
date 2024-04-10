@@ -4,6 +4,30 @@
         padding-right: rem-calc(30);
     }
 
+    .b-logo-image {
+        width: auto;
+        display: flex;
+        align-items: center;
+
+        @include icon(mail);
+
+        h2 {
+            display: inline-block;
+            font-size: rem-calc(16);
+            font-weight: 700;
+        }
+
+        &::before {
+            font-size: rem-calc(40);
+            margin-right: rem-calc(15);
+
+            @include respond-to(mobile) {
+                font-size: rem-calc(32);
+                margin-right: rem-calc(10);
+            }
+        }
+    }
+
     &-title {
         @include font(main_med, rem-calc(16));
 
@@ -35,6 +59,16 @@
 
         .b-input_row-label {
             background: $grey2;
+        }
+
+        &.data-success {
+            margin-left: rem-calc(55);
+            font-size: 14px;
+            font-weight: 400;
+
+            @include respond-to(mobile) {
+                margin-left: rem-calc(42);
+            }
         }
     }
 

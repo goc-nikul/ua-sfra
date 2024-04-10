@@ -87,6 +87,56 @@ function updateApproachingDiscounts(basket, approachingDiscountsObject) {
 }
 
 /**
+ * Generates an object of approaching discounts
+ * @param {dw.order.Basket} basket - Current users's basket
+ * @returns {Object} an object of approaching discounts
+ */
+function updateFreeShippingBar(basket) {
+    var freeShippingBar = {};
+    if (basket && basket.productLineItems) {
+        var Resource = require('dw/web/Resource');
+        var Utils = require('dw/util/StringUtils');
+        var Money = require('dw/value/Money');
+        var shippingMethod;
+
+        if (!empty(basket.defaultShipment)) {
+            shippingMethod = basket.defaultShipment.shippingMethod;
+        } else {
+            shippingMethod = basket.shipments[0].shippingMethod;
+        }
+
+        if (shippingMethod && 'showFreeShippingBar' in shippingMethod.custom && shippingMethod.custom.showFreeShippingBar) {
+            var isFreeShippingBarEnabled = shippingMethod.custom.showFreeShippingBar;
+            var basketHasGiftCardItems = giftcardHelper.basketHasGiftCardItems(basket);
+            var totalCartAmount = basket.getAdjustedMerchandizeTotalNetPrice().getValue();
+            var freeShippingThreshold;
+
+            if (basketHasGiftCardItems && basketHasGiftCardItems.eGiftCards) {
+                totalCartAmount -= basketHasGiftCardItems.eGiftCardTotal;
+            }
+
+            if ('freeShippingThresholdValue' in shippingMethod.custom) {
+                freeShippingThreshold = shippingMethod.custom.freeShippingThresholdValue;
+            }
+
+            if (totalCartAmount && freeShippingThreshold) {
+                if (totalCartAmount >= freeShippingThreshold) {
+                    freeShippingBar.isFreeShippingBarEnabled = isFreeShippingBarEnabled;
+                    freeShippingBar.approachingFreeShippingPercentage = '100';
+                    freeShippingBar.freeShippingCalloutMsg = Resource.msg('msg.free.shipping.qualify', 'cart', null);
+                } else {
+                    var amountReaminingForFreeShipping = Utils.formatMoney(new Money((freeShippingThreshold - totalCartAmount), basket.currencyCode));
+                    freeShippingBar.isFreeShippingBarEnabled = isFreeShippingBarEnabled;
+                    freeShippingBar.approachingFreeShippingPercentage = ((totalCartAmount / freeShippingThreshold) * 100).toFixed(2);
+                    freeShippingBar.freeShippingCalloutMsg = Resource.msgf('msg.amount.remaining.free.shipping', 'cart', null, amountReaminingForFreeShipping);
+                }
+            }
+        }
+    }
+    return freeShippingBar;
+}
+
+/**
  * @constructor
  * @classdesc CartModel class that represents the current basket
  *
@@ -122,9 +172,11 @@ function CartModel(basket) {
         var approachingDiscounts = {};
         this.approachingDiscounts = updateApproachingDiscounts(basket, approachingDiscounts);
     }
+    this.freeShippingBar = updateFreeShippingBar(basket);
     if (this.totals && !empty(this.totals.saveTotal)) {
         this.showSavingExperience = cartHelpers.savedExperience(this.totals.saveTotal.value);
     }
+    cartHelpers.setBasketPurchaseSite(basket);
 }
 
 module.exports = CartModel;

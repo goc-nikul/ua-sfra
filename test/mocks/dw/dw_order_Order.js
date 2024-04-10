@@ -9,7 +9,7 @@ class Order extends LineItemCtnr {
         this.status = { value: 0 };
         this.exportStatus = { value: 0 };
         this.orderNo = '1234567890';
-        this.custom = { 
+        this.custom = {
             eGiftCardStatus: 'NOT_APPLICABLE',
             holidaySeason: true
         };
@@ -63,6 +63,18 @@ class Order extends LineItemCtnr {
 
     setEGiftCardStatus(status) {
         this.custom.eGiftCardStatus = status;
+    }
+    getPaymentInstruments(paymentMethodID) {
+        var paymentInstruments = this.paymentInstruments;
+        if (paymentMethodID) {
+            paymentInstruments = this.paymentInstruments.filter(function (paymentInstrument) {
+                return paymentInstrument.paymentMethod === paymentMethodID;
+            });
+        }
+        return paymentInstruments;
+    }
+    trackOrderChange(text) {
+        return;
     }
 }
 

@@ -13,11 +13,11 @@ function getAttributeRefinementValueModel(refinementDefinition) {
     if (refinementDefinition.priceRefinement) {
         return require('*/cartridge/models/search/attributeRefinementValue/price');
     // eslint-disable-next-line spellcheck/spell-checker
-    } else if (refinementDefinition.attributeID === 'colorgroup') {
+    } if (refinementDefinition.attributeID === 'colorgroup') {
         return require('*/cartridge/models/search/attributeRefinementValue/color');
-    } else if (refinementDefinition.attributeID === 'size') {
+    } if (refinementDefinition.attributeID === 'size') {
         return require('*/cartridge/models/search/attributeRefinementValue/size');
-    } else if (refinementDefinition.categoryRefinement) {
+    } if (refinementDefinition.categoryRefinement) {
         return require('*/cartridge/models/search/attributeRefinementValue/category');
     }
 

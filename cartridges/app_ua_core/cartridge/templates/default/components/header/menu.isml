@@ -72,7 +72,7 @@
                             </div>
                         </li>
                     <iselse/>
-                        <li class="b-navigation-item js-accessibility-nav-item ${category.hideInMobileNavigation ? 'h-hide-only-mobile' : ''} ${category.hideInDesktopNavigation ? 'h-hide-only-desktop' : ''}" role="presentation">
+                    <li class="b-navigation-item js-accessibility-nav-item ${category.hideInMobileNavigation ? 'h-hide-only-mobile' : ''} ${category.hideInDesktopNavigation ? 'h-hide-only-desktop' : ''}" role="presentation">
                             <a class="b-navigation-link js-accessibility-nav-link" href="<isprint value="${category.url}" encoding="htmldoublequote"/>"
                                 id="${category.id}-nav-item" data-level="0" class="nav-link" role="link" tabindex="0"
                                 data-analytics-nav-track="${uaAnalyticsPathTop}|${category.url}"
@@ -94,7 +94,7 @@
                 </li>
             </isif>
         </ul>
-        <div class="b-navigation-utility b-navigation_utility-list js-header-utility js-list-wrapper">
+        <div class="b-navigation-utility b-navigation_utility-list js-header-utility js-list-wrapper" data-account-header-url="${URLUtils.url('Account-HeaderAjax').toString()}">
             <isinclude url="${URLUtils.url('Account-Header', 'mobile', true)}" />
 
         </div>

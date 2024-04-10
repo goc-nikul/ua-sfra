@@ -1,6 +1,8 @@
 'use strict';
 
 var log = require('~/cartridge/scripts/logs/2c2p.js');
+var ReturnsUtils = require('*/cartridge/scripts/orders/ReturnsUtils');
+var returnsUtils = new ReturnsUtils();
 
 /**
  * Get encrypted merchant signature
@@ -10,10 +12,13 @@ var log = require('~/cartridge/scripts/logs/2c2p.js');
  */
 function getMerchantSignature(orderNo, amount) {
     var config = require('~/cartridge/scripts/config/2c2Prefs.js');
-    var stringToHash = config.returnVersion + config.merchantID + 'R' + orderNo + amount;
+    var stringToHash =
+        config.returnVersion + config.merchantID + 'R' + orderNo + amount;
     var WeakMac = require('dw/crypto/WeakMac');
     var mac = new WeakMac(WeakMac.HMAC_SHA_1);
-    return require('dw/crypto/Encoding').toHex(mac.digest(stringToHash, config.secret)).toUpperCase();
+    return require('dw/crypto/Encoding')
+        .toHex(mac.digest(stringToHash, config.secret))
+        .toUpperCase();
 }
 
 /**
@@ -24,14 +29,26 @@ function getMerchantSignature(orderNo, amount) {
  */
 function formData(orderNo, amount) {
     var config = require('~/cartridge/scripts/config/2c2Prefs.js');
-    return '<PaymentProcessRequest>' +
-        '<version>' + config.returnVersion + '</version>'
-        + '<merchantID>' + config.merchantID + '</merchantID>'
-        + '<processType>R</processType>'
-        + '<invoiceNo>' + orderNo + '</invoiceNo>'
-        + '<actionAmount>' + amount + '</actionAmount>'
-        + '<hashValue>' + getMerchantSignature(orderNo, amount) + '</hashValue>'
-        + '</PaymentProcessRequest>';
+    return (
+        '<PaymentProcessRequest>' +
+        '<version>' +
+        config.returnVersion +
+        '</version>' +
+        '<merchantID>' +
+        config.merchantID +
+        '</merchantID>' +
+        '<processType>R</processType>' +
+        '<invoiceNo>' +
+        orderNo +
+        '</invoiceNo>' +
+        '<actionAmount>' +
+        amount +
+        '</actionAmount>' +
+        '<hashValue>' +
+        getMerchantSignature(orderNo, amount) +
+        '</hashValue>' +
+        '</PaymentProcessRequest>'
+    );
 }
 
 /**
@@ -44,7 +61,7 @@ function getRefundAmount(refundJson) {
     try {
         var refundObj = JSON.parse(refundJson);
         refundObj.forEach((item) => {
-            if (!item.refunded) refundAmount += parseFloat(item.refundAmount);// eslint-disable-line
+            if (!item.refunded) refundAmount += parseFloat(item.refundAmount); // eslint-disable-line
         });
     } catch (e) {
         refundAmount = 0;
@@ -61,9 +78,9 @@ function updateRefundAttributes(order) {
     // Exception handled is done in calling method to rollback for any exceptions
     var refundObj = JSON.parse(order.custom.refundsJson);
     refundObj.forEach((item) => {
-        item.refunded = true;// eslint-disable-line
+        item.refunded = true; // eslint-disable-line
     });
-    order.custom.refundsJson = JSON.stringify(refundObj);// eslint-disable-line
+    order.custom.refundsJson = JSON.stringify(refundObj); // eslint-disable-line
 }
 
 /**
@@ -71,31 +88,62 @@ function updateRefundAttributes(order) {
  * @param {Object} order DW order
  */
 function processOrderRefund(order) {
+    var shouldSkipCount = false;
     try {
         var amount = getRefundAmount(order.custom.refundsJson);
         if (!amount) throw new Error('Invalid Refund amount: ' + amount);
-        var base64Text = require('dw/util/StringUtils').encodeBase64(formData(order.orderNo, amount));
-        var refundResponse = require('~/cartridge/scripts/helpers/serviceHelper').refund(encodeURI(base64Text));
-        if (!refundResponse) throw new Error('Invalid refund status for orderID: ' + order.orderNo);
-        var xmlObj = new XML(refundResponse);// eslint-disable-line
-        if (xmlObj.respCode.toString() !== '00') throw new Error('Invalid response code: ' + xmlObj.respCode);
+        var base64Text = require('dw/util/StringUtils').encodeBase64(
+            formData(order.orderNo, amount)
+        );
+        var refundResponse = require('~/cartridge/scripts/helpers/serviceHelper').refund(
+            encodeURI(base64Text)
+        );
+        if (!refundResponse) {
+            throw new Error(
+                'Invalid refund status for orderID: ' + order.orderNo
+            );
+        }
+        var xmlObj = new XML(refundResponse); // eslint-disable-line
+        if (xmlObj.respCode.toString() === '12') {
+            shouldSkipCount = true;
+        }
+        if (xmlObj.respCode.toString() !== '00') {
+            throw new Error('Invalid response code: ' + xmlObj.respCode);
+        }
         require('dw/system/Transaction').wrap(() => {
-            order.custom.offlineRefund = false;// eslint-disable-line
+            order.custom.offlineRefund = false; // eslint-disable-line
             updateRefundAttributes(order);
         });
+        // eslint-disable-next-line new-cap
+        returnsUtils.SetRefundsCountInfo(false, null, order);
     } catch (error) {
-        log.writelog(log.LOG_TYPE.ERROR, 'Payment Refund 2C2 Payment: ' + error);
+        log.writelog(
+            log.LOG_TYPE.ERROR,
+            'Payment Refund 2C2 Payment: ' + error
+        );
+        if (!shouldSkipCount) {
+            // eslint-disable-next-line new-cap
+            returnsUtils.SetRefundsCountInfo(true, null, order);
+        }
     }
 }
 
 /**
-* File is used for Refund process for credit card payments
-*/
+ * File is used for Refund process for credit card payments
+ */
 function execute() {
     var config = require('~/cartridge/scripts/config/2c2Prefs.js');
     var CheckDate = require('dw/system/Site').calendar;
-    CheckDate.add(require('dw/util/Calendar').DAY_OF_YEAR, -(config.refundCancelMaxDays2C2));
-    require('dw/order/OrderMgr').processOrders(processOrderRefund, 'custom.PaymentAmount2c2 != NULL AND custom.offlineRefund = {0} AND lastModified >= {1}', true, CheckDate.time);
+    CheckDate.add(
+        require('dw/util/Calendar').DAY_OF_YEAR,
+        -config.refundCancelMaxDays2C2
+    );
+    require('dw/order/OrderMgr').processOrders(
+        processOrderRefund,
+        'custom.PaymentAmount2c2 != NULL AND custom.offlineRefund = {0} AND lastModified >= {1}',
+        true,
+        CheckDate.time
+    );
 }
 
 exports.execute = execute;

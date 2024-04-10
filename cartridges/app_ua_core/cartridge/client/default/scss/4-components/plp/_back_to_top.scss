@@ -1,19 +1,13 @@
 .b-back_to_top {
-    @include base-wrapper;
-
     position: fixed;
     right: 0;
     left: 0;
-    bottom: spacing(xl);
+    bottom: spacing(sm);
     visibility: hidden;
     z-index: 1;
     text-align: right;
     height: 0;
     overflow: visible;
-
-    @include respond-to(phones-landscape) {
-        bottom: spacing(xl2);
-    }
 
     &.m-shown {
         visibility: visible;
@@ -21,12 +15,47 @@
 
     &-button {
         @include button-to-link;
-        @include icon(caret-up, $size: 32);
-        @include respond-to(desktop-large) {
-            margin-right: 4%;
-        }
+        @include icon(caret-up, $size: 28);
 
+        transition: all 0.5s;
+        border-radius: 50%;
+        background: $white;
+        padding: 10px;
+        box-shadow: 0 0 20px rgba(29, 29, 29, 0.15);
+        position: absolute;
+        right: var(--btt-r, 24px);
+        bottom: 0;
         cursor: pointer;
         color: $black;
+    }
+
+    .chat-initialized & {
+        transform: translateY(calc(-16px - var(--btt-b, 57px)));
+    }
+
+    .chat-maximized & {
+        --btt-b: 556px;
+    }
+
+    @include respond-to(desktop) {
+        --btt-r: 68px;
+    }
+}
+
+iframe.__btn_bubble.__cb_plugin_chat {
+    transition: all 0.5s;
+    transform-origin: bottom right;
+
+    body &:not(.maximized) {
+        transform: scale(calc(48 / 70)) translate(var(--chat-btn-x, -20px), var(--chat-btn-y, -28px));
+    }
+
+    @media screen and (min-width: 576px) {
+        --chat-btn-x: -15px;
+        --chat-btn-y: -16px;
+    }
+
+    @include respond-to(desktop) {
+        --chat-btn-x: -80px;
     }
 }

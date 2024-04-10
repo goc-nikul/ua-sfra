@@ -1,0 +1,34 @@
+name: Update branch with develop
+on:
+  schedule:
+    - cron: '0 12,18 * * 1,2,3,4,5' # 7 AM and 1 PM EST
+  workflow_dispatch:
+      inputs:
+        branches:
+          description: branch name separated by commas
+          required: true
+          default: team/sfcc
+permissions:
+  contents: write
+jobs:
+  build:
+    name: Checkout repository and update branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
+            ssh-key: ${{ secrets.GH_SSH_KEY }}
+            persist-credentials: true
+      - name: Merge develop branch into target branch
+        run: |
+          if [ -z "${{ github.event.inputs.branches }}" ]; then
+            echo "No branches provided. Updating with default branch: ${{ vars.BRANCHES_TO_UPDATE}}"
+            echo "targetbranches=${{ vars.BRANCHES_TO_UPDATE}}" >> $GITHUB_ENV
+          else
+            echo "Target branch: ${{ github.event.inputs.branches }}"
+            echo "targetbranches=${{ github.event.inputs.branches }}" >> $GITHUB_ENV
+          fi
+      - run: .build/merge-branch.sh ${{ env.targetbranches }}

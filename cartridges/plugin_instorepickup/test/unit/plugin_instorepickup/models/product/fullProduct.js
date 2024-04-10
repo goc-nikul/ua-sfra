@@ -62,7 +62,8 @@ var optionsMock = {
             custom: {
                 availableForInStorePickup: true
             }
-        } },
+        }
+    },
     promotions: [],
     variables: [],
     lineItem: {}
@@ -77,7 +78,8 @@ var optionsMock2 = {
             custom: {
                 availableForInStorePickup: false
             }
-        } },
+        }
+    },
     promotions: [],
     variables: [],
     lineItem: {}

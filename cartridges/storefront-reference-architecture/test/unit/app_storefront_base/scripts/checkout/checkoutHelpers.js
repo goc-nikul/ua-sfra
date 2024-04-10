@@ -1,10 +1,11 @@
+'use strict';
+
 // checkoutHelpers.js unit tests
 
 var assert = require('chai').assert;
 var sinon = require('sinon');
 
 var checkoutHelpers = require('../../../../mocks/helpers/checkoutHelpers');
-
 
 describe('checkoutHelpers', function () {
     describe('prepareShippingForm', function () {
@@ -468,6 +469,41 @@ describe('checkoutHelpers', function () {
         });
     });
 
+    describe('validateCustomerForm', function () {
+        it('should return an object with form validation result - no error', function () {
+            var customerForm = {
+                emailAddress: { valid: true, formType: 'formField' },
+                email: {
+                    value: 'mary@test.com'
+                }
+            };
+
+            var result = checkoutHelpers.validateCustomerForm(customerForm);
+            assert.equal(result.viewData.customer.email.value, 'mary@test.com');
+            assert.equal(result.customerForm, customerForm);
+            assert.equal(Object.keys(result.formFieldErrors).length, 0);
+        });
+
+        it('should return an object with form validation result - error', function () {
+            var customerForm = {
+                emailAddress: { valid: false, formType: 'formField' },
+                email: {
+                    value: 'mary@test.com'
+                }
+            };
+
+            var result = checkoutHelpers.validateCustomerForm(customerForm);
+            assert.equal(Object.keys(result.viewData).length, 0);
+            assert.equal(result.customerForm, customerForm);
+            assert.equal(Object.keys(result.formFieldErrors).length, 1);
+        });
+
+        it('should return null if no form', function () {
+            var result = checkoutHelpers.validateCustomerForm(null);
+            assert.isNull(result);
+        });
+    });
+
     describe('validateBillingForm', function () {
         it('should return empty object when no invalid form field - with state field', function () {
             var billingForm = {
@@ -671,10 +707,10 @@ describe('checkoutHelpers', function () {
     describe('setGift', function () {
         var mockShipment = {
             setGift: function () {
-                return;
+
             },
             setGiftMessage: function () {
-                return;
+
             }
         };
 

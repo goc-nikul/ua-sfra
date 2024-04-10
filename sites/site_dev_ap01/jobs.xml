@@ -67,7 +67,7 @@
                 </parameters>
             </step>
         </flow>
-		<flow>
+        <flow>
             <context site-id="Sites"/>
             <step step-id="Download from Amazon S3(SEA)" type="custom.CSComponents.FtpDownload" enforce-restart="false">
                 <description>to download files from S3 (ecommstaging)</description>
@@ -101,7 +101,7 @@
                 </parameters>
             </step>
         </flow>
-		<flow>
+        <flow>
             <context site-id="Sites"/>
             <step step-id="Download from Amazon S3(TH)" type="custom.CSComponents.FtpDownload" enforce-restart="false">
                 <description>to download files from S3 (ecommstaging)</description>
@@ -342,7 +342,7 @@
             </run-recurring>
         </triggers>
     </job>
-	<job job-id="CombinePDP" priority="0">
+    <job job-id="CombinePDP" priority="0">
         <description/>
         <parameters/>
         <flow>
@@ -701,21 +701,21 @@
                 <mark-job-as-hanging/>
                 <send-mail>
                     <from>job-notifications-AP01@underarmour.com</from>
-                    <to>amasidda.medhegar@consultant.underarmour.com, yeshwanth.nagaraju@consultant.underarmour.com, Shane.Soifert@consultant.underarmour.com, dmaher@underarmour.com, anirudha.gandhe@underarmour.com, katie.johnson@salesforce.com, raj.kafley@underarmour.com</to>
+                    <to>amasidda.medhegar@consultant.underarmour.com, yeshwanth.nagaraju@consultant.underarmour.com, Shane.Soifert@consultant.underarmour.com, dmaher@underarmour.com, anirudha.gandhe@underarmour.com, raj.kafley@underarmour.com</to>
                     <bcc>Stella.Hou@consultant.underarmour.com</bcc>
                 </send-mail>
             </on-running>
             <on-retry enabled="true">
                 <send-mail>
                     <from>job-notifications-AP01@underarmour.com</from>
-                    <to>amasidda.medhegar@consultant.underarmour.com, yeshwanth.nagaraju@consultant.underarmour.com, Shane.Soifert@consultant.underarmour.com, dmaher@underarmour.com, anirudha.gandhe@underarmour.com, katie.johnson@salesforce.com, raj.kafley@underarmour.com</to>
+                    <to>amasidda.medhegar@consultant.underarmour.com, yeshwanth.nagaraju@consultant.underarmour.com, Shane.Soifert@consultant.underarmour.com, dmaher@underarmour.com, anirudha.gandhe@underarmour.com, raj.kafley@underarmour.com</to>
                     <bcc>Stella.Hou@consultant.underarmour.com</bcc>
                 </send-mail>
             </on-retry>
             <on-exit status="ERROR" enabled="true">
                 <send-mail>
                     <from>job-notifications-AP01@underarmour.com</from>
-                    <to>amasidda.medhegar@consultant.underarmour.com, yeshwanth.nagaraju@consultant.underarmour.com, Shane.Soifert@consultant.underarmour.com, dmaher@underarmour.com, anirudha.gandhe@underarmour.com, katie.johnson@salesforce.com, raj.kafley@underarmour.com</to>
+                    <to>amasidda.medhegar@consultant.underarmour.com, yeshwanth.nagaraju@consultant.underarmour.com, Shane.Soifert@consultant.underarmour.com, dmaher@underarmour.com, anirudha.gandhe@underarmour.com, raj.kafley@underarmour.com</to>
                     <bcc>Stella.Hou@consultant.underarmour.com</bcc>
                 </send-mail>
             </on-exit>
@@ -737,7 +737,6 @@
             </run-recurring>
         </triggers>
     </job>
-
     <job job-id="Product Image and Categorization OC" priority="0">
         <description>Automatically associates variant images to the master product and assign categories for products in the prep-category</description>
         <parameters/>
@@ -783,6 +782,33 @@
                     <parameter name="ImportFailedHandling">WARN</parameter>
                     <parameter name="AfterImportFileHandling">Archive</parameter>
                     <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="AutoLookAssignment" type="custom.assignShopTheLook" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="IsQueryAllForSiteProducts">false</parameter>
+                    <parameter name="limitDOMServiceCall">30</parameter>
+                    <parameter name="shopTheLookthresholdDays">100</parameter>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportAutoLookAssigment" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/shopTheLook</parameter>
+                    <parameter name="FileNamePattern">.*ShopTheLook.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">archive/autoLook</parameter>
                 </parameters>
             </step>
         </flow>
@@ -846,7 +872,7 @@
                 <step step-id="ActivateAllPrepCategorySKUS" type="custom.activatePrepCategorySKUs" enforce-restart="false">
                     <description/>
                     <parameters>
-                        <parameter name="emailList">katie.johnson@salesforce.com</parameter>
+                        <parameter name="emailList">travis.huang@underarmour.com</parameter>
                         <parameter name="inventoryHealth">2</parameter>
                     </parameters>
                 </step>
@@ -913,21 +939,18 @@
                 <send-mail>
                     <from>donotreply@demandware.com</from>
                     <to>SFCC_L4@underarmour.com</to>
-                    <cc>katie.johnson@salesforce.com</cc>
                 </send-mail>
             </on-running>
             <on-retry enabled="true">
                 <send-mail>
                     <from>donotreply@demandware.com</from>
                     <to>SFCC_L4@underarmour.com</to>
-                    <cc>katie.johnson@salesforce.com</cc>
                 </send-mail>
             </on-retry>
             <on-exit status="ERROR" enabled="true">
                 <send-mail>
                     <from>donotreply@demandware.com</from>
                     <to>SFCC_L4@underarmour.com</to>
-                    <cc>katie.johnson@salesforce.com</cc>
                 </send-mail>
             </on-exit>
         </rules>
@@ -950,7 +973,6 @@
             </run-recurring>
         </triggers>
     </job>
-
     <job job-id="Product Image and Categorization KR" priority="0">
         <description>Automatically associates variant images to the master product and assign categories for products in the prep-category</description>
         <parameters/>
@@ -1010,6 +1032,33 @@
                     <parameter name="ImportFailedHandling">WARN</parameter>
                     <parameter name="AfterImportFileHandling">Archive</parameter>
                     <parameter name="ArchiveFolder">src/archive/s7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="AutoLookAssignment" type="custom.assignShopTheLook" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="IsQueryAllForSiteProducts">false</parameter>
+                    <parameter name="limitDOMServiceCall">30</parameter>
+                    <parameter name="shopTheLookthresholdDays">100</parameter>
+                    <parameter name="masterCatalogID">APACCatalog</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ImportAutoLookAssigment" type="ImportCatalog" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/shopTheLook</parameter>
+                    <parameter name="FileNamePattern">.*ShopTheLook.*xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Archive</parameter>
+                    <parameter name="ArchiveFolder">archive/autoLook</parameter>
                 </parameters>
             </step>
         </flow>
@@ -1161,7 +1210,6 @@
             </run-recurring>
         </triggers>
     </job>
-
     <job job-id="DataFeedWatch Export" priority="0">
         <description>Review</description>
         <parameters/>
@@ -1295,7 +1343,6 @@
             </run-recurring>
         </triggers>
     </job>
-
     <job job-id="Talkoot Catalog Import" priority="0">
         <description/>
         <parameters/>
@@ -1336,7 +1383,7 @@
             </run-once>
         </triggers>
     </job>
-	<job job-id="SDLTranslationJob" priority="0">
+    <job job-id="SDLTranslationJob" priority="0">
         <description/>
         <parameters/>
         <split sequential="false">
@@ -1600,41 +1647,44 @@
     <job job-id="Bazaarvoice Inline Ratings Import" priority="0">
         <description/>
         <parameters/>
-        <split sequential="false">
-            <contexts template-ref="template_104">
-                <context site-id="OC"/>
-                <context site-id="SEA"/>
-                <context site-id="KR"/>
-            </contexts>
-            <flow-template template-id="template_104">
-                <step step-id="Download Rating Feed" type="custom.Bazaarvoice-Download" enforce-restart="false">
-                    <description/>
-                    <parameters>
-                        <parameter name="Enabled">true</parameter>
-                    </parameters>
-                </step>
-            </flow-template>
-        </split>
-        <split sequential="false">
-            <contexts template-ref="template_105">
-                <context site-id="OC"/>
-                <context site-id="SEA"/>
-                <context site-id="KR"/>
-            </contexts>
-            <flow-template template-id="template_105">
-                <step step-id="Import Ratings" type="custom.Bazaarvoice-Rating-Import" enforce-restart="false">
-                    <description/>
-                    <parameters>
-                        <parameter name="Enabled">true</parameter>
-                    </parameters>
-                    <rules>
-                        <on-exit status="ERROR">
-                            <stop-job/>
-                        </on-exit>
-                    </rules>
-                </step>
-            </flow-template>
-        </split>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="Download Rating Feed" type="custom.Bazaarvoice-Download" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Enabled">true</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="US"/>
+            <step step-id="Import Ratings" type="custom.Bazaarvoice-Rating-Import" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="Enabled">true</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-job/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Move File to Archive" type="custom.CSComponents.MoveFiles" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FilePattern">^bv_underarmour_incremental_.*.gz</parameter>
+                    <parameter name="SourceFolder">/TEMP/bv/ratings</parameter>
+                    <parameter name="TargetFolder">IMPEX/src/archive/bv/</parameter>
+                    <parameter name="CopyOnly">false</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="Overwrite">true</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+        </flow>
         <rules>
             <on-running runtime-threshold="60m" enabled="true">
                 <mark-job-as-hanging/>
@@ -1659,7 +1709,7 @@
         <triggers>
             <run-once enabled="true">
                 <date>2020-04-17Z</date>
-                <time>20:15:54.000Z</time>
+                <time>20:15:00.000Z</time>
             </run-once>
         </triggers>
     </job>
@@ -1793,7 +1843,7 @@
                 </rules>
             </step>
         </flow>
-		<flow>
+        <flow>
             <context site-id="TH"/>
             <step step-id="Import Order Refund TH" type="custom.OrderRefund" enforce-restart="false">
                 <description/>
@@ -1937,7 +1987,7 @@
                 </parameters>
             </step>
         </flow>
-		<flow>
+        <flow>
             <context site-id="TH"/>
             <step step-id="Generate XML TH" type="custom.AutomatedReturnXML" enforce-restart="false">
                 <description/>
@@ -2153,7 +2203,7 @@
                         <parameter name="includeZeroCounts">true</parameter>
                     </parameters>
                 </step>
- 			 </flow>
+            </flow>
             <flow>
                 <context site-id="SEA"/>
                 <step step-id="HealthOnlineOnly_SEA" type="custom.InventoryHealth" enforce-restart="false">
@@ -2567,6 +2617,20 @@
             </flow-template>
         </split>
         <flow>
+            <step step-id="Logging-Exported-Orders" type="custom.LogExportedOrders" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="FilePath">/src/download/order/</parameter>
+                    <parameter name="filePattern">^.*order_export.*xml</parameter>
+                </parameters>
+                <rules>
+                    <on-exit status="ERROR">
+                        <stop-flow/>
+                    </on-exit>
+                </rules>
+            </step>
+        </flow>
+        <flow>
             <context site-id="OC"/>
             <step step-id="Archive Orders OC" type="custom.ZipFiles" enforce-restart="true">
                 <description/>
@@ -2622,7 +2686,7 @@
                     <parameter name="KeyAlias">uasftptest</parameter>
                     <parameter name="FilePattern">^.*order_export_SEA.*xml</parameter>
                     <parameter name="SourceFolder">src/download/order</parameter>
-                    <parameter name="TargetFolder">ftpdemandware_sea/in/orders</parameter>
+                    <parameter name="TargetFolder">ftpsfra_apac/in/orders/sea</parameter>
                     <parameter name="Recursive">false</parameter>
                     <parameter name="NoFileFoundStatus">OK</parameter>
                     <parameter name="IsDisabled">false</parameter>
@@ -2654,7 +2718,7 @@
                     <parameter name="KeyAlias">uasftptest</parameter>
                     <parameter name="FilePattern">^.*order_export_TH.*xml</parameter>
                     <parameter name="SourceFolder">src/download/order</parameter>
-                    <parameter name="TargetFolder">ftpdemandware_th/in/orders</parameter>
+                    <parameter name="TargetFolder">ftpsfra_apac/in/orders/th</parameter>
                     <parameter name="Recursive">false</parameter>
                     <parameter name="NoFileFoundStatus">OK</parameter>
                     <parameter name="IsDisabled">false</parameter>
@@ -2892,7 +2956,6 @@
             </run-recurring>
         </triggers>
     </job>
-
     <job job-id="CancelMembersonVoucher" priority="0">
         <description/>
         <parameters/>
@@ -2900,6 +2963,7 @@
             <contexts template-ref="template_27">
                 <context site-id="SEA"/>
                 <context site-id="TH"/>
+                <context site-id="OC"/>
             </contexts>
             <flow-template template-id="template_27">
                 <step step-id="CancelVoucher" type="custom.MembersonLoyalty.CancelMembersonVoucher" enforce-restart="false">
@@ -3092,8 +3156,7 @@
             </run-once>
         </triggers>
     </job>
-
-       <job job-id="SleepingAccountHandling" priority="0">
+    <job job-id="SleepingAccountHandling" priority="0">
         <description>Sleeping Account Handling</description>
         <parameters/>
         <flow>
@@ -3106,6 +3169,89 @@
                 </parameters>
             </step>
         </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="Sleeping Users Emails" type="custom.SleepingAccount.unsubscribe.newsletter" enforce-restart="false">
+                <description>Emails of sleeping users</description>
+                <parameters/>
+            </step>
+        </flow>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="false">
+                <mark-job-as-hanging/>
+            </on-running>
+        </rules>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2017-08-01Z</date-from>
+                    <start-time>00:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Sunday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Monday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="ExportReengagedCustomers" priority="0">
+        <description>Account Reengagement Handling</description>
+        <parameters/>
+        <split sequential="false">
+            <flow>
+                <context site-id="KR"/>
+                <step step-id="ExportReengagedCustomersFirst" type="custom.MCC-Feed-ExportReengagedCustomers" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="reengagementType">first</parameter>
+                        <parameter name="sleepingAccountCutoffDays">365</parameter>
+                        <parameter name="reengagementDays">180</parameter>
+                        <parameter name="emailIds">test@test.com, test1@test.com</parameter>
+                        <parameter name="ExportID">reengagementCustomersFeed</parameter>
+                        <parameter name="ExportFileName">DEV_UA_ReEngagement_eComm_First.csv</parameter>
+                        <parameter name="Delimiter">,</parameter>
+                        <parameter name="IncrementalExport">false</parameter>
+                    </parameters>
+                </step>
+                <step step-id="UploadReengagedCustomersFirst" type="custom.MCC-Feed-UploadCustomers" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="SFTPServiceID">marketingcloud.mulesoft.sftp</parameter>
+                        <parameter name="ExportFileName">DEV_UA_ReEngagement_eComm_First.csv</parameter>
+                        <parameter name="TargetPath">/Import/</parameter>
+                        <parameter name="AddDateExtension">true</parameter>
+                    </parameters>
+                </step>
+                <step step-id="ExportReengagedCustomersSecond" type="custom.MCC-Feed-ExportReengagedCustomers" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="reengagementType">second</parameter>
+                        <parameter name="sleepingAccountCutoffDays">365</parameter>
+                        <parameter name="reengagementDays">210</parameter>
+                        <parameter name="emailIds">test@test.com, test1@test.com</parameter>
+                        <parameter name="ExportID">reengagementCustomersFeed</parameter>
+                        <parameter name="ExportFileName">DEV_UA_ReEngagement_eComm_Second.csv</parameter>
+                        <parameter name="Delimiter">,</parameter>
+                        <parameter name="IncrementalExport">false</parameter>
+                    </parameters>
+                </step>
+                <step step-id="UploadReengagedCustomersSecond" type="custom.MCC-Feed-UploadCustomers" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="SFTPServiceID">marketingcloud.mulesoft.sftp</parameter>
+                        <parameter name="ExportFileName">DEV_UA_ReEngagement_eComm_Second.csv</parameter>
+                        <parameter name="TargetPath">/Import/</parameter>
+                        <parameter name="AddDateExtension">true</parameter>
+                    </parameters>
+                </step>
+            </flow>
+        </split>
         <rules/>
         <triggers>
             <run-recurring enabled="true">
@@ -3114,17 +3260,577 @@
                     <start-time>00:00:00.000Z</start-time>
                     <interval>1d</interval>
                     <day-of-week>
-                        <weekday>Wednesday</weekday>
-                        <weekday>Thursday</weekday>
-                        <weekday>Tuesday</weekday>
                         <weekday>Sunday</weekday>
-                        <weekday>Monday</weekday>
+                        <weekday>Thursday</weekday>
                         <weekday>Friday</weekday>
+                        <weekday>Tuesday</weekday>
                         <weekday>Saturday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Monday</weekday>
                     </day-of-week>
                 </recurrence>
             </run-recurring>
         </triggers>
     </job>
-
+    <job job-id="Dynamic Categorization Job" priority="0">
+        <description>Dynamic Category assignment based on the categorization rules set in the catalog</description>
+        <parameters/>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ExecuteCategorizationRules - OC" type="ExecuteCategorizationRules" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="CatalogID">OCCatalog_storefront</parameter>
+                    <parameter name="CategoryID">ALL</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ExecuteCategorizationRules - SEA and TH" type="ExecuteCategorizationRules" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="CatalogID">SEACatalog_storefront</parameter>
+                    <parameter name="CategoryID">ALL</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="ExecuteCategorizationRules - KR" type="ExecuteCategorizationRules" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="CatalogID">KRCatalog_storefront</parameter>
+                    <parameter name="CategoryID">ALL</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <split sequential="false">
+            <contexts template-ref="template_234">
+                <context site-id="OC"/>
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+                <context site-id="KR"/>
+            </contexts>
+            <flow-template template-id="template_234">
+                <step step-id="SearchReindex" type="SearchReindex" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="Product related search indexes">true</parameter>
+                        <parameter name="Active data search index">false</parameter>
+                        <parameter name="Content search index">false</parameter>
+                        <parameter name="Indexer Type">Incremental Index Update</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <rules>
+            <on-running runtime-threshold="180m" enabled="true">
+                <mark-job-as-hanging/>
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>ECommerce_ProdOps@underarmour.com ,L3_eCommerce@underarmour.com</to>
+                    <cc>minh.nguyen@underarmour.com,suat.erken@underarmour.com, mark.cardelli@underarmour.com, travis.huang@underarmour.com, SFCCCriticalNotifications@underarmour.com</cc>
+                </send-mail>
+            </on-running>
+            <on-retry enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>ECommerce_ProdOps@underarmour.com ,L3_eCommerce@underarmour.com</to>
+                    <cc>minh.nguyen@underarmour.com,suat.erken@underarmour.com, mark.cardelli@underarmour.com, travis.huang@underarmour.com, SFCCCriticalNotifications@underarmour.com</cc>
+                </send-mail>
+            </on-retry>
+            <on-exit status="ERROR" enabled="true">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>ECommerce_ProdOps@underarmour.com ,L3_eCommerce@underarmour.com</to>
+                    <cc>minh.nguyen@underarmour.com,suat.erken@underarmour.com, mark.cardelli@underarmour.com, travis.huang@underarmour.com, SFCCCriticalNotifications@underarmour.com</cc>
+                </send-mail>
+            </on-exit>
+        </rules>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2023-10-11Z</date-from>
+                    <start-time>22:30:00.000Z</start-time>
+                    <interval>12h</interval>
+                    <day-of-week>
+                        <weekday>Friday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Wednesday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Order Daily Status Check" priority="0">
+        <description>Check quantity of not confirmed, not shipped and exported orders. And send mail to support teem.</description>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_30">
+                <context site-id="KR"/>
+                <context site-id="OC"/>
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_30">
+                <step step-id="Queue" type="ExecuteScriptModule" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="ExecuteScriptModule.Module">bc_jobs/cartridge/scripts/report/UpdateEODOrderReportData.js</parameter>
+                        <parameter name="ExecuteScriptModule.FunctionName">execute</parameter>
+                        <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                        <parameter name="ExecuteScriptModule.TimeoutInSeconds">10000</parameter>
+                        <parameter name="EODCustomObjectType">EODOrderReportData</parameter>
+                        <parameter name="queue">queue</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <split sequential="false">
+            <contexts template-ref="template_39">
+                <context site-id="KR"/>
+                <context site-id="OC"/>
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_39">
+                <step step-id="Queue2" type="ExecuteScriptModule" enforce-restart="false">
+                    <description/>
+                    <parameters>
+                        <parameter name="ExecuteScriptModule.Module">bc_jobs/cartridge/scripts/report/UpdateEODOrderReportData.js</parameter>
+                        <parameter name="ExecuteScriptModule.FunctionName">execute</parameter>
+                        <parameter name="ExecuteScriptModule.Transactional">false</parameter>
+                        <parameter name="ExecuteScriptModule.TimeoutInSeconds">10000</parameter>
+                        <parameter name="EODCustomObjectType">EODOrderReportData</parameter>
+                        <parameter name="queue">queue</parameter>
+                    </parameters>
+                </step>
+            </flow-template>
+        </split>
+        <split sequential="false">
+            <contexts template-ref="template_40">
+                <context site-id="KR"/>
+                <context site-id="OC"/>
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_40">
+                <step step-id="Check Orders" type="custom.CheckOrders" enforce-restart="false">
+                    <description>Check Orders script</description>
+                    <parameters/>
+                    <rules>
+                        <on-exit status="ERROR">
+                            <stop-job/>
+                        </on-exit>
+                    </rules>
+                </step>
+            </flow-template>
+        </split>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="false">
+                <mark-job-as-hanging/>
+            </on-running>
+            <on-exit status="ERROR" enabled="false">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>ECommerce_ProdOps@underarmour.com ,L3_eCommerce@underarmour.com</to>
+                    <cc>minh.nguyen@underarmour.com,suat.erken@underarmour.com, mark.cardelli@underarmour.com, travis.huang@underarmour.com, SFCCCriticalNotifications@underarmour.com</cc>
+                </send-mail>
+            </on-exit>
+        </rules>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2017-09-28Z</date-from>
+                    <start-time>15:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Tuesday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="2c2RefundProcess" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="TH"/>
+            <step step-id="2c2 Credit Card payment Refund" type="custom.Refund2c2Payment" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+            <step step-id="2c2 Cancel Refund" type="custom.checkCancelRefundOrder" enforce-restart="false">
+                <description/>
+                <parameters/>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2021-11-09Z</date>
+                <time>08:32:00.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    <job job-id="Daily Order Reconciliation" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="dailyOrderReconciliation2D_OC" type="custom.orderReconciliationDataExport" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="exportFileName">orderReconciliation2D.csv</parameter>
+                    <parameter name="targetDirectoryPath">src/feeds/orderReconciliation</parameter>
+                    <parameter name="delimiter">,</parameter>
+                    <parameter name="rows">["orderNumber", "orderDate"]</parameter>
+                    <parameter name="lastXdays">2</parameter>
+                </parameters>
+            </step>
+            <step step-id="dailyOrderReconciliation7D_OC" type="custom.orderReconciliationDataExport" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="exportFileName">orderReconciliation7D.csv</parameter>
+                    <parameter name="targetDirectoryPath">src/feeds/orderReconciliation</parameter>
+                    <parameter name="delimiter">,</parameter>
+                    <parameter name="rows">["orderNumber", "orderDate", "shipmentStatus"]</parameter>
+                    <parameter name="lastXdays">7</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="Sites"/>
+            <step step-id="Upload Orders Reconciliation-OC" type="custom.CSComponents.FtpUpload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">^.*orderReconciliation.*csv</parameter>
+                    <parameter name="SourceFolder">src/feeds/orderReconciliation/OC</parameter>
+                    <parameter name="TargetFolder">ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/in/orderReconciliation/oc</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="deleteFile">DELETE</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="false">
+                <mark-job-as-hanging/>
+            </on-running>
+        </rules>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2023-03-06Z</date-from>
+                    <start-time>17:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Monday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Friday</weekday>
+                        <weekday>Tuesday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Reset COD orders counter" priority="0">
+        <description>Reset codOrderCount at the beginning of the day</description>
+        <parameters/>
+        <split sequential="false">
+            <contexts template-ref="template_37">
+                <context site-id="SEA"/>
+                <context site-id="TH"/>
+            </contexts>
+            <flow-template template-id="template_37">
+                <step step-id="Reset COD orders counter" type="custom.resetCODOrdersCounter" enforce-restart="false">
+                    <description>Reset codOrderCount at the beginning of the day</description>
+                    <parameters/>
+                </step>
+            </flow-template>
+        </split>
+        <rules>
+            <on-running runtime-threshold="60m" enabled="false">
+                <mark-job-as-hanging/>
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>ECommerce_ProdOps@underarmour.com ,L3_eCommerce@underarmour.com</to>
+                    <bcc>minh.nguyen@underarmour.com,suat.erken@underarmour.com, mark.cardelli@underarmour.com, travis.huang@underarmour.com, SFCCCriticalNotifications@underarmour.com</bcc>
+                </send-mail>
+            </on-running>
+            <on-retry enabled="false">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>ECommerce_ProdOps@underarmour.com ,L3_eCommerce@underarmour.com</to>
+                    <bcc>minh.nguyen@underarmour.com,suat.erken@underarmour.com, mark.cardelli@underarmour.com, travis.huang@underarmour.com, SFCCCriticalNotifications@underarmour.com</bcc>
+                </send-mail>
+            </on-retry>
+            <on-exit status="ERROR" enabled="false">
+                <send-mail>
+                    <from>donotreply@demandware.com</from>
+                    <to>ECommerce_ProdOps@underarmour.com ,L3_eCommerce@underarmour.com</to>
+                    <bcc>minh.nguyen@underarmour.com,suat.erken@underarmour.com, mark.cardelli@underarmour.com, travis.huang@underarmour.com, SFCCCriticalNotifications@underarmour.com</bcc>
+                </send-mail>
+            </on-exit>
+        </rules>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2024-02-05Z</date-from>
+                    <start-time>17:00:00.000Z</start-time>
+                    <interval>1d</interval>
+                    <day-of-week>
+                        <weekday>Monday</weekday>
+                        <weekday>Tuesday</weekday>
+                        <weekday>Saturday</weekday>
+                        <weekday>Sunday</weekday>
+                        <weekday>Thursday</weekday>
+                        <weekday>Wednesday</weekday>
+                        <weekday>Friday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
+    <job job-id="Post data replication tasks" priority="0">
+        <description/>
+        <parameters/>
+        <flow>
+            <context site-id="SEA"/>
+            <step step-id="Download promotions XML file from AWS S3 SEA" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">qa_team_promotions_sea.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/qa_team_promotions</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Promotions SEA" type="ImportPromotions" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="FileNamePattern">qa_team_promotions_sea.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+            <step step-id="Download coupons XML file from AWS S3 SEA" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">qa_team_coupons_sea.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/qa_team_promotions</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Coupons SEA" type="ImportCoupons" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="FileNamePattern">qa_team_coupons_sea.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="TH"/>
+            <step step-id="Download promotions XML file from AWS S3 TH" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">qa_team_promotions_th.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/qa_team_promotions</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Promotions TH" type="ImportPromotions" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="FileNamePattern">qa_team_promotions_th.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+            <step step-id="Download coupons XML file from AWS S3 TH" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">qa_team_coupons_th.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/qa_team_promotions</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Coupons TH" type="ImportCoupons" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="FileNamePattern">qa_team_coupons_th.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="OC"/>
+            <step step-id="Download promotions XML file from AWS S3 OC" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">qa_team_promotions_oc.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/qa_team_promotions</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Promotions OC" type="ImportPromotions" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="FileNamePattern">qa_team_promotions_oc.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+            <step step-id="Download coupons XML file from AWS S3 OC" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">qa_team_coupons_oc.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/qa_team_promotions</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Coupons OC" type="ImportCoupons" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="FileNamePattern">qa_team_coupons_oc.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <flow>
+            <context site-id="KR"/>
+            <step step-id="Download promotions XML file from AWS S3 KR" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">qa_team_promotions_kr.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/qa_team_promotions</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                    <parameter name="IsDisabled">false</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Promotions KR" type="ImportPromotions" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="FileNamePattern">qa_team_promotions_kr.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+            <step step-id="Download coupons XML file from AWS S3 KR" type="custom.CSComponents.FtpDownload" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="ServiceID">AWS-XML_APAC</parameter>
+                    <parameter name="KeyAlias">uasftptest</parameter>
+                    <parameter name="FilePattern">qa_team_coupons_kr.xml</parameter>
+                    <parameter name="SourceFolder">/ua-ecm-sftp/intl-ecomm-test/ftpsfra_apac/qa_team_promotions</parameter>
+                    <parameter name="TargetFolder">src/feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="Recursive">false</parameter>
+                    <parameter name="NoFileFoundStatus">OK</parameter>
+                </parameters>
+            </step>
+            <step step-id="Import Coupons KR" type="ImportCoupons" enforce-restart="false">
+                <description/>
+                <parameters>
+                    <parameter name="WorkingFolder">feeds/qa_team_promotions/apac</parameter>
+                    <parameter name="FileNamePattern">qa_team_coupons_kr.xml</parameter>
+                    <parameter name="NoFilesFoundHandling">NO_FILES_FOUND</parameter>
+                    <parameter name="ImportMode">Merge</parameter>
+                    <parameter name="ImportFailedHandling">WARN</parameter>
+                    <parameter name="AfterImportFileHandling">Keep</parameter>
+                    <parameter name="ArchiveFolder">archive</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-recurring enabled="true">
+                <recurrence>
+                    <date-from>2024-02-21Z</date-from>
+                    <start-time>17:55:00.000Z</start-time>
+                    <interval>24h</interval>
+                    <day-of-week>
+                        <weekday>Wednesday</weekday>
+                    </day-of-week>
+                </recurrence>
+            </run-recurring>
+        </triggers>
+    </job>
 </jobs>

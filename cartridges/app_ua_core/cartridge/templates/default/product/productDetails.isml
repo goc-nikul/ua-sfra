@@ -18,7 +18,7 @@
     <isset name="productHelpers" value="${require('*/cartridge/scripts/helpers/productHelpers')}" scope="page"/>
     <isset name="upsellType" value="${productHelpers.getUpsellType(product.variationAttributes[0].values, product, pdict.experienceType,'pdp')}" scope="page"/>
     <isset name="klarnaEnabled" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('isKlarnaEnabled')}" scope="page"/>
-    <isset name="currentCountry" value="${pdict.CurrentRequest.locale && pdict.CurrentRequest.locale != 'default' ? pdict.CurrentRequest.locale.split('_')[1] : 'US'}" scope="page" />
+    <isset name="currentCountry" value="${pdict.CurrentRequest && pdict.CurrentRequest.locale && pdict.CurrentRequest.locale != 'default' ? pdict.CurrentRequest.locale.split('_')[1] : 'US'}" scope="page" />
     <isset name="loyaltyEnabled" value="${dw.system.Site.getCurrent().getCustomPreferenceValue('isLoyaltyEnable')}" scope="page" />
     <isset name="isLoyalCustomer" value="${customer.isMemberOfCustomerGroup('Loyalty')}" scope="page" />
     <isinclude template="/components/modules" sf-toolkit="off" />
@@ -156,7 +156,11 @@
                         </div>
 
                         <div class="mobile_only">
-                            <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp, 'attribute', 'color')}"/>
+                            <isif condition="${!empty(pdict.selectedColor.key)}">
+                                <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp, 'attribute', 'color', pdict.selectedColor.key, pdict.selectedColor.value)}"/>
+                            <iselse>
+                                <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp, 'attribute', 'color')}"/>
+                            </isif>
                         </div>
 
                         <!-- Prices -->
@@ -165,112 +169,125 @@
                             <div class="b-product_attrs-item m-description">
                                 <iscontentasset aid="app-exclusive" />
                             </div>
-                        <iselse>
-                        <div class="varition-app-exclusive">
-                            <div class="b-product_prices bvWrap">
-                                <isset name="price" value="${product.price}" scope="page" />
-                                <isinclude template="product/components/pricing/main" />
-                                <isif condition="${'bvEnableRR_C2013' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR_C2013}">
-						            <isinclude template="bv/display/pdpsummary"/>
-					            </isif>
-                            </div>
-                            <isif condition="${klarnaEnabled && !(pdict.CurrentCustomer.authenticated && !empty(pdict.CurrentCustomer.profile) && pdict.CurrentCustomer.profile.custom.isEmployee) && !(pdict.isVIP && pdict.isVIPOrder)}">
-	                            <div class="b-product_klarna-placement ${product.custom.isPreOrder ? 'hide' : ''}">
-		                             <isinclude template="klarnapayments/modules.isml"/>
-		                             <iskosmpdp p_price="${price}" />
-	                            </div>
-	                        </isif>
-                            <isif condition="${loyaltyEnabled && isLoyalCustomer && !product.custom.isLoyaltyExcluded}">
-                                <div class="b-product_loyalty-points">
-                                    ${Resource.msg('product.loyal.points','product', null)}
+                        <iselse/>
+                            <div class="varition-app-exclusive">
+                                <div class="b-product_prices bvWrap">
+                                    <isset name="price" value="${product.price}" scope="page" />
+                                    <isinclude template="product/components/pricing/main" />
+                                    <isif condition="${'bvEnableRR' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR}">
+                                        <isinclude template="bv/display/pdpsummary"/>
+                                    </isif>
                                 </div>
-                            </isif>
-                            <div class="b-product_availability-pdp-outofstock js-pdp-outofstock ${product.custom.exclusive === 'out-of-stock' ? '' : 'hide'}">
-	                            ${Resource.msg('label.outofstock.soldOut','common', null)}
-	                        </div>
-                            <div class="b-product_promoCallout">
-                            <isinclude template="product/components/promoCalloutMessage"/>
-                            </div>
-                            <div class="b-product_preorder">
-                                <isif condition="${product.custom.exclusive === 'coming-soon'}">
-                                    <p class="b-product_preorder-maskpdp">${product.custom.comingSoonMessage}</p>
-                                 <iselseif condition="${product.custom.isPreOrder && product.custom.preOrderPDPMessage}">
-                                    <p class="b-product_preorder-maskpdp">${product.custom.preOrderPDPMessage}</p>
-                                </isif>
-                            </div>
-                            <!-- Applicable Promotions -->
-                            <iscomment> Callout message and promotion details for order/product/shipping level promotions </iscomment>
-                            <div class="b-product_promo b-promo-tooltip-information">
-                                <isinclude template="product/components/promotions" />
-                            </div>
-
-                            <isif condition="${productObject.custom.exemptEmployeeDiscount == 'yes'}">
-                                <isinclude url="${URLUtils.url('Product-EmployeeNotification', 'showEmployeeTerms', product.showTerms)}" />
-                            </isif>
-
-                            <!-- Availability -->
-                            <div class="b-product_availability"
-                                data-ready-to-order="${product.readyToOrder}"
-                                data-available="${product.available}">
-                                <isif condition="${!product.available}">
-                                <isif condition="${product.readyToOrder}">
-                                    <isloop items="${product.availability.messages}" var="message">
-                                        <div class="b-product_availability-message ${!product.available ? 'm-out-of-stock' : ''}">${message}</div>
-                                    </isloop>
-                                </isif>
-                                </isif>
-                            </div>
-
-                            <div class="b-product_attrs">
-                                <!-- Attributes -->
-                                <isinclude template="product/components/mainAttributes" />
-
-                                <isset name="isBundle" value="${false}" scope="page" />
-                                <isset name="loopState" value="{count: 1}" scope="page" />
-                                <div class="b-product_attrs">
-                                    <div class="desktop_only">
-                                        <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp, 'attribute', 'color')}"/>
+                                <isif condition="${klarnaEnabled && !(pdict.CurrentCustomer.authenticated && !empty(pdict.CurrentCustomer.profile) && pdict.CurrentCustomer.profile.custom.isEmployee) && !(pdict.isVIP && pdict.isVIPOrder)}">
+                                    <div class="b-product_klarna-placement ${product.custom.isPreOrder ? 'hide' : ''}">
+                                        <isinclude template="klarnapayments/modules.isml"/>
+                                        <iskosmpdp p_price="${price}" />
                                     </div>
-                                    <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp)}"/>
-
-                                    <isif condition="${product.options && product.options.length > 0}">
-                                        <isinclude template="product/components/options" />
+                                </isif>
+                                <isif condition="${loyaltyEnabled && isLoyalCustomer && !product.custom.isLoyaltyExcluded}">
+                                    <div class="b-product_loyalty-points">
+                                        ${Resource.msg('product.loyal.points','product', null)}
+                                    </div>
+                                </isif>
+                                <div class="b-product_availability-pdp-outofstock js-pdp-outofstock ${product.custom.exclusive === 'out-of-stock' ? '' : 'hide'}">
+                                    ${Resource.msg('label.outofstock.soldOut','common', null)}
+                                </div>
+                                <div class="b-product_promoCallout">
+                                <isinclude template="product/components/promoCalloutMessage"/>
+                                </div>
+                                <div class="b-product_preorder">
+                                    <isif condition="${product.custom.exclusive === 'coming-soon'}">
+                                        <p class="b-product_preorder-maskpdp">${product.custom.comingSoonMessage}</p>
+                                    <iselseif condition="${product.custom.isPreOrder && product.custom.preOrderPDPMessage}"/>
+                                        <p class="b-product_preorder-maskpdp">${product.custom.preOrderPDPMessage}</p>
                                     </isif>
-                                    
-                                    <isinclude template="product/components/inventoryMessaging" />
-                                    <isinclude template="product/components/uaFitScale"/>
+                                </div>
+                                <!-- Applicable Promotions -->
+                                <iscomment> Callout message and promotion details for order/product/shipping level promotions </iscomment>
+                                <div class="b-product_promo b-promo-tooltip-information">
+                                    <isinclude template="product/components/promotions" />
+                                </div>
 
-                                    <!-- Pick up in Store -->
-                                    <isif condition="${!isQuickView}">
-                                        <isinclude url="${URLUtils.url('Product-ChoosePickUpInStore', 'pid', product.id, 'quickViewEnable', false)}"/>
-                                    </isif>
+                                <isif condition="${productObject.custom.exemptEmployeeDiscount == 'yes'}">
+                                    <isinclude url="${URLUtils.url('Product-EmployeeNotification', 'showEmployeeTerms', product.showTerms)}" />
+                                </isif>
 
-                                    <div class="b-product_actions prices-add-to-cart-actions ${pdict.enablePayPalCTAOnPDP ? "" : "b-paypalcta-disabled_outer" }">
-                                        <!-- Quantity Drop Down Menu -->
-                                        <isif condition="${!isBundle && product.options.length === 0 && product.exclusive.value !== 'coming-soon' && product.exclusive.value !== 'out-of-stock'}">
-                                            <isinclude template="product/components/quantity" />
+                                <!-- Availability -->
+                                <div class="b-product_availability"
+                                    data-ready-to-order="${product.readyToOrder}"
+                                    data-available="${product.available}">
+                                    <isif condition="${!product.available && product.custom.exclusive !== 'coming-soon'}">
+                                    <isif condition="${product.readyToOrder}">
+                                        <isloop items="${product.availability.messages}" var="message">
+                                            <div class="b-product_availability-message ${!product.available ? 'm-out-of-stock' : ''}">${message}</div>
+                                        </isloop>
                                         </isif>
+                                    </isif>
+                                </div>
 
-                                        <!-- Cart and [Optionally] Apple Pay -->
-                                        <div class="b-product_actions-inner ${pdict.enablePayPalCTAOnPDP ? "" : "b-paypalcta-disabled" } ${(!product.readyToOrder || !product.available || pdict.hasEGiftCards || product.custom.isPreOrder || (!product.price.list && (product.price.sales && !product.price.sales.value))) ? "btn-align-mobile" : ""}"">
-                                            <isinclude template="product/components/addToCartProduct" />
-                                            <isif condition="${pdict.enablePayPalCTAOnPDP && !pdict.isVIP && !pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && product.exclusive.value !== 'coming-soon' && product.exclusive.value !== 'out-of-stock' && !pdict.hasEGiftCards}">
-                                                <span class="bfx-remove-element">
-                                                    <isif condition="${isAurusEnabled}">
-                                                        <isinclude template="paypal/product/aurusPaypalButton"/>
-                                                    <iselse/>
-                                                        <isinclude template="paypal/cart/paypalButton"/>
-                                                    </isif>
-                                                    <div class="paypal-addtocart-error" style="display:none;" ></div>
-                                                </span>
+                                <div class="b-product_attrs">
+                                    <!-- Attributes -->
+                                    <isinclude template="product/components/mainAttributes" />
+
+                                    <isset name="isBundle" value="${false}" scope="page" />
+                                    <isset name="loopState" value="{count: 1}" scope="page" />
+                                    <div class="b-product_attrs">
+                                        <div class="desktop_only">
+                                            <isif condition="${!empty(pdict.selectedColor.key)}">
+                                                <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp, 'attribute', 'color', pdict.selectedColor.key, pdict.selectedColor.value)}"/>
+                                            <iselse>
+                                                <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp, 'attribute', 'color')}"/>
                                             </isif>
                                         </div>
+                                        <isif condition="${!empty(pdict.selectedColor.key)}">
+                                            <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp, pdict.selectedColor.key, pdict.selectedColor.value)}"/>
+                                        <iselse>
+                                                <isinclude url="${URLUtils.url('Product-RefreshVariationCache', 'pid', product.id, 'exp', pdict.exp)}"/>
+                                        </isif>
+                                        <isif condition="${product.options && product.options.length > 0}">
+                                            <isinclude template="product/components/options" />
+                                        </isif>
+
+                                        <isinclude template="product/components/inventoryMessaging" />
+                                        <isinclude template="product/components/uaFitScale"/>
+
+                                        <!-- Pick up in Store -->
+                                        <isif condition="${!isQuickView}">
+                                            <isinclude url="${URLUtils.url('Product-ChoosePickUpInStore', 'pid', product.id, 'quickViewEnable', false)}"/>
+                                        </isif>
+
+                                        <isset name="isProductAvaliableInStore" value="${pdict.selectedStore && pdict.selectedStore.enableStore && pdict.selectedStore.productInStoreInventor}" scope="page" />
+
+                                        <div class="b-product_actions prices-add-to-cart-actions js-notify-product-actions ${(!(product.available || isProductAvaliableInStore) && pdict.isNotifyMeEnabled && pdict.isNotifyMeEnabled != null) ?"hide":""} ${pdict.enablePayPalCTAOnPDP ? "" : "b-paypalcta-disabled_outer" }">
+                                            <!-- Quantity Drop Down Menu -->
+                                            <isif condition="${!isBundle && product.options.length === 0 && product.exclusive.value !== 'coming-soon' && product.exclusive.value !== 'out-of-stock'}">
+                                                <isinclude template="product/components/quantity" />
+                                            </isif>
+
+                                            <!-- Cart and [Optionally] Apple Pay -->
+                                            <div class="b-product_actions-inner ${pdict.enablePayPalCTAOnPDP ? "" : "b-paypalcta-disabled" } ${(!product.readyToOrder || !(product.available || isProductAvaliableInStore) || pdict.hasEGiftCards || product.custom.isPreOrder || (!product.price.list && (product.price.sales && !product.price.sales.value))) ? "btn-align-mobile" : ""}">
+                                                <isinclude template="product/components/addToCartProduct" />
+                                                <isif condition="${pdict.enablePayPalCTAOnPDP && !pdict.isVIP && !pdict.CurrentCustomer.isMemberOfCustomerGroup('CSR') && product.exclusive.value !== 'coming-soon' && product.exclusive.value !== 'out-of-stock' && !pdict.hasEGiftCards}">
+                                                    <span class="bfx-remove-element">
+                                                        <isif condition="${isAurusEnabled}">
+                                                            <isinclude template="paypal/product/aurusPaypalButton"/>
+                                                        <iselse/>
+                                                            <isinclude template="paypal/cart/paypalButton"/>
+                                                        </isif>
+                                                        <div class="paypal-addtocart-error" style="display:none;" ></div>
+                                                    </span>
+                                                </isif>
+                                            </div>
+                                        </div>
+                                        <!-- Notify me product -->
+                                        <isif condition="${pdict.isNotifyMeEnabled && pdict.isNotifyMeEnabled != null}">
+                                            <isinclude template="product/components/notifyProduct" />
+                                        </isif>
                                     </div>
                                 </div>
                             </div>
-                         </div>
                         </isif>
-                        
+
                         <!-- Free Return and Exchange Message -->
                         <isif condition="${pdict.isPdpReturnExchangeMsgEnable}">
                             <iscontentasset aid="PdpReturnExchange" />
@@ -331,7 +348,7 @@
             </div>
 
             <div class="b-pdp__review-setion">
-            <isif condition="${'bvEnableRR_C2013' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR_C2013}">
+            <isif condition="${'bvEnableRR' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableRR}">
                 <isif condition="${pdict.bvDisplay.rr.enabled}">
                     <hr class="d-sm-none">
                 </isif>
@@ -341,7 +358,7 @@
                 </div>
             </isif>
 
-           <isif condition="${'bvEnableAA_C2013' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableAA_C2013}">
+           <isif condition="${'bvEnableAA' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.bvEnableAA}">
              <isif condition="${pdict.bvDisplay.qa.enabled}">
                 <hr class="d-sm-none">
              </isif>
@@ -364,6 +381,10 @@
                 </div>
                     <!-- Cart and [Optionally] Apple Pay -->
                 <isinclude template="product/components/addToCartProduct"/>
+                <!-- Notify me product -->
+                <isif condition="${pdict.isNotifyMeEnabled && pdict.isNotifyMeEnabled != null}">
+                    <isinclude template="product/components/notifyProduct" />
+                </isif>
             </div>
         </div>
         </div>

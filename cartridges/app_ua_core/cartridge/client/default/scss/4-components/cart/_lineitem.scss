@@ -88,7 +88,9 @@
         }
 
         a {
-            display: inline-block;
+            @include respond-to(mobile) {
+                display: inline-block;
+            }
         }
 
         @include respond-to(mobile) {
@@ -105,7 +107,7 @@
         margin-left: rem-calc(16);
 
         @include respond-to(desktop) {
-            max-width: 65%;
+            max-width: 63%;
             flex: 1 1 70%;
         }
 
@@ -175,6 +177,10 @@
                 }
             }
         }
+
+        &.gcpricemobile {
+            margin: 0;
+        }
     }
 
     &_remove_edit {
@@ -233,9 +239,10 @@
         float: right;
         display: flex;
         justify-content: space-between;
+        align-items: end;
 
         @include respond-to(mobile) {
-            float: left;
+            float: right;
             width: auto;
         }
 
@@ -560,6 +567,8 @@
             @include font(main_med, rem-calc(12), 1.5);
 
             color: $red;
+            margin-bottom: -12px;
+            display: block;
         }
 
         .line-item-availability {
@@ -585,12 +594,6 @@
 
         color: $grey5;
         text-transform: capitalize;
-
-        &.gcdeliverydate {
-            @include respond-to(mobile) {
-                margin-bottom: 1.5rem;
-            }
-        }
     }
 }
 
@@ -628,6 +631,9 @@
 
         .bfx-price {
             margin-left: 5px;
+            @include respond-to(mobile) {
+                margin-left: 0;
+            }
         }
 
         span {
@@ -727,6 +733,12 @@
         .price {
             display: flex;
         }
+
+        &.gcprice {
+            @include respond-to(mobile) {
+                margin-bottom: 1.5rem;
+            }
+        }
     }
 }
 
@@ -771,3 +783,4 @@
         display: inline-block;
     }
 }
+

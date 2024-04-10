@@ -274,6 +274,55 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="narvarExportOrder">
+                <display-name xml:lang="x-default">Narvar Export Order</display-name>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Exported</display>
+                        <value>Exported</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Partially Shipped</display>
+                        <value>PartiallyShipped</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Shipped</display>
+                        <value>Shipped</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Failed</display>
+                        <value>Failed</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="shippedCallToNarvar">
+                <display-name xml:lang="x-default">Shipped Call To Narvar</display-name>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="failedShipmentAttempts">
+                <display-name xml:lang="x-default">Number of failed Shipment attempts</display-name>
+                <description xml:lang="x-default">Number of failed attempts to commit Shipment into Narvar.</description>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="shippedItemsToNarvar">
+                <display-name xml:lang="x-default">Shipped Items To Narvar</display-name>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="exportCallToNarvar">
+                <display-name xml:lang="x-default">Export Call To Narvar</display-name>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>true</externally-managed-flag>
+            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="AdyenPayments">
@@ -289,6 +338,14 @@
                 <attribute attribute-id="Adyen_refundReason"/>
                 <attribute attribute-id="Adyen_refundStatus"/>
                 <attribute attribute-id="expirationDate"/>
+            </attribute-group>
+            <attribute-group group-id="Narvar">
+                <display-name xml:lang="x-default">Narvar</display-name>
+                <attribute attribute-id="narvarExportOrder"/>
+                <attribute attribute-id="shippedItemsToNarvar"/>
+                <attribute attribute-id="exportCallToNarvar"/>
+                <attribute attribute-id="shippedCallToNarvar"/>
+                <attribute attribute-id="failedShipmentAttempts"/>
             </attribute-group>
         </group-definitions>
     </type-extension>
@@ -388,14 +445,61 @@
             </attribute-group>
         </group-definitions>
     </type-extension>
-
+    <type-extension type-id="ShippingMethod">
+        <custom-attribute-definitions>
+            <attribute-definition attribute-id="narvarShipSourceCode">
+                <display-name xml:lang="x-default">Narvar Ship Source</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">UG</display>
+                        <value>UPS</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">HD</display>
+                        <value>Fedex</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+        </custom-attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="narvarShipSourceCode">
+                <display-name xml:lang="x-default">Narvar Ship Source</display-name>
+                <attribute attribute-id="narvarShipSourceCode"/>
+            </attribute-group>
+        </group-definitions>
+    </type-extension>
     <type-extension type-id="SitePreferences">
         <custom-attribute-definitions>
+            <attribute-definition attribute-id="sharedBasketEnabled">
+                <display-name xml:lang="x-default">Shared basket functionality</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="secretKeyQrCode">
+                <display-name xml:lang="x-default">Secret for share basket functionality</display-name>
+                <type>password</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>test</default-value>
+            </attribute-definition>
             <attribute-definition attribute-id="adyenAdditionalData">
                 <display-name xml:lang="x-default">Adyen Additional Data</display-name>
                 <type>text</type>
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="showSelectedFiltersOnBreadcrumbs">
+                <display-name xml:lang="x-default">Show selected filters on breadcrumbs</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
             </attribute-definition>
             <attribute-definition attribute-id="isConfirmationStatusNotUpdate">
 				<display-name xml:lang="x-default">Set Confirmation status to update or not</display-name>
@@ -547,7 +651,21 @@
 				<min-length>0</min-length>
 				<field-length>0</field-length>
 			</attribute-definition>
-			 <attribute-definition attribute-id="Adyen_API_Key">
+			<attribute-definition attribute-id="Adyen_disableCaptureCall">
+                <display-name xml:lang="x-default">Disable Capture Call</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_showActionModalAsPopupFor2FA">
+                <display-name xml:lang="x-default">Enable Adyen Modal as Popup for 2FA</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_API_Key">
 				<display-name xml:lang="x-default">X-API-KEY of Web service</display-name>
 				<description xml:lang="x-default">X-API-KEY of Web service</description>
 				<type>password</type>
@@ -858,6 +976,28 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="noIndexMeta">
+                <display-name xml:lang="x-default">No Index Meta</display-name>
+                <description xml:lang="x-default">No Index Robots metadata</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="maxCallToNarvar">
+                <display-name xml:lang="x-default">Max Call To Narvar</display-name>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>3</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="invoiceTaxInformation">
+                <display-name xml:lang="x-default">Invoice Tax Information</display-name>
+                <description xml:lang="x-default">Invoice Tax Information</description>
+                <type>html</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="AurusPay">
@@ -917,6 +1057,8 @@
 				<attribute attribute-id="OrderNumberPrefix"/>
                 <attribute attribute-id="adyenAdditionalData"/>
                 <attribute attribute-id="cashPaymentMethods"/>
+                <attribute attribute-id="Adyen_disableCaptureCall"/>
+                <attribute attribute-id="Adyen_showActionModalAsPopupFor2FA"/>
             </attribute-group>
             <attribute-group group-id="UA IDM">
                 <display-name xml:lang="x-default">UA IDM authentication settings</display-name>
@@ -942,6 +1084,33 @@
                 <attribute attribute-id="enableShopThisOutfit"/>
                 <attribute attribute-id="adobeClientID"/>
                 <attribute attribute-id="adobeClientSecret"/>
+            </attribute-group>
+            <attribute-group group-id="metaTag">
+				<display-name xml:lang="x-default">Meta Tag</display-name>
+                <attribute attribute-id="robotMetaData"/>
+                <attribute attribute-id="noIndexMeta"/>
+                <attribute attribute-id="allowCanonicalUrl"/>
+                <attribute attribute-id="siteTitle"/>
+                </attribute-group>
+            <attribute-group group-id="Invoice">
+                <display-name xml:lang="x-default">Invoice</display-name>
+                <attribute attribute-id="invoiceTaxInformation"/>
+            </attribute-group>
+            <attribute-group group-id="Storefront Configs">
+                <display-name xml:lang="x-default">Storefront Configurations</display-name>
+                <attribute attribute-id="showSelectedFiltersOnBreadcrumbs"/>
+            </attribute-group>
+            <attribute-group group-id="ShareBasket">
+                <display-name xml:lang="x-default">Share basket</display-name>
+                <attribute attribute-id="sharedBasketEnabled"/>
+                <attribute attribute-id="secretKeyQrCode"/>
+            </attribute-group>
+            <attribute-group group-id="NarvarConfigs">
+                <display-name xml:lang="x-default">Narvar Configurations</display-name>
+                <attribute attribute-id="enableNarvarTracking"/>
+                <attribute attribute-id="narvarRetailerName"/>
+                <attribute attribute-id="narvarCarrierMapping"/>
+                <attribute attribute-id="maxCallToNarvar"/>
             </attribute-group>
         </group-definitions>
     </type-extension>

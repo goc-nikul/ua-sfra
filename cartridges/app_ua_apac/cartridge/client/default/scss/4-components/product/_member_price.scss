@@ -1,0 +1,236 @@
+.member-price-badge {
+    color: $red;
+    text-align: right;
+
+    p {
+        font-size: rem-calc(12);
+        line-height: rem-calc(15);
+        font-weight: 600;
+    }
+}
+
+.pdp-member-price {
+    margin-top: -12px;
+    margin-bottom: 12px;
+}
+
+.plp-member-price,
+.pdp-member-price {
+    display: flex;
+
+    .member-price-badge {
+        margin-left: rem-calc(16);
+        align-self: center;
+
+        p {
+            font-size: rem-calc(14);
+
+            @include respond-to(mobile) {
+                line-height: rem-calc(15);
+            }
+        }
+    }
+}
+
+.g-modal-memberpricing {
+    .g-modal-dialog {
+        max-width: rem-calc(450);
+        margin: rem-calc(32) auto;
+        min-height: calc(100% - (2rem * 2));
+    }
+
+    .g-modal-content {
+        padding: rem-calc(40) 0 0;
+        min-height: rem-calc(630);
+        position: relative;
+
+        .g-modal-close {
+            position: absolute;
+            width: 1rem;
+            right: rem-calc(25);
+            top: rem-calc(32);
+
+            &_button {
+                @include closeIcon(right, rem-calc(16));
+
+                position: absolute;
+                padding: rem-calc(24) !important;
+                left: -18px;
+                top: -22px;
+
+                &::before,
+                &::after {
+                    top: rem-calc(22);
+                    left: rem-calc(18);
+                }
+            }
+        }
+    }
+
+    .popup_logo_img {
+        padding: 0 0 rem-calc(16) rem-calc(24);
+    }
+
+    .popup_banner_img img {
+        width: 100%;
+    }
+
+    .Member_Pricing_group {
+        margin: rem-calc(18) rem-calc(24);
+    }
+
+    .join_free_title {
+        @include font (main_bold, rem-calc(16), rem-calc(24));
+
+        color: $red;
+        letter-spacing: rem-calc(0.5);
+    }
+
+    .guest_popup_title {
+        @include font (main_bold, rem-calc(32), 1);
+
+        text-transform: uppercase;
+        letter-spacing: rem-calc(0.5);
+        padding: rem-calc(5) 0;
+    }
+
+    .guest_popup_description {
+        @include font (main, rem-calc(14), rem-calc(20));
+    }
+
+    ul.details_list {
+        margin-left: rem-calc(16);
+        margin-top: rem-calc(22);
+
+        li {
+            padding-bottom: rem-calc(12);
+        }
+
+        span {
+            display: inline;
+            vertical-align: top;
+            font-weight: 500;
+        }
+    }
+
+    .member-pricing-buttons {
+        margin: rem-calc(44) rem-calc(16) rem-calc(16);
+        text-align: center;
+
+        .add-without-memberprice {
+            font-size: rem-calc(12);
+        }
+    }
+
+    .register-login {
+        margin-top: rem-calc(28);
+        margin-bottom: rem-calc(12);
+
+        span {
+            font-size: rem-calc(12);
+        }
+    }
+
+    .member-pricing-success-buttons {
+        display: block;
+        justify-content: center;
+        margin: rem-calc(20);
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        left: 0;
+    }
+
+    .g-button_base {
+        max-width: calc(100%);
+    }
+
+    .eligible_block {
+        margin: rem-calc(50) rem-calc(8);
+    }
+
+    .member-pricing-ineligible-buttons {
+        margin: rem-calc(50) rem-calc(16);
+    }
+
+    .member-pricing-rewards {
+        @include font (main_med, rem-calc(12), rem-calc(20));
+
+        margin: rem-calc(20) auto rem-calc(0);
+        display: block;
+        text-align: center;
+        visibility: hidden;
+    }
+}
+
+.member-pricing-text-above-cta {
+    display: flex;
+    align-items: end;
+}
+
+img.member-pricing-img {
+    vertical-align: middle;
+    margin-right: rem-calc(10);
+}
+
+.member-pricing-text {
+    @include font (main_med, rem-calc(14), rem-calc(20));
+}
+
+.pdp-member-pricing-message {
+
+    @include respond-to(mobile) {
+        display: none;
+    }
+}
+
+.b-product_actions-inner {
+    @include respond-to(mobile) {
+        display: block;
+        flex-direction: row;
+
+        .pdp-member-pricing-message {
+            display: block;
+            padding-bottom: rem-calc(16);
+
+            .member-pricing-text-above-cta {
+                padding: 0;
+                font-size: rem-calc(14);
+            }
+        }
+    }
+
+    @include respond-to(desktop) {
+        .pdp-member-pricing-message {
+            display: none;
+        }
+    }
+}
+
+.sticky-cta {
+
+    @include respond-to(desktop) {
+        .b-add_to_bag {
+            &_container {
+                flex-basis: 35%;
+            }
+        }
+
+        .pdp-member-pricing-message {
+            display: flex;
+        }
+
+        .member-pricing-text-above-cta {
+            margin: rem-calc(25) 0 0 rem-calc(15);
+            display: block;
+            float: left;
+        }
+
+        .member-pricing-text-not-eligible {
+            margin: rem-calc(30) 0 0 rem-calc(15);
+            float: left;
+            text-wrap: wrap;
+        }
+    }
+}
+

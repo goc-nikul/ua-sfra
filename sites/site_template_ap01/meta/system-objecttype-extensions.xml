@@ -63,7 +63,7 @@
             <attribute-definition attribute-id="itemID">
                 <min-length>0</min-length>
             </attribute-definition>
-            <attribute-definition attribute-id="netPrice"/>
+        <attribute-definition attribute-id="netPrice"/>
             <attribute-definition attribute-id="orderItemID">
                 <min-length>0</min-length>
             </attribute-definition>
@@ -158,6 +158,33 @@
             <attribute-definition attribute-id="lastModified"/>
         </system-attribute-definitions>
         <custom-attribute-definitions>
+            <attribute-definition attribute-id="purchaseSite">
+                <display-name xml:lang="x-default">Purchase Site</display-name>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">CC</display>
+                        <value>CC</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">MS</display>
+                        <value>MS</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">APP</display>
+                        <value>APP</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="isOptedInToNotifications">
+                <display-name xml:lang="x-default">Order Notifications Opt-In</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
             <attribute-definition attribute-id="sr_token">
                 <display-name xml:lang="x-default">ShopRunner Token</display-name>
                 <type>string</type>
@@ -561,6 +588,13 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="noIndexSEOTag">
+                <display-name xml:lang="x-default">Apply Meta Robots noindex Tag</display-name>
+                <description xml:lang="x-default">Checking this box enables the noindex tag. ONLY use if the page should not be indexed by Search Engines.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
             <attribute-definition attribute-id="enableCompare">
                 <display-name xml:lang="x-default">Enable Compare</display-name>
                 <description xml:lang="x-default">Used to define if/when the Compare feature is to be visualized in the storefront based on navigation. If enableCompare = FALSE, no Compare checkboxes will be displayed in the grid view. If enableCompare = TRUE, the category (and its children) will support the Compare feature.</description>
@@ -785,6 +819,7 @@
                 <attribute attribute-id="canonicalCategory"/>
                 <attribute attribute-id="showFitModelSelection"/>
                 <attribute attribute-id="shoplinkerPath"/>
+                <attribute attribute-id="noIndexSEOTag"/>
             </attribute-group>
             <attribute-group group-id="loyalty">
                 <display-name xml:lang="x-default">Loyalty category settings</display-name>
@@ -2185,6 +2220,32 @@
             </attribute-definition>
         </system-attribute-definitions>
 		<custom-attribute-definitions>
+            <attribute-definition attribute-id="purchaseSite">
+                <display-name xml:lang="x-default">Purchase Site</display-name>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">CC</display>
+                        <value>CC</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">MS</display>
+                        <value>MS</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">APP</display>
+                        <value>APP</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="isOptedInToNotifications">
+                <display-name xml:lang="x-default">Order Notifications Opt-In</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
             <attribute-definition attribute-id="aurusResponseCode">
                 <display-name xml:lang="x-default">Aurus Response Code</display-name>
                 <type>string</type>
@@ -2954,6 +3015,18 @@ ID|SKU|Name order line items|Price</description>
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
             </attribute-definition>
+            <attribute-definition attribute-id="isSPC">
+                <display-name xml:lang="x-default">Placed with Single Page Checkout?</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="bvSentInPPEFeed">
+                <display-name xml:lang="x-default">Whether order already sent in Bazaarvoice PPE feed or not</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="AdyenPayments">
@@ -2999,6 +3072,8 @@ ID|SKU|Name order line items|Price</description>
                 <attribute attribute-id="returnCaseNumber"/>
                 <attribute attribute-id="estimatedLoyaltyPoints"/>
                 <attribute attribute-id="holidaySeason"/>
+                <attribute attribute-id="isSPC"/>
+                <attribute attribute-id="purchaseSite"/>
             </attribute-group>
             <attribute-group group-id="Zip">
                 <display-name xml:lang="x-default">Zip</display-name>
@@ -3077,6 +3152,10 @@ ID|SKU|Name order line items|Price</description>
             <attribute-group group-id="Paazl">
                 <display-name xml:lang="x-default">Paazl</display-name>
                 <attribute attribute-id="isTrackedToPaazl"/>
+            </attribute-group>
+            <attribute-group group-id="Bazaarvoice">
+                <display-name xml:lang="x-default">Bazaarvoice Attribute</display-name>
+                <attribute attribute-id="bvSentInPPEFeed"/>
             </attribute-group>
         </group-definitions>
     </type-extension>
@@ -4345,6 +4424,27 @@ ID|SKU|Name order line items|Price</description>
             </attribute-definition>
         </system-attribute-definitions>
         <custom-attribute-definitions>
+            <attribute-definition attribute-id="sizeChartID">
+                <display-name xml:lang="x-default">Size Chart</display-name>
+                <description xml:lang="x-default">Used to define the content asset ID of the Size Chart that is appropriate for the product If not defined, NO size chart link is displayed, sizeChartID on category level is the fallback.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="sizeChartCode">
+                <display-name xml:lang="x-default">Size Chart Code</display-name>
+                <description xml:lang="x-default">Used to define the content asset ID of the Size Chart that is appropriate for the product If not defined, NO size chart link is displayed. Should come from PIM.</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
             <attribute-definition attribute-id="excludedPromoIDs">
                 <display-name xml:lang="x-default">excluded Promotion IDs</display-name>
                 <description xml:lang="x-default">It stores Comma separated list of excluded  Promotion IDs</description>
@@ -4369,6 +4469,22 @@ ID|SKU|Name order line items|Price</description>
                 <order-required-flag>false</order-required-flag>
                 <externally-defined-flag>false</externally-defined-flag>
                 <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="masterQtyLimit">
+                <display-name xml:lang="x-default">Master Quantity Limit Per Order (only for master products)</display-name>
+                <description xml:lang="x-default">By adding a value to this attribute, we limit the quantity a customer can order for all variations assigned to this master. By leaving it empty, the implementation is disabled.&#13;
+                    Note: please assign this only on master.&#13;
+                    Example: if this value is set to 5, all variations quantities assigned to this master will not exceed 5.
+                </description>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>true</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-value>1.0</min-value>
             </attribute-definition>
             <attribute-definition attribute-id="merchCollection">
                 <display-name xml:lang="x-default">Collection</display-name>
@@ -5716,9 +5832,8 @@ ID|SKU|Name order line items|Price</description>
                 <value-definitions>
                     <value-definition>
                         <display xml:lang="x-default">New</display>
-                        <display xml:lang="th">สินค้าใหม่u</display>
+                        <display xml:lang="th">สินค้าใหม่</display>
                         <display xml:lang="in">Produk Baru</display>
-                        <display xml:lang="ko-KR">신규</display>
                         <display xml:lang="zh">新品推薦</display>
                         <value>new</value>
                     </value-definition>
@@ -6216,6 +6331,19 @@ ID|SKU|Name order line items|Price</description>
                 <min-length>0</min-length>
                 <field-length>0</field-length>
             </attribute-definition>
+            <attribute-definition attribute-id="bvProductType">
+                <display-name xml:lang="x-default">Bazaarvoice Product Type</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
             <attribute-definition attribute-id="technologies">
                 <display-name xml:lang="x-default">Technologies</display-name>
                 <description xml:lang="x-default">Selected technologies will pass as parameter to coremedia service request url in PDP page.</description>
@@ -6338,6 +6466,17 @@ ID|SKU|Name order line items|Price</description>
                 <order-required-flag>false</order-required-flag>
                 <externally-defined-flag>false</externally-defined-flag>
                 <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="hideDisableOverlayOnSwatch">
+                <display-name xml:lang="x-default">Hide Disable Overlay on Color Swatch On Load</display-name>
+                <description xml:lang="x-default">Hide Disable Overlay on Color Swatch On Load</description>
+                <type>boolean</type>
+                <site-specific-flag>true</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
             </attribute-definition>
 			<attribute-definition attribute-id="hasSizeModel">
                 <display-name xml:lang="x-default">Product Has SizeModel</display-name>
@@ -6682,7 +6821,7 @@ ID|SKU|Name order line items|Price</description>
             <attribute-definition attribute-id="isLoyaltyExclusive">
                 <display-name xml:lang="x-default">Is Early Access Product</display-name>
                 <type>boolean</type>
-                <site-specific-flag>false</site-specific-flag>
+                <site-specific-flag>true</site-specific-flag>
                 <mandatory-flag>false</mandatory-flag>
                 <visible-flag>false</visible-flag>
                 <externally-managed-flag>false</externally-managed-flag>
@@ -7061,6 +7200,196 @@ ID|SKU|Name order line items|Price</description>
                 <order-required-flag>false</order-required-flag>
                 <externally-defined-flag>false</externally-defined-flag>
             </attribute-definition>
+            <attribute-definition attribute-id="discountPercentage">
+                <display-name xml:lang="x-default">Discount Percentage</display-name>
+                <description xml:lang="x-default">Discount Percentage to be used in filters</description>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="earlyAccessBadge">
+                <display-name xml:lang="x-default">Early Access Product Badge</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="earlyAccessConfigs">
+                <display-name xml:lang="x-default">Early Access Configurations</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>true</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">NO</display>
+                        <value>NO</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">YES</display>
+                        <value>YES</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">HIDE</display>
+                        <value>HIDE</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="earlyAccessCustomerGroup">
+                <display-name xml:lang="x-default">Early Access Customer Group</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="franchise">
+                <display-name xml:lang="x-default">Franchise</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="parentstyletype">
+                <display-name xml:lang="x-default">Parent Style Type</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="parentstylename">
+                <display-name xml:lang="x-default">Parent Style Name</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="parentstylenumber">
+                <display-name xml:lang="x-default">Parent Style Number</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="stylefamily">
+                <display-name xml:lang="x-default">Style Family</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="productcollection">
+                <display-name xml:lang="x-default">Product Collection</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="collectiongroup">
+                <display-name xml:lang="x-default">Collection Group</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="buildtype">
+                <display-name xml:lang="x-default">Build Type</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="merchmoments">
+                <display-name xml:lang="x-default">Merch Moments</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="ecommAssortment">
+                <display-name xml:lang="x-default">E-comm assortment</display-name>
+                <description xml:lang="x-default">to provide flexibility to update products which will be used in the Rule-based categorization.</description>
+                <type>boolean</type>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="excludedPromotionIDs">
@@ -7104,6 +7433,7 @@ ID|SKU|Name order line items|Price</description>
                 <attribute attribute-id="employeeLineItemQtyLimit" />
                 <attribute attribute-id="exemptEmployeeDiscount" />
                 <attribute attribute-id="expectedDelivery" />
+                <attribute attribute-id="masterQtyLimit"/>
             </attribute-group>
             <attribute-group group-id="Store">
                 <display-name xml:lang="x-default">Store Attributes</display-name>
@@ -7171,6 +7501,11 @@ ID|SKU|Name order line items|Price</description>
                 <attribute attribute-id="promoCalloutAssetID"/>
                 <attribute attribute-id="outletProductTileUpperLeftBadge"/>
                 <attribute attribute-id="productTileUpperLeftFlameIconBadge"/>
+                <attribute attribute-id="hideDisableOverlayOnSwatch"/>
+                <attribute attribute-id="discountPercentage"/>
+                <attribute attribute-id="sizeChartID"/>
+                <attribute attribute-id="sizeChartCode"/>
+                <attribute attribute-id="ecommAssortment"/>
             </attribute-group>
             <attribute-group group-id="searchRefinements">
                 <display-name xml:lang="x-default">Search Refinements</display-name>
@@ -7214,6 +7549,7 @@ ID|SKU|Name order line items|Price</description>
                 <attribute attribute-id="bvAverageRating"/>
                 <attribute attribute-id="bvReviewCount"/>
                 <attribute attribute-id="bvRatingRange"/>
+                <attribute attribute-id="bvProductType"/>
             </attribute-group>
             <attribute-group group-id="ExperienceAttributes">
                 <display-name xml:lang="x-default">Experience Attributes</display-name>
@@ -7270,6 +7606,24 @@ ID|SKU|Name order line items|Price</description>
             <attribute-group group-id="Iconography">
                 <display-name xml:lang="x-default">Iconography</display-name>
                 <attribute attribute-id="icons"/>
+            </attribute-group>
+            <attribute-group group-id="EarlyAccess">
+                <display-name xml:lang="x-default">Early Access</display-name>
+                <attribute attribute-id="earlyAccessConfigs"/>
+                <attribute attribute-id="earlyAccessCustomerGroup"/>
+                <attribute attribute-id="earlyAccessBadge"/>
+            </attribute-group>
+            <attribute-group group-id="brandArchitecture">
+                <display-name xml:lang="x-default">Brand Architecture</display-name>
+                <attribute attribute-id="franchise"/>
+                <attribute attribute-id="parentstyletype"/>
+                <attribute attribute-id="parentstylename"/>
+                <attribute attribute-id="parentstylenumber"/>
+                <attribute attribute-id="stylefamily"/>
+                <attribute attribute-id="productcollection"/>
+                <attribute attribute-id="collectiongroup"/>
+                <attribute attribute-id="buildtype"/>
+                <attribute attribute-id="merchmoments"/>
             </attribute-group>
         </group-definitions>
     </type-extension>
@@ -7451,6 +7805,13 @@ ID|SKU|Name order line items|Price</description>
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="estimatedItemLoyaltyPoints">
+                <display-name xml:lang="x-default">Estimated Item Loyalty Points</display-name>
+                <description xml:lang="x-default">The total number of Loyalty Points earned for all quantities in this line item.</description>
+                <type>double</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
             <attribute-definition attribute-id="proratedOrderLevelDiscount">
                 <display-name xml:lang="x-default">Prorated Order Level Discount</display-name>
                 <description xml:lang="x-default">Amount of all order level discounts prorated to this line item.</description>
@@ -7533,6 +7894,10 @@ ID|SKU|Name order line items|Price</description>
                 <attribute attribute-id="jerseyNumber"/>
                 <attribute attribute-id="sponsors"/>
                 <attribute attribute-id="jerseyNumberText"/>
+            </attribute-group>
+            <attribute-group group-id="loyalty">
+                <display-name xml:lang="x-default">Loyalty</display-name>
+                <attribute attribute-id="estimatedItemLoyaltyPoints"/>
             </attribute-group>
         </group-definitions>
     </type-extension>
@@ -8040,12 +8405,42 @@ ID|SKU|Name order line items|Price</description>
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
             </attribute-definition>
+            <attribute-definition attribute-id="isFirstEngagementSent">
+                <display-name xml:lang="x-default">Is first engagement sent?</display-name>
+                <description xml:lang="x-default">Flag to indicate if first engagement has been sent for this account</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="isSecondEngagementSent">
+                <display-name xml:lang="x-default">Is second engagement sent?</display-name>
+                <description xml:lang="x-default">Flag to indicate if seconds engagement has been sent for this account</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
             <attribute-definition attribute-id="sleepingEmailNotification">
                 <display-name xml:lang="x-default">Sleeping Email Notification</display-name>
                 <description xml:lang="x-default">Sleeping Email Notification</description>
                 <type>boolean</type>
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="codOrderCount">
+                <display-name xml:lang="x-default">COD Order Count</display-name>
+                <description xml:lang="x-default">Number of COD orders placed within a day</description>
+                <type>int</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-value>0.0</min-value>
+                <default-value>0</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="CI">
+                <display-name xml:lang="x-default">CI</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
             </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
@@ -8095,6 +8490,7 @@ ID|SKU|Name order line items|Price</description>
                 <attribute attribute-id="employeeCountry"/>
                 <attribute attribute-id="sapID"/>
                 <attribute attribute-id="customerSizePreferences"/>
+                <attribute attribute-id="codOrderCount"/>
             </attribute-group>
             <attribute-group group-id="Loyalty">
                 <display-name xml:lang="x-default">Loyalty</display-name>
@@ -8132,6 +8528,12 @@ ID|SKU|Name order line items|Price</description>
                 <display-name xml:lang="x-default">SleepingDeleting</display-name>
                 <attribute attribute-id="isSleptAccount"/>
                 <attribute attribute-id="sleepingEmailNotification"/>
+                <attribute attribute-id="isFirstEngagementSent"/>
+                <attribute attribute-id="isSecondEngagementSent"/>
+            </attribute-group>
+            <attribute-group group-id="MobileAuth">
+                <display-name xml:lang="x-default">Mobile Authentication</display-name>
+                <attribute attribute-id="CI"/>
             </attribute-group>
         </group-definitions>
     </type-extension>
@@ -8247,6 +8649,25 @@ ID|SKU|Name order line items|Price</description>
                 <mandatory-flag>true</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
             </attribute-definition>
+            <attribute-definition attribute-id="isFreeShipping">
+                <display-name xml:lang="x-default">Is Free Shipping</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="promoErrorMsg">
+                <display-name xml:lang="x-default">Promotion Error Message</display-name>
+                <type>html</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="isMemberPricingPromo">
+                <display-name xml:lang="x-default">Is Member Pricing Promotion</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="custom">
@@ -8255,6 +8676,9 @@ ID|SKU|Name order line items|Price</description>
                 <attribute attribute-id="exclusionCalloutMsg"/>
                 <attribute attribute-id="approachedPromotion"/>
                 <attribute attribute-id="isIdmeDiscount"/>
+                <attribute attribute-id="isFreeShipping"/>
+                <attribute attribute-id="promoErrorMsg"/>
+                <attribute attribute-id="isMemberPricingPromo"/>
             </attribute-group>
             <attribute-group group-id="Memberson">
                 <display-name xml:lang="x-default">Memberson</display-name>
@@ -8362,12 +8786,28 @@ ID|SKU|Name order line items|Price</description>
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="returnShipmentProvider">
+                <display-name xml:lang="x-default">Return Shipment Provider</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="trackingLink">
+                <display-name xml:lang="x-default">Tracking Link</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="custom">
                 <display-name xml:lang="x-default">Custom</display-name>
                 <attribute attribute-id="trackingNumber"/>
                 <attribute attribute-id="refundItems"/>
+                <attribute attribute-id="returnShipmentProvider"/>
+                <attribute attribute-id="trackingLink"/>
             </attribute-group>
         </group-definitions>
     </type-extension>
@@ -8531,6 +8971,20 @@ ID|SKU|Name order line items|Price</description>
             </attribute-definition>
             <attribute-definition attribute-id="pickupTimeSlot">
                 <display-name xml:lang="x-default">TimeSlot in Pickup Address</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnShipmentProvider">
+                <display-name xml:lang="x-default">Return Shipment Provider</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="trackingLink">
+                <display-name xml:lang="x-default">Tracking Link</display-name>
                 <type>string</type>
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
@@ -9193,176 +9647,6 @@ ID|SKU|Name order line items|Price</description>
 				<externally-managed-flag>false</externally-managed-flag>
 				<min-length>0</min-length>
 			</attribute-definition>
-			<attribute-definition attribute-id="PX_IP_filters">
-				<display-name xml:lang="x-default">IP Whitelist</display-name>
-				<description xml:lang="x-default">A list of comma separated IP addresses or CIDRs to whitelist.</description>
-				<type>string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_appID">
-				<display-name xml:lang="x-default">AppID</display-name>
-				<description xml:lang="x-default">PX custom application id in the format of PX______</description>
-				<type>string</type>
-				<mandatory-flag>true</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_authToken">
-				<display-name xml:lang="x-default">Authentication Token</display-name>
-				<description xml:lang="x-default">JWT token used for REST API.</description>
-				<type>string</type>
-				<mandatory-flag>true</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_blockingScore">
-				<display-name xml:lang="x-default">Blocking Score</display-name>
-				<description xml:lang="x-default">Sets the minimum blocking score of a request.</description>
-				<type>int</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<default-value>100</default-value>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_bypassMonitorHeader">
-				<display-name xml:lang="x-default">Bypass Monitor Mode Header</display-name>
-				<description xml:lang="x-default">An header which enable bypass of monitor mode</description>
-				<type>string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_controllersCartridge">
-				<display-name xml:lang="x-default">SGJC Cartridge Name</display-name>
-				<description xml:lang="x-default">The cartridge name of the site's controllers cartridge</description>
-				<type>string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_cookieKey">
-				<display-name xml:lang="x-default">Cookie Key</display-name>
-				<description xml:lang="x-default">The key used by the cookie signing page.</description>
-				<type>string</type>
-				<mandatory-flag>true</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_cssRef">
-				<display-name xml:lang="x-default">CSS Ref</display-name>
-				<description xml:lang="x-default">Modifies a custom CSS by adding the CSSRef directive and providing a valid URL to the CSS file.</description>
-				<type>string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_customBlockPage">
-				<display-name xml:lang="x-default">Custom Block Page Template</display-name>
-				<description xml:lang="x-default">The filename for the template of the custom block page.</description>
-				<type>string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_customLogo">
-				<display-name xml:lang="x-default">Custom Logo</display-name>
-				<description xml:lang="x-default">The logo is displayed at the top of the the block page.</description>
-				<type>string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_debugMode">
-				<display-name xml:lang="x-default">Debug Mode</display-name>
-				<description xml:lang="x-default">Enables debug logging mode.</description>
-				<type>boolean</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<default-value>false</default-value>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_filters">
-				<display-name xml:lang="x-default">Path Whitelist</display-name>
-				<description xml:lang="x-default">A list of comma separated relative URLs to whitelist.</description>
-				<type>string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_firstPartyEnabled">
-				<display-name xml:lang="x-default">First Party Enabled</display-name>
-				<description xml:lang="x-default">Enables the module to receive data from PerimeterX, acting as a "reverse-proxy" for client and Captcha requests.</description>
-				<type>boolean</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<default-value>false</default-value>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_ipHeaders">
-				<display-name xml:lang="x-default">IP Headers</display-name>
-				<description xml:lang="x-default">A list of comma separated trusted headers that specify an IP to be extracted.</description>
-				<type>string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_jsRef">
-				<display-name xml:lang="x-default">JS Ref</display-name>
-				<description xml:lang="x-default">Adds a custom JS file by adding JSRef directive and providing the JS file that is loaded with the block page.</description>
-				<type>string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_moduleEnabled">
-				<display-name xml:lang="x-default">Module Enabled</display-name>
-				<description xml:lang="x-default">A boolean flag to enable/disable the PerimeterX SFCC Cartridge.</description>
-				<type>boolean</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<default-value>true</default-value>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_moduleMode">
-				<display-name xml:lang="x-default">Module Mode</display-name>
-				<description xml:lang="x-default">Possible values:&#13;
-	1 for block, 0 for monitor only</description>
-				<type>int</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<default-value>0</default-value>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_sendBlockActivities">
-				<display-name xml:lang="x-default">Send Block Activities</display-name>
-				<description xml:lang="x-default">A boolean flag to enable/disable sending block activities to PerimeterX with each request.</description>
-				<type>boolean</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<default-value>true</default-value>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_sendPageActivities">
-				<display-name xml:lang="x-default">Send Page Activities</display-name>
-				<description xml:lang="x-default">A boolean flag to enable/disable sending activities and metrics to PerimeterX for each page request</description>
-				<type>boolean</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<default-value>true</default-value>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_sensitiveHeaders">
-				<display-name xml:lang="x-default">Sensitive Headers</display-name>
-				<description xml:lang="x-default">A list of comma separated headers that are not sent to PerimeterX servers on API calls.</description>
-				<type>string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-				<default-value>cookie, cookies</default-value>
-			</attribute-definition>
-			<attribute-definition attribute-id="PX_sensitiveRoutes">
-				<display-name xml:lang="x-default">Sensitive Routes</display-name>
-				<description xml:lang="x-default">An array of route prefixes that trigger a server call to PerimeterX servers every time the page is viewed, regardless of viewing history.</description>
-				<type>string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-			</attribute-definition>
 			<attribute-definition attribute-id="QASEndpoint">
 				<display-name xml:lang="x-default">QAS API Endpoint</display-name>
 				<type>string</type>
@@ -9543,161 +9827,255 @@ ID|SKU|Name order line items|Price</description>
 				<min-length>0</min-length>
 				<field-length>0</field-length>
 			</attribute-definition>
-			<attribute-definition attribute-id="bvCloudSEOKey_C2013">
-				<display-name xml:lang="x-default">Cloud SEO Key</display-name>
-				<description xml:lang="x-default">SEO Cloud key value as defined in your BV platform account.  This key is only required if Cloud SEO is enabled.</description>
-				<type>string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-				<field-length>0</field-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="bvCustomerName_C2013">
-				<display-name xml:lang="x-default">Client Name</display-name>
-				<description xml:lang="x-default">Client Name as defined in your BV platform account</description>
-				<type>string</type>
-				<mandatory-flag>true</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-				<field-length>0</field-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="bvDeploymentZone_C2013">
-				<display-name xml:lang="x-default">Deployment Zone</display-name>
-				<description xml:lang="x-default">Deployment Zone Name as defined in your BV platform account</description>
-				<type>string</type>
-				<mandatory-flag>true</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-				<field-length>0</field-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="bvEnableAA_C2013">
-				<display-name xml:lang="x-default">Enable Question &amp; Answer</display-name>
-				<description xml:lang="x-default">Turn on BV Questions &amp; Answers. This will enable display of Q&amp;A content on your product pages.  See documentation for additional steps that must be completed for this feature to take effect.</description>
-				<type>boolean</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-			</attribute-definition>
-			<attribute-definition attribute-id="bvEnableBVPixel_C2013">
-				<display-name xml:lang="x-default">Enable BV Pixel</display-name>
-				<description xml:lang="x-default">Turn on the BV Pixel tag on the DW purchase transaction (checkout) page.  See documentation for additional steps that must be completed for this feature to take effect.</description>
-				<type>boolean</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-			</attribute-definition>
-			<attribute-definition attribute-id="bvEnableCloudSEO_C2013">
-				<display-name xml:lang="x-default">Enable Cloud SEO</display-name>
-				<description xml:lang="x-default">Turn on the BV SEO solution.  This will include SEO-friendly content (located in the BV SEO cloud) in your product pages.  See documentation for additional steps that must be completed for this feature to take effect.</description>
-				<type>boolean</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-			</attribute-definition>
-			<attribute-definition attribute-id="bvEnableInlineRatings_C2013">
-				<display-name xml:lang="x-default">Enable Inline Ratings</display-name>
-				<description xml:lang="x-default">Turn on inline ratings. This will enable display of product rating statistics on your category and search results pages.  See documentation for additional steps that must be completed for this feature to take effect.</description>
-				<type>enum-of-string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<value-definitions>
-					<value-definition>
-						<display xml:lang="x-default">No Inline Ratings</display>
-						<value>none</value>
-					</value-definition>
-					<value-definition>
-						<display xml:lang="x-default">Hosted Inlline Ratings</display>
-						<value>hosted</value>
-					</value-definition>
-					<value-definition>
-						<display xml:lang="x-default">Feed Based Inline Ratings</display>
-						<value>native</value>
-					</value-definition>
-				</value-definitions>
-			</attribute-definition>
-			<attribute-definition attribute-id="bvEnableRR_C2013">
-				<display-name xml:lang="x-default">Enable Ratings &amp; Reviews</display-name>
-				<description xml:lang="x-default">Turn on BV Ratings &amp; Reviews. This will enable display of R&amp;R content on your product pages.  See documentation for additional steps that must be completed for this feature to take effect.</description>
-				<type>boolean</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-			</attribute-definition>
-			<attribute-definition attribute-id="bvEnvironment_C2013">
-				<display-name xml:lang="x-default">Environment</display-name>
-				<description xml:lang="x-default">BV environment that this DW instance type is integrating with</description>
-				<type>enum-of-string</type>
-				<mandatory-flag>true</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<value-definitions>
-					<value-definition default="true">
-						<display xml:lang="x-default">Staging</display>
-						<value>Staging</value>
-					</value-definition>
-					<value-definition>
-						<display xml:lang="x-default">Production</display>
-						<value>Production</value>
-					</value-definition>
-				</value-definitions>
-			</attribute-definition>
-			<attribute-definition attribute-id="bvLocaleMapping_C2013">
-				<display-name xml:lang="x-default">Locale Mapping(s)</display-name>
-				<description xml:lang="x-default">Colon separated value pairs that define how DW Locales are mapped to BV Locales.  DW Locales must be enabled in the current DW Site.  BV Locales must be enabled within your BV platform acocunt.  Format: ["(DW Locale ID)":]"(BV Locale)"</description>
-				<type>set-of-string</type>
-				<mandatory-flag>true</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<field-length>0</field-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="bvOrderImageType_C2013">
-				<display-name xml:lang="x-default">Purchase Feed Image Type</display-name>
-				<description xml:lang="x-default">This is the Image Size type used in the feed. The value must match an existing Image Size type. If Image Type custom site preference is set to anything other than medium, then when the feed generator discovers a product that does not have that size type defined, the medium image will be used. If no medium image is set for that product, no image URL will be added in the feed</description>
-				<type>string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-				<field-length>0</field-length>
-				<default-value>medium</default-value>
-			</attribute-definition>
-			<attribute-definition attribute-id="bvProductImageType_C2013">
-				<display-name xml:lang="x-default">Product Feed Image Type</display-name>
-				<description xml:lang="x-default">This is the Image Size type used in the feed. The value must match an existing Image Size type. If Image Type custom site preference is set to anything other than medium, then when the feed generator discovers a product that does not have that size type defined, the medium image will be used. If no medium image is set for that product, no image URL will be added in the feed</description>
-				<type>string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-				<field-length>0</field-length>
-				<default-value>medium</default-value>
-			</attribute-definition>
-			<attribute-definition attribute-id="bvPurchaseFeedTriggeringEvent_C2013">
-				<display-name xml:lang="x-default">Purchase Feed Triggering Event</display-name>
-				<description xml:lang="x-default">This determines whether to use the purchase date or ship date when calculating which purchases to include in the purchase feed.</description>
-				<type>enum-of-string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<value-definitions>
-					<value-definition>
-						<display xml:lang="x-default">Shipping</display>
-						<value>shipping</value>
-					</value-definition>
-					<value-definition>
-						<display xml:lang="x-default">Purchase</display>
-						<value>purchase</value>
-					</value-definition>
-				</value-definitions>
-			</attribute-definition>
-			<attribute-definition attribute-id="bvQuickViewRatingsType_C2013">
-				<display-name xml:lang="x-default">Quick View rating type</display-name>
-				<description xml:lang="x-default">Either Inline Rating stars (will honor the inline rating type: hosted vs native), or PDP summary stars (hosted)</description>
-				<type>enum-of-string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<value-definitions>
-					<value-definition>
-						<display xml:lang="x-default">Inline Rating Stars</display>
-						<value>inlineratings</value>
-					</value-definition>
-					<value-definition>
-						<display xml:lang="x-default">PDP Summary (Aggregate Rating) Stars</display>
-						<value>pdpsummary</value>
-					</value-definition>
-				</value-definitions>
-			</attribute-definition>
+			<attribute-definition attribute-id="bvCloudSEOKey">
+                <display-name xml:lang="x-default">Cloud SEO Key</display-name>
+                <description xml:lang="x-default">The key to be used to initialize SEO objects.</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+			<attribute-definition attribute-id="bvCustomerName">
+                <display-name xml:lang="x-default">BV Client Name</display-name>
+                <description xml:lang="x-default">The name of the client to be used in the naming of the ratings, product, and purchase feeds.</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+			<attribute-definition attribute-id="bvDeploymentZone">
+                <display-name xml:lang="x-default">Deployment Zone</display-name>
+                <description xml:lang="x-default">This setting is important for initializing the Cloud SEO object. Defaults to "Main Site".</description>
+                <type>string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+			<attribute-definition attribute-id="bvEnableAA">
+                <display-name xml:lang="x-default">Enable Questions &amp; Answers</display-name>
+                <description xml:lang="x-default">Enables the Questions and Answers Module.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+			<attribute-definition attribute-id="bvEnableBVPixel">
+                <display-name xml:lang="x-default">Enable BV Pixel</display-name>
+                <description xml:lang="x-default">Enables BV Pixel.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+			<attribute-definition attribute-id="bvEnableCloudSEO">
+                <display-name xml:lang="x-default">Enable Cloud SEO</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+			<attribute-definition attribute-id="bvEnableInlineRatings">
+                <display-name xml:lang="x-default">Enable Inline Ratings</display-name>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Hosted Inline Ratings</display>
+                        <value>hosted</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Feed Based Inline Ratings</display>
+                        <value>native</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+			<attribute-definition attribute-id="bvEnableRR">
+                <display-name xml:lang="x-default">Enable Ratings &amp; Reviews</display-name>
+                <description xml:lang="x-default">Enables the Ratings and Reviews module.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+			<attribute-definition attribute-id="bvEnvironment">
+                <display-name xml:lang="x-default">Environment</display-name>
+                <description xml:lang="x-default">The specific Bazaarvoice environment from which to pull data. Values are 'Staging' or 'Production'</description>
+                <type>enum-of-string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">Staging</display>
+                        <value>Staging</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Production</display>
+                        <value>Production</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+			<attribute-definition attribute-id="bvLocaleMapping">
+                <display-name xml:lang="x-default">Locale Mapping(s)</display-name>
+                <description xml:lang="x-default">Colon separated value pairs that define how DW Locales are mapped to BV Locales.  DW Locales must be enabled in the current DW Site.  BV Locales must be enabled within your BV platform account.  Format: ["(DW Locale ID)":]"(BV Locale)"</description>
+                <type>set-of-string</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <field-length>0</field-length>
+            </attribute-definition>
+			<attribute-definition attribute-id="bvOrderImageType">
+                <display-name xml:lang="x-default">Purchase Feed Image Type</display-name>
+                <description xml:lang="x-default">The image type and size to be used in the purchase feed. Values include "small", "medium", "large". If "small" is selected, but there is no small image, "medium" will be the default value. If no "medium" image exists, no image will be exported for that product.</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+                <default-value>medium</default-value>
+            </attribute-definition>
+			<attribute-definition attribute-id="bvProductImageType">
+                <display-name xml:lang="x-default">Product Feed Image Type</display-name>
+                <description xml:lang="x-default">The image type and size to be used in the product feed. Values include “small”, “medium”, “large”. If “small” is selected, but there is no small image, “medium” will be the default image. If no “medium” image exists, no image will be exported for that product. </description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+                <default-value>medium</default-value>
+            </attribute-definition>
+			<attribute-definition attribute-id="bvPurchaseFeedTriggeringEvent">
+                <display-name xml:lang="x-default">Purchase Feed Triggering Event</display-name>
+                <description xml:lang="x-default">The event which triggers the Purchase Feed. If "shipping" is selected, then the purchase feed will only include shipped orders. If "purchase" is selected, the feed will contain all orders flagged for export.</description>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Shipping</display>
+                        <value>shipping</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Purchase</display>
+                        <value>purchase</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+			<attribute-definition attribute-id="bvQuickViewRatingsType">
+                <display-name xml:lang="x-default">Quick View rating type</display-name>
+                <description xml:lang="x-default">This setting controls if the user will see Rating “Stars” or a rating summary at a glance.</description>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Inline Rating Stars</display>
+                        <value>inlineratings</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Rating Summary</display>
+                        <value>pdpsummary</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="bvAggregateAttributes">
+                <display-name xml:lang="x-default">Aggregate Attributes for Syndication</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="bvEnableCategoryPrefix">
+                <display-name xml:lang="x-default">Enable Category Prefix</display-name>
+                <description xml:lang="x-default">If set, then it will use the Site Name as a prefix for categories in the purchase and product feeds.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="bvEnableFamilyPrefix">
+                <display-name xml:lang="x-default">BV Enable Family prefix</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="bvEnableFormattingFamilies">
+                <display-name xml:lang="x-default">Enable Product Families Formatting</display-name>
+                <description xml:lang="x-default">Enable formatting of product IDs in the following manner: "SiteName"-"ProductId"</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="bvEnableProductFamilies">
+                <display-name xml:lang="x-default">BV Enable Product Families</display-name>
+                <description xml:lang="x-default"></description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="bvAdditionalProductFamily">
+                <display-name xml:lang="x-default">Additional Product Family</display-name>
+                <description xml:lang="x-default">The additional product family to be exported in the Product Feed. Comma-separated list of multiple values: UPC,EAN,MPN where MPN is manufacturer part number.</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>0</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="bvEnableProductPrefix">
+                <display-name xml:lang="x-default">Enable Product Prefix</display-name>
+                <description xml:lang="x-default">If set, then it will use the Site Name as a prefix for products in the purchase and product feeds.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="bvEntityId">
+                <display-name xml:lang="x-default">BV Entity ID</display-name>
+                <description xml:lang="x-default">This setting affects the Product ID to be included in the ratings, product and purchase feeds.</description>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">master</display>
+                        <value>master</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">variantID</display>
+                        <value>variantID</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="bvProductTypes">
+                <display-name xml:lang="x-default">BV Product Excluded Types</display-name>
+                <description xml:lang="x-default">BV Product Types to exclude from transactions.</description>
+                <type>set-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="bvPurchaseFeedSource">
+                <display-name xml:lang="x-default">Purchase Feed Source</display-name>
+                <description xml:lang="x-default">If XML Feed is selected, removes the customer's email from BV Pixel.</description>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">XML Feed</display>
+                        <value>xmlFeed</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">BV Pixel</display>
+                        <value>bvPixel</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="bvEnableCaseInsensitivePID">
+                <display-name xml:lang="x-default">Enable case insensitive product ID</display-name>
+                <description xml:lang="x-default">Enable case insensitive product ID for Inline Ratings Import job.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
 			<attribute-definition attribute-id="carrierCode">
 				<display-name xml:lang="x-default">Carrier Code</display-name>
 				<type>string</type>
@@ -9784,7 +10162,7 @@ ID|SKU|Name order line items|Price</description>
 				<mandatory-flag>false</mandatory-flag>
 				<externally-managed-flag>false</externally-managed-flag>
 				<min-value>0.0</min-value>
-				<default-value>0</default-value>
+				<default-value>1</default-value>
 			</attribute-definition>
 			<attribute-definition attribute-id="cmPageCacheOnErrorTTL">
 				<display-name xml:lang="x-default">Preview Page Cache on Error TTL (in seconds)</display-name>
@@ -10290,22 +10668,6 @@ ID|SKU|Name order line items|Price</description>
 				<min-length>0</min-length>
 				<default-value>usd-m-list-prices</default-value>
 			</attribute-definition>
-			<attribute-definition attribute-id="mPulseAPI">
-				<display-name xml:lang="x-default">mPulse API Key</display-name>
-				<description xml:lang="x-default">API Key for mPulse</description>
-				<type>text</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-			</attribute-definition>
-			<attribute-definition attribute-id="mPulseEnabled">
-				<display-name xml:lang="x-default">Enable Akamai mPulse</display-name>
-				<description xml:lang="x-default">This preference is used to define countries where mpulse is enabled</description>
-				<type>string</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<min-length>0</min-length>
-			</attribute-definition>
 			<attribute-definition attribute-id="mapAPI">
 				<display-name xml:lang="x-default">google map api key</display-name>
 				<type>string</type>
@@ -10616,13 +10978,6 @@ ID|SKU|Name order line items|Price</description>
 				<mandatory-flag>false</mandatory-flag>
 				<externally-managed-flag>false</externally-managed-flag>
 			</attribute-definition>
-			<attribute-definition attribute-id="recTileQuickViewEnabled">
-				<display-name xml:lang="en">Recommendation Tile Quick View Enabled</display-name>
-				<type>boolean</type>
-				<mandatory-flag>false</mandatory-flag>
-				<externally-managed-flag>false</externally-managed-flag>
-				<default-value>false</default-value>
-			</attribute-definition>
 			<attribute-definition attribute-id="returnAddress">
 				<display-name xml:lang="x-default">Return Address</display-name>
 				<description xml:lang="x-default">Text, return address in JSON format&#13;
@@ -10775,6 +11130,14 @@ ID|SKU|Name order line items|Price</description>
 				<externally-managed-flag>false</externally-managed-flag>
 				<default-value>3</default-value>
 			</attribute-definition>
+            <attribute-definition attribute-id="enabledCategorySearchRefinements">
+                <display-name xml:lang="x-default">Enabled Category Search Refinements for URLs</display-name>
+                <description xml:lang="x-default">Comma seperated list of Enabled Category Search Refinements for URLs</description>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>gender,colorgroup,fittype,enduse,silhouette,division,team,subsilhouette,gearline,subsubsilhouette</default-value>
+            </attribute-definition>
 			<attribute-definition attribute-id="serviceLogValuesToBeMasked">
 				<display-name xml:lang="x-default">Service Log Values to be Masked</display-name>
 				<description xml:lang="x-default">Configured set of values will be masked inside Request/Response log messages in service log files.</description>
@@ -11217,6 +11580,14 @@ ID|SKU|Name order line items|Price</description>
                     </value-definition>
                 </value-definitions>
             </attribute-definition>
+            <attribute-definition attribute-id="2c2p_SFRA6_Compatibility">
+                <display-name xml:lang="x-default">SFRA v6 compatibility enabled </display-name>
+                <description xml:lang="x-default">This setting should be enabled when using SFRA v6. Otherwise it should be disabled</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
             <attribute-definition attribute-id="secretKey2C2P">
                 <display-name xml:lang="x-default">2c2p Secret Key</display-name>
                 <type>string</type>
@@ -11374,7 +11745,21 @@ ID|SKU|Name order line items|Price</description>
 				<min-length>0</min-length>
 				<field-length>0</field-length>
 			</attribute-definition>
-			 <attribute-definition attribute-id="Adyen_API_Key">
+			<attribute-definition attribute-id="Adyen_disableCaptureCall">
+                <display-name xml:lang="x-default">Disable Capture Call</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_showActionModalAsPopupFor2FA">
+                <display-name xml:lang="x-default">Enable Adyen Modal as Popup for 2FA</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="Adyen_API_Key">
 				<display-name xml:lang="x-default">X-API-KEY of Web service</display-name>
 				<description xml:lang="x-default">X-API-KEY of Web service</description>
 				<type>password</type>
@@ -11519,6 +11904,27 @@ ID|SKU|Name order line items|Price</description>
 				<externally-managed-flag>false</externally-managed-flag>
 				<default-value>false</default-value>
 			</attribute-definition>
+            <attribute-definition attribute-id="adobeClientID">
+                <display-name xml:lang="x-default">Abode Client ID</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <default-value>9ede73a829834a0588c75d73043e0280</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="adobeClientSecret">
+                <display-name xml:lang="x-default">Adobe Client Secret</display-name>
+                <type>password</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="enableShopThisOutfit">
+                <display-name xml:lang="x-default">Enable Shop This Outfit</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
 			<attribute-definition attribute-id="taxClassCombinations">
 				<display-name xml:lang="x-default">Tax Class Combinations</display-name>
 				<description xml:lang="x-default">Tax class mapping for EMEA</description>
@@ -11806,6 +12212,14 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="zip_SFRA6_Compatibility">
+                <display-name xml:lang="x-default">SFRA v6 compatibility enabled</display-name>
+                <description xml:lang="x-default">This setting should be enabled when using SFRA v6. Otherwise it should be disabled</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
             <attribute-definition attribute-id="auPostAccountID">
                 <display-name xml:lang="x-default">Account ID</display-name>
                 <type>string</type>
@@ -11842,6 +12256,14 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
 			<attribute-definition attribute-id="enableCOD">
                 <display-name xml:lang="x-default">Enable COD</display-name>
                 <description xml:lang="x-default">Enable COD</description>
+                <type>boolean</type>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="enableCODOrdersLimit">
+                <display-name xml:lang="x-default">Enable COD Orders Limit</display-name>
+                <description xml:lang="x-default">Enable COD Orders Limit</description>
                 <type>boolean</type>
                 <mandatory-flag>true</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
@@ -12058,6 +12480,12 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="atome_SFRA6_Compatibility">
+                <display-name xml:lang="x-default">SFRA v6 compatibility enabled</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
             <attribute-definition attribute-id="trustarcSRC">
                 <display-name xml:lang="x-default">Trustarc SRC</display-name>
                 <description xml:lang="x-default">This preference is used to define Trustarc SRC value</description>
@@ -12105,13 +12533,6 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>true</default-value>
             </attribute-definition>
-            <attribute-definition attribute-id="isLoyaltyEAPBlockPurchaseEnabled">
-                <display-name xml:lang="x-default">Block Purchase of Early Access Products (EAP)</display-name>
-                <description xml:lang="x-default">If enabled, only Loyalty members can purchase EAP products.</description>
-                <type>boolean</type>
-                <mandatory-flag>false</mandatory-flag>
-                <externally-managed-flag>false</externally-managed-flag>
-            </attribute-definition>
             <attribute-definition attribute-id="isLoyaltyEnable">
                 <display-name xml:lang="x-default">Is loyalty enabled</display-name>
                 <description xml:lang="x-default">Is loyalty enabled</description>
@@ -12135,6 +12556,14 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
                 <default-value>Loyalty Reward</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="isLoyaltyRewardsReconciliationEnabled">
+                <display-name xml:lang="x-default">Customer Reward Reconciliation Enabled</display-name>
+                <description xml:lang="x-default">If enabled, once every 30 days a customer's "REDEEMED" which are not in the active cart will be reverted. This helps recover a customer's points if a coupon was deleted with a system cart expiration event.</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
             </attribute-definition>
             <attribute-definition attribute-id="loyaltyLandingContentAssetID">
                 <display-name xml:lang="x-default">Marketing Landing Content Asset ID</display-name>
@@ -12467,6 +12896,13 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="UnsubscribeNewsletterKey">
+                <display-name xml:lang="x-default">UnsubscribeNewsletterKey</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
             <attribute-definition attribute-id="uniformInquiryEmail">
                 <display-name xml:lang="x-default">Uniform Inquiry Email</display-name>
                 <type>string</type>
@@ -12697,6 +13133,12 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                     </value-definition>
                 </value-definitions>
             </attribute-definition>
+            <attribute-definition attribute-id="tossPayments_SFRA6_Compatibility">
+                <display-name xml:lang="x-default">SFRA v6 compatibility enabled</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
             <attribute-definition attribute-id="grecaptchaSitekey">
                 <display-name xml:lang="x-default">Google Recaptcha Site Key</display-name>
                 <type>string</type>
@@ -12843,32 +13285,240 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
-		    </custom-attribute-definitions>
+            <attribute-definition attribute-id="naverPay_SFRA6_Compatibility">
+                <display-name xml:lang="x-default">SFRA v6 compatibility enabled</display-name>
+                <description xml:lang="x-default">On/Off Switch for NaverPay using SFRA v6.3.0</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="adyenBlockPayPalPayLaterButton">
+                <display-name xml:lang="x-default">Block PayPal PayLater Button</display-name>
+                <description xml:lang="x-default">Flag to block PayPal PayLater Button in Adyen config</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="promptedLogin">
+                <display-name xml:lang="x-default">Prompted Log In</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="isQuickATCenabled">
+                <display-name xml:lang="x-default">Is Quick Add to Cart Enabled</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="isQATBWishlist">
+                <display-name xml:lang="x-default">Is Quick Add to Cart Enabled (wish-list)</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="isQATBRec">
+                <display-name xml:lang="x-default">Is Quick Add to Cart Enabled (recommended zones)</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="isQATBhotSpots">
+                <display-name xml:lang="x-default">Is Quick Add to Cart Enabled (Hot Spots)</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="isQATBHeaderSearch">
+                <display-name xml:lang="x-default">Is Quick Add to Cart Enabled (header search)</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="isQATBcart">
+                <display-name xml:lang="x-default">Is Quick Add to Cart Enabled (cart)</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>true</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="isTeamFanGearEnabled">
+                <display-name xml:lang="x-default">Is Team Logo Image Swatch Enabled</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="adobeTargetIsVecEnabled">
+                <display-name xml:lang="x-default">Enable Adobe Target VEC</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="adobeTargetClientCode">
+                <display-name xml:lang="x-default">Client Code</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="adobeTargetProperty">
+                <display-name xml:lang="x-default">Property</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="adobeTargetOrgId">
+                <display-name xml:lang="x-default">Orgization Id</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="adobeTargetRsid">
+                <display-name xml:lang="x-default">Report Suite Id</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="showQRCode">
+                <display-name xml:lang="x-default">Show QR Code</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="showSelectedFiltersOnBreadcrumbs">
+                <display-name xml:lang="x-default">Show selected filters on breadcrumbs</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="isDLInventoryEnabled">
+                <display-name xml:lang="x-default">is DataLayer Inventory Enabled</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="DeleteAccountJiraAPIPassword">
+                <display-name xml:lang="x-default">Delete Account Jira API Password</display-name>
+                <type>password</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="DeleteAccountJiraAPIUser">
+                <display-name xml:lang="x-default">Delete Account Jira API User</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="DeleteAccountJiraAssignee">
+                <display-name xml:lang="x-default">Delete Account Jira Assignee</display-name>
+                <description xml:lang="x-default">Assignee to whom the ticket will be assigned</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="DeleteAccountJiraProject">
+                <display-name xml:lang="x-default">Delete Account Jira Project</display-name>
+                <description xml:lang="x-default">Jira project where ticket will be created when customer with multiple account links requests deletion.</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="DeleteAccountJiraWatchers">
+                <display-name xml:lang="x-default">Delete Account Jira Watchers</display-name>
+                <description xml:lang="x-default">Watchers to be added to Jira ticket</description>
+                <type>set-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="eodCheck">
+                <display-name xml:lang="x-default">End Of Day Order Check</display-name>
+                <type>text</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="isCurrencyCodeRequired">
+                <display-name xml:lang="x-default">CurrencyCode in orderInfo log</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="mobileAuthProvider">
+                <display-name xml:lang="x-default">Mobile Authentication Provider</display-name>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">NiceID</display>
+                        <value>NiceID</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="displayNaverButtonOnRegistration">
+                <display-name xml:lang="x-default">Display Naver Button On Registration</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="enableMobileAuthentication">
+                <display-name xml:lang="x-default">Enable Mobile Authentication</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+            <attribute-definition attribute-id="NiceIDProductID">
+                <display-name xml:lang="x-default">Nice ID Product ID</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="NiceIDSecret">
+                <display-name xml:lang="x-default">Nice ID Secret</display-name>
+                <type>password</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="NiceIDUsername">
+                <display-name xml:lang="x-default">Nice ID Username</display-name>
+                <description xml:lang="x-default">Nice ID Username to be used with API</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="defaultColorByPrice">
+                <display-name xml:lang="x-default">Select default color by price (member and lowest price)</display-name>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <default-value>false</default-value>
+            </attribute-definition>
+        </custom-attribute-definitions>
 		<group-definitions>
-			<attribute-group group-id="PXConfig">
-				<display-name xml:lang="x-default">PXConfig</display-name>
-				<attribute attribute-id="PX_appID"/>
-				<attribute attribute-id="PX_authToken"/>
-				<attribute attribute-id="PX_cookieKey"/>
-				<attribute attribute-id="PX_moduleEnabled"/>
-				<attribute attribute-id="PX_moduleMode"/>
-				<attribute attribute-id="PX_blockingScore"/>
-				<attribute attribute-id="PX_firstPartyEnabled"/>
-				<attribute attribute-id="PX_sendBlockActivities"/>
-				<attribute attribute-id="PX_sendPageActivities"/>
-				<attribute attribute-id="PX_debugMode"/>
-				<attribute attribute-id="PX_sensitiveRoutes"/>
-				<attribute attribute-id="PX_sensitiveHeaders"/>
-				<attribute attribute-id="PX_ipHeaders"/>
-				<attribute attribute-id="PX_filters"/>
-				<attribute attribute-id="PX_IP_filters"/>
-				<attribute attribute-id="PX_cssRef"/>
-				<attribute attribute-id="PX_jsRef"/>
-				<attribute attribute-id="PX_customLogo"/>
-				<attribute attribute-id="PX_customBlockPage"/>
-				<attribute attribute-id="PX_bypassMonitorHeader"/>
-				<attribute attribute-id="PX_controllersCartridge"/>
-			</attribute-group>
+            <attribute-group group-id="adobeTargetPreference">
+                <display-name xml:lang="x-default">Adobe Target Preferences</display-name>
+                <attribute attribute-id="adobeTargetIsVecEnabled"/>
+                <attribute attribute-id="adobeTargetClientCode"/>
+                <attribute attribute-id="adobeTargetProperty"/>
+                <attribute attribute-id="adobeTargetOrgId"/>
+                <attribute attribute-id="adobeTargetRsid"/>
+            </attribute-group>
 			<attribute-group group-id="AutomaticReturnConfigs">
 				<display-name xml:lang="x-default">Automatic Return Configurations</display-name>
 				<attribute attribute-id="returnAddress"/>
@@ -12896,6 +13546,7 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <attribute attribute-id="returnWebhookBasicAuthUser"/>
                 <attribute attribute-id="returnWebhookBasicAuthPassword"/>
                 <attribute attribute-id="isPdpReturnExchangeEnable"/>
+                <attribute attribute-id="showQRCode"/>
 			</attribute-group>
 			<attribute-group group-id="CoreMedia">
 				<display-name xml:lang="x-default">CoreMedia LiveContext Configuration</display-name>
@@ -12994,11 +13645,11 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
 				<attribute attribute-id="phoneNumberMandatory"/>
 				<attribute attribute-id="rvb_expire"/>
 				<attribute attribute-id="rvb_enabled"/>
-				<attribute attribute-id="recTileQuickViewEnabled"/>
 				<attribute attribute-id="mapCookiesToSessionEnabled"/>
 				<attribute attribute-id="orderStatusIDs"/>
 				<attribute attribute-id="extole"/>
 				<attribute attribute-id="enableCOD"/>
+				<attribute attribute-id="enableCODOrdersLimit"/>
 				<attribute attribute-id="realTimeInventoryCallEnabled"/>
 				<attribute attribute-id="MAOEnabled"/>
 				<attribute attribute-id="limitOrderQuantityByCategory"/>
@@ -13024,6 +13675,11 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <attribute attribute-id="isKRCustomCheckoutEnabled"/>
 				<attribute attribute-id="minimumAgeRestriction"/>
                 <attribute attribute-id="showBirthYearField"/>
+                <attribute attribute-id="showSelectedFiltersOnBreadcrumbs"/>
+                <attribute attribute-id="isDLInventoryEnabled"/>
+                <attribute attribute-id="eodCheck"/>
+                <attribute attribute-id="isCurrencyCodeRequired"/>
+                <attribute attribute-id="defaultColorByPrice"/>
 			</attribute-group>
 			<attribute-group group-id="Live Chat">
 				<attribute attribute-id="rntLiveChatEnable"/>
@@ -13041,11 +13697,15 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
 				<attribute attribute-id="tealiumBorderFreeCountries"/>
 				<attribute attribute-id="tealiumCustomerPreferences"/>
 			</attribute-group>
-			<attribute-group group-id="mPulse">
-				<display-name xml:lang="x-default">Akamai MPulse</display-name>
-				<attribute attribute-id="mPulseAPI"/>
-				<attribute attribute-id="mPulseEnabled"/>
-			</attribute-group>
+			<attribute-group group-id="QATB">
+                <display-name xml:lang="x-default">Quick Add to Basket</display-name>
+                <attribute attribute-id="isQuickATCenabled"/>
+                <attribute attribute-id="isQATBWishlist"/>
+                <attribute attribute-id="isQATBRec"/>
+                <attribute attribute-id="isQATBHeaderSearch"/>
+                <attribute attribute-id="isQATBhotSpots"/>
+                <attribute attribute-id="isQATBcart"/>
+            </attribute-group>
 			<attribute-group group-id="Providers Configs">
 				<display-name xml:lang="x-default">Provides Configurations</display-name>
 				<attribute attribute-id="emailProvider"/>
@@ -13054,6 +13714,7 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
 				<attribute attribute-id="addressProvider"/>
 				<attribute attribute-id="orderStatusProvider"/>
 				<attribute attribute-id="addressVerificationProvider"/>
+                <attribute attribute-id="mobileAuthProvider"/>
 			</attribute-group>
 			<attribute-group group-id="Google">
 				<display-name xml:lang="x-default">Google Configurations</display-name>
@@ -13064,6 +13725,10 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
 				<display-name xml:lang="x-default">Smartling Configurations</display-name>
 				<attribute attribute-id="smartling_configuration_data"/>
 			</attribute-group>
+            <attribute-group group-id="Product Swatch Images">
+                <display-name xml:lang="x-default">Product Swatch Images</display-name>
+                <attribute attribute-id="isTeamFanGearEnabled"/>
+            </attribute-group>
 			<attribute-group group-id="Countries and Locales">
 				<display-name xml:lang="x-default">Countries and Locales</display-name>
 				<attribute attribute-id="allowedLocales"/>
@@ -13081,6 +13746,7 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
 			<attribute-group group-id="Search Configs">
 				<display-name xml:lang="x-default">Search Configurations</display-name>
 				<attribute attribute-id="searchMinLength"/>
+                <attribute attribute-id="enabledCategorySearchRefinements"/>
 			</attribute-group>
 			<attribute-group group-id="Qualtrics">
 				<display-name xml:lang="x-default">Qualtrics</display-name>
@@ -13129,21 +13795,32 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
             </attribute-group>
 			<attribute-group group-id="Bazaarvoice Settings">
 				<display-name xml:lang="x-default">Bazaarvoice Settings</display-name>
-				<attribute attribute-id="bvEnvironment_C2013"/>
-				<attribute attribute-id="bvCustomerName_C2013"/>
-				<attribute attribute-id="bvDeploymentZone_C2013"/>
-				<attribute attribute-id="bvLocaleMapping_C2013"/>
-				<attribute attribute-id="bvEnableRR_C2013"/>
-				<attribute attribute-id="bvEnableAA_C2013"/>
-				<attribute attribute-id="bvEnableBVPixel_C2013"/>
-				<attribute attribute-id="bvEnableCloudSEO_C2013"/>
-				<attribute attribute-id="bvCloudSEOKey_C2013"/>
-				<attribute attribute-id="bvProductImageType_C2013"/>
-				<attribute attribute-id="bvOrderImageType_C2013"/>
-				<attribute attribute-id="bvPurchaseFeedTriggeringEvent_C2013"/>
+				<attribute attribute-id="bvEnvironment"/>
+				<attribute attribute-id="bvCustomerName"/>
+				<attribute attribute-id="bvDeploymentZone"/>
+				<attribute attribute-id="bvLocaleMapping"/>
+				<attribute attribute-id="bvEnableRR"/>
+				<attribute attribute-id="bvEnableAA"/>
+				<attribute attribute-id="bvEnableBVPixel"/>
+				<attribute attribute-id="bvEnableCloudSEO"/>
+				<attribute attribute-id="bvCloudSEOKey"/>
+				<attribute attribute-id="bvProductImageType"/>
+				<attribute attribute-id="bvOrderImageType"/>
+				<attribute attribute-id="bvPurchaseFeedTriggeringEvent"/>
 				<attribute attribute-id="bvAdminEmail_C2013"/>
-				<attribute attribute-id="bvEnableInlineRatings_C2013"/>
-				<attribute attribute-id="bvQuickViewRatingsType_C2013"/>
+				<attribute attribute-id="bvEnableInlineRatings"/>
+                <attribute attribute-id="bvQuickViewRatingsType"/>
+                <attribute attribute-id="bvPurchaseFeedSource"/>
+                <attribute attribute-id="bvEntityId"/>
+                <attribute attribute-id="bvEnableProductFamilies"/>
+                <attribute attribute-id="bvAdditionalProductFamily"/>
+                <attribute attribute-id="bvEnableCategoryPrefix"/>
+                <attribute attribute-id="bvEnableProductPrefix"/>
+                <attribute attribute-id="bvEnableFamilyPrefix"/>
+                <attribute attribute-id="bvAggregateAttributes"/>
+                <attribute attribute-id="bvEnableFormattingFamilies"/>
+                <attribute attribute-id="bvProductTypes"/>
+                <attribute attribute-id="bvEnableCaseInsensitivePID"/>
 			</attribute-group>
 			<attribute-group group-id="premiumExperience">
 				<display-name xml:lang="x-default">Premium Experience</display-name>
@@ -13212,6 +13889,9 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <attribute attribute-id="afterPayMin"/>
                 <attribute attribute-id="afterPayMax"/>
                 <attribute attribute-id="cashPaymentMethods"/>
+                <attribute attribute-id="adyenBlockPayPalPayLaterButton"/>
+                <attribute attribute-id="Adyen_disableCaptureCall"/>
+                <attribute attribute-id="Adyen_showActionModalAsPopupFor2FA"/>
 			</attribute-group>
 			<attribute-group group-id="orderConfirmationEmailJob">
 				<display-name xml:lang="x-default">order Confirmation Email Job</display-name>
@@ -13261,6 +13941,9 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <display-name xml:lang="x-default">Shop This Look configs</display-name>
                 <attribute attribute-id="ShopThisLookserviceCacheTime"/>
 				<attribute attribute-id="enableModelSpec"/>
+                <attribute attribute-id="adobeClientID"/>
+                <attribute attribute-id="adobeClientSecret"/>
+                <attribute attribute-id="enableShopThisOutfit"/>
             </attribute-group>
 			<attribute-group group-id="NarvarConfigs">
 				<display-name xml:lang="x-default">Narvar Configurations</display-name>
@@ -13293,6 +13976,7 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <attribute attribute-id="zippayscript"/>
                 <attribute attribute-id="zipMarketingKey"/>
                 <attribute attribute-id="zipMarketingEnvironment"/>
+                <attribute attribute-id="zip_SFRA6_Compatibility"/>
             </attribute-group>
 			<attribute-group group-id="RefreshExpiredAccessTokens">
                 <display-name xml:lang="x-default">Refresh Expired Access Tokens</display-name>
@@ -13312,6 +13996,7 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <attribute attribute-id="atomeMID"/>
                 <attribute attribute-id="atomeOrderTimeout"/>
                 <attribute attribute-id="AtomeRefundCurrencyCodes"/>
+                <attribute attribute-id="atome_SFRA6_Compatibility"/>
             </attribute-group>
             <attribute-group group-id="2c2p">
                 <display-name xml:lang="x-default">2c2p Configurations</display-name>
@@ -13324,6 +14009,7 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <attribute attribute-id="configuration2C2P"/>
                 <attribute attribute-id="RefundCancelMaxDays2C2"/>
                 <attribute attribute-id="ReturnVersion2C2"/>
+                <attribute attribute-id="2c2p_SFRA6_Compatibility"/>
             </attribute-group>
             <attribute-group group-id="bookaSessionConfig">
                 <display-name xml:lang="x-default">Brauz Book Your Expert Fit</display-name>
@@ -13349,7 +14035,7 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <attribute attribute-id="loyaltyCouponText"/>
                 <attribute attribute-id="loyaltyLandingContentAssetID"/>
                 <attribute attribute-id="isWalletPassEnabled"/>
-                <attribute attribute-id="isLoyaltyEAPBlockPurchaseEnabled"/>
+                <attribute attribute-id="isLoyaltyRewardsReconciliationEnabled"/>
             </attribute-group>
             <attribute-group group-id="SitemapsLocalesMapping">
                  <display-name xml:lang="x-default">Sitemaps Locales Mapping</display-name>
@@ -13395,6 +14081,14 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <attribute attribute-id="excludePopupPageURLs"/>
                 <attribute attribute-id="membersonWelcomeEmailTemplate"/>
             </attribute-group>
+            <attribute-group group-id="UnsubscribeNewsletter">
+                <display-name xml:lang="x-default">Unsubscribe Newsletter</display-name>
+                <attribute attribute-id="UnsubscribeNewsletterKey"/>
+            </attribute-group>
+            <attribute-group group-id="checkoutPageViewConfigurations">
+                <display-name xml:lang="x-default">Checkout Page View Configurations</display-name>
+                <attribute attribute-id="promptedLogin"/>
+            </attribute-group>
             <attribute-group group-id="uniformInquiry">
                 <display-name xml:lang="x-default">Uniform Inquiry Config</display-name>
                 <attribute attribute-id="uniformInquiryEmail"/>
@@ -13420,6 +14114,7 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <attribute attribute-id="naverAppID"/>
                 <attribute attribute-id="naverSSOClientSecret"/>
                 <attribute attribute-id="isNaverSSOEnabled"/>
+                <attribute attribute-id="displayNaverButtonOnRegistration"/>
                 <attribute attribute-id="naverRegisterBtnImageUrl"/>
                 <attribute attribute-id="naverLoginBtnImageUrl"/>
                 <attribute attribute-id="naverAuthUrl"/>
@@ -13438,6 +14133,7 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <attribute attribute-id="tossPaymentsSecretKey"/>
                 <attribute attribute-id="tossPaymentsClientKey"/>
                 <attribute attribute-id="tossPaymentsSkipAuth"/>
+                <attribute attribute-id="tossPayments_SFRA6_Compatibility"/>
             </attribute-group>
             <attribute-group group-id="CustomerServiceFAQ">
                 <display-name xml:lang="x-default">Customer Service FAQ</display-name>
@@ -13455,6 +14151,22 @@ Example: /t/rewards.html, /t/anotherpage.html</description>
                 <attribute attribute-id="NaverPayClientSecret"/>
                 <attribute attribute-id="NaverPayMode"/>
                 <attribute attribute-id="NaverPayMerchantID"/>
+                <attribute attribute-id="naverPay_SFRA6_Compatibility"/>
+            </attribute-group>
+            <attribute-group group-id="DeleteAccount">
+                <display-name xml:lang="x-default">Delete Account</display-name>
+                <attribute attribute-id="DeleteAccountJiraProject"/>
+                <attribute attribute-id="DeleteAccountJiraWatchers"/>
+                <attribute attribute-id="DeleteAccountJiraAssignee"/>
+                <attribute attribute-id="DeleteAccountJiraAPIUser"/>
+                <attribute attribute-id="DeleteAccountJiraAPIPassword"/>
+            </attribute-group>
+            <attribute-group group-id="KR Mobile Authentication">
+                <display-name xml:lang="x-default">KR Mobile Authentication</display-name>
+                <attribute attribute-id="enableMobileAuthentication"/>
+                <attribute attribute-id="NiceIDUsername"/>
+                <attribute attribute-id="NiceIDSecret"/>
+                <attribute attribute-id="NiceIDProductID"/>
             </attribute-group>
 		</group-definitions>
 	</type-extension>

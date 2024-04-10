@@ -3,13 +3,30 @@
         <span id="extole_zone_global_header"></span>
     </div>
 </isif>
-<div class="b-header_utility-item b-header_account bfx-remove-element">
-    <isif condition="${empty(pdict.name)}">
-        <a class="b-header_account-link js-register" href="${URLUtils.https('Login-CreateAccountModal', 'showregistermodal', true)}" data-href="${URLUtils.https('Login-CreateAccountModal')}" role="button"
+<div class="b-header_utility-item b-header_account bfx-remove-element"
+    <isset name="cio_search_enabled" value="${'Constructor_Search_Enabled' in currentSite.preferences.custom && currentSite.getCustomPreferenceValue('Constructor_Search_Enabled')}" scope="page"/>
+    <isset name="cio_browse_enabled" value="${'Category_Data_Source' in currentSite.preferences.custom && (currentSite.getCustomPreferenceValue('Category_Data_Source') === 1 || currentSite.getCustomPreferenceValue('Category_Data_Source') === 2)}" scope="page"/>
+    <isif condition="${(cio_search_enabled || cio_browse_enabled) && !empty(pdict.customerGroupIDs)}">
+        data-customer-groups="${pdict.customerGroupIDs}"
+    </isif>
+>
+    <isif condition="${pdict.name === null}">
+        <isif condition="${pdict.mobileAuthEnabled}">
+            <a class="b-header_account-link init-mobileauth-register js-init-mobileauth" href=""
+                data-href="${URLUtils.https('Login-InitiateMobileAuth')}" role="button"
+                aria-label="${Resource.msg('label.header.registerbutton', 'account', null)}">
+                ${Resource.msg('link.header.register', 'account', null)}
+            </a>
+        </isif>
+        <a class="b-header_account-link js-register ${pdict.mobileAuthEnabled ? 'd-none' : ''}" href="${URLUtils.https('Login-CreateAccountModal', 'showregistermodal', true)}" data-href="${URLUtils.https('Login-CreateAccountModal')}" role="button"
             aria-label="${Resource.msg('label.header.registerbutton', 'account', null)}">
             ${Resource.msg('link.header.register', 'account', null)}
         </a>
         <span>|</span>
+        <isif condition="${pdict.mobileAuthEnabled}">
+            <span class="d-none js-init-mobileauth-login" data-href="${URLUtils.https('Login-InitiateMobileAuth', 'login', 'true')}">
+            </span>
+        </isif>
         <a class="b-header_account-link js-login" href="${URLUtils.https('Account-Show')}" data-href="${URLUtils.https('Login-Show')}" role="button"
             aria-label="${Resource.msg('label.header.loginbutton', 'account', null)}">
             ${Resource.msg('link.header.login', 'account', null)}
@@ -18,7 +35,11 @@
         <div class="b-header_utility-subitem headerItemAccount">
             <button class="b-header_utility-toggle collapsed" aria-label="${Resource.msg('link.header.myaccount', 'account', null)}"
                 data-toggle="collapse" data-target="#myAccount" aria-expanded="false" aria-controls="myAccount">
-                ${Resource.msgf('header.myaccount.welcome', 'account', null, pdict.name)}
+                <isif condition="${empty(pdict.name)}">
+                    ${Resource.msg('header.account.myaccount', 'account', null)}
+                <iselse/>
+                    ${Resource.msgf('header.myaccount.welcome', 'account', null, pdict.name)}
+                </isif>
             </button>
             <div class="b-header_utility-container collapse" id="myAccount">
                 <ul class="b-header_utility-menu" aria-label="${Resource.msg('label.profile.myaccountlink', 'account', null)}">
@@ -70,5 +91,13 @@
                 </ul>
             </div>
         </div>
+        <isif condition="${pdict.mobileAuthEnabled}">
+            <span class="d-none js-init-mobileauth-login"
+                data-href="${URLUtils.https('Login-InitiateMobileAuth', 'login', 'true')}">
+            </span>
+            <isif condition="${pdict.mobileAuthPending}">
+                <span class="d-none js-header-mobileauth-pending"></span>
+            </isif>
+        </isif>
     </isif>
 </div>

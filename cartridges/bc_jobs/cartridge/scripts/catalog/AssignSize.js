@@ -8,6 +8,56 @@ const CustomObjectMgr = require('dw/object/CustomObjectMgr'),
       XMLStreamWriter = require('dw/io/XMLStreamWriter');
       const MAX_ELEMENTS_IN_ARRAY = 10000;
 
+/**
+ * Access given properties of an object recursively
+ *
+ * @param {Object} object The object
+ * @param {String} propertyString The property string, i.e. 'data.myValue.prop1'
+ * @return {Object} The value of the given property or undefined
+ * @example
+ * var prop1 = require('~/object').safeAssign(obj, 'data.myValue.prop1')
+ */
+function safeAssign(object, properties, defaultValue) {
+    let safeAssignedValue;
+
+    if (properties && typeof properties === 'string') {
+        /* eslint-disable-next-line */
+        const propertiesListRegExp = /(?:([\w\s\-]+)\s?)/g; // match all values beetwen . or ' or " or []
+
+        try {
+            safeAssignedValue = properties.match(propertiesListRegExp).reduce(function (item, initValue) {
+                if (Object.prototype.hasOwnProperty.call(item, initValue) && !empty(item[initValue])) {
+                    return item[initValue];
+                } else { // eslint-disable-line
+                    throw { // eslint-disable-line
+                        error: 'Reference error! Properties is not defined'
+                    };
+                }
+            }, object);
+        } catch (e) {
+            safeAssignedValue = defaultValue;
+        }
+    }
+    return safeAssignedValue !== undefined ? safeAssignedValue : null;
+};
+
+function modifySizeDisplayName(globalOverride, valueToModify, language) {
+    try {
+        if (!safeAssign(globalOverride, 'sizes', null)) {
+            return valueToModify;
+        }
+        var sizes = globalOverride['sizes'];
+        // get the language specific display value
+        var localizedDisplayName = safeAssign(sizes, valueToModify + '.' + language, null);
+        if (typeof localizedDisplayName === 'object' || !localizedDisplayName) {
+            localizedDisplayName = (!sizes[valueToModify] || typeof sizes[valueToModify] === 'object') ? valueToModify : sizes[valueToModify];
+        }
+        return localizedDisplayName || valueToModify;
+    } catch (e) {
+        return valueToModify;
+    }
+}
+
 function execute(params) {
     let xsw;
 
@@ -21,6 +71,7 @@ function execute(params) {
         const sizeVariation = params.FootwearSizeVariation;
         var footwearSizevariation = CustomObjectMgr.getCustomObject('SiteData', sizeVariation);
         var sizevariationjson = JSON.parse(footwearSizevariation.custom.data);
+        var globalOverride = 'globalOverride' in sizevariationjson ? sizevariationjson.globalOverride : null;
 
         if(!empty(sizeVariation)){
             var locales = sizevariationjson['locale'];
@@ -37,7 +88,6 @@ function execute(params) {
         xsw.writeStartElement('catalog');
         xsw.writeAttribute('xmlns', 'http://www.demandware.com/xml/impex/catalog/2006-10-31');
         xsw.writeAttribute('catalog-id', params.CatalogID);
-
         while (products.hasNext()) {
             var product = products.next();
             if (!product.master) continue;
@@ -108,7 +158,7 @@ function execute(params) {
 
             if (!empty(fgender)) {
                 // to help with translations
-                var gendertest : Object = {
+                var gendertest = {
                     'men'    : [
                         'mens','herren','heren','hommes','ë‚¨ì„±','erkek','hombre'
                     ],
@@ -195,7 +245,7 @@ function execute(params) {
                 xsw.writeStartElement('variation-attribute-values');
                 xsw.writeAttribute('merge-mode', 'add');
                 if (genderJson && genderJson[fdivision] && genderJson[fdivision]['length'] != undefined) {
-                    var lengthOrder: Array = (genderJson[fdivision]['length']);
+                    var lengthOrder = (genderJson[fdivision]['length']);
                     if (!empty(lengthOrder)) {
                         var productsWithLength = [];
                         for (var variantLenghtIdx in variantLength) {
@@ -222,7 +272,7 @@ function execute(params) {
                 } else if (genderJson && genderJson[fdivision] && genderJson[fdivision][fsilhouette]) {
                     if (genderJson[fdivision][fsilhouette][fsubsilhouette] != undefined) {
                         if (genderJson[fdivision][fsilhouette][fsubsilhouette][fsubsubsilhouette] != undefined) {
-                            var lengthOrder: Array = (genderJson[fdivision][fsilhouette][fsubsilhouette][fsubsubsilhouette]);
+                            var lengthOrder = (genderJson[fdivision][fsilhouette][fsubsilhouette][fsubsubsilhouette]);
                             if (!empty(lengthOrder)) {
                                 var productsWithLength = [];
                                 for (var variantLenghtIdx in variantLength) {
@@ -248,7 +298,7 @@ function execute(params) {
                                 }
                             }
                         } else {
-                            var sizeOrderf: Array = (genderJson[fdivision][fsilhouette][fsubsilhouette]);
+                            var sizeOrderf = (genderJson[fdivision][fsilhouette][fsubsilhouette]);
                             if (!empty(sizeOrderf)) {
                                 var productsWithSizef = [];
             
@@ -312,12 +362,57 @@ function execute(params) {
             xsw.writeStartElement('variation-attribute-values');
             xsw.writeAttribute('merge-mode','add');
 
+            var isGlobalSizeOverrideEnabled = false;
+            // if global override is active
+            if (safeAssign(globalOverride, 'sizes', null)) {
+                for (var variantSizeIdx in variantSizes) {
+                    var isBreak = false;
+                    for (let locIdx in locales) {
+                        var modifiedValue = modifySizeDisplayName(globalOverride, variantSizes[variantSizeIdx], locales[locIdx]);
+                        if (!isGlobalSizeOverrideEnabled && modifiedValue !== variantSizes[variantSizeIdx]) {
+                            isGlobalSizeOverrideEnabled = true;
+                            isBreak = true;
+                            break;
+                        }
+                    }
+                    if (isBreak) {
+                        break;
+                    }
+                }
+            }
+
+            var productsWithSize = [];
+            if (isGlobalSizeOverrideEnabled && safeAssign(globalOverride, 'sizes', null)) {
+                for (var variantSizeIdx in variantSizes) {
+                    if (!findInArray(variantSizes[variantSizeIdx], productsWithSize)) {
+                        addToArray(variantSizes[variantSizeIdx], productsWithSize);
+
+                        var insertHeader = true;
+                        for (let locIdx in locales) {
+                            var modifiedValue = modifySizeDisplayName(globalOverride, variantSizes[variantSizeIdx], locales[locIdx]);
+                            if (insertHeader) {
+                                insertHeader = false;
+                                xsw.writeStartElement('variation-attribute-value');
+                                xsw.writeAttribute('value', variantSizes[variantSizeIdx]);
+                            }
+                            xsw.writeStartElement('display-value');
+                            xsw.writeAttribute('xml:lang', locales[locIdx]);
+                            xsw.writeCharacters(modifiedValue);
+                            xsw.writeEndElement();
+                        }
+                        if (insertHeader === false) {
+                            xsw.writeEndElement();
+                        }
+                    }
+                }
+            }
+
             if (genderJson && genderJson[fdivision] && genderJson[fdivision]['sizes'] != undefined) {
-                var sizeOrder : Array =(genderJson[fdivision]['sizes']);
+                var sizeOrder = (genderJson[fdivision]['sizes']);
                 if (!empty(sizeOrder)) {
-                    var productsWithSize = [];
+                    var productsWithSize = [].concat(productsWithSize);
                     for (var variantSizeIdx in variantSizes) {
-                        for (var sizeIdx in sizeOrder){
+                        for (var sizeIdx in sizeOrder) {
                             var footWear = JSON.stringify(sizeOrder[sizeIdx]); 
                             footWear = JSON.parse(footWear);
 
@@ -326,7 +421,7 @@ function execute(params) {
                                 xsw.writeStartElement('variation-attribute-value');
                                 xsw.writeAttribute('value',variantSizes[variantSizeIdx]);
 
-                                for (let locIdx in locales ) {
+                                for (let locIdx in locales) {
                                     xsw.writeStartElement('display-value');
                                     xsw.writeAttribute('xml:lang',locales[locIdx]);
                                     xsw.writeCharacters(footWear[variantSizes[variantSizeIdx]]);
@@ -341,9 +436,9 @@ function execute(params) {
             } else if (genderJson && genderJson[fdivision] && genderJson[fdivision][fsilhouette]) {
                 if (genderJson[fdivision][fsilhouette][fsubsilhouette] != undefined) {
                     if (genderJson[fdivision][fsilhouette][fsubsilhouette][fsubsubsilhouette] != undefined) {
-                        var sizeOrders : Array =(genderJson[fdivision][fsilhouette][fsubsilhouette][fsubsubsilhouette]);
-                        if(!empty(sizeOrders)){    
-                            var productsWithSizes = [];
+                        var sizeOrders = (genderJson[fdivision][fsilhouette][fsubsilhouette][fsubsubsilhouette]);
+                        if(!empty(sizeOrders)) {
+                            var productsWithSizes = [].concat(productsWithSize);
                             for (var variantSizeIdx in variantSizes) {
                                 for(var sizeIdx in sizeOrders){
                                     var footWear = JSON.stringify(sizeOrders[sizeIdx]); 
@@ -367,9 +462,9 @@ function execute(params) {
                             }
                         }
                     } else {
-                        var sizeOrderf  : Array = (genderJson[fdivision][fsilhouette][fsubsilhouette]);
+                        var sizeOrderf = (genderJson[fdivision][fsilhouette][fsubsilhouette]);
                         if (!empty(sizeOrderf)) {
-                            var productsWithSizef = [];
+                            var productsWithSizef = [].concat(productsWithSize);
 
                             for (var variantSizeIdx in variantSizes) {
                                 for (var sizeIdx in sizeOrderf) {
@@ -381,7 +476,7 @@ function execute(params) {
                                         xsw.writeStartElement('variation-attribute-value');
                                         xsw.writeAttribute('value',variantSizes[variantSizeIdx]);
 
-                                        for(let locIdx in locales ){
+                                        for(let locIdx in locales) {
                                             xsw.writeStartElement('display-value');
                                             xsw.writeAttribute('xml:lang',locales[locIdx]);
                                             xsw.writeCharacters(footWear[variantSizes[variantSizeIdx]]);
@@ -397,7 +492,7 @@ function execute(params) {
                 } else {
                     var sizeOrderg = (genderJson[fdivision][fsilhouette]);
                     if (!empty(sizeOrderg)) {
-                        var productsWithSizeg = [];
+                        var productsWithSizeg = [].concat(productsWithSize);
                         for (var variantSizeIdx in variantSizes) {
                             for (var sizeIdx in sizeOrderg) {
                                 var footWear = JSON.stringify(sizeOrderg[sizeIdx]); 

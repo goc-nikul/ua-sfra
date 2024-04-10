@@ -22,7 +22,7 @@ server.append('CreateAccountModal', function (req, res, next) {
     var target = req.querystring.rurl || 1;
     var createAccountUrl = URLUtils.url('Account-SubmitRegistration', 'rurl', target).relative().toString();
     var actionUrl = URLUtils.url('Account-Login', 'rurl', target);
-    if (customer.registered) {
+    if (customer && customer.registered) {
         res.json({
             success: true,
             redirectUrl: require('dw/web/URLUtils').url('Account-EditProfile').toString()
@@ -38,17 +38,60 @@ server.append('CreateAccountModal', function (req, res, next) {
             viewData.profileForm.customer.birthYear.options = accountHelpers.getBirthYearRange(profileForm.customer.birthYear.options);
         }
     }
-    res.setViewData(viewData);
     var minimumAgeRestriction = require('*/cartridge/config/preferences').MinimumAgeRestriction;
     var isKRCustomCheckoutEnabled = require('*/cartridge/config/preferences').isKRCustomCheckoutEnabled;
+
+    var mobileAuthProvider = require('*/cartridge/modules/providers').get('MobileAuth');
+    res.setViewData({
+        mobileAuthEnabled: mobileAuthProvider.mobileAuthEnabled
+    });
+    if (mobileAuthProvider.mobileAuthEnabled) {
+        if (session.privacy.mobileAuthCI) {
+            var mobileAuthData = mobileAuthProvider.getDataFromSession();
+            viewData.mobileAuthDisableRegistrationFields = true;
+            var findIndexInForm = function (arr, val) {
+                return arr.findIndex(function (arrItem) {
+                    return arrItem.value === val || arrItem.label === val;
+                });
+            };
+            viewData.profileForm.customer.lastname.htmlValue = mobileAuthData.name;
+            if (mobileAuthData.gender === '0') {
+                viewData.profileForm.customer.gender.options[2].selected = true;
+            } else {
+                viewData.profileForm.customer.gender.options[mobileAuthData.gender].selected = true;
+            }
+
+            var phoneMobile1Index = findIndexInForm(viewData.profileForm.customer.phoneMobile1.options, mobileAuthData.phone1);
+            viewData.profileForm.customer.phoneMobile1.options[phoneMobile1Index].selected = true;
+            viewData.profileForm.customer.phoneMobile2.htmlValue = mobileAuthData.phone2;
+            viewData.profileForm.customer.phoneMobile3.htmlValue = mobileAuthData.phone3;
+
+            var birthYearIndex = findIndexInForm(viewData.profileForm.customer.birthYear.options, mobileAuthData.birthYear);
+            var birthMonthIndex = findIndexInForm(viewData.profileForm.customer.birthMonth.options, mobileAuthData.birthMonth);
+            var birthDayIndex = findIndexInForm(viewData.profileForm.customer.birthDay.options, mobileAuthData.birthDay);
+
+            viewData.profileForm.customer.birthYear.options[birthYearIndex].selected = true;
+            viewData.profileForm.customer.birthMonth.options[birthMonthIndex].selected = true;
+            viewData.profileForm.customer.birthDay.options[birthDayIndex].selected = true;
+        }
+        if (!req.querystring.format || req.querystring.format !== 'ajax') {
+            session.custom.mobileAuthCurrentPage = URLUtils.url('Login-CreateAccountModal').toString();
+        }
+    }
+    res.setViewData(viewData);
+
     var showRegisterModal = req.querystring.showregistermodal;
+    var userName = '';
+    if (req.currentCustomer.raw && req.currentCustomer.raw.profile) {
+        userName = req.currentCustomer.raw.profile.email;
+    }
     if (showRegisterModal) {
         res.redirect(URLUtils.url('Home-Show', 'showRegisterModal', showRegisterModal));
     } else {
         res.render('account/createAccountModal', {
             createAccountUrl: createAccountUrl,
             format: req.querystring.format ? req.querystring.format : '',
-            userName: req.currentCustomer.raw.profile ? req.currentCustomer.raw.profile.email : '',
+            userName: userName,
             actionUrl: actionUrl,
             minimumAgeRestriction: minimumAgeRestriction,
             isKRCustomCheckoutEnabled: isKRCustomCheckoutEnabled,
@@ -59,10 +102,277 @@ server.append('CreateAccountModal', function (req, res, next) {
     next();
 }, pageMetaData.computedPageMetaData);
 
+server.get('InitiateMobileAuth', function (req, res, next) {
+    var mobileAuthProvider = require('*/cartridge/modules/providers').get('MobileAuth');
+    if (mobileAuthProvider.mobileAuthEnabled) {
+        if (req.httpParameterMap.currentPage && req.httpParameterMap.currentPage.stringValue) {
+            session.custom.mobileAuthCurrentPage = req.httpParameterMap.currentPage.stringValue;
+        }
+        res.render('account/mobileAuth/initiateMobileAuth', {
+            login: req.querystring.login && req.querystring.login === 'true',
+            update: req.querystring.update && req.querystring.update === 'true'
+        });
+    } else {
+        res.redirect(URLUtils.url('Home-Show'));
+    }
+    next();
+});
+
+server.get('MobileAuthModal', function (req, res, next) {
+    var mobileAuthProvider = require('*/cartridge/modules/providers').get('MobileAuth');
+    if (mobileAuthProvider.mobileAuthEnabled) {
+        var encryptedData;
+        var authTokenObj = mobileAuthProvider.getValidToken();
+        var encryptionData;
+        var triggerError = false;
+        var currentCustomer = req.currentCustomer.raw;
+        var customerLoggedIn = currentCustomer && currentCustomer.registered && (currentCustomer.authenticated || currentCustomer.externallyAuthenticated);
+        var authenticationPending = customerLoggedIn && empty(currentCustomer.profile.custom.CI);
+        if (authTokenObj && !empty(authTokenObj.token)) {
+            encryptionData = mobileAuthProvider.getCryptoToken(authTokenObj.token);
+            if (!empty(encryptionData)) {
+                encryptedData = mobileAuthProvider.encryptData(encryptionData);
+            }
+        }
+        if (!(authTokenObj && !empty(authTokenObj.token)) || empty(encryptionData) || empty(encryptedData)) {
+            triggerError = true;
+        }
+        res.render('account/mobileAuth/mobileAuthModal', {
+            url: 'https://nice.checkplus.co.kr/CheckPlusSafeModel/service.cb',
+            encryptedData: encryptedData,
+            triggerError: triggerError,
+            authenticationPending: authenticationPending
+        });
+    } else {
+        res.redirect(URLUtils.url('Home-Show'));
+    }
+    next();
+});
+
+server.get('MobileAuthReturn', function (req, res, next) {
+    var Resource = require('dw/web/Resource');
+    var mobileAuthProvider = require('*/cartridge/modules/providers').get('MobileAuth');
+    var decryptedData = '';
+    var triggerRegistration = false;
+    var duplicatedEmail = '';
+    var errorMessage = '';
+    var reloadPage = false;
+    var modalTemplate = '';
+    var showSMSOptIn = false;
+    var disableOuterClose = false;
+    var naverRedirectURL = session.custom.mobileAuthCurrentPage || null;
+    delete session.custom.mobileAuthCurrentPage;
+    var currentCustomer = req.currentCustomer.raw;
+    var customerLoggedIn = currentCustomer && currentCustomer.registered && (currentCustomer.authenticated || currentCustomer.externallyAuthenticated);
+    if (mobileAuthProvider.mobileAuthEnabled) {
+        try {
+            var queryStringObj = req.querystring;
+            var tokenVersion = queryStringObj.token_version_id;
+            var encryptedData = queryStringObj.enc_data;
+            if (tokenVersion === session.privacy.NiceIDTokenVersion) {
+                decryptedData = mobileAuthProvider.decryptData(encryptedData);
+
+                if (!empty(decryptedData) && decryptedData.birthdate) {
+                    var legalAge = mobileAuthProvider.validateAge(decryptedData.birthdate);
+                    if (legalAge) {
+                        var customerEmail = null;
+                        if (customerLoggedIn) {
+                            customerEmail = currentCustomer.profile.email;
+                        }
+                        decryptedData.splitPhone = require('*/cartridge/scripts/helpers/addressHelpers').splitPhoneField(decryptedData.mobileno).join('-');
+                        decryptedData.birthYear = decryptedData.birthdate.substring(0, 4);
+                        decryptedData.birthMonth = decryptedData.birthdate.substring(4, 6);
+                        decryptedData.birthDay = decryptedData.birthdate.substring(6);
+                        var profiles = mobileAuthProvider.checkCIDuplication(decryptedData, customerEmail);
+                        if (customerLoggedIn && !empty(currentCustomer.profile.custom.CI)) {
+                            if (currentCustomer.profile.custom.CI === decryptedData.ci) {
+                                var mobileAuthData = mobileAuthProvider.getDataFromSession();
+                                var idmPreferences = require('plugin_ua_idm/cartridge/scripts/idmPreferences.js');
+                                var idmHelper = require('plugin_ua_idm/cartridge/scripts/idmHelper.js');
+
+                                var externalProfiles = currentCustomer.externalProfiles;
+                                var idmProfile = false;
+                                for (var externalProfile in externalProfiles) { // eslint-disable-line
+                                    var authenticationProviderID = externalProfiles[externalProfile].authenticationProviderID;
+                                    if (authenticationProviderID === idmPreferences.oauthProviderId) {
+                                        idmProfile = true;
+                                    }
+                                }
+
+                                var updateProfileObject;
+
+                                if (idmPreferences.isIdmEnabled && idmProfile) {
+                                    var profileForm = server.forms.getForm('profile');
+                                    var profileObj = profileForm.toObject();
+                                    profileObj.customer.phone = decryptedData.mobileno;
+                                    if (!empty(currentCustomer.profile.gender)) {
+                                        if (currentCustomer.profile.gender.value === 1) {
+                                            profileObj.customer.gender = 1;
+                                        } else if (currentCustomer.profile.gender.value === 2 || currentCustomer.profile.gender.value === 0) {
+                                            profileObj.customer.gender = 2;
+                                        }
+                                    }
+                                    updateProfileObject = idmHelper.updateUser(profileObj, currentCustomer, true);
+                                } else {
+                                    updateProfileObject = {
+                                        updated: true
+                                    };
+                                }
+
+                                if (updateProfileObject && updateProfileObject.updated) {
+                                    var Transaction = require('dw/system/Transaction');
+                                    Transaction.wrap(function () {
+                                        currentCustomer.profile.phoneHome = decryptedData.mobileno;
+                                        currentCustomer.profile.custom.phoneMobile1 = mobileAuthData.phone1;
+                                        currentCustomer.profile.custom.phoneMobile2 = mobileAuthData.phone2;
+                                        currentCustomer.profile.custom.phoneMobile3 = mobileAuthData.phone3;
+                                    });
+                                    reloadPage = true;
+                                }
+                            } else {
+                                errorMessage = Resource.msg('error.updatemobile.differentci', 'mobileAuth', null);
+                            }
+                        } else if (!empty(profiles) && profiles.length > 0) {
+                            duplicatedEmail = profiles[0].email;
+
+                            if (customerLoggedIn) {
+                                require('*/cartridge/scripts/helpers/accountHelpers').deleteIDMCookies();
+
+                                var CustomerMgr = require('dw/customer/CustomerMgr');
+                                CustomerMgr.logoutCustomer(req.session.privacyCache.get('remember_me') || false);
+                            }
+                            modalTemplate = 'account/mobileAuth/mobileAuthDuplicate';
+                        } else if (customerLoggedIn) {
+                            decryptedData.genderText = decryptedData.gender === '1' ? Resource.msg('label.completelogin.gender.male', 'mobileAuth', null) : Resource.msg('label.completelogin.gender.female', 'mobileAuth', null);
+                            showSMSOptIn = currentCustomer.profile.phoneHome.split('-').join('') !== decryptedData.mobileno || !currentCustomer.profile.custom.smsOptIn;
+                            disableOuterClose = true;
+                            modalTemplate = 'account/mobileAuth/mobileAuthCompleteLogin';
+                        } else {
+                            triggerRegistration = true;
+                        }
+                    } else {
+                        errorMessage = Resource.msg('error.registration.minimumage', 'mobileAuth', null);
+                    }
+                } else {
+                    throw new Error('No Decrypted Data or no birthdate');
+                }
+            } else {
+                throw new Error('Token version mismatch');
+            }
+        } catch (e) {
+            var Logger = require('dw/system/Logger');
+            Logger.error('Mobile Auth Return Error ' + e.message + e.stack);
+            errorMessage = Resource.msg('error.mobileauth.generic', 'mobileAuth', null);
+        }
+    } else {
+        res.redirect(URLUtils.url('Home-Show'));
+        return next();
+    }
+    if (!empty(errorMessage) && customerLoggedIn && empty(currentCustomer.profile.custom.CI)) {
+        disableOuterClose = true;
+    }
+    res.render('account/mobileAuth/mobileAuthReturn', {
+        triggerRegistration: triggerRegistration,
+        duplicatedEmail: duplicatedEmail,
+        decryptedRetData: decryptedData,
+        errorMessage: errorMessage,
+        authenticationPending: customerLoggedIn && empty(currentCustomer.profile.custom.CI),
+        naverRedirectURL: naverRedirectURL,
+        reloadPage: reloadPage,
+        modalTemplate: modalTemplate,
+        showSMSOptIn: showSMSOptIn,
+        disableOuterClose: disableOuterClose
+    });
+    return next();
+});
+
+server.post('CompleteMobileAuth', function (req, res, next) {
+    var success = true;
+    var requestBody = req.httpParameterMap;
+    if (requestBody.logout && requestBody.logout.booleanValue) {
+        require('*/cartridge/scripts/helpers/accountHelpers').deleteIDMCookies();
+
+        var CustomerMgr = require('dw/customer/CustomerMgr');
+        CustomerMgr.logoutCustomer(req.session.privacyCache.get('remember_me') || false);
+    } else {
+        var currentCustomer = req.currentCustomer.raw;
+        if (currentCustomer.profile) {
+            var profile = currentCustomer.profile;
+
+            var mobileAuthProvider = require('*/cartridge/modules/providers').get('MobileAuth');
+            if (mobileAuthProvider.mobileAuthEnabled && session.privacy.mobileAuthCI) {
+                var mobileAuthData = mobileAuthProvider.getDataFromSession();
+                var idmPreferences = require('plugin_ua_idm/cartridge/scripts/idmPreferences.js');
+                var idmHelper = require('plugin_ua_idm/cartridge/scripts/idmHelper.js');
+
+                var externalProfiles = currentCustomer.externalProfiles;
+                var idmProfile = false;
+                for (var externalProfile in externalProfiles) { // eslint-disable-line
+                    var authenticationProviderID = externalProfiles[externalProfile].authenticationProviderID;
+                    if (authenticationProviderID === idmPreferences.oauthProviderId) {
+                        idmProfile = true;
+                    }
+                }
+
+                var updateProfileObject;
+                if (idmPreferences.isIdmEnabled && idmProfile) {
+                    var profileObj = {
+                        customer: {
+                            birthDay: mobileAuthData.birthDay,
+                            birthMonth: mobileAuthData.birthMonth,
+                            birthYear: mobileAuthData.birthYear,
+                            email: profile.email,
+                            lastname: mobileAuthData.name,
+                            phone: mobileAuthData.phone,
+                            gender: mobileAuthData.gender === '0' ? '2' : mobileAuthData.gender,
+                            preferences: {}
+                        },
+                        login: {}
+                    };
+                    updateProfileObject = idmHelper.updateUser(profileObj, currentCustomer, true, JSON.parse(profile.custom.preferences));
+                } else {
+                    updateProfileObject = {
+                        updated: true
+                    };
+                }
+
+                var Transaction = require('dw/system/Transaction');
+                Transaction.wrap(function () {
+                    if (updateProfileObject && updateProfileObject.updated) {
+                        profile.custom.CI = mobileAuthData.mobileAuthCI;
+                        profile.setLastName(mobileAuthData.name);
+                        profile.setPhoneHome(mobileAuthData.phone1 + '-' + mobileAuthData.phone2 + '-' + mobileAuthData.phone3);
+                        profile.custom.phoneMobile1 = mobileAuthData.phone1;
+                        profile.custom.phoneMobile2 = mobileAuthData.phone2;
+                        profile.custom.phoneMobile3 = mobileAuthData.phone3;
+                        profile.setGender(mobileAuthData.gender === '0' ? '2' : mobileAuthData.gender);
+                        var birthdate = new Date(parseInt(mobileAuthData.birthYear, 10), parseInt(mobileAuthData.birthMonth, 10) - 1, parseInt(mobileAuthData.birthDay, 10));
+                        profile.setBirthday(birthdate);
+                        profile.custom.birthYear = mobileAuthData.birthYear;
+                        profile.custom.birthMonth = mobileAuthData.birthMonth;
+                        profile.custom.birthDay = mobileAuthData.birthDay;
+                        if (requestBody.parameterNames.contains('smsOptIn')) {
+                            profile.custom.smsOptIn = requestBody.smsOptIn.booleanValue;
+                        }
+                    }
+                });
+            }
+        }
+    }
+    res.json({
+        success: success
+    });
+    next();
+});
 
 server.append('Show', function (req, res, next) {
     var viewData = res.getViewData(); // eslint-disable-line
     var redirectURL = req.httpParameterMap.naverRedirectURL.stringValue;
+    var mobileAuthProvider = require('*/cartridge/modules/providers').get('MobileAuth');
+    viewData.mobileAuthEnabled = mobileAuthProvider.mobileAuthEnabled;
+    if (req.querystring.mobileAuthEmail && mobileAuthProvider.mobileAuthEnabled) {
+        viewData.userName = req.querystring.mobileAuthEmail;
+    }
     res.setViewData({
         naverRedirectURL: redirectURL
     });
@@ -281,6 +591,7 @@ server.replace('SocialLogin', server.middleware.https, consentTracking.consent, 
     var basket;
     var guestUserEnteredShippingAddress;
     var destinationPage = session.custom.redirectDestination;
+    var isAccountDeletion = queryStringObj.accountDeletion && queryStringObj.accountDeletion === 'true';
     if (PreferencesUtil.getValue('isNaverSSOEnabled') && queryStringObj.oauthProvider === 'naver') {
         var naverssoHelper = require('*/cartridge/scripts/helpers/naversso/naverSSOHelpers.js');
         var qstringObj = req.querystring;
@@ -363,7 +674,15 @@ server.replace('SocialLogin', server.middleware.https, consentTracking.consent, 
             }
         }
 
-        var authenticatedCustomer = idmHelper.loginCustomer(authenticateCustomerResult.externalProfile, false);
+        var authenticatedCustomer;
+        if (isAccountDeletion) {
+            responseJSON = {
+                success: true
+            };
+        } else {
+            authenticatedCustomer = idmHelper.loginCustomer(authenticateCustomerResult.externalProfile, false);
+        }
+
         if (!empty(authenticatedCustomer)) {
             idmHelper.updateTokenOnLogin(authenticatedCustomer, authenticateCustomerResult);
             res.setViewData({
@@ -419,7 +738,7 @@ server.replace('SocialLogin', server.middleware.https, consentTracking.consent, 
     if (PreferencesUtil.getValue('isNaverSSOEnabled') && queryStringObj.oauthProvider === 'naver') {    // Handle For NaverSSO
         if ('error' in responseJSON && responseJSON.error.length) {
             naverRedirectURL = URLUtils.url('Home-Show', destinationPage, 'true', 'destinationPage', destinationPage, 'isNaverSSOFail', true, 'authStatus', authenticateCustomerResult.status);   // eslint-disable-line
-        } else if ('isSleptAccount' in profile.custom && profile.custom.isSleptAccount) {   // eslint-disable-line block-scoped-var
+        } else if (profile && 'isSleptAccount' in profile.custom && profile.custom.isSleptAccount) {   // eslint-disable-line block-scoped-var
             // If profile checked as sleepingAccount then logged out customer and redirect to info page.
             var CustomerMgr = require('dw/customer/CustomerMgr');
             naverRedirectURL = URLUtils.url('SleepingAccount-Show', 'customerNo', profile.customerNo).toString();   // eslint-disable-line block-scoped-var
@@ -428,8 +747,13 @@ server.replace('SocialLogin', server.middleware.https, consentTracking.consent, 
             cookieHelpers.deleteCookie('UAExternalID');
             cookieHelpers.deleteCookie('UAActiveSession');
         } else {
-            naverRedirectURL = !empty(session.custom.naverRedirectURL) ? session.custom.naverRedirectURL : URLUtils.url('Account-Show');
+            naverRedirectURL = !empty(session.custom.naverRedirectURL) ? session.custom.naverRedirectURL : URLUtils.url('Account-Show').toString();
         }
+
+        if (isAccountDeletion) {
+            req.session.privacyCache.set('naverReauthenticated', 'authenticated');
+        }
+
         res.redirect(naverRedirectURL);
         delete session.custom.naverRedirectURL;
         delete session.custom.redirectDestination;

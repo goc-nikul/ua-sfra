@@ -1,0 +1,31 @@
+	<table class="infobox w e s catalogs-table" width="100%" cellspacing="0" cellpadding="4" border="0">
+		<tbody>
+			<tr>
+				<td class="table_title_description" colspan="2">
+					Select all master catalogs (if applicable) that own products assigned to the storefront catalog below
+					<div id="catalogs-error"></div>
+				</td>
+			</tr>
+			<tr>
+				<td width="275px" id="master-cat-td" valign="top">
+					<p><b>Master Catalog(s)</b></p>
+					<isloop items="${pdict.CatalogDetails.catalogs}" alias="catalogName">
+						<isif condition="${catalogName != pdict.CatalogDetails.storefrontCatalogID}">
+							<input type="checkbox" name="mastercat" value="${catalogName}"/> <isprint value="${catalogName}"/> <br />
+						</isif>
+					</isloop>
+
+				</td>
+				<td valign="top">	
+					<p><b>Storefront Catalog</b></p>
+					<input type="radio" name="storefrontcat" value="${pdict.CatalogDetails.storefrontCatalogID}" checked disabled/> <isprint value="${pdict.CatalogDetails.storefrontCatalogID}"/>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<button class="button" id="all-catalogs-refresh">Refresh Catalogs</button> 
+					<span class="small-grey-info-text">Manually refresh if catalog list is outdated</span>
+				</td>
+			</tr>
+		</tbody>
+	</table>

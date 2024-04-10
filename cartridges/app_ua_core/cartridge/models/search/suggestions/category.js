@@ -26,7 +26,7 @@ function CategorySuggestions(suggestions, maxItems) {
     while (iter.hasNext() && this.categories.length < maxItems) {
         var category = iter.next().category;
         // istanbul ignore else
-        if (category) {
+        if (category && ('showInMenu' in category.custom && category.custom.showInMenu.valueOf() && category.custom.showInMenu.valueOf().toString() === 'true')) {
             this.categories.push({
                 name: category.displayName,
                 imageUrl: category.image ? category.image.url : '',

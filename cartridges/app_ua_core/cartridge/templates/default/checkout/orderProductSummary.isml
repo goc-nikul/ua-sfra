@@ -11,7 +11,7 @@
                 <iselse>
                     <h2 class="order-summary_title bag-items">${Resource.msg('heading.orderproduct.summary', 'checkout', null)}
                     <span class="order-receipt-label grand-total-label">(${parseInt(pdict.order.items.totalQuantity) === 1 ? Resource.msgf('label.number.item.in.cart','cart', null, pdict.order.items.totalQuantity) : Resource.msgf('label.number.items.in.cart','cart', null, pdict.order.items.totalQuantity)})</span>
-                    </h2>    
+                    </h2>
                 </isif>
             </div>
         </div>
@@ -40,9 +40,9 @@
        </isif>
             <isloop items="${pdict.order.shipping}" var="shippingModel">
                 <isif condition="${pdict.order.shipping.length > 1}">
-                    <div class="shipment-block">
+                    <div class="shipment-block"></div>
                 </isif>
-				 	
+
                 <isloop items="${shippingModel.productLineItems.items}" var="lineItem" status="loopstate" >
                     <isif condition="${!lineItem.custom.fromStoreId && lineItem.bonusProductLineItemUUID === 'bonus'}">
                         <div class="card ${miniCart ? 'bonus-product-line-item' : ''} uuid-${lineItem.UUID}">
@@ -54,11 +54,10 @@
                         <isinclude template="checkout/productCard/productCard" />
                     </isif>
                 </isloop>
-				
+
                 <isif condition="${pdict.order.shipping.length > 1}">
                     <div class="multi-shipping-summary">
                         <isinclude template="checkout/shipping/shippingCard" />
-                    </div>
                     </div>
                 </isif>
             </isloop>

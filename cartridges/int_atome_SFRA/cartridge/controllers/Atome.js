@@ -5,6 +5,7 @@ var Resource = require('dw/web/Resource');
 var URLUtils = require('dw/web/URLUtils');
 var Transaction = require('dw/system/Transaction');
 var logger = require('dw/system/Logger').getLogger('AtomeService');
+var orderInfoLogger = require('dw/system/Logger').getLogger('orderInfo', 'orderInfo');
 var atomeConfigs = require('~/cartridge/scripts/service/atomeConfigurations');
 var atomeApis = require('~/cartridge/scripts/service/atomeApis');
 var AtomeCheckoutSessionModel = require('*/cartridge/scripts/atome/helpers/checkoutSessionHelper');
@@ -40,7 +41,7 @@ server.post('PaymentCallbackUrl', server.middleware.https, function (req, res, n
         } catch (ex) {
             logger.error('PaymentCallbackUrl handler exception when trying to addNote to order');
         }
-        
+
         atomeOrder = JSON.parse(atomeOrder.object);
 
         if (atomeOrder.status === 'PAID' && order.status.value === Order.ORDER_STATUS_CREATED) {
@@ -48,6 +49,10 @@ server.post('PaymentCallbackUrl', server.middleware.https, function (req, res, n
             var handlePaymentResult = COHelpers.handlePayments(order, order.orderNo);
             if (handlePaymentResult.error) {
                 logger.error('Callback-Success: Error In SFCC Handle Payment Result');
+                // log the order details for dataDog.
+                if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+                    orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+                }
                 res.json({
                     error: true,
                     errorMessage: Resource.msg('error.technical', 'checkout', null)
@@ -61,6 +66,10 @@ server.post('PaymentCallbackUrl', server.middleware.https, function (req, res, n
                 Transaction.wrap(function () { OrderMgr.failOrder(order, true); });
                 // fraud detection failed
                 req.session.privacyCache.set('fraudDetectionStatus', true);
+                // log the order details for dataDog.
+                if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+                    orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+                }
                 res.json({
                     error: true,
                     cartError: true,
@@ -74,6 +83,10 @@ server.post('PaymentCallbackUrl', server.middleware.https, function (req, res, n
             var placeOrder = COHelpers.placeOrder(order, fraudDetectionStatus);
             if (placeOrder.error) {
                 logger.error('Error In SFCC Place Order');
+                // log the order details for dataDog.
+                if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+                    orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+                }
                 res.json({
                     error: true,
                     errorMessage: Resource.msg('error.technical', 'checkout', null)
@@ -104,6 +117,10 @@ server.post('PaymentCallbackUrl', server.middleware.https, function (req, res, n
             var handleIPNPayemnt = COHelpers.handlePayments(order, order.orderNo);
             if (handleIPNPayemnt.error) {
                 logger.error('Callback-Declined: Error In SFCC Handle Payment Result');
+                // log the order details for dataDog.
+                if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+                    orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+                }
                 res.json({
                     error: true,
                     errorMessage: Resource.msg('error.technical', 'checkout', null)
@@ -120,6 +137,11 @@ server.post('PaymentCallbackUrl', server.middleware.https, function (req, res, n
 
             logger.error('Order has been declined : {0}', atomeOrder.status);
 
+            // log the order details for dataDog.
+            if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+                orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, true, 'Order has been declined'));
+            }
+
             res.setStatusCode(400);
             res.json({ success: false });
         }
@@ -135,6 +157,7 @@ server.get('PaymentResultUrl', server.middleware.https, function (req, res, next
     var OrderMgr = require('dw/order/OrderMgr');
     var Order = require('dw/order/Order');
     var Site = require('dw/system/Site');
+    var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
 
     var orderId = req.querystring.orderID
     var orderToken = req.querystring.orderToken
@@ -156,7 +179,18 @@ server.get('PaymentResultUrl', server.middleware.https, function (req, res, next
                 });
             }
         }
-        res.redirect(URLUtils.https('Order-Confirm', 'ID', orderId, 'token', order.orderToken, 'error', false).toString());
+        // log the order details for dataDog.
+        if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+            orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+        }
+        if (Site.getCurrent().getCustomPreferenceValue('atome_SFRA6_Compatibility')) {
+            res.render('orderConfirmForm', {
+                orderID: orderId,
+                orderToken: order.orderToken
+            });
+        } else {
+            res.redirect(URLUtils.https('Order-Confirm', 'ID', orderId, 'token', order.orderToken, 'error', false).toString());
+        }
     } else {
         logger.info('PaymentResultUrl redirecting back to Checkout-Begin');
         res.redirect(URLUtils.https('Checkout-Begin', 'stage', 'payment').toString());
@@ -173,11 +207,17 @@ server.get('PaymentCancelUrl', server.middleware.https, function (req, res, next
     var Order = require('dw/order/Order');
     var orderId = req.querystring.orderID;
     var order = OrderMgr.getOrder(orderId);
+    var Site = require('dw/system/Site');
+    var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
 
     if (order.status.value === Order.ORDER_STATUS_CREATED) {
         Transaction.wrap(function () {
             OrderMgr.failOrder(order, true);
         });
+        // log the order details for dataDog.
+        if (Site.getCurrent().getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+            orderInfoLogger.info(COHelpers.getOrderDataForDatadog(order, false));
+        }
     }
 
     res.redirect(URLUtils.https('Checkout-Begin', 'stage', 'payment').toString());

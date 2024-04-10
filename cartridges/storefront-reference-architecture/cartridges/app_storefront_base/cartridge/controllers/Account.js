@@ -11,16 +11,6 @@ var userLoggedIn = require('*/cartridge/scripts/middleware/userLoggedIn');
 var consentTracking = require('*/cartridge/scripts/middleware/consentTracking');
 
 /**
- * Checks if the email value entered is correct format
- * @param {string} email - email string to check if valid
- * @returns {boolean} Whether email is valid
- */
-function validateEmail(email) {
-    var regex = /^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$/;
-    return regex.test(email);
-}
-
-/**
  * Account-Show : The Account-Show endpoint will render the shopper's account page. Once a shopper logs in they will see is a dashboard that displays profile, address, payment and order information.
  * @name Base/Account-Show
  * @function
@@ -64,7 +54,10 @@ server.get(
                     url: URLUtils.home().toString()
                 }
             ],
-            reportingURLs: reportingURLs
+            reportingURLs: reportingURLs,
+            payment: accountModel.payment,
+            viewSavedPaymentsUrl: URLUtils.url('PaymentInstruments-List').toString(),
+            addPaymentUrl: URLUtils.url('PaymentInstruments-AddPayment').toString()
         });
         next();
     }
@@ -95,7 +88,6 @@ server.post(
         var CustomerMgr = require('dw/customer/CustomerMgr');
         var Resource = require('dw/web/Resource');
         var Site = require('dw/system/Site');
-        var Transaction = require('dw/system/Transaction');
 
         var accountHelpers = require('*/cartridge/scripts/helpers/accountHelpers');
         var emailHelpers = require('*/cartridge/scripts/helpers/emailHelpers');
@@ -107,38 +99,7 @@ server.post(
             ? (!!req.form.loginRememberMe)
             : false;
 
-        var customerLoginResult = Transaction.wrap(function () {
-            var authenticateCustomerResult = CustomerMgr.authenticateCustomer(email, password);
-
-            if (authenticateCustomerResult.status !== 'AUTH_OK') {
-                var errorCodes = {
-                    ERROR_CUSTOMER_DISABLED: 'error.message.account.disabled',
-                    ERROR_CUSTOMER_LOCKED: 'error.message.account.locked',
-                    ERROR_CUSTOMER_NOT_FOUND: 'error.message.login.form',
-                    ERROR_PASSWORD_EXPIRED: 'error.message.password.expired',
-                    ERROR_PASSWORD_MISMATCH: 'error.message.password.mismatch',
-                    ERROR_UNKNOWN: 'error.message.error.unknown',
-                    default: 'error.message.login.form'
-                };
-
-                var errorMessageKey = errorCodes[authenticateCustomerResult.status] || errorCodes.default;
-                var errorMessage = Resource.msg(errorMessageKey, 'login', null);
-
-                return {
-                    error: true,
-                    errorMessage: errorMessage,
-                    status: authenticateCustomerResult.status,
-                    authenticatedCustomer: null
-                };
-            }
-
-            return {
-                error: false,
-                errorMessage: null,
-                status: authenticateCustomerResult.status,
-                authenticatedCustomer: CustomerMgr.loginCustomer(authenticateCustomerResult, rememberMe)
-            };
-        });
+        var customerLoginResult = accountHelpers.loginCustomer(email, password, rememberMe);
 
         if (customerLoginResult.error) {
             if (customerLoginResult.status === 'ERROR_CUSTOMER_LOCKED') {
@@ -218,8 +179,7 @@ server.post(
         ) {
             registrationForm.customer.email.valid = false;
             registrationForm.customer.emailconfirm.valid = false;
-            registrationForm.customer.emailconfirm.error =
-                Resource.msg('error.message.mismatch.email', 'forms', null);
+            registrationForm.customer.emailconfirm.error = Resource.msg('error.message.mismatch.email', 'forms', null);
             registrationForm.valid = false;
         }
 
@@ -228,16 +188,14 @@ server.post(
         ) {
             registrationForm.login.password.valid = false;
             registrationForm.login.passwordconfirm.valid = false;
-            registrationForm.login.passwordconfirm.error =
-                Resource.msg('error.message.mismatch.password', 'forms', null);
+            registrationForm.login.passwordconfirm.error = Resource.msg('error.message.mismatch.password', 'forms', null);
             registrationForm.valid = false;
         }
 
         if (!CustomerMgr.isAcceptablePassword(registrationForm.login.password.value)) {
             registrationForm.login.password.valid = false;
             registrationForm.login.passwordconfirm.valid = false;
-            registrationForm.login.passwordconfirm.error =
-                Resource.msg('error.message.password.constraints.not.matched', 'forms', null);
+            registrationForm.login.passwordconfirm.error = Resource.msg('error.message.password.constraints.not.matched', 'forms', null);
             registrationForm.valid = false;
         }
 
@@ -304,8 +262,7 @@ server.post(
                             registrationForm.validForm = false;
                             registrationForm.form.customer.email.valid = false;
                             registrationForm.form.customer.emailconfirm.valid = false;
-                            registrationForm.form.customer.email.error =
-                                Resource.msg('error.message.username.invalid', 'forms', null);
+                            registrationForm.form.customer.email.error = Resource.msg('error.message.username.invalid', 'forms', null);
                         }
                     }
                 }
@@ -371,11 +328,13 @@ server.get(
     userLoggedIn.validateLoggedIn,
     consentTracking.consent,
     function (req, res, next) {
+        var ContentMgr = require('dw/content/ContentMgr');
         var Resource = require('dw/web/Resource');
         var URLUtils = require('dw/web/URLUtils');
         var accountHelpers = require('*/cartridge/scripts/account/accountHelpers');
 
         var accountModel = accountHelpers.getAccountModel(req);
+        var content = ContentMgr.getContent('tracking_hint');
         var profileForm = server.forms.getForm('profile');
         profileForm.clear();
         profileForm.customer.firstname.value = accountModel.profile.firstName;
@@ -383,6 +342,8 @@ server.get(
         profileForm.customer.phone.value = accountModel.profile.phone;
         profileForm.customer.email.value = accountModel.profile.email;
         res.render('account/profile', {
+            consentApi: Object.prototype.hasOwnProperty.call(req.session.raw, 'setTrackingAllowed'),
+            caOnline: content ? content.online : false,
             profileForm: profileForm,
             breadcrumbs: [
                 {
@@ -438,8 +399,7 @@ server.post(
             profileForm.valid = false;
             profileForm.customer.email.valid = false;
             profileForm.customer.emailconfirm.valid = false;
-            profileForm.customer.emailconfirm.error =
-                Resource.msg('error.message.mismatch.email', 'forms', null);
+            profileForm.customer.emailconfirm.error = Resource.msg('error.message.mismatch.email', 'forms', null);
         }
 
         var result = {
@@ -471,8 +431,7 @@ server.post(
 
                     if (status.error) {
                         formInfo.profileForm.login.password.valid = false;
-                        formInfo.profileForm.login.password.error =
-                            Resource.msg('error.message.currentpasswordnomatch', 'forms', null);
+                        formInfo.profileForm.login.password.error = Resource.msg('error.message.currentpasswordnomatch', 'forms', null);
                     } else {
                         customerLogin = profile.credentials.setLogin(
                             formInfo.email,
@@ -505,8 +464,7 @@ server.post(
                 } else {
                     if (!status.error) {
                         formInfo.profileForm.customer.email.valid = false;
-                        formInfo.profileForm.customer.email.error =
-                            Resource.msg('error.message.username.invalid', 'forms', null);
+                        formInfo.profileForm.customer.email.error = Resource.msg('error.message.username.invalid', 'forms', null);
                     }
 
                     delete formInfo.profileForm;
@@ -604,8 +562,7 @@ server.post(
             profileForm.valid = false;
             newPasswords.newpassword.valid = false;
             newPasswords.newpasswordconfirm.valid = false;
-            newPasswords.newpasswordconfirm.error =
-                Resource.msg('error.message.mismatch.newpassword', 'forms', null);
+            newPasswords.newpasswordconfirm.error = Resource.msg('error.message.mismatch.newpassword', 'forms', null);
         }
 
         var result = {
@@ -633,12 +590,10 @@ server.post(
                 if (status.error) {
                     if (!CustomerMgr.isAcceptablePassword(newPasswords.newpassword.value)) {
                         formInfo.profileForm.login.newpasswords.newpassword.valid = false;
-                        formInfo.profileForm.login.newpasswords.newpassword.error =
-                            Resource.msg('error.message.password.constraints.not.matched', 'forms', null);
+                        formInfo.profileForm.login.newpasswords.newpassword.error = Resource.msg('error.message.password.constraints.not.matched', 'forms', null);
                     } else {
                         formInfo.profileForm.login.currentpassword.valid = false;
-                        formInfo.profileForm.login.currentpassword.error =
-                            Resource.msg('error.message.currentpasswordnomatch', 'forms', null);
+                        formInfo.profileForm.login.currentpassword.error = Resource.msg('error.message.currentpasswordnomatch', 'forms', null);
                     }
 
                     delete formInfo.currentPassword;
@@ -689,10 +644,11 @@ server.post('PasswordResetDialogForm', server.middleware.https, function (req, r
     var Resource = require('dw/web/Resource');
     var URLUtils = require('dw/web/URLUtils');
     var accountHelpers = require('*/cartridge/scripts/helpers/accountHelpers');
+    var emailHelpers = require('*/cartridge/scripts/helpers/emailHelpers');
 
     var email = req.form.loginEmail;
     var errorMsg;
-    var isValid;
+    var isValidEmail;
     var resettingCustomer;
     var mobile = req.querystring.mobile;
     var receivedMsgHeading = Resource.msg('label.resetpasswordreceived', 'login', null);
@@ -700,8 +656,8 @@ server.post('PasswordResetDialogForm', server.middleware.https, function (req, r
     var buttonText = Resource.msg('button.text.loginform', 'login', null);
     var returnUrl = URLUtils.url('Login-Show').toString();
     if (email) {
-        isValid = validateEmail(email);
-        if (isValid) {
+        isValidEmail = emailHelpers.validateEmail(email);
+        if (isValidEmail) {
             resettingCustomer = CustomerMgr.getCustomerByLogin(email);
             if (resettingCustomer) {
                 accountHelpers.sendPasswordResetEmail(email, resettingCustomer);
@@ -711,7 +667,7 @@ server.post('PasswordResetDialogForm', server.middleware.https, function (req, r
                 receivedMsgHeading: receivedMsgHeading,
                 receivedMsgBody: receivedMsgBody,
                 buttonText: buttonText,
-                mobile: mobile,
+                mobile: mobile === 'true',
                 returnUrl: returnUrl
             });
         } else {
@@ -749,7 +705,8 @@ server.get('PasswordReset', server.middleware.https, function (req, res, next) {
 });
 
 /**
- * Account-SetNewPassword : The Account-SetNewPassword endpoint renders the page that displays the password reset form
+ * Account-SetNewPassword : The Account-SetNewPassword GET endpoint removes the reset token from the
+ * URL and redirects to the Account-SetNewPassword POST endpoint
  * @name Base/Account-SetNewPassword
  * @function
  * @memberof Account
@@ -764,9 +721,37 @@ server.get('SetNewPassword', server.middleware.https, consentTracking.consent, f
     var CustomerMgr = require('dw/customer/CustomerMgr');
     var URLUtils = require('dw/web/URLUtils');
 
+    var token = req.querystring.Token;
+    var resettingCustomer = CustomerMgr.getCustomerByToken(token);
+    if (!resettingCustomer) {
+        var passwordForm = server.forms.getForm('newPasswords');
+        passwordForm.clear();
+        res.redirect(URLUtils.url('Account-PasswordReset'));
+    } else {
+        res.render('account/password/newPasswordRedirect', { token: token });
+    }
+    next();
+});
+
+/**
+ * Account-DoSetNewPassword : The Account-DoSetNewPassword endpoint renders the page that displays the password reset form
+ * @name Base/Account-DoSetNewPassword
+ * @function
+ * @memberof Account
+ * @param {middleware} - server.middleware.https
+ * @param {middleware} - consentTracking.consent
+ * @param {httpparameter} - token - SFRA utilizes this token to retrieve the shopper
+ * @param {category} - sensitive
+ * @param {renders} - isml
+ * @param {serverfunction} - post
+ */
+server.post('DoSetNewPassword', server.middleware.https, consentTracking.consent, function (req, res, next) {
+    var CustomerMgr = require('dw/customer/CustomerMgr');
+    var URLUtils = require('dw/web/URLUtils');
+
     var passwordForm = server.forms.getForm('newPasswords');
     passwordForm.clear();
-    var token = req.querystring.Token;
+    var token = req.form.token;
     var resettingCustomer = CustomerMgr.getCustomerByToken(token);
     if (!resettingCustomer) {
         res.redirect(URLUtils.url('Account-PasswordReset'));
@@ -782,7 +767,7 @@ server.get('SetNewPassword', server.middleware.https, consentTracking.consent, f
  * @function
  * @memberof Account
  * @param {middleware} - server.middleware.https
- * @param {querystringparameter} - Token - SFRA utilizes this token to retrieve the shopper
+ * @param {httpparameter} - token - SFRA utilizes this token to retrieve the shopper
  * @param {httpparameter} - dwfrm_newPasswords_newpassword - Input field for the shopper's new password
  * @param {httpparameter} - dwfrm_newPasswords_newpasswordconfirm  - Input field to confirm the shopper's new password
  * @param {httpparameter} - save - unutilized param
@@ -795,14 +780,14 @@ server.post('SaveNewPassword', server.middleware.https, function (req, res, next
     var Resource = require('dw/web/Resource');
 
     var passwordForm = server.forms.getForm('newPasswords');
-    var token = req.querystring.Token;
+    // Token used to be a query parameter, now it's in the body. Support both.
+    var token = req.form.token || req.querystring.Token;
 
     if (passwordForm.newpassword.value !== passwordForm.newpasswordconfirm.value) {
         passwordForm.valid = false;
         passwordForm.newpassword.valid = false;
         passwordForm.newpasswordconfirm.valid = false;
-        passwordForm.newpasswordconfirm.error =
-            Resource.msg('error.message.mismatch.newpassword', 'forms', null);
+        passwordForm.newpasswordconfirm.error = Resource.msg('error.message.mismatch.newpassword', 'forms', null);
     }
 
     if (passwordForm.valid) {
@@ -832,8 +817,7 @@ server.post('SaveNewPassword', server.middleware.https, function (req, res, next
             if (status.error) {
                 passwordForm.newpassword.valid = false;
                 passwordForm.newpasswordconfirm.valid = false;
-                passwordForm.newpasswordconfirm.error =
-                    Resource.msg('error.message.resetpassword.invalidformentry', 'forms', null);
+                passwordForm.newpasswordconfirm.error = Resource.msg('error.message.resetpassword.invalidformentry', 'forms', null);
                 res.render('account/password/newPassword', {
                     passwordForm: passwordForm,
                     token: token
@@ -877,7 +861,8 @@ server.post('SaveNewPassword', server.middleware.https, function (req, res, next
  */
 server.get('Header', server.middleware.include, function (req, res, next) {
     var template = req.querystring.mobile ? 'account/mobileHeader' : 'account/header';
-    res.render(template, { name:
+    res.render(template, {
+        name:
         req.currentCustomer.profile ? req.currentCustomer.profile.firstName : null
     });
     next();

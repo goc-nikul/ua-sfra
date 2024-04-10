@@ -1,0 +1,37 @@
+<iscontent type="text/html" charset="UTF-8" compact="true" />
+<isset name="isConfirmationModalWithRemove" value="${true}" scope="page" />
+
+<div class="modal g-modal fade" id="confirmationModal" role="dialog">
+    <span class="enter-message sr-only"></span>
+    <div class="modal-dialog g-modal-dialog quick-view-dialog">
+        <div class="modal-content g-modal-content">
+            <div class="g-modal-header">
+                <div class="g-modal-title g-quickview-modal-title quickview-title">
+                    <div class="t-product-qty">
+                        <span class="b-header_cart-added-confirmation-modal-number-of-items number-of-items">(${pdict.Quantity ? pdict.Quantity : '1'})</span>
+                        <span class="b-header_cart-added-confirmation-modal-title">${Resource.msg('title.item.added.to.cart','cart',null)}</span>
+                    </div>
+                </div>
+                <div class="g-modal-close">
+                    <button type="button" class="close" data-dismiss="modal"
+                        aria-label="${Resource.msg('button.close', 'common', null)}"></button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <isinclude template="checkout/cart/cartAddedConfirmationModal" sf-toolkit="on" />
+            </div>
+            <div class="b-confirmation-modal-footer">
+                <div class="b-checkout-continue-sec">
+                    <a href="${pdict.removeAddedProductURL}" class="g-button_base g-button_secondary--black btn btn-outline-primary remove-product-button${pdict.prevQty > 0 ? ' update-qty-button' : ''}">
+                        ${Resource.msg('text.remove.product.line.item', 'cart', null)}
+                    </a>
+                    <a href="${URLUtils.https('Cart-Show')}"
+                        class="g-button_base g-button_primary--black checkout-btn"
+                        role="button">
+                        ${Resource.msg('button.minicart.cart.checkout', 'cart', null)}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

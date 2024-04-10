@@ -22,7 +22,12 @@
     <isset name="price" value="${finalOrigPrice.sales}" scope="page" />  
 </isif>
 <isif condition="${price && typeof price !== 'undefined' && price.decimalPrice}">
-    <span class="b-price-value ${additionalClass} bfx-price ${finalOrigPrice.list !== null ? 'm-actual' : ''}" content="${price.decimalPrice}">
+    <span class="b-price-value ${additionalClass} bfx-price ${finalOrigPrice.list !== null ? 'm-actual spacer' : ''}" content="${price.decimalPrice}">
         <isinclude template="/product/components/pricing/formatted" />
     </span>
+    <isif condition="${typeof showOffPercentage !== 'undefined' && showOffPercentage === true && finalOrigPrice.offPercentage && finalOrigPrice.offPercentage.show}">
+        <span class="b-price-value offpercentage">
+            ${finalOrigPrice.offPercentage.displayValue}
+        </span>
+    </isif>
 </isif>

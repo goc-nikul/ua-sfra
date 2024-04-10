@@ -30,6 +30,7 @@ function updateSortingOptions(productSearch, sortingOptions, pagingModel, baseOp
             displayName: baseOption.displayName,
             id: baseOption.id,
             url: baseOption.url,
+            sortingRuleId: option.sortingRule.ID,
             pageUrl: urlHelper.appendQueryParams(baseUrl.toString(), pagingParams).toString()
         };
     });

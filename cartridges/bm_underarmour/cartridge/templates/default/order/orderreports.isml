@@ -1,0 +1,93 @@
+<iscontent compact="true"/>
+<isdecorate template="application/MenuFrame">
+<isinclude template="inc/Modules">
+
+<!-- Page Navigator -->
+<isset name="TOP_URL"   value="${URLUtils.url('SiteNavigationBar-ShowMenuitemOverview', 'CurrentMenuItemId', 'orders')}" scope="PAGE">
+<ISBreadcrumb name1="Merchant Tools" url1="${URLUtils.url('ViewApplication-SelectSite').toString()}" name2="Ordering" url2="${TOP_URL.toString()}" name3="${Resource.msg('orderreports.title', 'bm', null)}">
+<!-- EO Page Navigator -->
+
+	<isscript>
+		var eodReportHelper = require("bm_underarmour/cartridge/scripts/reports/EODReportHelper");
+		var timezoneHelper = new (require("*/cartridge/scripts/util/TimezoneHelper"))(),
+			reportsDaysCount = eodReportHelper.getSiteReportDaysCount(),
+			reportsEnd = new dw.util.Calendar(timezoneHelper.getCurrentSiteTime()),
+			reportsStartDate = new Date(reportsEnd.getTime());
+		
+		var displayReportDaysCount = reportsDaysCount > 0 ? reportsDaysCount-1 : 0;
+		reportsStartDate.setDate(reportsEnd.getTime().getDate() - (displayReportDaysCount));
+	</isscript>
+	<isset name="reportTypesList" value="${eodReportHelper.getSiteReportTypes()}" scope="page" />
+	
+	<div id="wraper">
+		<h1 class="overview_title">${Resource.msg('orderreports.title', 'bm', null)}</h1>
+		<hr>
+		
+		<div class="time-range-calendar">
+			<!-- Time range calendars -->
+			<div id="time-range-accordion">
+				<span class="time-range-title">${Resource.msg('orderreports.timerangre', 'bm', null)}</span>
+				<form action="#" id="date-range-search">
+					<fieldset>
+						<table class="time-range-table">
+							<tbody>
+								<tr>
+									<td><label for="time-from">${Resource.msg('orderreports.datefrom', 'bm', null)}</label></td>
+									<td>
+										<input type="text" id="time-from" class="datepicker" value="${dw.util.StringUtils.formatCalendar(new dw.util.Calendar(reportsStartDate), Resource.msg('orderreports.dateformat', 'bm', null))}">
+										<span class="date-comment">${Resource.msg('orderreports.dateformat', 'bm', null)}</span>
+									</td>
+								</tr>
+								<tr>
+									<td><label for="time-to">${Resource.msg('orderreports.dateto', 'bm', null)}</label></td>
+									<td>
+										<input type="text" id="time-to" class="datepicker" value="${dw.util.StringUtils.formatCalendar(reportsEnd, Resource.msg('orderreports.dateformat', 'bm', null))}">
+										<span class="date-comment">${Resource.msg('orderreports.dateformat', 'bm', null)}</span>
+									</td>
+								</tr>
+								<tr>
+									<td class="time-range-actions" colspan="2"><button name="searchReport" data-handler-link="${URLUtils.url('BMOrders-GetTimeRangeReports')}" class="button">${Resource.msg('orderreports.findreports', 'bm', null)}</button></td>
+								</tr>
+							</tbody>
+						</table>
+					</fieldset>
+				</form>
+			</div>
+			<!-- Time range calendars end -->
+		</div>
+		
+		<div class='export-block-action' >
+			<a href="#" name="export-reports" class="export-reports">Export to CSV</a>
+		</div>
+		
+		<div>
+			<!-- Reports table -->
+			<table id="reports-table">
+				<thead>
+					<tr>
+						<th class="cell date">${Resource.msg('orderreports.date', 'bm', null)}</th>
+						<isloop items="${reportTypesList}" alias="reportType">
+							<th class="cell" data-report-type="${reportType}">${Resource.msg('orderreports.' + reportType.toLowerCase(), 'bm', null)}</th>
+						</isloop>
+						<th class="cell"></th>
+					</tr>
+				</thead>
+				<!-- Order reports table body-->
+				<isinclude template="order/components/orderreportsbody" />
+				
+			</table>
+			<!-- Reports table end -->
+		</div>
+		
+		<div class='export-block-action' >
+			<a href="#" name="export-reports" class="export-reports">Export to CSV</a>
+		</div>
+	</div>
+
+	<link rel="stylesheet" href="${URLUtils.staticURL('/css/jquery-ui.min.css')}" />
+	<link rel="stylesheet" href="${URLUtils.staticURL('/css/orderreports.css')}" />
+	<script type="text/javascript" src="${URLUtils.absStatic('/lib/jquery-2.2.1.min.js')}"></script>
+	<script type="text/javascript" src="${URLUtils.absStatic('/lib/jquery-ui.min.js')}"></script>
+	<script type="text/javascript" src="${URLUtils.absStatic('/js/orderreports.js')}"></script>
+
+</isdecorate>

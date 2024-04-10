@@ -8,6 +8,7 @@ function senderDetails(warehouseAddress) {
     if (!warehouseAddress) return;
     this.name = warehouseAddress.name;
     this.phone = warehouseAddress.phone;
+    this.site_code = warehouseAddress.site_code;
 }
 
 module.exports = senderDetails;

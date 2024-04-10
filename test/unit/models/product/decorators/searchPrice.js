@@ -28,7 +28,9 @@ var searchHitMock = {
     getProduct: function () {
         return {
             custom: {
-                outletColors: 'outletColors'
+                outletColors: 'outletColors',
+                selectedProductVariant: 'selectedProductVariant',
+                colorSelected: 'colorSelected'
             }
         };
     }
@@ -37,6 +39,10 @@ var searchHitMock = {
 var noActivePromotionsMock = [];
 var activePromotionsMock = ['someID'];
 var activePromotionsNoMatchMock = ['someOtherID'];
+const apiProduct = searchHitMock.getProduct();
+const getSelectedProductVariant = () => {};
+const experienceType =  null;
+const sizeModeViewPref = null;
 
 describe('search price decorator', function () {
     var searchPrice = proxyquire('../../../../../cartridges/app_ua_core/cartridge/models/product/decorators/searchPrice', {
@@ -64,6 +70,9 @@ describe('search price decorator', function () {
         '*/cartridge/models/price/default': stubDefaultPrice,
         '*/cartridge/models/price/range': stubRangePrice,
         'dw/system/Logger': {},
+        '*/cartridge/models/product/decorators/tileImages': {
+            tileImageHelper: function() {}
+        },
         '*/cartridge/scripts/util/ProductUtils.ds': {
             getOutletPricing: function () {
                 return {
@@ -85,10 +94,44 @@ describe('search price decorator', function () {
     }
 
     it('should create a property on the passed in object called price with no active promotions', function () {
+        searchPrice = proxyquire('../../../../../cartridges/app_ua_core/cartridge/models/product/decorators/searchPrice', {
+            'dw/campaign/PromotionMgr': {
+                getPromotion: function () {
+                    return {};
+                }
+            },
+            'dw/util/ArrayList': ArrayList,
+            '*/cartridge/scripts/helpers/pricing': {
+                getRootPriceBook: stubRootPriceBook,
+                getPromotionPrice: function () { return { value: 50, available: true }; }
+            },
+            'dw/catalog/PriceBookMgr': {
+                setApplicablePriceBooks: function () {},
+                getApplicablePriceBooks: function () {}
+            },
+            '*/cartridge/models/price/default': stubDefaultPrice,
+            '*/cartridge/models/price/range': stubRangePrice,
+            'dw/system/Logger': {
+                error: function () {
+                    return {};
+                }
+            },
+            '*/cartridge/models/product/decorators/tileImages': {
+                tileImageHelper: function() {}
+            },
+            '*/cartridge/scripts/util/ProductUtils.ds': {
+                getOutletPricing: function () {
+                    return {};
+                }
+            },
+            'dw/value/Money': require('../../../../mocks/dw/dw_value_Money'),
+            'dw/system/Site': require('../../../../mocks/dw/dw_system_Site'),
+            'dw/system/Transaction': require('../../../../mocks/dw/dw_system_Transaction')
+        });
         var object = {};
         stubPriceModel.returns(pricModelMock);
         stubRootPriceBook.returns({ ID: 'someOtherPriceBook' });
-        searchPrice(object, searchHitMock, noActivePromotionsMock, getSearchHit);
+        searchPrice(object, searchHitMock, noActivePromotionsMock, getSearchHit, experienceType, getSelectedProductVariant, apiProduct, sizeModeViewPref);
         assert.isTrue(stubDefaultPrice.withArgs({ value: 100, available: true }).calledOnce);
     });
 
@@ -119,6 +162,9 @@ describe('search price decorator', function () {
             '*/cartridge/models/price/default': stubDefaultPrice,
             '*/cartridge/models/price/range': stubRangePrice,
             'dw/system/Logger': {},
+            '*/cartridge/models/product/decorators/tileImages': {
+                tileImageHelper: function() {}
+            },
             '*/cartridge/scripts/util/ProductUtils.ds': {
                 getOutletPricing: function () {
                     return {
@@ -157,7 +203,14 @@ describe('search price decorator', function () {
             },
             '*/cartridge/models/price/default': stubDefaultPrice,
             '*/cartridge/models/price/range': stubRangePrice,
-            'dw/system/Logger': {},
+            'dw/system/Logger': {
+                error: function () {
+                    return {};
+                }
+            },
+            '*/cartridge/models/product/decorators/tileImages': {
+                tileImageHelper: function() {}
+            },
             '*/cartridge/scripts/util/ProductUtils.ds': {
                 getOutletPricing: function () {
                     return {};
@@ -172,29 +225,131 @@ describe('search price decorator', function () {
         stubRootPriceBook.returns({ ID: 'someOtherPriceBook' });
         searchPrice(object, searchHitMock, activePromotionsMock, getSearchHit, 'outletColors'); //
 
-        assert.isFalse(stubDefaultPrice.withArgs({ value: 50, available: true }, { value: 100, available: true }).calledOnce);
+        assert.isFalse(stubDefaultPrice.withArgs({ value: 50, available: false }, { value: 100, available: false }).calledOnce);
     });
 
     it('should create a property on the passed in object called price', function () {
+        searchPrice = proxyquire('../../../../../cartridges/app_ua_core/cartridge/models/product/decorators/searchPrice', {
+            'dw/campaign/PromotionMgr': {
+                getPromotion: function () {
+                    return {};
+                }
+            },
+            'dw/util/ArrayList': ArrayList,
+            '*/cartridge/scripts/helpers/pricing': {
+                getRootPriceBook: stubRootPriceBook,
+                getPromotionPrice: function () { return { value: 50, available: true }; }
+            },
+            'dw/catalog/PriceBookMgr': {
+                setApplicablePriceBooks: function () {},
+                getApplicablePriceBooks: function () {}
+            },
+            '*/cartridge/models/price/default': stubDefaultPrice,
+            '*/cartridge/models/price/range': stubRangePrice,
+            'dw/system/Logger': {
+                error: function () {
+                    return {};
+                }
+            },
+            '*/cartridge/models/product/decorators/tileImages': {
+                tileImageHelper: function() {}
+            },
+            '*/cartridge/scripts/util/ProductUtils.ds': {
+                getOutletPricing: function () {
+                    return {};
+                }
+            },
+            'dw/value/Money': require('../../../../mocks/dw/dw_value_Money'),
+            'dw/system/Site': require('../../../../mocks/dw/dw_system_Site'),
+            'dw/system/Transaction': require('../../../../mocks/dw/dw_system_Transaction')
+        });
         var object = {};
         stubPriceModel.returns(pricModelMock);
         stubRootPriceBook.returns({ ID: 'somePriceBook' });
-        searchPrice(object, searchHitMock, activePromotionsMock, getSearchHit);
+        searchPrice(object, searchHitMock, activePromotionsMock, getSearchHit, experienceType, getSelectedProductVariant, apiProduct, sizeModeViewPref);
 
         assert.isTrue(stubDefaultPrice.withArgs({ value: 50, available: true }, { value: 100, available: true }).calledOnce);
     });
 
     it('should create a property on the passed in object called price', function () {
+        searchPrice = proxyquire('../../../../../cartridges/app_ua_core/cartridge/models/product/decorators/searchPrice', {
+            'dw/campaign/PromotionMgr': {
+                getPromotion: function () {
+                    return {};
+                }
+            },
+            'dw/util/ArrayList': ArrayList,
+            '*/cartridge/scripts/helpers/pricing': {
+                getRootPriceBook: stubRootPriceBook,
+                getPromotionPrice: function () { return { value: 50, available: true }; }
+            },
+            'dw/catalog/PriceBookMgr': {
+                setApplicablePriceBooks: function () {},
+                getApplicablePriceBooks: function () {}
+            },
+            '*/cartridge/models/price/default': stubDefaultPrice,
+            '*/cartridge/models/price/range': stubRangePrice,
+            'dw/system/Logger': {
+                error: function () {
+                    return {};
+                }
+            },
+            '*/cartridge/models/product/decorators/tileImages': {
+                tileImageHelper: function() {}
+            },
+            '*/cartridge/scripts/util/ProductUtils.ds': {
+                getOutletPricing: function () {
+                    return {};
+                }
+            },
+            'dw/value/Money': require('../../../../mocks/dw/dw_value_Money'),
+            'dw/system/Site': require('../../../../mocks/dw/dw_system_Site'),
+            'dw/system/Transaction': require('../../../../mocks/dw/dw_system_Transaction')
+        });
         var object = {};
         stubPriceModel.returns(pricModelMock);
         stubRootPriceBook.returns({ ID: 'someOtherPriceBook' });
         searchHitMock.maxPrice.value = 200;
-        searchPrice(object, searchHitMock, noActivePromotionsMock, getSearchHit);
+        searchPrice(object, searchHitMock, noActivePromotionsMock, getSearchHit, experienceType, getSelectedProductVariant, apiProduct, sizeModeViewPref);
 
         assert.isTrue(stubRangePrice.withArgs({ value: 100, available: true }, { value: 200, available: true }).calledOnce);
     });
 
     it('should create a property on the passed in object called price', function () {
+        searchPrice = proxyquire('../../../../../cartridges/app_ua_core/cartridge/models/product/decorators/searchPrice', {
+            'dw/campaign/PromotionMgr': {
+                getPromotion: function () {
+                    return {};
+                }
+            },
+            'dw/util/ArrayList': ArrayList,
+            '*/cartridge/scripts/helpers/pricing': {
+                getRootPriceBook: stubRootPriceBook,
+                getPromotionPrice: function () { return { value: 50, available: true }; }
+            },
+            'dw/catalog/PriceBookMgr': {
+                setApplicablePriceBooks: function () {},
+                getApplicablePriceBooks: function () {}
+            },
+            '*/cartridge/models/price/default': stubDefaultPrice,
+            '*/cartridge/models/price/range': stubRangePrice,
+            'dw/system/Logger': {
+                error: function () {
+                    return {};
+                }
+            },
+            '*/cartridge/models/product/decorators/tileImages': {
+                tileImageHelper: function() {}
+            },
+            '*/cartridge/scripts/util/ProductUtils.ds': {
+                getOutletPricing: function () {
+                    return {};
+                }
+            },
+            'dw/value/Money': require('../../../../mocks/dw/dw_value_Money'),
+            'dw/system/Site': require('../../../../mocks/dw/dw_system_Site'),
+            'dw/system/Transaction': require('../../../../mocks/dw/dw_system_Transaction')
+        });
         function getSearchHit2() {
             return { minPrice: {}, maxPrice: {} };
         }
@@ -202,12 +357,46 @@ describe('search price decorator', function () {
         stubPriceModel.returns(pricModelMock);
         stubRootPriceBook.returns({ ID: 'someOtherPriceBook' });
         searchHitMock.maxPrice.value = 200;
-        searchPrice(object, searchHitMock, noActivePromotionsMock, getSearchHit2);
+        searchPrice(object, searchHitMock, noActivePromotionsMock, getSearchHit2, experienceType, getSelectedProductVariant, apiProduct, sizeModeViewPref);
 
         assert.isTrue(stubRangePrice.withArgs({ value: 100, available: true }, { value: 200, available: true }).calledOnce);
     });
 
     it('getListPrices retutn empty object, range price returned', function () {
+        searchPrice = proxyquire('../../../../../cartridges/app_ua_core/cartridge/models/product/decorators/searchPrice', {
+            'dw/campaign/PromotionMgr': {
+                getPromotion: function () {
+                    return {};
+                }
+            },
+            'dw/util/ArrayList': ArrayList,
+            '*/cartridge/scripts/helpers/pricing': {
+                getRootPriceBook: stubRootPriceBook,
+                getPromotionPrice: function () { return { value: 50, available: true }; }
+            },
+            'dw/catalog/PriceBookMgr': {
+                setApplicablePriceBooks: function () {},
+                getApplicablePriceBooks: function () {}
+            },
+            '*/cartridge/models/price/default': stubDefaultPrice,
+            '*/cartridge/models/price/range': stubRangePrice,
+            'dw/system/Logger': {
+                error: function () {
+                    return {};
+                }
+            },
+            '*/cartridge/models/product/decorators/tileImages': {
+                tileImageHelper: function() {}
+            },
+            '*/cartridge/scripts/util/ProductUtils.ds': {
+                getOutletPricing: function () {
+                    return {};
+                }
+            },
+            'dw/value/Money': require('../../../../mocks/dw/dw_value_Money'),
+            'dw/system/Site': require('../../../../mocks/dw/dw_system_Site'),
+            'dw/system/Transaction': require('../../../../mocks/dw/dw_system_Transaction')
+        });
         function getSearchHit1() {
             return null;
         }
@@ -215,7 +404,7 @@ describe('search price decorator', function () {
         stubPriceModel.returns(pricModelMock);
         stubRootPriceBook.returns({ ID: 'someOtherPriceBook' });
         searchHitMock.maxPrice.value = 200;
-        searchPrice(object, searchHitMock, noActivePromotionsMock, getSearchHit1);
+        searchPrice(object, searchHitMock, noActivePromotionsMock, getSearchHit1, experienceType, getSelectedProductVariant, apiProduct, sizeModeViewPref);
 
         assert.isTrue(stubRangePrice.withArgs({ value: 100, available: true }, { value: 200, available: true }).calledOnce);
     });
@@ -246,6 +435,9 @@ describe('search price decorator', function () {
                     return {};
                 }
             },
+            '*/cartridge/models/product/decorators/tileImages': {
+                tileImageHelper: function() {}
+            },
             '*/cartridge/scripts/util/ProductUtils.ds': {
                 getOutletPricing: stub
             },
@@ -256,7 +448,7 @@ describe('search price decorator', function () {
         var object = {};
         stubPriceModel.returns({});
         stubRootPriceBook.returns({ ID: 'someOtherPriceBook' });
-        searchPrice(object, searchHitMock, activePromotionsMock, getSearchHit, 'outletColors');
+        searchPrice(object, searchHitMock, activePromotionsMock, getSearchHit, 'outletColors', getSelectedProductVariant, apiProduct, sizeModeViewPref);
     });
 
     it('Test custom error in getListPrices function', function () {
@@ -282,6 +474,9 @@ describe('search price decorator', function () {
                     return {};
                 }
             },
+            '*/cartridge/models/product/decorators/tileImages': {
+                tileImageHelper: function() {}
+            },
             '*/cartridge/scripts/util/ProductUtils.ds': {
                 getOutletPricing: function () {
                     return {};
@@ -294,6 +489,6 @@ describe('search price decorator', function () {
         var object = {};
         stubPriceModel.returns(pricModelMock);
         stubRootPriceBook.returns({ ID: 'someOtherPriceBook' });
-        searchPrice(object, searchHitMock, activePromotionsMock, null);
+        searchPrice(object, searchHitMock, activePromotionsMock, experienceType, getSelectedProductVariant, apiProduct, sizeModeViewPref);
     });
 });

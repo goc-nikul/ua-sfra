@@ -2,7 +2,8 @@
 
 // API includes
 var Locale = require('dw/util/Locale');
-var LOGGER = dw.system.Logger.getLogger('UAMembersonAPIs', 'UAMembersonAPIs');
+var Logger = require('dw/system/Logger');
+var LOGGER = Logger.getLogger('UAMembersonAPIs', 'UAMembersonAPIs');
 
 var membersonHelpers = require('*/cartridge/scripts/helpers/membersonHelpers');
 

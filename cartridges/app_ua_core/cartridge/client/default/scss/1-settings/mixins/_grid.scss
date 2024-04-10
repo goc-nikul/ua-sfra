@@ -77,7 +77,7 @@
 }
 
 @mixin grid-col-offset($size, $deraction: left, $columns: $grid-columns) {
-    $num: $size / $columns;
+    $num: calc($size / $columns);
 
     margin-#{$deraction}: if($num == 0, 0, percentage($num));
 }

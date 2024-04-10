@@ -39,7 +39,8 @@ module.exports = {
     CANCELPARTIALPAYMENTORDER: 'AdyenCancelPartialPaymentOrder',
     PARTIALPAYMENTSORDER: 'AdyenPartialPaymentsOrder',
     ADYENREFUND: 'AdyenRefund',
-    PAYMENTREVERSAL: 'AdyenPaymentReversal'
+    PAYMENTREVERSAL: 'AdyenPaymentReversal',
+    CAPTURE: 'AdyenPaymentCapture'
   },
   MODE: {
     TEST: 'TEST',

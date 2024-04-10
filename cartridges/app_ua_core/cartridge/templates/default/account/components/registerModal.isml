@@ -17,6 +17,14 @@
         <iselse/>
             <isset name="LoginURL" value="${URLUtils.https('Login-Show')}" scope="page"/>
     </isif>
+
+    <isif condition="${pdict.promptedLogin}">
+        <isif condition="${loyaltyEnable && !!pdict.showLoyaltyEnroll}">
+            <isset name="LoginURL" value="${URLUtils.https('Login-Show', 'pilotEnroll', 'true', 'channel', pdict.channel, 'subChannel', pdict.subChannel, 'subChannelDetail', pdict.subChannelDetail, 'promptedLogin', 'true')}" scope="page"/>
+        <iselse/>
+            <isset name="LoginURL" value="${URLUtils.https('Login-Show', 'promptedLogin', 'true')}" scope="page"/>
+        </isif>
+    </isif>
     <isinclude template="account/components/accountRegisterForm" />
 
     <div class="b-info-container">

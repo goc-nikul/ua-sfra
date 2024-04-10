@@ -46,7 +46,7 @@ var orderHelpers = proxyquire('../../../../../../cartridges/int_mao/cartridge/sc
         prepareGraphQLRequest: () => null
     },
     'dw/system/Transaction': require('../../../../../mocks/dw/dw_system_Transaction'),
-    '*/cartridge/models/OIS/order': OrderModel
+    '*/cartridge/models/UACAPI/order/order': OrderModel
 });
 
 describe('int_mao/cartridge/scripts/UACAPI/helpers/order/orderHelpers.js', () => {

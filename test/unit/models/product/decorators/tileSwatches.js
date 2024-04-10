@@ -35,7 +35,10 @@ var hit = {
                         return {};
                     },
                     getSelectedVariants: function () {
-                        return [{ custom: { team: {} } }];
+                        new Collections(
+                            {
+                                custom: { team: {} }
+                            });
                     },
                     getVariationValue: function () {
                         return {};
@@ -100,7 +103,13 @@ describe('tile swathes decorator', function () {
                     return {};
                 }
             }
-        }
+        },
+        'dw/system/Logger': {
+            error: function () {
+                return {};
+            }
+        },
+        'dw/system/Logger': require('../../../../mocks/dw/dw_system_Logger')
     });
 
     it('Test tile Swatches decorator --> if hit equal null', function () {

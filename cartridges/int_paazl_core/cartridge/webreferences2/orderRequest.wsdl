@@ -1709,6 +1709,102 @@
 					</xs:choice>
 				</xs:complexType>
 			</xs:element>
+			<xs:element name="addExistingShipmentRequest">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="matrix:baseWebshopElement">
+							<xs:sequence>
+								<xs:element name="hash" type="xs:string"/>
+								<xs:element minOccurs="0" name="targetWebshop" type="xs:long"/>
+								<xs:element name="shipments" type="matrix:shipmentsRequestType"/>
+							</xs:sequence>
+						</xs:extension>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:complexType name="shipmentsRequestType">
+				<xs:sequence>
+					<xs:element maxOccurs="20" name="shipment" type="matrix:shipmentRequestType"/>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="shipmentRequestType">
+				<xs:sequence>
+					<xs:element name="reference" type="matrix:String255"/>
+					<xs:element name="trackingNumber" type="matrix:String255"/>
+					<xs:element name="dispatchNumber" type="matrix:String64"/>
+					<xs:element name="parcels" type="matrix:parcelsRequestType"/>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:simpleType name="String1024">
+				<xs:restriction base="xs:string">
+					<xs:maxLength value="1024"/>
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType name="String255">
+				<xs:restriction base="xs:string">
+					<xs:maxLength value="255"/>
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType name="String64">
+				<xs:restriction base="xs:string">
+					<xs:maxLength value="64"/>
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:complexType name="parcelsRequestType">
+				<xs:sequence>
+					<xs:element maxOccurs="10" name="parcel" type="matrix:parcelRequestType"/>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="parcelRequestType">
+				<xs:sequence>
+					<xs:element name="barcode" type="matrix:String255"/>
+					<xs:element name="trackingUrl" type="matrix:String1024"/>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:element name="addExistingShipmentResponse">
+				<xs:complexType>
+					<xs:choice>
+						<xs:sequence>
+							<xs:element name="shipments" type="matrix:shipmentsResponseType"/>
+						</xs:sequence>
+						<xs:choice>
+							<xs:element name="message" type="xs:string"/>
+							<xs:element name="errors" type="matrix:errorsType"/>
+						</xs:choice>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:complexType name="errorsType">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" name="error" type="matrix:errorType"/>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="shipmentsResponseType">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" name="shipment" type="matrix:shipmentResponseType"/>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="shipmentResponseType">
+				<xs:sequence>
+					<xs:element name="reference" type="matrix:String255"/>
+					<xs:element name="parcels" type="matrix:parcelsResponseType"/>
+					<xs:element name="errors" type="matrix:errorsType"/>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="parcelsResponseType">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" name="parcel" type="matrix:parcelResponseType"/>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="parcelResponseType">
+				<xs:complexContent>
+					<xs:extension base="matrix:parcelRequestType">
+						<xs:sequence>
+							<xs:element name="errors" type="matrix:errorsType"/>
+						</xs:sequence>
+					</xs:extension>
+				</xs:complexContent>
+			</xs:complexType>
 			<xs:element name="generateAdditionalPdfDocumentRequest">
 				<xs:complexType>
 					<xs:complexContent>
@@ -2658,6 +2754,11 @@
 					<xs:enumeration value="delivery" />
 				</xs:restriction>
 			</xs:simpleType>
+			<xs:complexType abstract="true" name="baseWebshopElement">
+				<xs:sequence>
+					<xs:element name="webshop" type="xs:long"/>
+				</xs:sequence>
+			</xs:complexType>
 		</xs:schema>
 	</wsdl:types>
 	<wsdl:message name="changeOrderRequest">
@@ -2867,6 +2968,9 @@
 		<wsdl:part element="tns:getExistingImageLabelsResponse"
 			name="getExistingImageLabelsResponse"></wsdl:part>
 	</wsdl:message>
+	<wsdl:message name="addExistingShipmentRequest">
+		<wsdl:part element="tns:addExistingShipmentRequest" name="addExistingShipmentRequest"></wsdl:part>
+	</wsdl:message>
 	<wsdl:message name="openBatchResponse">
 		<wsdl:part element="tns:openBatchResponse" name="openBatchResponse"></wsdl:part>
 	</wsdl:message>
@@ -2992,6 +3096,9 @@
 	</wsdl:message>
 	<wsdl:message name="listStoresResponse">
 		<wsdl:part element="tns:listStoresResponse" name="listStoresResponse"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="addExistingShipmentResponse">
+		<wsdl:part element="tns:addExistingShipmentResponse" name="addExistingShipmentResponse"></wsdl:part>
 	</wsdl:message>
 	<wsdl:message name="orderStatusResponse">
 		<wsdl:part element="tns:orderStatusResponse" name="orderStatusResponse"></wsdl:part>
@@ -3239,6 +3346,10 @@
 				name="getExistingImageLabelsRequest"></wsdl:input>
 			<wsdl:output message="tns:getExistingImageLabelsResponse"
 				name="getExistingImageLabelsResponse"></wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="addExistingShipment">
+			<wsdl:input message="tns:addExistingShipmentRequest" name="addExistingShipmentRequest"></wsdl:input>
+			<wsdl:output message="tns:addExistingShipmentResponse" name="addExistingShipmentResponse"></wsdl:output>
 		</wsdl:operation>
 		<wsdl:operation name="orderStatus">
 			<wsdl:input message="tns:orderStatusRequest" name="orderStatusRequest"></wsdl:input>
@@ -3703,6 +3814,15 @@
 			</wsdl:input>
 			<wsdl:output name="getExistingImageLabelsResponse">
 				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="addExistingShipment">
+			<soap:operation soapAction=""/>
+			<wsdl:input name="addExistingShipmentRequest">
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output name="addExistingShipmentResponse">
+				<soap:body use="literal"/>
 			</wsdl:output>
 		</wsdl:operation>
 		<wsdl:operation name="orderStatus">

@@ -40,6 +40,55 @@ function getBirthYearRange(yearOptions) {
     return birthYearOptions;
 }
 
+/**
+ * Check if disabled fields are updated
+ * @param {dw.customer.Profile} profile customer profile
+ * @param {Object} profileFormObj object representing customer profile form
+ * @returns {boolean} are disabled fields updated
+ */
+function validateDisabledFieldsUpdated(profile, profileFormObj) {
+    var disabledFieldsUpdated = false;
+    var isBirthDateAvailable = false;
+    var isLoyaltyIdAvailable = false;
+    if (profile) {
+        isLoyaltyIdAvailable = !empty(profile.custom['Loyalty-ID']);
+    }
+    if (!empty(profile.birthday) && !empty(profile.custom.birthYear)) {
+        isBirthDateAvailable = true;
+    }
+    var countryConfig = {
+        membersonEnabled: false
+    };
+
+    if (HookMgr.hasHook('app.memberson.CountryConfig')) {
+        var countryCode = session.custom.currentCountry || Locale.getLocale(request.getLocale()).country; // eslint-disable-line
+        countryConfig = HookMgr.callHook('app.memberson.CountryConfig', 'getMembersonCountryConfig', countryCode);
+    }
+
+    if (countryConfig.membersonEnabled) {
+        if (isLoyaltyIdAvailable) {
+            var customerPhone = profile.phoneHome;
+            if (profileFormObj.customer.phone && customerPhone !== profileFormObj.customer.phone) {
+                disabledFieldsUpdated = true;
+            }
+        }
+
+        if (isBirthDateAvailable) {
+            var birthMonth = profile.custom.birthMonth;
+            if (profileFormObj.customer.birthMonth && birthMonth !== profileFormObj.customer.birthMonth) {
+                disabledFieldsUpdated = true;
+            }
+
+            var birthYear = profile.custom.birthYear;
+            if (profileFormObj.customer.birthYear && birthYear !== profileFormObj.customer.birthYear) {
+                disabledFieldsUpdated = true;
+            }
+        }
+    }
+
+    return disabledFieldsUpdated;
+}
+
 server.append('SubmitRegistration', function (req, res, next) {
     // Memberson - Check if memberson is enabled for this country
     var countryConfig = {
@@ -56,7 +105,7 @@ server.append('SubmitRegistration', function (req, res, next) {
         membersonSearchResponse = null;
     }
     var viewData = res.getViewData();
-    if ((empty(viewData.invalidForm) || !viewData.invalidForm)) {
+    if (empty(viewData.invalidForm) || !viewData.invalidForm) {
         var registrationFormObj = viewData.registerForm;
         var registrationForm = registrationFormObj.form;
         var isEligibleForMemberson = membersonHelpers.validateUserForMemberson(registrationFormObj.email);
@@ -84,7 +133,12 @@ server.append('SubmitRegistration', function (req, res, next) {
                             customerProfile.custom.registrationCountry = countryConfig.countryCode;
                         });
                     }
-                    if (isEligibleForMemberson && membersonCreateCustomer && !empty(authenticatedCustomer) && empty(res.getViewData().fields)) {
+                    if (
+                        isEligibleForMemberson &&
+                        membersonCreateCustomer &&
+                        !empty(authenticatedCustomer) &&
+                        empty(res.getViewData().fields)
+                    ) {
                         // customer was created successfully
                         if (!empty(customerProfile)) {
                             Transaction.wrap(function () {
@@ -92,35 +146,90 @@ server.append('SubmitRegistration', function (req, res, next) {
                             });
                             var createProfileRes;
                             if (HookMgr.hasHook('app.memberson.CreateProfile')) {
-                                createProfileRes = HookMgr.callHook('app.memberson.CreateProfile', 'CreateProfile', registrationFormObj, countryConfig);
+                                createProfileRes = HookMgr.callHook(
+                                    'app.memberson.CreateProfile',
+                                    'CreateProfile',
+                                    registrationFormObj,
+                                    countryConfig
+                                );
                             }
 
                             if (!empty(createProfileRes) && !createProfileRes.error) {
-                                var membersonCustomerNumber = createProfileRes.createAccountResponse && createProfileRes.createAccountResponse.Profile && createProfileRes.createAccountResponse.Profile.CustomerNumber;
+                                var membersonCustomerNumber =
+                                    createProfileRes.createAccountResponse &&
+                                    createProfileRes.createAccountResponse.Profile &&
+                                    createProfileRes.createAccountResponse.Profile.CustomerNumber;
                                 if (!empty(membersonCustomerNumber)) {
                                     Transaction.wrap(function () {
                                         customerProfile.custom['Loyalty-ID'] = membersonCustomerNumber;
                                     });
                                 }
-                                if (Object.prototype.hasOwnProperty.call(countryConfig, 'uaRewardsRedirect') && !empty(countryConfig.uaRewardsRedirect)) {
+                                if (
+                                    Object.prototype.hasOwnProperty.call(countryConfig, 'uaRewardsRedirect') &&
+                                    !empty(countryConfig.uaRewardsRedirect)
+                                ) {
                                     res.viewData.redirectUrl = countryConfig.uaRewardsRedirect; // eslint-disable-line
                                     res.viewData.shouldRedirect = true; // eslint-disable-line
                                 }
                             }
                         }
-                    } else if (isEligibleForMemberson && !membersonSearchResponse.emptyCustomerNos && membersonSearchResponse.matchingCustomerNos) {
-                        var membersonCustomObj = null;
-                        if (HookMgr.hasHook('app.memberson.StoreCustomerRegistration')) {
-                            membersonCustomObj = HookMgr.callHook('app.memberson.StoreCustomerRegistration', 'StoreCustomerRegistration', registrationForm);
+                    } else if (
+                        isEligibleForMemberson &&
+                        !membersonSearchResponse.emptyCustomerNos &&
+                        membersonSearchResponse.matchingCustomerNos
+                    ) {
+                        var idmUserID;
+                        var idmHelper = require('*/cartridge/scripts/idmHelper');
+                        var tokenResponse = idmHelper.getAccessToken('client_credentials', null);
+                        if (
+                            !empty(tokenResponse) &&
+                            'access_token' in tokenResponse &&
+                            !empty(tokenResponse.access_token)
+                        ) {
+                            var accessToken = tokenResponse.access_token;
+                            idmUserID = idmHelper.getUserIDByEmail(registrationFormObj.email, accessToken);
                         }
-
-                        if (!empty(membersonCustomObj) && !empty(membersonCustomObj.custom.membersonCustomerProfileID)) {
-                            if (HookMgr.hasHook('app.memberson.SendProfileValidationEmail')) {
-                                HookMgr.callHook('app.memberson.SendProfileValidationEmail', 'sendProfileValidationEmail', membersonCustomObj.custom.membersonCustomerProfileID, registrationFormObj);
+                        if (!idmUserID) {
+                            var membersonCustomObj = null;
+                            if (HookMgr.hasHook('app.memberson.StoreCustomerRegistration')) {
+                                membersonCustomObj = HookMgr.callHook(
+                                    'app.memberson.StoreCustomerRegistration',
+                                    'StoreCustomerRegistration',
+                                    registrationForm
+                                );
                             }
+
+                            if (
+                                !empty(membersonCustomObj) &&
+                                !empty(membersonCustomObj.custom.membersonCustomerProfileID)
+                            ) {
+                                if (HookMgr.hasHook('app.memberson.SendProfileValidationEmail')) {
+                                    HookMgr.callHook(
+                                        'app.memberson.SendProfileValidationEmail',
+                                        'sendProfileValidationEmail',
+                                        membersonCustomObj.custom.membersonCustomerProfileID,
+                                        registrationFormObj
+                                    );
+                                }
+                                res.json({
+                                    success: true,
+                                    validationEmailMessage: Resource.msg(
+                                        'memberson.msg.validationemail',
+                                        'membersonGlobal',
+                                        null
+                                    )
+                                });
+                            }
+                        } else {
+                            registrationForm.customer.email.valid = false;
+                            registrationForm.customer.email.error = Resource.msg(
+                                'error.message.user.already.exist',
+                                'forms',
+                                null
+                            );
+                            registrationForm.valid = false;
                             res.json({
-                                success: true,
-                                validationEmailMessage: Resource.msg('memberson.msg.validationemail', 'membersonGlobal', null)
+                                fields: formErrors.getFormErrors(registrationForm)
                             });
                         }
                     }
@@ -162,7 +271,12 @@ server.post('CheckMembersonAccount', function (req, res, next) {
         if (!customerValid) {
             registrationForm.valid = false;
             registrationForm.customer.birthMonth.valid = false;
-            registrationForm.customer.birthMonth.error = Resource.msgf('memberson.msg.age.validation', 'membersonGlobal', null, countryConfig.ageOfConsent);
+            registrationForm.customer.birthMonth.error = Resource.msgf(
+                'memberson.msg.age.validation',
+                'membersonGlobal',
+                null,
+                countryConfig.ageOfConsent
+            );
             success = false;
             res.json({
                 fields: formErrors.getFormErrors(registrationForm),
@@ -173,10 +287,16 @@ server.post('CheckMembersonAccount', function (req, res, next) {
         }
     }
     if (HookMgr.hasHook('app.memberson.SearchProfile')) {
-        searchResponse = HookMgr.callHook('app.memberson.SearchProfile', 'SearchProfile', email, mobile, mobileCountryCode);
+        searchResponse = HookMgr.callHook(
+            'app.memberson.SearchProfile',
+            'SearchProfile',
+            email,
+            mobile,
+            mobileCountryCode
+        );
     }
 
-    if (!empty(searchResponse) && (empty(searchResponse.error))) {
+    if (!empty(searchResponse) && empty(searchResponse.error)) {
         if (searchResponse.multipleCustomerNos !== true && searchResponse.matchingCustomerNos === true) {
             success = true;
         }
@@ -185,7 +305,7 @@ server.post('CheckMembersonAccount', function (req, res, next) {
         });
     }
 
-    if ((!empty(searchResponse.error))) {
+    if (!empty(searchResponse.error)) {
         res.json({
             searchResponse: {
                 errorMessage: Resource.msg('memberson.msg.apierror', 'membersonGlobal', null)
@@ -214,7 +334,9 @@ server.append('EditProfile', function (req, res, next) {
             getBirthYearRange(profileForm.customer.birthYear.options);
             // Set the Birth Year
             var year = !empty(currentCustomer.custom.birthYear) ? currentCustomer.custom.birthYear : null;
-            var yearIndex = res.getViewData().profileForm.customer.birthYear.options.findIndex(x => x.htmlValue === year);
+            var yearIndex = res
+                .getViewData()
+                .profileForm.customer.birthYear.options.findIndex((x) => x.htmlValue === year);
             if (year && profileForm.customer.birthYear.options[yearIndex]) {
                 profileForm.customer.birthYear.options[yearIndex].selected = true;
             }
@@ -225,7 +347,13 @@ server.append('EditProfile', function (req, res, next) {
             if (isEligibleForMemberson) {
                 if (!empty(currentCustomer.phoneHome)) {
                     if (HookMgr.hasHook('app.memberson.SearchProfile')) {
-                        searchProfileObjRes = HookMgr.callHook('app.memberson.SearchProfile', 'SearchProfile', currentCustomer.email, currentCustomer.phoneHome, customer.profile.custom.countryDialingCode);
+                        searchProfileObjRes = HookMgr.callHook(
+                            'app.memberson.SearchProfile',
+                            'SearchProfile',
+                            currentCustomer.email,
+                            currentCustomer.phoneHome,
+                            customer.profile.custom.countryDialingCode
+                        );
                     }
 
                     // Check if Phone number and email are mismatch or not in Memberson on edit profile page.
@@ -235,7 +363,11 @@ server.append('EditProfile', function (req, res, next) {
                             error: true,
                             errorMessage: Resource.msg('memberson.msg.apierror', 'membersonGlobal', null)
                         };
-                    } else if (empty(currentCustomer.custom['Loyalty-ID']) && !searchProfileObjRes.emptyCustomerNos && searchProfileObjRes.matchingCustomerNos) {
+                    } else if (
+                        empty(currentCustomer.custom['Loyalty-ID']) &&
+                        !searchProfileObjRes.emptyCustomerNos &&
+                        searchProfileObjRes.matchingCustomerNos
+                    ) {
                         Transaction.wrap(function () {
                             currentCustomer.custom['Loyalty-ID'] = searchProfileObjRes.emailSearchCustomerNo;
                         });
@@ -257,7 +389,11 @@ server.append('EditProfile', function (req, res, next) {
                             membersonRes = {
                                 success: false,
                                 error: true,
-                                errorMessage: Resource.msg('memberson.msg.birthmonthyear.required', 'membersonGlobal', null)
+                                errorMessage: Resource.msg(
+                                    'memberson.msg.birthmonthyear.required',
+                                    'membersonGlobal',
+                                    null
+                                )
                             };
                         }
                     }
@@ -293,33 +429,44 @@ server.append('EditProfile', function (req, res, next) {
 server.prepend('SaveProfile', function (req, res, next) {
     var profileForm = server.forms.getForm('profile');
     var profileObj = profileForm.toObject();
-    var isEligibleForMemberson = membersonHelpers.validateUserForMemberson(profileObj.customer.email);
-    if (isEligibleForMemberson && HookMgr.hasHook('app.memberson.CountryConfig')) {
-        var countryCode = session.custom.currentCountry || Locale.getLocale(request.getLocale()).country; // eslint-disable-line
-        var countryConfig = HookMgr.callHook('app.memberson.CountryConfig', 'getMembersonCountryConfig', countryCode);
-        if (countryConfig.membersonEnabled) {
-            // Check if customer's age is 18+
-            var month = profileObj.customer.birthMonth;
-            var year = profileObj.customer.birthYear;
-            if (empty(month) || empty(year)) {
-                res.json({
-                    success: false
-                });
-                this.done(req, res);
-                return;
-            }
-            var customerValid = membersonHelpers.validateAgeOfCustomer(month, year, countryConfig);
-            if (!customerValid) {
-                var ContentMgr = require('dw/content/ContentMgr');
-                var modalBody = ContentMgr.getContent('age-validation-popup-body').custom.body.toString();
-                res.json({
-                    success: false,
-                    ageNotValid: true,
-                    modalContent: modalBody,
-                    fields: []
-                });
-                this.done(req, res);
-                return;
+
+    var countryCode = session.custom.currentCountry || Locale.getLocale(request.getLocale()).country; // eslint-disable-line
+    var countryConfig = HookMgr.callHook('app.memberson.CountryConfig', 'getMembersonCountryConfig', countryCode);
+
+    var currentCustomer = req.currentCustomer.raw.profile;
+    var disabledFieldsUpdated = validateDisabledFieldsUpdated(currentCustomer, profileObj);
+
+    if (disabledFieldsUpdated) {
+        throw new Error(Resource.msg('subheading.error.general', 'error', null));
+    }
+
+    if (!currentCustomer.custom['Loyalty-OptStatus']) {
+        var isEligibleForMemberson = membersonHelpers.validateUserForMemberson(profileObj.customer.email);
+        if (isEligibleForMemberson && HookMgr.hasHook('app.memberson.CountryConfig')) {
+            if (countryConfig.membersonEnabled) {
+                // Check if customer's age is 18+
+                var month = profileObj.customer.birthMonth;
+                var year = profileObj.customer.birthYear;
+                if (empty(month) || empty(year)) {
+                    res.json({
+                        success: false
+                    });
+                    this.done(req, res);
+                    return;
+                }
+                var customerValid = membersonHelpers.validateAgeOfCustomer(month, year, countryConfig);
+                if (!customerValid) {
+                    var ContentMgr = require('dw/content/ContentMgr');
+                    var modalBody = ContentMgr.getContent('age-validation-popup-body').custom.body.toString();
+                    res.json({
+                        success: false,
+                        ageNotValid: true,
+                        modalContent: modalBody,
+                        fields: []
+                    });
+                    this.done(req, res);
+                    return;
+                }
             }
         }
     }
@@ -329,7 +476,10 @@ server.prepend('SaveProfile', function (req, res, next) {
 server.append('SaveProfile', function (req, res, next) {
     var profileForm = server.forms.getForm('profile');
     var updatedProfile = profileForm.toObject();
-    if (empty(res.getViewData().success || res.getViewData().success) && HookMgr.hasHook('app.memberson.CountryConfig')) {
+    if (
+        empty(res.getViewData().success || res.getViewData().success) &&
+        HookMgr.hasHook('app.memberson.CountryConfig')
+    ) {
         var countryCode = session.custom.currentCountry || Locale.getLocale(request.getLocale()).country; // eslint-disable-line
         var countryConfig = HookMgr.callHook('app.memberson.CountryConfig', 'getMembersonCountryConfig', countryCode);
         if (countryConfig.membersonEnabled) {
@@ -353,16 +503,27 @@ server.append('SaveProfile', function (req, res, next) {
             Transaction.wrap(function () {
                 profile.custom.birthYear = updatedProfile.customer.birthYear;
             });
+            var viewData;
             var isEligibleForMemberson = membersonHelpers.validateUserForMemberson(updatedProfile.customer.email);
             if (isEligibleForMemberson) {
                 if (HookMgr.hasHook('app.memberson.SearchProfile')) {
-                    searchProfileObjRes = HookMgr.callHook('app.memberson.SearchProfile', 'SearchProfile', updatedProfile.customer.email, updatedProfile.customer.phone, updatedProfile.customer.countryDialingCode);
+                    searchProfileObjRes = HookMgr.callHook(
+                        'app.memberson.SearchProfile',
+                        'SearchProfile',
+                        updatedProfile.customer.email,
+                        updatedProfile.customer.phone,
+                        updatedProfile.customer.countryDialingCode
+                    );
                 }
                 if (!empty(searchProfileObjRes) && searchProfileObjRes.error) {
-                    res.json({
-                        success: false,
-                        errorMessgae: Resource.msg('memberson.msg.apierror', 'membersonGlobal', null)
-                    });
+                    this.emit('route:BeforeComplete', req, res); // Emitting this route:BeforeComplete to complete the execution and save the fields in the sfcc profile
+                    viewData = res.getViewData(); // Calling this viewData again to get the success message from route:BeforeComplete
+                    if (viewData.success) {
+                        res.json({
+                            success: false,
+                            errorMessgae: Resource.msg('memberson.msg.apierror', 'membersonGlobal', null)
+                        });
+                    }
                     this.emit('route:Complete', req, res);
                     return;
                 }
@@ -370,12 +531,21 @@ server.append('SaveProfile', function (req, res, next) {
                 // Call the Create Profile API Hook
                 if (!empty(searchProfileObjRes) && searchProfileObjRes.emptyCustomerNos) {
                     if (HookMgr.hasHook('app.memberson.CreateProfile')) {
-                        createProfileObjRes = HookMgr.callHook('app.memberson.CreateProfile', 'CreateProfile', registrationFormObj, countryConfig);
+                        createProfileObjRes = HookMgr.callHook(
+                            'app.memberson.CreateProfile',
+                            'CreateProfile',
+                            registrationFormObj,
+                            countryConfig
+                        );
                     }
                 } else if (!empty(searchProfileObjRes) && searchProfileObjRes.matchingCustomerNos) {
                     customerNumber = searchProfileObjRes.emailSearchCustomerNo;
                     // Store the registrationCountry to profile if exist on MembersonProfile
-                    membersonHelpers.updateregistrationCountryAttribute(customerNumber, profile, countryConfig.countryCode);
+                    membersonHelpers.updateregistrationCountryAttribute(
+                        customerNumber,
+                        profile,
+                        countryConfig.countryCode
+                    );
                 } else if (!empty(searchProfileObjRes) && !searchProfileObjRes.matchingCustomerNos) {
                     res.json({
                         success: false,
@@ -386,7 +556,10 @@ server.append('SaveProfile', function (req, res, next) {
                 }
                 // Update the registrationFormObj if response is OK.
                 if (!empty(createProfileObjRes) && !createProfileObjRes.error) {
-                    customerNumber = createProfileObjRes.createAccountResponse && createProfileObjRes.createAccountResponse.Profile && createProfileObjRes.createAccountResponse.Profile.CustomerNumber;
+                    customerNumber =
+                        createProfileObjRes.createAccountResponse &&
+                        createProfileObjRes.createAccountResponse.Profile &&
+                        createProfileObjRes.createAccountResponse.Profile.CustomerNumber;
                     Transaction.wrap(function () {
                         profile.custom.registrationCountry = countryConfig.countryCode;
                     });
@@ -395,11 +568,17 @@ server.append('SaveProfile', function (req, res, next) {
                     Transaction.wrap(function () {
                         profile.custom['Loyalty-ID'] = customerNumber;
                     });
-                    var viewData = res.getViewData();
+                    viewData = res.getViewData();
                     viewData.LoyaltyID = customerNumber;
                     res.setViewData(viewData);
                     if (HookMgr.hasHook('app.memberson.viewTncConsent')) {
-                        HookMgr.callHook('app.memberson.viewTncConsent', 'viewTnCConsentStatus', customerNumber, true, 'YES');
+                        HookMgr.callHook(
+                            'app.memberson.viewTncConsent',
+                            'viewTnCConsentStatus',
+                            customerNumber,
+                            true,
+                            'YES'
+                        );
                     }
                 } else {
                     res.json({
@@ -412,6 +591,36 @@ server.append('SaveProfile', function (req, res, next) {
             }
         }
     }
+    next();
+});
+
+server.prepend('Login', function (req, res, next) {
+    this.on('route:BeforeComplete', function (req, res) { // eslint-disable-line no-shadow
+        var viewData = res.getViewData();
+        if (viewData.success && 'customerNo' in viewData && !empty(viewData.customerNo)) {
+            if (HookMgr.hasHook('app.memberson.CountryConfig')) {
+                var countryCode = session.custom.currentCountry || Locale.getLocale(request.getLocale()).country; // eslint-disable-line
+                var countryConfig = HookMgr.callHook(
+                    'app.memberson.CountryConfig',
+                    'getMembersonCountryConfig',
+                    countryCode
+                );
+                if (countryConfig.membersonEnabled) {
+                    var authenticatedCustomer = CustomerMgr.getCustomerByCustomerNumber(viewData.customerNo);
+                    var profile = authenticatedCustomer.profile;
+                    if (
+                        !empty(profile) &&
+                        membersonHelpers.validateUserForMemberson(profile.email) &&
+                        !profile.custom['Loyalty-OptStatus']
+                    ) {
+                        res.setViewData({
+                            membersonConsentPending: true
+                        });
+                    }
+                }
+            }
+        }
+    });
     next();
 });
 

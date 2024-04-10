@@ -1,3 +1,5 @@
+'use strict';
+
 const { I, pageDesigner } = inject();
 
 Then('shopper should see the popularCategories layout', () => {
@@ -9,17 +11,14 @@ Then('shopper should see the popularCategories layout', () => {
 
 Then('shopper should see the popularCategory components', () => {
     I.seeNumberOfElements('.popular-category', 6);
-    let el = locate('.popular-cat-link').at(1);
-    I.see('Outfits', el);
-    I.see('Tops', el);
-    I.see('Dresses', el);
-    I.see('Bottoms', el);
-    I.see('Jackets & Coats', el);
-    I.see('Feeling Red', el);
+    I.see('Outfits', locate('.popular-cat-link').at(1));
+    I.see('Tops', locate('.popular-cat-link').at(2));
+    I.see('Dresses', locate('.popular-cat-link').at(3));
+    I.see('Bottoms', locate('.popular-cat-link').at(4));
+    I.see('Jackets & Coats', locate('.popular-cat-link').at(5));
+    I.see('Feeling Red', locate('.popular-cat-link').at(6));
 });
-
 
 Then('shopper can click on a popular category', () => {
     pageDesigner.clickPopulareCategory(1, '.popular-category', '/s/RefArch/new arrivals/womens/?lang=default');
 });
-

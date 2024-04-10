@@ -10,22 +10,22 @@ Your feedback on the ease-of-use and limitations of this new architecture is inv
 
 # The latest version
 
-The latest version of SFRA is 5.1.0
+The latest version of SFRA is 7.0.0
 
 # Getting Started
 
 1. Clone this repository.
 
-2. Run `npm install` to install all of the local dependencies (node version 8.x or current LTS release recommended)
+2. Run `npm install` to install all of the local dependencies (SFRA has been tested with Node v18.19 and is recommended)
 
 3. Run `npm run compile:js` from the command line that would compile all client-side JS files. Run `npm run compile:scss` and `npm run compile:fonts` that would do the same for css and fonts.
 
-4. Create `dw.json` file in the root of the project:
+4. Create `dw.json` file in the root of the project. Providing a [WebDAV access key from BM](https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fadmin%2Fb2c_access_keys_for_business_manager.html) in the `password` field is optional, as you will be prompted if it is not provided.
 ```json
 {
     "hostname": "your-sandbox-hostname.demandware.net",
-    "username": "yourlogin",
-    "password": "yourpwd",
+    "username": "AM username like me.myself@company.com",
+    "password": "your_webdav_access_key",
     "code-version": "version_to_upload_to"
 }
 ```
@@ -95,7 +95,34 @@ You can also supply URL of the sandbox on the command line:
 npm run test:integration -- --baseUrl devxx-sitegenesis-dw.demandware.net
 ```
 
+## Running acceptance tests
+
+**Prerequisite:** The Java Runtime Environment (JRE 8+) is required to run Selenium and the acceptance tests. If you have not done so, install Java on your machine.
+
+Acceptance tests are located in the `storefront-reference-architecture/test/acceptance` directory.
+
+The acceptance tests will run against the site specified in the hostname property of `dw.json`. ie. To run the tests on `abcd-123.dx.commercecloud.salesforce.com`, in your dw.json set the following:
+```
+"hostname": "abcd-123.dx.commercecloud.salesforce.com"
+```
+
+There are several NPM scripts available for running the acceptance tests. They all require a `--profile` parameter for setting the browser the tests will run against. ie. `npm run test:acceptance:smoke --profile chrome`
+
+Tests will generally run on Chrome, Safari, and Firefox.
+
+To run the tests in headless mode, set a HEADLESS environment to true before starting the npm run. ie. `HEADLESS=true && npm run test:acceptance:smoke --profile chrome`
+
+* `test:acceptance:custom` - runs all tests (Note: some tests will fail as the browser size defaults to desktop)
+* `test:acceptance:deep` - runs all storefront tests
+* `test:acceptance:smoke` - runs happy path tests
+* `test:acceptance:pagedesigner` - runs page designer tests
+* `test:acceptance:desktop` - runs storefront desktop tests
+* `test:acceptance:mobile` - runs storefront mobile tests
+* `test:acceptance:tablet` - runs storefront tablet tests
+
+**Note:** Selenium can be finicky to start. If the tests fail to start, simply rerun the command again until the tests start.
+
 # [Contributing to SFRA](./CONTRIBUTING.md)
 
-#Page Designer Components for Storefront Reference Architecture
+# Page Designer Components for Storefront Reference Architecture
 See: [Page Designer Components](./page-designer-components.md)

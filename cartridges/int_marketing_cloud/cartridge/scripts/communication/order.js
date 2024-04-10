@@ -96,6 +96,28 @@ function getRequestOrderCancelObject(params) {
     return orderCancelObj;
 }
 
+/**
+ * Get the Shippinglocalcountry
+ * @param {string} shipCountry - The order shipping country
+ * @return {string} countryDisplayName
+ */
+function getShippingLocalCountry(shipCountry) {
+    var Logger = require('dw/system/Logger');
+    var PreferencesUtil = require('*/cartridge/scripts/utils/PreferencesUtil');
+    var countryListJson = PreferencesUtil.getJsonValue('billingCountryList');
+    var countryDisplayName='';
+    if(countryListJson) {
+        Object.keys(countryListJson).forEach(function (key) {
+            var countryJsonName=countryListJson[key].toLowerCase();
+            var shipCountryName=shipCountry.toLowerCase();
+            if(!empty(shipCountryName) && !empty(countryJsonName) && countryJsonName === shipCountryName) {
+                var translatedCountry = Resource.msg('select.option.country.' + shipCountryName, 'forms', '');
+                countryDisplayName = translatedCountry.indexOf('select.option.country') > -1 ? countryListJson[key] : translatedCountry;
+            }
+        });
+    }
+    return !empty(countryDisplayName) ? countryDisplayName : shipCountry;
+}
 
 /**
  * Declares attributes for data mapping for request XML
@@ -130,13 +152,13 @@ function getRequestOrderObject(params) {
     var CustomerFirstName;
     var CustomerLastName;
     if (order.custom.maoOrderType == 'TELE') {
-        CustomerFirstName = !empty(order.billingAddress.firstName) ? order.billingAddress.firstName : shippingAddress.firstName; 
-        CustomerLastName = !empty(order.billingAddress.lastName) ? order.billingAddress.lastName : shippingAddress.lastName; 
+        CustomerFirstName = !empty(order.billingAddress.firstName) ? order.billingAddress.firstName : shippingAddress.firstName;
+        CustomerLastName = !empty(order.billingAddress.lastName) ? order.billingAddress.lastName : shippingAddress.lastName;
     } else {
         CustomerFirstName = !empty(order.customer.profile) && !empty(order.customer.profile.firstName) ? order.customer.profile.firstName : order.billingAddress.firstName;
         CustomerLastName = !empty(order.customer.profile) && !empty(order.customer.profile.lastName) ? order.customer.profile.lastName : order.billingAddress.lastName;
     }
-            
+
     let orderObj = {};
     var isCommercialPickupHAL = order.custom.isCommercialPickup;
     if (isCommercialPickupHAL) {
@@ -171,7 +193,7 @@ function getRequestOrderObject(params) {
                     City: shippingAddress.city && Resource.msg('city.' + shippingAddress.city.toLowerCase(), 'forms', '') || shippingAddress.city,
                     Region: shippingAddress.stateCode != 'undefined' && shippingAddress.stateCode || '',
                     Postal: shippingAddress.postalCode,
-                    Country: shippingAddress.countryCode.displayValue ? shippingAddress.countryCode.displayValue : shippingAddress.countryCode.ID
+                    Country: shippingAddress.countryCode.displayValue ? getShippingLocalCountry(shippingAddress.countryCode.displayValue) : shippingAddress.countryCode.ID
                 },
                 Hours: ''
             },
@@ -236,7 +258,7 @@ function getRequestOrderObject(params) {
                         City: shippingAddress.city && Resource.msg('city.' + shippingAddress.city.toLowerCase(), 'forms', '') || shippingAddress.city,
                         Region: shippingAddress.stateCode != 'undefined' && shippingAddress.stateCode || '',
                         Postal: shippingAddress.postalCode,
-                        Country: shippingAddress.countryCode.displayValue
+                        Country: getShippingLocalCountry(shippingAddress.countryCode.displayValue)
                     }
                 }
             } else {
@@ -265,6 +287,14 @@ function getRequestOrderObject(params) {
                 }
             }
         } else {
+            let voucherUrlValue = '';
+            if (Site.getCurrent().getID() === 'MX' && 'Adyen_paymentMethod' in order.custom && !empty(order.custom.Adyen_paymentMethod) && order.custom.Adyen_paymentMethod === 'oxxo') {
+                var oxxoDetails = JSON.parse(order.custom.oxxoDetails);
+                if (!empty(oxxoDetails)) {
+                    voucherUrlValue = oxxoDetails.downloadUrl;
+                }
+            }
+
             // Ship to home(Regular) order
             orderObj = {
                 CustomerEmail: order.customerEmail,
@@ -275,7 +305,7 @@ function getRequestOrderObject(params) {
                 isCommercialPickup: 'false',
                 preDisclosure: preDisclosure || '',
                 distanceSalesAgreement: distanceSalesAgreement || '',
-                voucherUrl: '', //order.custom.Adyen_voucherUrl || '',
+                voucherUrl: voucherUrlValue, //order.custom.Adyen_voucherUrl || '',
                 Shipping: {
                     FirstName: shippingAddress.firstName,
                     LastName: shippingAddress.lastName,
@@ -286,7 +316,7 @@ function getRequestOrderObject(params) {
                         City: shippingAddress.city && Resource.msg('city.' + shippingAddress.city.toLowerCase(), 'forms', '') || shippingAddress.city,
                         Region: shippingAddress.stateCode != 'undefined' && shippingAddress.stateCode || '',
                         Postal: shippingAddress.postalCode,
-                        Country: shippingAddress.countryCode.displayValue,
+                        Country: getShippingLocalCountry(shippingAddress.countryCode.displayValue),
                         addToSMSList: 'addToSMSList' in shippingAddress.custom && shippingAddress.custom.addToSMSList ? 'true' : 'false',
                         additionalInformation: 'additionalInformation' in shippingAddress.custom && shippingAddress.custom.additionalInformation || '',
                         colony: 'colony' in shippingAddress.custom && shippingAddress.custom.colony || '',
@@ -342,12 +372,13 @@ function getRequestOrderObject(params) {
         let productLineItem = productLineItems[i];
         let size = '';
 
-        if ( !('giftCard' in productLineItem.product.custom) || !(productLineItem.product.custom.giftCard.value === 'EGIFT_CARD' || productLineItem.product.custom.giftCard.value === 'GIFT_CARD')) {
-        	let VASize = productLineItem.product.variationModel.getProductVariationAttribute('size');
-	        let ProductSizeValue = productLineItem.product.variationModel.getSelectedValue(VASize);
-            size = Resource.msg('addtobag.size.' + ProductSizeValue.displayValue.replace(/[' ']/g, '_'),'checkout', ProductSizeValue.displayValue);
+        if (!('giftCard' in productLineItem.product.custom) || !(productLineItem.product.custom.giftCard.value === 'EGIFT_CARD' || productLineItem.product.custom.giftCard.value === 'GIFT_CARD')) {
+            let VASize = productLineItem.product.variationModel.getProductVariationAttribute('size');
+            let ProductSizeValue = productLineItem.product.variationModel.getSelectedValue(VASize);
+            let ProductSizeDisplayValue = !empty(ProductSizeValue) && ProductSizeValue.displayValue ? ProductSizeValue.displayValue : '';
+            size = Resource.msg('addtobag.size.' + ProductSizeDisplayValue.replace(/[' ']/g, '_'), 'checkout', ProductSizeDisplayValue);
         }
-        
+
 
         productPriceAdjustmentsLength += productLineItem.priceAdjustments.length;
         productPromoName = productPriceAdjustmentsLength === 1 && empty(productPromoName) ? (!empty(productLineItem.priceAdjustments[0].promotion) ? productLineItem.priceAdjustments[0].promotion.name : '') : productPromoName;
@@ -380,6 +411,35 @@ function getRequestOrderObject(params) {
         var Calendar = require('dw/util/Calendar');
         var pdpUrlAction = new URLAction('Product-Show', Site.getCurrent().getID(), order.custom.customerLocale);
         var pdpURL = URLUtils.https(pdpUrlAction, new URLParameter('pid', productLineItem.productID)).toString();
+
+        var productColorWay='';
+        var productColor='';
+        var displayColorWay = '';
+        productColorWay='colorway' in productLineItem.product.custom && productLineItem.product.custom.colorway ? productLineItem.product.custom.colorway : '';
+        productColor='color' in productLineItem.product.custom && productLineItem.product.custom.color ? productLineItem.product.custom.color : '';
+
+        if (productColorWay != null && productColorWay !== '' && productColor != null && productColor !== '') {
+            let colorBuckets = productColorWay.split('/').map(function (item) {
+                return item.trim();
+            });
+            if (colorBuckets.length > 1) {
+                displayColorWay += colorBuckets[0];
+                if (colorBuckets[1] !== '' && colorBuckets[0] !== colorBuckets[1]) {
+                    displayColorWay += ' / ' + colorBuckets[1];
+                } else if (colorBuckets[2] && colorBuckets[2] !== '' && colorBuckets[2] !== colorBuckets[1]) {
+                    displayColorWay += ' / ' + colorBuckets[2];
+                }
+            } else {
+                displayColorWay = productColorWay;
+            }
+            displayColorWay += ' - ' + productColor;
+        } else if (productColorWay != null || productColor != null) {
+            displayColorWay = productColorWay ? productColorWay : productColor;
+        }
+        if(empty(displayColorWay)){
+            displayColorWay='colorgroup' in productLineItem.product.custom && productLineItem.product.custom.colorgroup ? productLineItem.product.custom.colorgroup : '';
+        }
+
         if ('fromStoreId' in productLineItem.custom && !empty(productLineItem.custom.fromStoreId)) {
             orderObj.PickupProducts.push({
                 Product: {
@@ -387,9 +447,9 @@ function getRequestOrderObject(params) {
                     PdpURL: URLUtilsHelper.prepareURLForLocale(pdpURL.toString(), order.custom.customerLocale),
                     Name: productLineItem.productName || '',
                     SKU: 'sku' in productLineItem.product.custom && productLineItem.product.custom.sku || '',
-                    Color: productLineItem.product.custom.colorgroup || '',
+                    Color: displayColorWay,
                     Size: size || '',
-                    Price: productLineItem.adjustedPrice.value / productLineItem.quantity.value || '',
+                    Price: productLineItem.adjustedPrice.value / productLineItem.quantity.value || '0',
                     Quantity: productLineItem.quantityValue || '',
                     eGiftCardRecipientEmail: 'gcRecipientEmail' in productLineItem.custom && productLineItem.custom.gcRecipientEmail || '',
                     eGiftCardRecipientDate: 'gcDeliveryDate' in productLineItem.custom && StringUtils.formatCalendar(new Calendar(new Date(productLineItem.custom.gcDeliveryDate)), 'MM-dd-yyyy') || '',
@@ -407,9 +467,9 @@ function getRequestOrderObject(params) {
                     PdpURL: URLUtilsHelper.prepareURLForLocale(pdpURL.toString(), order.custom.customerLocale),
                     Name: productLineItem.productName || '',
                     SKU: 'sku' in productLineItem.product.custom && productLineItem.product.custom.sku || '',
-                    Color: productLineItem.product.custom.colorgroup || '',
+                    Color: displayColorWay,
                     Size: size || '',
-                    Price: productLineItem.adjustedPrice.value / productLineItem.quantity.value || '',
+                    Price: productLineItem.adjustedPrice.value / productLineItem.quantity.value || '0',
                     Quantity: productLineItem.quantityValue || '',
                     eGiftCardRecipientEmail: 'gcRecipientEmail' in productLineItem.custom && productLineItem.custom.gcRecipientEmail || '',
                     eGiftCardRecipientDate: 'gcDeliveryDate' in productLineItem.custom && StringUtils.formatCalendar(new Calendar(new Date(productLineItem.custom.gcDeliveryDate)), 'MM-dd-yyyy') || '',
@@ -490,6 +550,10 @@ function getPaymentType(order) {
 	if (paymentInstrument.paymentMethod.equals('KLARNA_PAYMENTS')) {
 		paymentType.Type = 'KLARNA_PAYMENTS';
 	}
+
+    if (Site.getCurrent().getID() === 'MX' && 'Adyen_paymentMethod' in order.custom && !empty(order.custom.Adyen_paymentMethod) && order.custom.Adyen_paymentMethod === 'oxxo') {
+        paymentType.Type = order.custom.Adyen_paymentMethod;
+    }
 
 	return paymentType;
 }

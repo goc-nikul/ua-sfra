@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* jshint strict: false */
 
 /**
@@ -40,7 +41,10 @@
  *         this._super();
  *     }
  */
-// Hack, because vars cannot be imported in DW, only functions
+
+/**
+ * Hack, because vars cannot be imported in DW, only functions
+ */
 function Class() {}
 
 (function () {
@@ -48,7 +52,7 @@ function Class() {}
     var fnTest = /xyz/.test(function () {}) ? /\b_super\b/ : /.*/;
 
     // The base Class implementation (does nothing)
-    //this.Class = function(){};
+    // this.Class = function(){};
 
     /**
      * Create a new sub class
@@ -107,7 +111,7 @@ function Class() {}
 
         return Class;
     };
-})();
+}());
 
 /** @type {module:util/Class~Class} */
 exports.Class = Class;

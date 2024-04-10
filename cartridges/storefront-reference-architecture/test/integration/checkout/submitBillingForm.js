@@ -1,3 +1,5 @@
+'use strict';
+
 var assert = require('chai').assert;
 var request = require('request-promise');
 var config = require('../it.config');
@@ -30,7 +32,6 @@ describe('billingForm', function () {
 
         var cookieString;
 
-
         var variantPid1 = '701643421084M';
         var qty1 = 2;
         var addProd = '/Cart-AddProduct';
@@ -55,9 +56,9 @@ describe('billingForm', function () {
             .then(function (csrfResponse) {
                 var csrfJsonResponse = JSON.parse(csrfResponse.body);
                 // step3 : submit billing request with token aquired in step 2
-                myRequest.url = config.baseUrl + '/CheckoutServices-SubmitPayment?' +
-                    csrfJsonResponse.csrf.tokenName + '=' +
-                    csrfJsonResponse.csrf.token;
+                myRequest.url = config.baseUrl + '/CheckoutServices-SubmitPayment?'
+                    + csrfJsonResponse.csrf.tokenName + '='
+                    + csrfJsonResponse.csrf.token;
                 myRequest.form = {
                     dwfrm_billing_shippingAddressUseAsBillingAddress: 'true',
                     dwfrm_billing_addressFields_firstName: 'John',
@@ -73,9 +74,8 @@ describe('billingForm', function () {
                     dwfrm_billing_creditCardFields_cardNumber: '4111111111111111',
                     dwfrm_billing_creditCardFields_expirationMonth: '2',
                     dwfrm_billing_creditCardFields_expirationYear: '2030.0',
-                    dwfrm_billing_creditCardFields_securityCode: '342',
-                    dwfrm_billing_contactInfoFields_email: 'blahblah@gmail.com',
-                    dwfrm_billing_contactInfoFields_phone: '9786543213'
+                    dwfrm_billing_contactInfoFields_phone: '9786543213',
+                    dwfrm_billing_creditCardFields_securityCode: '342'
                 };
                 var ExpectedResBody = {
                     locale: 'en_US',
@@ -90,7 +90,6 @@ describe('billingForm', function () {
                         countryCode: { value: 'us' }
                     },
                     paymentMethod: { value: 'CREDIT_CARD', htmlName: 'CREDIT_CARD' },
-                    email: { value: 'blahblah@gmail.com' },
                     phone: { value: '9786543213' },
                     error: true,
                     cartError: true,
@@ -107,10 +106,8 @@ describe('billingForm', function () {
                         assert.containSubset(strippedBody.address, ExpectedResBody.address, 'Expecting actual response address to be equal match expected response address');
                         assert.isFalse(strippedBody.error);
                         assert.equal(strippedBody.paymentMethod.value, ExpectedResBody.paymentMethod.value);
-                        assert.equal(strippedBody.email.value, ExpectedResBody.email.value);
                         assert.equal(strippedBody.phone.value, ExpectedResBody.phone.value);
                     });
             });
     });
 });
-

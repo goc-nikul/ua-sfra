@@ -14,6 +14,7 @@ var Site = require('dw/system/Site');
 var Logger = require('dw/system/Logger');
 var URLUtils = require('dw/web/URLUtils');
 var cookieHelper = require('*/cartridge/scripts/helpers/cookieHelpers');
+var orderInfoLogger = require('dw/system/Logger').getLogger('orderInfo', 'orderInfo');
 
 server.replace('Submit', csrfProtection.generateToken, function (req, res, next) {
     var order = OrderMgr.getOrder(req.querystring.order_id);
@@ -49,6 +50,10 @@ server.replace('Submit', csrfProtection.generateToken, function (req, res, next)
 
     var placeOrderResult = checkoutHelper.placeOrder(order);
     if (placeOrderResult.error) {
+        // log the order details for dataDog.
+        if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+            orderInfoLogger.info(checkoutHelper.getOrderDataForDatadog(order, false));
+        }
         return next(new Error('Could not place order'));
     }
     if (Site.getCurrent().getCustomPreferenceValue('isSetOrderConfirmationEmailStatusForJob')) {
@@ -82,6 +87,10 @@ server.replace('Submit', csrfProtection.generateToken, function (req, res, next)
     viewData.pageContext = {
         ns: 'order.confirmation'
     };
+    // log the order details for dataDog.
+    if (Site.current.getCustomPreferenceValue('enableOrderDetailsCustomLog') && order) {
+        orderInfoLogger.info(checkoutHelper.getOrderDataForDatadog(order, false));
+    }
     var orderModel = new OrderModel(order, { config: config });
     if (!req.currentCustomer.profile) {
         var passwordForm = server.forms.getForm('newPasswords');

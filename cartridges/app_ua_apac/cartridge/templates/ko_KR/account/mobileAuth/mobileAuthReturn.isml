@@ -1,0 +1,21 @@
+
+<iscontent type="text/html" charset="UTF-8" compact="true" />
+<!DOCTYPE html>
+<html lang="${require('dw/util/Locale').getLocale(request.getLocale()).getLanguage()}">
+    <head>
+        <link rel="stylesheet" href="${URLUtils.staticURL('/css/style.css')}" />
+    </head>
+    <body>
+        <div id="mobile-auth-return" class="d-none" data-trigger-registration="${pdict.triggerRegistration}" data-reload-page="${pdict.reloadPage}" data-disable-outer-close="${pdict.disableOuterClose}" data-decrypted-return-data="${encodeURIComponent(JSON.stringify(pdict.decryptedRetData))}">
+            <isif condition="${!empty(pdict.errorMessage)}">
+                <isinclude template="account/mobileAuth/mobileAuthError" />
+            <iselseif condition="${!empty(pdict.modalTemplate)}">
+                <isset name="duplicatedEmail" value="${pdict.duplicatedEmail}" scope="page" />
+                <isset name="naverRedirectURL" value="${pdict.naverRedirectURL}" scope="page" />
+                <isinclude template="${pdict.modalTemplate}" />
+            </isif>
+        </div>
+        <isinclude sf-toolkit="off" template="/common/scripts" />
+        <script defer type="text/javascript" src="${URLUtils.staticURL('/js/mobileAuthReturn.js')}"></script>
+    </body>
+</html>

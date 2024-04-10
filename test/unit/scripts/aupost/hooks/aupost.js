@@ -175,8 +175,8 @@ describe('int_aupost/cartridge/scripts/hooks/aupost', function() {
             },
         });
         var result = auPost.shippingLabelAndTrackingNumber(order);
-        assert.isTrue(result.errorRes);
-        assert.isFalse(result.isReturnCase);
+        assert.isUndefined(result.errorRes);
+        assert.isTrue(result.isReturnCase);
     });
 
     it('Testing method: getShippingLabelAndTrackingNumber ---> all success and PDF link converted to base64', () => {

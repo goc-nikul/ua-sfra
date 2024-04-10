@@ -114,23 +114,27 @@
                        </div>
                    </div>
                    <div class="b-contact_column b-checkout_contact-sign">
+                    <isif condition="${!dw.system.Site.getCurrent().getCustomPreferenceValue('isMarketingAutoOptInEnabled')}">
                        <div class="g-checkbox">
                            <input enterkeyhint="go" data-analytics-track="contact info : sign_me_up" id="emailUpdates" type="checkbox" name="email-sign-up-checkout" value="${dw.system.Site.current.getCustomPreferenceValue('defaultEmailOptIn') ? true: false}" class="g-checkbox-input" <isif condition="${dw.system.Site.current.getCustomPreferenceValue('defaultEmailOptIn')}">checked</isif>>
                            <label class="g-checkbox-label" for="emailUpdates">
                            <span>${Resource.msg('field.checkbox.sign.shipping','checkout',null)}</span>
                            </label>
                        </div>
+                    </isif>
                        <iscontentasset aid="contact-info-canada" />
                    </div>
                    <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('enableSMSOptIn')}">
-                       <div class="b-contact_column b-checkout_contact-sign b-sms-opt-in ">
-                           <div class="g-checkbox">
-                               <input enterkeyhint="go" id="smsUpdates" type="checkbox" name="sms-opt-in-checkout" class="g-checkbox-input">
-                               <label class="g-checkbox-label" for="smsUpdates">
-                               <span>${Resource.msg('field.checkbox.sms.optin','checkout',null)}</span>
-                               </label>
-                           </div>
-                       </div>
+                        <isif condition="${pdict.forms.billingForm.contactInfoFields.orderNotificationSmsOptIn}">
+                            <div class="b-contact_column b-checkout_contact-sign b-sms-opt-in ">
+                                <div class="g-checkbox">
+                                    <input enterkeyhint="go" id="smsUpdates" type="checkbox" class="g-checkbox-input" <isprint value=${pdict.forms.billingForm.contactInfoFields.orderNotificationSmsOptIn.attributes} encoding="off" />>
+                                    <label class="g-checkbox-label" for="smsUpdates">
+                                        <span>${Resource.msg('field.checkbox.sms.optin','checkout',null)}</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </isif>
                    </isif>
                     <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
             </fieldset>

@@ -1,18 +1,25 @@
 <isset name="productAdded" value="${pdict.ProductDetails}" scope="page" />
 <isset name="sizeValue" value="${pdict.sizeValue}" scope="page" />
-<div class="b-add-to-cart-confirmation-modal-container">
+<isset name="currentSite" value="${dw.system.Site.current}" scope="page"/>
+
+<isset name="isConfirmationModalWithRemove" value="${typeof isConfirmationModalWithRemove !== 'undefined' ? isConfirmationModalWithRemove : false}" scope="page" />
+
+${dw.system.HookMgr.callHook('app.template.gaEvent', 'gaEvent', pdict) || ''}
+
 <div class="b-add-to-cart-confirmation-modal-container" data-giftcard="${pdict.isGiftCard}">
-   <div class="b-add-to-cart-confirmation-modal-header">
-      <div class="t-product-qty">
-         <span class="b-header_cart-added-confirmation-modal-number-of-items number-of-items">(${parseInt(pdict.Quantity) === 1 ? Resource.msgf('label.number.item.added.to.cart','cart', null, pdict.Quantity) : Resource.msgf('label.number.item.added.to.cart', null, pdict.Quantity)})</span>
-         <span class="b-header_cart-added-confirmation-modal-title">${Resource.msg('title.item.added.to.cart','cart',null)}</span>
-      </div>
-      <div class="g-modal-header">
-         <div class="g-password-modal-close">
-            <button type="button" class="close pull-right" data-dismiss="modal" aria-label="Close"></button>
+   <isif condition="${!isConfirmationModalWithRemove}">
+      <div class="b-add-to-cart-confirmation-modal-header">
+         <div class="t-product-qty">
+            <span class="b-header_cart-added-confirmation-modal-number-of-items number-of-items">(${pdict.Quantity ? pdict.Quantity : '1'})</span>
+            <span class="b-header_cart-added-confirmation-modal-title">${Resource.msg('title.item.added.to.cart','cart',null)}</span>
+         </div>
+         <div class="g-modal-header">
+            <div class="g-password-modal-close">
+               <button type="button" class="close pull-right" data-dismiss="modal" aria-label="Close"></button>
+            </div>
          </div>
       </div>
-   </div>
+   </isif>
    <div class="b-add-to-cart-confirmation-item">
       <div class="b-confirmation-item-image">
          <img src="${ productAdded.getImage('cartFullDesktop', 0) && typeof productAdded.getImage('cartFullDesktop', 0) !== 'undefined' ? productAdded.getImage('cartFullDesktop', 0).URL : ''}" class="" title="${productAdded.getImage('cartFullDesktop', 0) && typeof productAdded.getImage('cartFullDesktop', 0) !== 'undefined' ? productAdded.getImage('cartFullDesktop', 0).title : ''}"  alt="${productAdded.getImage('cartFullDesktop', 0) && typeof productAdded.getImage('cartFullDesktop', 0) !== 'undefined' ? productAdded.getImage('cartFullDesktop', 0).alt : ''} image number 0" itemprop="image" />
@@ -23,29 +30,39 @@
                <isprint value="${(productAdded && productAdded.name ? productAdded.name : '')}" encoding="off" />
             </span>
          </div>
+
          <isif condition="${!empty(productAdded) && !(productAdded.custom.giftCard.value === 'EGIFT_CARD' || productAdded.custom.giftCard.value === 'GIFT_CARD')}">
             <div class="b-confirmation-item-attributes">
+               <isif condition="${isConfirmationModalWithRemove && pdict.colorVariationValue && pdict.colorVariationAttribute}">
+                  <p class="b-confirmation-item-color"><span class="b-confirmation-item-attr-name">${pdict.colorVariationAttribute.displayName}:</span> ${pdict.colorVariationValue.displayValue} - ${pdict.colorVariationValue.value}</p>
+               </isif>
                <isif condition="${!empty(sizeValue)}">
-                  <p class="b-confirmation-item-size">${Resource.msg('label.item.added.to.cart.size','cart',null)}: ${sizeValue.displayValue ? sizeValue.displayValue : sizeValue.value}</p>
+                  <isif condition="${currentSite.ID === 'EU'}">
+                     <p class="b-confirmation-item-size"><span class="b-confirmation-item-attr-name">${Resource.msg('label.item.added.to.cart.size.EU','cart',null)}:</span> ${sizeValue.displayValue ? sizeValue.displayValue : sizeValue.value}</p>
+                  <iselseif condition="${currentSite.ID === 'UKIE'}"/>
+                     <p class="b-confirmation-item-size"><span class="b-confirmation-item-attr-name">${Resource.msg('label.item.added.to.cart.size.UKIE','cart',null)}:</span> ${sizeValue.displayValue ? sizeValue.displayValue : sizeValue.value}</p>
+                  <iselse/>
+                     <p class="b-confirmation-item-size"><span class="b-confirmation-item-attr-name">${Resource.msg('label.item.added.to.cart.size','cart',null)}:</span> ${sizeValue.displayValue ? sizeValue.displayValue : sizeValue.value}</p>
+                  </isif>
                </isif>
                <isif condition="${!empty(productAdded.custom && productAdded.custom.length)}">
-                  <p class="b-confirmation-item-length">${Resource.msg('label.item.added.to.cart.Length','cart',null)}: ${productAdded.custom.length}</p>
+                  <p class="b-confirmation-item-length"><span class="b-confirmation-item-attr-name">${Resource.msg('label.item.added.to.cart.Length','cart',null)}:</span> ${productAdded.custom.length}</p>
                </isif>
             </div>
-            <iselse>
-                <div class="b-confirmation-item-attributes">
-                    <isif condition="${!empty(productAdded) && (productAdded.custom.giftCard.value === 'EGIFT_CARD') || (productAdded.custom.giftCard.value === 'GIFT_CARD')}">
-                        <p class="b-confirmation-item-size">${Resource.msg('label.item.added.to.cart.amount','cart',null)}: ${pdict.Amount}</p>
-                    <iselseif condition="${!empty(productAdded && productAdded.priceModel.price.value)}" >
-                        <p class="b-confirmation-item-size">${Resource.msg('label.item.added.to.cart.amount','cart',null)}: ${productAdded.priceModel.price.decimalValue}</p>
-                    </isif>
-                </div>
-            </isif>
-        <isif condition="${!empty(productAdded) && productAdded.custom.isPreOrder && productAdded.custom.preOrderProductTileMessage}">
+         <iselse/>
+               <div class="b-confirmation-item-attributes">
+                  <isif condition="${!empty(productAdded) && (productAdded.custom.giftCard.value === 'EGIFT_CARD') || (productAdded.custom.giftCard.value === 'GIFT_CARD')}">
+                     <p class="b-confirmation-item-size"><span class="b-confirmation-item-attr-name">${Resource.msg('label.item.added.to.cart.amount','cart',null)}:</span> ${pdict.Amount}</p>
+                  <iselseif condition="${!empty(productAdded && productAdded.priceModel.price.value)}" />
+                     <p class="b-confirmation-item-size"><span class="b-confirmation-item-attr-name">${Resource.msg('label.item.added.to.cart.amount','cart',null)}:</span> ${productAdded.priceModel.price.decimalValue}</p>
+                  </isif>
+               </div>
+         </isif>
+         <isif condition="${!empty(productAdded) && productAdded.custom.isPreOrder && productAdded.custom.preOrderProductTileMessage}">
             <div class="b-confimation-item-preorder-mask">
-                ${productAdded.custom.preOrderProductTileMessage}
+               ${productAdded.custom.preOrderProductTileMessage}
             </div>
-        </isif>
+         </isif>
       </div>
    </div>
 </div>

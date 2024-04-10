@@ -78,28 +78,6 @@
         }]
       });
     });
-    body.on('click', '.js-swatch-link', function () {
-      var product = uaDatalayer.getPageData().products[0];
-      var size = $('.b-product_attribute.m-size .js-size-select.selected').data("attr-value");
-      var newColor = $(this).data("attr-value");
-      product.product_sku = product.product_style + '-' + newColor + '-' + size;
-      product.product_color = product.product_style + '-' + newColor;
-      uaDatalayer.action('genericLink', {
-        products: [product]
-      });
-    });
-    body.on('click', '.js-size-select', function () {
-      if ($(this).closest('.b-product_attribute').hasClass('m-length')) {
-        return;
-      }
-      var product = uaDatalayer.getPageData().products[0];
-      var color = $('.js-swatch-link.m-active').data("attr-value");
-      var newSize = $(this).data("attr-value");
-      product.product_sku = product.product_style + '-' + color + '-' +  newSize;
-      uaDatalayer.action('genericLink', {
-        products: [product]
-      });
-    });
     $('body').on('click', '.return-title.g-accordion-header', function () {
         var product = uaDatalayer.getPageData().products[0];
         var accordionState = $(this).closest('.g-accordion-header').hasClass('collapsed') ? 'open' : 'closed';

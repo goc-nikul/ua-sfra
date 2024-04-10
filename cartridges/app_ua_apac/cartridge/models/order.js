@@ -10,6 +10,18 @@ var Order = require('dw/order/Order');
 var Calendar = require('dw/util/Calendar');
 
 /**
+ * Checks if the order is being viewed in the same country it is placed
+ * @param {dw.order.LineItemCtnr} lineItemContainer order
+ * @returns {boolean} true if country is the same
+ */
+function orderBelongsToCurrentCountry(lineItemContainer) {
+    var countryCode = session.custom.customerCountry || request.getLocale().slice(-2).toUpperCase();
+    var shippingAddress = lineItemContainer.defaultShipment.shippingAddress;
+    var orderCountryCode = shippingAddress.countryCode.value ? shippingAddress.countryCode.value : shippingAddress.countryCode;
+    return orderCountryCode === countryCode;
+}
+
+/**
  * Checks whther the order is eligible for return or not
  * @param {dw.order.LineItemCtnr} lineItemContainer - LineItemCtnr object
  * @param {Array} orderItems - orderItems
@@ -21,11 +33,11 @@ function isOrderEligibleForReturn(lineItemContainer, orderItems) {
     var currentDate = new Calendar();
     var returnCutOffDate = new Calendar(new Date(lineItemContainer.creationDate));
     returnCutOffDate.add(Calendar.DATE, returnPeriod);
-    var isReturnsAvailable = returnCutOffDate.time > currentDate.time && lineItemContainer.getReturnCases().size() === 0;
+    var isReturnsAvailable = returnCutOffDate.time > currentDate.time && lineItemContainer.getReturnCases().size() < 20;
     if (orderItems) {
         orderItems.forEach(function (item) {
             if (isReturnsAvailable && item.isEligibleForReturn) {
-                // eslint-disable-next-line no-param-reassign
+                 // eslint-disable-next-line no-param-reassign
                 isEligibleForReturn = true;
                 return;
             }
@@ -98,6 +110,11 @@ function OrderModel(lineItemContainer, options) {
             ? StringUtils.formatCalendar(new Calendar(lineItemContainer.creationDate), 'yyyy/MM/dd')
             : null;
     }
+    if (Site.getCurrent().getID() === 'SEA') {
+        this.creationDate = Object.hasOwnProperty.call(lineItemContainer, 'creationDate')
+            ? StringUtils.formatCalendar(new Calendar(lineItemContainer.creationDate), Resource.msg('order.creation.date.format', 'order', null))
+            : null;
+    }
     if (require('*/cartridge/config/preferences').isPersonalizationEnable
         && options
         && ((options.containerView === 'orderDetails') || (options.containerView !== 'basket'))) {
@@ -130,7 +147,7 @@ function OrderModel(lineItemContainer, options) {
                 }
                 // To display the product return info
                 var qtyInfo = returnsUtils.getQTYInformation(pli, lineItemContainer.getReturnCaseItems(), lineItemContainer.custom.shippingJson);
-                if ((Site.getCurrent().getID() === 'SEA' || Site.getCurrent().getID() === 'TH') && !empty(qtyInfo) && qtyInfo.shippedQty >= 0 && qtyInfo.inReturnProcess > 0) {
+                if (Site.getCurrent().getID() !== 'OC' && !empty(qtyInfo) && qtyInfo.shippedQty >= 0 && qtyInfo.inReturnProcess > 0) {
                     var partialReturnText = Resource.msgf('refund.inprocess', 'order', null, qtyInfo.inReturnProcess, pli.quantity.value);
                     // eslint-disable-next-line no-param-reassign
                     item.partialReturnText = partialReturnText;
@@ -155,6 +172,9 @@ function OrderModel(lineItemContainer, options) {
                 }
             }
         });
+        if (this.isEligibleForReturn) {
+            this.isEligibleForReturn = orderBelongsToCurrentCountry(lineItemContainer);
+        }
         if (this.status) {
             this.displayStatus = getOrderDisplayStatus(lineItemContainer);
         }

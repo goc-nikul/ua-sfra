@@ -189,6 +189,48 @@
             border-radius: 0;
         }
 
+        input:read-only {
+            color: rgb(170, 170, 170);
+            border: 1px solid #d0d0d0;
+        }
+
+        select:disabled {
+            color: rgb(170, 170, 170);
+        }
+
+        label[for='registration-form-phoneMobile1'] {
+            z-index: 4;
+        }
+
+        .b-phone-select:disabled:hover {
+            border-color: rgb(170, 170, 170);
+        }
+
+        &.b-confirmation-returns_exchange_policy {
+            padding-bottom: rem-calc(40);
+
+            @include respond-to(mobile) {
+                padding-bottom: rem-calc(32);
+            }
+
+            @include respond-to(desktop) {
+                padding-right: 4rem;
+            }
+
+            .b-order-confirmation_details-heading {
+                padding-left: rem-calc(44);
+                padding-top: rem-calc(9);
+                background-image: url(../../images/exchange.svg);
+                background-repeat: no-repeat;
+            }
+
+            p {
+                a {
+                    color: $black;
+                }
+            }
+        }
+
         .summary-details {
             &.billing {
                 .pickup-primary-contact-text,

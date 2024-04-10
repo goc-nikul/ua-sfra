@@ -32,26 +32,44 @@ server.append('Show', function (req, res, next) {
     if (viewData.product.images && viewData.product.images.selectedColor && !empty(viewData.product.images.selectedColor.color)) {
         defaultSelectedColor = viewData.product.images.selectedColor.color;
     }
-    viewData.isPLP = true;
+
+    if (productTileParams.showImageSlider === 'true') {
+        viewData.showImageSlider = true;
+    }
+    viewData.isProductTile = true;
     var viewPreference = 'viewPreference' in req.querystring ? req.querystring.viewPreference : '';
-    viewData.urls.product = URLUtils.url('Product-Show', 'pid', viewData.product.id, 'dwvar_' + viewData.product.id + '_color', defaultSelectedColor, 'start', req.querystring.moreViewUrl, 'breadCrumbLast', req.querystring.breadCrumbLast, 'viewPreference', viewPreference).relative().toString();
-    if (req.querystring.shopThisLookoutfit) {
-        viewData.urls.product = URLUtils.url('Product-Show', 'pid', viewData.product.id, 'dwvar_' + viewData.product.id + '_color', defaultSelectedColor, 'start', req.querystring.moreViewUrl, 'breadCrumbLast', req.querystring.breadCrumbLast, 'viewPreference', viewPreference, 'recommendedLook', true).relative().toString();
-    }
-    if (productTileParams.source === 'recommendation' && productTileParams.quickview === 'true') {
-        viewData.urls.quickView = URLUtils.url('Product-ShowQuickView', 'pid', viewData.product.id, 'source', productTileParams.source).relative().toString();
-        viewData.display.quickView = true;
-    }
+    var isQuickATCenabled = 'isQuickATCenabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.getCustomPreferenceValue('isQuickATCenabled');
+    viewData.display.quickView = true;
+    viewData.display.quickAdd = req.querystring.quickAdd === 'true';
     var product = ProductMgr.getProduct(viewData.product.id);
     var productExperienceType;
     var masterProductID = product && product.ID ? product.ID : '';
+    var singleVariationID = '';
     if (product && product.isMaster()) {
+        viewData.urls.product = URLUtils.url('Product-Show', 'pid', viewData.product.id, 'dwvar_' + viewData.product.id + '_color', defaultSelectedColor, 'start', req.querystring.moreViewUrl, 'breadCrumbLast', req.querystring.breadCrumbLast, 'viewPreference', viewPreference).relative().toString();
+        if (req.querystring.shopThisLookoutfit) {
+            viewData.urls.product = URLUtils.url('Product-Show', 'pid', viewData.product.id, 'dwvar_' + viewData.product.id + '_color', defaultSelectedColor, 'start', req.querystring.moreViewUrl, 'breadCrumbLast', req.querystring.breadCrumbLast, 'viewPreference', viewPreference, 'recommendedLook', true).relative().toString();
+        }
+        viewData.urls.quickView = URLUtils.url('Product-ShowQuickView', 'pid', viewData.product.id, 'source', productTileParams.source || '', 'quickAdd', isQuickATCenabled, 'dwvar_' + viewData.product.id + '_color', defaultSelectedColor).relative().toString();
         viewData.product.variationAttributes = product.variationModel.productVariationAttributes;
         productExperienceType = product.custom && product.custom.experienceType ? product.custom.experienceType.value : '';
+
+        if (product.variants.length === 1) {
+            singleVariationID = product.variants[0].ID;
+        }
     } else if (product) {
         var MasterProductDetails = product.masterProduct;
         masterProductID = MasterProductDetails.ID;
+        viewData.urls.product = URLUtils.url('Product-Show', 'pid', masterProductID, 'dwvar_' + masterProductID + '_color', defaultSelectedColor, 'start', req.querystring.moreViewUrl, 'breadCrumbLast', req.querystring.breadCrumbLast, 'viewPreference', viewPreference).relative().toString();
+        if (req.querystring.shopThisLookoutfit) {
+            viewData.urls.product = URLUtils.url('Product-Show', 'pid', masterProductID, 'dwvar_' + masterProductID + '_color', defaultSelectedColor, 'start', req.querystring.moreViewUrl, 'breadCrumbLast', req.querystring.breadCrumbLast, 'viewPreference', viewPreference, 'recommendedLook', true).relative().toString();
+        }
+        viewData.urls.quickView = URLUtils.url('Product-ShowQuickView', 'pid', masterProductID, 'source', productTileParams.source || '', 'quickAdd', isQuickATCenabled, 'dwvar_' + masterProductID + '_color', defaultSelectedColor).relative().toString();
         productExperienceType = MasterProductDetails.custom && MasterProductDetails.custom.experienceType ? MasterProductDetails.custom.experienceType.value : '';
+
+        if (MasterProductDetails.variants.length === 1) {
+            singleVariationID = MasterProductDetails.variants[0].ID;
+        }
     }
     var ExperienceType = false;
     if (!empty(req.querystring.outlet)) {
@@ -59,9 +77,15 @@ server.append('Show', function (req, res, next) {
             ExperienceType = true;
         }
     } else if (!empty(productExperienceType)) {
-        if (productExperienceType === 'outlet' || productExperienceType === 'outletMerchOverride' || productExperienceType === 'both' || productExperienceType === 'allMerchOverride') {
+        if (productExperienceType === 'outlet' || productExperienceType === 'outletMerchOverride' || productExperienceType === 'allMerchOverride') {
             ExperienceType = true;
         }
+    }
+
+    if (masterProductID && singleVariationID) {
+        viewData.quantity = 1;
+        viewData.singleVariationID = singleVariationID;
+        viewData.masterProductID = masterProductID;
     }
     viewData.isShopThisLookModel = 'shopThisLookoutfit' in req.querystring ? req.querystring.shopThisLookoutfit : false;
     var list = productListHelper.getListNew(req.currentCustomer.raw, { type: TYPE_WISH_LIST });
@@ -81,6 +105,7 @@ server.append('Show', function (req, res, next) {
     viewData.isItemExistsInWishList = isItemExistsInWishList;
     viewData.mid = masterProductID;
     viewData.experienceType = ExperienceType;
+    viewData.orderable = product && product.availabilityModel && product.availabilityModel.orderable;
     res.setViewData(viewData);
     next();
 });

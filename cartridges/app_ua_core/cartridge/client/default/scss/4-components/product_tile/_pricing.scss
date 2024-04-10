@@ -1,11 +1,12 @@
 .b-price {
     @include respond-to(mobile) {
-        margin-top: (spacing(xs2)) / 2;
+        margin-top: calc((spacing(xs2)) / 2);
     }
 
     &-value {
         color: $black;
         white-space: nowrap;
+        display: inline-block;
 
         @include respond-to(desktop) {
             font-size: rem-calc(14);
@@ -16,7 +17,7 @@
         }
 
         &.highlighted {
-            color: #dc0019 !important;
+            color: var(--highlighted-color, #dc0019) !important;
         }
 
         &.m-strikethrough {
@@ -108,6 +109,22 @@
 
         &.m-actual {
             color: $black;
+        }
+
+        &.spacer {
+            margin-right: var(--price-space, rem-calc(5));
+
+            @include respond-to(desktop) {
+                margin-right: var(--price-space-lg, var(--price-space, spacing(xs)));
+            }
+
+            @include respond-to(mobile) {
+                margin-right: var(--price-space-xs, var(--price-space, spacing(xs2)));
+            }
+        }
+
+        &.offpercentage {
+            color: #606060;
         }
     }
 

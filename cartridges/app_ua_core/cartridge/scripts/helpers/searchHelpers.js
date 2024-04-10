@@ -158,6 +158,10 @@ searchHelpers.search = function (req, res) {
         result.categoryTemplate = categoryTemplate;
     }
 
+    if ((empty(result.category) || result.category.online === false) && empty(params.q)) {
+        result.productSearch.productIds = [];
+    }
+
     if (!categoryTemplate || categoryTemplate === 'rendering/category/categoryproducthits') {
         result.schemaData = schemaHelper.getListingPageSchema(productSearch.productIds);
     }

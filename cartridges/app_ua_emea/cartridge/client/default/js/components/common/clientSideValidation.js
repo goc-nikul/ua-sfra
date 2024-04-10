@@ -131,7 +131,7 @@ function validateZipCode($form) {
         FR: [/^(^\d{5}(-\d{4})?$)|(^[abceghjklmnprstvxyABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Za-z]{1} *\d{1}[A-Za-z]{1}\d{1}$)$/, $errorMsg],
         DE: [/^(^\d{5}(-\d{4})?$)|(^[abceghjklmnprstvxyABCEGHJKLMNPRSTVXY]{1}\d{1}[A-Za-z]{1} *\d{1}[A-Za-z]{1}\d{1}$)$/, $errorMsg],
         GB: [/ ?(([BEGLMNSWbeglmnsw][0-9][0-9]?)|(([A-PR-UWYZa-pr-uwyz][A-HK-Ya-hk-y][0-9][0-9]?)|(([ENWenw][0-9][A-HJKSTUWa-hjkstuw])|([ENSWenw][A-HK-Ya-hk-y][0-9][ABEHMNPRVWXYabehmnprvwxy])))) ?[0-9][ABD-HJLNP-UW-Zabd-hjlnp-uw-z]{2}$/, $errorMsg],
-        IE: [/^([A-Za-z0-9]{0,8})$/, $errorMsg],
+        IE: [/^[0-9a-zA-Z]{3}[ ][0-9a-zA-Z]{4}$/, $errorMsg],
         IT: [/^[0-9]{5}$/, $errorMsg],
         NL: [/^[1-9][0-9]{3} ?(?!sa|sd|ss)[a-zA-Z]{2}$/, $errorMsg],
         ES: [/^[0-9]{5}$/, $errorMsg],
@@ -143,20 +143,19 @@ function validateZipCode($form) {
         PT: [/^([0-9]{7})|([0-9]{4}-[0-9]{3})$/, $errorMsg]
     };
 
-    if ($zipCodeInput.hasClass('is-invalid') || $countryField.hasClass('is-invalid')) {
-        $zipCodeInput.removeClass('is-invalid');
-        $countryField.removeClass('is-invalid');
-        $countryField.parents('.form-group').removeClass('error-field');
-        $zipCodeInput.parents('.form-group').removeClass('error-field');
-        $countryField.parents('.form-group').find('.invalid-feedback').empty();
-        $zipCodeInput.parents('.form-group').find('.invalid-feedback').empty();
-    } else if ($zipCodeVal !== '' && $countrySelected === '') {
+    if ($zipCodeVal !== '' && $countrySelected === '') {
         $countryField.addClass('is-invalid');
         $countryField.parents('.form-group').addClass('error-field');
         $countryField.parents('.form-group').find('.invalid-feedback').text('please select country');
     } else if ($zipCodeVal !== '' && $countrySelected !== '') {
         var constraint = new RegExp($regexPattern[$countrySelected][0], '');
         if (constraint.test($zipCodeVal)) {
+            $zipCodeInput.removeClass('is-invalid');
+            $countryField.removeClass('is-invalid');
+            $countryField.parents('.form-group').removeClass('error-field');
+            $zipCodeInput.parents('.form-group').removeClass('error-field');
+            $countryField.parents('.form-group').find('.invalid-feedback').empty();
+            $zipCodeInput.parents('.form-group').find('.invalid-feedback').empty();
             $zipCodeField.setCustomValidity('');
         } else {
             $('.next-step-button button').removeAttr('data-clicked');

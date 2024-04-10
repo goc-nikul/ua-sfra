@@ -6,6 +6,10 @@ var assert = require('chai').assert;
 describe('int_ocapi/cartridge/hooks/shop/customer/customer_hook_scripts.js', () => {
     var customerHookScript = proxyquire('../../../../../../../cartridges/int_ocapi/cartridge/hooks/shop/customer/customer_hook_scripts.js', {
         'dw/system/Status': function () {},
+        '*/cartridge/scripts/helpers/loyaltyHelper': {
+            checkCustomerReconcile: () => ''
+        },
+        '*/cartridge/scripts/utils/PreferencesUtil': require('../../../../../../mocks/scripts/PreferencesUtil'),
         '*/cartridge/scripts/util/collections': require('../../../../../../mocks/scripts/util/collections'),
         '~/cartridge/scripts/basketHelper': {
             updateResponse: function () {

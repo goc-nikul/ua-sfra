@@ -1,11 +1,10 @@
 'use strict';
 
-const { truncate } = require('lodash');
-
-
 const proxyquire = require('proxyquire').noCallThru().noPreserveCache();
 var assert = require('chai').assert;
 var Collections = require('../../../mocks/dw/dw_util_Collection');
+var HashMap = require('../../../mocks/dw/dw_util_HashMap');
+var Money = require('../../../mocks/dw/dw_value_Money');
 
 describe('int_ocapi/cartridge/scripts/basketHelper.js', () => {
     var basketHelper = proxyquire('../../../../cartridges/int_ocapi/cartridge/scripts/basketHelper.js', {
@@ -72,7 +71,7 @@ describe('int_ocapi/cartridge/scripts/basketHelper.js', () => {
                         }
                     };
                 }
-            }
+            };
         },
         'dw/catalog/ProductMgr': {
             getProduct: function () {
@@ -153,7 +152,13 @@ describe('int_ocapi/cartridge/scripts/basketHelper.js', () => {
                                 couponCode: 'couponCode'
                             }
                         };
-                    }
+                    },
+                    proratedPriceAdjustmentPrices: new HashMap([[{
+                        basedOnCoupon: true,
+                        couponLineItem: {
+                            couponCode: 'couponCode'
+                        }
+                    }, new Money(1)]])
                 };
             }
         },
@@ -173,7 +178,8 @@ describe('int_ocapi/cartridge/scripts/basketHelper.js', () => {
                 }
             };
         },
-        'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction')
+        'dw/system/Transaction': require('../../../mocks/dw/dw_system_Transaction'),
+        '~/cartridge/scripts/constants': require('../../../../cartridges/int_ocapi/cartridge/scripts/constants.js')
     });
 
     it('Testing getRealTimeInventory', () => {
@@ -290,7 +296,7 @@ describe('int_ocapi/cartridge/scripts/basketHelper.js', () => {
                 };
             }
         };
-        var eGiftItems = [ {
+        var eGiftItems = [{
             c_gcDeliveryDate_s: 'c_gcDeliveryDate_s'
         }];
         var result = basketHelper.replaceDummyGiftLineItem(basket, eGiftItems);
@@ -375,6 +381,11 @@ describe('int_ocapi/cartridge/scripts/basketHelper.js', () => {
         };
         global.customer.authenticated = true;
         basketHelper.updateResponse(basketResponse);
+
+        assert.isArray(basketResponse.order_price_adjustments[0].c_customerGroups);
+        assert.isArray(basketResponse.product_items[0].price_adjustments[0].c_customerGroups);
+        assert.isArray(basketResponse.product_items[0].c_proratedPriceAdjustments);
+        assert.equal(basketResponse.product_items[0].c_proratedPriceAdjustments[0].price, 1);
     });
 
     it('Testing updateResponse --> custom Exception', () => {
@@ -508,5 +519,52 @@ describe('int_ocapi/cartridge/scripts/basketHelper.js', () => {
             }
         };
         basketHelper.manageKlarnaSession(basket);
+    });
+
+    it('Testing removeApplePayPI --> it should remove apple pay PI from basket', () => {
+        var basket = {
+            paymentInstruments: [
+                {
+                    paymentMethod: 'DW_APPLE_PAY'
+                }
+            ],
+            removePaymentInstrument: function (pi) {
+                const index = this.paymentInstruments.indexOf(pi);
+                if (index > -1) {
+                    this.paymentInstruments.splice(index, 1);
+                }
+            },
+            getPaymentInstruments: function () {
+                return this.paymentInstruments;
+            }
+        };
+        basketHelper.removeApplePayPI(basket);
+        assert.equal(basket.getPaymentInstruments().length, 0);
+    });
+
+    it('Testing removeApplePayPI --> it should only remove apple pay PI from basket', () => {
+        var basket = {
+            paymentInstruments: [
+                {
+                    paymentMethod: 'DW_APPLE_PAY'
+                },
+                {
+                    paymentMethod: 'AURUS_CREDIT_CARD'
+                }
+            ],
+            removePaymentInstrument: function (pi) {
+                const index = this.paymentInstruments.indexOf(pi);
+                if (index > -1) {
+                    this.paymentInstruments.splice(index, 1);
+                }
+            },
+            getPaymentInstruments: function () {
+                return this.paymentInstruments;
+            }
+        };
+        basketHelper.removeApplePayPI(basket);
+        for (let item of basket.getPaymentInstruments()) {
+            assert.equal(item.paymentMethod, 'AURUS_CREDIT_CARD');
+        }
     });
 });

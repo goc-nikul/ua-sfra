@@ -1,6 +1,7 @@
 'use strict';
 
 var formValidation = require('base/components/formValidation');
+var location = window.location;
 var clientSideValidation = require('../components/common/clientSideValidation');
 var util = require('org/util');
 
@@ -30,6 +31,17 @@ function openLoginModal($this, isPasswordResetOpen) {
     $('body').find('.b-loader').css('z-index', '999');
     const { pageRef } = window.GLOBAL_VALUES || {};
     var naverRedirectURL = !$('.b-order-confirmation').length ? window.location.href : null;
+    var eaQty = $('.js-quantity-select').val();
+    if ($('.ua-early-access').length && window.earlyAccessPid) {
+        if (naverRedirectURL.indexOf('#') !== -1) {
+            var noHashURL = naverRedirectURL.split('#')[0];
+            var hash = naverRedirectURL.split('#')[1];
+            naverRedirectURL = util.appendParamsToUrl(noHashURL, { earlyAccessPid: window.earlyAccessPid, eaQty: eaQty, triggerATC: true });
+            naverRedirectURL += '#' + hash;
+        } else {
+            naverRedirectURL = util.appendParamsToUrl(naverRedirectURL, { earlyAccessPid: window.earlyAccessPid, eaQty: eaQty, triggerATC: true });
+        }
+    }
     $.ajax({
         url: $('.b-account-history').data('login-url') || $this.data('href') || $this.attr('href'),
         data: { format: 'ajax', naverRedirectURL: naverRedirectURL, pageRef },
@@ -79,6 +91,7 @@ function loginModal() {
         e.preventDefault();
         $('#loginModal').remove();
         if ($('#newUserRegisterModal').length > 0) {
+            $('html').removeClass('modal-open');
             $('#newUserRegisterModal').remove();
         }
         if ($(this).closest('.js-register-in-page').length > 0) {
@@ -179,13 +192,18 @@ function showPassword() {
         var inputField = $(this).parent().find('input');
         var hideLabel = $(this).attr('data-hide');
         var showLabel = $(this).attr('data-show');
+        if (inputField.hasClass('delete-account-password-disc')) {
+            inputField.attr('type', 'password');
+        }
         var typee = inputField.attr('type');
         if (typee === 'password') {
             inputField.attr('type', 'text');
             $(this).html(hideLabel);
+            $('.js-custom-input').removeClass('delete-account-password-disc');
         } else {
             inputField.attr('type', 'password');
             $(this).html(showLabel);
+            $('.js-custom-input').removeClass('delete-account-password-disc');
         }
     });
 }
@@ -198,33 +216,105 @@ function loginSubmit() {
         e.preventDefault();
         var form = $(this).closest('form');
         var url = form.attr('action');
-        form.spinner().start();
+        var button = $(this);
+        var buttonContainer = $(this).parent('div');
+        var buttonText = button.html();
+        button.html('');
+        button.blur();
+        $('.b-invalid-cred').hide();
+        buttonContainer.spinner().start();
+        button.attr('disabled', 'true');
         clientSideValidation.checkMandatoryField(form);
         if (!form.find('input.is-invalid').length) {
+            if (window.earlyAccessPid) {
+                url = util.appendParamsToUrl(url, { earlyAccessPid: window.earlyAccessPid });
+            }
+            var formdata = form.serialize();
+            if ($('.l-pdp').length > 0 && window.memberPricePid) {
+                formdata += '&memberPricePid=' + window.memberPricePid;
+            }
             $.ajax({
                 url: url,
                 type: 'post',
                 dataType: 'json',
-                data: form.serialize(),
+                data: formdata,
                 success: function (data) {
-                    form.spinner().stop();
                     if (!data.success && data.error_code === 'ERROR_PASSWORD_RESET_REQUIRED') {
                         let resetModal = $('.g-force-password-reset-confirm-modal').clone();
                         $('#loginModal .g-modal-content').empty();
                         $('#loginModal .g-modal-content').append(resetModal);
                         $('.g-force-password-reset-confirm-modal').removeClass('hide');
+                        buttonContainer.spinner().stop();
+                        button.prop('disabled', false);
+                        button.html(buttonText);
                     } else if (!data.success) {
                         $('form.login').trigger('login:error', data);
                         $('body').trigger('login:failed', {
                             errorMessage: data && data.error && data.error[0]
                         });
                         $('.b-invalid-cred').html(data.error).show();
+                        buttonContainer.spinner().stop();
+                        button.prop('disabled', false);
+                        button.html(buttonText);
                     } else {
                         $('form.login').trigger('login:success', data);
                         $('body').trigger('login:success:analytics', {
                             customerNo: data && data.customerNo,
                             email: form.find('[name="loginEmail"]').val()
                         });
+                        if (!('membersonConsentPending' in data)) {
+                            if ($('.l-pdp').length > 0 && window.memberPricePid && data.memberPriceModalContent) {
+                                $('#loginModal').modal('hide');
+                                window.keepMemberPricingVar = true;
+                                $('body').trigger('memberpricing:successpopup', {
+                                    memberPriceModalContent: data.memberPriceModalContent
+                                });
+                                return;
+                            }
+                            if (window.earlyAccessPid && 'earlyAccess' in data && $('.ua-early-access').length) {
+                                var earlyAccess = require('org/components/product/earlyAccess');
+                                earlyAccess.updateEarlyAccessAttributes(data.earlyAccess);
+                                if (!data.mobileAuthPending) {
+                                    if ($('.js-add-to-cart').length) {
+                                        var urlParams = new URLSearchParams(window.location.search);
+                                        if (!urlParams.has('earlyAccessPid')) {
+                                            urlParams.set('earlyAccessPid', window.earlyAccessPid);
+                                            urlParams.set('triggerATC', true);
+                                            urlParams.set('eaQty', $('.js-quantity-select').val() || 1);
+                                        }
+                                        var hash = '';
+                                        if (window.location.href.indexOf('#') !== -1) {
+                                            hash = '#' + window.location.href.split('#')[1];
+                                        }
+                                        var urlWithEarlyAccessParams = window.location.pathname + '?' + urlParams.toString() + hash;
+                                        history.replaceState({}, '', urlWithEarlyAccessParams);
+                                        button.html(buttonText);
+                                        window.location.reload();
+                                    }
+                                    delete window.earlyAccessPid;
+                                    return;
+                                }
+                            }
+                        } else if ($('.l-pdp').length > 0 && window.memberPricePid && data.memberPriceModalContent) {
+                            var currentPage = window.location.href;
+                            currentPage = util.appendParamsToUrl(currentPage, { memberPriceLoginPopup: true });
+                            history.replaceState({}, '', currentPage);
+                            button.html(buttonText);
+                            window.location.reload();
+                        }
+                        if (data.mobileAuthPending) {
+                            if ($('.product-detail').length && window.earlyAccessPid) {
+                                var eaQty = $('.js-quantity-select').val();
+                                var currentPageURL = new URL(window.location.href);
+                                currentPageURL.searchParams.set('earlyAccessPid', window.earlyAccessPid);
+                                currentPageURL.searchParams.set('eaQty', eaQty);
+                                currentPageURL.searchParams.set('triggerATC', true);
+                                window.history.replaceState(null, null, currentPageURL); // or pushState
+                                delete window.earlyAccessPid;
+                            }
+                            $('.js-init-mobileauth-login').eq(0).trigger('click');
+                            return;
+                        }
                         if ('loyaltyGatedModal' in data) {
                             $('body').trigger('loyalty:enroll', {
                                 type: 'genericLink',
@@ -234,6 +324,8 @@ function loginSubmit() {
                                 points_earned: 0
                             });
                         }
+                        button.html(buttonText);
+                        button.attr('disabled', 'true');
                         // Redirect to account page only on order confirmation, else refresh current page
                         if ($('.b-order-confirmation').length || $('.b-account-history').length || ($('#checkout-main').length > 0 && data.isEmployee) || ($('#checkout-main').length > 0 && data.isVIP) || 'loyaltyGatedModal' in data) {
                             location.href = data.redirectUrl;
@@ -245,11 +337,16 @@ function loginSubmit() {
                     }
                 },
                 error: function (data) {
-                    if (data.responseJSON.redirectUrl) {
+                    if (data.status === 418 || data.status === 406) {
+                        $('.b-invalid-cred').html($('.b-invalid-cred').attr('data-blocked-msg')).show();
+                    }
+                    if (data.responseJSON && data.responseJSON.redirectUrl) {
                         window.location.href = data.responseJSON.redirectUrl;
                     } else {
                         $('form.login').trigger('login:error', data);
-                        form.spinner().stop();
+                        buttonContainer.spinner().stop();
+                        button.prop('disabled', false);
+                        button.html(buttonText);
                     }
                 }
             });
@@ -258,8 +355,10 @@ function loginSubmit() {
                 emailErrorMessage: $('#form-email-error').text(),
                 passwordErrorMessage: $('#form-password-error').text()
             });
+            buttonContainer.spinner().stop();
+            button.prop('disabled', false);
+            button.html(buttonText);
         }
-        form.spinner().stop();
         return false;
     });
 }
@@ -391,6 +490,37 @@ function consecutiveSpaceValidator() {
     });
 }
 
+/**
+ * Event to handle popup close for early access products
+ */
+function onPopupClose() {
+    $('body').on('hidden.bs.modal', '#loginModal', function () {
+        if ($('.l-pdp').length > 0 && window.earlyAccessPid) {
+            const url = $('.ua-early-access').length > 0 ? $('.ua-early-access').attr('data-chk-ea-url') : '';
+            if (url) {
+                const isEarlyAccessCustomer = $('.ua-early-access').attr('data-is-ea-customer');
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    success: function (data) {
+                        if (data.success && data.earlyAccess.isEarlyAccessProduct && data.earlyAccess.isLoggedIn) {
+                            var earlyAccess = require('org/components/product/earlyAccess');
+                            earlyAccess.updateEarlyAccessAttributes(data.earlyAccess);
+                            if ((isEarlyAccessCustomer !== data.earlyAccess.isEarlyAccessCustomer) && $('.js-add-to-cart').length > 0) {
+                                $('.b-product_actions-inner .js-add-to-cart').trigger('click');
+                            }
+                        }
+                    },
+                    error: function (err) {
+                        console.log(err);
+                    }
+                });
+            }
+        }
+        delete window.earlyAccessPid;
+    });
+}
+
 module.exports = {
     loginModal: loginModal,
     loginSubmit: loginSubmit,
@@ -402,5 +532,6 @@ module.exports = {
     updatePasswordSubmit: updatePasswordSubmit,
     faceBookLogin: faceBookLogin,
     resetClosePopUp: resetClosePopUp,
-    consecutiveSpaceValidator: consecutiveSpaceValidator
+    consecutiveSpaceValidator: consecutiveSpaceValidator,
+    onPopupClose: onPopupClose
 };

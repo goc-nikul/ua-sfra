@@ -9,12 +9,12 @@
 
 @mixin get-container-gutter($media) {
     @each $breakpoint in $media {
-        @if map-has-keys($break-points, $breakpoint) {
+        @if map-has-key($break-points, $breakpoint) {
             @include respond-to($breakpoint) {
-                @if map-has-keys($container-max-widths, $breakpoint) {
+                @if map-has-key($container-max-widths, $breakpoint) {
                     max-width: map_get($container-max-widths, $breakpoint);
                 }
-                @if map-has-keys($container-margins, $breakpoint) {
+                @if map-has-key($container-margins, $breakpoint) {
                     $grid-margins: map_get($container-margins, $breakpoint);
 
                     @if $grid-margins != null {
@@ -35,13 +35,13 @@
 
 @mixin get-row-gutter($media) {
     @each $breakpoint in $media {
-        @if map-has-keys($grid-gutter-width-map, $breakpoint) {
+        @if map-has-key($grid-gutter-width-map, $breakpoint) {
             @include respond-to($breakpoint) {
                 $grid-gutter: map_get($grid-gutter-width-map, $breakpoint);
 
                 @if $grid-gutter != null {
-                    margin-right: rem-calc($grid-gutter / -2);
-                    margin-left: rem-calc($grid-gutter / -2);
+                    margin-right: rem-calc(calc($grid-gutter / -2));
+                    margin-left: rem-calc(calc($grid-gutter / -2));
                 }
             }
         }
@@ -56,13 +56,13 @@
 
 @mixin get-col-gutter($media) {
     @each $breakpoint in $media {
-        @if map-has-keys($grid-gutter-width-map, $breakpoint) {
+        @if map-has-key($grid-gutter-width-map, $breakpoint) {
             @include respond-to($breakpoint) {
                 $grid-gutter: map_get($grid-gutter-width-map, $breakpoint);
 
                 @if $grid-gutter != null {
-                    padding-right: rem-calc($grid-gutter / 2);
-                    padding-left: rem-calc($grid-gutter / 2);
+                    padding-right: rem-calc(calc($grid-gutter / 2));
+                    padding-left: rem-calc(calc($grid-gutter / 2));
                     box-sizing: border-box;
                 }
             }

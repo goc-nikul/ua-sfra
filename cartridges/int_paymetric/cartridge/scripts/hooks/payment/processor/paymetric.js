@@ -71,13 +71,15 @@ function authorize(orderNo, paymentInstrument) {
     var order = OrderMgr.getOrder(orderNo);
     var paymentProcessor = PaymentMgr.getPaymentMethod(paymentInstrument.getPaymentMethod()).getPaymentProcessor();
     var result = {
-        error: true
+        error: true,
+        paymetricResponseCode: null
     };
 
     if (order && paymentProcessor) {
         var payload = paymentInstrument.getCustom().payload;
         var authResult = PaymetricHelper.getAuthResult(payload);
         var isSuccessful = authResult && (authResult.authorization.status === 'authorized' || authResult.authorization.status === 'auto_authorized');
+        result.paymetricResponseCode = authResult && authResult.authorization && authResult.authorization.responseCode !== undefined ? authResult.authorization.responseCode : null;
         session.privacy.activeOrder = orderNo;
 
         Transaction.wrap(function () {

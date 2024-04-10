@@ -59,6 +59,9 @@ describe('Aurus: hooks/payment/processor/auruspay_paypal test', () => {
         'dw/order/Order': require(pathToCoreMock + 'dw/dw_order_Order'),
         'dw/util/StringUtils': require(pathToCoreMock + 'dw/dw_util_StringUtils'),
         'dw/util/Calendar': Calendar,
+        '*/cartridge/scripts/util/loggerHelper': {
+            getLoggingObject: () => ''
+        },
         'server': {},
         '*/cartridge/models/billingAddressPayPal': require(pathToCartridges + 'int_aurus_custom/cartridge/models/billingAddressPayPal'),
         '*/cartridge/models/shippingAddress': require(pathToCartridges + 'int_aurus_sfra/cartridge/models/shippingAddress'),
@@ -144,6 +147,9 @@ describe('Aurus: hooks/payment/processor/auruspay_paypal test', () => {
                 }
             },
             'dw/util/Calendar': Calendar,
+            '*/cartridge/scripts/util/loggerHelper': {
+                getLoggingObject: () => ''
+            },
             '*/cartridge/scripts/util/loggerHelper.js': {
                 maskPIIAuruspayInfo: () => ''
             }

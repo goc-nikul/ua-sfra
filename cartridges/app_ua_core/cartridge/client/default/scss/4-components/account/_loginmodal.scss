@@ -85,18 +85,91 @@
                 cursor: pointer;
             }
         }
+
+        .g-prompted-login-modal-body {
+            .login-form-nav {
+                margin-bottom: rem-calc(16.5);
+
+                form.login {
+                    .email-label {
+                        text-align: center;
+                        margin-bottom: rem-calc(24);
+                    }
+
+                    .b-input_row {
+                        margin-bottom: rem-calc(16);
+                    }
+
+                    .email-value-show {
+                        text-align: center;
+                        margin-bottom: rem-calc(24);
+
+                        .use-different-email {
+                            color: $black;
+                        }
+                    }
+                }
+
+                .b-login-forminfo {
+                    padding: 0;
+
+                    .b-registerlink-login {
+                        padding: 0;
+                    }
+
+                    .b-login-formmessage {
+                        font-size: rem-calc(10);
+                    }
+
+                    .forgot-password {
+                        margin-top: rem-calc(16);
+
+                        .password-reset {
+                            text-decoration: underline;
+                            cursor: pointer;
+                        }
+                    }
+                }
+            }
+
+            .continue-as-guest {
+                border-top: 1px solid $grey3;
+                padding-top: rem-calc(16.5);
+
+                .g-prompted-login-modal-header {
+                    padding-top: 0;
+                    padding-bottom: rem-calc(8);
+                }
+
+                .cag-component {
+                    .cag-component-msg {
+                        text-align: center;
+                    }
+
+                    .js-checkoutguest-button {
+                        margin-top: rem-calc(24);
+                        border-color: $grey6;
+                        max-width: 100%;
+                        color: $grey6;
+                    }
+                }
+            }
+        }
     }
 
     .b-account-profile__show-password {
         top: 0;
         right: 0;
         padding: 0.75rem 0.625rem;
+        background-color: $white;
+        background-clip: content-box;
         z-index: 99;
     }
 }
 
 .g-modal-loginform,
 .g-modal-registerUser,
+.g-modal-mobileAuth,
 .b-cart-added-confirmation-modal,
 .login-in-page,
 .g-modal-userRegistered,
@@ -111,6 +184,16 @@
         padding-bottom: rem-calc(24);
         padding-top: rem-calc(10);
         flex-wrap: wrap;
+
+        &.g-prompted-login-modal-header {
+            justify-content: center;
+            padding-bottom: rem-calc(16);
+
+            .free-shipping-promotion {
+                text-align: center;
+                margin-top: rem-calc(8);
+            }
+        }
 
         .g-password-modal {
             &-close {
@@ -225,6 +308,9 @@
     border: 0;
     margin: 0;
     padding-bottom: rem-calc(16);
+    @include respond-to(phones) {
+        padding-right: rem-calc(32);
+    }
 }
 
 .force-reset-password-header {

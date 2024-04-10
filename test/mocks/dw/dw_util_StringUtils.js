@@ -15,9 +15,19 @@ function formatCalendar(calander) {
     return calander.toTimeString();
 }
 
+function format(str, ...params){
+    return str.replace(/\{(\d+)\}/g, (match, index) => params[index]);
+}
+
+function stringToXml(string) {
+    return string;
+}
+
 module.exports = {
     encodeBase64: encodeBase64,
     formatMoney: formatMoney,
     formatDate: formatDate,
-    formatCalendar: formatCalendar
+    formatCalendar: formatCalendar,
+    format: format,
+    stringToXml: stringToXml
 };

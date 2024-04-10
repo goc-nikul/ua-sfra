@@ -1,0 +1,11 @@
+<isinclude template="/components/modules" sf-toolkit="off" />
+<isif condition="${pdict.format == 'ajax'}">
+    <isset name="isRegisterPage" value="${false}" scope="page" />
+    <isinclude template="account/components/registerModal" />
+<iselseif condition="${pdict.mobileAuthEnabled}">
+    <isset name="isRegisterPage" value="${true}" scope="page" />
+    <isinclude template="account/components/mobileAuthRegisterPage" />
+<iselse>
+    <isset name="isRegisterPage" value="${true}" scope="page" />
+    <isinclude template="account/components/registerPage" />
+</isif>

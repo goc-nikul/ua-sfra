@@ -52,9 +52,13 @@
             <label class="form-control-label b-input_row-label" for="phone">
                 <isprint value="${Resource.msg('field.customer.phone.number.apac', 'forms', null)}" />
             </label>
-            <input type="text" data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid.apac','forms',null)}" data-missing-error="${Resource.msg('error.message.required', 'forms', null)}" data-error="${Resource.msg('error.message.phonenumber.lesserlength','forms',null)}" class="form-control b-input_row-input validatePhoneField js-custom-input order-return-form-input" id="phone"
-                required max-length="20" <isif condition="${pdict.membersonEnabled}"> pattern="${Resource.msg('input.validate.phoneNumber','forms',null)}"</isif>
-                <isprint value="${pdict.profileForm.customer.phone.attributes}" encoding="off" />>
+            <input type="text" data-pattern-mismatch="${Resource.msg('error.message.phonenumber.invalid.apac', 'forms', null)}"
+                data-missing-error="${Resource.msg('error.message.required', 'forms', null)}"
+                data-error="${Resource.msg('error.message.phonenumber.lesserlength', 'forms', null)}"
+                class="form-control b-input_row-input validatePhoneField js-custom-input order-return-form-input" id="phone"
+                required max-length="20" <isif condition="${pdict.membersonEnabled}">
+            pattern="${Resource.msg('input.validate.phoneNumber', 'forms', null)}"</isif>
+            <isprint value="${pdict.profileForm.customer.phone.attributes}" encoding="off" />>
             <div class="invalid-feedback"></div>
             <div class="phone-number-format">${Resource.msg('field.customer.phone.number.format', 'forms', null)}</div>
         </div>
@@ -117,7 +121,7 @@
                 <label class="form-control-label b-month-label"  for="birthMonth">
                     <isprint value="${pdict.profileForm.customer.birthMonth.label}" encoding="htmlcontent" />
                 </label>
-                <select class="form-control b-month-select order-return-form-input" id="birthMonth" <isif condition="${pdict.membersonEnabled}"> data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" required</isif>
+                <select class="form-control b-month-select order-return-form-input" id="birthMonth"  <isif condition="${pdict.membersonEnabled || dw.system.Site.getCurrent().getID() === 'OC'}"> data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" required</isif>
                     <isprint value="${pdict.profileForm.customer.birthMonth.attributes}" encoding="off" />>
                     <isloop items=${pdict.profileForm.customer.birthMonth.options} var="birthMonth">
                         <option id="${birthMonth.id}" value="${birthMonth.htmlValue}" <isif condition="${birthMonth.selected}">selected</isif>>${birthMonth.label || ' '}</option>
@@ -147,17 +151,18 @@
                 <label class="form-control-label b-day-label" for="birthDay">
                     <isprint value="${pdict.profileForm.customer.birthDay.label}" encoding="htmlcontent" />
                 </label>
-                <select class="form-control b-day-select order-return-form-input" id="birthDay"
+                <select class="form-control b-day-select order-return-form-input" id="birthDay" <isif condition="${pdict.membersonEnabled || dw.system.Site.getCurrent().getID() === 'OC'}"> data-missing-error="${Resource.msg('or.select.error.required', 'forms', null)}" required</isif>
                     <isprint value="${pdict.profileForm.customer.birthDay.attributes}" encoding="off" />>
                     <isloop items=${pdict.profileForm.customer.birthDay.options} var="birthDay">
                         <option id="${birthDay.id}" value="${birthDay.htmlValue}" <isif condition="${birthDay.selected}">selected</isif>>${birthDay.label || ' '}</option>
                     </isloop>
                 </select>
+                <div class="invalid-feedback"></div>
             </div>
         </div>
     </isif>
 
-        <div class="b-account_form-column b-account_form-column-mobile">
+        <div class="b-account_form-column b-account_form-column-mobile m-top">
             <div class="form-group b-gender">
                 <label class="form-control-label b-gender-label" for="gender">
                     <isprint value="${pdict.profileForm.customer.gender.label}" encoding="htmlcontent" />
@@ -189,7 +194,7 @@
     </div>
 </iscomment>
 
-    <div class="form-group g-checkbox">
+    <div class="form-group g-checkbox m-top">
         <input
             type="checkbox"
             class="g-checkbox-input" id="add-to-email-list" <isif condition="${dw.system.Site.current.getCustomPreferenceValue('defaultEmailOptIn')}">checked</isif> 

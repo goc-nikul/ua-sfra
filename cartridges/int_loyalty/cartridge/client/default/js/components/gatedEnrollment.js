@@ -34,7 +34,8 @@ const renderLoyaltySuccessModal = ({ params }) => {
  */
 function appendSearchParamsToHref(el) {
     const $el = $(el);
-    if (!$el.length) { return; }
+    if (!$el.length) return;
+
     const elURL = new URL($(el).data('href'));
     const windowParams = new URLSearchParams(window.location.search);
     const neededParams = ['channel', 'subChannel', 'subChannelDetail'];
@@ -220,6 +221,12 @@ const gatedWaitlistSubmit = (e) => {
 
 module.exports = {
     init: function () {
+        // Zip gate form must wait for JS to be available before we can handle AJAX requests
+        $(document)
+            .find('#gated-enrollment-form button[type=submit]')
+            .removeAttr('disabled')
+            .removeAttr('data-loading');
+
         $(document).on('submit', '#gated-enrollment-form', gatedEnrollmentSubmit);
         $(document).on('submit', '#gated-waitlist-form', gatedWaitlistSubmit);
         showGatedEnrollModal();
@@ -229,5 +236,9 @@ module.exports = {
         $('body').on('blur', '#gated-enrollment-form, #gated-waitlist-form', function () {
             checkMandatoryField($(this));
         });
+
+        // Configure required URL params on page load when Site Preference "Disable Zip Gating" on
+        appendSearchParamsToHref('.no-zip-check .js-login');
+        appendSearchParamsToHref('.no-zip-check .js-register');
     }
 };

@@ -46,7 +46,15 @@ module.exports = function (array) {
     this.toArray = function () {
         return items;
     };
-    this.remove = function () {};
+    this.remove = function (item) {
+        var idx = items.indexOf(item);
+        var itemFound = idx >= 0;
+        if (itemFound) {
+            items.splice(idx, 1);
+            this.length = items.length;
+        }
+        return itemFound;
+    };
     this.addAll = function (collection) {
         items = items.concat(collection.toArray());
         this.length = items.length;
@@ -85,6 +93,9 @@ module.exports = function (array) {
         return items[index];
     };
     this.isEmpty = function () {
+        return items.length <= 0;
+    };
+    this.empty = function () {
         return items.length <= 0;
     };
 };

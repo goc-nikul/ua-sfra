@@ -328,23 +328,37 @@ var scrollAnimate = require('../components/scrollAnimate');
                                     defer.reject(data);
                                 }
                             } else {
-                                var continueUrl = data.continueUrl;
-                                var urlParams = '';
+                                    // Changes due to SFRA cartridge upgrade!
+                                    let redirect = $('<form>')
+                                            .appendTo(document.body)
+                                            .attr({
+                                                method: 'POST',
+                                                action: data.continueUrl
+                                            });
+                                    $('<input>')
+                                    .appendTo(redirect)
+                                    .attr({
+                                        name: 'orderID',
+                                        value: data.orderID,
+                                        type: 'hidden'
+                                    });
 
-                                if (data.orderID != null && data.orderToken != null) {
-                                    urlParams = {
-                                        ID: data.orderID,
-                                        token: data.orderToken
-                                    };
-                                }
-
-                                continueUrl += (continueUrl.indexOf('?') !== -1 ? '&' : '?') +
-                                    Object.keys(urlParams).map(function (key) {
-                                        return key + '=' + encodeURIComponent(urlParams[key]);
-                                    }).join('&');
-
-                                window.location.href = continueUrl;
-                                defer.resolve(data);
+                                    $('<input>')
+                                        .appendTo(redirect)
+                                        .attr({
+                                            name: 'orderToken',
+                                            value: data.orderToken,
+                                            type: 'hidden'
+                                        });
+                                    $('<input>')
+                                        .appendTo(redirect)
+                                        .attr({
+                                            name: 'order_checkout_optin',
+                                            value: data.order_checkout_optin,
+                                            type: 'hidden'
+                                        });
+                                    redirect.trigger('submit');
+                                    defer.resolve(data);
                             }
                         },
                         error: function () {
@@ -371,6 +385,11 @@ var scrollAnimate = require('../components/scrollAnimate');
                 // set the initial state of checkout
                 members.currentStage = checkoutStages
                     .indexOf($('.data-checkout-stage').data('checkout-stage'));
+                // v6.3.0 has a new stage called 'customer' which is passed in by default during Checkout-Begin
+                // UA has not upgraded the extended cartridges from the upgrade yet.
+                if (members.currentStage < 0) {
+                    members.currentStage = 0;
+                }
                 $(plugin).attr('data-checkout-stage', checkoutStages[members.currentStage]);
 
                 //

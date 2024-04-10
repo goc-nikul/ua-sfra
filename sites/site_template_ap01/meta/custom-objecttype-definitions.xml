@@ -1,5 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
+    
+    <custom-type type-id="constructorIOSettings">
+        <display-name xml:lang="x-default">Constructor IO Settings</display-name>
+        <staging-mode>source-to-target</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="ID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="constructorIOSortOptionsMap">
+                <display-name xml:lang="x-default">ConstructorIO Sort Options Map</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="defaultCutoffThreshold">
+                <display-name xml:lang="x-default">Default Cutoff Threshold</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="displayableRefinementCategories">
+                <display-name xml:lang="x-default">Displayable Refinement Categories</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="routeRefinements">
+                <display-name xml:lang="x-default">Route Refinements</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="sizeRangeMap">
+                <display-name xml:lang="x-default">Size Range Map</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="sizeSortRules">
+                <display-name xml:lang="x-default">Size Sort Rules</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="sortOptionsURLMap">
+                <display-name xml:lang="x-default">Sort Options URL Map</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="variationMap">
+                <display-name xml:lang="x-default">Variation Map</display-name>
+                <type>string</type>
+                <localizable-flag>true</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="constructorIOSettings">
+                <display-name xml:lang="x-default">Constructor Io Settings</display-name>
+                <attribute attribute-id="ID"/>
+                <attribute attribute-id="creationDate" system="true"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="constructorIOSortOptionsMap"/>
+                <attribute attribute-id="defaultCutoffThreshold"/>
+                <attribute attribute-id="displayableRefinementCategories"/>
+                <attribute attribute-id="routeRefinements"/>
+                <attribute attribute-id="sizeRangeMap"/>
+                <attribute attribute-id="sizeSortRules"/>
+                <attribute attribute-id="sortOptionsURLMap"/>
+                <attribute attribute-id="sortOptionsURLMap"/>
+                <attribute attribute-id="variationMap"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
 
     <custom-type type-id="CustomFeedConfig">
         <staging-mode>no-staging</staging-mode>
@@ -2036,6 +2129,20 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <min-length>0</min-length>
             </attribute-definition>
+            <attribute-definition attribute-id="returnShipmentProvider">
+                <display-name xml:lang="x-default">Return Shipment Provider</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="trackingLink">
+                <display-name xml:lang="x-default">Tracking Link</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
         </attribute-definitions>
         <group-definitions>
             <attribute-group group-id="general">
@@ -2048,6 +2155,8 @@
                 <attribute attribute-id="returnSkusJson"/>
                 <attribute attribute-id="invoiceSapId"/>
                 <attribute attribute-id="trackingNumber"/>
+                <attribute attribute-id="returnShipmentProvider"/>
+                <attribute attribute-id="trackingLink"/>
                 <attribute attribute-id="transactionReference"/>
                 <attribute attribute-id="consignmentId"/>
                 <attribute attribute-id="currencyCode"/>
@@ -2060,6 +2169,7 @@
         <display-name xml:lang="x-default">ID</display-name>
         <staging-mode>no-staging</staging-mode>
         <storage-scope>site</storage-scope>
+        <retention-days>30</retention-days>
         <key-definition attribute-id="ID">
             <type>string</type>
             <min-length>0</min-length>
@@ -2257,6 +2367,55 @@
                 <attribute attribute-id="numbersponsorsOption"/>
                 <attribute attribute-id="namenumbersponsorsOption"/>
                 <attribute attribute-id="defaultOption"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="deletedCustomerRecords">
+        <display-name xml:lang="x-default">Customer Number</display-name>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="CustomerNo">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="AccountLinks">
+                <display-name xml:lang="x-default">IDM Account Links</display-name>
+                <description xml:lang="x-default">Possible values: Single Link or Multiple Links</description>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Single Link</display>
+                        <value>Single Link</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Multiple Links</display>
+                        <value>Multiple Links</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="JiraTicket">
+                <display-name xml:lang="x-default">Jira Ticket ID</display-name>
+                <description xml:lang="x-default">Jira Ticket that was created. Will be empty for customers with single account link</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="general">
+                <display-name xml:lang="x-default">General</display-name>
+                <attribute attribute-id="CustomerNo"/>
+                <attribute attribute-id="JiraTicket"/>
+                <attribute attribute-id="lastModified" system="true"/>
+                <attribute attribute-id="AccountLinks"/>
+                <attribute attribute-id="creationDate" system="true"/>
             </attribute-group>
         </group-definitions>
     </custom-type>
@@ -2467,6 +2626,479 @@
                 <attribute attribute-id="shoplinkerID"/>
                 <attribute attribute-id="creationDate" system="true"/>
                 <attribute attribute-id="lastModified" system="true"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+    <custom-type type-id="SleepingAccountEmails">
+        <display-name xml:lang="x-default">Customer Email</display-name>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="customerEmail">
+            <display-name xml:lang="x-default">Customer Email</display-name>
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <group-definitions>
+            <attribute-group group-id="customerEmails">
+                <display-name xml:lang="x-default">CustomerEmails</display-name>
+                <attribute attribute-id="customerEmail"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="ReturnMethodsConfigurations">
+        <display-name xml:lang="x-default">Return Methods Configurations</display-name>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="countryID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="returnMethod-1">
+                <display-name xml:lang="x-default">Return Method 1</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Pickup</display>
+                        <display xml:lang="th-TH">คืนโดยนัดเข้ารับสินค้า</display>
+                        <display xml:lang="zh-HK">速遞取件</display>
+                        <value>Courier Pickup</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Self Arrange</display>
+                        <display xml:lang="th-TH">ส่งคืนด้วยตนเอง</display>
+                        <display xml:lang="zh-HK">自行安排</display>
+                        <value>Return via mail</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Drop off point</display>
+                        <display xml:lang="th-TH">คืนที่จุดส่งคืนสินค้า</display>
+                        <display xml:lang="zh-HK">包裹投遞點</display>
+                        <value>PUDO</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Return in store</display>
+                        <display xml:lang="th-TH">คืนที่สาขา</display>
+                        <display xml:lang="zh-HK">店內退貨</display>
+                        <value>Return in store</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod-2">
+                <display-name xml:lang="x-default">Return Method 2</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Pickup</display>
+                        <display xml:lang="th-TH">คืนโดยนัดเข้ารับสินค้า</display>
+                        <display xml:lang="zh-HK">速遞取件</display>
+                        <value>Courier Pickup</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Self Arrange</display>
+                        <display xml:lang="th-TH">ส่งคืนด้วยตนเอง</display>
+                        <display xml:lang="zh-HK">自行安排</display>
+                        <value>Return via mail</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Drop off point</display>
+                        <display xml:lang="th-TH">คืนที่จุดส่งคืนสินค้า</display>
+                        <display xml:lang="zh-HK">包裹投遞點</display>
+                        <value>PUDO</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Return in store</display>
+                        <display xml:lang="th-TH">คืนที่สาขา</display>
+                        <display xml:lang="zh-HK">店內退貨</display>
+                        <value>Return in store</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod-3">
+                <display-name xml:lang="x-default">Return Method 3</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Pickup</display>
+                         <display xml:lang="th-TH">คืนโดยนัดเข้ารับสินค้า</display>
+                        <display xml:lang="zh-HK">速遞取件</display>
+                        <value>Courier Pickup</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Self Arrange</display>
+                        <display xml:lang="th-TH">ส่งคืนด้วยตนเอง</display>
+                        <display xml:lang="zh-HK">自行安排</display>
+                        <value>Return via mail</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Drop off point</display>
+                        <display xml:lang="th-TH">คืนที่จุดส่งคืนสินค้า</display>
+                        <display xml:lang="zh-HK">包裹投遞點</display>
+                        <value>PUDO</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Return in store</display>
+                        <display xml:lang="th-TH">คืนที่สาขา</display>
+                        <display xml:lang="zh-HK">店內退貨</display>
+                        <value>Return in store</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod-4">
+                <display-name xml:lang="x-default">Return Method 4</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Pickup</display>
+                        <display xml:lang="th-TH">คืนโดยนัดเข้ารับสินค้า</display>
+                        <display xml:lang="zh-HK">速遞取件</display>
+                        <value>Courier Pickup</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Self Arrange</display>
+                        <display xml:lang="th-TH">ส่งคืนด้วยตนเอง</display>
+                        <display xml:lang="zh-HK">自行安排</display>
+                        <value>Return via mail</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Drop off point</display>
+                        <display xml:lang="th-TH">คืนที่จุดส่งคืนสินค้า</display>
+                        <display xml:lang="zh-HK">包裹投遞點</display>
+                        <value>PUDO</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Return in store</display>
+                        <display xml:lang="th-TH">คืนที่สาขา</display>
+                        <display xml:lang="zh-HK">店內退貨</display>
+                        <value>Return in store</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod-5">
+                <display-name xml:lang="x-default">Return Method 5</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Pickup</display>
+                        <display xml:lang="th-TH">คืนโดยนัดเข้ารับสินค้า</display>
+                        <display xml:lang="zh-HK">速遞取件</display>
+                        <value>Courier Pickup</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Self Arrange</display>
+                        <display xml:lang="th-TH">ส่งคืนด้วยตนเอง</display>
+                        <display xml:lang="zh-HK">自行安排</display>
+                        <value>Return via mail</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Drop off point</display>
+                        <display xml:lang="th-TH">คืนที่จุดส่งคืนสินค้า</display>
+                        <display xml:lang="zh-HK">包裹投遞點</display>
+                        <value>PUDO</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Return in store</display>
+                        <display xml:lang="th-TH">คืนที่สาขา</display>
+                        <display xml:lang="zh-HK">店內退貨</display>
+                        <value>Return in store</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod1Courierservice">
+                <display-name xml:lang="x-default">Return Method1 Courier Service(3PL)</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod1DateRange">
+                <display-name xml:lang="x-default">Return Method1 Date Range</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod1PublicHolidayList">
+                <display-name xml:lang="x-default">Return Method1 Public Holiday List</display-name>
+                <type>set-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod1TimeSlots">
+                <display-name xml:lang="x-default">Return Method1 Time Slots</display-name>
+                <type>set-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod2Courierservice">
+                <display-name xml:lang="x-default">Return Method2 Courier Service(3PL)</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod2DateRange">
+                <display-name xml:lang="x-default">Return Method2 Date Range</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod2PublicHolidayList">
+                <display-name xml:lang="x-default">Return Method2 Public Holiday List</display-name>
+                <type>set-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod2TimeSlots">
+                <display-name xml:lang="x-default">Return Method2 Time Slots</display-name>
+                <type>set-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod3Courierservice">
+                <display-name xml:lang="x-default">Return Method3 Courier Service(3PL)</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod3DateRange">
+                <display-name xml:lang="x-default">Return Method3 Date Range</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod3PublicHolidayList">
+                <display-name xml:lang="x-default">Return Method3 Public Holiday List</display-name>
+                <type>set-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod3TimeSlots">
+                <display-name xml:lang="x-default">Return Method3 Time Slots</display-name>
+                <type>set-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod4Courierservice">
+                <display-name xml:lang="x-default">Return Method4 Courier Service(3PL)</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod4DateRange">
+                <display-name xml:lang="x-default">Return Method4 Date Range</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod4PublicHolidayList">
+                <display-name xml:lang="x-default">Return Method4 Public Holiday List</display-name>
+                <type>set-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod4TimeSlots">
+                <display-name xml:lang="x-default">Return Method4 TimeSlots</display-name>
+                <type>set-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod5Courierservice">
+                <display-name xml:lang="x-default">Return Method5 Courier Service(3PL)</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod5DateRange">
+                <display-name xml:lang="x-default">Return Method5 Date Range</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod5PublicHolidayList">
+                <display-name xml:lang="x-default">Return Method5 Public Holiday List</display-name>
+                <type>set-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnMethod5TimeSlots">
+                <display-name xml:lang="x-default">Return Method5 Time Slots</display-name>
+                <type>set-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="returnReasonCodes">
+                <display-name xml:lang="x-default">Return Reason Codes</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <select-multiple-flag>true</select-multiple-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Change of mind</display>
+                        <display xml:lang="th-TH">เปลี่ยนใจ</display>
+                        <display xml:lang="zh-HK">改变主意</display>
+                        <value>Change of mind</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Late delivery</display>
+                        <display xml:lang="th-TH">ส่งช้า</display>
+                        <display xml:lang="zh-HK">延遲交貨</display>
+                        <value>Late delivery</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Damaged/Defective item</display>
+                        <display xml:lang="th-TH">สินค้าเสียหาย/ชำรุด</display>
+                        <display xml:lang="zh-HK">損壞/有缺陷的物品</display>
+                        <value>Damaged/Defective item</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Incorrect item</display>
+                        <display xml:lang="th-TH">สินค้าไม่ถูกต้อง</display>
+                        <display xml:lang="zh-HK">項目不正確</display>
+                        <value>Incorrect item</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Too small</display>
+                        <display xml:lang="th-TH">เล็กเกินไป</display>
+                        <display xml:lang="zh-HK">太小</display>
+                        <value>Too small</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Too large</display>
+                        <display xml:lang="th-TH">ใหญ่เกินไป</display>
+                        <display xml:lang="zh-HK">太大</display>
+                        <value>Too large</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">Not as pictured</display>
+                        <display xml:lang="th-TH">สินค้าไม่เหมือนในรูป</display>
+                        <display xml:lang="zh-HK">與圖片不符</display>
+                        <value>Not as pictured</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="returnMethods">
+                <display-name xml:lang="x-default">Return Methods</display-name>
+                <attribute attribute-id="countryID"/>
+                <attribute attribute-id="returnReasonCodes"/>
+            </attribute-group>
+            <attribute-group group-id="returnMethod1">
+                <display-name xml:lang="x-default">Return Method1</display-name>
+                <attribute attribute-id="returnMethod-1"/>
+                <attribute attribute-id="returnMethod1Courierservice"/>
+                <attribute attribute-id="returnMethod1DateRange"/>
+                <attribute attribute-id="returnMethod1TimeSlots"/>
+                <attribute attribute-id="returnMethod1PublicHolidayList"/>
+            </attribute-group>
+            <attribute-group group-id="returnMethod2">
+                <display-name xml:lang="x-default">Return Method2</display-name>
+                <attribute attribute-id="returnMethod-2"/>
+                <attribute attribute-id="returnMethod2Courierservice"/>
+                <attribute attribute-id="returnMethod2DateRange"/>
+                <attribute attribute-id="returnMethod2TimeSlots"/>
+                <attribute attribute-id="returnMethod2PublicHolidayList"/>
+            </attribute-group>
+            <attribute-group group-id="returnMethod3">
+                <display-name xml:lang="x-default">Return Method3</display-name>
+                <attribute attribute-id="returnMethod-3"/>
+                <attribute attribute-id="returnMethod3Courierservice"/>
+                <attribute attribute-id="returnMethod3DateRange"/>
+                <attribute attribute-id="returnMethod3TimeSlots"/>
+                <attribute attribute-id="returnMethod3PublicHolidayList"/>
+            </attribute-group>
+            <attribute-group group-id="returnMethod4">
+                <display-name xml:lang="x-default">Return Method4</display-name>
+                <attribute attribute-id="returnMethod-4"/>
+                <attribute attribute-id="returnMethod4Courierservice"/>
+                <attribute attribute-id="returnMethod4DateRange"/>
+                <attribute attribute-id="returnMethod4TimeSlots"/>
+                <attribute attribute-id="returnMethod4PublicHolidayList"/>
+            </attribute-group>
+            <attribute-group group-id="returnMethod5">
+                <display-name xml:lang="x-default">Return Method5</display-name>
+                <attribute attribute-id="returnMethod-5"/>
+                <attribute attribute-id="returnMethod5Courierservice"/>
+                <attribute attribute-id="returnMethod5DateRange"/>
+                <attribute attribute-id="returnMethod5TimeSlots"/>
+                <attribute attribute-id="returnMethod5PublicHolidayList"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+    <custom-type type-id="NiceIDAuthToken">
+        <display-name xml:lang="x-default">Nice ID Auth Token</display-name>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>site</storage-scope>
+        <key-definition attribute-id="siteID">
+            <display-name xml:lang="x-default">Site ID</display-name>
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="expires">
+                <display-name xml:lang="x-default">Expiry In ms</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="token">
+                <display-name xml:lang="x-default">Auth Token</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="Token">
+                <display-name xml:lang="x-default">Token</display-name>
+                <attribute attribute-id="siteID"/>
+                <attribute attribute-id="token"/>
+                <attribute attribute-id="expires"/>
             </attribute-group>
         </group-definitions>
     </custom-type>

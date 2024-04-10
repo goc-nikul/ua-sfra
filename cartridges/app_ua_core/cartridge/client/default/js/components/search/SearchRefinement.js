@@ -45,6 +45,9 @@ export default class SearchRefinement extends Component {
     mobileFilterClose() {
         this.cache.$filterElement.removeClass(this.config.shownClass);
         this.cache.$body.removeClass(this.config.noScrollClass);
+        if ($('.js-mob_sort').is(':visible')) {
+            this.cache.$body.addClass(this.config.dropdownOpenClass);
+        }
     }
 
     initializeEvents() {

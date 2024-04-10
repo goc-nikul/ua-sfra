@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use strict';
 /* jshint indent:false,white:false */
 
@@ -31,7 +32,7 @@ var FormModel = AbstractModel.extend(
          */
         get: function (groupName) {
             if (this.object) {
-                return FormModel.get(require('~/cartridge/scripts/object').resolve(this.object,groupName));
+                return FormModel.get(require('~/cartridge/scripts/object').resolve(this.object, groupName));
             }
             return new FormModel();
         },
@@ -62,19 +63,16 @@ var FormModel = AbstractModel.extend(
                     return formHandler.error.apply(formHandler, [this.object, action]);
                 }
                 // Logs a warning and returns null if no explicit error handler is defined.
-                else {
-                    dw.system.Logger.warn('Action handler called without action ' + this.object.formId);
-                    return null;
-                }
-            } else {
-                if (formHandler[action.formId]) {
-                    return formHandler[action.formId].apply(formHandler, [this.object, action]);
-                } else {
-                    dw.system.Logger.error('Action handler for action "{0}"" not defined.', action.formId);
-                    // Throws an error as this is an implementation bug.
-                    throw new Error('Form handler undefined');
-                }
+
+                dw.system.Logger.warn('Action handler called without action ' + this.object.formId);
+                return null;
             }
+            if (formHandler[action.formId]) {
+                return formHandler[action.formId].apply(formHandler, [this.object, action]);
+            }
+            dw.system.Logger.error('Action handler for action "{0}"" not defined.', action.formId);
+                    // Throws an error as this is an implementation bug.
+            throw new Error('Form handler undefined');
         },
 
         /**
@@ -86,7 +84,6 @@ var FormModel = AbstractModel.extend(
          * @returns {module:models/FormModel~FormModel} Returns the updated form.
          */
         copyFrom: function (updateObject, clear) {
-
             clear = (typeof clear !== 'undefined') ? clear : false;
 
             if (clear) {
@@ -109,20 +106,17 @@ var FormModel = AbstractModel.extend(
          * passed group properties specified in the form definition bindings. false if an error is thrown
          */
         copyTo: function (updateObject) {
-
             try {
                 var group = this.object;
                 dw.system.Transaction.wrap(function () {
                     group.copyTo(updateObject);
                 });
                 return true;
-            }
-            catch (err) {
+            } catch (err) {
                 var Logger = require('dw/system/Logger');
                 Logger.error(err);
                 return false;
             }
-
         },
 
         /**
@@ -197,7 +191,7 @@ var FormModel = AbstractModel.extend(
 FormModel.get = function (formReference) {
     var formInstance = null;
     if (typeof formReference === 'string') {
-        formInstance = require('~/cartridge/scripts/object').resolve(session.forms,formReference);
+        formInstance = require('~/cartridge/scripts/object').resolve(session.forms, formReference);
     } else if (typeof formReference === 'object') {
         formInstance = formReference;
     }

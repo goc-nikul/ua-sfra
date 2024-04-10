@@ -79,6 +79,10 @@ function getLabelStatus(consignmentId) {
     var parcelService = require('*/cartridge/scripts/services/nzpostService').getParcelLabelService(accessToken);
     parcelService.setRequestMethod('GET');
     parcelService.URL += ('/' + consignmentId + '/status');
+    const now = Date.now();
+    while (Date.now() < now + 1000) {
+        // waiting for a second before calling the service
+    }
     var parcelResponse = parcelService.call();
     if (!parcelResponse.OK || !parcelResponse.object || !parcelResponse.object.text) {
         // If request fails because of Auth delete the value from custom object and reinstitate the request

@@ -12,15 +12,15 @@ function handlePostCartAdd(response) {
     var messageType = response.error ? 'alert-danger' : 'alert-success';
 
     if ($('.add-to-cart-messages').length === 0) {
-        $('body').append(
-            '<div class="add-to-cart-messages"></div>'
-        );
+        $('body').append('<div class="add-to-cart-messages"></div>');
     }
 
     $('.add-to-cart-messages').append(
-        '<div class="alert ' + messageType + ' add-to-basket-alert text-center" role="alert">'
-        + response.message
-        + '</div>'
+        '<div class="alert ' +
+            messageType +
+            ' add-to-basket-alert text-center" role="alert">' +
+            response.message +
+            '</div>'
     );
 
     setTimeout(function () {
@@ -36,23 +36,24 @@ function getModalHtmlElement() {
     if ($('#editProductModal').length !== 0) {
         $('#editProductModal').remove();
     }
-    var htmlString = '<!-- Modal -->'
-        + '<div class="modal fade" id="editWishlistProductModal" tabindex="-1" role="dialog">'
-        + '<span class="enter-message sr-only" ></span>'
-        + '<div class="modal-dialog quick-view-dialog">'
-        + '<!-- Modal content-->'
-        + '<div class="modal-content">'
-        + '<div class="modal-header">'
-        + '    <button type="button" class="close pull-right" data-dismiss="modal">'
-        + '        <span aria-hidden="true">&times;</span>'
-        + '        <span class="sr-only"> </span>'
-        + '    </button>'
-        + '</div>'
-        + '<div class="modal-body"></div>'
-        + '<div class="modal-footer"></div>'
-        + '</div>'
-        + '</div>'
-        + '</div>';
+    var htmlString =
+        '<!-- Modal -->' +
+        '<div class="modal fade" id="editWishlistProductModal" tabindex="-1" role="dialog">' +
+        '<span class="enter-message sr-only" ></span>' +
+        '<div class="modal-dialog quick-view-dialog">' +
+        '<!-- Modal content-->' +
+        '<div class="modal-content">' +
+        '<div class="modal-header">' +
+        '    <button type="button" class="close pull-right" data-dismiss="modal">' +
+        '        <span aria-hidden="true">&times;</span>' +
+        '        <span class="sr-only"> </span>' +
+        '    </button>' +
+        '</div>' +
+        '<div class="modal-body"></div>' +
+        '<div class="modal-footer"></div>' +
+        '</div>' +
+        '</div>' +
+        '</div>';
     $('body').append(htmlString);
 }
 
@@ -87,9 +88,15 @@ function fillModalElement(editProductUrl) {
 
             $('#editWishlistProductModal .modal-body').empty();
             $('#editWishlistProductModal .modal-body').html(parsedHtml.body);
-            $('#editWishlistProductModal .modal-footer').html(parsedHtml.footer);
-            $('#editWishlistProductModal .modal-header .close .sr-only').text(data.closeButtonText);
-            $('#editWishlistProductModal .enter-message').text(data.enterDialogMessage);
+            $('#editWishlistProductModal .modal-footer').html(
+                parsedHtml.footer
+            );
+            $('#editWishlistProductModal .modal-header .close .sr-only').text(
+                data.closeButtonText
+            );
+            $('#editWishlistProductModal .enter-message').text(
+                data.enterDialogMessage
+            );
             $('#editWishlistProductModal').modal('show');
             $('body').trigger('editwishlistproduct:ready');
             $.spinner().stop();
@@ -115,13 +122,16 @@ function showResponseMsg(res) {
     }
 
     if ($('.add-to-wishlist-messages').length === 0) {
-        $('body').append(
-        '<div class="add-to-wishlist-messages "></div>'
-        );
+        $('body').append('<div class="add-to-wishlist-messages "></div>');
     }
 
-    $('.add-to-wishlist-messages')
-        .append('<div class="add-to-wishlist-alert text-center ' + status + '">' + res.msg + '</div>');
+    $('.add-to-wishlist-messages').append(
+        '<div role="alert" class="add-to-wishlist-alert text-center ' +
+            status +
+            '">' +
+            res.msg +
+            '</div>'
+    );
 
     setTimeout(function () {
         $('.add-to-wishlist-messages').remove();
@@ -147,11 +157,15 @@ function updatePublicStatus(listID, itemID, callback) {
             itemID: itemID
         },
         success: function (data) {
-            if (callback && !data.success) { callback(); }
+            if (callback && !data.success) {
+                callback();
+            }
             showResponseMsg(data, null);
         },
         error: function (err) {
-            if (callback) { callback(); }
+            if (callback) {
+                callback();
+            }
             showResponseMsg(err);
         }
     });
@@ -167,8 +181,11 @@ function displayErrorMessage($elementAppendTo, msg) {
             '<div class="remove-from-wishlist-messages "></div>'
         );
     }
-    $('.remove-from-wishlist-messages')
-        .append('<div class="remove-from-wishlist-alert text-center alert-danger">' + msg + '</div>');
+    $('.remove-from-wishlist-messages').append(
+        '<div class="remove-from-wishlist-alert text-center alert-danger">' +
+            msg +
+            '</div>'
+    );
 
     setTimeout(function () {
         $('.remove-from-wishlist-messages').remove();
@@ -198,18 +215,20 @@ function renderNewPageOfItems(pageNumber, spinner, focusElementSelector) {
             publicView: publicView,
             id: listUUID
         }
-    }).done(function (data) {
-        $('.wishlistItemCards').empty();
-        $('body .wishlistItemCards').append(data);
+    })
+        .done(function (data) {
+            $('.wishlistItemCards').empty();
+            $('body .wishlistItemCards').append(data);
 
-        if (focusElementSelector) {
-            $(focusElementSelector).focus();
-        } else {
-            document.documentElement.scrollTop = scrollPosition;
-        }
-    }).fail(function () {
-        $('.more-wl-items').remove();
-    });
+            if (focusElementSelector) {
+                $(focusElementSelector).focus();
+            } else {
+                document.documentElement.scrollTop = scrollPosition;
+            }
+        })
+        .fail(function () {
+            $('.more-wl-items').remove();
+        });
     $.spinner().stop();
 }
 
@@ -240,7 +259,7 @@ module.exports = {
                         displayErrorMessage($elToAppend, msg);
                     }
                 });
-            // else user is in wishlist landing page, call removeProduct() end point, then remove this card
+                // else user is in wishlist landing page, call removeProduct() end point, then remove this card
             } else {
                 $.spinner().start();
                 $.ajax({
@@ -249,7 +268,8 @@ module.exports = {
                     dataType: 'json',
                     data: {},
                     success: function () {
-                        var pageNumber = $('.wishlistItemCardsData').data('page-number') - 1;
+                        var pageNumber =
+                            $('.wishlistItemCardsData').data('page-number') - 1;
                         renderNewPageOfItems(pageNumber, false);
                     },
                     error: function () {
@@ -285,20 +305,32 @@ module.exports = {
     },
 
     focusEditWishlistProductModal: function () {
-        $('body').on('shown.bs.modal', '#editWishlistProductModal', function () {
-            $('#editWishlistProductModal').siblings().attr('aria-hidden', 'true');
-            $('#editWishlistProductModal .close').focus();
-        });
+        $('body').on(
+            'shown.bs.modal',
+            '#editWishlistProductModal',
+            function () {
+                $('#editWishlistProductModal')
+                    .siblings()
+                    .attr('aria-hidden', 'true');
+                $('#editWishlistProductModal .close').focus();
+            }
+        );
     },
 
     onClosingEditWishlistProductModal: function () {
-        $('body').on('hidden.bs.modal', '#editWishlistProductModal', function () {
-            $('#editWishlistProductModal').remove();
-            $('.modal-backdrop').remove();
-            $('body').removeClass('modal-open');
+        $('body').on(
+            'hidden.bs.modal',
+            '#editWishlistProductModal',
+            function () {
+                $('#editWishlistProductModal').remove();
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open');
 
-            $('#editWishlistProductModal').siblings().attr('aria-hidden', 'false');
-        });
+                $('#editWishlistProductModal')
+                    .siblings()
+                    .attr('aria-hidden', 'false');
+            }
+        );
     },
 
     trapEditWishlistProductModalFocus: function () {
@@ -316,7 +348,13 @@ module.exports = {
 
     updateWishlistUpdateButton: function () {
         $('body').on('product:updateAddToCart', function (e, response) {
-            response.$productContainer.find('.btn-update-wishlist-product').attr('disabled', !response.product.readyToOrder || !response.product.available);
+            response.$productContainer
+                .find('.btn-update-wishlist-product')
+                .attr(
+                    'disabled',
+                    !response.product.readyToOrder ||
+                        !response.product.available
+                );
         });
     },
 
@@ -324,7 +362,9 @@ module.exports = {
         $('body').on('click', '.btn-update-wishlist-product', function (e) {
             e.preventDefault();
 
-            var updateButtonBlock = $(this).closest('.wishlist-item-update-button-block').find('.update-wishlist-url');
+            var updateButtonBlock = $(this)
+                .closest('.wishlist-item-update-button-block')
+                .find('.update-wishlist-url');
             var updateProductUrl = updateButtonBlock.val();
             var uuid = updateButtonBlock.data('uuid');
 
@@ -347,11 +387,18 @@ module.exports = {
                     $('#editWishlistProductModal').remove();
                     $('.modal-backdrop').remove();
                     $('body').removeClass('modal-open');
-                    var pageNumber = $('.wishlistItemCardsData').data('page-number') - 1;
-                    renderNewPageOfItems(pageNumber, false, '.product-info .edit-add-to-wishlist .edit:first');
+                    var pageNumber =
+                        $('.wishlistItemCardsData').data('page-number') - 1;
+                    renderNewPageOfItems(
+                        pageNumber,
+                        false,
+                        '.product-info .edit-add-to-wishlist .edit:first'
+                    );
                 },
                 error: function () {
-                    var msg = $('.btn-update-wishlist-product').data('error-msg');
+                    var msg = $('.btn-update-wishlist-product').data(
+                        'error-msg'
+                    );
 
                     $('#editWishlistProductModal').spinner().stop();
                     $('#editWishlistProductModal').remove();
@@ -364,8 +411,11 @@ module.exports = {
                         );
                     }
 
-                    $('.update-wishlist-messages')
-                        .append('<div class="update-wishlist-alert text-center alert-danger">' + msg + '</div>');
+                    $('.update-wishlist-messages').append(
+                        '<div class="update-wishlist-alert text-center alert-danger">' +
+                            msg +
+                            '</div>'
+                    );
 
                     setTimeout(function () {
                         $('.update-wishlist-messages').remove();
@@ -384,7 +434,10 @@ module.exports = {
 
     toggleWishlistItemStatus: function () {
         $('body').on('click', '.wishlist-item-checkbox', function () {
-            var itemID = $(this).closest('.wishlist-hide').find('.custom-control-input').data('id');
+            var itemID = $(this)
+                .closest('.wishlist-hide')
+                .find('.custom-control-input')
+                .data('id');
             var el = $(this).siblings('input');
             var resetCheckBox = function () {
                 return el.prop('checked')
@@ -406,7 +459,10 @@ module.exports = {
 
             pid = $(this).data('pid');
             addToCartUrl = $(this).data('url');
-            pidsQty = parseInt($(this).closest('.product-info').find('.quantity').val(), 10);
+            pidsQty = parseInt(
+                $(this).closest('.product-info').find('.quantity').val(),
+                10
+            );
 
             var form = {
                 pid: pid,
@@ -427,7 +483,10 @@ module.exports = {
                         handlePostCartAdd(data);
                         $('body').trigger('product:afterAddToCart', data);
                         $.spinner().stop();
-                        base.miniCartReportingUrl(data.reportingURL, data.error);
+                        base.miniCartReportingUrl(
+                            data.reportingURL,
+                            data.error
+                        );
                     },
                     error: function () {
                         $.spinner().stop();
@@ -443,12 +502,10 @@ module.exports = {
         });
     },
     copyWishlistLink: function () {
-        $('body').on('click', '.fa-link', function () {
-            var $temp = $('<input>');
-            $('body').append($temp);
-            $temp.val($('#shareUrl').val()).select();
-            document.execCommand('copy');
-            $temp.remove();
+        $('body').on('click', '#copyShareUrlBtn', function () {
+            var $btn = $('#copyShareUrlBtn');
+            var shareUrl = $btn.data('url');
+            navigator.clipboard.writeText(shareUrl);
             $('.copy-link-message').removeClass('d-none');
             setTimeout(function () {
                 $('.copy-link-message').addClass('d-none');
@@ -461,9 +518,11 @@ module.exports = {
             var lastName = $('#wishlist-search-last-name').val();
             var email = $('#wishlist-search-email').val();
 
-            if ((!firstName && !lastName && !email)
-                || (firstName && !lastName && !email)
-                || (!firstName && lastName && !email)) {
+            if (
+                (!firstName && !lastName && !email) ||
+                (firstName && !lastName && !email) ||
+                (!firstName && lastName && !email)
+            ) {
                 e.preventDefault();
                 $('.wishlist-error-search div').addClass('alert alert-danger');
                 var errorText = $('.wishlist-error-search').data('error-msg');
@@ -497,20 +556,32 @@ module.exports = {
                     }
                     $('#result-count').html(data.results.totalString);
                     data.results.hits.forEach(function (hit) {
-                        var divString = '<div class="row wl-hit">' +
+                        var divString =
+                            '<div class="row wl-hit">' +
                             '<div class="text-left col-6">' +
-                                hit.firstName + ' ' + hit.lastName +
+                            hit.firstName +
+                            ' ' +
+                            hit.lastName +
                             '</div>' +
                             '<div class="text-right col-6">' +
-                                '<a href="' + hit.url + '" title="' + hit.urlTitle + '" data-id="' + hit.id + '">' +
-                                    hit.urlText +
-                                '</a>' +
+                            '<a href="' +
+                            hit.url +
+                            '" title="' +
+                            hit.urlTitle +
+                            '" data-id="' +
+                            hit.id +
+                            '">' +
+                            hit.urlText +
+                            '</a>' +
                             '</div>' +
                             '</div>';
                         $('.wl-hits').append(divString);
                     });
                     if (data.results.showMore) {
-                        $('.find-another-wl .more-wl-results').data('page-number', data.results.pageNumber);
+                        $('.find-another-wl .more-wl-results').data(
+                            'page-number',
+                            data.results.pageNumber
+                        );
                     } else {
                         $('.find-another-wl .more-wl-results').remove();
                     }

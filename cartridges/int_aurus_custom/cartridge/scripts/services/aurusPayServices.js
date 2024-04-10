@@ -2,7 +2,7 @@
 
 var base = module.superModule;
 var Site = dw.system.Site;
-
+const mockData = require('../mocks/mockHelper');
 /**
 * Adding Keep-Alive headers to service
 * @param {Object} svc - service
@@ -69,7 +69,18 @@ function initAuthService() {
         },
         filterLogMessage: function (msg) {
             return msg;
+        },
+        mockCall: function (svc, params) {
+            // return the response object which will pass to the parseResponse callback
+            return {
+                statusCode: 200,
+                statusMessage: 'success',
+                text: mockData.respondAurusInitAuthServiceMock(svc, params)
+            };
         }
+        // mockFull: function (params) {
+        //     // return the response object which will directly return to the caller methor with out going to parseResponse callback
+        //   }
     });
 
     return authService;

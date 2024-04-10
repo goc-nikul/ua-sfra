@@ -491,6 +491,7 @@ function basketHasGiftCardItems(currentBasket) {
     var eGiftCards = false;
     var giftCards = false;
     var onlyEGiftCards = true;
+    var eGiftCardTotal = 0;
     if (currentBasket) {
         collections.forEach(currentBasket.getAllProductLineItems(), function (lineItem) {
             if (lineItem.product && 'giftCard' in lineItem.product.custom && (lineItem.product.custom.giftCard.value === eGiftCard || lineItem.product.custom.giftCard.value === physicalGiftCard)) {
@@ -498,6 +499,7 @@ function basketHasGiftCardItems(currentBasket) {
             }
             if (lineItem.product && 'giftCard' in lineItem.product.custom && lineItem.product.custom.giftCard.value === eGiftCard) {
                 eGiftCards = true;
+                eGiftCardTotal += lineItem.basePrice.value;
             } else {
                 onlyEGiftCards = false;
             }
@@ -510,7 +512,8 @@ function basketHasGiftCardItems(currentBasket) {
         giftCardItemsCount: giftCardItemsCount,
         eGiftCards: eGiftCards,
         giftCards: giftCards,
-        onlyEGiftCards: onlyEGiftCards
+        onlyEGiftCards: onlyEGiftCards,
+        eGiftCardTotal: eGiftCardTotal
     };
     return result;
 }
@@ -819,6 +822,10 @@ function getGiftCardsBalanceFromFirstData(giftCardPaymentInstruments) {
         // Remove the 0 balance gift cards
         var giftCardsDataWithBalance = giftCardsData.filter(function (giftCard) {
             return giftCard.currentBalance > 0;
+        });
+
+        giftCardsDataWithBalance = giftCardsDataWithBalance.sort(function (obj1, obj2) {
+            return obj1.currentBalance > obj2.currentBalance;
         });
 
         giftCardsDataWithBalance.forEach(function (giftCard) {

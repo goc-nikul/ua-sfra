@@ -4,9 +4,14 @@ const proxyquire = require('proxyquire').noCallThru().noPreserveCache();
 var assert = require('chai').assert;
 var sinon = require('sinon');
 describe('int_ocapi/cartridge/hooks/shop/product/product_search.js', () => {
+    beforeEach(() => {
+        global.session = {};
+        global.request = {};
+    });
+
     var ArrayList = require('../../../../../../mocks/dw/dw.util.Collection.js');
     var productSearch = proxyquire('../../../../../../../cartridges/int_ocapi/cartridge/hooks/shop/product/product_search.js', {
-        'dw/system/Status': function () {},
+        'dw/system/Status': function () { },
         'dw/util': {
             HashMap: function () {
                 return {
@@ -446,7 +451,7 @@ describe('int_ocapi/cartridge/hooks/shop/product/product_search.js', () => {
 
     it('Testing product modifyGETResponse --> showRangePrice is true', () => {
         productSearch = proxyquire('../../../../../../../cartridges/int_ocapi/cartridge/hooks/shop/product/product_search.js', {
-            'dw/system/Status': function () {},
+            'dw/system/Status': function () { },
             'dw/util': {
                 HashMap: function () {
                     return {
@@ -665,7 +670,7 @@ describe('int_ocapi/cartridge/hooks/shop/product/product_search.js', () => {
         var stub = sinon.stub();
         stub.throwsException('Custom Exception');
         productSearch = proxyquire('../../../../../../../cartridges/int_ocapi/cartridge/hooks/shop/product/product_search.js', {
-            'dw/system/Status': function () {},
+            'dw/system/Status': function () { },
             'dw/util': {
                 HashMap: function () {
                     return {
@@ -968,16 +973,7 @@ describe('int_ocapi/cartridge/hooks/shop/product/product_search.js', () => {
             }
         });
 
-        global.session.getCurrency = function () {
-            return {
-                getCurrencyCode: function () {
-                    return 'USD';
-                }
-            };
-        };
-        global.request.getLocale = function () {
-            return 'en_AU';
-        };
+
         var currentSearch = {
             hits: [
                 {
@@ -996,7 +992,7 @@ describe('int_ocapi/cartridge/hooks/shop/product/product_search.js', () => {
         var stub = sinon.stub();
         stub.throwsException('Custom Exception');
         productSearch = proxyquire('../../../../../../../cartridges/int_ocapi/cartridge/hooks/shop/product/product_search.js', {
-            'dw/system/Status': function () {},
+            'dw/system/Status': function () { },
             'dw/util': {
                 HashMap: function () {
                     return {
@@ -1327,7 +1323,7 @@ describe('int_ocapi/cartridge/hooks/shop/product/product_search.js', () => {
         var stub = sinon.stub();
         stub.throwsException('Custom Exception');
         productSearch = proxyquire('../../../../../../../cartridges/int_ocapi/cartridge/hooks/shop/product/product_search.js', {
-            'dw/system/Status': function () {},
+            'dw/system/Status': function () { },
             'dw/util': {
                 HashMap: function () {
                     return {
@@ -1657,5 +1653,253 @@ describe('int_ocapi/cartridge/hooks/shop/product/product_search.js', () => {
     it('Testing product modifyGETResponse --> custom Exception', () => {
         var result = productSearch.modifyGETResponse({});
         assert.isNotNull(result);
+    });
+
+    it('Testing product modifyGETResponse --> identifies isLoyaltyExclusive color', () => {
+        global.session = {};
+        global.request = {};
+        global.session.getCurrency = function () {
+            return {
+                getCurrencyCode: function () {
+                    return 'USD';
+                }
+            };
+        };
+        global.request.getLocale = function () {
+            return '';
+        };
+        const productSearch2 = proxyquire('../../../../../../../cartridges/int_ocapi/cartridge/hooks/shop/product/product_search.js', {
+            'dw/system/Status': function () { },
+            'dw/util': {
+                HashMap: function () {
+                    return {
+                        put: function () {
+                            return {};
+                        }
+                    };
+                },
+                ArrayList
+            },
+            'dw/campaign/PromotionMgr': {
+                activeCustomerPromotions: {
+                    getProductPromotions: function () {
+                        return [
+                            {
+                                promotionClass: {
+                                    toLowerCase: function () {
+                                        return {};
+                                    }
+                                },
+                                calloutMsg: {
+                                    markup: 'markup'
+                                }
+                            }
+                        ];
+                    }
+                }
+            },
+            'int_customfeeds/cartridge/scripts/util/ProductUtils': {
+                getValue: function () {
+                    return {};
+                },
+                getPriceBooks: function () {
+                    return {
+                        listPriceBookID: 'listPriceBookID',
+                        salePriceBookID: 'salePriceBookID'
+                    };
+                },
+                getPriceByPricebook: function () {
+                    return {};
+                },
+                getAllPriceRanges: function () {
+                    return {
+                        minSalePrice: {
+                            value: 4
+                        },
+                        maxListPrice: {
+                            compareTo: function () {
+                                return 1;
+                            },
+                            decimalValue: 2
+                        },
+                        maxSalePrice: {
+                            decimalValue: 2
+                        },
+                        minListPrice: {}
+                    };
+                }
+            },
+            '*/cartridge/scripts/helpers/pricing': {
+                getPromotionPrice: function () {
+                    return {
+                        value: 1,
+                        decimalValue: 1
+                    };
+                }
+            },
+            './productHookUtils': proxyquire('../../../../../../../cartridges/int_ocapi/cartridge/hooks/shop/product/productHookUtils', {
+                getProductUrl: function () {
+                    return 'url';
+                }
+            }),
+            '*/cartridge/scripts/utils/PreferencesUtil': {
+                getValue: function () {
+                    return {};
+                }
+            },
+            'dw/system/Site': require('../../../../../../mocks/dw/dw_system_Site.js'),
+            'dw/util/Currency': {
+                getCurrency: function () {
+                    return 'USD';
+                }
+            },
+            'dw/catalog/ProductMgr': {
+                getProduct: function () {
+                    return {
+                        isMaster: function () {
+                            return true;
+                        },
+                        isVariant: function () {
+                            return false;
+                        },
+                        custom: {
+                            isLoyaltyExclusive: false
+                        },
+                        variants: [
+                            {
+                                custom: {
+                                    color: '001',
+                                    isLoyaltyExclusive: false,
+                                    size: 'XS'
+                                }
+                            },
+                            {
+                                custom: {
+                                    color: '001',
+                                    isLoyaltyExclusive: false,
+                                    size: 'MD'
+                                }
+                            },
+                            {
+                                custom: {
+                                    color: '006',
+                                    isLoyaltyExclusive: false,
+                                    size: 'XD'
+                                }
+                            },
+                            {
+                                custom: {
+                                    color: '006',
+                                    isLoyaltyExclusive: true,
+                                    size: 'MD'
+                                }
+                            },
+                            {
+                                custom: {
+                                    color: '006',
+                                    isLoyaltyExclusive: false,
+                                    size: 'LG'
+                                }
+                            },
+                            {
+                                custom: {
+                                    color: '009',
+                                    isLoyaltyExclusive: false,
+                                    size: 'XD'
+                                }
+                            },
+                            {
+                                custom: {
+                                    color: '009',
+                                    isLoyaltyExclusive: false,
+                                    size: 'MD'
+                                }
+                            },
+                            {
+                                custom: {
+                                    color: '009',
+                                    isLoyaltyExclusive: false,
+                                    size: 'LG'
+                                }
+                            },
+                            {
+                                custom: {
+                                    color: '010',
+                                    isLoyaltyExclusive: true,
+                                    size: 'XD'
+                                }
+                            },
+                            {
+                                custom: {
+                                    color: '010',
+                                    isLoyaltyExclusive: true,
+                                    size: 'MD'
+                                }
+                            },
+                            {
+                                custom: {
+                                    color: '010',
+                                    isLoyaltyExclusive: true,
+                                    size: 'LG'
+                                }
+                            }
+                        ]
+                    };
+                }
+            },
+            'dw/catalog/CatalogMgr': require('../../../../../../mocks/dw/dw_catalog_CatalogMgr.js'),
+            'dw/catalog/PriceBookMgr': require('../../../../../../mocks/dw/dw_catalog_ProductMgr.js'),
+            '*/cartridge/scripts/errorLogHelper': {
+                handleOcapiHookErrorStatus: function () {
+                    return {};
+                }
+            },
+            'dw/system/Logger': require('../../../../../../mocks/dw/dw_system_Logger.js'),
+            '*/cartridge/scripts/util/ProductUtils.ds': {
+                getOutletPricing: function () {
+                    return {
+                        salesPrice: {},
+                        showRangePrice: {},
+                        saleLowest: {},
+                        saleHighest: {}
+                    };
+                },
+                getAllPriceRanges: function () {
+                    return {
+                        minListPrice: {
+                            value: 1
+                        },
+                        maxListPrice: {
+                            value: 2
+                        },
+                        minSalePrice: {
+                            value: 1
+                        },
+                        maxSalePrice: {
+                            value: 2
+                        }
+                    };
+                }
+            },
+            '*/cartridge/models/product/productImages': function () {
+                return {
+                    gridTileDesktop: [{}]
+                };
+            }
+        });
+
+
+        var currentSearch = {
+            hits: [
+                {
+                    product1: {}
+                }
+            ]
+        };
+        productSearch2.modifyGETResponse(currentSearch);
+        assert.isFalse(currentSearch.hits[0].c_variantColors[0].isLoyaltyExclusiveColor);
+        assert.isTrue(currentSearch.hits[0].c_variantColors[1].isLoyaltyExclusiveColor);
+        assert.isFalse(currentSearch.hits[0].c_variantColors[2].isLoyaltyExclusiveColor);
+        assert.isTrue(currentSearch.hits[0].c_variantColors[3].isLoyaltyExclusiveColor);
     });
 });

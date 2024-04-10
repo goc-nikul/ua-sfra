@@ -46,6 +46,8 @@
     </isscript>
     <input type="hidden" class="isBopisEnabled" value="${('isBOPISEnabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.getCustomPreferenceValue('isBOPISEnabled'))}"/>
     <input type="hidden" class="isStoreAvailable" value="${isStoreAvailable}"/>
+    <isset name="isDLInventoryEnabled" value="${('isDLInventoryEnabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.getCustomPreferenceValue('isDLInventoryEnabled'))}" scope="page"/>
+
     <!-- populates datalayer and outputs object to page via tealium_datalayer.isml -->
     <isinclude url="${URLUtils.url('Tealium-Init',
         'title', request.pageMetaData.title,
@@ -70,7 +72,8 @@
         'wishlistCount', (!empty(pdict.wishlist) && !empty(pdict.wishlist.items)) ?  pdict.wishlist.items.length : null,
         'order_checkout_optin', request.httpParameterMap.get('order_checkout_optin'),
         'pageBreadCrumbs', pdict.pageBreadCrumbs,
-        'complete_look', pdict.isShopThisOutfitEnabled
+        'complete_look', pdict.isShopThisOutfitEnabled,
+        'isDLInventoryEnabled', isDLInventoryEnabled
     )}"/>
 </isif>
 <isif condition="${'tealium_clientjs_enabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.preferences.custom.tealium_clientjs_enabled}">

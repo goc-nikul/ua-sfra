@@ -10,7 +10,7 @@
         <isif condition="${customer.authenticated && customer.profile.custom.isEmployee && pdict.totals.orderLevelDiscountTotal.value === 0}">
             <span class="text-right sub-total bfx-price bfx-total-subtotal">${pdict.totals.subTotalWithoutAdjustments}</span>
         <iselse/>
-            <span class="text-right sub-total bfx-price bfx-total-subtotal">${pdict.totals ? pdict.totals.subTotal : ''}</span>
+            <span class="text-right sub-total bfx-price bfx-total-subtotal sub-total-emea">${pdict.totals ? pdict.totals.subTotal : ''}</span>
         </isif>
         </span>
     </div>
@@ -82,6 +82,14 @@
 	    <span class="order-summary_itemsvalue">
 	        <span class="text-right grand-total bfx-price bfx-total-grandtotal">${pdict.totals.grandTotal}</span>
 	    </span>
+        <div class="b-order-saved-total ${pdict.showSavingExperience ? '' : 'hide'} ${pdict.totals.saveTotal.value ? '' : 'hide'} b-order-emea-saved-total">
+            <span class="order-summary_itemsattr">
+                <span>${Resource.msg('label.save.total','cart',null)}</span>
+            </span>
+            <span class="order-summary_itemsvalue">
+                <span class="text-right bfx-price">${pdict.totals.saveTotal.formatted}</span>
+            </span>
+        </div>
 	</div>
 
     <!-- Sales Tax -->

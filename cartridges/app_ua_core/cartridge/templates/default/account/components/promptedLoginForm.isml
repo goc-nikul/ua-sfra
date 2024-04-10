@@ -1,0 +1,76 @@
+<isinclude template="components/modules"/>
+<form
+    action="${pdict.actionUrl}"
+    class="login ${!!pdict.showLoyaltyEnroll ? 'login_enroll-rewards' : ''}"
+    method="GET"
+    name="login-form"
+    target="_self"
+    >
+    <div class="email-label before-continue">
+        <span>${Resource.msg('line.prompted.login.email.lable', 'checkout', null)}</span>
+    </div>
+    <div class="b-input_row form-group required before-continue">
+        <label class="b-input_row-label form-control-label" for="login-form-email">
+            ${Resource.msg('label.input.login.email.prompted', 'login', null)}
+        </label>
+        <input type="email" id="login-form-email"
+        aria-required="true"
+        required
+        class="b-input_row-input form-control js-custom-input"
+        aria-describedby="form-email-error"
+        name="loginEmail" value="${pdict.userName}"
+        autocomplete="turn"
+        pattern="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$"
+        data-pattern-mismatch="${Resource.msg('error.message.parse.email.profile.form','forms',null)}"
+        maxlength="50"
+        data-missing-error="${Resource.msg('error.card.info.missing.email', 'forms', null)}" <isif condition="${!empty(pdict.userName) && (('refreshtokenGenerationError' in pdict) && pdict.refreshtokenGenerationError)}">readonly</isif>
+        >
+        <div class="invalid-feedback" id="form-email-error"></div>
+    </div>
+
+    <div class="email-value-show after-continue d-none">
+        <p class="email-value"></p>
+        <a href="javascript:void(0);" class="use-different-email">${Resource.msg('line.use.different.email', 'checkout', null)}</a>
+    </div>
+
+    <div class="b-input_row form-group required after-continue d-none">
+        <label class="b-input_row-label form-control-label" for="login-form-password">
+                ${Resource.msg('label.input.login.password', 'login', null)}
+        </label>
+        <input type="password" id="login-form-password" required aria-required="true" class="b-input_row-input form-control js-custom-input" aria-describedby="form-password-error" name="loginPassword"
+        data-missing-error="${Resource.msg('error.card.info.missing.password', 'login', null)}"
+        >
+        <span class="b-account-profile__show-password js-show-password"
+        data-show="${Resource.msg('label.create.account.show', 'login', null)}"
+        data-hide="${Resource.msg('label.create.account.hide', 'login', null)}">${Resource.msg('label.create.account.show', 'login', null)}</span>
+        <div class="invalid-feedback" id="form-password-error"></div>
+    </div>
+
+    <div class="b-invalid-cred"></div>
+
+    <div class="b-input_row-combine d-none">
+        <iscomment> <div class="g-checkbox form-group custom-control custom-checkbox pull-left remember-me">
+            <input type="checkbox" class="g-checkbox-input custom-control-input" id="rememberMe" name="loginRememberMe" value="true"
+                <isif condition="${pdict.rememberMe}">checked</isif>
+            >
+            <label class="g-checkbox-label custom-control-label" for="rememberMe">
+                ${Resource.msg('label.checkbox.login.rememberme', 'login', null)}
+            </label>
+        </div> </iscomment>
+    </div>
+
+    <isif condition="${!!pdict.showLoyaltyEnroll}">
+        <isinclude template="account/components/forms/enrollinput" sf-toolkit="off" />
+    </isif>
+
+    <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+    <input type="hidden" name="pageRef" value="${pdict.pageRef}"/>
+
+    <isif condition="${pdict.returnUrl}">
+        <input type="hidden" name="returnUrl" value="${pdict.returnUrl}"/>
+    </isif>
+
+    <button type="button" class="btn btn-block g-button_primary--black g-button_base b-checkout-login_button js-continue-button before-continue">${Resource.msg('label.order.continue.return', 'account', null)}</button>
+
+    <button type="submit" class="btn btn-block g-button_primary--black g-button_base b-checkout-login_button js-login-button after-continue d-none">${Resource.msg('link.header.login', 'account', null)}</button>
+</form>

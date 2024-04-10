@@ -396,5 +396,15 @@ function getABTestData() {
     return testVariant;
 }
 
+/**
+* get the currently active AB test data
+* @returns {object} JSON object with currently active AB test data
+*/
+function getfeatures() {
+    var features = ''
+    return features + 'isQuickATCenabled' in dw.system.Site.current.preferences.custom && dw.system.Site.current.getCustomPreferenceValue('isQuickATCenabled') ? 'quick_atb'  : '';
+}
+
 module.exports.getSitePriceBooks = getSitePriceBooks;
 module.exports.getABTestData = getABTestData;
+module.exports.getfeatures = getfeatures;

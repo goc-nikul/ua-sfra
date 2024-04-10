@@ -75,7 +75,7 @@ export default class ProductDetail extends Product {
         debounceScroll(this.$el, e);
         // when scrolling past product details, move Add to Cart CTA to top
         if ($('.b-physicalgiftcard_outer').length < 1 && (!$('.b-header_minicart-container.show').length > 0)) {
-            var $scrollTrigger = $('.b-product_attrs .prices-add-to-cart-actions');
+            var $scrollTrigger = $('.b-product_attrs .prices-add-to-cart-actions:visible, .js-notify_product:visible');
             var $stickyAddToCart = $('.sticky-cta');
             var $header = $('.b-header');
             var showHeaderCta = ($(window).scrollTop() >= ($scrollTrigger.offset().top + $scrollTrigger.outerHeight()) - $header.outerHeight());
@@ -246,9 +246,10 @@ export default class ProductDetail extends Product {
                 type: 'get',
                 data: form,
                 success: function (response) {
-                    $('#cartConfirmationModal .js-product-detailsConfirmation').html(response);
-                    if (!$('.modal').is(':visible')) {
-                        $('#cartConfirmationModal').modal('show');
+                    const $cartConfirmationModal = $('#cartConfirmationModal');
+                    $cartConfirmationModal.find('.js-product-detailsConfirmation').html(response);
+                    if (!$cartConfirmationModal.is(':visible')) {
+                        $cartConfirmationModal.modal('show');
                     }
                     if ($('.b-add-to-cart-confirmation-modal-container').data('giftcard') === true) {
                         $('.b-cart-added-confirmation-modal').find('.b-cart-content-recommendation').hide();
@@ -256,8 +257,11 @@ export default class ProductDetail extends Product {
                     $('.js-confirmation-modal-recommendation-tiles').removeClass('hide');
                     util.branchCloseJourney();
                     $('.b-cart-added-confirmation-modal').find('.product-listing').trigger('mainCarousel:update');
+                    $cartConfirmationModal.toggleClass('small', !(($cartConfirmationModal.find('.modal-dialog').height() || 0) > window.outerHeight));
                     setTimeout(function () {
                         $('body').trigger('components:init');
+
+                        $cartConfirmationModal.toggleClass('small', !(($cartConfirmationModal.find('.modal-dialog').height() || 0) > window.outerHeight));
                     }, 500);
                 },
                 error: function (err) {
@@ -285,6 +289,10 @@ export default class ProductDetail extends Product {
                     setTimeout(function () {
                         $('body').trigger('components:init');
                         $('.shop-this-outfit-models .b-product_carousel-control').removeClass('hidden-on-load');
+                        var isMacOS = /(Mac)/i.test(navigator.platform);
+                        if (isMacOS) { // Applying specific styling to tooltip arrow for mac devices
+                            $('.g-tooltip-arrow').addClass('mac-only');
+                        }
                     }, 500);
                 },
                 error: function (err) {

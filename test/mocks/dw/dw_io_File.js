@@ -1,6 +1,13 @@
 /* eslint-disable no-empty-function */
 module.exports = class File {
-    constructor() { }
+    constructor() {
+        this.SEPARATOR = '/';
+        this.IMPEX = 'impex';
+    }
     mkdirs() { }
-    createNewFile0() { }
+    exists() { }
+    isDirectory() { }
+    createNewFile() { }
+    getName() { }
+    remove() { }
 };

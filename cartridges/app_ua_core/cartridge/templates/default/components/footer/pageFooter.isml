@@ -5,8 +5,17 @@
         <div class="b-footer-row">
             <div class="b-footer-info">
                 <div class="b-footer_signup">
-                    <iscontentasset aid="footer-emailsignup-title" />
+                    <div class="js-emailsignup-title">
+                        <iscontentasset aid="footer-emailsignup-title" />
+                    </div>
                     <form role="form" class="b-footer_signup-form" method="POST" action="${URLUtils.url('Newsletter-Subscribe')}" data-cmp="signUp" data-emailsource="footer">
+                        <div
+                            class="b-logo-image hide"
+                            title="${Resource.msg('email.icon.signup', 'common', null)}">
+
+                            <h2 class="js-first-subscrption hide">${Resource.msg('subscribe.email.success.heading', 'homePage', null)}</h2>
+                            <h2 class="js-subscribed-user hide">${Resource.msg('subscribe.email.alreadySubscribed.heading', 'homePage', null)}</h2>
+                        </div>
                         <div class="b-footer_signup-container js-signup-container">
                             <label class="b-input_row-label form-control-label" for="login-form-email">${Resource.msg('placeholdertext.form.emailsignup', 'homePage', null)}</label>
                             <isinputfield
@@ -22,7 +31,7 @@
                             />
                             <button type="submit" class="b-footer_signup-button js-signup-submit">${Resource.msg('button.form.emailsignup', 'homePage', null)}</button>
                         </div>
-                        <div class="b-footer_signup-description"><iscontentasset aid="footer-terms" /></div>
+                        <div class="b-footer_signup-description js-signup-description"><iscontentasset aid="footer-terms" /></div>
                     </form>
                 </div>
                 
@@ -65,12 +74,15 @@
     <script>window.pageContext = <isprint value="${JSON.stringify(pdict.pageContext || new Object())}" encoding="off"/>;</script>
 </footer>
 
-<!-- mpulse script -->
-<isinclude url="${URLUtils.url('AkamaimPulse-RenderScript')}"/>
-
 <!-- start:trust arc script -->
 <isinclude url="${URLUtils.url('TrustArc-RenderScript')}"/>
 <!-- end:trust arc script -->
+
+<!-- AdobeTarget VEC -->
+<isset name="adobeTargetIsVecEnabled" value="${dw.system.Site.current.getCustomPreferenceValue('adobeTargetIsVecEnabled')}" scope="page" />
+<isif condition="${!empty(adobeTargetIsVecEnabled) && adobeTargetIsVecEnabled}">
+    <isinclude url="${URLUtils.url('AdobeTarget-VEC', 'url', request.httpURL.toString())}"/>
+</isif>
 
 <isinclude template="common/emailSubscribePopUp" />
 

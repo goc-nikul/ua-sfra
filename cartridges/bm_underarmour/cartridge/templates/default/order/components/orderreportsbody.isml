@@ -1,0 +1,25 @@
+<iscontent compact="true">
+<isscript>
+	var reportsEnd = reportsEnd || pdict.reportsEnd;
+	var reportsDaysCount = reportsDaysCount || pdict.reportsDaysCount;
+	var reportTypesList =reportTypesList || pdict.reportTypesList;
+</isscript>
+
+<isif condition="${!empty(reportsEnd) && !empty(reportsDaysCount) && !empty(reportTypesList)}">
+	<isset name="calendarCounter" value="${new dw.util.Calendar(reportsEnd.getTime())}" scope="page" />
+	<tbody>
+		<isloop begin="1" end="${reportsDaysCount}"  status="reportsRowCounter">
+			<isscript>
+				var dayData = require("*/cartridge/scripts/orders/EODReportMgr").getDayData(calendarCounter),
+					dateFormated = dw.util.StringUtils.formatCalendar(calendarCounter, Resource.msg('orderreports.dateformat', 'bm', null));
+			</isscript>
+			
+			<isinclude template="order/components/orderreportsrow" />
+			
+			<isscript>
+				// decrement 1 day
+				calendarCounter.set(calendarCounter.DAY_OF_YEAR, calendarCounter.get(calendarCounter.DAY_OF_YEAR)-1);
+			</isscript>
+		</isloop>
+	</tbody>
+</isif>

@@ -33,6 +33,10 @@ class Money {
     toFormattedString() {
         return '$' + this.value;
     }
+
+    toNumberString() {
+        return '999.00';
+    }
 }
 
 module.exports = Money;

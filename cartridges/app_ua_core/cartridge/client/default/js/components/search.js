@@ -1,13 +1,31 @@
 'use strict';
 
-var debounce = require('lodash/debounce');
-var layout = require('../layout');
-var productCookieId = require('../product/productIdCookie');
-var endpoint = $('.js-suggestions-wrapper').data('url');
-var UP_KEY = 38;
-var DOWN_KEY = 40;
-var DIRECTION_DOWN = 1;
-var DIRECTION_UP = -1;
+const debounce = require('lodash/debounce');
+const layout = require('../layout');
+const productCookieId = require('../product/productIdCookie');
+const constructorIOHelper = require('../constructorio/constructorIO');
+const { getConstructorIOSettings } = require('../constructorio/clientWrapper');
+
+const UP_KEY = 38;
+const DOWN_KEY = 40;
+const DIRECTION_DOWN = 1;
+const DIRECTION_UP = -1;
+
+let $body;
+
+/**
+ * Starts the spinner.
+ */
+const startSpinner = () => {
+    $.spinner().start();
+};
+
+/**
+ * Stops the spinner.
+ */
+const stopSpinner = () => {
+    $.spinner().stop();
+};
 
 /**
  * Retrieves Suggestions element relative to scope
@@ -34,7 +52,7 @@ function isMobileSearch(scope) {
  *
  */
 function clearModals() {
-    $('body').removeClass('modal-open');
+    $body.removeClass('modal-open');
     $('header').siblings().attr('aria-hidden', 'false');
     $('.js-suggestions').removeClass('modal');
 }
@@ -46,7 +64,7 @@ function clearModals() {
  */
 function applyModals(scope) {
     if (isMobileSearch(scope)) {
-        $('body').addClass('modal-open');
+        $body.addClass('modal-open');
         $('header').siblings().attr('aria-hidden', 'true');
         getSuggestionsWrapper(scope).find('.js-suggestions').addClass('modal');
     }
@@ -146,51 +164,70 @@ function recentlyViewedBadge() {
 }
 
 /**
+ * Triggers the 'components:init' event on the body element.
+ */
+const triggerComponentsInit = () => {
+    // Init swatch slider
+    $body.trigger('components:init');
+    // Init wishlist marker
+    $body.trigger('wishlistSuggestion:update');
+};
+
+/**
  * Process Ajax response for SearchServices-GetSuggestions
  *
  * @param {Object|string} response - Empty object literal if null response or string with rendered
  *                                   suggestions template contents
+ * @returns {Promise} Promise resolving when all operations have completed.
  */
-function processResponse(response) {
-    var $suggestionsWrapper = getSuggestionsWrapper(this).empty();
+const processResponse = (response) => {
+    return new Promise((resolve) => {
+        const $suggestionsWrapper = $('.js-suggestions-wrapper').empty();
+        const searchField = $('input.js-search-field');
 
-    $.spinner().stop();
+        stopSpinner();
 
-    if (!(typeof (response) === 'object')) {
-        $suggestionsWrapper.append(response).show();
+        if (typeof response !== 'object') {
+            $suggestionsWrapper.append(response).show();
 
-        $(this).closest('.js-search-container').addClass('m-suggestions-show');
-        positionSuggestions(this);
+            $(this).closest('.js-search-container').addClass('m-suggestions-show');
+            positionSuggestions(this);
 
-        if (isMobileSearch(this)) {
-            toggleSuggestionsIcon('close');
-            applyModals(this);
-        }
+            if (isMobileSearch(this)) {
+                toggleSuggestionsIcon('close');
+                applyModals(this);
+            }
 
-        // Trigger screen reader by setting aria-describedby with the new suggestion message.
-        var suggestionsList = $('.js-suggestions .js-item');
-        if ($(suggestionsList).length) {
-            $('input.js-search-field').attr('aria-describedby', 'search-result-count');
+            // Trigger screen reader by setting aria-describedby with the new suggestion message.
+            const suggestionsList = $('.js-suggestions .js-item');
+            if (suggestionsList.length) {
+                searchField.attr('aria-describedby', 'search-result-count');
+            } else {
+                searchField.removeAttr('aria-describedby');
+            }
+
+            recentlyViewedBadge();
+
+            // Hide the product tile if no image configured
+            $suggestionsWrapper.find('.b-tile.hide').parent('.b-suggestions_products-item').addClass('hide');
         } else {
-            $('input.js-search-field').removeAttr('aria-describedby');
+            $suggestionsWrapper.hide();
         }
-        recentlyViewedBadge();
 
-        // Hide the product tile if no image configured
-        $suggestionsWrapper.find('.b-tile.hide').parent('.b-suggestions_products-item').addClass('hide');
-    } else {
-        $suggestionsWrapper.hide();
-    }
-}
+        resolve();
+    });
+};
 
 /**
- * Retrieve suggestions
+ * Retrieves default suggestions using an AJAX request.
  *
- * @param {Object} scope - Search field DOM element
+ * @param {Object} scope - Search field DOM element.
+ * @returns {Promise<Object>} Promise that resolves with the default suggestions.
  */
-function getSuggestions(scope) {
-    if ($(scope).val().length >= $(scope).data('min-chars')) {
-        $.spinner().start();
+const getDefaultSuggestions = (scope) => {
+    const endpoint = $('.js-suggestions-wrapper').data('url');
+
+    return new Promise((resolve, reject) => {
         $.ajax({
             context: scope,
             url: endpoint + encodeURIComponent($(scope).val()),
@@ -198,18 +235,59 @@ function getSuggestions(scope) {
             data: {
                 isMobilePortraitView: layout.isExtraSmallView()
             },
-            success: processResponse,
-            error: function () {
-                $.spinner().stop();
-            }
+            success: resolve,
+            error: reject
         });
+    });
+};
+
+/**
+ * Falls back to default suggestions if an error occurs.
+ *
+ * @param {Object} scope - Search field DOM element.
+ * @param {Function} processSuggestions - Function to process suggestions.
+ * @returns {Promise} Promise that resolves to the default suggestions.
+ */
+const defaultSuggestions = (scope, processSuggestions) => {
+    return getDefaultSuggestions(scope)
+        .then(processSuggestions)
+        .catch(stopSpinner());
+};
+
+/**
+ * Retrieve suggestions
+ *
+ * @param {Object} scope - Search field DOM element
+ */
+const getSuggestions = (scope) => {
+    const $scope = $(scope);
+    const inputLength = $scope.val().length;
+    const minChars = $scope.data('min-chars');
+
+    if (inputLength >= minChars) {
+        startSpinner();
+
+        const processSuggestions = processResponse.bind(scope);
+        const handleDefaultSuggestions = () => defaultSuggestions(scope, processSuggestions);
+
+        const cIOSettings = getConstructorIOSettings();
+
+        if (cIOSettings && cIOSettings.search_enabled) {
+            constructorIOHelper.getConstructorioSuggestions($scope.val())
+                .then(constructorIOHelper.convertCIOToHTMLString)
+                .then(processSuggestions)
+                .then(triggerComponentsInit)
+                .catch(handleDefaultSuggestions);
+        } else {
+            handleDefaultSuggestions();
+        }
     } else {
         toggleSuggestionsIcon('search');
-        $(scope).closest('.js-search-container').removeClass('m-suggestions-show');
+        $scope.closest('.js-search-container').removeClass('m-suggestions-show');
         clearModals();
         getSuggestionsWrapper(scope).empty();
     }
-}
+};
 
 /**
  * Handle Search Suggestion Keyboard Arrow Keys
@@ -253,11 +331,29 @@ function handleArrow(direction) {
 
 module.exports = {
     init: function () {
+        $body = $('body');
+
         $('form[name="simpleSearch"]').submit(function (e) {
-            var suggestionsList = $('.js-suggestions .js-item');
-            if (suggestionsList.filter('.selected').length !== 0) {
+            var currentSite = $(this).attr('data-currentsite');
+            var minChar = $('.js-site-search .js-search-field').attr('data-min-chars');
+            var inputLength = $('.js-site-search .js-search-field').val().length;
+
+            var isValidSearch = true;
+
+            if ((currentSite === 'UKIE' || currentSite === 'EU') && inputLength < minChar) {
+                isValidSearch = false;
+            }
+
+            if (isValidSearch) {
+                var suggestionsList = $('.js-suggestions .js-item');
+                if (suggestionsList.filter('.selected').length !== 0) {
+                    e.preventDefault();
+                    suggestionsList.filter('.selected').find('a')[0].click();
+                }
+            } else {
                 e.preventDefault();
-                suggestionsList.filter('.selected').find('a')[0].click();
+                $('.js-site-search .js-search-field').val('');
+                $('.js-site-search .js-search-field').blur();
             }
         });
 
@@ -268,7 +364,7 @@ module.exports = {
              * browser blink with every key press.
              */
             var debounceSuggestions = debounce(getSuggestions, 300);
-            $(this).on('keyup focus', function (e) {
+            $(this).on('keyup paste focus', function (e) {
                 // Capture Down/Up Arrow Key Events
                 switch (e.which) {
                     case DOWN_KEY:
@@ -285,13 +381,13 @@ module.exports = {
             });
         });
 
-        $('body').on('click', function (e) {
+        $body.on('click', function (e) {
             if (!$('.js-suggestions').has(e.target).length && !$(e.target).hasClass('js-search-field')) {
                 $('.js-suggestions').hide();
             }
         });
 
-        $('body').on('click touchend', '.search-mobile button.fa-close', function (e) {
+        $body.on('click touchend', '.search-mobile button.fa-close', function (e) {
             e.preventDefault();
             $('.js-suggestions').hide();
             toggleSuggestionsIcon('search');

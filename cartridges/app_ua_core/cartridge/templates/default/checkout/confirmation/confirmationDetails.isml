@@ -2,12 +2,10 @@
     <div class="card-body">
         <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('isLoyaltyEnable') && !customer.isMemberOfCustomerGroup('Loyalty')}">
             <isset name="loyaltyHelper" value="${require('*/cartridge/scripts/helpers/loyaltyHelper')}" scope="page" />
-            <isset name="postalCode" value="${pdict.order.billing.billingAddress.address.postalCode}" scope="page">
-            <isif condition="${!loyaltyHelper.isVIPCustomer()}">
-                <isif condition="${loyaltyHelper.isLoyaltyPilotEnabled() ? loyaltyHelper.isLoyaltyPilotZipCode(postalCode) : true}">
+            <isset name="postalCode" value="${pdict.order.billing.billingAddress.address.postalCode}" scope="page" />
+            <isif condition="${loyaltyHelper.isLoyaltyPilotEnabled() ? loyaltyHelper.isLoyaltyPilotZipCode(postalCode) : true}">
                     <isinclude template="/checkout/confirmation/loyaltyRegistredCard" />
-                </isif>
-            </isif>    
+            </isif>
         </isif>
         <isif condition="${dw.system.Site.getCurrent().getCustomPreferenceValue('isLoyaltyEnable') && customer.isMemberOfCustomerGroup('Loyalty')}">
             <isscript>
@@ -18,7 +16,7 @@
                     <isinclude template="/components/loyaltyPointsEarn" />
                 </isif>
 
-                <!-- Checkout Qualtrics Survey Link -->
+                <iscomment> Checkout Qualtrics Survey Link </iscomment>
                 <isinclude template="checkout/confirmation/checkoutQualtricsSurvey" />
             </div>
         </isif>
@@ -37,6 +35,9 @@
             </div>
             <isinclude template="checkout/billing/billingSummary" />
         </div>
+        <isif condition="${pdict.returnsExchangesPolicyContentEnabled}">
+            <iscontentasset aid="order-confirmation-returns-exchanges-policy"/>
+        </isif>
     </div>
 </div>
 

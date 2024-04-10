@@ -239,6 +239,7 @@ module.exports = {
             if (response.data.option !== 'quantity') {
                 response.container.attr('data-pid', response.data.product.id);
                 deselectStore(response.container, response.data.pickUpInStoreHtml);
+                $(response.container).trigger('product:updateNotifyMe', response.data);
             }
         });
     },
@@ -414,6 +415,29 @@ module.exports = {
             if (e.keyCode === 27) {
                 $('#inStoreInventoryModal').find('.close').trigger('click');
             }
+        });
+    },
+    productDeliveryToggle: function () {
+        $('body').on('click', '.js-ship-pick-check:not(.notselectable):not(.selected)', function (e) {
+            e.preventDefault();
+
+            const bothOptionVal = [];
+            var pid = $(this).attr('data-pid');
+            var deliveryOuter = $('body').find('.js-ship-pick-check');
+            deliveryOuter.each(function () {
+                var prdAvailable = $(this).attr('data-availability');
+                bothOptionVal.push(prdAvailable);
+            });
+
+            var storeElement = $('.product-detail[data-pid="' + pid + '"]');
+            $(this).siblings().removeClass('selected').addClass('disabled');
+            $(this).addClass('selected').removeClass('disabled');
+            if ($(storeElement).length) {
+                $(storeElement)
+                    .find('.b-store-choose-link a.change-store')
+                    .data('data-delivery-type', 'onlineship');
+            }
+            $(this).trigger('product:updateNotifyMe');
         });
     }
 };

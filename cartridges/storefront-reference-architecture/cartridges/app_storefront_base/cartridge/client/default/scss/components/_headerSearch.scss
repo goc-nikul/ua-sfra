@@ -76,6 +76,8 @@
 
     .swatch-circle {
         @include swatch(2.5em, $white);
+
+        margin-right: 0.85em;
     }
 
     .header {
@@ -88,15 +90,14 @@
         }
     }
 
-    .items {
-        padding: 0.313em 0;
-    }
-
     .item {
         padding-bottom: 0.625em;
 
         .name {
             margin-top: 0.313em;
+        }
+
+        .ellipsis {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -104,6 +105,23 @@
 
         @include media-breakpoint-down(xs) {
             padding-bottom: 0.938em;
+        }
+    }
+
+    .items {
+        padding: 0.313em 0;
+
+        .list {
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .link {
+            text-decoration: none;
+
+            &:hover .name {
+                text-decoration: underline;
+            }
         }
     }
 
@@ -122,12 +140,12 @@
 }
 
 .more-below {
-    -moz-border-radius: 1.25em;
+    -moz-border-radius: 1.25em; /* stylelint-disable-line property-no-vendor-prefix */
     background: $grey3;
-    border: 0.063em solid rgba(0, 0, 0, 0.1);
+    border: 0.063em solid rgba(0, 0, 0, 10%);
     border-radius: 1.25em;
     bottom: 1.875em;
-    box-shadow: 0 1px 7px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 7px rgba(0, 0, 0, 30%);
     display: none;
     height: 2.5em;
     position: fixed;

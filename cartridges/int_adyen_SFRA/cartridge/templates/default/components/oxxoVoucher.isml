@@ -1,0 +1,67 @@
+<div class="oxxo-voucher adyen-checkout__voucher-result adyen-checkout__voucher-result--oxxo">
+    <div class="adyen-checkout__voucher-result__top">
+        <div class="adyen-checkout__voucher-result__image">
+            <span class="adyen-checkout__voucher-result__image__wrapper">
+                <img alt="oxxo" class="adyen-checkout__voucher-result__image__brand" src="https://checkoutshopper-live-us.adyen.com/checkoutshopper/images/logos/oxxo.svg" />
+            </span>
+        </div>
+    <div class="adyen-checkout__voucher-result__introduction">${Resource.msg('thanks.for.purchase', 'oxxoVoucher', null)}</div>
+    <div class="adyen-checkout__voucher-result__amount">${pdict.order.oxxoDetails.formattedAmount}</div>
+    </div>
+    <div class="adyen-checkout__voucher-result__separator">
+        <div class="adyen-checkout__voucher-result__separator__inner"></div>
+        <div class="adyen-checkout__voucher-result__code__label">
+            <span class="adyen-checkout__voucher-result__code__label__text">${Resource.msg('payment.reference', 'oxxoVoucher', null)}</span>
+        </div>
+    </div>
+    <div class="adyen-checkout__voucher-result__bottom">
+        <div class="adyen-checkout__voucher-result__code">
+            <img alt="${Resource.msg('payment.reference', 'oxxoVoucher', null)}" class="adyen-checkout__voucher-result__code__barcode" src="https://checkoutshopper-live-us.adyen.com/checkoutshopper/barcode.shtml?data=${pdict.order.oxxoDetails.reference || ''}&amp;barcodeType=BT_Code128C&amp;fileType=png" />
+            <span>${pdict.order.oxxoDetails.reference || ''}</span>
+        </div>
+        <ul class="adyen-checkout__voucher-result__actions">
+            <li class="adyen-checkout__voucher-result__actions__item">
+                <button onclick="copyReference(this)" class="adyen-checkout__button adyen-checkout__button--action adyen-checkout__button--inline" type="button">
+                    <span class="adyen-checkout__button__content adyen-checkout__button__content--copy">
+                        <img class="adyen-checkout__button__icon" src="https://checkoutshopper-live-us.adyen.com/checkoutshopper/images/components/copy.svg" alt="" aria-hidden="true" />
+                        <span class="adyen-checkout__button__text">${Resource.msg('copy', 'oxxoVoucher', null)}</span>
+                    </span>
+                </button>
+            </li>
+            <li class="adyen-checkout__voucher-result__actions__item">
+                <a class="adyen-checkout__button adyen-checkout__button--action adyen-checkout__button--inline" href="${pdict.order.oxxoDetails.downloadUrl || ''}" target="_blank" rel="noopener noreferrer">
+                    <span class="adyen-checkout__button__content">
+                        <img class="adyen-checkout__button__icon" src="https://checkoutshopper-live-us.adyen.com/checkoutshopper/images/components/download.svg" alt="" aria-hidden="true" />
+                        <span class="adyen-checkout__button__text">${Resource.msg('download', 'oxxoVoucher', null)}</span>
+                    </span>
+                </a>
+            </li>
+        </ul>
+        <ul class="adyen-checkout__voucher-result__details">
+            <li class="adyen-checkout__voucher-result__details__item">
+                <span class="adyen-checkout__voucher-result__details__label">${Resource.msg('expiry.date', 'oxxoVoucher', null)}</span>
+                <span class="adyen-checkout__voucher-result__details__value">${pdict.order.oxxoDetails.formattedExpiryDate}</span>
+            </li>
+            <li class="adyen-checkout__voucher-result__details__item">
+                <span class="adyen-checkout__voucher-result__details__label">${Resource.msg('customer.reference', 'oxxoVoucher', null)}</span>
+                <span class="adyen-checkout__voucher-result__details__value">${pdict.order.oxxoDetails.merchantReference || ''}</span>
+            </li>
+            <li class="adyen-checkout__voucher-result__details__item">
+                <span class="adyen-checkout__voucher-result__details__label">${Resource.msg('alternative.reference', 'oxxoVoucher', null)}</span>
+                <span class="adyen-checkout__voucher-result__details__value">${pdict.order.oxxoDetails.alternativeReference || ''}</span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    function copyReference(e) {
+        var reference = document.querySelector('.adyen-checkout__voucher-result__code > span').innerText;
+        var copyButton = document.querySelector('.adyen-checkout__button__content--copy');
+        navigator.clipboard.writeText(reference);
+        e.classList.add('adyen-checkout__button--completed');
+        setTimeout(() => {
+            e.classList.remove('adyen-checkout__button--completed');
+        }, 1000);
+    }
+</script>

@@ -83,7 +83,8 @@ export default class giftCardFormGeneric extends Component {
 
                         $('body').trigger('checkout:updateCheckoutView', {
                             order: response.data.order,
-                            customer: response.data.customer
+                            customer: response.data.customer,
+                            gcResults: response.gcResults ? response.gcResults : ''
                         });
                     } else {
                         $('.s-giftcard__formFields .error-info').html(response.data.message || response.data.errorMessage);

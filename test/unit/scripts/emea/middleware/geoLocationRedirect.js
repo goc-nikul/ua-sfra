@@ -113,7 +113,6 @@ describe('app_ua_emea/cartridge/scripts/middleware/geoLocationRedirect.js', () =
 
         });
         geoLocationRedirect.redirect(req, res, nextStub);
-
         getAvailableDomainsForLangStub.returns({
             'de_De': 'de_De'
 

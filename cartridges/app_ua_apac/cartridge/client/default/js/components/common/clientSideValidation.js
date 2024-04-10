@@ -72,7 +72,8 @@ function validateFields($currEle) {
             var errorParent = errorForm.parents('.form-group');
             var stickyApplyPromo = $('.b-checkout_sticky-applypromo').outerHeight();
             var checkoutHeight = headrHeight + stickyApplyPromo + 10;
-            if (errorForm.length > 0) {
+            var isSinglePageCheckout = (($('#checkout-main').length && $('#checkout-main').hasClass('single-page-checkout')));
+            if (errorForm.length > 0 && !isSinglePageCheckout) {
                 if (isGCForm && $('.b-payment-info').length) {
                     $('html, body').animate({
                         scrollTop: $('.b-payment-info .b-shipping-summary_header-line').position().top
@@ -107,7 +108,7 @@ function validateZipCode($form) {
     var $countryField;
     var $countrySelected;
     var $regexPattern;
-    var $errorMsg = $('.zipCodeValidation').data('postalcode-err');
+    var $errorMsg = $('.zipCodeValidation').data('postalcode-err') || $('#zipCode').data('pattern-mismatch');
     if ($form === 'dwfrm_billing') {
         $formName = $('form[name =' + $form + ']');
         $zipCodeField = $formName.find('input#billingZipCode')[0];
@@ -202,7 +203,7 @@ function validateMinimumAgeRestriction($form) {
  * Method to validate zip code on blur.
  */
 function onBlurZipCode() {
-    $(document).on('blur', 'form#dwfrm_billing input#billingZipCode, form#dwfrm_internationalAddress input#zipCode', function () {
+    $(document).on('blur', 'form#dwfrm_billing input#billingZipCode, form#dwfrm_internationalAddress input.zipCodeValidation', function () {
         var $form = $(this).parents('form').attr('name');
         validateZipCode($form);
     });

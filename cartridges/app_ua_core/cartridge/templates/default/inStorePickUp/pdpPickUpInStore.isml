@@ -1,36 +1,169 @@
 <isinclude template="/components/modules" sf-toolkit="off" />
-<isset name="store" value="${pdict.pickUpInStore.selectedStore}" scope="page"/>
-<div class="b-store-choose-link bfx-remove-element js-instorepickup" data-modal-close-text="${Resource.msg('label.modal.close.text','instorePickup',null)}">
+<isset name="store" value="${pdict.pickUpInStore.selectedStore}" scope="page" />
+<isset name="pickProductAvailabile" value="${null}" scope="page" />
+
+<div class="b-store-choose-link">
     <isif condition="${pdict.pickUpInStore.enabled}">
-        <span class="b-store-choose-content">
-            <div class="b-store-choose-content-top">
-               <img src="${URLUtils.staticURL('/images/store.svg')}" alt="${Resource.msg('button.choose.store', 'storeLocator', null)}" title="${Resource.msg('title.hero.choosestore', 'storeLocator', null)}">
-               <div class="b-store-choose-content-left">
-                   <span class="b-store-heading">${Resource.msg('label.item.pdp.heading','product',null)}</span>
-                   <div class="b-store-selected-content">
-                       <isif condition="${pdict.pickUpInStore.productAvailability}">
-                           <isif condition="${pdict.pickUpInStore.productAvailability === Resource.msg('store.variant.unavailable', 'storeLocator', null)}">
-                               <span class="b-store-status unavailable">${Resource.msg('store.product.currently.unavailable','storeLocator',null)}</span>
-                           <iselse>
-                               <span class="b-store-status"><isprint value="${pdict.pickUpInStore.productAvailability.split(' ')[2]}" /></span>
-                           </isif> ${Resource.msg('store.product.at','storeLocator',null)}
-                       </isif>
-                    <isif condition="${pdict.pickUpInStore.quickViewEnable == 'true'}">
-                        <div class="b-choose-store"> ${store && store.name}</div>
-                    <iselse>
-                        <a href="${pdict.pickUpInStore.actionUrl}" class="btn btn-block change-store btn-outline-primary" data-postal="${pdict.pickUpInStore.searchPostalCode}" data-radius="${pdict.pickUpInStore.searchRadius}" data-store-id="${store && store.ID}" data-action-url="${pdict.pickUpInStore.actionUrl}" data-ats-action-url="${pdict.pickUpInStore ? pdict.pickUpInStore.atsActionUrl : ''}" type="submit">
-                           <div class="b-choose-store"> ${store && store.name}</div>
-                       </a>
-                    </isif>
-                       
-                   </div>
-               </div>
-           </div>
-       </span>
+        <div class="shipping-head-outer b-choose-ship-pickup">
+
+            <isset name="shipProductAvailabile" value="${pdict.pickUpInStore.productAvailabile}" scope="page" />
+
+            <isif condition="${pdict.pickUpInStore.productAvailability}">
+                <isif
+                    condition="${pdict.pickUpInStore.productAvailability === Resource.msg('store.variant.unavailable', 'storeLocator', null)}">
+                    <isset name="pickProductAvailabile" value="${false}" scope="page" />
+                <iselse/>
+                    <isset name="pickProductAvailabile" value="${true}" scope="page" />
+                </isif>
+            </isif>
+
+            <isif condition="${pickProductAvailabile && shipProductAvailabile}">
+                <isset name="shipAvail" value="${false}" scope="page" />
+                <isset name="pickupAvail" value="${true}" scope="page" />
+            <iselseif condition="${pickProductAvailabile && !shipProductAvailabile}" />
+                <isset name="shipAvail" value="${false}" scope="page" />
+                <isset name="pickupAvail" value="${true}" scope="page" />
+            <iselseif condition="${!pickProductAvailabile && !shipProductAvailabile}" />
+                <isset name="shipAvail" value="${true}" scope="page" />
+                <isset name="pickupAvail" value="${false}" scope="page" />
+            <iselseif condition="${!pickProductAvailabile && shipProductAvailabile}" />
+                <isset name="shipAvail" value="${true}" scope="page" />
+                <isset name="pickupAvail" value="${false}" scope="page" />
+            <iselse/>
+                <isset name="shipAvail" value="${true}" scope="page" />
+                <isset name="pickupAvail" value="${false}" scope="page" />
+            </isif>
+
+            <ul class="b-shipping-head-inner">
+                <li class="b-ship-pickup-option b-ship-avail js-ship-pick-check selected"
+                    data-availability="${shipProductAvailabile}" data-pid="${pdict.pickUpInStore.productId}"
+                    data-delivery="onlineship">
+                    <div class="b-select-ship-online">
+                        <isif condition="${shipProductAvailabile}">
+                            <img src="${URLUtils.staticURL('/images/truck-instock.svg')}"
+                                alt="${Resource.msg('button.choose.ship.instock', 'storeLocator', null)}"
+                                title="${Resource.msg('button.choose.ship.instock', 'storeLocator', null)}"
+                                class="b-select-ship-img" />
+                        <iselse/>
+                            <img src="${URLUtils.staticURL('/images/truck-outofstock.svg')}"
+                                alt="${Resource.msg('button.choose.ship.outofstock', 'storeLocator', null)}"
+                                title="${Resource.msg('button.choose.ship.outofstock', 'storeLocator', null)}"
+                                class="b-select-ship-img" />
+                        </isif>
+
+                        <div class="b-select-ship-online-content b-store-choose-content-sth">
+                            <div class="b-select-ship-online-heading b-stock-store-heading">
+                                ${Resource.msg('button.choose.ship', 'storeLocator', null)}</div>
+                            <div class="b-select-ship-online-store">
+                                <isif condition="${shipProductAvailabile}">
+                                    ${Resource.msg('button.choose.ship.instock', 'storeLocator', null)}
+                                <iselse/>
+                                    ${Resource.msg('button.choose.ship.outofstock', 'storeLocator', null)}
+                                </isif>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="b-ship-pickup-option b-ship-pick js-ship-pick-check disabled ${!store || store.productInStoreInventory ? '' : 'notselectable'}"
+                    data-availability="${pickProductAvailabile}" data-pid="${pdict.pickUpInStore.productId}"
+                    data-delivery="storepickup">
+                    <div class="b-select-ship-online">
+
+                        <isif condition="${pickProductAvailabile}">
+                            <iscomment> Pickup Instock</iscomment>
+                            <img src="${URLUtils.staticURL('/images/pickup-instock.svg')}"
+                                alt="${Resource.msg('button.choose.store.instock', 'storeLocator', null)}"
+                                title="${Resource.msg('button.choose.store.instock', 'storeLocator', null)}"
+                                class="b-select-shippick-img" />
+                            <div class="b-select-ship-online-content b-store-choose-content-sth">
+                                <div class="b-select-ship-online-heading b-stock-store-heading">
+                                    ${Resource.msg('button.choose.store.pickup', 'storeLocator', null)}</div>
+                                <div class="b-select-ship-online-store">
+                                    ${Resource.msg('button.choose.store.instock', 'storeLocator', null)}
+                                </div>
+                            </div>
+                        <iselseif condition="${!pickProductAvailabile}" />
+                            <iscomment> Pickup Out of Stock</iscomment>
+                            <img src="${URLUtils.staticURL('/images/pickup-outofstock.svg')}"
+                                alt="${Resource.msg('button.choose.store.outofstock', 'storeLocator', null)}"
+                                title="${Resource.msg('button.choose.store.outofstock', 'storeLocator', null)}"
+                                class="b-select-shippick-img" />
+                            <div class="b-select-ship-online-content b-store-choose-content-sth">
+                                <div class="b-select-ship-online-heading b-stock-store-heading">
+                                    ${Resource.msg('button.choose.store.pickup', 'storeLocator', null)}</div>
+                                <div class="b-select-ship-online-store">
+                                    ${Resource.msg('button.choose.store.outofstock', 'storeLocator', null)}
+                                </div>
+                            </div>
+                        <iselse/>
+                            <iscomment> Pickup Select A Store</iscomment>
+                            <img src="${URLUtils.staticURL('/images/pickup-instock.svg')}"
+                                alt="${Resource.msg('button.choose.store', 'storeLocator', null)}"
+                                title="${Resource.msg('button.choose.store', 'storeLocator', null)}"
+                                class="b-select-shippick-img" />
+                            <div class="b-select-ship-online-content b-store-choose-content-sth">
+                                <div class="b-select-ship-online-heading b-stock-store-heading">
+                                    ${Resource.msg('button.choose.store.pickup', 'storeLocator', null)}</div>
+                                <a href="${pdict.pickUpInStore.actionUrl}"
+                                    class="btn btn-block btn-get-in-store-inventory btn-outline-primary"
+                                    data-action-url="${pdict.pickUpInStore.actionUrl}"
+                                    data-ats-action-url="${pdict.pickUpInStore ? pdict.pickUpInStore.atsActionUrl : ''}">
+                                    <div class="b-select-ship-online-store">
+                                        ${Resource.msg('button.choose.store', 'storeLocator', null)}
+                                    </div>
+                                </a>
+                            </div>
+                        </isif>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </isif>
-</div>
+    <div class="b-store-choose-link bfx-remove-element js-instorepickup"
+        data-modal-close-text="${Resource.msg('label.modal.close.text', 'instorePickup', null)}">
+        <isif condition="${pdict.pickUpInStore.enabled}">
+            <span class="b-store-choose-content">
 
-<div class="b-replace-choose-store hide">
-    <isinclude template="inStorePickUp/pdpChoosePickUpInStore"/>
-</div>
+                <div class="b-store-choose-content-top">
+                    <img src="${URLUtils.staticURL('/images/store.svg')}"
+                        alt="${Resource.msg('button.choose.store', 'storeLocator', null)}"
+                        title="${Resource.msg('title.hero.choosestore', 'storeLocator', null)}" />
+                    <div class="b-store-choose-content-left">
+                        <span class="b-store-heading">${Resource.msg('label.item.pdp.heading', 'product', null)}</span>
+                        <isif condition="${pdict.pickUpInStore.productAvailability}">
+                            <isif
+                                condition="${pdict.pickUpInStore.productAvailability === Resource.msg('store.variant.unavailable', 'storeLocator', null)}">
+                                <span
+                                    class="b-store-status unavailable">${Resource.msg('button.choose.store.outofstock', 'storeLocator', null)}</span>
+                            <iselse/>
+                                <span class="b-store-status">
+                                    <isprint value="${pdict.pickUpInStore.productAvailability.split(' ')[2]}" />
+                                </span>
+                            </isif>
+                        </isif>
+                        <div class="b-store-selected-content">
+                            <isif condition="${pdict.pickUpInStore.productAvailability}">
+                                ${Resource.msg('store.product.at', 'storeLocator', null)}
+                            </isif>
+                            <isif condition="${pdict.pickUpInStore.quickViewEnable == 'true'}">
+                                <div class="b-choose-store"> ${store && store.name}</div>
+                            <iselse/>
+                                <a href="${pdict.pickUpInStore.actionUrl}"
+                                    class="btn btn-block change-store btn-outline-primary"
+                                    data-postal="${pdict.pickUpInStore.searchPostalCode}"
+                                    data-radius="${pdict.pickUpInStore.searchRadius}"
+                                    data-store-id="${store && store.ID}"
+                                    data-action-url="${pdict.pickUpInStore.actionUrl}"
+                                    data-ats-action-url="${pdict.pickUpInStore ? pdict.pickUpInStore.atsActionUrl : ''}"
+                                    data-delivery-type="${shipAvail ? 'onlineship' : 'storepickup'}" type="submit">
+                                    <div class="b-choose-store"> ${store && store.name}</div>
+                                </a>
+                            </isif>
 
+                        </div>
+                    </div>
+                </div>
+            </span>
+        </isif>
+    </div>
+</div>

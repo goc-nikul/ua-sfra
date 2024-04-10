@@ -1,3 +1,22 @@
+.registration {
+    input:read-only {
+        color: rgb(170, 170, 170);
+        border: 1px solid #d0d0d0;
+    }
+
+    select:disabled {
+        color: rgb(170, 170, 170);
+    }
+
+    label[for='registration-form-phoneMobile1'] {
+        z-index: 4;
+    }
+
+    .b-phone-select:disabled:hover {
+        border-color: rgb(170, 170, 170);
+    }
+}
+
 .b-account_form-row-email {
     .b-account_form-column {
         margin-right: 0;
@@ -84,6 +103,27 @@
         content: '';
         height: rem-calc(2);
         width: rem-calc(7);
+    }
+}
+
+.mobile-update-btn {
+    &.desktop-only {
+        display: block;
+        padding-left: rem-calc(25);
+
+        @include respond-to(phones) {
+            display: none;
+        }
+    }
+
+    &.mobile-only {
+        display: none;
+
+        @include respond-to(phones) {
+            display: flex;
+            padding-bottom: rem-calc(16);
+            justify-content: flex-end;
+        }
     }
 }
 
@@ -225,7 +265,8 @@
 }
 
 .b-return-wrap,
-.edit-profile-form {
+.edit-profile-form,
+.delete-account-login-form {
     .drop-down-arrow {
         @include icon('caret-down', 'before', 16, rem-calc(16));
 
@@ -256,6 +297,10 @@
     .change-pass-kr {
         display: flex;
         justify-content: center;
+    }
+
+    .readonly {
+        opacity: 0.5;
     }
 }
 
@@ -489,4 +534,54 @@
             }
         }
     }
+}
+
+.b-account-delete {
+    margin-bottom: rem-calc(40);
+    padding: 0 5%;
+
+    .deleting-account-withdrawal-content {
+        margin-bottom: rem-calc(40);
+    }
+
+    .delete-account-login-form {
+        .delete-form-email {
+            color: $grey3;
+
+            &:focus,
+            &:hover {
+                border-color: $grey3;
+            }
+        }
+
+        .js-show-password {
+            top: 0;
+            right: 0;
+            padding: 0.75rem 0.625rem;
+            background-color: $white;
+            background-clip: content-box;
+        }
+
+        .delete-account-password-disc {
+            -webkit-text-security: disc;
+        }
+
+        .naverBtn {
+            display: block;
+            width: fit-content;
+        }
+    }
+
+    .success-content-align {
+        display: table;
+        margin: 0 auto;
+
+        .t-align-center {
+            text-align: center;
+        }
+    }
+}
+
+.topMargin {
+    margin-top: rem-calc(40);
 }
